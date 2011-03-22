@@ -1,0 +1,23 @@
+{
+        "scope": "text.tex.latex",
+
+        "completions":
+        [
+                { "trigger": "it", "contents": "\\textit{$1}$0"},
+                { "trigger": "bf", "contents": "\\textbf{$1}$0"},
+                { "trigger": "em", "contents": "\\emph{$1}$0"},
+                { "trigger": "tt", "contents": "\\texttt{$1}$0"},
+                { "trigger": "un", "contents": "\\underline{$1}$0"},
+
+                { "trigger": "bs", "contents": "\\bigskip"},
+                { "trigger": "ms", "contents": "\\medskip"},
+                { "trigger": "ss", "contents": "\\smallskip"},
+
+                { "trigger": "use", "contents": "\\usepackage"},
+
+                { "trigger": "bit", "contents": "\\begin{itemize}\n\t\\item $1 \n\\end{itemize}\n"},
+                { "trigger": "ben", "contents": "\\begin{enumerate}\n\t\\item $1 \n\\end{enumerate}\n"},
+                { "trigger": "i", "contents": "\\item "}
+
+        ]
+}

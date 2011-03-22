@@ -1,0 +1,67 @@
+/*
+LaTeX Package keymap for OSX
+*/
+[
+	// subsumed by build configuration
+	// { "keys": ["ctrl+alt+t"], "command": "texify" },
+	// not yet active
+	// { "keys": ["ctrl+alt+s"], "command": "tex_sections" },
+	/* why not use TextMate's keybindings? 
+	   we only clobber next-tab and previous-tab, whihc are also bound
+	   to arrow keys */
+	{ "keys": ["alt+shift+right_bracket"], "command": "latexcmd"},
+	{ "keys": ["alt+shift+left_bracket"], "command": "latexenv"},
+	{ "keys": ["alt+shift+period"], "command": "latex_env_closer"}, 
+	/* can't use forward slash or period; also, why not CMD? */
+	// subsumed by tab completion
+	// { "keys": ["super+alt+forward_slash"], "command": "tex_macro"},
+	/* alternatives: the second is reminiscent of super+B for build */
+	{ "keys": ["ctrl+alt+v"], "command": "view_pdf"},
+	// subsumed by ref<TAB> and completion API
+	// { "keys": ["ctrl+alt+r"], "command": "tex_ref"},
+	{ "keys": ["alt+shift+j"], "command": "jump_to_pdf"},
+	{ "keys": ["super+shift+b"], "command": "view_pdf"},
+
+		// Auto-pair ``$''
+		// Lifted from default file
+	// insert matching $
+	// note the "key": "selector" line!
+	{ "keys": ["$"], "command": "insert_snippet", "args": {"contents": "\\$$0\\$"}, 
+	"context":  
+		[
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
+			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
+			/*{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\t| |\\)|])", "match_all": true },*/
+			{ "key": "preceding_text", "operator": "not_regex_contains", "operand": "[\"a-zA-Z0-9_]$", "match_all": true },
+			{ "key": "eol_selector", "operator": "not_equal", "operand": "string.quoted.double", "match_all": true }
+		] 
+	},
+	// wrap in $
+	{ "keys": ["$"], "command": "insert_snippet", "args": {"contents": "\\$${0:$SELECTION}\\$"}, "context":
+		[
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
+			{ "key": "selection_empty", "operator": "equal", "operand": false, "match_all": true }
+		]
+	},
+	// move over closing $
+	{ "keys": ["$"], "command": "move", "args": {"by": "characters", "forward": true}, "context":
+		[	
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
+			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\$", "match_all": true }
+		]
+	},
+	// delete $ pair
+	{ "keys": ["backspace"], "command": "run_macro_file", "args": {"file": "Packages/Default/Delete Left Right.sublime-macro"}, "context":
+		[
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
+			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\$$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\$", "match_all": true }
+		]
+	}
+]
