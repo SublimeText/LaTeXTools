@@ -50,7 +50,8 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         #print line
 
         # Check the first location looks like a ref, but backward
-        rex = re.compile("([^_]*_)?(.*)etic")
+        # NOTE: use lazy match for the fancy cite part!!!
+        rex = re.compile("([^_]*_)?(.*?)etic")
         expr = match(rex, line)
         print expr
         if not expr:
