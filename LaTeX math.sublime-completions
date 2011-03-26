@@ -8,7 +8,8 @@
                 { "trigger": "g", "contents": "\\gamma" },
                 { "trigger": "d", "contents": "\\delta" },
 		{ "trigger": "e", "contents": "\\epsilon" },
-		{ "trigger": "epsilon", "contents": "varepsilon" }, /* toggle the two! */
+		{ "trigger": "epsilon", "contents": "varepsilon" }, 
+                /* toggle the two! */
 		{ "trigger": "varepsilon", "contents": "epsilon" },
 		{ "trigger": "z", "contents": "\\zeta"},
 		{ "trigger": "h", "contents": "\\eta" },
@@ -35,7 +36,7 @@
                 { "trigger": "v", "contents": "\\digamma"},
                 { "trigger": "G", "contents": "\\Gamma" },
                 { "trigger": "D", "contents": "\\Delta" },
-				{ "trigger": "Q", "contents": "\\Theta" },
+		{ "trigger": "Q", "contents": "\\Theta" },
                 { "trigger": "L", "contents": "\\Lambda" },
                 { "trigger": "X", "contents": "\\Xi" },
                 { "trigger": "P", "contents": "\\Pi" },
@@ -96,7 +97,7 @@
 		{ "trigger": "Lr", "contents": "\\Leftrightarrow"},
 		{ "trigger": "iff", "contents": "\\Leftrightarrow"},
 		{ "trigger": "Leftrightarrow", "contents": "Longleftrightarrow"},
-		{ "trigger": "Longleftrightarrow", "contents": "rightarrow"}, 
+		{ "trigger": "Longleftrightarrow", "contents": "Leftrightarrow"}, 
                 { "trigger": "up", "contents": "\\uparrow"},
 		{ "trigger": "do", "contents": "\\downarrow"},
 
