@@ -26,7 +26,8 @@ class TexCiteCommand(sublimeplugin.TextCommand):
 		if bibfname[-4:] != ".bib":
 			bibfname = bibfname + ".bib"
 		texfiledir = os.path.dirname(view.fileName())
-		bibfname = os.path.normpath(texfiledir + os.path.sep + bibfname)
+		# Fix from Tobias Schmidt to allow for absolute paths
+		bibfname = os.path.normpath(os.path.join(texfiledir, bibfname))
 		print bibfname 
 		try:
 			bibf = open(bibfname)

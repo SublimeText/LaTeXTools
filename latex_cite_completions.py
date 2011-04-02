@@ -112,7 +112,8 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
             if bibfname[-4:] != ".bib":
                 bibfname = bibfname + ".bib"
             texfiledir = os.path.dirname(view.file_name())
-            bibfname = os.path.normpath(texfiledir + os.path.sep + bibfname)
+            # fix from Tobias Schmidt to allow for absolute paths
+            bibfname = os.path.normpath(os.path.join(texfiledir, bibfname))
             print bibfname 
             try:
                 bibf = open(bibfname)
