@@ -138,5 +138,28 @@ LaTeX Package keymap for OSX
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
 		]
+	},
+
+
+	// shift+super+{up,down} for super/subscripts with braces
+	// (courtesy of Tobias Schmidt; I only changed the keybindings)
+	{ "keys": ["shift+super+down"], "command": "insert_snippet", "args": {"contents": "_{$1}$0"}, 
+	"context":  
+		[
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex string.other.math"},
+			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
+			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
+		]
+	},
+
+	{ "keys": ["shift+super+up"], "command": "insert_snippet", "args": {"contents": "^{$1}$0"}, 
+	"context":  
+		[
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex string.other.math"},
+			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
+			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
+		]
 	}
+
+
 ]
