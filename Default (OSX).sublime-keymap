@@ -59,5 +59,53 @@ LaTeX Package keymap for OSX
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\$$", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\$", "match_all": true }
 		]
+	},
+
+	// overlay specifications (Tobias Schmidt)
+	// FIXME: the scope for the four following should actually be text.tex.latex.beamer, but for some reason this does not seem to work
+	{ "keys": ["<"], "command": "insert_snippet", "args": {"contents": "<${1:+-}>$0"}, 
+	"context":  
+		[
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
+			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\item|only|textbf|color|onslide|only|uncover|visible|invisible|alt|temporal$", "match_all": true }
+		]
+	},
+	// wrap in <>
+	{ "keys": ["<"], "command": "insert_snippet", "args": {"contents": "<${0:$SELECTION}>"}, "context":
+		[
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
+			{ "key": "selection_empty", "operator": "equal", "operand": false, "match_all": true }
+		]
+	},
+	// move over closing >
+	{ "keys": [">"], "command": "move", "args": {"by": "characters", "forward": true}, "context":
+		[	
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
+			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^>", "match_all": true }
+		]
+	},
+	// delete <> pair
+	{ "keys": ["backspace"], "command": "run_macro_file", "args": {"file": "Packages/Default/Delete Left Right.sublime-macro"}, "context":
+		[
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "<$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^>", "match_all": true }
+		]
+	},
+
+	// automatic addition of new \items when hitting Shift+Enter in a list environment
+ 	{ "keys": ["shift+enter"], "command": "insert_snippet", "args": {"contents": "\n\\item $0"}, 
+ 	"context":  
+	 	[
+			{"key": "selector", "operator": "equal", "operand": "meta.function.environment.list.latex"},
+			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
+			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
+		]
 	}
 ]
