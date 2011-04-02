@@ -112,7 +112,9 @@
                 { "trigger": "lp", "contents": "\\left( $1 \\right) $0"},
                 { "trigger": "lb", "contents": "\\left[ $1 \\right] $0"},
                 { "trigger": "lbr", "contents": "\\left\\\\{ $0 \\right\\\\}"},
-                { "trigger": "fr", "contents": "\\frac"}
+                { "trigger": "fr", "contents": "\\frac"},
+                { "trigger": "fra", "contents": "\\frac{$1}{$2}$0"},
+                { "trigger": "stack", "contents": "\\stackrel{$1}{$2}$0"}
 
         ]
 }
