@@ -136,8 +136,11 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
 
         print completions
 
+        print type(prefix)
+        print
+
         if prefix:
-            completions = [comp for comp in completions if prefix in "%s %s" % comp]
+            completions = [comp for comp in completions if prefix.lower() in "%s %s" % (comp[0].lower(),comp[1].lower())]
 
         # popup is 40chars wide...
         t_end = 40 - len(expr)
