@@ -111,7 +111,7 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         # then spaces and finally the title
         # We capture till the end of the line as maybe entry is broken over several lines
         # and in the end we MAY but need not have }'s and "s
-        tp = re.compile(r'\btitle\s*=\s*(?:\{+|")\s*(.+)[\},]*', re.IGNORECASE)  # note no comma!
+        tp = re.compile(r'\btitle\s*=\s*(?:\{+|")\s*([^,\}]+)[\},]*', re.IGNORECASE)  # note no comma!
         kp2 = re.compile(r'([^\t]+)\t*')
 
         for bibfname in bib_files:
