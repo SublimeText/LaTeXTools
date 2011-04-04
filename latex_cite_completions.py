@@ -86,6 +86,7 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         if not bib_files:
             print "Error!"
             return []
+        bib_files = ([x.strip() for x in bib_files])
         
         print "Files:"
         print bib_files
