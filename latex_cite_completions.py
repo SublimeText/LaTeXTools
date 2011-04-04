@@ -135,10 +135,7 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         #### END COMPLETIONS HERE ####
 
         print completions
-
-        print type(prefix)
-        print
-
+        
         if prefix:
             completions = [comp for comp in completions if prefix.lower() in "%s %s" % (comp[0].lower(),comp[1].lower())]
 
