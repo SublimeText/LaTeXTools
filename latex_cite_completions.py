@@ -76,16 +76,22 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
 
         #### GET COMPLETIONS HERE #####
 
-        # For now we only get completions from ONE bibtex file
-        # note improved regex: matching fails with , or }, so no need to be
-        # explicit and add it after []+
-        bibcmd = view.substr(view.find(r'\\bibliography\{([^,\}]+)',0))
-        print bibcmd
-        bib_command = view.substr(view.find(r'\\bibliography\{[^\}]+',0))
-        bib_files = re.search(r'\{([^\}]+)', bib_command).group(1).split(',')
-        if not bib_files:
-            print "Error!"
+        # First, get the line with the first \bibliography command that
+        # isn't commented out from ST
+        bib_command = view.substr(view.find(r'^[^%]*\\bibliography\{([^\}]+)\}',0))
+        print bib_command
+        # get the contents of the command
+        bib_files_match = re.search(r'\\bibliography\{([^\}]+)\}', bib_command)
+        if not bib_files_match:
+            print "Error! Probably no valid \\bibliography command found"
             return []
+        bib_files_string = bib_files_match.group(1)
+        # split the contents of the command and trim any superfluous
+        # whitespace (this could all be done by changing the RegEx above
+        # to something more elaborate, but would also make it slower)
+        bib_files = bib_files_string.split(',')
+        bib_files = ([x.strip() for x in bib_files])
+            
         
         print "Files:"
         print bib_files
