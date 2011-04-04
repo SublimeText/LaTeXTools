@@ -81,7 +81,7 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         # explicit and add it after []+
         bibcmd = view.substr(view.find(r'\\bibliography\{([^,\}]+)',0))
         print bibcmd
-        bib_command = view.substr(view.find(r'\\bibliography\{[^\}]+',0))
+        bib_command = view.substr(view.find(r'^[^%]*\\bibliography\{[^\}]+',0))
         bib_files = re.search(r'\{([^\}]+)', bib_command).group(1).split(',')
         if not bib_files:
             print "Error!"
