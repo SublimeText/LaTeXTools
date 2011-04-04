@@ -1,0 +1,8 @@
+<snippet>
+    <content><![CDATA[\\begin{beamerboxesrounded}[${1:shadow=true}]{$2}
+$0
+\\end{beamerboxesrounded}]]></content>
+    <tabTrigger>box</tabTrigger>
+    <scope>text.tex.latex</scope>
+    <description>Beamer boxes</description>
+</snippet>

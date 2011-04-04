@@ -1,0 +1,10 @@
+<snippet>
+    <content><![CDATA[\\begin{frame}[${1:t}]\\frametitle{${2:title}}
+    
+$0
+
+\\end{frame}]]></content>
+    <tabTrigger>frame</tabTrigger>
+    <scope>text.tex.latex</scope>
+    <description>Beamer frame</description>
+</snippet>
