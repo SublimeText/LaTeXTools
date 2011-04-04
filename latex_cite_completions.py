@@ -76,8 +76,8 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
 
         #### GET COMPLETIONS HERE #####
 
-        # For now we only get completions from ONE bibtex file
-        # note improved regex: matching fails with , or }, so no need to be
+        # Allow for multiple bib files; remove whitespace in names
+        # Note improved regex: matching fails with , or }, so no need to be
         # explicit and add it after []+
         bibcmd = view.substr(view.find(r'\\bibliography\{([^,\}]+)',0))
         print bibcmd
@@ -106,7 +106,7 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         # then spaces and finally the title
         # We capture till the end of the line as maybe entry is broken over several lines
         # and in the end we MAY but need not have }'s and "s
-        tp = re.compile(r'\btitle\s*=\s*(?:\{+|")\s*([^,\}]+)[\},]*', re.IGNORECASE)  # note no comma!
+        tp = re.compile(r'\btitle\s*=\s*(?:\{+|")\s*(.+)', re.IGNORECASE)  # note no comma!
         kp2 = re.compile(r'([^\t]+)\t*')
 
         for bibfname in bib_files:
@@ -130,6 +130,9 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
             titles = [tp.search(line).group(1).decode('ascii','ignore') for line in bib if tp.search(line)]
             if len(keywords) != len(titles):
                 print "Bibliography " + bibfname + " is broken!"
+            # Filter out }'s and ,'s at the end. Ugly!
+            nobraces = re.compile(r'\s*,*\}*(.+)')
+            titles = [nobraces.search(t[::-1]).group(1)[::-1] for t in titles]
             completions += zip(keywords, titles)
 
 
