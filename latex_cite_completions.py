@@ -79,9 +79,22 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         # Allow for multiple bib files; remove whitespace in names
         # Note improved regex: matching fails with , or }, so no need to be
         # explicit and add it after []+
-        bibcmd = view.substr(view.find(r'\\bibliography\{([^,\}]+)',0))
-        print bibcmd
-        bib_command = view.substr(view.find(r'^[^%]*\\bibliography\{[^\}]+',0))
+        bib_regions = view.find_all(r'\\bibliography\{[^\}]+')
+        # The \bibliography command may be commented out: find this out
+        # We check every match until we find the first command that is not
+        # commented out
+        bib_found = False
+        for bib_region in bib_regions:
+            bib_line = view.line(bib_region)
+            bib_command = view.substr(bib_line).strip()
+            if bib_command[0] == '\\':
+                print bib_command
+                bib_found = True
+                break
+        if not bib_found:
+            sublime.error_message("Cannot find \\bibliography{} command!")
+            return []
+
         bib_files = re.search(r'\{([^\}]+)', bib_command).group(1).split(',')
         if not bib_files:
             print "Error!"
