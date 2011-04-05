@@ -71,6 +71,14 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
 
         # Reverse back expr
         expr = expr[::-1]
+        
+        # Replace cite expression with "C" to save space in drop-down menu
+        expr_region = sublime.Region(l-len(expr),l)
+        #print expr, view.substr(expr_region)
+        ed = view.begin_edit()
+        view.replace(ed, expr_region, "C")
+        view.end_edit(ed)
+        expr = "C"
 
         completions = ["TEST"]
 

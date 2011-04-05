@@ -62,6 +62,15 @@ class LatexRefCompletions(sublime_plugin.EventListener):
         # Reverse back expr
         expr = expr[::-1]
 
+        # Replace ref expression with "C" to save space in drop-down menu
+        expr_region = sublime.Region(l-len(expr),l)
+        #print expr, view.substr(expr_region)
+        ed = view.begin_edit()
+        view.replace(ed, expr_region, "R")
+        view.end_edit(ed)
+        expr = "R"
+
+
         completions = []
         view.find_all('\\label\{([^\{]*)\}',0,'\\1',completions)
 
@@ -78,6 +87,6 @@ class LatexRefCompletions(sublime_plugin.EventListener):
             pre_snippet = "\\ref{"
             post_snippet = "}"
 
-        r = [(expr + " -> "+label, pre_snippet + label + post_snippet) for label in completions]
+        r = [(expr + " "+label, pre_snippet + label + post_snippet) for label in completions]
         #print r
         return r
