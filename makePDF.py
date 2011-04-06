@@ -1,5 +1,6 @@
 import sublime, sublime_plugin, os, os.path, platform, threading, functools, ctypes
 from subprocess import Popen, PIPE, STDOUT
+import types
 
 DEBUG = False
 
@@ -26,23 +27,21 @@ class CmdThread ( threading.Thread ):
 
 	# Use __init__ to pass things we need
 	# in particular, we pass the caller in teh main thread, so we can display stuff!
-	def __init__ (self, make_cmd, file_name, file_base, caller):
-		self.make_cmd = make_cmd
-		self.file_name = file_name
-		self.file_base = file_base
+	def __init__ (self, caller):
 		self.caller = caller
 		threading.Thread.__init__ ( self )
 
 	def run ( self ):
 		print "Welcome to the thread!"
-		cmd = self.make_cmd + [self.file_name]
-		self.caller.output("[Compiling " + self.file_name + "]\n\n")
+		cmd = self.caller.make_cmd + [self.caller.file_name]
+		self.caller.output("[Compiling " + self.caller.file_name + "]\n\n")
 		if DEBUG:
 			print cmd
 		out, err = Popen(cmd, stdout=PIPE, stderr=STDOUT).communicate()
 		if DEBUG:
 			self.caller.output(out)
-		data = open(self.file_base + ".log", 'rb').read()
+		data = open(self.caller.tex_base + ".log", 'rb') \
+				.read().decode(self.caller.encoding).splitlines()
 		self.caller.output(data)
 		self.caller.output("\n\n[Done!]\n")
 
@@ -52,10 +51,10 @@ class CmdThread ( threading.Thread ):
 class make_pdfCommand(sublime_plugin.WindowCommand):
 	def run(self):
 		view = self.window.active_view()
-		file_name = view.file_name()
-		tex_base, tex_ext = os.path.splitext(file_name)
+		self.file_name = view.file_name()
+		self.tex_base, self.tex_ext = os.path.splitext(self.file_name)
 		# On OSX, change to file directory, or latexmk will spew stuff into root!
-		tex_dir = os.path.dirname(file_name)
+		tex_dir = os.path.dirname(self.file_name)
 		
 		# Output panel: from exec.py
 		if not hasattr(self, 'output_view'):
@@ -71,30 +70,31 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			print "saving..."
 			view.run_command('save') # call this on view, not self.window
 		
-		if tex_ext.upper() != ".TEX":
+		if self.tex_ext.upper() != ".TEX":
 			sublime.error_message("%s is not a TeX source file: cannot compile." % (os.path.basename(view.fileName()),))
 			return
 		
 		s = platform.system()
 		if s == "Darwin":
 			# use latexmk
-			make_cmd = ["latexmk", 
-						"-e", "$pdflatex = 'pdflatex %O -file-line-error -max-print-line=200 -synctex=1 %S'",
+			self.make_cmd = ["latexmk", 
+						"-e", "$pdflatex = 'pdflatex %O -synctex=1 %S'",
 						"-pdf",]
 			self.encoding = "UTF-8"
 		elif s == "Windows":
-			make_cmd = ["texify", "-b", "-p",
+			self.make_cmd = ["texify", "-b", "-p",
 			"--tex-option=\"--synctex=1\"", 
-			"--tex-option=\"--max-print-line=200\"", 
-			"--tex-option=\"-file-line-error\""]
+			#"--tex-option=\"--max-print-line=200\"", 
+			#"--tex-option=\"-file-line-error\""
+			]
 			self.encoding = getOEMCP()
 		else:
 			sublime.error_message("Platform as yet unsupported. Sorry!")
 			return	
-		print make_cmd + [file_name]
+		print self.make_cmd + [self.file_name]
 		
 		os.chdir(tex_dir)
-		CmdThread(make_cmd, file_name, tex_base, self).start()
+		CmdThread(self).start()
 
 
 	# Threading headaches :-)
@@ -112,11 +112,15 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
         #         proc.kill()
         #     return
 
-		try:
-		    str = data.decode(self.encoding)
-		except:
-		    str = "[Decode error - output not " + self.encoding + "]"
-		    proc = None
+		# try:
+		#     str = data.decode(self.encoding)
+		# except:
+		#     str = "[Decode error - output not " + self.encoding + "]"
+		#     proc = None
+
+		# decoding in thread, so we can pass coded and decoded data
+		# handle both lists and strings
+		str = data if isinstance(data, types.StringTypes) else "\n".join(data)
 
 		# Normalize newlines, Sublime Text always uses a single \n separator
 		# in memory.
