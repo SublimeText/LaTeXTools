@@ -20,6 +20,50 @@ def getOEMCP():
     return str(codepage)
 
 
+# Log parsing, from ST1 LaTeX plugin
+# Input: tex log file (decoded), split into lines
+# Output: content to be displayed in quick panel, split into lines
+# 
+# We do very simple matching:
+#    "!" denotes an error, so we catch it
+#    "Warning:" catches LaTeX warnings, as well as missing citations, and more
+
+def parseTeXlog(log):
+	print "Parsing log file"
+	errors = []
+	warnings = []
+	errors = [line for line in log if line[0:2] in ['! ','l.']]
+	warnings = [line for line in log if "Warning: " in line]
+	output = []
+	if errors:
+		output.append("There were errors in your LaTeX source") 
+		output.append("")
+		output.extend(errors)
+	else:
+		print "No errors.\n"
+		output.append("Texification succeeded: no errors!\n")
+		output.append("") 
+	if warnings:
+		print "There were no warnings.\n"
+		skip = 0
+		for warning in warnings:
+			print warning
+			if skip:
+				print ""
+			skip = 1-skip
+		if errors:
+			output.append("")
+			output.append("There were also warnings.") 
+		else:
+			output.append("However, there were warnings in your LaTeX source") 
+		output.append("")
+		output.extend(warnings)
+	else:
+		print "No warnings.\n"
+	return output
+
+
+
 
 # First, define thread class for async processing
 
@@ -42,7 +86,7 @@ class CmdThread ( threading.Thread ):
 			self.caller.output(out)
 		data = open(self.caller.tex_base + ".log", 'rb') \
 				.read().decode(self.caller.encoding).splitlines()
-		self.caller.output(data)
+		self.caller.output(parseTeXlog(data))
 		self.caller.output("\n\n[Done!]\n")
 
 
@@ -63,6 +107,11 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# Dumb, but required for the moment for the output panel to be picked
         # up as the result buffer
 		self.window.get_output_panel("exec")
+
+		# placeholder:
+		# self.output_view.settings().set("result_file_regex", file_regex)
+		# self.output_view.settings().set("result_line_regex", line_regex)
+		# self.output_view.settings().set("result_base_dir", working_dir)
 
 		self.window.run_command("show_panel", {"panel": "output.exec"})
 
