@@ -1,6 +1,7 @@
 import sublime, sublime_plugin, os, os.path, platform, threading, functools, ctypes
 from subprocess import Popen, PIPE, STDOUT
 import types
+import re
 
 DEBUG = False
 
@@ -32,8 +33,70 @@ def parseTeXlog(log):
 	print "Parsing log file"
 	errors = []
 	warnings = []
-	errors = [line for line in log if line[0:2] in ['! ','l.']]
-	warnings = [line for line in log if "Warning: " in line]
+	#errors = [line for line in log if line[0:2] in ['! ','l.']]
+
+	# loop over all log lines; construct error message as needed
+	# This will be useful for multi-file documents
+
+	# some regexes
+	file_rx = re.compile("^\(([^)]+)$")		# file name
+	line_rx = re.compile("^l\.(\d+)\s(.*)")		# l.nn <text>
+	line_rx_latex_warn = re.compile("input line (\d+)\.$")
+
+	files = []
+	
+	# State definitions
+	STATE_NORMAL = 0
+	STATE_SKIP = 1
+	STATE_REPORT_ERROR = 2
+	# store current error
+	current_error = []
+
+	state = STATE_NORMAL
+	for line in log:
+		if state==STATE_SKIP:
+			state = STATE_NORMAL
+			continue
+		if state==STATE_REPORT_ERROR:
+			# skip everything except "l.<nn> <text>"
+			print line
+			err_match = line_rx.match(line)
+			if not err_match:
+				continue
+			# now we match!
+			state = STATE_NORMAL
+			err_line = err_match.group(1)
+			err_text = err_match.group(2)
+			# err_msg is set from last time
+			errors.append(files[-1] + ":" + err_line + ":" + err_msg + " [" + err_text + "]")
+			continue
+		if line=="":
+			continue
+		if "!  ==> Fatal error occurred, no output" in line:
+			continue
+		if "! Emergency stop." in line:
+			state = STATE_SKIP
+			continue
+		if line[0]=='(':
+			file_match = file_rx.match(line)
+			if file_match:
+				files.append(file_match.group(1))
+				print files
+		if line[0]==')':
+			for i in range(len(line)):
+				files.pop()
+				print files
+		if line[0]=='!': # Now it's surely an error
+			print line
+			err_msg = line[2:] # skip "! "
+			# next time around, err_msg will be set and we'll extract all info
+			state = STATE_REPORT_ERROR
+			continue
+		if "LaTeX Warning:" == line[0:14]:
+			warn_line = line_rx_latex_warn.search(line).group(1)
+			warnings.append(files[-1] + ":" + warn_line + ":" + line[15:])
+			continue
+
 	output = []
 	if errors:
 		output.append("There were errors in your LaTeX source") 
