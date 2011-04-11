@@ -3,7 +3,7 @@ LaTeX Package keymap for OSX
 */
 [
 	// subsumed by build configuration
-	// { "keys": ["ctrl+alt+t"], "command": "texify" },
+	{ "keys": ["ctrl+alt+t"], "command": "makePDF" },
 	// not yet active
 	// { "keys": ["ctrl+alt+s"], "command": "tex_sections" },
 	/* why not use TextMate's keybindings? 
