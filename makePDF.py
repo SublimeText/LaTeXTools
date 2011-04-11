@@ -14,6 +14,7 @@ DEBUG = False
 # but instead look at log files to parse errors
 
 # Encoding: especially useful for Windows
+# TODO: counterpart for OSX? Guess encoding of files?
 def getOEMCP():
     # Windows OEM/Ansi codepage mismatch issue.
     # We need the OEM cp, because texify and friends are console programs
@@ -21,37 +22,42 @@ def getOEMCP():
     return str(codepage)
 
 
-# Log parsing, from ST1 LaTeX plugin
+# Log parsing, TNG :-)
 # Input: tex log file (decoded), split into lines
-# Output: content to be displayed in quick panel, split into lines
-# 
-# We do very simple matching:
-#    "!" denotes an error, so we catch it
-#    "Warning:" catches LaTeX warnings, as well as missing citations, and more
+# Output: content to be displayed in output panel, split into lines
 
 def parseTeXlog(log):
 	print "Parsing log file"
 	errors = []
 	warnings = []
-	#errors = [line for line in log if line[0:2] in ['! ','l.']]
-
+	
 	# loop over all log lines; construct error message as needed
 	# This will be useful for multi-file documents
 
 	# some regexes
-	file_rx = re.compile("^\(([^)]+)$")		# file name
+	file_rx = re.compile("^\s*\(([^)]+)$")		# file name
 	line_rx = re.compile("^l\.(\d+)\s(.*)")		# l.nn <text>
-	line_rx_latex_warn = re.compile("input line (\d+)\.$")
+	warning_rx = re.compile("^(.*?) Warning: (.+)") # Warnings, first line
+	line_rx_latex_warn = re.compile("input line (\d+)\.$") # Warnings, line number
 
 	files = []
+
+	# Support function to handle warnings
+	def handle_warning(l):
+		warn_match_line = line_rx_latex_warn.search(l)
+		if warn_match_line:
+			warn_line = warn_match_line.group(1)
+			warnings.append(files[-1] + ":" + warn_line + ": " + l)
+		else:
+			warnings.append(files[-1] + ": " + l)
+
 	
 	# State definitions
 	STATE_NORMAL = 0
 	STATE_SKIP = 1
 	STATE_REPORT_ERROR = 2
-	# store current error
-	current_error = []
-
+	STATE_REPORT_WARNING = 3
+	
 	state = STATE_NORMAL
 	for line in log:
 		if state==STATE_SKIP:
@@ -68,7 +74,15 @@ def parseTeXlog(log):
 			err_line = err_match.group(1)
 			err_text = err_match.group(2)
 			# err_msg is set from last time
-			errors.append(files[-1] + ":" + err_line + ":" + err_msg + " [" + err_text + "]")
+			errors.append(files[-1] + ":" + err_line + ": " + err_msg + " [" + err_text + "]")
+			continue
+		if state==STATE_REPORT_WARNING:
+			# add current line and check if we are done or not
+			current_warning += line
+			if line[-1]=='.':
+				handle_warning(current_warning)
+				current_warning = None
+				state = STATE_NORMAL # otherwise the state stays at REPORT_WARNING
 			continue
 		if line=="":
 			continue
@@ -77,11 +91,10 @@ def parseTeXlog(log):
 		if "! Emergency stop." in line:
 			state = STATE_SKIP
 			continue
-		if line[0]=='(':
-			file_match = file_rx.match(line)
-			if file_match:
-				files.append(file_match.group(1))
-				print files
+		file_match = file_rx.match(line)
+		if file_match:
+			files.append(file_match.group(1))
+			print files
 		if line[0]==')':
 			for i in range(len(line)):
 				files.pop()
@@ -92,10 +105,17 @@ def parseTeXlog(log):
 			# next time around, err_msg will be set and we'll extract all info
 			state = STATE_REPORT_ERROR
 			continue
-		if "LaTeX Warning:" == line[0:14]:
-			warn_line = line_rx_latex_warn.search(line).group(1)
-			warnings.append(files[-1] + ":" + warn_line + ":" + line[15:])
+		warning_match = warning_rx.match(line)
+		if warning_match:
+			# if last character is a dot, it's a single line
+			if line[-1] == '.':
+				handle_warning(line)
+				continue
+			# otherwise, accumulate it
+			current_warning = line
+			state = STATE_REPORT_WARNING
 			continue
+
 
 	output = []
 	if errors:
@@ -147,13 +167,20 @@ class CmdThread ( threading.Thread ):
 		out, err = Popen(cmd, stdout=PIPE, stderr=STDOUT).communicate()
 		if DEBUG:
 			self.caller.output(out)
-		data = open(self.caller.tex_base + ".log", 'rb') \
+		# this is a conundrum. We used (ST1) to open in binary mode ('rb') to avoid
+		# issues, but maybe we just need to decode?
+		data = open(self.caller.tex_base + ".log", 'r') \
 				.read().decode(self.caller.encoding).splitlines()
 		self.caller.output(parseTeXlog(data))
 		self.caller.output("\n\n[Done!]\n")
 
 
 # Actual Command
+
+# TODO latexmk stops if bib files can't be found (on subsequent compiles)
+# I.e. it doesn't even start bibtex!
+# If so, find out! Otherwise log file is never refreshed
+# Work-around: check file creation times
 
 class make_pdfCommand(sublime_plugin.WindowCommand):
 	def run(self):
@@ -171,8 +198,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
         # up as the result buffer
 		self.window.get_output_panel("exec")
 
-		# placeholder:
-		# self.output_view.settings().set("result_file_regex", file_regex)
+		self.output_view.settings().set("result_file_regex", "^([^:\n\r]*):([0-9]+):?([0-9]+)?:? (.*)$")
 		# self.output_view.settings().set("result_line_regex", line_regex)
 		# self.output_view.settings().set("result_base_dir", working_dir)
 
