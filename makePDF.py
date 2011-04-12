@@ -95,7 +95,7 @@ def parseTeXlog(log):
 		if file_match:
 			files.append(file_match.group(1))
 			print files
-		if line[0]==')':
+		if line[0]==')': # TODO here after ) there may be ( with new file!!!
 			for i in range(len(line)):
 				files.pop()
 				print files
@@ -169,8 +169,9 @@ class CmdThread ( threading.Thread ):
 			self.caller.output(out)
 		# this is a conundrum. We used (ST1) to open in binary mode ('rb') to avoid
 		# issues, but maybe we just need to decode?
+		# try 'ignore' option: just skip unknown characters
 		data = open(self.caller.tex_base + ".log", 'r') \
-				.read().decode(self.caller.encoding).splitlines()
+				.read().decode(self.caller.encoding, 'ignore').splitlines()
 		self.caller.output(parseTeXlog(data))
 		self.caller.output("\n\n[Done!]\n")
 
