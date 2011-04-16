@@ -35,7 +35,7 @@ def parseTeXlog(log):
 	# This will be useful for multi-file documents
 
 	# some regexes
-	file_rx = re.compile("^\s*\(([^)]+)$")		# file name
+	file_rx = re.compile("\(([^)]+)$")		# file name: "(" followed by anyting but "(" through the end of the line
 	line_rx = re.compile("^l\.(\d+)\s(.*)")		# l.nn <text>
 	warning_rx = re.compile("^(.*?) Warning: (.+)") # Warnings, first line
 	line_rx_latex_warn = re.compile("input line (\d+)\.$") # Warnings, line number
@@ -99,15 +99,18 @@ def parseTeXlog(log):
 		if "! Emergency stop." in line:
 			state = STATE_SKIP
 			continue
-		file_match = file_rx.match(line)
+		line.strip() # get rid of initial spaces
+		# note: in the next line, and also when we check for "!", we use the fact that "and" short-circuits
+		while len(line)>0 and line[0]==')': # denotes end of processing of current file: pop it from stack
+			files.pop()
+			line = line[1:] # lather, rinse, repeat
+			print " "*len(files) + files[-1]
+		line.strip() # again, to make sure there is no ") (filename" pattern
+		file_match = file_rx.match(line) # search matches everywhere, not just at the beginning of a line
 		if file_match:
 			files.append(file_match.group(1))
-			print files
-		if line[0]==')': # TODO here after ) there may be ( with new file!!!
-			for i in range(len(line)):
-				files.pop()
-				print files
-		if line[0]=='!': # Now it's surely an error
+			print " "*len(files) + files[-1]
+		if len(line)>0 and line[0]=='!': # Now it's surely an error
 			print line
 			err_msg = line[2:] # skip "! "
 			# next time around, err_msg will be set and we'll extract all info
