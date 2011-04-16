@@ -59,7 +59,15 @@ def parseTeXlog(log):
 	STATE_REPORT_WARNING = 3
 	
 	state = STATE_NORMAL
-	for line in log:
+
+	# Use our own iterator instead of for loop
+	log_iterator = log.__iter__()
+
+	while True:
+		try:
+			line = log_iterator.next() # will fail when no more lines
+		except StopIteration:
+			break
 		if state==STATE_SKIP:
 			state = STATE_NORMAL
 			continue
@@ -216,9 +224,10 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		s = platform.system()
 		if s == "Darwin":
 			# use latexmk
+			# -f forces compilation even if e.g. bib files are not found
 			self.make_cmd = ["latexmk", 
 						"-e", "$pdflatex = 'pdflatex %O -synctex=1 %S'",
-						"-pdf",]
+						"-f", "-pdf",]
 			self.encoding = "UTF-8"
 		elif s == "Windows":
 			self.make_cmd = ["texify", "-b", "-p",
