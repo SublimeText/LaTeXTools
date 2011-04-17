@@ -62,12 +62,37 @@ def parseTeXlog(log):
 
 	# Use our own iterator instead of for loop
 	log_iterator = log.__iter__()
+	line_num=0
 
 	while True:
 		try:
 			line = log_iterator.next() # will fail when no more lines
 		except StopIteration:
 			break
+		line_num += 1
+		# Now we deal with TeX's decision to truncate all log lines at 79 characters
+		# If we find a line of exactly 79 characters, we add the subsequent line to it, and continue
+		# until we find a line of less than 79 characters
+		# The problem is that there may be a line of EXACTLY 79 chars. We keep our fingers crossed but also
+		# use some heuristics to avoid disastrous consequences
+		# We are inspired by latexmk (which has no heuristics, though)
+
+		# HEURISTIC: the first line is always long, and we don't care about it
+		# also, the **<file name> line may be long, but we skip it, too (to avoid edge cases)
+		if line_num>1 and len(line)>=79 and line[0:2] != "**": 
+			print "Line %d is %d characters long; last char is %s" % (line_num, len(line), line[-1])
+			# HEURISTICS HERE
+			extend_line = True
+			while extend_line:
+				try:
+					extra = log_iterator.next()
+					line_num += 1 # for debugging purposes
+					line += extra
+					if len(extra) < 79:
+						extend_line = False
+				except StopIteration:
+					extend_line = False # end of file, so we must be done. This shouldn't happen, btw
+		# Check various states
 		if state==STATE_SKIP:
 			state = STATE_NORMAL
 			continue
@@ -99,6 +124,24 @@ def parseTeXlog(log):
 		if "! Emergency stop." in line:
 			state = STATE_SKIP
 			continue
+		# catch over/underfull
+		# skip everything for now
+		# Over/underfull messages end with [] so look for that
+		if line[0:8] in ["Overfull", "Underfull"]:
+			ou_processing = True
+			while ou_processing:
+				try:
+					line = log_iterator.next() # will fail when no more lines
+				except StopIteration:
+					break
+				line_num += 1
+				if len(line)>0 and line[0:3] == " []":
+					ou_processing = False
+			if ou_processing:
+				errors.append("Malformed LOG file: over/underfull")
+				break
+			else:
+				continue
 		line.strip() # get rid of initial spaces
 		# note: in the next line, and also when we check for "!", we use the fact that "and" short-circuits
 		while len(line)>0 and line[0]==')': # denotes end of processing of current file: pop it from stack
@@ -106,7 +149,7 @@ def parseTeXlog(log):
 			line = line[1:] # lather, rinse, repeat
 			print " "*len(files) + files[-1]
 		line.strip() # again, to make sure there is no ") (filename" pattern
-		file_match = file_rx.match(line) # search matches everywhere, not just at the beginning of a line
+		file_match = file_rx.search(line) # search matches everywhere, not just at the beginning of a line
 		if file_match:
 			files.append(file_match.group(1))
 			print " "*len(files) + files[-1]
