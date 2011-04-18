@@ -246,6 +246,7 @@ class CmdThread ( threading.Thread ):
 				.read().decode(self.caller.encoding, 'ignore').splitlines()
 		self.caller.output(parseTeXlog(data))
 		self.caller.output("\n\n[Done!]\n")
+		self.caller.finish()
 
 
 # Actual Command
@@ -314,9 +315,9 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 	# this spawns append_data, but on the main thread.
 
 	def output(self, data):
-		sublime.set_timeout(functools.partial(self.append_data, data), 0)
+		sublime.set_timeout(functools.partial(self.do_output, data), 0)
 
-	def append_data(self, data):
+	def do_output(self, data):
         # if proc != self.proc:
         #     # a second call to exec has been made before the first one
         #     # finished, ignore it instead of intermingling the output.
@@ -348,3 +349,17 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		    self.output_view.show(self.output_view.size())
 		self.output_view.end_edit(edit)
 		self.output_view.set_read_only(True)	
+
+	# Also from exec.py
+	# Set the selection to the start of the output panel, so next_result works	
+
+	def finish(self):
+		sublime.set_timeout(self.do_finish, 0)
+
+	def do_finish(self):
+		edit = self.output_view.begin_edit()
+		self.output_view.sel().clear()
+		reg = sublime.Region(0)
+		self.output_view.sel().add(reg)
+		self.output_view.show(reg) # scroll to top
+		self.output_view.end_edit(edit)
