@@ -130,10 +130,10 @@ def parseTeXlog(log):
 			continue
 		# Remove matched parentheses: they do not add new files to the stack
 		line_purged = matched_parens_rx.sub("", line)
-		if line != line_purged:
-			print "Purged parens on line %d:" % (line_num, )  
-			print line
-			print line_purged
+		# if line != line_purged:
+			# print "Purged parens on line %d:" % (line_num, )  
+			# print line
+			# print line_purged
 		line = line_purged
 		if "!  ==> Fatal error occurred, no output" in line:
 			continue
@@ -144,6 +144,8 @@ def parseTeXlog(log):
 		# skip everything for now
 		# Over/underfull messages end with [] so look for that
 		if line[0:8] in ["Overfull", "Underfull"]:
+			if line[-2:]=="[]": # one-line over/underfull message
+				continue
 			ou_processing = True
 			while ou_processing:
 				try:
