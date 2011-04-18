@@ -188,34 +188,7 @@ def parseTeXlog(log):
 			state = STATE_REPORT_WARNING
 			continue
 
-
-	output = []
-	if errors:
-		output.append("There were errors in your LaTeX source") 
-		output.append("")
-		output.extend(errors)
-	else:
-		print "No errors.\n"
-		output.append("Texification succeeded: no errors!\n")
-		output.append("") 
-	if warnings:
-		print "There were no warnings.\n"
-		skip = 0
-		for warning in warnings:
-			print warning
-			if skip:
-				print ""
-			skip = 1-skip
-		if errors:
-			output.append("")
-			output.append("There were also warnings.") 
-		else:
-			output.append("However, there were warnings in your LaTeX source") 
-		output.append("")
-		output.extend(warnings)
-	else:
-		print "No warnings.\n"
-	return output
+	return (errors, warnings)
 
 
 
@@ -233,7 +206,7 @@ class CmdThread ( threading.Thread ):
 	def run ( self ):
 		print "Welcome to the thread!"
 		cmd = self.caller.make_cmd + [self.caller.file_name]
-		self.caller.output("[Compiling " + self.caller.file_name + "]\n\n")
+		self.caller.output("[Compiling " + self.caller.file_name + "]")
 		if DEBUG:
 			print cmd
 		out, err = Popen(cmd, stdout=PIPE, stderr=STDOUT).communicate()
@@ -244,7 +217,26 @@ class CmdThread ( threading.Thread ):
 		# try 'ignore' option: just skip unknown characters
 		data = open(self.caller.tex_base + ".log", 'r') \
 				.read().decode(self.caller.encoding, 'ignore').splitlines()
-		self.caller.output(parseTeXlog(data))
+
+		(errors, warnings) = parseTeXlog(data)
+		content = ["",""]
+		if errors:
+			content.append("There were errors in your LaTeX source") 
+			content.append("")
+			content.extend(errors)
+		else:
+			content.append("Texification succeeded: no errors!")
+			content.append("") 
+		if warnings:
+			if errors:
+				content.append("")
+				content.append("There were also warnings.") 
+			else:
+				content.append("However, there were warnings in your LaTeX source") 
+			content.append("")
+			content.extend(warnings)
+		
+		self.caller.output(content)
 		self.caller.output("\n\n[Done!]\n")
 		self.caller.finish()
 
