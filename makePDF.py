@@ -35,10 +35,12 @@ def parseTeXlog(log):
 	# This will be useful for multi-file documents
 
 	# some regexes
-	file_rx = re.compile("\(([^)]+)$")		# file name: "(" followed by anyting but "(" through the end of the line
-	line_rx = re.compile("^l\.(\d+)\s(.*)")		# l.nn <text>
-	warning_rx = re.compile("^(.*?) Warning: (.+)") # Warnings, first line
-	line_rx_latex_warn = re.compile("input line (\d+)\.$") # Warnings, line number
+	file_rx = re.compile(r"\(([^)]+)$")		# file name: "(" followed by anyting but "(" through the end of the line
+	line_rx = re.compile(r"^l\.(\d+)\s(.*)")		# l.nn <text>
+	warning_rx = re.compile(r"^(.*?) Warning: (.+)") # Warnings, first line
+	line_rx_latex_warn = re.compile(r"input line (\d+)\.$") # Warnings, line number
+	matched_parens_rx = re.compile(r"\([^()]*\)") # matched parentheses, to be deleted (note: not if nested)
+	assignment_rx = re.compile(r"\\[^=]*=")	# assignment, heuristics for line merging
 
 	files = []
 
@@ -80,16 +82,23 @@ def parseTeXlog(log):
 		# HEURISTIC: the first line is always long, and we don't care about it
 		# also, the **<file name> line may be long, but we skip it, too (to avoid edge cases)
 		if line_num>1 and len(line)>=79 and line[0:2] != "**": 
-			print "Line %d is %d characters long; last char is %s" % (line_num, len(line), line[-1])
+			# print "Line %d is %d characters long; last char is %s" % (line_num, len(line), line[-1])
 			# HEURISTICS HERE
 			extend_line = True
 			while extend_line:
 				try:
 					extra = log_iterator.next()
 					line_num += 1 # for debugging purposes
-					line += extra
-					if len(extra) < 79:
+					# HEURISTIC: if extra line begins with "Package:" "File:" "Document Class:",
+					# we just had a long file name, so do not add
+					if len(extra)>0 and \
+					   (extra[0:5]=="File:" or extra[0:8]=="Package:" or extra[0:15]=="Document Class:") or \
+					   assignment_rx.match(extra):
 						extend_line = False
+					else:
+						line += extra
+						if len(extra) < 79:
+							extend_line = False
 				except StopIteration:
 					extend_line = False # end of file, so we must be done. This shouldn't happen, btw
 		# Check various states
@@ -119,6 +128,13 @@ def parseTeXlog(log):
 			continue
 		if line=="":
 			continue
+		# Remove matched parentheses: they do not add new files to the stack
+		line_purged = matched_parens_rx.sub("", line)
+		if line != line_purged:
+			print "Purged parens on line %d:" % (line_num, )  
+			print line
+			print line_purged
+		line = line_purged
 		if "!  ==> Fatal error occurred, no output" in line:
 			continue
 		if "! Emergency stop." in line:
@@ -147,12 +163,12 @@ def parseTeXlog(log):
 		while len(line)>0 and line[0]==')': # denotes end of processing of current file: pop it from stack
 			files.pop()
 			line = line[1:] # lather, rinse, repeat
-			print " "*len(files) + files[-1]
+			print " "*len(files) + files[-1] + " (%d)" % (line_num,)
 		line.strip() # again, to make sure there is no ") (filename" pattern
 		file_match = file_rx.search(line) # search matches everywhere, not just at the beginning of a line
 		if file_match:
 			files.append(file_match.group(1))
-			print " "*len(files) + files[-1]
+			print " "*len(files) + files[-1] + " (%d)" % (line_num,)
 		if len(line)>0 and line[0]=='!': # Now it's surely an error
 			print line
 			err_msg = line[2:] # skip "! "
