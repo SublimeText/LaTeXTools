@@ -204,7 +204,7 @@ class CmdThread ( threading.Thread ):
 		threading.Thread.__init__ ( self )
 
 	def run ( self ):
-		print "Welcome to the thread!"
+		print "Welcome to thread " + self.getName()
 		cmd = self.caller.make_cmd + [self.caller.file_name]
 		self.caller.output("[Compiling " + self.caller.file_name + "]")
 		if DEBUG:
@@ -300,6 +300,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		
 		os.chdir(tex_dir)
 		CmdThread(self).start()
+		print threading.active_count()
 
 
 	# Threading headaches :-)
@@ -343,7 +344,8 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		self.output_view.set_read_only(True)	
 
 	# Also from exec.py
-	# Set the selection to the start of the output panel, so next_result works	
+	# Set the selection to the start of the output panel, so next_result works
+	# Then run viewer
 
 	def finish(self):
 		sublime.set_timeout(self.do_finish, 0)
@@ -355,3 +357,4 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		self.output_view.sel().add(reg)
 		self.output_view.show(reg) # scroll to top
 		self.output_view.end_edit(edit)
+		self.window.active_view().run_command("jump_to_pdf") # TODO fix jump_to_pdf so it deals with multipart docs
