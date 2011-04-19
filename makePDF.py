@@ -129,12 +129,18 @@ def parseTeXlog(log):
 		if line=="":
 			continue
 		# Remove matched parentheses: they do not add new files to the stack
-		line_purged = matched_parens_rx.sub("", line)
-		# if line != line_purged:
-			# print "Purged parens on line %d:" % (line_num, )  
-			# print line
-			# print line_purged
-		line = line_purged
+		# Do this iteratatively; for instance, on Windows 64, miktex has some files in
+		# "Program Files (x86)", which wreaks havoc
+		while True:
+			line_purged = matched_parens_rx.sub("", line)
+			# if line != line_purged:
+				# print "Purged parens on line %d:" % (line_num, )  
+				# print line
+				# print line_purged
+			if line != line_purged:
+				line = line_purged
+			else:
+				break
 		if "!  ==> Fatal error occurred, no output" in line:
 			continue
 		if "! Emergency stop." in line:
@@ -286,13 +292,15 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 						"-e", "$pdflatex = 'pdflatex %O -synctex=1 %S'",
 						"-f", "-pdf",]
 			self.encoding = "UTF-8"
+			self.output_view.settings().set("result_file_regex", "^([^:\n\r]*):([0-9]+):?([0-9]+)?:? (.*)$")
 		elif s == "Windows":
 			self.make_cmd = ["texify", "-b", "-p",
 			"--tex-option=\"--synctex=1\"", 
-			#"--tex-option=\"--max-print-line=200\"", 
+			#"--tex-option=\"--max-print-line=200\"",
 			#"--tex-option=\"-file-line-error\""
 			]
 			self.encoding = getOEMCP()
+			self.output_view.settings().set("result_file_regex", "^((?:.:)?[^:\n\r]*):([0-9]+):?([0-9]+)?:? (.*)$")
 		else:
 			sublime.error_message("Platform as yet unsupported. Sorry!")
 			return	
