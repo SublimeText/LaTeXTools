@@ -1,5 +1,5 @@
 import sublime, sublime_plugin, os, os.path, platform, threading, functools, ctypes
-from subprocess import Popen, PIPE, STDOUT
+import subprocess
 import types
 import re
 
@@ -215,7 +215,15 @@ class CmdThread ( threading.Thread ):
 		self.caller.output("[Compiling " + self.caller.file_name + "]")
 		if DEBUG:
 			print cmd
-		out, err = Popen(cmd, stdout=PIPE, stderr=STDOUT).communicate()
+		if platform.system() == "Windows":
+			# make sure console does not come up
+			startupinfo = subprocess.STARTUPINFO()
+			startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+			out, err = subprocess.Popen(cmd, stdout=PIPE,
+					 	stderr=STDOUT, startupinfo=startupinfo).communicate()
+		else:
+			out, err = subprocess.Popen(cmd, stdout=PIPE,
+						stderr=STDOUT).communicate()
 		if DEBUG:
 			self.caller.output(out)
 		# this is a conundrum. We used (ST1) to open in binary mode ('rb') to avoid
@@ -365,4 +373,4 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		self.output_view.sel().add(reg)
 		self.output_view.show(reg) # scroll to top
 		self.output_view.end_edit(edit)
-		self.window.active_view().run_command("jump_to_pdf") # TODO fix jump_to_pdf so it deals with multipart docs
+		self.window.active_view().run_command("jump_to_pdf")
