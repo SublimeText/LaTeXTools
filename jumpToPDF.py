@@ -1,4 +1,4 @@
-import sublime, sublime_plugin, os.path, subprocess
+import sublime, sublime_plugin, os.path, subprocess, time
 
 # Jump to current line in PDF file
 
@@ -24,7 +24,18 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			subprocess.call(["/Applications/Skim.app/Contents/SharedSupport/displayline", 
 								"-g", "-r", str(line), pdffile, srcfile])
 		elif plat == 'win32':
+			# determine if Sumatra is running, launch it if not
 			print "Windows, Calling Sumatra"
+			# hide console
+			startupinfo = subprocess.STARTUPINFO()
+			startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+			tasks = subprocess.Popen(["tasklist"], stdout=subprocess.PIPE,
+					startupinfo=startupinfo).communicate()[0]
+			# Popen returns a byte stream, i.e. a single line. So test simply:
+			if "SumatraPDF.exe" not in tasks:
+				print "Sumatra not running, launch it"
+				self.view.window().run_command("view_pdf")
+				time.sleep(0.5) # wait 1/2 seconds so Sumatra comes up
 			command = "[ForwardSearch(\"%s\",\"%s\",%d,%d,0,0)]" % (pdffile, srcfile, line, col)
 			print command
 			self.view.run_command("send_dde",
