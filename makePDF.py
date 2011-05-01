@@ -219,11 +219,11 @@ class CmdThread ( threading.Thread ):
 			# make sure console does not come up
 			startupinfo = subprocess.STARTUPINFO()
 			startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-			out, err = subprocess.Popen(cmd, stdout=PIPE,
-					 	stderr=STDOUT, startupinfo=startupinfo).communicate()
+			out, err = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+					 	stderr=subprocess.STDOUT, startupinfo=startupinfo).communicate()
 		else:
-			out, err = subprocess.Popen(cmd, stdout=PIPE,
-						stderr=STDOUT).communicate()
+			out, err = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+						stderr=subprocess.STDOUT).communicate()
 		if DEBUG:
 			self.caller.output(out)
 		# this is a conundrum. We used (ST1) to open in binary mode ('rb') to avoid
