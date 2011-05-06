@@ -8,7 +8,7 @@
                 { "trigger": "g", "contents": "\\gamma" },
                 { "trigger": "d", "contents": "\\delta" },
                 { "trigger": "delta", "contents": "partial" },
-                { "trigger": "partial", "contents": "delta" },
+                //{ "trigger": "partial", "contents": "delta" },  # can't have trigger as it conflicts with p -> \pi
 		{ "trigger": "e", "contents": "\\epsilon" },
 		{ "trigger": "epsilon", "contents": "varepsilon" }, 
                 /* toggle the two! */
