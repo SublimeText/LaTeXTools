@@ -90,10 +90,11 @@ def parseTeXlog(log):
 					extra = log_iterator.next()
 					line_num += 1 # for debugging purposes
 					# HEURISTIC: if extra line begins with "Package:" "File:" "Document Class:",
+					# or other "well-known markers",
 					# we just had a long file name, so do not add
 					if len(extra)>0 and \
 					   (extra[0:5]=="File:" or extra[0:8]=="Package:" or extra[0:15]=="Document Class:") or \
-					   assignment_rx.match(extra):
+					   (extra[0:9]=="LaTeX2e <") or assignment_rx.match(extra):
 						extend_line = False
 					else:
 						line += extra
@@ -131,6 +132,7 @@ def parseTeXlog(log):
 		# Remove matched parentheses: they do not add new files to the stack
 		# Do this iteratatively; for instance, on Windows 64, miktex has some files in
 		# "Program Files (x86)", which wreaks havoc
+		# NOTE: this means that your file names CANNOT have parentheses!!!
 		while True:
 			line_purged = matched_parens_rx.sub("", line)
 			# if line != line_purged:
@@ -175,7 +177,11 @@ def parseTeXlog(log):
 		line.strip() # again, to make sure there is no ") (filename" pattern
 		file_match = file_rx.search(line) # search matches everywhere, not just at the beginning of a line
 		if file_match:
-			files.append(file_match.group(1))
+			file_name = file_match.group(1)
+			# remove quotes
+			if file_name[0] == "\"" and file_name[-1] == "\"":
+				file_name = file_name[1:-1]
+			files.append(file_name)
 			print " "*len(files) + files[-1] + " (%d)" % (line_num,)
 		if len(line)>0 and line[0]=='!': # Now it's surely an error
 			print line
