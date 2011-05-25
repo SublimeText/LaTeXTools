@@ -1,27 +1,64 @@
-/* Let's not preview for now. This should be OK on Win/MikTeX, too (?) */
-/* Make sure latexmk is on the $PATH, AND add it to .MacOSX/environment.plist */
+// Compilation settings
+// ====================
+//
+// The actual magic happens in the make_pdf command
+// I stick to the format of standard ST2 sublime-build files
+// with minor variations.
+// As of 5/24/11, latexmk (and texify on Windows) need to be on your $PATH
+// and, on OSX, you need to add /usr/texbin or similar to your .MacOSX/environment.plist
+// I will replace this with an explicit "binpaths" parameter
+//
+// NOTE: the viewer is NOT configured from here! 
+// As of 5/24/11, it cannot be changed, but I will introduce a setting later
 
 {
-	"cmd": ["latexmk", 
-	"-e", "\\$pdflatex = 'pdflatex %O -file-line-error --max-print-line=200 -synctex=1 %S'",
-	"-e", "\\$pdf_previewer = qq{if [ -n \"`ps axww | grep Skim | grep -v grep`\" ] ; then osascript -e 'tell app \"Skim\" to revert front document' ; else open -a Skim %O %S ; fi}",
-	//"-e", "\\$pdf_previewer = qq{/Applications/Skim.app/Contents/SharedSupport/displayline -g -r 0 %S}",
-	"-pv", "-pdf",  "$file"],
-	"working_dir": "$file_path", /* crucial or latexmk will spew stuff in /!!! */
-	"file_regex": "^(...*?):([0-9]+): ([0-9]*)([^\\.]+)",
+
+	// General settings; DO NOT MODIFY!!!
+	"target": "make_pdf",
 	"selector": "text.tex.latex",
 
-	// Windows-specific command
-	// ASSUMES sumatrapdf is default viewer
-	// Only problem is that it comes to the foreground
+	// Mac-specific settings
+	// ---------------------
+
+	"osx":
+		{
+		// Mac texification settings
+		// -------------------------
+		// Personalize this, IF you know what you are doing!
+		// e.g. change 'pdflatex...' to 'xelatex...'
+		// Refer to the documentation for latexmk
+		//
+		// Note: do NOT include $file or similar!!!
+		// Only configure the compilation parameters you need, MINUS the
+		// actual file to be compiled
+		// 
+		// By default, latexmk is told to use pdflatex, with synctex on for
+		// backward/forward search, forcing compilation (e.g. even if no bib file is found)
+		// and producing pdf rather than dvi output
+		"cmd": ["latexmk", 
+				"-e", "\\$pdflatex = 'pdflatex %O -synctex=1 %S'",
+				"-f", "-pdf"],
+		
+		// DO NOT MESS WITH THE FOLLOWING!!!
+		"file_regex": "^(...*?):([0-9]+): ([0-9]*)([^\\.]+)"
+		},
+
+	// Windows-specific settings
+	// -------------------------
 	"windows":
 		{
-			"cmd": ["texify", "-b", "-p",
-			"--tex-option=\"--synctex=1\"", 
-			"--tex-option=\"--max-print-line=200\"", 
-			"--tex-option=\"-file-line-error\"",
-			"--run-viewer",
-			"--viewer-option=\"-reuse-instance\"",
-			"$file"]
+			// Texification command
+			// -----------------------------
+			// See above comments on Mac parameters
+			// Refer to the documentation for texify (miktex)
+			//
+			// Again, do NOT include $file or similar!!!
+			"cmd": ["texify", 
+					"-b", "-p",
+					"--tex-option=\"--synctex=1\""
+			],
+
+			// DO NOT MESS WITH THE FOLLOWING!!!
+			"file-regex": "^((?:.:)?[^:\n\r]*):([0-9]+):?([0-9]+)?:? (.*)$"
 		}
 }

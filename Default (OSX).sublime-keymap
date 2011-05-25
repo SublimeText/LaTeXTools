@@ -2,7 +2,7 @@
 LaTeX Package keymap for OSX
 */
 [
-	{ "keys": ["ctrl+alt+t"], "command": "make_pdf" },
+	// { "keys": ["ctrl+alt+t"], "command": "make_pdf" }, // now bound to Command-B via the standard build system
 	{ "keys": ["ctrl+alt+s"], "command": "tex_sections" },
 	/* why not use TextMate's keybindings? 
 	   we only clobber next-tab and previous-tab, whihc are also bound

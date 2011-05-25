@@ -268,8 +268,14 @@ class CmdThread ( threading.Thread ):
 # If so, find out! Otherwise log file is never refreshed
 # Work-around: check file creation times
 
+# We get the texification command (cmd), file regex and binpaths (TODO) from
+# the sublime-build file. This allows us to use the ST2 magic: we can keep both
+# windows and osx settings there, and we get handed the right one depending on
+# the platform! Cool!
+
 class make_pdfCommand(sublime_plugin.WindowCommand):
-	def run(self):
+
+	def run(self, cmd="", file_regex="", binpaths=""):
 		view = self.window.active_view()
 		self.file_name = view.file_name()
 		self.tex_base, self.tex_ext = os.path.splitext(self.file_name)
@@ -290,6 +296,10 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 
 		self.window.run_command("show_panel", {"panel": "output.exec"})
 
+		# Get parameters from sublime-build file:
+		self.make_cmd = cmd
+		self.output_view.settings().set("result_file_regex", file_regex)
+
 		if view.is_dirty():
 			print "saving..."
 			view.run_command('save') # call this on view, not self.window
@@ -300,21 +310,9 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		
 		s = platform.system()
 		if s == "Darwin":
-			# use latexmk
-			# -f forces compilation even if e.g. bib files are not found
-			self.make_cmd = ["latexmk", 
-						"-e", "$pdflatex = 'pdflatex %O -synctex=1 %S'",
-						"-f", "-pdf",]
 			self.encoding = "UTF-8"
-			self.output_view.settings().set("result_file_regex", "^([^:\n\r]*):([0-9]+):?([0-9]+)?:? (.*)$")
 		elif s == "Windows":
-			self.make_cmd = ["texify", "-b", "-p",
-			"--tex-option=\"--synctex=1\"", 
-			#"--tex-option=\"--max-print-line=200\"",
-			#"--tex-option=\"-file-line-error\""
-			]
 			self.encoding = getOEMCP()
-			self.output_view.settings().set("result_file_regex", "^((?:.:)?[^:\n\r]*):([0-9]+):?([0-9]+)?:? (.*)$")
 		else:
 			sublime.error_message("Platform as yet unsupported. Sorry!")
 			return	
