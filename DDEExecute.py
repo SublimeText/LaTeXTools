@@ -35,7 +35,7 @@ class send_ddeCommand(sublime_plugin.TextCommand):
 		service = c_wchar_p(service)
 		topic = c_wchar_p(topic)
 		pData = c_char_p(command)
-		cbData = len(command)
+		cbData = len(command)+1 # Important! Zero-terminated!
 		
 		# initialize
 		ret = DdeInitialize(byref(idInst), pointer(mycallback), 0, 0)
@@ -51,6 +51,8 @@ class send_ddeCommand(sublime_plugin.TextCommand):
 			hDdeData = DdeClientTransaction(pData, cbData, hConv, 0, 0, XTYP_EXECUTE, 10000, 0)
 			print "DDE Execute returned: ", hex(windll.user32.DdeGetLastError(idInst))
 			DdeFreeDataHandle(hDdeData)
+		else:
+			print "Could not connect!"
 		
 		#print ret, idInst, hszService, hszTopic, hConv
 		
