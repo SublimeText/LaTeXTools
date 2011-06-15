@@ -66,11 +66,19 @@ def parseTeXlog(log):
 	log_iterator = log.__iter__()
 	line_num=0
 
+	recycle_extra = False # just in case
+
 	while True:
-		try:
-			line = log_iterator.next() # will fail when no more lines
-		except StopIteration:
-			break
+		# first of all, see if we have a line to recycle (see heuristic for "l.<nn>" lines)
+		if recycle_extra:
+			line = extra
+			#print "Recycling line"
+			recycle_extra = False
+		else:
+			try:
+				line = log_iterator.next() # will fail when no more lines
+			except StopIteration:
+				break
 		line_num += 1
 		# Now we deal with TeX's decision to truncate all log lines at 79 characters
 		# If we find a line of exactly 79 characters, we add the subsequent line to it, and continue
@@ -85,6 +93,7 @@ def parseTeXlog(log):
 			# print "Line %d is %d characters long; last char is %s" % (line_num, len(line), line[-1])
 			# HEURISTICS HERE
 			extend_line = True
+			recycle_extra = False
 			while extend_line:
 				try:
 					extra = log_iterator.next()
@@ -96,6 +105,14 @@ def parseTeXlog(log):
 					   (extra[0:5]=="File:" or extra[0:8]=="Package:" or extra[0:15]=="Document Class:") or \
 					   (extra[0:9]=="LaTeX2e <") or assignment_rx.match(extra):
 						extend_line = False
+						# no need to recycle extra, as it's nothing we are interested in
+					# HEURISTIC: when TeX reports an error, it prints some surrounding text
+					# and may use the whole line. Then it prints "...", and "l.<nn> <text>" on a new line
+					# If so, do not extend
+					elif line[-3:]=="..." and line_rx.match(extra): # a bit inefficient as we match twice
+						#print "Found l. <nn> regex"
+						extend_line = False
+						recycle_extra = True # make sure we process the "l.<nn>" line!
 					else:
 						line += extra
 						if len(extra) < 79:
