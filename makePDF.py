@@ -190,7 +190,8 @@ def parseTeXlog(log):
 		while len(line)>0 and line[0]==')': # denotes end of processing of current file: pop it from stack
 			files.pop()
 			line = line[1:] # lather, rinse, repeat
-			print " "*len(files) + files[-1] + " (%d)" % (line_num,)
+			if DEBUG:
+				print " "*len(files) + files[-1] + " (%d)" % (line_num,)
 		line.strip() # again, to make sure there is no ") (filename" pattern
 		file_match = file_rx.search(line) # search matches everywhere, not just at the beginning of a line
 		if file_match:
@@ -199,7 +200,8 @@ def parseTeXlog(log):
 			if file_name[0] == "\"" and file_name[-1] == "\"":
 				file_name = file_name[1:-1]
 			files.append(file_name)
-			print " "*len(files) + files[-1] + " (%d)" % (line_num,)
+			if DEBUG:
+				print " "*len(files) + files[-1] + " (%d)" % (line_num,)
 		if len(line)>0 and line[0]=='!': # Now it's surely an error
 			print line
 			err_msg = line[2:] # skip "! "
@@ -242,13 +244,32 @@ class CmdThread ( threading.Thread ):
 			# make sure console does not come up
 			startupinfo = subprocess.STARTUPINFO()
 			startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-			out, err = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-					 	stderr=subprocess.STDOUT, startupinfo=startupinfo).communicate()
+			proc = subprocess.Popen(cmd, startupinfo=startupinfo)
 		else:
-			out, err = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-						stderr=subprocess.STDOUT).communicate()
-		if DEBUG:
-			self.caller.output(out)
+			proc = subprocess.Popen(cmd)
+
+		# Handle killing
+		# First, save process handle into caller; then communicate (which blocks)
+		self.caller.proc = proc
+		# out, err = proc.communicate()
+		proc.wait() # TODO: if needed, must use tempfiles instead of stdout/err
+
+		# if DEBUG:
+		# 	self.caller.output(out)
+
+		# Here the process terminated, but it may have been killed. If so, do not process log file.
+		# Since we set self.caller.proc above, if it is None, the process must have been killed.
+		# TODO: clean up?
+		if not self.caller.proc:
+			print proc.returncode
+			self.caller.output("\n\n[User terminated compilation process]\n")
+			self.caller.finish()
+			return
+		# Here we are done cleanly:
+		self.caller.proc = None
+		print "Finished normally"
+		print proc.returncode
+
 		# this is a conundrum. We used (ST1) to open in binary mode ('rb') to avoid
 		# issues, but maybe we just need to decode?
 		# try 'ignore' option: just skip unknown characters
@@ -293,12 +314,23 @@ class CmdThread ( threading.Thread ):
 class make_pdfCommand(sublime_plugin.WindowCommand):
 
 	def run(self, cmd="", file_regex="", binpaths=""):
+		
+		# Try to handle killing
+		if hasattr(self, 'proc') and self.proc: # if we are running, try to kill running process
+			self.output("\n\n### Got request to terminate compilation ###")
+			self.proc.kill()
+			self.proc = None
+			return
+		else: # either it's the first time we run, or else we have no running processes
+			self.proc = None
+		
 		view = self.window.active_view()
 		self.file_name = view.file_name()
 		self.tex_base, self.tex_ext = os.path.splitext(self.file_name)
 		# On OSX, change to file directory, or latexmk will spew stuff into root!
 		tex_dir = os.path.dirname(self.file_name)
 		
+			
 		# Output panel: from exec.py
 		if not hasattr(self, 'output_view'):
 			self.output_view = self.window.get_output_panel("exec")
