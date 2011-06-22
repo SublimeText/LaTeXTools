@@ -4,10 +4,6 @@
 // The actual magic happens in the make_pdf command
 // I stick to the format of standard ST2 sublime-build files
 // with minor variations.
-// As of 5/24/11, latexmk (and texify on Windows) need to be on your $PATH
-// and, on OSX, you need to add /usr/texbin or similar to your .MacOSX/environment.plist
-// I will replace this with an explicit "binpaths" parameter
-//
 // NOTE: the viewer is NOT configured from here! 
 // As of 5/24/11, it cannot be changed, but I will introduce a setting later
 
