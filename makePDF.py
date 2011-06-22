@@ -1,4 +1,5 @@
-import sublime, sublime_plugin, os, os.path, platform, threading, functools, ctypes
+import sublime, sublime_plugin
+import sys, os, os.path, platform, threading, functools, ctypes
 import subprocess
 import types
 import re
@@ -240,6 +241,14 @@ class CmdThread ( threading.Thread ):
 		self.caller.output("[Compiling " + self.caller.file_name + "]")
 		if DEBUG:
 			print cmd
+
+		# Handle path; copied from exec.py
+		if self.caller.path:
+			old_path = os.environ["PATH"]
+			# The user decides in the build system  whether he wants to append $PATH
+			# or tuck it at the front: "$PATH;C:\\new\\path", "C:\\new\\path;$PATH"
+			os.environ["PATH"] = os.path.expandvars(self.caller.path).encode(sys.getfilesystemencoding())
+
 		if platform.system() == "Windows":
 			# make sure console does not come up
 			startupinfo = subprocess.STARTUPINFO()
@@ -247,6 +256,10 @@ class CmdThread ( threading.Thread ):
 			proc = subprocess.Popen(cmd, startupinfo=startupinfo)
 		else:
 			proc = subprocess.Popen(cmd)
+		
+		# restore path if needed
+		if self.caller.path:
+			os.environ["PATH"] = old_path
 
 		# Handle killing
 		# First, save process handle into caller; then communicate (which blocks)
@@ -306,14 +319,14 @@ class CmdThread ( threading.Thread ):
 # If so, find out! Otherwise log file is never refreshed
 # Work-around: check file creation times
 
-# We get the texification command (cmd), file regex and binpaths (TODO) from
+# We get the texification command (cmd), file regex and path (TODO) from
 # the sublime-build file. This allows us to use the ST2 magic: we can keep both
 # windows and osx settings there, and we get handed the right one depending on
 # the platform! Cool!
 
 class make_pdfCommand(sublime_plugin.WindowCommand):
 
-	def run(self, cmd="", file_regex="", binpaths=""):
+	def run(self, cmd="", file_regex="", path=""):
 		
 		# Try to handle killing
 		if hasattr(self, 'proc') and self.proc: # if we are running, try to kill running process
@@ -330,6 +343,8 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# On OSX, change to file directory, or latexmk will spew stuff into root!
 		tex_dir = os.path.dirname(self.file_name)
 		
+		# Extra paths
+		self.path = path
 			
 		# Output panel: from exec.py
 		if not hasattr(self, 'output_view'):
