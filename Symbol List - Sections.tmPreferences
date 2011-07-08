@@ -12,8 +12,8 @@
 		<integer>1</integer>
 		<key>symbolTransformation</key>
 		<string>
-		s/\\(?:sub)*section\{([^\}]+)\}/S $1/g;
-	</string>
+			s/\\(?:sub)*(.)(?:ection|hapter)\{([^\}]+)\}/\u$1 $2/g;
+		</string>
 	</dict>
 	<key>uuid</key>
 	<string>005BE156-8D74-4036-AF38-283708645115</string>
