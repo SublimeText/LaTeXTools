@@ -1,4 +1,5 @@
 import sublime, sublime_plugin, os.path, subprocess, time
+import getTeXRoot
 
 # Jump to current line in PDF file
 
@@ -10,7 +11,10 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			return
 		quotes = "\""
 		srcfile = texFile + u'.tex'
-		pdffile = texFile + u'.pdf'
+		root = getTeXRoot.get_tex_root(self.view.file_name())
+		print "!TEX root = ", root
+		rootName, rootExt = os.path.splitext(root)
+		pdffile = rootName + u'.pdf'
 		(line, col) = self.view.rowcol(self.view.sel()[0].end())
 		print "Jump to: ", line,col
 		# column is actually ignored up to 0.94

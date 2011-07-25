@@ -3,6 +3,7 @@ import sys, os, os.path, platform, threading, functools, ctypes
 import subprocess
 import types
 import re
+import getTeXRoot
 
 DEBUG = False
 
@@ -338,7 +339,8 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			self.proc = None
 		
 		view = self.window.active_view()
-		self.file_name = view.file_name()
+		self.file_name = getTeXRoot.get_tex_root(view.file_name())
+		# self.file_name = view.file_name()
 		self.tex_base, self.tex_ext = os.path.splitext(self.file_name)
 		# On OSX, change to file directory, or latexmk will spew stuff into root!
 		tex_dir = os.path.dirname(self.file_name)
