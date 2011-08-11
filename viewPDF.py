@@ -15,7 +15,7 @@ class View_pdfCommand(sublime_plugin.WindowCommand):
 			sublime.error_message("%s is not a TeX source file: cannot view." % (os.path.basename(view.fileName()),))
 			return
 		quotes = ""# \"" MUST CHECK WHETHER WE NEED QUOTES ON WINDOWS!!!
-		root = getTeXRoot(view.file_name())
+		root = getTeXRoot.get_tex_root(view.file_name())
 		rootFile, rootExt = os.path.splitext(root)
 		pdfFile = quotes + rootFile + '.pdf' + quotes
 		s = platform.system()
