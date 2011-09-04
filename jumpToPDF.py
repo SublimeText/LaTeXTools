@@ -25,7 +25,7 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		# platform-specific code:
 		plat = sublime_plugin.sys.platform
 		if plat == 'darwin':
-			subprocess.call(["/Applications/Skim.app/Contents/SharedSupport/displayline", 
+			subprocess.Popen(["/Applications/Skim.app/Contents/SharedSupport/displayline", 
 								"-g", "-r", str(line), pdffile, srcfile])
 		elif plat == 'win32':
 			# determine if Sumatra is running, launch it if not
