@@ -1,4 +1,5 @@
 import sublime, sublime_plugin, os, os.path, platform
+import getTeXRoot
 from subprocess import Popen
 
 # View PDF file corresonding to TEX file in current buffer
@@ -14,7 +15,9 @@ class View_pdfCommand(sublime_plugin.WindowCommand):
 			sublime.error_message("%s is not a TeX source file: cannot view." % (os.path.basename(view.fileName()),))
 			return
 		quotes = ""# \"" MUST CHECK WHETHER WE NEED QUOTES ON WINDOWS!!!
-		pdfFile = quotes + texFile + '.pdf' + quotes
+		root = getTeXRoot.get_tex_root(view.file_name())
+		rootFile, rootExt = os.path.splitext(root)
+		pdfFile = quotes + rootFile + '.pdf' + quotes
 		s = platform.system()
 		if s == "Darwin":
 			# for inverse search, set up a "Custom" sync profile, using
