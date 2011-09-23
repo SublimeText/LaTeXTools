@@ -51,18 +51,49 @@
 			// Texification command
 			// -----------------------------
 			// See above comments on Mac parameters
-			// Refer to the documentation for texify (miktex)
+			// Refer to the documentation for texify
 			//
 			// Again, do NOT include $file or similar!!!
+			//
+
+			// Uncomment ONLY ONE of the "cmd"s given here,
+			// depending on your tex distro (miktex or texlive)
+
+			// MikTeX 2009 configuration			
+			// You can also set the MikTeX binaries path here, if you have them
+			// in a non-standard location that is NOT on your %PATH%
+			// Useful also if you have both MikTeX and TeXlive installed, and want
+			// to use MikTeX.
+			// If you don't need this, leave it blank, i.e. ""
+			// ADD $PATH EXPLICITLY AT THE END
+			
+			// *** BEGIN MikTeX 2009 ***
 			"cmd": ["texify", 
 					"-b", "-p",
 					"--tex-option=\"--synctex=1\""
 			],
-
-			// Set this if you have MikTeX in a non-standard
-			// location, and/or you need to add extra paths
-			// ADD $PATH EXPLICITLY!
+			
 			"path": "",
+			// *** END MikTeX 2009 ***
+
+			// TeXlive 2011 configuration
+			// You can als set the TeXlive binaries path here, if you have them
+			// in a non-standard location that is NOT on your %PATH%
+			// Useful also if you have both MikTeX and TeXlive installed, and want
+			// to use TeXlive.
+			// If you don't need this, leave it blank, i.e. ""
+			// ADD $PATH EXPLICITLY AT THE END
+
+			// *** BEGIN TeXLive 2011 ***
+			// "cmd": ["latexmk", 
+			// 	"-e", "\\$pdflatex = 'pdflatex %O -synctex=1 %S'",
+			// 	"-f", "-pdf"],
+
+			// "path": "C:\\texlive\\2011\bin\\win32;$PATH",
+			// *** END TeXLive 2011 ***
+			
+
+			// END OF USER-CONFIGURABLE STUFF!!!
 
 			// DO NOT MESS WITH THE FOLLOWING!!!
 			"file_regex": "^((?:.:)?[^:\n\r]*):([0-9]+):?([0-9]+)?:? (.*)$"
