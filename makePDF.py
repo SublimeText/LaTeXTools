@@ -1,5 +1,5 @@
 import sublime, sublime_plugin
-import sys, os, os.path, platform, threading, functools, ctypes
+import sys, os, os.path, platform, threading, functools
 import subprocess
 import types
 import re
@@ -379,6 +379,8 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			self.encoding = "UTF-8"
 		elif s == "Windows":
 			self.encoding = getOEMCP()
+		elif s == "Linux":
+			self.encoding = "UTF-8"
 		else:
 			sublime.error_message("Platform as yet unsupported. Sorry!")
 			return	
