@@ -20,6 +20,7 @@ DEBUG = False
 def getOEMCP():
     # Windows OEM/Ansi codepage mismatch issue.
     # We need the OEM cp, because texify and friends are console programs
+    import ctypes
     codepage = ctypes.windll.kernel32.GetOEMCP()
     return str(codepage)
 
