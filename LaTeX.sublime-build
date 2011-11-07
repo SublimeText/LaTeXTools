@@ -33,6 +33,7 @@
 		// and producing pdf rather than dvi output
 		"cmd": ["latexmk", 
 				"-e", "\\$pdflatex = 'pdflatex %O -synctex=1 %S'",
+				"-silent",
 				"-f", "-pdf"],
 
 		// Paths to TeX binaries; needed as GUI apps do not inherit
@@ -87,6 +88,7 @@
 			// *** BEGIN TeXLive 2011 ***
 			// "cmd": ["latexmk", 
 			// 	"-e", "\\$pdflatex = 'pdflatex %O -synctex=1 %S'",
+			//	"-silent",
 			// 	"-f", "-pdf"],
 
 			// "path": "C:\\texlive\\2011\bin\\win32;$PATH",
