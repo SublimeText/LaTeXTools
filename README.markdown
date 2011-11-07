@@ -18,15 +18,19 @@ This plugin provides several features that simplify working with LaTeX files:
 Requirements and Setup
 ----------------------
 
-First of all, you need to be running a recent dev version of Sublime Text 2 (ST2 henceforth); as of 9/23/2011, I am on Build 2120. 
+First, you need to be running a recent dev version of Sublime Text 2 (ST2 henceforth); as of 9/23/2011, I am on Build 2120. 
 
-Second, grab this plugin's .zip file from GitHub and extract it to your Packages directory (you can open it easily from ST2, by clicking on Preferences|Browse Packages). Then, (re)launch ST2.
+Second, get the LaTeXTools plugin. These days, the easiest way to do so is via Package Control: see [here][http://wbond.net/sublime_packages/package_control] for details on how to set it up (it's very easy). Once you have Package Control up and running, invoke it (via the Command Palette or from Preferences), select the Install Package command, and look for LaTeXTools.
+
+If you prefer a more hands-on approach, you can always clone the git repository, or else just grab this plugin's .zip file from GitHub and extract it to your Packages directory (you can open it easily from ST2, by clicking on Preferences|Browse Packages). Then, (re)launch ST2.
+
+I encourage you to install Package Control anyway, because it's awesome, and it makes it easy to keep your installed packages up-to-date (see the aforelinked page for details). 
 
 Third, follow the OS-specific instructions below.
 
 <br>
 
-On **OSX**, you need to be running the MacTeX distribution (which is pretty much the only one available on the Mac anyway) and the Skim PDF previewer. Just download and install these in the usual way. To configure inverse search with Skim, open the Preferences dialog, select the Sync tab, then:
+On **OSX**, you need to be running the MacTeX distribution (which is pretty much the only one available on the Mac anyway) and the Skim PDF previewer. Just download and install these in the usual way. To configure inverse search, open the Preferences dialog of the Skim app, select the Sync tab, then:
 
 * uncheck the "Check for file changes" option
 * Preset: Custom
@@ -51,7 +55,7 @@ Recent versions of MikTeX add themselves to your path automatically, but in case
 
 Finally, you **must** check the file `LaTeX.sublime-build` in the directory in which you unzipped the LaTeXTools plugin to make sure that the configuration reflects your preferred TeX distribution. Open the file and scroll down to the section beginning with the keyword "windows". You will see that there are two blocks of settings for the "cmd" and "path" keywords; by default, the MikTeX one is active, and the TeXlive one is commented out. If you use MikTeX, you don't need to change anything: congratulations, you are done!
 
-If instead you use TeXlive, comment out the lines between the comments `*** BEGIN MikTeX 2009 ***` and `*** END MikTeX 2009 ***`, and uncomment the lines between the comments `*** BEGIN TeXlive 2011 ***` and `*** END TeXlive 2011 ***`. Do *not* uncomment the `BEGIN`/`END` lines themselves---just the lines between them. Now you are done!
+If instead you use TeXlive, comment out the lines between the comments `*** BEGIN MikTeX 2009 ***` and `*** END MikTeX 2009 ***`, and uncomment the lines between the comments `*** BEGIN TeXlive 2011 ***` and `*** END TeXlive 2011 ***`. Do *not* uncomment the `BEGIN`/`END` lines themselves---just the lines between them. Now you are really done!
 
 TeXlive has one main advantage over MikTeX: it supports file names and paths with spaces. Furthermore, it is easier to change the compilation engine from the default, `pdflatex`, to e.g. `xelatex`: see below for details (TBA).
 
@@ -92,9 +96,49 @@ The LaTeXtools plugin integrates with the awesome ST2 "Goto Anything" facility. 
 
 Selecting any entry in the list will take you to the corresponding place in the text.
 
+
+LaTeX commands and environments
+-------------------------------
+
+To insert a LaTeX command such as `\color{}` or similar, type the command without backslash (i.e. `color`), then hit `CMD+Shift+]` (OSX) / `Ctrl+Shift+]` (Windows). This will replace e.g. `color` with `\color{}` and place the cursor between the braces. Type the argument of the command, then hit Tab to exit the braces.
+
+Similarly, typing `CMD+Shift+[` (OSX) / `Ctrl+Shift+[` (Windows) gives you an environment: e.g. `test` becomes
+
+	\begin{test}
+
+	\end{test}
+
+and the cursor is placed inside the environment thus created. Again, Tab exits the environment. 
+
+Note that all these commands are undoable: thus, if e.g. you accidentally hit `CMD+Shift+[` but you really meant `CMD+Shift+]`, a quick `CMD+Z`, followed by `CMD+Shift+]`, will fix things.
+
+
 Command completion, snippets, etc.
 ----------------------------------
 
 By default, ST2 provides a number of snippets for LaTeX editing; the LaTeXTools plugin adds a few more. You can see what they are, and experiment, by selecting Tools|Snippets|LaTeX and Tools|Snippets|LaTeXTools from the menu.
 
-In addition, the LaTeXTools plugin provides useful completions for both regular and math text; check out files `LaTeX.sublime-completions` and `LaTeX math.sublime-completions` in the LaTeXTools directory for details.
+In addition, the LaTeXTools plugin provides useful completions for both regular and math text; check out files `LaTeX.sublime-completions` and `LaTeX math.sublime-completions` in the LaTeXTools directory for details. Some of these are semi-intelligent: i.e. `bf` expands to `\textbf{}` if you are typing text, and to `\mathbf{}` if you are in math mode. Others allow you to cycle among different completions: e.g. `f` in math mode expands to `\phi` first, but if you hit Tab again you get `\varphi`; if you hit Tab a third time, you get back `\phi`.
+
+
+Troubleshooting
+---------------
+
+Many LaTeXTools problems are path-related. The `LaTeX.sublime-build` file attempts to set up default path locations for MikTeX, TeXlive and MacTeX, but these are not guaranteed to cover all possibilities. Please let me know if you have any difficulties.
+
+On Mac OS X, just having your `$PATH` set up correctly in a shell (i.e., in Terminal) does *not* guarantee that things will work when you invoke commands from ST2. If something seems to work when you invoke `pdflatex` or `latexmk` from the Terminal, but building from within ST2 fails, you most likely have a path configuration issue. One way to test this is to launch ST2 from the Terminal, typing
+
+	/Applications/Sublime Text 2.app/Contents/SharedSupport/bin/subl
+
+(and then Return) at the prompt. If things do work when you run ST2 this way, but they fail if you launch ST2 from the Dock or the Finder, then there is a path problem. From the Terminal, type
+
+	echo $PATH
+
+and take note of what you get. Then, run ST2 from the Dock or Finder, open the console (with ``Ctrl+ ` ``) and type
+	
+	import os; os.environ['PATH']
+
+and again take note of what you see in the output panel (right above the line where you typed the above command). Finally, look at the `path` keyword in the `osx` section of the `LaTeX.sublime-build` file in the LaTeXTools package directory. For things to work, every directory that you see listed from the Terminal must be either in the list displayed when you type the `import os...` command in the ST2 console, or else it must be explicitly specified in `LaTeX.sublime-build`. If this is not the case, add the relevant paths in `LaTeX.sublime-build` and *please let me know*, so I can decide whether to add the path specification to the default build file. Thanks!
+
+On Windows, sometimes a build seems to succeed, but the PDF file is not updated. This is most often the case if there is a stale pdflatex process running; a symptom is the appearence of a file with extension `.synctex.gz(busy)`. If so, launch the Task Manager and end the `pdflatex.exe` process; if you see a `perl.exe` process, end that, too. This kind of behavior is probably a bug: LaTeXTools should be able to see that something went wrong in the earlier compilation. So, *please let me know*, and provide me with as much detail as you can (ideally, with a test case). Thanks!
+
