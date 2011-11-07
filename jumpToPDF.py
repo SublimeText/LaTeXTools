@@ -40,6 +40,13 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 				print "Sumatra not running, launch it"
 				self.view.window().run_command("view_pdf")
 				time.sleep(0.5) # wait 1/2 seconds so Sumatra comes up
+			# First send an open command forcing reload, or ForwardSearch won't 
+			# reload if the file is on a network share
+			command = u'[Open(\"%s\",0,0,1)]' % (pdffile,)
+			print command
+			self.view.run_command("send_dde",
+					{ "service": "SUMATRA", "topic": "control", "command": command})
+			# Now send ForwardSearch command
 			command = "[ForwardSearch(\"%s\",\"%s\",%d,%d,0,0)]" % (pdffile, srcfile, line, col)
 			print command
 			self.view.run_command("send_dde",
