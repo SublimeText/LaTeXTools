@@ -20,7 +20,7 @@ Requirements and Setup
 
 First, you need to be running a recent dev version of Sublime Text 2 (ST2 henceforth); as of 9/23/2011, I am on Build 2120. 
 
-Second, get the LaTeXTools plugin. These days, the easiest way to do so is via Package Control: see [here][http://wbond.net/sublime_packages/package_control] for details on how to set it up (it's very easy). Once you have Package Control up and running, invoke it (via the Command Palette or from Preferences), select the Install Package command, and look for LaTeXTools.
+Second, get the LaTeXTools plugin. These days, the easiest way to do so is via Package Control: see [here](http://wbond.net/sublime_packages/package_control) for details on how to set it up (it's very easy). Once you have Package Control up and running, invoke it (via the Command Palette or from Preferences), select the Install Package command, and look for LaTeXTools.
 
 If you prefer a more hands-on approach, you can always clone the git repository, or else just grab this plugin's .zip file from GitHub and extract it to your Packages directory (you can open it easily from ST2, by clicking on Preferences|Browse Packages). Then, (re)launch ST2.
 
@@ -120,6 +120,30 @@ By default, ST2 provides a number of snippets for LaTeX editing; the LaTeXTools 
 
 In addition, the LaTeXTools plugin provides useful completions for both regular and math text; check out files `LaTeX.sublime-completions` and `LaTeX math.sublime-completions` in the LaTeXTools directory for details. Some of these are semi-intelligent: i.e. `bf` expands to `\textbf{}` if you are typing text, and to `\mathbf{}` if you are in math mode. Others allow you to cycle among different completions: e.g. `f` in math mode expands to `\phi` first, but if you hit Tab again you get `\varphi`; if you hit Tab a third time, you get back `\phi`.
 
+
+Using different TeX engines
+---------------------------
+
+In short: on OS X, or on Windows if you use TeXLive, changing the TeX engine used to build your files is very easy. Open the file `LaTeX.sublime-build` and look for the following text (correct as of 11/8/11):
+
+	"cmd": ["latexmk", 
+		"-e", "\\$pdflatex = 'pdflatex %O -synctex=1 %S'",
+		"-silent",
+		"-f", "-pdf"],
+
+(note the final comma). On Mac OS X, the relevant entry is in the `osx` section; on Windows, it is in the `windows` section, between `*** BEGIN TeXlive 2011 ***` and `*** END TeXlive 2011 ***`, and (per the above instructions) it should be uncommented if you are using TeXlive.
+
+The trick is to change the *second* line: e.g.
+
+	"-e", "\\$pdflatex = 'pdflatex %O -synctex=1 %S'",
+
+becomes
+
+	"-e", "\\$pdflatex = 'xelatex %O -synctex=1 %S'",
+
+I have very little experience with "exotic" TeX engines. You probably know more than I do. Anyway, the key is to customize the `latexmk` parameters so they do what you want it to. Please, do **not** ask for assistance doing so: most likely I won't be able to help you. I just want to point out where to change the build variables.
+
+If you use MikTeX, you are out of luck. The `texify` command can read an environment variable to decide which engine to use, but setting this variable requires Windows- and MikTeX-specific additions to the build command. Alternatively, you can try to use `latexmk` with MikTeX, and configure the build command as above. Again, I have not tried this, and you probably know more than I do on the subject. Sorry, and thanks for your understanding!
 
 Troubleshooting
 ---------------
