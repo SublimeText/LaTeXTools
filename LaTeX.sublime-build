@@ -91,7 +91,7 @@
 			//	"-silent",
 			// 	"-f", "-pdf"],
 
-			// "path": "C:\\texlive\\2011\bin\\win32;$PATH",
+			// "path": "C:\\texlive\\2011\\bin\\win32;$PATH",
 			// *** END TeXLive 2011 ***
 			
 
