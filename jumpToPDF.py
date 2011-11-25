@@ -53,7 +53,7 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			self.view.run_command("send_dde",
 					{ "service": "SUMATRA", "topic": "control", "command": command})
 			# Now send ForwardSearch command
-			command = "[ForwardSearch(\"%s\",\"%s\",%d,%d,0,%d)]" 
+			command = "[ForwardSearch(\"%s\",\"%s\",%d,%d,0,%d)]" \
 						% (pdffile, srcfile, line, col, setfocus)
 			print command
 			self.view.run_command("send_dde",
