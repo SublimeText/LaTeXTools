@@ -116,6 +116,22 @@ and the cursor is placed inside the environment thus created. Again, Tab exits t
 Note that all these commands are undoable: thus, if e.g. you accidentally hit `CMD+Shift+[` but you really meant `CMD+Shift+]`, a quick `CMD+Z`, followed by `CMD+Shift+]`, will fix things.
 
 
+Wrapping existing text in commands and environments
+---------------------------------------------------
+
+The tab-triggered functionality just described is mostly useful if you are creating a command or environment from scratch. However, you sometimes have existing text, and just want to apply some formatting to it via a LaTeX command or environment, such as `\emph` or `\begin{theorem}...\end{theorem}`.
+
+LaTeXTools' wrapping facility helps you in just these circumstances. All commands below are activated via a key binding, and *require some text to be selected first*.
+
+- `Shift+Alt+w,c` wraps the selected text in a LaTeX command structure. If the currently selected text is `blah`, you get `\cmd{blah}`, and the letters `cmd` are highlighted. Replace them with whatever you want, then hit Tab: the cursor will move to the end of the command.
+- `Shift+Alt+w,e` gives you `\emph{blah}`, and the cursor moves to the end of the command.
+- `Shift+Alt+w,b` gives you `\textbf{blah}`
+- `Shift+Alt+w,u` gives you `\underline{blah}`
+- `Shift+Alt+w,n` wraps the selected text in a LaTeX environment structure. You get `\begin{env}`,`blah`, `\end{env}` on three separate lines, with `env` selected. Change `env` to whatever environment you want, then hit Tab to move to the end of the environment.
+
+On OSX, replace `Alt` with `Option`: e.g. to emphasize, use `Shift+Option+w,e`.
+
+
 Command completion, snippets, etc.
 ----------------------------------
 
