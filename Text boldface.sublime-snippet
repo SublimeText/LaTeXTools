@@ -1,0 +1,9 @@
+<snippet>
+	<description>Boldface text</description>
+	<content><![CDATA[
+\\textbf{$SELECTION}
+]]></content>
+	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+	<!-- <tabTrigger>hello</tabTrigger> -->
+	<scope>text.tex.latex</scope>
+</snippet>
