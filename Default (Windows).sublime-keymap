@@ -21,6 +21,7 @@ LaTeX Package keymap for OSX
 	// { "keys": ["ctrl+alt+r"], "command": "tex_ref"},
 	{ "keys": ["alt+shift+j"], "command": "jump_to_pdf"},
 	{ "keys": ["super+shift+b"], "command": "view_pdf"},
+	{ "keys": ["super+ctrl+f"], "command": "toggle_focus"},
 
 		// Auto-pair ``$''
 		// Lifted from default file

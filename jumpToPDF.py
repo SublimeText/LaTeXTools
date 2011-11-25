@@ -20,13 +20,18 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		# column is actually ignored up to 0.94
 		# HACK? It seems we get better results incrementing line
 		line += 1
-		# the last params are flags. In part. the last is 0 if no focus, 1 to focus
+
+		# Query view settings to see if we need to keep focus or let the PDF viewer grab it
+		# By default, we keep it
+		keep_focus = self.view.settings().get("keep focus",True)
+		print keep_focus
 
 		# platform-specific code:
 		plat = sublime_plugin.sys.platform
 		if plat == 'darwin':
-			subprocess.Popen(["/Applications/Skim.app/Contents/SharedSupport/displayline", 
-								"-g", "-r", str(line), pdffile, srcfile])
+			options = ["-r","-g"] if keep_focus else ["-r"]
+			subprocess.Popen(["/Applications/Skim.app/Contents/SharedSupport/displayline"] + 
+								options + [str(line), pdffile, srcfile])
 		elif plat == 'win32':
 			# determine if Sumatra is running, launch it if not
 			print "Windows, Calling Sumatra"
@@ -40,14 +45,16 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 				print "Sumatra not running, launch it"
 				self.view.window().run_command("view_pdf")
 				time.sleep(0.5) # wait 1/2 seconds so Sumatra comes up
+			setfocus = 0 if keep_focus else 1
 			# First send an open command forcing reload, or ForwardSearch won't 
 			# reload if the file is on a network share
-			command = u'[Open(\"%s\",0,0,1)]' % (pdffile,)
+			command = u'[Open(\"%s\",0,%d,1)]' % (pdffile,setfocus)
 			print command
 			self.view.run_command("send_dde",
 					{ "service": "SUMATRA", "topic": "control", "command": command})
 			# Now send ForwardSearch command
-			command = "[ForwardSearch(\"%s\",\"%s\",%d,%d,0,0)]" % (pdffile, srcfile, line, col)
+			command = "[ForwardSearch(\"%s\",\"%s\",%d,%d,0,%d)]" 
+						% (pdffile, srcfile, line, col, setfocus)
 			print command
 			self.view.run_command("send_dde",
 					{ "service": "SUMATRA", "topic": "control", "command": command})

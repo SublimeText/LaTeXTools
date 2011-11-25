@@ -71,6 +71,9 @@ The ST2 Build command (`CMD+B` on OSX; `Ctrl+B` on Windows) takes care of the fo
 
 Multi-file documents are supported as follows. If the first line in the current file consists of the text `%!TEX root = <master file name>`, then tex & friends are invoked on the specified master file, instead of the current one. Note: the only file that gets saved automatically is the current one.
 
+### Toggling window focus following a build ###
+
+By default, after compilation, the focus stays on the ST2 window. This is convenient if you like to work with the editor and PDF viewer window open side by side, and just glance at the PDF output to make sure that all is OK. If however the editor and viewer windows overlap (e.g. if you have a small screen), you may prefer the viewer window to get the focus (i.e. become the foremost window) after compiling. To this end, you can use the `toggle_focus` command (`Ctrl+Cmd+F` on OSX; `Ctrl+Win+B` on Windows) to change this behavior. The first time you invoke this command, the focus will shift to the viewer window after compiling the current file; if you invoke the command again, the post-compilation focus reverts to the editor window. Every time you invoke `toggle_focus`, a message will appear in the status bar.
 
 Forward and Inverse Search
 ---------------------------
