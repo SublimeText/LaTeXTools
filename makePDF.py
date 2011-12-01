@@ -286,9 +286,14 @@ class CmdThread ( threading.Thread ):
 
 		# this is a conundrum. We used (ST1) to open in binary mode ('rb') to avoid
 		# issues, but maybe we just need to decode?
-		# try 'ignore' option: just skip unknown characters
+		# OK, this seems solid: first we decode using the self.caller.encoding, 
+		# then we reencode using the default locale's encoding.
+		# Note: we get this using ST2's own getdefaultencoding(), not the locale module
+		# We ignore bad chars in both cases.
+		
 		data = open(self.caller.tex_base + ".log", 'r') \
-				.read().decode(self.caller.encoding, 'ignore').splitlines()
+				.read().decode(self.caller.encoding, 'ignore') \
+				.encode(sublime_plugin.sys.getdefaultencoding(), 'ignore').splitlines()
 
 		(errors, warnings) = parseTeXlog(data)
 		content = ["",""]
