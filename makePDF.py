@@ -1,5 +1,5 @@
 import sublime, sublime_plugin
-import sys, os, os.path, platform, threading, functools, ctypes
+import sys, os, os.path, platform, threading, functools
 import subprocess
 import types
 import re
@@ -20,6 +20,7 @@ DEBUG = False
 def getOEMCP():
     # Windows OEM/Ansi codepage mismatch issue.
     # We need the OEM cp, because texify and friends are console programs
+    import ctypes
     codepage = ctypes.windll.kernel32.GetOEMCP()
     return str(codepage)
 
@@ -384,6 +385,8 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			self.encoding = "UTF-8"
 		elif s == "Windows":
 			self.encoding = getOEMCP()
+		elif s == "Linux":
+			self.encoding = "UTF-8"
 		else:
 			sublime.error_message("Platform as yet unsupported. Sorry!")
 			return	
