@@ -7,7 +7,7 @@ import os.path, re
 # Contributed by Sam Finn
 
 def get_tex_root(texFile):
-	for line in open(texFile).readlines():
+	for line in open(texFile, "rU").readlines():
 		if not line.startswith('%'):
 			root = texFile
 			break
