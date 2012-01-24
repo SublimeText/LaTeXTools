@@ -278,7 +278,7 @@ class CmdThread ( threading.Thread ):
 		if not self.caller.proc:
 			print proc.returncode
 			self.caller.output("\n\n[User terminated compilation process]\n")
-			self.caller.finish()
+			self.caller.finish(False)	# We kill, so won't switch to PDF anyway
 			return
 		# Here we are done cleanly:
 		self.caller.proc = None
@@ -316,7 +316,7 @@ class CmdThread ( threading.Thread ):
 		
 		self.caller.output(content)
 		self.caller.output("\n\n[Done!]\n")
-		self.caller.finish()
+		self.caller.finish(len(errors) == 0)
 
 
 # Actual Command
@@ -441,14 +441,15 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 	# Set the selection to the start of the output panel, so next_result works
 	# Then run viewer
 
-	def finish(self):
-		sublime.set_timeout(self.do_finish, 0)
+	def finish(self, can_switch_to_pdf):
+		sublime.set_timeout(functools.partial(self.do_finish, can_switch_to_pdf), 0)
 
-	def do_finish(self):
+	def do_finish(self, can_switch_to_pdf):
 		edit = self.output_view.begin_edit()
 		self.output_view.sel().clear()
 		reg = sublime.Region(0)
 		self.output_view.sel().add(reg)
 		self.output_view.show(reg) # scroll to top
 		self.output_view.end_edit(edit)
-		self.window.active_view().run_command("jump_to_pdf")
+		if can_switch_to_pdf:
+			self.window.active_view().run_command("jump_to_pdf")
