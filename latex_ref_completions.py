@@ -72,7 +72,8 @@ class LatexRefCompletions(sublime_plugin.EventListener):
 
 
         completions = []
-        view.find_all('\\label\{([^\{]*)\}',0,'\\1',completions)
+        # stop matching at FIRST } after \label{
+        view.find_all('\\label\{([^\{\}]*)\}',0,'\\1',completions)
 
         if prefix:
             completions = [comp for comp in completions if prefix in comp]
