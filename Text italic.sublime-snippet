@@ -1,7 +1,7 @@
 <snippet>
-	<description>Wrap selection in LaTeX command</description>
+	<description>Italic text</description>
 	<content><![CDATA[
-\\${1:cmd}{$SELECTION}
+\\textit{$SELECTION}
 ]]></content>
 	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
 	<!-- <tabTrigger>hello</tabTrigger> -->
