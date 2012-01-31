@@ -39,6 +39,14 @@ LaTeX Package keymap for OSX
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text boldface.sublime-snippet"}},
+	{ "keys": ["alt+shift+w","i"],  
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text italic.sublime-snippet"}},
+	{ "keys": ["alt+shift+w","t"],  
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text typewriter.sublime-snippet"}},
 	{ "keys": ["alt+shift+w","u"],  
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
