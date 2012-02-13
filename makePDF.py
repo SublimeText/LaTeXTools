@@ -33,7 +33,7 @@ def parseTeXlog(log):
 	print "Parsing log file"
 	errors = []
 	warnings = []
-	
+
 	# loop over all log lines; construct error message as needed
 	# This will be useful for multi-file documents
 
@@ -56,13 +56,13 @@ def parseTeXlog(log):
 		else:
 			warnings.append(files[-1] + ": " + l)
 
-	
+
 	# State definitions
 	STATE_NORMAL = 0
 	STATE_SKIP = 1
 	STATE_REPORT_ERROR = 2
 	STATE_REPORT_WARNING = 3
-	
+
 	state = STATE_NORMAL
 
 	# Use our own iterator instead of for loop
@@ -92,7 +92,7 @@ def parseTeXlog(log):
 
 		# HEURISTIC: the first line is always long, and we don't care about it
 		# also, the **<file name> line may be long, but we skip it, too (to avoid edge cases)
-		if line_num>1 and len(line)>=79 and line[0:2] != "**": 
+		if line_num>1 and len(line)>=79 and line[0:2] != "**":
 			# print "Line %d is %d characters long; last char is %s" % (line_num, len(line), line[-1])
 			# HEURISTICS HERE
 			extend_line = True
@@ -156,7 +156,7 @@ def parseTeXlog(log):
 		while True:
 			line_purged = matched_parens_rx.sub("", line)
 			# if line != line_purged:
-				# print "Purged parens on line %d:" % (line_num, )  
+				# print "Purged parens on line %d:" % (line_num, )
 				# print line
 				# print line_purged
 			if line != line_purged:
@@ -240,13 +240,26 @@ class CmdThread ( threading.Thread ):
 	def run ( self ):
 		print "Welcome to thread " + self.getName()
 		cmd = self.caller.make_cmd + [self.caller.file_name]
+
+		if self.caller.viewer_cmd:
+			viewer_cmd = self.caller.viewer_cmd + [self.caller.tex_base + ".pdf"]
+
+		if self.caller.postbuild_cmd:
+			postbuild_cmd = self.caller.postbuild_cmd + [self.caller.file_name]
+
 		self.caller.output("[Compiling " + self.caller.file_name + "]")
 		if DEBUG:
 			print cmd
 
+		if self.caller.env or self.caller.path:
+			old_env = os.environ
+
+		# Handle extra environment variables
+		if self.caller.env:
+			os.environ.update(dict((k.encode(sys.getfilesystemencoding()), v) for (k, v) in self.caller.env.items()))
+
 		# Handle path; copied from exec.py
 		if self.caller.path:
-			old_path = os.environ["PATH"]
 			# The user decides in the build system  whether he wants to append $PATH
 			# or tuck it at the front: "$PATH;C:\\new\\path", "C:\\new\\path;$PATH"
 			os.environ["PATH"] = os.path.expandvars(self.caller.path).encode(sys.getfilesystemencoding())
@@ -258,10 +271,10 @@ class CmdThread ( threading.Thread ):
 			proc = subprocess.Popen(cmd, startupinfo=startupinfo)
 		else:
 			proc = subprocess.Popen(cmd)
-		
-		# restore path if needed
-		if self.caller.path:
-			os.environ["PATH"] = old_path
+
+		# restore env if needed
+		if self.caller.env or self.caller.path:
+			os.environ = old_env
 
 		# Handle killing
 		# First, save process handle into caller; then communicate (which blocks)
@@ -282,16 +295,28 @@ class CmdThread ( threading.Thread ):
 			return
 		# Here we are done cleanly:
 		self.caller.proc = None
+
+		if self.caller.viewer_cmd:
+			# Call the viewer as a separate command
+			if platform.system() == "Windows":
+				# make sure console does not come up
+				startupinfo = subprocess.STARTUPINFO()
+				startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+				proc = subprocess.Popen(viewer_cmd, startupinfo=startupinfo)
+			else:
+				proc = subprocess.Popen(viewer_cmd)
+
+		# No need to wait the viewer command
 		print "Finished normally"
 		print proc.returncode
 
 		# this is a conundrum. We used (ST1) to open in binary mode ('rb') to avoid
 		# issues, but maybe we just need to decode?
-		# OK, this seems solid: first we decode using the self.caller.encoding, 
+		# OK, this seems solid: first we decode using the self.caller.encoding,
 		# then we reencode using the default locale's encoding.
 		# Note: we get this using ST2's own getdefaultencoding(), not the locale module
 		# We ignore bad chars in both cases.
-		
+
 		data = open(self.caller.tex_base + ".log", 'r') \
 				.read().decode(self.caller.encoding, 'ignore') \
 				.encode(sublime_plugin.sys.getdefaultencoding(), 'ignore').splitlines()
@@ -299,25 +324,34 @@ class CmdThread ( threading.Thread ):
 		(errors, warnings) = parseTeXlog(data)
 		content = ["",""]
 		if errors:
-			content.append("There were errors in your LaTeX source") 
+			content.append("There were errors in your LaTeX source")
 			content.append("")
 			content.extend(errors)
 		else:
 			content.append("Texification succeeded: no errors!")
-			content.append("") 
+			content.append("")
 		if warnings:
 			if errors:
 				content.append("")
-				content.append("There were also warnings.") 
+				content.append("There were also warnings.")
 			else:
-				content.append("However, there were warnings in your LaTeX source") 
+				content.append("However, there were warnings in your LaTeX source")
 			content.append("")
 			content.extend(warnings)
-		
+
+		if self.caller.postbuild_cmd:
+			# Call the user post build command
+			if platform.system() == "Windows":
+				# make sure console does not come up
+				startupinfo = subprocess.STARTUPINFO()
+				startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+				proc = subprocess.Popen(postbuild_cmd, startupinfo=startupinfo)
+			else:
+				proc = subprocess.Popen(postbuild_cmd)
+
 		self.caller.output(content)
 		self.caller.output("\n\n[Done!]\n")
 		self.caller.finish(len(errors) == 0)
-
 
 # Actual Command
 
@@ -333,8 +367,8 @@ class CmdThread ( threading.Thread ):
 
 class make_pdfCommand(sublime_plugin.WindowCommand):
 
-	def run(self, cmd="", file_regex="", path=""):
-		
+	def run(self, cmd="", viewer_cmd="", postbuild_cmd="", file_regex="", path="", env=""):
+
 		# Try to handle killing
 		if hasattr(self, 'proc') and self.proc: # if we are running, try to kill running process
 			self.output("\n\n### Got request to terminate compilation ###")
@@ -343,17 +377,20 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			return
 		else: # either it's the first time we run, or else we have no running processes
 			self.proc = None
-		
+
 		view = self.window.active_view()
 		self.file_name = getTeXRoot.get_tex_root(view.file_name())
 		# self.file_name = view.file_name()
 		self.tex_base, self.tex_ext = os.path.splitext(self.file_name)
 		# On OSX, change to file directory, or latexmk will spew stuff into root!
 		tex_dir = os.path.dirname(self.file_name)
-		
+
 		# Extra paths
 		self.path = path
-			
+
+		# Extra env variables
+		self.env = env
+
 		# Output panel: from exec.py
 		if not hasattr(self, 'output_view'):
 			self.output_view = self.window.get_output_panel("exec")
@@ -370,16 +407,21 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 
 		# Get parameters from sublime-build file:
 		self.make_cmd = cmd
+		# Command for the viewer
+		self.viewer_cmd = viewer_cmd;
+		# Command for the post build
+		self.postbuild_cmd = postbuild_cmd;
+
 		self.output_view.settings().set("result_file_regex", file_regex)
 
 		if view.is_dirty():
 			print "saving..."
 			view.run_command('save') # call this on view, not self.window
-		
+
 		if self.tex_ext.upper() != ".TEX":
 			sublime.error_message("%s is not a TeX source file: cannot compile." % (os.path.basename(view.fileName()),))
 			return
-		
+
 		s = platform.system()
 		if s == "Darwin":
 			self.encoding = "UTF-8"
@@ -389,9 +431,9 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			self.encoding = "UTF-8"
 		else:
 			sublime.error_message("Platform as yet unsupported. Sorry!")
-			return	
+			return
 		print self.make_cmd + [self.file_name]
-		
+
 		os.chdir(tex_dir)
 		CmdThread(self).start()
 		print threading.active_count()
@@ -435,7 +477,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		if selection_was_at_end:
 		    self.output_view.show(self.output_view.size())
 		self.output_view.end_edit(edit)
-		self.output_view.set_read_only(True)	
+		self.output_view.set_read_only(True)
 
 	# Also from exec.py
 	# Set the selection to the start of the output panel, so next_result works
