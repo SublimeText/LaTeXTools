@@ -241,6 +241,15 @@ class CmdThread ( threading.Thread ):
 		print "Welcome to thread " + self.getName()
 		cmd = self.caller.make_cmd + [self.caller.file_name]
 		self.caller.output("[Compiling " + self.caller.file_name + "]")
+		
+		file_name_comp = os.path.splitext(self.caller.file_name)
+		temp_exts = ['.blg','.bbl','.aux','.log','.dvi','.ps','.fdb_latexmk','.pdfsync','.synctex.gz']
+		for temp_ext in temp_exts:
+			file_name_to_del = file_name_comp[0] + temp_ext
+			if os.path.exists(file_name_to_del):
+				os.remove(file_name_to_del)
+				self.caller.output("\n[Delete " + file_name_to_del + "]")
+		
 		if DEBUG:
 			print cmd
 
