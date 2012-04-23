@@ -1,0 +1,11 @@
+{
+        "scope": "text.tex.latex",
+
+        "completions":
+        [
+                // Beamer
+                { "trigger": "uncover", "contents": "\\uncover<${1:+-}>{$2}"},
+                { "trigger": "visible", "contents": "\\visible<${1:+-}>{$2}"},
+                { "trigger": "only",    "contents": "\\only<${1:+-}>{$2}"}
+        ]
+}
