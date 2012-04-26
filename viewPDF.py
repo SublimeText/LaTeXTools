@@ -19,6 +19,7 @@ class View_pdfCommand(sublime_plugin.WindowCommand):
 		rootFile, rootExt = os.path.splitext(root)
 		pdfFile = quotes + rootFile + '.pdf' + quotes
 		s = platform.system()
+		print "system: %s" % s
 		if s == "Darwin":
 			# for inverse search, set up a "Custom" sync profile, using
 			# "subl" as command and "%file:%line" as argument
@@ -31,6 +32,8 @@ class View_pdfCommand(sublime_plugin.WindowCommand):
 			# Under "Set inverse search command-line", set:
 			# sublime_text "%f":%l
 			viewercmd = ["SumatraPDF", "-reuse-instance"]		
+		elif s == "Linux":
+			viewercmd = ["okular", "--unique"]
 		else:
 			sublime.error_message("Platform as yet unsupported. Sorry!")
 			return	
