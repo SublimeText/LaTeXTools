@@ -1,6 +1,7 @@
 import sublime, sublime_plugin
 import os, os.path
 import re
+import itertools
 
 def match(rex, str):
     m = rex.match(str)
@@ -88,7 +89,10 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         # Allow for multiple bib files; remove whitespace in names
         # Note improved regex: matching fails with , or }, so no need to be
         # explicit and add it after []+
-        bib_regions = view.find_all(r'\\bibliography\{[^\}]+')
+        
+
+        bib_regions = itertools.chain(view.find_all(r'\\bibliography\{[^\}]+'),
+                                            view.find_all(r'\\addbibresource\{[^\}]+'))
         # The \bibliography command may be commented out: find this out
         # We check every match until we find the first command that is not
         # commented out
@@ -101,7 +105,7 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
                 bib_found = True
                 break
         if not bib_found:
-            sublime.error_message("Cannot find \\bibliography{} command!")
+            sublime.error_message("Cannot find \\bibliography{} or \\addbibresource{} command!")
             return []
 
         bib_files = re.search(r'\{([^\}]+)', bib_command).group(1).split(',')
@@ -245,7 +249,8 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         # Allow for multiple bib files; remove whitespace in names
         # Note improved regex: matching fails with , or }, so no need to be
         # explicit and add it after []+
-        bib_regions = view.find_all(r'\\bibliography\{[^\}]+')
+        bib_regions = itertools.chain(view.find_all(r'\\bibliography\{[^\}]+'),
+                                            view.find_all(r'\\addbibresource\{[^\}]+'))
         # The \bibliography command may be commented out: find this out
         # We check every match until we find the first command that is not
         # commented out
@@ -258,7 +263,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
                 bib_found = True
                 break
         if not bib_found:
-            sublime.error_message("Cannot find \\bibliography{} command!")
+            sublime.error_message("Cannot find \\bibliography{} or \\addbibresource{} command!")
             return []
 
         bib_files = re.search(r'\{([^\}]+)', bib_command).group(1).split(',')
