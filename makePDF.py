@@ -175,15 +175,13 @@ def parseTeXlog(log):
 			file_name = log_iterator.next()[3:] # here is the file name with <*> in front
 			errors.append("TeX STOPPED: " + line[2:-2]+prev_line[:-5])
 			errors.append("TeX reports the error was in file:" + file_name)
-		continue
+			continue
 		# Here, make sure there was no uncaught error, in which case we do more special processing
 		if "!  ==> Fatal error occurred, no output" in line:
-			if errors:
-				continue
-			else:
+			if errors == []:
 				errors.append("TeX STOPPED: fatal errors occurred but LaTeXTools did not see them")
 				errors.append("Please let me know via GitHub. Thanks!")
-				continue
+			continue
 		if "! Emergency stop." in line:
 			state = STATE_SKIP
 			continue
@@ -210,15 +208,18 @@ def parseTeXlog(log):
 		line.strip() # get rid of initial spaces
 		# note: in the next line, and also when we check for "!", we use the fact that "and" short-circuits
 		while len(line)>0 and line[0]==')': # denotes end of processing of current file: pop it from stack
+			# files.pop()	
+			if DEBUG:
+				print " "*len(files) + files[-1] + " (%d)" % (line_num,)
 			if files:
 				files.pop()
 			else:
 				errors.append("LaTeXTools cannot correctly detect file names in this LOG file.")
 				errors.append("Please let me know via GitHub. Thanks!")
+				if DEBUG:
+					print "Popping inexistent files"
 				break
 			line = line[1:] # lather, rinse, repeat
-			if DEBUG:
-				print " "*len(files) + files[-1] + " (%d)" % (line_num,)
 		line.strip() # again, to make sure there is no ") (filename" pattern
 		file_match = file_rx.search(line) # search matches everywhere, not just at the beginning of a line
 		if file_match:
