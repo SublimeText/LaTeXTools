@@ -68,6 +68,7 @@ def parseTeXlog(log):
 	# Use our own iterator instead of for loop
 	log_iterator = log.__iter__()
 	line_num=0
+	line = ""
 
 	recycle_extra = False # just in case
 
@@ -78,6 +79,8 @@ def parseTeXlog(log):
 			#print "Recycling line"
 			recycle_extra = False
 		else:
+			# save previous line for "! File ended while scanning use of..." message
+			prev_line = line
 			try:
 				line = log_iterator.next() # will fail when no more lines
 			except StopIteration:
@@ -163,6 +166,16 @@ def parseTeXlog(log):
 				line = line_purged
 			else:
 				break
+		# Special error reporting for e.g. \footnote{text NO MATCHING PARENS & co
+		if "! File ended while scanning use of" in line:
+			scanned_command = line[35:-2] # skip space and period at end
+			# we may be unable to report a file by popping it, so HACK HACK HACK
+			file_name = log_iterator.next() # <inserted text>
+			file_name = log_iterator.next() #      \par
+			file_name = log_iterator.next()[3:] # here is the file name with <*> in front
+			errors.append("TeX STOPPED: " + line[2:-2]+prev_line[:-5])
+			errors.append("TeX reports the error was in file:" + file_name)
+		continue
 		if "!  ==> Fatal error occurred, no output" in line:
 			continue
 		if "! Emergency stop." in line:
