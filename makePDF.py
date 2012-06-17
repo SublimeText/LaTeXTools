@@ -180,7 +180,7 @@ def parseTeXlog(log):
 		if "!  ==> Fatal error occurred, no output" in line:
 			if errors == []:
 				errors.append("TeX STOPPED: fatal errors occurred but LaTeXTools did not see them")
-				errors.append("Please let me know via GitHub. Thanks!")
+				errors.append("Check the TeX log file, and please let me know via GitHub. Thanks!")
 			continue
 		if "! Emergency stop." in line:
 			state = STATE_SKIP
