@@ -286,6 +286,8 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         # We capture till the end of the line as maybe entry is broken over several lines
         # and in the end we MAY but need not have }'s and "s
         tp = re.compile(r'\btitle\s*=\s*(?:\{+|")\s*(.+)', re.IGNORECASE)  # note no comma!
+        # Tentatively do the same for author
+        ap = re.compile(r'\bauthor\s*=\s*(?:\{+|")\s*(.+)', re.IGNORECASE)
         kp2 = re.compile(r'([^\t]+)\t*')
 
         for bibfname in bib_files:
@@ -307,28 +309,41 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             # note Unicode trickery
             keywords = [kp.search(line).group(1).decode('ascii','ignore') for line in bib if line[0] == '@']
             titles = [tp.search(line).group(1).decode('ascii','ignore') for line in bib if tp.search(line)]
+            authors = [ap.search(line).group(1).decode('ascii','ignore') for line in bib if ap.search(line)]
+
+            print zip(keywords,titles,authors)
+
             if len(keywords) != len(titles):
                 print "Bibliography " + bibfname + " is broken!"
+                return
+            # if len(keywords) != len(authors):
+            #     print "Bibliography " + bibfname + " is broken (authors)!"
+            #     return
             # Filter out }'s and ,'s at the end. Ugly!
             nobraces = re.compile(r'\s*,*\}*(.+)')
             titles = [nobraces.search(t[::-1]).group(1)[::-1] for t in titles]
-            completions += zip(keywords, titles)
+            authors = [nobraces.search(a[::-1]).group(1)[::-1] for a in authors]
+            completions += zip(keywords, titles, authors)
 
 
         #### END COMPLETIONS HERE ####
 
-        print completions
-
+        # filter against keyword, title, or author
         if prefix:
-            completions = [comp for comp in completions if prefix.lower() in "%s %s" % (comp[0].lower(),comp[1].lower())]
+            completions = [comp for comp in completions if prefix.lower() in "%s %s %s" \
+                                                    % (comp[0].lower(),comp[1].lower(), comp[2].lower())]
 
         # Note we now generate citation on the fly. Less copying of vectors! Win!
         def on_done(i):
             print "latex_cite_completion called with index %d" % (i,)
+            
+            # Allow user to cancel
+            if i<0:
+                return
 
             cite = "\\cite" + fancy_cite + "{" + completions[i][0] + "}"
 
-            print "selected %s:%s" % completions[i] 
+            print "selected %s:%s by %s" % completions[i] 
             # Replace cite expression with citation
             expr_region = sublime.Region(point-len(expr),point)
             ed = view.begin_edit()
@@ -336,6 +351,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             view.end_edit(ed)
 
         
-        view.window().show_quick_panel([[title, keyword] for (keyword,title) in completions], on_done)
+        view.window().show_quick_panel([[title + " (" + keyword+ ")", author] \
+                                        for (keyword,title, author) in completions], on_done)
  
 
