@@ -1,0 +1,13 @@
+<snippet>
+	<content><![CDATA[
+\begin{figure}[${1:tb}]
+	\begin{center}
+		\includegraphics[$2]{$3}
+	\end{center}
+	\caption{${4:Caption here}}
+	\label{${5:fig:figure1}}
+\end{figure}
+]]></content>
+	<tabTrigger>bfigure</tabTrigger>
+	<scope>text.tex.latex</scope>
+</snippet>
