@@ -9,6 +9,47 @@ def match(rex, str):
     else:
         return None
 
+def make_list_for_completion(completions, multiline_allowed=True):
+    # Produces the list of all completion items for LaTeX citations
+    # If multiline_allowed is set to False then only one array item is returned
+    # to be used for dropdowns when only one-line items are allowed
+    #
+    # Uses settings 'latex_cite_completion_display_line1' and 'latex_cite_completion_display_line2'
+    # are used by this function.
+    #
+    # The defaults will give exactly the same behaviour as the previous version, however this allows
+    # much more configuration. For example, setting the settings above to:
+    # line1: '{keyword}'
+    # line2: '{title}'
+    # Will produce a small completion list showing just the BibTeX keywords, and a larger list with
+    # two lines, keyword on the top and the title underneath.
+    #
+    # The strings given in the settings will be used as a template with {title}, {author} and {keyword}
+    # replaced with their values. This allows more complex strings to be generated such as:
+    # line1: '@{keyword} Title:{title}'
+    # line2: '{author}'
+
+    # Load settings
+    s = sublime.load_settings("Preferences.sublime-settings")
+
+    # Get the line1 string formatting templating from the settings
+    line1 = s.get('latex_cite_completion_display_line1', '{title} ({keyword})')
+    # Do the string template formatting
+    line1_results = [line1.format(title=title, author=author, keyword=keyword) for (keyword,title, author) in completions]
+
+    # Do the same for the 2nd line
+    line2 = s.get('latex_cite_completion_display_line2', '{author}')
+
+    line2_results = [line2.format(title=title, author=author, keyword=keyword) for (keyword,title, author) in completions]
+
+    l = [[keyword] for (keyword,title, author) in completions]
+
+    # Return in the correct format for the auto-complete dialogs in the multi-line and single-line cases
+    if multiline_allowed == False:
+        return [[item] for item in line1_results]
+    else:
+        return map(list, zip(line1_results, line2_results))
+
 # Based on html_completions.py
 # see also latex_ref_completions.py
 #
@@ -77,9 +118,9 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         expr_region = sublime.Region(l-len(expr),l)
         #print expr, view.substr(expr_region)
         ed = view.begin_edit()
-        view.replace(ed, expr_region, "C")
+        view.replace(ed, expr_region, "")
         view.end_edit(ed)
-        expr = "C"
+        expr = ""
 
         completions = ["TEST"]
 
@@ -130,6 +171,8 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         # and in the end we MAY but need not have }'s and "s
         tp = re.compile(r'\btitle\s*=\s*(?:\{+|")\s*(.+)', re.IGNORECASE)  # note no comma!
         kp2 = re.compile(r'([^\t]+)\t*')
+        ap = re.compile(r'\bauthor\s*=\s*(?:\{+|")\s*(.+)', re.IGNORECASE)
+
 
         for bibfname in bib_files:
             if bibfname[-4:] != ".bib":
@@ -150,26 +193,33 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
             # note Unicode trickery
             keywords = [kp.search(line).group(1).decode('ascii','ignore') for line in bib if line[0] == '@']
             titles = [tp.search(line).group(1).decode('ascii','ignore') for line in bib if tp.search(line)]
+            authors = [ap.search(line).group(1).decode('ascii','ignore') for line in bib if ap.search(line)]
             if len(keywords) != len(titles):
                 print "Bibliography " + bibfname + " is broken!"
             # Filter out }'s and ,'s at the end. Ugly!
             nobraces = re.compile(r'\s*,*\}*(.+)')
             titles = [nobraces.search(t[::-1]).group(1)[::-1] for t in titles]
-            completions += zip(keywords, titles)
+            completions += zip(keywords, titles, authors)
 
 
         #### END COMPLETIONS HERE ####
 
-        print completions
+        # Sort the completions to make it prettier
+        completions.sort()
 
         if prefix:
             completions = [comp for comp in completions if prefix.lower() in "%s %s" % (comp[0].lower(),comp[1].lower())]
 
         # popup is 40chars wide...
         t_end = 40 - len(expr)
-        r = [(expr + " "+title[:t_end], "\\cite" + fancy_cite + "{" + keyword + "}") 
-                        for (keyword, title) in completions]
-        print r
+
+        # Make the list for completion - only getting a single line
+        # as this completion dialog box can only take one-line items
+        l = make_list_for_completion(completions, False)
+
+        cite_cmds = ["\\cite" + fancy_cite + "{" + keyword + "}" for (keyword, title, author) in completions]
+
+        r = zip([item for sublist in l for item in sublist], cite_cmds)
 
         def on_done(i):
             print "latex_cite_completion called with index %d" % (i,)
@@ -179,9 +229,22 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
 
         return r
 
+class LatexCitepCommand(sublime_plugin.TextCommand):  
+    def run(self, edit):  
+        self.view.insert(edit, self.view.sel()[0].b, "citep")
+        self.view.run_command('latex_cite')
+
+class LatexCitetCommand(sublime_plugin.TextCommand):  
+    def run(self, edit):  
+        self.view.insert(edit, self.view.sel()[0].b, "citet")
+        self.view.run_command('latex_cite')
+
+class LatexCiteNormalCommand(sublime_plugin.TextCommand):  
+    def run(self, edit):  
+        self.view.insert(edit, self.view.sel()[0].b, "cite")
+        self.view.run_command('latex_cite')
 
 class LatexCiteCommand(sublime_plugin.TextCommand):
-
     # Remember that this gets passed an edit object
     def run(self, edit):
         # get view and location of first selection, which we expect to be just the cursor position
@@ -311,8 +374,6 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             titles = [tp.search(line).group(1).decode('ascii','ignore') for line in bib if tp.search(line)]
             authors = [ap.search(line).group(1).decode('ascii','ignore') for line in bib if ap.search(line)]
 
-            print zip(keywords,titles,authors)
-
             if len(keywords) != len(titles):
                 print "Bibliography " + bibfname + " is broken!"
                 return
@@ -324,7 +385,6 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             titles = [nobraces.search(t[::-1]).group(1)[::-1] for t in titles]
             authors = [nobraces.search(a[::-1]).group(1)[::-1] for a in authors]
             completions += zip(keywords, titles, authors)
-
 
         #### END COMPLETIONS HERE ####
 
@@ -350,8 +410,13 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             view.replace(ed, expr_region, cite)
             view.end_edit(ed)
 
-        
-        view.window().show_quick_panel([[title + " (" + keyword+ ")", author] \
-                                        for (keyword,title, author) in completions], on_done)
+        # Sort the completions for a prettier view
+        completions.sort()
+
+        # Make the list of completions
+        l = make_list_for_completion(completions)
+
+
+        view.window().show_quick_panel(l, on_done)
  
 
