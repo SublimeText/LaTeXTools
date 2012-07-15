@@ -17,7 +17,8 @@
 
                 { "trigger": "bit", "contents": "\\begin{itemize}\n\t\\item $1 \n\\end{itemize}\n"},
                 { "trigger": "ben", "contents": "\\begin{enumerate}\n\t\\item $1 \n\\end{enumerate}\n"},
-                { "trigger": "i", "contents": "\\item "}
+                { "trigger": "i", "contents": "\\item "},
+                { "trigger": "gl", "contents": "\\glqq $1\\grqq $0 "}
 
         ]
 }
