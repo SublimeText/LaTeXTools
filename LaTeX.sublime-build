@@ -117,7 +117,7 @@
 		// backward/forward search, forcing compilation (e.g. even if no bib file is found)
 		// and producing pdf rather than dvi output
 		"cmd": ["latexmk", 
-				"-e", "\\$pdflatex = 'pdflatex %O -synctex=1 %S'",
+				"-e", "\\$pdflatex = 'pdflatex %O -interaction=nonstopmode -synctex=1 %S'",
 				"-f", "-pdf"],
 
 		// Paths to TeX binaries; needed as GUI apps do not inherit
