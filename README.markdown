@@ -1,8 +1,8 @@
-#LyTeXTools: A LilyPond-aware fork of LaTeXTools for Sublime Text 2
+#LyTeXTools: LilyPond-aware LaTeXTools for Sublime Text 2
 
-This package adds `lilypond-book` support to [Marciano Siniscalchi’s] [LaTeXTools] package for [Sublime Text 2].
+This package forks and adds `lilypond-book` support to [Marciano Siniscalchi’s](http://tekonomist.wordpress.com/) [LaTeXTools](http://github.com/SublimeText/LaTeXTools) package for [Sublime Text 2](http://www.sublimetext.com/2).
 
-A component of [GNU LilyPond], the formidable music typesetter, `lilypond-book` enables LaTeX writers to include LilyPond code snippets within LaTeX documents, thereby freely mixing text with musical notation. It is a command-line preprocessor that “extracts snippets of music from your document, runs LilyPond on them, and outputs the document with pictures substituted for the music.”
+A component of [GNU LilyPond](http://lilypond.org), the formidable music typesetter, `lilypond-book` enables LaTeX writers to include LilyPond code snippets within LaTeX documents, thereby freely mixing text with musical notation. It is a command-line preprocessor that “extracts snippets of music from your document, runs LilyPond on them, and outputs the document with pictures substituted for the music.”
 
 Overall, LyTeXTools extends LaTeXTools in the following ways:
 
@@ -14,11 +14,11 @@ As a functional extension of LaTeXTools, LyTeXTools is intended to behave identi
 
 ## Installation (OS X)
 
-To avoid confusion, and given its lack of support for Windows at present, LyTeXTools has not been submitted to [Will Bond’s] [Package Control]. You may install the package manually by cloning (or copying the unzipped contents of) this repository into your `./Packages` folder:
+To avoid confusion, and given its lack of support for Windows at present, LyTeXTools has not been submitted to [Will Bond’s](http://wbond.net) [Package Control](http://wbond.net/sublime_packages/package_control). You may install the package manually by cloning (or copying the unzipped contents of) this repository into your `./Packages` folder:
 
 	git clone https://github.com/yrammos/LyTeXTools.git
 
-New users unfamiliar with Marciano Siniscalchi’s LaTeXTools are advised to read his detailed and lucid [documentation]. The following notes only address the differences between the two packages.
+New users unfamiliar with Marciano Siniscalchi’s LaTeXTools are advised to read his detailed and lucid [documentation](http://github.com/SublimeText/LaTeXTools#requirements-and-setup). The following notes only address the differences between the two packages.
 
 ## Settings specific to the LyTeXTools fork
 
