@@ -148,7 +148,7 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
                 bibf.close()
             print "%s has %s lines" % (bibfname, len(bib))
             # note Unicode trickery
-            keywords = [kp.search(line).group(1).decode('ascii','ignore') for line in bib if line[0] == '@']
+            keywords = [kp.search(line).group(1).decode('ascii','ignore') for line in bib if line[0] == '@' and kp.search(line)]
             titles = [tp.search(line).group(1).decode('ascii','ignore') for line in bib if tp.search(line)]
             if len(keywords) != len(titles):
                 print "Bibliography " + bibfname + " is broken!"
