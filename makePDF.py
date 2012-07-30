@@ -265,8 +265,8 @@ class CmdThread ( threading.Thread ):
 
 	def run ( self ):
 		print "Welcome to thread " + self.getName()
-		# Include lilypond-book in the document production process.
-		# WARNING: This assumes that Lilypond.app is located at 
+		# WARNING: Be sure to include the path to your lilypond-book executable in LaTeX.sublime-build
+		# 			or the process will fail!
 		cmd = "lilypond-book -f latex --pdf " + self.caller.file_name + "\x3B " + self.caller.make_cmd + os.path.splitext(self.caller.file_name)[0]
 		# cmd = self.caller.make_cmd + [self.caller.file_name]
 		self.caller.output("[Compiling " + self.caller.file_name + "]")

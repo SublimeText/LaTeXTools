@@ -104,13 +104,13 @@ class jump_from_pdfCommand(sublime_plugin.WindowCommand):
 
 	def run(self):
 		# Try to open the file where the synctex-enabled PDF viewer has been instructed by the user to store the filename and coordinates of the corresponding .tex file. This is assumed to be ~/.sublatex.txt but may be overridden via a "synctex_output" parameter in a LaTeXTools.sublime-settings preference file.
-		settings = sublime.load_settings("LaTeXTools.sublime-settings")
+		settings = sublime.load_settings("LyTeXTools.sublime-settings")
 		self.pdf_loc_filename = os.path.abspath(settings.get("synctex_output", os.path.join(os.path.expanduser("~"), ".sublatex.txt")))
 		try:
 			self.pdf_loc_file = open(os.path.abspath(self.pdf_loc_filename), "r", 0)
 		# In case that file does not exist or cannot be open, produce an error message and exit.
 		except:
-			sublime.error_message("LaTeXTools/SyncTeX: Error interfacing with the PDF viewer (" + str(self.pdf_loc_file) + ").")
+			sublime.error_message("LyTeXTools/SyncTeX: Error interfacing with the PDF viewer (" + str(self.pdf_loc_file) + ").")
 			return
 
 		# Attempt to obtain the name and location of the appropriate .tex file.
@@ -118,14 +118,14 @@ class jump_from_pdfCommand(sublime_plugin.WindowCommand):
 		self.tex_filename, self.tex_line = self.pdf_loc_file.readline().strip('\n'), self.pdf_loc_file.readline().strip('\n')
 		# Then check that neither line is empty. If the test fails, exit.
 		if (not self.tex_filename or not self.tex_line):
-			sublime.error_message("LaTeXTools/SyncTeX: Requested source file location is incomplete (less than two lines of data). Please check your PDF viewer settings.")
+			sublime.error_message("LyTeXTools/SyncTeX: Requested source file location is incomplete (less than two lines of data). Please check your PDF viewer settings.")
 			return
 
 		# Finally, check that the first line contains a syntactically valid file path and the second line a syntactically valid line number (i.e. a natural number not starting with zero), otherwise exit.
 		re_filepath = re.compile(r"^(.*/)?(?:$|(.+?)(?:(\\.[^.]*$)|$))")
 		re_linenumber = re.compile("^[1-9][0-9]*$")
 		if (not re_filepath.match(self.tex_filename) or not re_linenumber.match(self.tex_line)):
-			sublime.error_message("LaTeXTools/SyncTeX: Requested source file location contains incorrect data types. Please check your PDF viewer settings.")
+			sublime.error_message("LyTeXTools/SyncTeX: Requested source file location contains incorrect data types. Please check your PDF viewer settings.")
 			return
 		self.tex_line = int(self.tex_line)
 		print "SyncTeX is pointing at .tex file ", self.tex_filename, "line", self.tex_line
