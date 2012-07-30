@@ -265,7 +265,10 @@ class CmdThread ( threading.Thread ):
 
 	def run ( self ):
 		print "Welcome to thread " + self.getName()
-		cmd = self.caller.make_cmd + [self.caller.file_name]
+		# Include lilypond-book in the document production process.
+		# WARNING: This assumes that Lilypond.app is located at 
+		cmd = "lilypond-book -f latex --pdf " + self.caller.file_name + "\x3B " + self.caller.make_cmd + os.path.splitext(self.caller.file_name)[0]
+		# cmd = self.caller.make_cmd + [self.caller.file_name]
 		self.caller.output("[Compiling " + self.caller.file_name + "]")
 		if DEBUG:
 			print cmd
@@ -283,7 +286,7 @@ class CmdThread ( threading.Thread ):
 			startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 			proc = subprocess.Popen(cmd, startupinfo=startupinfo)
 		else:
-			proc = subprocess.Popen(cmd)
+			proc = subprocess.Popen(cmd, shell=True)
 		
 		# restore path if needed
 		if self.caller.path:
@@ -403,7 +406,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			view.run_command('save') # call this on view, not self.window
 
 		if self.tex_ext.upper() not in (".TEX", ".LYTEX"):
-			sublime.error_message("%s is not a TeX source file. Cannot compile." % (os.path.basename(view.file_name()),))
+			sublime.error_message("%s is not a TeX or LyTeX source file. Cannot compile." % (os.path.basename(view.file_name()),))
 			return
 		
 		s = platform.system()
