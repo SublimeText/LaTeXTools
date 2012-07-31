@@ -71,7 +71,7 @@ LilyPond scopes in the `.lytex` file are trivial to identify:
 The situation appears less straightforward on the `.tex` side. So far, I have been able to identify only two pairs of delimiters that may wrap the generated LilyPond code:
 
 	\begin{quote}
-	...
+		...
 	\end{quote}
 
 and a rather bland pair of curly brackets:
@@ -80,6 +80,6 @@ and a rather bland pair of curly brackets:
 		...
 	}
 
-It is obvious that neither pair can be unambiguously attributed to LilyPond. To address possible mismatches, I am considering to propose a "comment-based" pair of delimiters, for example `#! \LYTEX` and `#! LYTEX\`. Depending on user feedback, I may implement such a scheme in the future. So far, I have found the current lightweight implementation to be adequate.
+It is obvious that neither pair can be unambiguously attributed to LilyPond. To address possible mismatches, I am considering a "comment-based" pair of delimiters, for example `#! \LYTEX` and `#! LYTEX\`. Depending on user feedback, I may implement such a scheme in the future. So far, I have found the current lightweight implementation to be adequate.
 
 © 2012 [Yannis Rammos](twitter.com/yannisrammos)
