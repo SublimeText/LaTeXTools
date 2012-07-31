@@ -7,7 +7,7 @@ A component of [GNU LilyPond](http://lilypond.org), the formidable music typeset
 Overall, LyTeXTools extends LaTeXTools in the following ways:
 
 * It accepts `.lytex` (LaTeX with inline Lilypond) in addition to `.tex` (plain LaTeX) source files.
-* It instructs `lilypond-book` to preprocess the current document, and to produce a preprocessed `.tex` file if necessary, prior to invoking latexmk.
+* It instructs `lilypond-book` to preprocess the current document, and to produce a `.tex` file if applicable, prior to invoking latexmk.
 * It extends the SyncTeX functionality, with seamless “forward” and “inverse” search capabilities regardless of the source file extension (`.tex` or `.lytex`). Unfortunately, as `lilypond-book` provides no native support for SyncTeX, this functionality would be best described as a hack and relies on a bash script for OS X (see below). Users are warmly invited to contribute a port of this short and straightforward script to Windows.
 
 As a functional extension of LaTeXTools, LyTeXTools is intended to behave identically with its original counterpart when invoked with plain `.tex` files.
@@ -18,7 +18,7 @@ To avoid confusion, and given its lack of support for Windows at present, LyTeXT
 
 	git clone https://github.com/yrammos/LyTeXTools.git
 
-New users unfamiliar with Marciano Siniscalchi’s LaTeXTools are advised to read his detailed and lucid [documentation](http://github.com/SublimeText/LaTeXTools#requirements-and-setup). The following notes only address the differences between the two packages.
+New users unfamiliar with Marciano Siniscalchi’s LaTeXTools are advised to read his detailed and lucid [documentation](http://github.com/SublimeText/LaTeXTools#requirements-and-setup first The following notes only address areas where the two packages diverge.
 
 ## Settings specific to the LyTeXTools fork
 
@@ -43,9 +43,9 @@ But enough with theory and preliminaries. To actually set up Skim.app:
 1. Go to Skim > Preferences > Sync.
 2. Under "Preset" select "Custom."
 3. Deselect the "Check for file changes" box.
-4. In the Command field enter <full_path_to_LyTeXTools>/sublsync.
-5. In the Arguments field enter `~/.sublatex.txt "%file" %line "/usr/local/bin/"`. <br>Optionally, replace:
-	a. The `~/.sublatex.txt` default with whatever setting you have overriden it with (as above).
+4. In the Command field enter `<full_path_to_LyTeXTools_Package>/sublsync`.
+5. In the Arguments field enter `~/.sublatex.txt "%file" %line "/usr/local/bin/"`. <br>Optionally, replace:<br>
+	a. The `~/.sublatex.txt` default with whatever setting you have overriden it with (per instructions above).<br>
 	b. `"/usr/local/bin/"` with the full path to the subl binary (which launches Sublime Text from the command line). Remember to enclose it in quotation marks if your path includes spaces!
 
 ### Path considerations
@@ -60,7 +60,7 @@ The process will likely fail unless the path to the `lilypond-book` binary is in
 
 ### Technical note: Detection of LilyPond scopes in LaTeX code
 
-In order to accurately map `.tex` line numbers to `.lytex` line numbers and vice-versa, LyTeXTools must be able to unambiguously identify LilyPond scopes, both within the source (`.lytex`) file and within the LilyPond-generated, preprocessed `.tex` file.
+In order to accurately map `.tex` line numbers to `.lytex` line numbers and vice-versa, LyTeXTools must be able to unambiguously identify LilyPond scopes, both within the source (`.lytex`) file and within the LilyPond-generated `.tex` file.
 
 LilyPond scopes in the `.lytex` file are trivial to identify:
 
@@ -80,6 +80,6 @@ and a rather bland pair of curly brackets:
 		...
 	}
 
-It is obvious that neither pair can be unambiguously attributed to LilyPond. To address possible mismatches, I am considering to propose a "comment-level" pair of delimiters, for example `#! \LYTEX` and `#! LYTEX\`. Depending on user feedback, I may implement such a scheme in the future. So far, I have found the current lightweight implementation to be adequate.
+It is obvious that neither pair can be unambiguously attributed to LilyPond. To address possible mismatches, I am considering to propose a "comment-based" pair of delimiters, for example `#! \LYTEX` and `#! LYTEX\`. Depending on user feedback, I may implement such a scheme in the future. So far, I have found the current lightweight implementation to be adequate.
 
-(c) 2012 [Yannis Rammos](twitter.com/yannisrammos)
+© 2012 [Yannis Rammos](twitter.com/yannisrammos)
