@@ -18,7 +18,7 @@ To avoid confusion, and given its lack of support for Windows at present, LyTeXT
 
 	git clone https://github.com/yrammos/LyTeXTools.git
 
-New users unfamiliar with Marciano Siniscalchi’s LaTeXTools are advised to read his detailed and lucid [documentation](http://github.com/SublimeText/LaTeXTools#requirements-and-setup first The following notes only address areas where the two packages diverge.
+New users unfamiliar with Marciano Siniscalchi’s LaTeXTools are advised to read his detailed and lucid [documentation](http://github.com/SublimeText/LaTeXTools#requirements-and-setup) first. The following notes only address areas where the two packages diverge.
 
 ## Settings specific to the LyTeXTools fork
 
@@ -46,7 +46,7 @@ But enough with theory and preliminaries. To actually set up Skim.app:
 4. In the Command field enter `<full_path_to_LyTeXTools_Package>/sublsync`.
 5. In the Arguments field enter `~/.sublatex.txt "%file" %line "/usr/local/bin/"`. <br>Optionally, replace:<br>
 	a. The `~/.sublatex.txt` default with whatever setting you have overriden it with (per instructions above).<br>
-	b. `"/usr/local/bin/"` with the full path to the subl binary (which launches Sublime Text from the command line). Remember to enclose it in quotation marks if your path includes spaces!
+	b. `"/usr/local/bin/"` with the full path to the [subl](http://www.sublimetext.com/docs/2/osx_command_line.html) binary, which launches Sublime Text from the command line. Remember to enclose it in quotation marks if your path includes spaces!
 
 ### Path considerations
 
