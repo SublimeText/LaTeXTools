@@ -24,9 +24,9 @@ New users unfamiliar with Marciano Siniscalchi’s LaTeXTools are advised to rea
 
 The following settings override those of the original LaTeXTools. All other LaTeXTools settings still apply to LyTeXTools.
 
-### Inverse search
+### Jumping from/to PDF (SyncTeX)
 
-“Forward-” and “inverse” search with `.lytex` files are non-trivial because SyncTeX only provides a mapping between the PDF and the preprocessed `.tex`, whereas the actual source file is the `.lytex`. LyTeXTools undertakes the missing link, namely a bidirectional mapping between `.tex` and `.lytex` line numbers.
+“Forward” and “inverse” search with `.lytex` files are non-trivial because SyncTeX only provides a mapping between the PDF and the LilyPond-generated `.tex`, whereas the actual source file is the `.lytex`. LyTeXTools undertakes the missing link, namely a bidirectional mapping between `.tex` and `.lytex` line numbers.
 
 The package relies on the `sublsync` script to provide inverse search from the PDF (Skim.app) to the `.lytex` or `.tex` source. `sublsync` is provided as part of LyTeXTools. Its purpose is to store the SyncTeX-generated coordinates (source file name, line number) into a file whence LyTeXTools can then retrieve them.
 
@@ -46,7 +46,7 @@ But enough with theory and preliminaries. To actually set up Skim.app:
 4. In the Command field enter `<full_path_to_LyTeXTools_Package>/sublsync`.
 5. In the Arguments field enter `~/.sublatex.txt "%file" %line "/usr/local/bin/"`. <br>Optionally, replace:<br>
 	a. The `~/.sublatex.txt` default with whatever setting you have overriden it with (per instructions above).<br>
-	b. `"/usr/local/bin/"` with the full path to the [subl](http://www.sublimetext.com/docs/2/osx_command_line.html) binary, which launches Sublime Text from the command line. Remember to enclose it in quotation marks if your path includes spaces!
+	b. `"/usr/local/bin/"` with the full path to the [subl](http://www.sublimetext.com/docs/2/osx_command_line.html) binary, which launches Sublime Text from the command line. Remember to enclose the path in quotation marks if it includes spaces!
 
 ### Path considerations
 
