@@ -3,24 +3,64 @@ LaTeX Package keymap for OSX
 */
 [
 	// { "keys": ["ctrl+alt+t"], "command": "make_pdf" }, // now bound to Command-B via the standard build system
-	{ "keys": ["ctrl+alt+s"], "command": "tex_sections" },
+	{ "keys": ["ctrl+alt+s"], "command": "tex_sections" , "context":[{ "key": "selector", "operator": "equal", "operand": "text.tex.latex" }]},
 	/* why not use TextMate's keybindings? 
 	   we only clobber next-tab and previous-tab, whihc are also bound
 	   to arrow keys */
-	{ "keys": ["super+shift+right_bracket"], "command": "latexcmd"},
-	{ "keys": ["super+shift+left_bracket"], "command": "latexenv"},
-	{ "keys": ["super+shift+period"], "command": "latex_env_closer"}, 
+	{ "keys": ["super+shift+right_bracket"], "command": "latexcmd", "context":
+		[
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex" }
+		]
+	},
+	{ "keys": ["super+shift+left_bracket"], "command": "latexenv", "context":
+		[
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex" }
+		]
+	},
+	{ "keys": ["super+shift+period"], "command": "latex_env_closer", "context":
+		[
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex" }
+		]
+	}, 
 	/* can't use forward slash or period; also, why not CMD? */
-	{ "keys": ["super+alt+forward_slash"], "command": "tex_macro"},
+	{ "keys": ["super+alt+forward_slash"], "command": "tex_macro", "context":
+		[
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex" }
+		]
+	},
 	/* alternatives: the second is reminiscent of super+B for build */
-	{ "keys": ["ctrl+alt+v"], "command": "view_pdf"},
-	{ "keys": ["ctrl+alt+r"], "command": "tex_ref"},
-	{ "keys": ["super+shift+j"], "command": "jump_to_pdf"},
-	{ "keys": ["super+shift+b"], "command": "view_pdf"},
-	{ "keys": ["super+ctrl+f"], "command": "toggle_focus"},
+	{ "keys": ["ctrl+alt+v"], "command": "view_pdf", "context":
+		[
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex" }
+		]
+	},
+	{ "keys": ["ctrl+alt+r"], "command": "tex_ref", "context":
+		[
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex" }
+		]
+	},
+	{ "keys": ["super+shift+j"], "command": "jump_to_pdf", "context":
+		[
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex" }
+		]
+	},
+	{ "keys": ["super+shift+b"], "command": "view_pdf", "context":
+		[
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex" }
+		]
+	},
+	{ "keys": ["super+ctrl+f"], "command": "toggle_focus", "context":
+		[
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex" }
+		]
+	},
 
 	// Cross-reference commands
-	{ "keys": ["super+shift+c"], "command": "latex_cite"},	
+	{ "keys": ["super+shift+c"], "command": "latex_cite", "context":
+		[
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex" }
+		]
+	},	
 
 	// Wrapping commands
 	{ "keys": ["alt+shift+w","c"], 
