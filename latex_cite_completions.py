@@ -1,6 +1,7 @@
 import sublime, sublime_plugin
 import os, os.path
 import re
+import getTeXRoot
 
 def match(rex, str):
     m = rex.match(str)
@@ -85,26 +86,35 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
 
         #### GET COMPLETIONS HERE #####
 
-        # Allow for multiple bib files; remove whitespace in names
-        # Note improved regex: matching fails with , or }, so no need to be
-        # explicit and add it after []+
-        bib_regions = view.find_all(r'\\bibliography\{[^\}]+')
-        # The \bibliography command may be commented out: find this out
-        # We check every match until we find the first command that is not
-        # commented out
-        bib_found = False
-        for bib_region in bib_regions:
-            bib_line = view.line(bib_region)
-            bib_command = view.substr(bib_line).strip()
-            if bib_command[0] == '\\':
-                print bib_command
-                bib_found = True
-                break
-        if not bib_found:
+        bibs_found = []
+
+        # Find bib files in the current file
+        current_file = open(view.file_name(),'r')
+        # strip all comments from the file before searching for bib files to
+        # avoid including any bibliography commands that may be commented out
+        current_content = re.sub("%.*","",current_file.read())
+        bibs_found = re.findall(r'\\bibliography\{[^\}]+\}',current_content)
+ 
+        # Find bib files in the tex root if needed
+        root = getTeXRoot.get_tex_root(view.file_name())
+        if root != view.file_name():
+            print "Root: " + root
+            if os.path.isfile(root):
+                root_file = open(root, "r")
+                #strip all comments from the file before searching for bib files
+                root_content = re.sub("%.*","",root_file.read())
+                bibs_found = re.findall(r'\\bibliography\{[^\}]+\}',root_content)
+
+        print bibs_found
+
+        if not bibs_found:
             sublime.error_message("Cannot find \\bibliography{} command!")
             return []
 
-        bib_files = re.search(r'\{([^\}]+)', bib_command).group(1).split(',')
+        bib_files = []
+        for bib in bibs_found:
+            bib_files += re.search(r'\{([^\}]+)', bib).group(1).split(',')
+
         if not bib_files:
             print "Error!"
             return []
