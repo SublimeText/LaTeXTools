@@ -122,6 +122,8 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         print "TEX root: " + root
         bib_files = []
         find_bib_files(os.path.dirname(root),root,bib_files)
+        # remove duplicate bib files
+        bib_files = list(set(bib_files))
         print "Bib files found: ",
         print bib_files
 
