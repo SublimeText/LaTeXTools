@@ -47,7 +47,7 @@ class LatexRefCompletions(sublime_plugin.EventListener):
         # Check the first location looks like a ref, but backward
         rex = re.compile("([^_]*_)?(p)?fer(qe)?")
         expr = match(rex, line)
-        print expr
+        # print expr
 
         if expr:
             # Return the matched bits, for mangling
