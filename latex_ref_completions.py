@@ -38,7 +38,6 @@ class LatexRefCompletions(sublime_plugin.EventListener):
         # the current point
         l = locations[0]
         line = view.substr(sublime.Region(view.line(l).a, l))
-            
 
         # Reverse, to simulate having the regex
         # match backwards (cool trick jps btw!)
@@ -48,35 +47,35 @@ class LatexRefCompletions(sublime_plugin.EventListener):
         # Check the first location looks like a ref, but backward
         rex = re.compile("([^_]*_)?(p)?fer(qe)?")
         expr = match(rex, line)
-        #print expr
-        if not expr:
-            return []
+        print expr
 
-        # Return the completions
-        prefix, has_p, has_eq = rex.match(expr).groups()
-        if prefix:
-            prefix = prefix[::-1] # reverse
-            prefix = prefix[1:] # chop off #
-        #print prefix, has_p, has_eq
+        if expr:
+            # Return the matched bits, for mangling
+            prefix, has_p, has_eq = rex.match(expr).groups()
+            preformatted = False
+            if prefix:
+                prefix = prefix[::-1]   # reverse
+                prefix = prefix[1:]     # chop off #
+            else:
+                prefix = ""
+            #print prefix, has_p, has_eq
 
-        # Reverse back expr
-        expr = expr[::-1]
+        else:
+            # Check to see if the location matches a preformatted "\ref{blah"
+            rex = re.compile(r"([^{}]*)\{fer(qe)?\\(\()?")
+            expr = match(rex, line)
 
-        # Replace ref expression with "C" to save space in drop-down menu
-        expr_region = sublime.Region(l-len(expr),l)
-        #print expr, view.substr(expr_region)
-        ed = view.begin_edit()
-        view.replace(ed, expr_region, "R")
-        view.end_edit(ed)
-        expr = "R"
+            if not expr:
+                return []
 
-
-        completions = []
-        # stop matching at FIRST } after \label{
-        view.find_all('\\label\{([^\{\}]*)\}',0,'\\1',completions)
-
-        if prefix:
-            completions = [comp for comp in completions if prefix in comp]
+            preformatted = True
+            # Return the matched bits (barely needed, in this case)
+            prefix, has_eq, has_p = rex.match(expr).groups()
+            if prefix:
+                prefix = prefix[::-1]   # reverse
+            else:
+                prefix = ""
+            #print prefix, has_p, has_eq
 
         if has_p:
             pre_snippet = "(\\ref{"
@@ -88,6 +87,24 @@ class LatexRefCompletions(sublime_plugin.EventListener):
             pre_snippet = "\\ref{"
             post_snippet = "}"
 
-        r = [(expr + " "+label, pre_snippet + label + post_snippet) for label in completions]
+        if not preformatted:
+            # Replace ref_blah with \ref{blah
+            expr_region = sublime.Region(l - len(expr), l)
+            #print expr[::-1], view.substr(expr_region)
+            ed = view.begin_edit()
+            view.replace(ed, expr_region, pre_snippet + prefix)
+            view.end_edit(ed)
+
+        else:
+            # Don't include post_snippet if it's already present
+            suffix = view.substr(sublime.Region(l, l + len(post_snippet)))
+            if post_snippet == suffix:
+                post_snippet = ""
+
+        completions = []
+        # stop matching at FIRST } after \label{
+        view.find_all('\\label\{([^\{\}]*)\}', 0, '\\1', completions)
+
+        r = [(label + "\t\\ref{}", label + post_snippet) for label in completions]
         #print r
-        return r
+        return (r, sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS)
