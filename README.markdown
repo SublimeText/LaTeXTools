@@ -18,6 +18,8 @@ To avoid confusion, and given its lack of support for Windows at present, LyTeXT
 
 	git clone https://github.com/yrammos/LyTeXTools.git
 
+Please note that the stable version of the package is in the `lilypond2latexmk` branch, not the `master` branch! Run `git checkout lilypond2latexmk` after cloning to ensure that you are on that branch.
+
 New users unfamiliar with Marciano Siniscalchi’s LaTeXTools are advised to read his detailed and lucid [documentation](http://github.com/SublimeText/LaTeXTools#requirements-and-setup) first. The following notes only address areas where the two packages diverge.
 
 It is best to uninstall the original LaTeXTools package before installing LyTeXTools, or you may confront build engine conflicts.
