@@ -82,4 +82,14 @@ and a rather bland pair of curly brackets:
 
 It is obvious that neither pair can be unambiguously attributed to LilyPond. To address possible mismatches, I am considering a "comment-based" pair of delimiters, for example `#! \LYTEX` and `#! LYTEX\`. Depending on user feedback, I may implement such a scheme in the future. So far, I have found the current lightweight implementation to be adequate.
 
+### Version history
+
+#### 7/30/2012
+- FIXED: "Open PDF" command (by default bound to `Shift-Command-B`) now works with .lytex files.
+
+#### 7/30/2012
+- NEW: First release.
+
+Available under the [MIT License](http://www.opensource.org/licenses/mit-license.php). Feel free to fork, modify and redistribute.
+
 © 2012 [Yannis Rammos](twitter.com/yannisrammos)
