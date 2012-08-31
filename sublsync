@@ -1,0 +1,39 @@
+#!/bin/bash
+#
+# (c) 2012 Yannis Rammos
+# Part of a fork adding LilyPond-book support to the
+# LaTeXTools package for Sublime Text 2, by msiniscalchi.
+#
+# Syntax:
+# 		sublsync <out_file> <tex_file> <line> <synctex_out>
+# where:
+#
+#		outfile:		The file where the PDF viewer will store <tex_file> and <line>.
+#						Make sure you have sufficient permissions in that path!
+#		tex_file:		The source file that SyncTeX associates with the open PDF.
+#						Provided by the PDF viewer if set up correctly.
+#		line:			The line number in the aforementioned source file. Provided by the PDF viewer
+#						Provided by the PDF viewer if set up correctly.
+#		synctex_out:	The full path where the subl command is located.
+
+
+# Store the source file coordinates in <outfile>, according to the following format:
+# 	<tex_file><new_line_char>
+# 	<line_number>
+echo -e "$2\n$3" > "$1"
+
+# Massage <subl_path> to ensure that it ends with a (back)slash. 
+sublpath="$4"
+slash="/"
+sublpathlen=${#sublpath}
+sublpathlastchar=${sublpath:sublpathlen-1}
+if [ $sublpathlastchar != $slash ]; then
+	sublpath=$sublpath$slash
+fi
+
+# Assemble full subl command, complete with path and arguments.
+sublcmd="subl --command jump_from_pdf"
+sublfullcmd=$sublpath$sublcmd
+
+# Execute.
+eval $sublfullcmd

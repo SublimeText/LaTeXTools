@@ -4,6 +4,7 @@ import subprocess
 import types
 import re
 import getTeXRoot
+import time
 
 DEBUG = False
 
@@ -264,7 +265,10 @@ class CmdThread ( threading.Thread ):
 
 	def run ( self ):
 		print "Welcome to thread " + self.getName()
-		cmd = self.caller.make_cmd + [self.caller.file_name]
+		# WARNING: Be sure to include the path to your lilypond-book executable in LaTeX.sublime-build
+		# 			or the process will fail!
+		cmd = "lilypond-book -f latex --pdf " + self.caller.file_name + "\x3B " + self.caller.make_cmd + os.path.splitext(self.caller.file_name)[0]
+		# cmd = self.caller.make_cmd + [self.caller.file_name]
 		self.caller.output("[Compiling " + self.caller.file_name + "]")
 		if DEBUG:
 			print cmd
@@ -282,7 +286,7 @@ class CmdThread ( threading.Thread ):
 			startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 			proc = subprocess.Popen(cmd, startupinfo=startupinfo)
 		else:
-			proc = subprocess.Popen(cmd)
+			proc = subprocess.Popen(cmd, shell=True)
 		
 		# restore path if needed
 		if self.caller.path:
@@ -357,7 +361,6 @@ class CmdThread ( threading.Thread ):
 # the platform! Cool!
 
 class make_pdfCommand(sublime_plugin.WindowCommand):
-
 	def run(self, cmd="", file_regex="", path=""):
 		
 		# Try to handle killing
@@ -372,6 +375,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		view = self.window.active_view()
 		self.file_name = getTeXRoot.get_tex_root(view.file_name())
 		# self.file_name = view.file_name()
+
 		self.tex_base, self.tex_ext = os.path.splitext(self.file_name)
 		# On OSX, change to file directory, or latexmk will spew stuff into root!
 		tex_dir = os.path.dirname(self.file_name)
@@ -400,9 +404,9 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		if view.is_dirty():
 			print "saving..."
 			view.run_command('save') # call this on view, not self.window
-		
-		if self.tex_ext.upper() != ".TEX":
-			sublime.error_message("%s is not a TeX source file: cannot compile." % (os.path.basename(view.fileName()),))
+
+		if self.tex_ext.upper() not in (".TEX", ".LYTEX"):
+			sublime.error_message("%s is not a TeX or LyTeX source file. Cannot compile." % (os.path.basename(view.file_name()),))
 			return
 		
 		s = platform.system()
@@ -415,7 +419,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		else:
 			sublime.error_message("Platform as yet unsupported. Sorry!")
 			return	
-		print self.make_cmd + [self.file_name]
+		# print self.make_cmd + [self.file_name]
 		
 		os.chdir(tex_dir)
 		CmdThread(self).start()

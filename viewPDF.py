@@ -11,8 +11,8 @@ class View_pdfCommand(sublime_plugin.WindowCommand):
 	def run(self):
 		view = self.window.active_view()
 		texFile, texExt = os.path.splitext(view.file_name())
-		if texExt.upper() != ".TEX":
-			sublime.error_message("%s is not a TeX source file: cannot view." % (os.path.basename(view.fileName()),))
+		if texExt.upper() not in (".TEX", ".LYTEX"):
+			sublime.error_message("%s is not a TeX source file: cannot view." % (os.path.basename(view.file_name()),))
 			return
 		quotes = ""# \"" MUST CHECK WHETHER WE NEED QUOTES ON WINDOWS!!!
 		root = getTeXRoot.get_tex_root(view.file_name())
@@ -42,5 +42,3 @@ class View_pdfCommand(sublime_plugin.WindowCommand):
 			Popen(viewercmd + [pdfFile])
 		except OSError:
 			sublime.error_message("Cannot launch Viewer. Make sure it is on your PATH.")
-
-			
