@@ -1,6 +1,6 @@
 #LyTeXTools: LilyPond-aware LaTeXTools for Sublime Text 2
 
-This package forks and adds `lilypond-book` support to [Marciano Siniscalchi’s](http://tekonomist.wordpress.com/) [LaTeXTools](http://github.com/SublimeText/LaTeXTools) package for [Sublime Text 2](http://www.sublimetext.com/2).
+This package adds `lilypond-book` support to [Marciano Siniscalchi’s](http://tekonomist.wordpress.com/) [LaTeXTools](http://github.com/SublimeText/LaTeXTools) for [Sublime Text 2](http://www.sublimetext.com/2).
 
 A component of [GNU LilyPond](http://lilypond.org), the formidable music typesetter, `lilypond-book` enables LaTeX writers to include LilyPond code snippets within LaTeX documents, thereby freely mixing text with musical notation. It is a command-line preprocessor that “extracts snippets of music from your document, runs LilyPond on them, and outputs the document with pictures substituted for the music.”
 
