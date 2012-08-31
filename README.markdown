@@ -85,7 +85,7 @@ It is obvious that neither pair can be unambiguously attributed to LilyPond. To 
 ### Version history
 
 #### 7/30/2012
-- FIXED: "Open PDF" command (by default bound to `Shift-Command-B`) now works with .lytex files.
+- FIXED: "Open PDF" command (by default bound to `Shift-Command-B`) now works with `.lytex` files.
 
 #### 7/30/2012
 - NEW: First release.
