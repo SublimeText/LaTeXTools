@@ -1,6 +1,7 @@
 import sublime, sublime_plugin
 import os, os.path
 import re
+import getTeXRoot
 
 def match(rex, str):
     m = rex.match(str)
@@ -8,6 +9,36 @@ def match(rex, str):
         return m.group(0)
     else:
         return None
+
+# recursively search all linked tex files to find all
+# included bibliography tags in the document and extract
+# the absolute filepaths of the bib files
+def find_bib_files(rootdir, src, bibfiles):
+    if src[-4:] != ".tex":
+        src = src + ".tex"
+
+    file_path = os.path.normpath(os.path.join(rootdir,src))
+    print "Searching file: " + file_path
+    dir_name = os.path.dirname(file_path)
+
+    # read src file and extract all bibliography tags
+    src_file = open(file_path, "r")
+    src_content = re.sub("%.*","",src_file.read())
+    bibtags =  re.findall(r'\\bibliography\{[^\}]+\}', src_content)
+
+    # extract absolute filepath for each bib file
+    for tag in bibtags:
+        bfiles = re.search(r'\{([^\}]+)', tag).group(1).split(',')
+        for bf in bfiles:
+            if bf[-4:] != '.bib':
+                bf = bf + '.bib'
+            bf = os.path.normpath(os.path.join(dir_name,bf))
+            bibfiles.append(bf)
+
+    # search through input tex files recursively
+    for f in re.findall(r'\\(?:input|include)\{[^\}]+\}',src_content):
+        input_f = re.search(r'\{([^\}]+)', f).group(1)
+        find_bib_files(dir_name, input_f, bibfiles)
 
 # Based on html_completions.py
 # see also latex_ref_completions.py
@@ -84,27 +115,18 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         completions = ["TEST"]
 
         #### GET COMPLETIONS HERE #####
+ 
+        # Find tex root and search all tex source referenced
+        root = getTeXRoot.get_tex_root(view.file_name())
+        # tex root is the current file itself if no TEX root is specified
+        print "TEX root: " + root
+        bib_files = []
+        find_bib_files(os.path.dirname(root),root,bib_files)
+        # remove duplicate bib files
+        bib_files = list(set(bib_files))
+        print "Bib files found: ",
+        print bib_files
 
-        # Allow for multiple bib files; remove whitespace in names
-        # Note improved regex: matching fails with , or }, so no need to be
-        # explicit and add it after []+
-        bib_regions = view.find_all(r'\\bibliography\{[^\}]+')
-        # The \bibliography command may be commented out: find this out
-        # We check every match until we find the first command that is not
-        # commented out
-        bib_found = False
-        for bib_region in bib_regions:
-            bib_line = view.line(bib_region)
-            bib_command = view.substr(bib_line).strip()
-            if bib_command[0] == '\\':
-                print bib_command
-                bib_found = True
-                break
-        if not bib_found:
-            sublime.error_message("Cannot find \\bibliography{} command!")
-            return []
-
-        bib_files = re.search(r'\{([^\}]+)', bib_command).group(1).split(',')
         if not bib_files:
             print "Error!"
             return []
