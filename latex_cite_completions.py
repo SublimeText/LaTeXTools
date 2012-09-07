@@ -115,10 +115,8 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         completions = ["TEST"]
 
         #### GET COMPLETIONS HERE #####
- 
-        # Find tex root and search all tex source referenced
-        root = getTeXRoot.get_tex_root(view.file_name())
-        # tex root is the current file itself if no TEX root is specified
+        root = getTeXRoot(view)
+
         print "TEX root: " + root
         bib_files = []
         find_bib_files(os.path.dirname(root),root,bib_files)
