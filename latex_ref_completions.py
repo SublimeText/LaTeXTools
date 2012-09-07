@@ -129,13 +129,7 @@ class LatexRefCompletions(sublime_plugin.EventListener):
         # stop matching at FIRST } after \label{
         view.find_all(r'\\label\{([^\{\}]+)\}', 0, '\\1', completions)
 
-        # first search sublime-project file settings for TEXroot
-        root = view.settings().get('TEXroot')
-
-        if not root:
-            # Find tex root and search all tex source referenced
-            # TEX root is the current file itself if no TEX root is specified
-            root = getTeXRoot.get_tex_root(view.file_name())
+        root = getTeXRoot(view)
 
         print "TEX root: " + root
         find_labels_in_files(os.path.dirname(root), root, completions)

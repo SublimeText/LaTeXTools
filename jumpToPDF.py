@@ -11,9 +11,7 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			return
 		quotes = "\""
 		srcfile = texFile + u'.tex'
-		root = self.view.settings().get('TEXroot')
-		if not root:
-			root = getTeXRoot.get_tex_root(self.view.file_name())
+		root = getTeXRoot.get_tex_root(self.view)
 		print "!TEX root = ", root
 		rootName, rootExt = os.path.splitext(root)
 		pdffile = rootName + u'.pdf'
