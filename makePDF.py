@@ -370,7 +370,9 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			self.proc = None
 		
 		view = self.window.active_view()
-		self.file_name = getTeXRoot.get_tex_root(view.file_name())
+		self.file_name = view.settings().get('TEXroot')
+		if not self.file_name:
+			self.file_name = getTeXRoot.get_tex_root(view.file_name())
 		# self.file_name = view.file_name()
 		self.tex_base, self.tex_ext = os.path.splitext(self.file_name)
 		# On OSX, change to file directory, or latexmk will spew stuff into root!
