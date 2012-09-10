@@ -31,6 +31,7 @@ def getOEMCP():
 
 def parseTeXlog(log):
 	print "Parsing log file"
+	self.caller.output("Parsing log file\n")
 	errors = []
 	warnings = []
 	
@@ -38,7 +39,7 @@ def parseTeXlog(log):
 	# This will be useful for multi-file documents
 
 	# some regexes
-	file_rx = re.compile(r"\(([^)]+)$")		# file name: "(" followed by anyting but "(" through the end of the line
+	file_rx = re.compile(r"\(([^)]+)$")		# file name: "(" followed by anything but "(" through the end of the line
 	line_rx = re.compile(r"^l\.(\d+)\s(.*)")		# l.nn <text>
 	warning_rx = re.compile(r"^(.*?) Warning: (.+)") # Warnings, first line
 	line_rx_latex_warn = re.compile(r"input line (\d+)\.$") # Warnings, line number
@@ -265,7 +266,9 @@ class CmdThread ( threading.Thread ):
 	def run ( self ):
 		print "Welcome to thread " + self.getName()
 		cmd = self.caller.make_cmd + [self.caller.file_name]
-		self.caller.output("[Compiling " + self.caller.file_name + "]")
+		self.caller.output("[Compiling " + self.caller.file_name + "]\n")
+		cmd_new = ' '.join(cmd)
+		self.caller.output(cmd_new)
 		if DEBUG:
 			print cmd
 
@@ -307,6 +310,7 @@ class CmdThread ( threading.Thread ):
 			return
 		# Here we are done cleanly:
 		self.caller.proc = None
+		self.caller.output("\nFinished normally")
 		print "Finished normally"
 		print proc.returncode
 
@@ -320,29 +324,39 @@ class CmdThread ( threading.Thread ):
 		data = open(self.caller.tex_base + ".log", 'r') \
 				.read().decode(self.caller.encoding, 'ignore') \
 				.encode(sublime_plugin.sys.getdefaultencoding(), 'ignore').splitlines()
-
-		(errors, warnings) = parseTeXlog(data)
-		content = ["",""]
-		if errors:
-			content.append("There were errors in your LaTeX source") 
-			content.append("")
-			content.extend(errors)
-		else:
-			content.append("Texification succeeded: no errors!")
-			content.append("") 
-		if warnings:
+		self.caller.output("\nOpened: " + self.caller.tex_base + ".log")
+		# Attempt to parse log file, if we cannot, proceed to opening PDF
+		try:
+			content = ["",""]
+			(errors, warnings) = parseTeXlog(data)
 			if errors:
+				content.append("There were errors in your LaTeX source") 
 				content.append("")
-				content.append("There were also warnings.") 
+				content.extend(errors)
 			else:
-				content.append("However, there were warnings in your LaTeX source") 
-			content.append("")
-			content.extend(warnings)
-		
-		self.caller.output(content)
-		self.caller.output("\n\n[Done!]\n")
-		self.caller.finish(len(errors) == 0)
+				content.append("Texification succeeded: no errors!")
+				content.append("") 
+			if warnings:
+				if errors:
+					content.append("")
+					content.append("There were also warnings.") 
+				else:
+					content.append("However, there were warnings in your LaTeX source") 
+				content.append("")
+				content.extend(warnings)
 
+			self.caller.output(content)
+			self.caller.output("\n\n[Done!]\n")
+			self.caller.finish(len(errors) == 0)
+		except Exception, e:
+			# self.caller.output(content)
+			self.caller.output("\nCould not parse: %s" % self.caller.tex_base + ".log")
+			self.caller.output("\n[Done!]\n")
+			self.caller.finish(True)
+		else:
+			pass
+		finally:
+			pass
 
 # Actual Command
 
@@ -420,7 +434,6 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		os.chdir(tex_dir)
 		CmdThread(self).start()
 		print threading.active_count()
-
 
 	# Threading headaches :-)
 	# The following function is what gets called from CmdThread; in turn,
