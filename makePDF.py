@@ -43,7 +43,7 @@ def parseTeXlog(log):
 	warning_rx = re.compile(r"^(.*?) Warning: (.+)") # Warnings, first line
 	line_rx_latex_warn = re.compile(r"input line (\d+)\.$") # Warnings, line number
 	matched_parens_rx = re.compile(r"\([^()]*\)") # matched parentheses, to be deleted (note: not if nested)
-	assignment_rx = re.compile(r"\\[^=]*=")	# assignment, heuristics for line merging
+	assignment_rx = re.compile(r"^\\[^=]*=")	# assignment, heuristics for line merging
 
 	files = []
 
