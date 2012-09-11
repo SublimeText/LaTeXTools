@@ -7,8 +7,8 @@ import os.path, re
 # Contributed by Sam Finn
 
 def get_tex_root(view):
-	root = os.path.abspath(view.settings().get('TEXroot'))
 	try:
+		root = os.path.abspath(view.settings().get('TEXroot'))
 		if os.path.isfile(root):
 			print "Main file defined in project settings : " + root
 			return root

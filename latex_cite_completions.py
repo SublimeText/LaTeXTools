@@ -115,7 +115,7 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         completions = ["TEST"]
 
         #### GET COMPLETIONS HERE #####
-        root = getTeXRoot(view)
+        root = getTeXRoot.get_tex_root(view)
 
         print "TEX root: " + root
         bib_files = []
