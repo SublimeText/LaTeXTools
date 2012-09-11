@@ -1,5 +1,8 @@
 import sublime, sublime_plugin
+import os, os.path
 import re
+import getTeXRoot
+
 
 def match(rex, str):
     m = rex.match(str)
@@ -7,6 +10,27 @@ def match(rex, str):
         return m.group(0)
     else:
         return None
+
+
+# recursively search all linked tex files to find all
+# included \label{} tags in the document and extract
+def find_labels_in_files(rootdir, src, labels):
+    if src[-4:] != ".tex":
+        src = src + ".tex"
+
+    file_path = os.path.normpath(os.path.join(rootdir, src))
+    print "Searching file: " + file_path
+    dir_name = os.path.dirname(file_path)
+
+    # read src file and extract all label tags
+    with open(file_path, "r") as src_file:
+        src_content = re.sub("%.*", "", src_file.read())
+        labels += re.findall(r'\\label\{([^\{\}]+)\}', src_content)
+
+    # search through input tex files recursively
+    for f in re.findall(r'\\(?:input|include)\{([^\{\}]+)\}', src_content):
+        find_labels_in_files(dir_name, f, labels)
+
 
 # Based on html_completions.py
 #
@@ -38,7 +62,6 @@ class LatexRefCompletions(sublime_plugin.EventListener):
         # the current point
         l = locations[0]
         line = view.substr(sublime.Region(view.line(l).a, l))
-            
 
         # Reverse, to simulate having the regex
         # match backwards (cool trick jps btw!)
@@ -48,35 +71,35 @@ class LatexRefCompletions(sublime_plugin.EventListener):
         # Check the first location looks like a ref, but backward
         rex = re.compile("([^_]*_)?(p)?fer(qe)?")
         expr = match(rex, line)
-        #print expr
-        if not expr:
-            return []
+        # print expr
 
-        # Return the completions
-        prefix, has_p, has_eq = rex.match(expr).groups()
-        if prefix:
-            prefix = prefix[::-1] # reverse
-            prefix = prefix[1:] # chop off #
-        #print prefix, has_p, has_eq
+        if expr:
+            # Return the matched bits, for mangling
+            prefix, has_p, has_eq = rex.match(expr).groups()
+            preformatted = False
+            if prefix:
+                prefix = prefix[::-1]   # reverse
+                prefix = prefix[1:]     # chop off #
+            else:
+                prefix = ""
+            #print prefix, has_p, has_eq
 
-        # Reverse back expr
-        expr = expr[::-1]
+        else:
+            # Check to see if the location matches a preformatted "\ref{blah"
+            rex = re.compile(r"([^{}]*)\{fer(qe)?\\(\()?")
+            expr = match(rex, line)
 
-        # Replace ref expression with "C" to save space in drop-down menu
-        expr_region = sublime.Region(l-len(expr),l)
-        #print expr, view.substr(expr_region)
-        ed = view.begin_edit()
-        view.replace(ed, expr_region, "R")
-        view.end_edit(ed)
-        expr = "R"
+            if not expr:
+                return []
 
-
-        completions = []
-        # stop matching at FIRST } after \label{
-        view.find_all('\\label\{([^\{\}]*)\}',0,'\\1',completions)
-
-        if prefix:
-            completions = [comp for comp in completions if prefix in comp]
+            preformatted = True
+            # Return the matched bits (barely needed, in this case)
+            prefix, has_eq, has_p = rex.match(expr).groups()
+            if prefix:
+                prefix = prefix[::-1]   # reverse
+            else:
+                prefix = ""
+            #print prefix, has_p, has_eq
 
         if has_p:
             pre_snippet = "(\\ref{"
@@ -88,6 +111,32 @@ class LatexRefCompletions(sublime_plugin.EventListener):
             pre_snippet = "\\ref{"
             post_snippet = "}"
 
-        r = [(expr + " "+label, pre_snippet + label + post_snippet) for label in completions]
+        if not preformatted:
+            # Replace ref_blah with \ref{blah
+            expr_region = sublime.Region(l - len(expr), l)
+            #print expr[::-1], view.substr(expr_region)
+            ed = view.begin_edit()
+            view.replace(ed, expr_region, pre_snippet + prefix)
+            view.end_edit(ed)
+
+        else:
+            # Don't include post_snippet if it's already present
+            suffix = view.substr(sublime.Region(l, l + len(post_snippet)))
+            if post_snippet == suffix:
+                post_snippet = ""
+
+        completions = []
+        # stop matching at FIRST } after \label{
+        view.find_all(r'\\label\{([^\{\}]+)\}', 0, '\\1', completions)
+
+        # Find tex root and search all tex source referenced
+        root = getTeXRoot.get_tex_root(view.file_name())
+        # tex root is the current file itself if no TEX root is specified
+        print "TEX root: " + root
+        find_labels_in_files(os.path.dirname(root), root, completions)
+        # remove duplicate bib files
+        completions = list(set(completions))
+
+        r = [(label + "\t\\ref{}", label + post_snippet) for label in completions]
         #print r
-        return r
+        return (r, sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS)
