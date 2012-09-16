@@ -85,25 +85,51 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         # NOTE2: restrict what to match for fancy cite
         rex = re.compile("([^_]*_)?([a-zX]*?)etic")
         expr = match(rex, line)
-        print expr
-        if not expr:
-            return []
+        #print expr
+        
+        # See first if we have a cite_ trigger
+        if expr:
+            # Return the completions
+            prefix, fancy_cite = rex.match(expr).groups()
+            preformatted = False
+            post_brace = "}"
+            if prefix:
+                prefix = prefix[::-1] # reverse
+                prefix = prefix[1:] # chop off #
+            if fancy_cite:
+                fancy_cite = fancy_cite[::-1]
+                # fancy_cite = fancy_cite[1:] # no need to chop off?
+                if fancy_cite[-1] == "X":
+                    fancy_cite = fancy_cite[:-1] + "*"
+            print prefix, fancy_cite
 
-        # Return the completions
-        prefix, fancy_cite = rex.match(expr).groups()
-        if prefix:
-            prefix = prefix[::-1] # reverse
-            prefix = prefix[1:] # chop off #
-        if fancy_cite:
-            fancy_cite = fancy_cite[::-1]
-            # fancy_cite = fancy_cite[1:] # no need to chop off?
-            if fancy_cite[-1] == "X":
-                fancy_cite = fancy_cite[:-1] + "*"
-        print prefix, fancy_cite
+        # Otherwise, see if we have a preformatted \cite{}
+        else:
+            rex = re.compile(r"([^{}]*)\{?([a-zX*]*?)etic\\")
+            expr = match(rex, line)
+
+            if not expr:
+                return []
+
+            preformatted = True
+            post_brace = ""
+            prefix, fancy_cite = rex.match(expr).groups()
+            if prefix:
+                prefix = prefix[::-1]
+            else:
+                prefix = ""
+            if fancy_cite:
+                fancy_cite = fancy_cite[::-1]
+                if fancy_cite[-1] == "X":
+                    fancy_cite = fancy_cite[:-1] + "*"
+            else:
+                fancy_cite = ""
+            print prefix, fancy_cite
 
         # Reverse back expr
         expr = expr[::-1]
-        
+
+        # Need to do better here        
         # Replace cite expression with "C" to save space in drop-down menu
         expr_region = sublime.Region(l-len(expr),l)
         #print expr, view.substr(expr_region)
@@ -187,7 +213,7 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
 
         # popup is 40chars wide...
         t_end = 40 - len(expr)
-        r = [(expr + " "+title[:t_end], "\\cite" + fancy_cite + "{" + keyword + "}") 
+        r = [(expr + " "+title[:t_end], "\\cite" + fancy_cite + "{" + keyword + post_brace) 
                         for (keyword, title) in completions]
         print r
 
