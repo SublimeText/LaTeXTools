@@ -6,7 +6,9 @@ by Marciano Siniscalchi
 
 Additional contributors (/thank you thank you thank you/): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes). *If you have contributed and I haven't acknowledged you, email me!*
 
-Latest revision: 2012-09-16
+Latest revision: *2012-09-17*
+
+**WARNING**: keybindings have changed! Read the section titled "New-style keybindings."
 
 Introduction
 ------------
@@ -73,10 +75,27 @@ On **Linux**, support is still **preliminary*** but it is coming. You need to in
 Right now, you can compile your tex files and in general use all the editing facilities provided by the plugin. However, the previewer is *not* yet automatically launched. It's high on my agenda, but it's not in yet.
 
 
+New-Style Keybindings
+---------------------
+
+Beginning with the 2012-09-17 commits, keybindings have been changed to make them easier to remember, and also to minimize clashes with existing (and standard) ST2 bindings. I am taking advantage of the fact that ST2 supports key combinations, i.e. sequences of two (or more) keys. The basic principle is simple:
+
+- **Most LaTeXTools facilities are triggered using `Ctrl+l` (Windows, Linux) or `Cmd+l` (OS X), followed by some other key or key combination**
+
+- Compilation uses the standard ST2 "build" keybinding, i.e. `Ctrl-b` on Windows and Linux and `Cmd-b` on OS X. So does the "goto anything" facility (though this may change).
+
+For example: to jump to the point in the PDF file corresponding to the current cursor position, use `Ctrl-l, j`: that is, hit `Ctrl-l`, then release both the `Ctrl` and the `l` keys, and quickly type the `l` key (OS X users: replace `Ctrl` with `Cmd`). To wrap the selected text in an `\emph{}` command, use `Ctrl-l, Ctrl-e`: that is, hit `Ctrl-l`, release both keys, then hit `Ctrl-e` (again, OS X users hit `Cmd-l` and then `Cmd-e`). 
+
+Most facilities are invoked using sequences of 2 keys or key combinations, as in the examples just given. A few use sequences of 3 keys or key combinations.
+
+Henceforth, I will write `C-` instead of `Ctrl-` or `Cmd-`: you know your platform, so you know what you should use. 
+
 Compiling LaTeX files
 ---------------------
 
-The ST2 Build command (`CMD+B` on OSX; `Ctrl+B` on Windows) takes care of the following:
+**Keybinding:** `C-b`
+
+The ST2 Build command takes care of the following:
 
 * It saves the current file
 * It invokes the tex build command (`texify` for MikTeX; `latexmk` for TeXlive and MacTeX).
@@ -85,37 +104,49 @@ The ST2 Build command (`CMD+B` on OSX; `Ctrl+B` on Windows) takes care of the fo
 
 Multi-file documents are supported as follows. If the first line in the current file consists of the text `%!TEX root = <master file name>`, then tex & friends are invoked on the specified master file, instead of the current one. Note: the only file that gets saved automatically is the current one.
 
+There is also support for project files; this is to be documented.
+
 ### Toggling window focus following a build ###
 
-By default, after compilation, the focus stays on the ST2 window. This is convenient if you like to work with the editor and PDF viewer window open side by side, and just glance at the PDF output to make sure that all is OK. If however the editor and viewer windows overlap (e.g. if you have a small screen), you may prefer the viewer window to get the focus (i.e. become the foremost window) after compiling. To this end, you can use the `toggle_focus` command (`Ctrl+Cmd+F` on OSX; `Shift+Win+B` on Windows) to change this behavior. The first time you invoke this command, the focus will shift to the viewer window after compiling the current file; if you invoke the command again, the post-compilation focus reverts to the editor window. Every time you invoke `toggle_focus`, a message will appear in the status bar.
+**Keybinding:** `C-l,t,f` (yes, this means `C-l`, then `t`, then `f`)
+
+By default, after compilation, the focus stays on the ST2 window. This is convenient if you like to work with the editor and PDF viewer window open side by side, and just glance at the PDF output to make sure that all is OK. If however the editor and viewer windows overlap (e.g. if you have a small screen), you may prefer the viewer window to get the focus (i.e. become the foremost window) after compiling. To this end, you can use the `toggle_focus` command to change this behavior. The first time you invoke this command, the focus will shift to the viewer window after compiling the current file; if you invoke the command again, the post-compilation focus reverts to the editor window. Every time you invoke `toggle_focus`, a message will appear in the status bar.
 
 Forward and Inverse Search
 ---------------------------
 
-When working in an ST2 view on a TeX document, `CMD+Shift+j` (OSX), `Alt+Shift+j` (Windows) will display the PDF page where the text corresponding to the current cursor position is located; this is called a "forward search". The focus remains on ST2; this is useful especially if you set up the ST2 window and the PDF viewer window side by side.
+**Keybinding:** `C-l,j` (for forward search)
+
+When working in an ST2 view on a TeX document, `C-l,j` will display the PDF page where the text corresponding to the current cursor position is located; this is called a "forward search". The focus remains on ST2; this is useful especially if you set up the ST2 window and the PDF viewer window side by side.
 
 If you are viewing a PDF file, then hitting `CMD+Shift+Click` in Skim (OSX), or double-clicking in Sumatra (Windows) will bring you to the location in the source tex file corresponding to the PDF text you clicked on. This is called "inverse search".
 
 References and Citations
 ------------------------
 
-There are two styles of reference / citation completion commands. The "new-style" command is to type, for example, `\ref{`; as soon as you type the brace, ST2 helpfully provides the closing brace, leaving your cursor between the two braces. Now, type `Ctrl+Space` to get a drop-down list of all labels in the current file. You can also type e.g. `\ref{aa` [again, the closing brace is provided by ST2], then `Ctrl+Space`, and LaTeXTools will show a list of labels that contain the string `aa`. The LaTeX command `\eqref` works the same way. 
+**Keybinding:** `C-l, Ctrl-space` (on OS X, this means `Cmd-l,Ctrl-space`) or `C-l,x`
 
-The old-style completion works as follows. Type `ref_`, then `Ctrl+Space` to get a drop-down list of all labels in the current file. You can filter the list: e.g., if you type `ref_a`, then `Ctrl+Space`, you get only labels beginning with the letter "a". Find the label you want and click on it, or hit Return. The correct reference command will be generated: e.g., `\ref{my-label}`.
+There are two styles of reference / citation completion commands. Let me describe the "new-style" first. 
 
-Using `refp_` instead of `ref_` will surround the reference with parentheses. You can also use `eqref` to generate `\eqref{my-equation}`.
+Type, for example, `\ref{`; as soon as you type the brace, ST2 helpfully provides the closing brace, leaving your cursor between the two braces. Now, type `C-l,Ctrl-space` to get a quick panel (the fancy drop-down list ST2 displays at the top of the screen) showing all labels in the current file. You can also type e.g. `\ref{aa` [again, the closing brace is provided by ST2], then `C-l, Ctrl+Space`, and LaTeXTools will show a list of labels that contain the string `aa`. You select the label you want, hit Return, and LaTeXTools inserts the **full ref command**, as in `\ref{my-label}`. The LaTeX command `\eqref` works the same way. 
 
-Citations **from bibtex files** are also supported in a similar way. Use `\cite{}` or `cite_`, as well as `\citet{}` or `citet_`, `\citeyear{}` or `citeyear_` etc.; again, you can filter the keys, as in e.g. `cite_a`. If you want e.g. `\cite*{...}` and prefer old-style completions, use `citeX_`; that is, use X instead of an asterisk. 
+Citations **from bibtex files** are also supported in a similar way. Use `\cite{}`,  `\citet{}`,  `\citeyear{}` etc.; again, you can filter the keys, as in e.g. `\cite{a}`. The quick panel is really useful for citations, as you get a nice display of paper titles and bibtex keys (which you can narrow down by typing a few characters, as usual in ST2), and also of the author names (not searchable, but still useful). 
 
-*Deprecation alert*: the only real advantage of old-style citations is that you don't have to enter the initial `\`. I think I will eventually remove this functionality and leave only new-style completions, i.e. `\ref{}`, `\cite{}` etc. Moreover, I will soon introduce a new keybinding for the completion facility; instead of a popup menu, which is cramped, especially for citations, I will use ST2's quick panel. [The functionality is actually already there: I just need to add the keybinding. That will come soon.]
+The "old-style" system works as follows. For references, you type `ref_`, then `C-l,Ctrl-space`; again, you can filter by typing, e.g., `ref_a`. Using `refp_` instead of `ref_` will surround the reference with parentheses. You can also use `eqref` to generate `\eqref{my-equation}`. Citations work the same way: you use `cite_`, etc. If you want fancy citations, as in the natbib package, that's allowed, but you must replace asterisks with `X`: so, to get `\cite*{...}` with old-style completions, you need to start by typing `citeX_`. 
 
-Thanks to recent contributed code, multi-file documents are *fully supported*. If you have a `% TEX root = ...` directive at the top of the current file, LaTeXTools looks for references, as well as `\bibliography{}` commands, in the root file and in all recursively included files.
+*Deprecation alert*: the only real advantage of old-style citations is that you don't have to enter the initial `\`. I think I will eventually remove this functionality and leave only new-style completions, i.e. `\ref{}`, `\cite{}` etc. 
+
+Thanks to recent contributed code, multi-file documents are *fully supported*. If you have a `% TEX root = ...` directive at the top of the current file, LaTeXTools looks for references, as well as `\bibliography{}` commands, in the root file and in all recursively included files. You can also use a project file to specify the root file (to be documented).
+
+Another note: **for now**, completions are also injected into the standard ST2 autocompletion system. Thus, if you hit `Ctrl-space` immediately after typing, e.g., `\ref{}`, you get a drop-down menu at the current cursor position (not a quick-panel) showing all labels in your document. This also works with old-style citations. However, the width of this menu is OK for (most) labels, but not really for paper titles. In other words, it is workable for references, but not really for citations. Furthermore, there are other limitations dictated by the ST2 autocompletion system. So, I encourage you to use the `C-l,Ctrl-space` keybinding instead. In fact, consider the standard autocompletion support to be *deprecated* as of today (12-09-17).
 
 
 Jumping to sections and labels
 ------------------------------
 
-The LaTeXtools plugin integrates with the awesome ST2 "Goto Anything" facility. Hit `CMD+R` (OSX) / `Ctrl+R` (Windows) to get a list of all section headings, and all labels. You can filter by typing a few initial letters. Note that section headings are preceded by the letter "S", and labels by "L"; so, if you only want section headings, type "S" when the drop-down list appears.
+**Keybinding:** `C-r` (standard ST2 keybinding)
+
+The LaTeXtools plugin integrates with the awesome ST2 "Goto Anything" facility. Hit `C-r`to get a list of all section headings, and all labels. You can filter by typing a few initial letters. Note that section headings are preceded by the letter "S", and labels by "L"; so, if you only want section headings, type "S" when the drop-down list appears.
 
 Selecting any entry in the list will take you to the corresponding place in the text.
 
@@ -123,9 +154,11 @@ Selecting any entry in the list will take you to the corresponding place in the 
 LaTeX commands and environments
 -------------------------------
 
-To insert a LaTeX command such as `\color{}` or similar, type the command without backslash (i.e. `color`), then hit `CMD+Shift+]` (OSX) / `Ctrl+Shift+]` (Windows). This will replace e.g. `color` with `\color{}` and place the cursor between the braces. Type the argument of the command, then hit Tab to exit the braces.
+**Keybindings:** `C-l,c` for commands and `C-l,e` for environments
 
-Similarly, typing `CMD+Shift+[` (OSX) / `Ctrl+Shift+[` (Windows) gives you an environment: e.g. `test` becomes
+To insert a LaTeX command such as `\color{}` or similar, type the command without backslash (i.e. `color`), then hit `C-l,c`. This will replace e.g. `color` with `\color{}` and place the cursor between the braces. Type the argument of the command, then hit Tab to exit the braces.
+
+Similarly, typing `C-l,e` gives you an environment: e.g. `test` becomes
 
 	\begin{test}
 
@@ -133,23 +166,23 @@ Similarly, typing `CMD+Shift+[` (OSX) / `Ctrl+Shift+[` (Windows) gives you an en
 
 and the cursor is placed inside the environment thus created. Again, Tab exits the environment. 
 
-Note that all these commands are undoable: thus, if e.g. you accidentally hit `CMD+Shift+[` but you really meant `CMD+Shift+]`, a quick `CMD+Z`, followed by `CMD+Shift+]`, will fix things.
+Note that all these commands are undoable: thus, if e.g. you accidentally hit `C-l,c` but you really meant `C-l,e`, a quick `C-z`, followed by `C-l,e`, will fix things.
 
 
 Wrapping existing text in commands and environments
 ---------------------------------------------------
 
+**Keybindings:** `C-l,C-c`, `C-l, C-n`, etc.
+
 The tab-triggered functionality just described is mostly useful if you are creating a command or environment from scratch. However, you sometimes have existing text, and just want to apply some formatting to it via a LaTeX command or environment, such as `\emph` or `\begin{theorem}...\end{theorem}`.
 
-LaTeXTools' wrapping facility helps you in just these circumstances. All commands below are activated via a key binding, and *require some text to be selected first*.
+LaTeXTools' wrapping facility helps you in just these circumstances. All commands below are activated via a key binding, and *require some text to be selected first*. Also, as a mnemonic aid, *all wrapping commands involve typing `C-l,C-something` (which you can achieve by just holding the `C-` key down after typing `l`).
 
-- `Shift+Alt+w,c` wraps the selected text in a LaTeX command structure. If the currently selected text is `blah`, you get `\cmd{blah}`, and the letters `cmd` are highlighted. Replace them with whatever you want, then hit Tab: the cursor will move to the end of the command.
-- `Shift+Alt+w,e` gives you `\emph{blah}`, and the cursor moves to the end of the command.
-- `Shift+Alt+w,b` gives you `\textbf{blah}`
-- `Shift+Alt+w,u` gives you `\underline{blah}`
-- `Shift+Alt+w,n` wraps the selected text in a LaTeX environment structure. You get `\begin{env}`,`blah`, `\end{env}` on three separate lines, with `env` selected. Change `env` to whatever environment you want, then hit Tab to move to the end of the environment.
-
-On OSX, replace `Alt` with `Option`: e.g. to emphasize, use `Shift+Option+w,e`.
+- `C-l,C-c` wraps the selected text in a LaTeX command structure. If the currently selected text is `blah`, you get `\cmd{blah}`, and the letters `cmd` are highlighted. Replace them with whatever you want, then hit Tab: the cursor will move to the end of the command.
+- `C-l,C-e` gives you `\emph{blah}`, and the cursor moves to the end of the command.
+- `C-l,C-b` gives you `\textbf{blah}`
+- `C-l,C-u` gives you `\underline{blah}`
+- `C-l,C-n` wraps the selected text in a LaTeX environment structure. You get `\begin{env}`,`blah`, `\end{env}` on three separate lines, with `env` selected. Change `env` to whatever environment you want, then hit Tab to move to the end of the environment.
 
 
 Command completion, snippets, etc.
