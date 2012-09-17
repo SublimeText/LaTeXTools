@@ -1,48 +1,82 @@
 /*
-LaTeX Package keymap for OSX
+LaTeX Package keymap for OS X
 */
 [
-	// { "keys": ["ctrl+alt+t"], "command": "make_pdf" }, // now bound to Command-B via the standard build system
-	{ "keys": ["ctrl+alt+s"], "command": "tex_sections" },
-	/* why not use TextMate's keybindings? 
-	   we only clobber next-tab and previous-tab, whihc are also bound
-	   to arrow keys */
-	{ "keys": ["super+shift+right_bracket"], "command": "latexcmd"},
-	{ "keys": ["super+shift+left_bracket"], "command": "latexenv"},
-	{ "keys": ["super+shift+period"], "command": "latex_env_closer"}, 
-	/* can't use forward slash or period; also, why not CMD? */
-	{ "keys": ["super+alt+forward_slash"], "command": "tex_macro"},
-	/* alternatives: the second is reminiscent of super+B for build */
-	{ "keys": ["ctrl+alt+v"], "command": "view_pdf"},
-	{ "keys": ["ctrl+alt+r"], "command": "tex_ref"},
-	{ "keys": ["super+shift+j"], "command": "jump_to_pdf"},
-	{ "keys": ["super+shift+b"], "command": "view_pdf"},
-	{ "keys": ["super+ctrl+f"], "command": "toggle_focus"},
 
-	// Cross-reference commands
-	{ "keys": ["super+shift+c"], "command": "latex_cite"},	
+	// New-style keybindings use "cmd+l" as a prefix
+	// This overrides "extend selection to line", which is remapped to
+	// "cmd+l","cmd+l"
+	// However, keybindings are scoped to the text.tex.latex selector, so they do not
+	// pollute the standard bindings
 
-	// Wrapping commands
-	{ "keys": ["alt+shift+w","c"], 
+	// Reassign expand_selection to ctrl+l, ctrl+l
+	{ 	"keys": ["super+l","super+l"], 
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "expand_selection", "args": {"to": "line"} },
+
+	// Insert latex command or environment, and close current environment
+	{ 	"keys": ["super+l","c"], 
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "latexcmd"},
+	{ 	"keys": ["super+l","e"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "latexenv"},
+	{ 	"keys": ["super+l","."], 
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "latex_env_closer"},
+
+	// Complete reference or citation
+	{ 	"keys": ["super+l","ctrl+space"], // this may have to change!
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "latex_ref_cite"},
+
+	// View PDF, jump to point, toggle editor/viewer focus
+	{ 	"keys": ["super+l","v"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "view_pdf"},
+	{ 	"keys": ["super+l","j"], 
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "jump_to_pdf"},
+	{ 	"keys": ["super+l","t","f"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "toggle_focus"},
+
+	// Wrap selected text in command or environment
+	{ "keys": ["super+l","super+c"], 
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Wrap in command.sublime-snippet"}},
-	{ "keys": ["alt+shift+w","n"],  
+	{ "keys": ["super+l","super+n"],  
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Wrap in environment.sublime-snippet"}},
-	{ "keys": ["alt+shift+w","e"],  
+
+	// Wrap selected text in emph, bold or underline
+	{ "keys": ["super+l","super+e"],  
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text emphasize.sublime-snippet"}},
-	{ "keys": ["alt+shift+w","b"],  
+	{ "keys": ["super+l","super+b"],  
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text boldface.sublime-snippet"}},
-	{ "keys": ["alt+shift+w","u"],  
+	{ "keys": ["super+l","super+u"],  
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text underline.sublime-snippet"}},
+
+
+
+
+
 
 		// Auto-pair ``$''
 		// Lifted from default file
@@ -87,7 +121,7 @@ LaTeX Package keymap for OSX
 		]
 	},
 
-	// overlay specifications (Tobias Schmidt)
+		// overlay specifications (Tobias Schmidt)
 	// FIXME: the scope for the four following should actually be text.tex.latex.beamer, but for some reason this does not seem to work
 	{ "keys": ["<"], "command": "insert_snippet", "args": {"contents": "<${1:+-}>$0"}, 
 	"context":  
@@ -186,6 +220,4 @@ LaTeX Package keymap for OSX
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
 		]
 	}
-
-
 ]

@@ -1,83 +1,22 @@
 /*
-LaTeX Package keymap for Windows
+LaTeX Package keymap for Linux
 */
 [
-
-	// New-style keybindings use "ctrl+l" as a prefix
-	// This overrides "extend selection to line", which is remapped to
-	// "ctrl+l","ctrl+l" [?]
-	// However, keybindings are scoped to the text.tex.latex selector, so they do not
-	// pollute the standard bindings
-
-	// Reassign expand_selection to ctrl+l, ctrl+l
-	{ 	"keys": ["ctrl+l","ctrl+l"], 
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "expand_selection", "args": {"to": "line"} },
-
-	// Insert latex command or environment, and close current environment
-	{ 	"keys": ["ctrl+l","c"], 
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latexcmd"},
-	{ 	"keys": ["ctrl+l","e"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latexenv"},
-	{ 	"keys": ["ctrl+l","."], 
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latex_env_closer"},
-
-	// Complete reference or citation
-	{ 	"keys": ["ctrl+l","ctrl+space"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latex_ref_cite"},
-
-	// View PDF, jump to point, toggle editor/viewer focus
-	{ 	"keys": ["ctrl+l","v"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "view_pdf"},
-	{ 	"keys": ["ctrl+l","j"], 
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "jump_to_pdf"},
-	{ 	"keys": ["ctrl+l","t","f"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_focus"},
-
-	// Wrap selected text in command or environment
-	{ "keys": ["ctrl+l","ctrl+c"], 
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Wrap in command.sublime-snippet"}},
-	{ "keys": ["ctrl+l","ctrl+n"],  
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Wrap in environment.sublime-snippet"}},
-
-	// Wrap selected text in emph, bold or underline
-	{ "keys": ["ctrl+l","ctrl+e"],  
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text emphasize.sublime-snippet"}},
-	{ "keys": ["ctrl+l","ctrl+b"],  
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text boldface.sublime-snippet"}},
-	{ "keys": ["ctrl+l","ctrl+u"],  
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text underline.sublime-snippet"}},
-
-
-
-
-
-
+	// { "keys": ["ctrl+alt+t"], "command": "make_pdf" }, // now bound to Command-B via the standard build system
+	{ "keys": ["ctrl+alt+s"], "command": "tex_sections" },
+	/* why not use TextMate's keybindings? 
+	   we only clobber next-tab and previous-tab, whihc are also bound
+	   to arrow keys */
+	{ "keys": ["super+shift+right_bracket"], "command": "latexcmd"},
+	{ "keys": ["super+shift+left_bracket"], "command": "latexenv"},
+	{ "keys": ["super+shift+period"], "command": "latex_env_closer"}, 
+	/* can't use forward slash or period; also, why not CMD? */
+	{ "keys": ["super+alt+forward_slash"], "command": "tex_macro"},
+	/* alternatives: the second is reminiscent of super+B for build */
+	{ "keys": ["ctrl+alt+v"], "command": "view_pdf"},
+	{ "keys": ["ctrl+alt+r"], "command": "tex_ref"},
+	{ "keys": ["super+shift+j"], "command": "jump_to_pdf"},
+	{ "keys": ["super+shift+b"], "command": "view_pdf"},
 
 		// Auto-pair ``$''
 		// Lifted from default file
@@ -122,7 +61,7 @@ LaTeX Package keymap for Windows
 		]
 	},
 
-		// overlay specifications (Tobias Schmidt)
+	// overlay specifications (Tobias Schmidt)
 	// FIXME: the scope for the four following should actually be text.tex.latex.beamer, but for some reason this does not seem to work
 	{ "keys": ["<"], "command": "insert_snippet", "args": {"contents": "<${1:+-}>$0"}, 
 	"context":  
@@ -221,4 +160,6 @@ LaTeX Package keymap for Windows
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
 		]
 	}
+
+
 ]
