@@ -138,7 +138,8 @@ class LatexRefCompletions(sublime_plugin.EventListener):
         # remove duplicate bib files
         completions = list(set(completions))
 
-        r = [(label + "\t\\ref{}", label + post_snippet) for label in completions]
+        # r = [(label + "\t\\ref{}", label + post_snippet) for label in completions]
+        r = [(label, label + post_snippet) for label in completions]
         #print r
         return (r, sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS)
 
@@ -265,4 +266,3 @@ class LatexRefCommand(sublime_plugin.TextCommand):
             view.end_edit(ed)
         
         view.window().show_quick_panel(completions, on_done)
- 
