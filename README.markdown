@@ -4,11 +4,15 @@ LaTeX Plugin for Sublime Text 2
 by Marciano Siniscalchi
 [http://tekonomist.wordpress.com]
 
+Additional contributors (/thank you thank you thank you/): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes). *If you have contributed and I haven't acknowledged you, email me!*
+
+Latest revision: 2012-09-16
+
 Introduction
 ------------
 This plugin provides several features that simplify working with LaTeX files:
 
-* The ST2 build command takes care of compiling your LaTeX source to PDF using `texify` (Windows/MikTeX) or `latexmk` (OSX/MacTeX or Windows/TeXlive). Then, it parses the log file and lists errors and warning. Finally, it launches (or refreshes) the PDF viewer (SumatraPDF on Windows and Skim on OSX) and jumps to the current cursor position.
+* The ST2 build command takes care of compiling your LaTeX source to PDF using `texify` (Windows/MikTeX) or `latexmk` (OSX/MacTeX, Windows/TeXlive, Linux/TeXlive). Then, it parses the log file and lists errors and warning. Finally, it launches (or refreshes) the PDF viewer (SumatraPDF on Windows and Skim on OSX) and jumps to the current cursor position (not implemented yet on Linux).
 * Forward and inverse search with the named PDF previewers is fully supported
 * Easy insertion of references and citations (from BibTeX files) via tab completion
 * Plugs into the "Goto anything" facility to make jumping to any section or label in your LaTeX file(s)
@@ -18,7 +22,7 @@ This plugin provides several features that simplify working with LaTeX files:
 Requirements and Setup
 ----------------------
 
-First, you need to be running a recent dev version of Sublime Text 2 (ST2 henceforth); as of 11/27/2011, I am on Build 2144. 
+First, you need to be running Sublime Text 2 (ST2 henceforth); either the release version or late beta builds (>2100) are fine. 
 
 Second, get the LaTeXTools plugin. These days, the easiest way to do so is via Package Control: see [here](http://wbond.net/sublime_packages/package_control) for details on how to set it up (it's very easy). Once you have Package Control up and running, invoke it (via the Command Palette or from Preferences), select the Install Package command, and look for LaTeXTools.
 
@@ -61,6 +65,14 @@ If instead you use TeXlive, comment out the lines between the comments `*** BEGI
 
 TeXlive has one main advantage over MikTeX: it supports file names and paths with spaces. Furthermore, it is easier to change the compilation engine from the default, `pdflatex`, to e.g. `xelatex`: see below for details.
 
+
+<br>
+
+On **Linux**, support is still **preliminary*** but it is coming. You need to install TeXlive; if you are on Ubuntu, note that `apt-get install texlive` will get you a working but incomplete setup. In particular, it will *not* bring in `latexmk`, which is essential to LaTeXTools. You need to install it via `apt-get install latexmk`. If on the other hand you choose to install the TeXlive distro from TUG, `latexmk` comes with it, so you don't need to do anything else.
+
+Right now, you can compile your tex files and in general use all the editing facilities provided by the plugin. However, the previewer is *not* yet automatically launched. It's high on my agenda, but it's not in yet.
+
+
 Compiling LaTeX files
 ---------------------
 
@@ -87,11 +99,17 @@ If you are viewing a PDF file, then hitting `CMD+Shift+Click` in Skim (OSX), or 
 References and Citations
 ------------------------
 
-Type `ref_`, then `Ctrl+Space` to get a drop-down list of all labels in the current file. You can filter the list: e.g., if you type `ref_a`, then `Ctrl+Space`, you get only labels beginning with the letter "a". Find the label you want and click on it, or hit Return. The correct reference command will be generated: e.g., `\ref{my-label}`.
+There are two styles of reference / citation completion commands. The "new-style" command is to type, for example, `\ref{`; as soon as you type the brace, ST2 helpfully provides the closing brace, leaving your cursor between the two braces. Now, type `Ctrl+Space` to get a drop-down list of all labels in the current file. You can also type e.g. `\ref{aa` [again, the closing brace is provided by ST2], then `Ctrl+Space`, and LaTeXTools will show a list of labels that contain the string `aa`. The LaTeX command `\eqref` works the same way. 
+
+The old-style completion works as follows. Type `ref_`, then `Ctrl+Space` to get a drop-down list of all labels in the current file. You can filter the list: e.g., if you type `ref_a`, then `Ctrl+Space`, you get only labels beginning with the letter "a". Find the label you want and click on it, or hit Return. The correct reference command will be generated: e.g., `\ref{my-label}`.
 
 Using `refp_` instead of `ref_` will surround the reference with parentheses. You can also use `eqref` to generate `\eqref{my-equation}`.
 
-Citations **from bibtex files** are also supported in a similar way. Use `cite_`, as well as `citet_`, `citeyear_` etc.; again, you can filter the keys, as in e.g. `cite_a`. If you want e.g. `\cite*{...}`, use `citeX_`; that is, use X instead of an asterisk.
+Citations **from bibtex files** are also supported in a similar way. Use `\cite{}` or `cite_`, as well as `\citet{}` or `citet_`, `\citeyear{}` or `citeyear_` etc.; again, you can filter the keys, as in e.g. `cite_a`. If you want e.g. `\cite*{...}` and prefer old-style completions, use `citeX_`; that is, use X instead of an asterisk. 
+
+*Deprecation alert*: the only real advantage of old-style citations is that you don't have to enter the initial `\`. I think I will eventually remove this functionality and leave only new-style completions, i.e. `\ref{}`, `\cite{}` etc. Moreover, I will soon introduce a new keybinding for the completion facility; instead of a popup menu, which is cramped, especially for citations, I will use ST2's quick panel. [The functionality is actually already there: I just need to add the keybinding. That will come soon.]
+
+Thanks to recent contributed code, multi-file documents are *fully supported*. If you have a `% TEX root = ...` directive at the top of the current file, LaTeXTools looks for references, as well as `\bibliography{}` commands, in the root file and in all recursively included files.
 
 
 Jumping to sections and labels
@@ -165,6 +183,8 @@ becomes
 I have very little experience with "exotic" TeX engines. You probably know more than I do. Anyway, the key is to customize the `latexmk` parameters so they do what you want it to. Please, do **not** ask for assistance doing so: most likely I won't be able to help you. I just want to point out where to change the build variables.
 
 If you use MikTeX, you are out of luck. The `texify` command can read an environment variable to decide which engine to use, but setting this variable requires Windows- and MikTeX-specific additions to the build command. Alternatively, you can try to use `latexmk` with MikTeX, and configure the build command as above. Again, I have not tried this, and you probably know more than I do on the subject. Sorry, and thanks for your understanding!
+
+*Warning*: if you customize your build file, you'd better move or copy it to the `User` directory. Otherwise, the next time you update LaTeXTools, your changes will be overwritten by the default file.
 
 Troubleshooting
 ---------------
