@@ -30,7 +30,13 @@ LaTeX Package keymap for OS X
 		"command": "latex_env_closer"},
 
 	// Complete reference or citation
-	{ 	"keys": ["super+l","ctrl+space"], // this may have to change!
+	// cmd+l,ctrl+space suggests ST2's standard autocompletion keybinding, but for LaTeX;
+	// cmd+l,x suggests "cross" references, which both cites and refs are 
+	{ 	"keys": ["super+l","ctrl+space"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "latex_ref_cite"},
+	{ 	"keys": ["super+l","x"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "latex_ref_cite"},

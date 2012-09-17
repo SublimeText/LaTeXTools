@@ -30,10 +30,17 @@ LaTeX Package keymap for Linux
 		"command": "latex_env_closer"},
 
 	// Complete reference or citation
+	// ctrl+l,ctrl+space suggests ST2's standard autocompletion keybinding, but for LaTeX;
+	// ctrl+l,x suggests "cross" references, which both cites and refs are 
 	{ 	"keys": ["ctrl+l","ctrl+space"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "latex_ref_cite"},
+	{ 	"keys": ["ctrl+l","x"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "latex_ref_cite"},
+
 
 	// View PDF, jump to point, toggle editor/viewer focus
 	{ 	"keys": ["ctrl+l","v"],
