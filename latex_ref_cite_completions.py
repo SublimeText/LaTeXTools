@@ -25,15 +25,20 @@ class LatexRefCiteCommand(sublime_plugin.TextCommand):
         line = view.substr(sublime.Region(view.line(point).a, point))
         print line
 
-        # split at space, get last contiguous string
-        cmd = line.split()[-1]
+        # Reverse
+        line = line[::-1]
 
-        rex_ref = re.compile(r"\(?\\?(eq)?ref")
-        rex_cite = re.compile(r"\\?cite")
+        rex_ref_new = re.compile(r"[^{]*\{fer")
+        rex_ref_old = re.compile(r".*_p?fer")
+        rex_cite_new = re.compile(r".*etic\\")
+        rex_cite_old = re.compile(r".*_[a-zA-Z]*etic")
 
-        if re.match(rex_ref, cmd):
+        if re.match(rex_ref_old, line) or re.match(rex_ref_new, line):
+            print "Dispatching ref"
             view.run_command("latex_ref")
-        elif re.match(rex_cite, cmd):
+        elif re.match(rex_cite_old, line) or re.match(rex_cite_new, line):
+            print "Dispatching cite"
             view.run_command("latex_cite")
         else:
+            print "Could not dispatch"
             return
