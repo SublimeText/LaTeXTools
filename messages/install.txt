@@ -2,6 +2,9 @@ LaTeXTools Plugin version 2012-09-17 17:03:16
 
 Thank you for installing the LaTeXTools plugin!
 
+If you have not updated your LaTeXTools plugin in a while, please note:
+THE KEYBOARD SHORTCUTS HAVE CHANGED!
+
 To learn about the features of this plugin, go to the Github page:
 
 https://github.com/SublimeText/LaTeXTools
