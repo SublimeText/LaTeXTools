@@ -404,7 +404,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			view.run_command('save') # call this on view, not self.window
 		
 		if self.tex_ext.upper() != ".TEX":
-			sublime.error_message("%s is not a TeX source file: cannot compile." % (os.path.basename(view.fileName()),))
+			sublime.error_message("%s is not a TeX source file: cannot compile." % (os.path.basename(view.file_name()),))
 			return
 		
 		s = platform.system()
