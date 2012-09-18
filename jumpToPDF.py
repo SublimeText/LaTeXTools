@@ -58,5 +58,12 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			print command
 			self.view.run_command("send_dde",
 					{ "service": "SUMATRA", "topic": "control", "command": command})
-		else: # Linux
+		elif 'linux' in plat: # for some reason, I get 'linux2' from sys.platform
+			print "Linux!"
+			# use the evince_forward_search in the 'evince' subdir
+			ev_fwd_exec = os.path.join(sublime.packages_path(), 'LaTeXTools', 'evince',
+										'evince_forward_search')
+			print ev_fwd_exec
+			subprocess.Popen([ev_fwd_exec, pdffile, str(line), srcfile])
+		else: # ???
 			pass
