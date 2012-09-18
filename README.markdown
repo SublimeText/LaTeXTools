@@ -130,11 +130,21 @@ References and Citations
 
 **Keybinding:** `C-l, Ctrl-space` (on OS X, this means `Cmd-l,Ctrl-space`) or `C-l,x`
 
-There are two styles of reference / citation completion commands. Let me describe the "new-style" first. 
+The basic idea is to help you insert labels in `\ref{}` commands and bibtex keys in `\cite{}` commands. The appropriate key combination shows a list of available labels or keys, and you can easily select the appropriate one. Full filtering facilities are provided. 
+
+**Notes**: 
+
+1. In order to find all applicable labels and bibtex keys, the plugin looks at the **saved** file. So, if you invoke this command and do not see the label or key you just entered, perhaps you haven't saved the file.
+
+2. Only bibtex bibliographies are supported. Sorry. It's hard as it is.
+
+3. Multi-file documents are fully supported.
+
+Now for the details. There are two styles of reference / citation completion commands. Let me describe the "new-style" first. 
 
 Type, for example, `\ref{`; as soon as you type the brace, ST2 helpfully provides the closing brace, leaving your cursor between the two braces. Now, type `C-l,Ctrl-space` to get a quick panel (the fancy drop-down list ST2 displays at the top of the screen) showing all labels in the current file. You can also type e.g. `\ref{aa` [again, the closing brace is provided by ST2], then `C-l, Ctrl+Space`, and LaTeXTools will show a list of labels that contain the string `aa`. You select the label you want, hit Return, and LaTeXTools inserts the **full ref command**, as in `\ref{my-label}`. The LaTeX command `\eqref` works the same way. 
 
-Citations **from bibtex files** are also supported in a similar way. Use `\cite{}`,  `\citet{}`,  `\citeyear{}` etc.; again, you can filter the keys, as in e.g. `\cite{a}`. The quick panel is really useful for citations, as you get a nice display of paper titles and bibtex keys (which you can narrow down by typing a few characters, as usual in ST2), and also of the author names (not searchable, but still useful). 
+Citations from bibtex files are also supported in a similar way. Use `\cite{}`,  `\citet{}`,  `\citeyear{}` etc.; again, you can filter the keys, as in e.g. `\cite{a}`. The quick panel is really useful for citations, as you get a nice display of paper titles and bibtex keys (which you can narrow down by typing a few characters, as usual in ST2), and also of the author names (not searchable, but still useful). 
 
 The "old-style" system works as follows. For references, you type `ref_`, then `C-l,Ctrl-space`; again, you can filter by typing, e.g., `ref_a`. Using `refp_` instead of `ref_` will surround the reference with parentheses. You can also use `eqref` to generate `\eqref{my-equation}`. Citations work the same way: you use `cite_`, etc. If you want fancy citations, as in the natbib package, that's allowed, but you must replace asterisks with `X`: so, to get `\cite*{...}` with old-style completions, you need to start by typing `citeX_`. 
 
