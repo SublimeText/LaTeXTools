@@ -86,14 +86,18 @@ Beginning with the 2012-09-17 commits, keybindings have been changed to make the
 
 For example: to jump to the point in the PDF file corresponding to the current cursor position, use `Ctrl-l, j`: that is, hit `Ctrl-l`, then release both the `Ctrl` and the `l` keys, and quickly type the `l` key (OS X users: replace `Ctrl` with `Cmd`). To wrap the selected text in an `\emph{}` command, use `Ctrl-l, Ctrl-e`: that is, hit `Ctrl-l`, release both keys, then hit `Ctrl-e` (again, OS X users hit `Cmd-l` and then `Cmd-e`). 
 
-Most facilities are invoked using sequences of 2 keys or key combinations, as in the examples just given. A few use sequences of 3 keys or key combinations.
+`Ctrl-l` (`Cmd-l` on OS X) is the standard ST2 keybinding for "expand selection to line"; this is **remapped** to `Ctrl-l,Ctrl-l` (`Cmd-l,Cmd-l` on OS X). This is the *only* standard ST2 keybinding that is affected by the plugin---an advantage of new-style keybindings.
 
-Henceforth, I will write `C-` instead of `Ctrl-` or `Cmd-`: you know your platform, so you know what you should use. 
+Most plugin facilities are invoked using sequences of 2 keys or key combinations, as in the examples just given. A few use sequences of 3 keys or key combinations.
+
+Henceforth, I will write `C-` to mean `Ctrl-` for Linux or Windows, and `Cmd-` for OS X. You know your platform, so you know what you should use. In a few places, to avoid ambiguities, I will spell out which key I mean.
+
+Finally, if you really, really hate the new bindings, look in the plugin's directory: there you will find files named, e.g., `Default (OSX).sublime-keybinding.OLD`. This is the old binding file. Drop it in your `User` directory, remove the `.OLD` extension, and you will get back the old bindings. However, you will miss some important functionality, such as ref-cite completion using the quick panel. Of course, you can add it back by tinkering with the keybinding file. Just remember: **do not** modify the keybinding file in the plugin directory, because it will be clobbered the next time you update LaTeXTools.
 
 Compiling LaTeX files
 ---------------------
 
-**Keybinding:** `C-b`
+**Keybinding:** `C-b` (standard ST2 keybinding)
 
 The ST2 Build command takes care of the following:
 
@@ -115,7 +119,7 @@ By default, after compilation, the focus stays on the ST2 window. This is conven
 Forward and Inverse Search
 ---------------------------
 
-**Keybinding:** `C-l,j` (for forward search)
+**Keybinding:** `C-l,j` (for forward search; inverse search depends on the previewer)
 
 When working in an ST2 view on a TeX document, `C-l,j` will display the PDF page where the text corresponding to the current cursor position is located; this is called a "forward search". The focus remains on ST2; this is useful especially if you set up the ST2 window and the PDF viewer window side by side.
 
