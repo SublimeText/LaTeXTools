@@ -25,16 +25,20 @@ class View_pdfCommand(sublime_plugin.WindowCommand):
 			# "subl" as command and "%file:%line" as argument
 			# you also have to put a symlink to subl somewhere on your path
 			# Also check the box "check for file changes"
-			viewercmd = ["open", "-a", "Skim"]
+			if os.path.exists('/Applications/Skim.app'):
+				viewercmd = ["open", "-a", "Skim"]
+			else:
+				viewercmd = ["open", "-a", "Preview"]
+
 		elif s == "Windows":
-			# with new version of SumatraPDF, can set up Inverse 
+			# with new version of SumatraPDF, can set up Inverse
 			# Search in the GUI: under Settings|Options...
 			# Under "Set inverse search command-line", set:
 			# sublime_text "%f":%l
-			viewercmd = ["SumatraPDF", "-reuse-instance"]		
+			viewercmd = ["SumatraPDF", "-reuse-instance"]
 		else:
 			sublime.error_message("Platform as yet unsupported. Sorry!")
-			return	
+			return
 		print viewercmd + [pdfFile]
 		try:
 			# this works on OSX but not Windows, and in any case it's old-fashioned
@@ -44,4 +48,4 @@ class View_pdfCommand(sublime_plugin.WindowCommand):
 		except OSError:
 			sublime.error_message("Cannot launch Viewer. Make sure it is on your PATH.")
 
-			
+

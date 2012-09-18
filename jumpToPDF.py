@@ -29,9 +29,14 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		# platform-specific code:
 		plat = sublime_plugin.sys.platform
 		if plat == 'darwin':
-			options = ["-r","-g"] if keep_focus else ["-r"]
-			subprocess.Popen(["/Applications/Skim.app/Contents/SharedSupport/displayline"] + 
+			if os.path.exists("/Applications/Skim.app"):
+				options = ["-r","-g"] if keep_focus else ["-r"]
+				subprocess.Popen(["/Applications/Skim.app/Contents/SharedSupport/displayline"] +
 								options + [str(line), pdffile, srcfile])
+			else:
+				viewercmd = ["open", "-a", "Preview"]
+				subprocess.Popen(viewercmd + [pdffile])
+
 		elif plat == 'win32':
 			# determine if Sumatra is running, launch it if not
 			print "Windows, Calling Sumatra"
@@ -46,7 +51,7 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 				self.view.window().run_command("view_pdf")
 				time.sleep(0.5) # wait 1/2 seconds so Sumatra comes up
 			setfocus = 0 if keep_focus else 1
-			# First send an open command forcing reload, or ForwardSearch won't 
+			# First send an open command forcing reload, or ForwardSearch won't
 			# reload if the file is on a network share
 			command = u'[Open(\"%s\",0,%d,1)]' % (pdffile,setfocus)
 			print command
