@@ -72,10 +72,13 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			# Sadly ST2 has Python <2.7, so no check_output:
 			running_apps = subprocess.Popen(['ps', '-xw'], stdout=subprocess.PIPE).communicate()[0]
 			#print running_apps
+			
+			# Run scripts through sh because the script files will lose their exec bit on github
+
 			if (not keep_focus) or (not ("evince " + pdffile in running_apps)):
 				print "(Re)launching evince"
-				subprocess.Popen([ev_sync_exec, pdffile], cwd=ev_path)
+				subprocess.Popen(['sh', ev_sync_exec, pdffile], cwd=ev_path)
 				time.sleep(0.5)
-			subprocess.Popen([ev_fwd_exec, pdffile, str(line), srcfile])
+			subprocess.Popen(['python', ev_fwd_exec, pdffile, str(line), srcfile])
 		else: # ???
 			pass

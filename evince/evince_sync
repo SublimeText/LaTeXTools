@@ -8,8 +8,9 @@ if [ -f "$PDFFILE" ];then
 	# danke an Feuerfieber
 	# http://forum.ubuntuusers.de/topic/evince-synctex-vim-emacs-scite-lyx-kile-editor/#post-2841828
 	if [ -f "${PDFFILE%%.pdf}.synctex.gz" ];then
-		# we change the cwd to this directory, ./evince_backward_search should work
-		./evince_backward_search "$PDFFILE" "$EDITORCMD"&
+		# we change the cwd to this directory, so this should work
+		# also note that we stick in 'python' because the script file need not be executable
+		python evince_backward_search "$PDFFILE" "$EDITORCMD"&
 		BACKWARD_SEARCH_PID=$!
 		echo $BACKWARD_SEARCH_PID
 	fi
