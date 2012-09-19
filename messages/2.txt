@@ -1,0 +1,10 @@
+LaTeXTools Plugin version 2012-09-18 19:45:00 changelog:
+
+New features:
+
+- (Preliminary) support for backward and forward search using Evince on Linux
+
+Fixed:
+
+- Renamed old-style API calls in makePDF.py
+

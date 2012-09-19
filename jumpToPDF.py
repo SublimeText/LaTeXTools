@@ -58,18 +58,23 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			print command
 			self.view.run_command("send_dde",
 					{ "service": "SUMATRA", "topic": "control", "command": command})
+		
 		elif 'linux' in plat: # for some reason, I get 'linux2' from sys.platform
 			print "Linux!"
-			# use the evince_forward_search in the 'evince' subdir
-			ev_fwd_exec = os.path.join(sublime.packages_path(), 'LaTeXTools', 'evince',
-										'evince_forward_search')
-			print ev_fwd_exec
+			
+			# the required scripts are in the 'evince' subdir
+			ev_path = os.path.join(sublime.packages_path(), 'LaTeXTools', 'evince')
+			ev_fwd_exec = os.path.join(ev_path, 'evince_forward_search')
+			ev_sync_exec = os.path.join(ev_path, 'evince_sync') # for inverse search!
+			#print ev_fwd_exec, ev_sync_exec
+			
 			# Run evince if either it's not running, or if focus PDF was toggled
 			# Sadly ST2 has Python <2.7, so no check_output:
 			running_apps = subprocess.Popen(['ps', '-xw'], stdout=subprocess.PIPE).communicate()[0]
+			#print running_apps
 			if (not keep_focus) or (not ("evince " + pdffile in running_apps)):
 				print "(Re)launching evince"
-				subprocess.Popen(["evince", pdffile])
+				subprocess.Popen([ev_sync_exec, pdffile], cwd=ev_path)
 				time.sleep(0.5)
 			subprocess.Popen([ev_fwd_exec, pdffile, str(line), srcfile])
 		else: # ???
