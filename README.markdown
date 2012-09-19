@@ -6,7 +6,7 @@ by Marciano Siniscalchi
 
 Additional contributors (/thank you thank you thank you/): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes). *If you have contributed and I haven't acknowledged you, email me!*
 
-Latest revision: *2012-09-17*
+Latest revision: *2012-09-18*
 
 **WARNING**: keybindings have changed! Read the section titled "New-style keybindings."
 
@@ -14,7 +14,7 @@ Introduction
 ------------
 This plugin provides several features that simplify working with LaTeX files:
 
-* The ST2 build command takes care of compiling your LaTeX source to PDF using `texify` (Windows/MikTeX) or `latexmk` (OSX/MacTeX, Windows/TeXlive, Linux/TeXlive). Then, it parses the log file and lists errors and warning. Finally, it launches (or refreshes) the PDF viewer (SumatraPDF on Windows and Skim on OSX) and jumps to the current cursor position (not implemented yet on Linux).
+* The ST2 build command takes care of compiling your LaTeX source to PDF using `texify` (Windows/MikTeX) or `latexmk` (OSX/MacTeX, Windows/TeXlive, Linux/TeXlive). Then, it parses the log file and lists errors and warning. Finally, it launches (or refreshes) the PDF viewer (SumatraPDF on Windows, Skim on OSX, and Evince on Linux) and jumps to the current cursor position (as of 2012-9-18, consider Linux preview support experimental; it works for me, but it may have glitches).
 * Forward and inverse search with the named PDF previewers is fully supported
 * Easy insertion of references and citations (from BibTeX files) via tab completion
 * Plugs into the "Goto anything" facility to make jumping to any section or label in your LaTeX file(s)
@@ -70,9 +70,11 @@ TeXlive has one main advantage over MikTeX: it supports file names and paths wit
 
 <br>
 
-On **Linux**, support is still **preliminary*** but it is coming. You need to install TeXlive; if you are on Ubuntu, note that `apt-get install texlive` will get you a working but incomplete setup. In particular, it will *not* bring in `latexmk`, which is essential to LaTeXTools. You need to install it via `apt-get install latexmk`. If on the other hand you choose to install the TeXlive distro from TUG, `latexmk` comes with it, so you don't need to do anything else.
+On **Linux**, support is still a bit preliminary but it is coming along. You need to install TeXlive; if you are on Ubuntu, note that `apt-get install texlive` will get you a working but incomplete setup. In particular, it will *not* bring in `latexmk`, which is essential to LaTeXTools. You need to install it via `apt-get install latexmk`. If on the other hand you choose to install the TeXlive distro from TUG, `latexmk` comes with it, so you don't need to do anything else.
 
-Right now, you can compile your tex files and in general use all the editing facilities provided by the plugin. However, the previewer is *not* yet automatically launched. It's high on my agenda, but it's not in yet.
+Only the Evince PDF viewer is supported; it's installed by default on Ubuntu or, more generally, any distro that provides the Gnome desktop, and you don't need to configure anything. Backward and forward search Work For Me (TM). Hopefully they will work for you, too, but let me know if this is not the case.
+
+Note: I already have patches to support Okular. Indeed, Okular is very easy to support, as it provides a sane command-line interface; Evince insists on using DBus, which requires considerable gyrations (luckily, it was relatively easy to adapt solutions already existing for other editors to ST2). What is harder is supporting *both* Evince and Okular. This would need a revamp of the building-related facilites of the plugin, basically supporting user settings to select a particular viewer. But the incentive to add such support is very low as far as other platforms are concerned: only SumatraPDF supports forward/inverse search on Windows, and Skim is the easiest-to-control and most powerful/complete PDF viewer on OS X that does. Bottom line: multiple viewer support is probably not coming in the near future. Sorry!
 
 
 New-Style Keybindings
@@ -123,7 +125,9 @@ Forward and Inverse Search
 
 When working in an ST2 view on a TeX document, `C-l,j` will display the PDF page where the text corresponding to the current cursor position is located; this is called a "forward search". The focus remains on ST2; this is useful especially if you set up the ST2 window and the PDF viewer window side by side.
 
-If you are viewing a PDF file, then hitting `CMD+Shift+Click` in Skim (OSX), or double-clicking in Sumatra (Windows) will bring you to the location in the source tex file corresponding to the PDF text you clicked on. This is called "inverse search".
+If you are viewing a PDF file, then hitting `CMD+Shift+Click` in Skim (OSX), double-clicking in Sumatra (Windows), or hitting `Ctrl+click` in Evince (Linux) will bring you to the location in the source tex file corresponding to the PDF text you clicked on. This is called "inverse search".
+
+To open a PDF file without performing a forward search, use `C-l,v`. I'm not sure this is very useful, but the facility is there for now.
 
 References and Citations
 ------------------------
