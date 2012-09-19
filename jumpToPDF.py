@@ -64,6 +64,13 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			ev_fwd_exec = os.path.join(sublime.packages_path(), 'LaTeXTools', 'evince',
 										'evince_forward_search')
 			print ev_fwd_exec
+			# Run evince if either it's not running, or if focus PDF was toggled
+			# Sadly ST2 has Python <2.7, so no check_output:
+			running_apps = subprocess.Popen(['ps', '-xw'], stdout=subprocess.PIPE).communicate()[0]
+			if (not keep_focus) or (not ("evince " + pdffile in running_apps)):
+				print "(Re)launching evince"
+				subprocess.Popen(["evince", pdffile])
+				time.sleep(0.5)
 			subprocess.Popen([ev_fwd_exec, pdffile, str(line), srcfile])
 		else: # ???
 			pass
