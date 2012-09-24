@@ -42,7 +42,7 @@ class EvinceWindowProxy:
 
     def __init__(self, uri, editor, spawn = False, logger = None):
         self._log = logger
-        self.uri = uri
+        self.uri = uri.replace(" ", "%20")
         self.editor = editor
         self.status = CLOSED
         self.source_handler = None
@@ -70,7 +70,7 @@ class EvinceWindowProxy:
             self.handle_find_document_reply(keyargs['sender'])
         
     def _get_dbus_name(self, spawn):
-        EvinceWindowProxy.daemon.FindDocument(self.uri,spawn,
+        EvinceWindowProxy.daemon.FindDocument(self.uri, spawn,
                      reply_handler=self.handle_find_document_reply,
                      error_handler=self.handle_find_document_error,
                      dbus_interface = EV_DAEMON_IFACE)
@@ -108,6 +108,7 @@ class EvinceWindowProxy:
 
     def on_sync_source(self, input_file, source_link, time):
         print input_file + ":" + str(source_link[0])
+        input_file = input_file.replace("%20", " ")
         cmd = re.sub("%f",input_file,self.editor)
         cmd = re.sub("%l",str(source_link[0]), cmd)
         print cmd

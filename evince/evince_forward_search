@@ -33,7 +33,9 @@ try:
 except ValueError:
     print_usage()
 
-pdf_file = os.path.abspath(sys.argv[1])
+# If there are spaces in the PDF file name, they MUST be URI-encoded as %20;
+# the TEX file instead must be left alone, or SyncView will fail.
+pdf_file = os.path.abspath(sys.argv[1]).replace(" ","%20")
 tex_file = os.path.abspath(sys.argv[3])
 
 try:

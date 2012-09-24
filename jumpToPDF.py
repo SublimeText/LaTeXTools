@@ -70,7 +70,7 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			
 			# Run evince if either it's not running, or if focus PDF was toggled
 			# Sadly ST2 has Python <2.7, so no check_output:
-			running_apps = subprocess.Popen(['ps', '-xw'], stdout=subprocess.PIPE).communicate()[0]
+			running_apps = subprocess.Popen(['ps', 'xw'], stdout=subprocess.PIPE).communicate()[0]
 			#print running_apps
 			
 			# Run scripts through sh because the script files will lose their exec bit on github

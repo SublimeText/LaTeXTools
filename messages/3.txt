@@ -1,0 +1,6 @@
+LaTeXTools Plugin version 2012-09-24 changelog:
+
+Fixed:
+
+- Support backward/forward search on Linux when file names have spaces  
+
