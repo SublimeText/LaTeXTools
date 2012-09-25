@@ -6,7 +6,7 @@ by Marciano Siniscalchi
 
 Additional contributors (/thank you thank you thank you/): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes). *If you have contributed and I haven't acknowledged you, email me!*
 
-Latest revision: *2012-09-18*
+Latest revision: *2012-09-25*. Highligth: a settings file. See the section titled "Settings."
 
 **WARNING**: keybindings have changed! Read the section titled "New-style keybindings."
 
@@ -117,6 +117,8 @@ There is also support for project files; this is to be documented.
 **Keybinding:** `C-l,t,f` (yes, this means `C-l`, then `t`, then `f`)
 
 By default, after compilation, the focus stays on the ST2 window. This is convenient if you like to work with the editor and PDF viewer window open side by side, and just glance at the PDF output to make sure that all is OK. If however the editor and viewer windows overlap (e.g. if you have a small screen), you may prefer the viewer window to get the focus (i.e. become the foremost window) after compiling. To this end, you can use the `toggle_focus` command to change this behavior. The first time you invoke this command, the focus will shift to the viewer window after compiling the current file; if you invoke the command again, the post-compilation focus reverts to the editor window. Every time you invoke `toggle_focus`, a message will appear in the status bar.
+
+You can change the default focus behavior via the `keep_focus` option: see the "Settings" section below.
 
 Forward and Inverse Search
 ---------------------------
@@ -236,6 +238,21 @@ I have very little experience with "exotic" TeX engines. You probably know more 
 If you use MikTeX, you are out of luck. The `texify` command can read an environment variable to decide which engine to use, but setting this variable requires Windows- and MikTeX-specific additions to the build command. Alternatively, you can try to use `latexmk` with MikTeX, and configure the build command as above. Again, I have not tried this, and you probably know more than I do on the subject. Sorry, and thanks for your understanding!
 
 *Warning*: if you customize your build file, you'd better move or copy it to the `User` directory. Otherwise, the next time you update LaTeXTools, your changes will be overwritten by the default file.
+
+Settings
+--------
+
+LaTeXTools now supports user-defined settings. The *default* settings file is called `LaTeXTools Preferences.sublime-settings`, in the plugin's folder (normally `Packages/LaTeXTools`). You can take a look at it to see what options are available, but **do not edit it**. Instead, copy it to the `Packages\User` folder, and edit your copy. This way your settings won't be clobbered the next time you update the plugin.
+
+*Warning*: tweaking options can cause breakage. For instance, if you change the default `python2` setting (empty by default) to a non-existent binary, forward and inverse search will stop working. If you think you have found a bug, *delete your settings file in the `Packages/User` folder before reporting it!* Thanks :-)
+
+The following options are currently available (defaults in parentheses):
+
+- `keep_focus` (`true`): if `true`, after compiling a tex file, ST2 retains the focus; if `false`, the PDF viewer gets the focus. Also note that you can *temporarily* toggle this behavior with `C-L,t,f`.
+- `linux` settings:
+  * `python2` (`""`, i.e. empty string): name of the Python 2 executable. This is useful for systems who ship with both Python 2 and Python 3. The forward/backward search used with Evince require Python 2.
+  * `sublime` (`sublime-text`): name of the ST2 executable. Ubuntu supports both `sublime-text` and `subl`; other distros may vary.
+  * `sync-wait` (1.5): when you ask LaTeXTools to do a forward search, and the PDF file is not yet open (for example, right after compiling a tex file for the first time), LaTeXTools first launches evince, then waits a bit for it to come up, and then it performs the forward search. This parameter controls how long LaTeXTools should wait. If you notice that your machine opens the PDF, then sits there doing nothing, and finally performs the search, you can decrease this value to 1.0 or 0.5; if instead the PDF file comes up but the forward search does not seem to happen, increase it to 2.0.
 
 Troubleshooting
 ---------------
