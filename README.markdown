@@ -242,7 +242,7 @@ If you use MikTeX, you are out of luck. The `texify` command can read an environ
 Settings
 --------
 
-LaTeXTools now supports user-defined settings. The *default* settings file is called `LaTeXTools Preferences.sublime-settings`, in the plugin's folder (normally `Packages/LaTeXTools`). You can take a look at it to see what options are available, but **do not edit it**. Instead, copy it to the `Packages\User` folder, and edit your copy. This way your settings won't be clobbered the next time you update the plugin.
+LaTeXTools now supports user-defined settings. The *default* settings file is called `LaTeXTools Preferences.sublime-settings`, in the plugin's folder (normally `Packages/LaTeXTools`). You can take a look at it to see what options are available, but **do not edit it**. Instead, copy it to the `Packages/User` folder, and edit your copy. This way your settings won't be clobbered the next time you update the plugin.
 
 *Warning*: tweaking options can cause breakage. For instance, if you change the default `python2` setting (empty by default) to a non-existent binary, forward and inverse search will stop working. If you think you have found a bug, *delete your settings file in the `Packages/User` folder before reporting it!* Thanks :-)
 
@@ -250,7 +250,7 @@ The following options are currently available (defaults in parentheses):
 
 - `keep_focus` (`true`): if `true`, after compiling a tex file, ST2 retains the focus; if `false`, the PDF viewer gets the focus. Also note that you can *temporarily* toggle this behavior with `C-L,t,f`.
 - `linux` settings:
-  * `python2` (`""`, i.e. empty string): name of the Python 2 executable. This is useful for systems who ship with both Python 2 and Python 3. The forward/backward search used with Evince require Python 2.
+  * `python2` (`""`, i.e. empty string): name of the Python 2 executable. This is useful for systems that ship with both Python 2 and Python 3. The forward/backward search used with Evince require Python 2.
   * `sublime` (`sublime-text`): name of the ST2 executable. Ubuntu supports both `sublime-text` and `subl`; other distros may vary.
   * `sync-wait` (1.5): when you ask LaTeXTools to do a forward search, and the PDF file is not yet open (for example, right after compiling a tex file for the first time), LaTeXTools first launches evince, then waits a bit for it to come up, and then it performs the forward search. This parameter controls how long LaTeXTools should wait. If you notice that your machine opens the PDF, then sits there doing nothing, and finally performs the search, you can decrease this value to 1.0 or 0.5; if instead the PDF file comes up but the forward search does not seem to happen, increase it to 2.0.
 
