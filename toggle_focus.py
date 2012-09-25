@@ -4,7 +4,10 @@ import sublime, sublime_plugin
 
 class toggle_focusCommand(sublime_plugin.TextCommand):
 	def run(self, edit, **args):
-		if self.view.settings().get("keep focus",True):
+		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
+		prefs_keep_focus = s.get("keep_focus", True)
+
+		if self.view.settings().get("keep focus",prefs_keep_focus):
 			self.view.settings().set("keep focus", False)
 			sublime.status_message("Focus PDF")
 			print "Focus PDF"
