@@ -9,6 +9,10 @@ from subprocess import Popen
 
 class View_pdfCommand(sublime_plugin.WindowCommand):
 	def run(self):
+		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
+		prefs_keep_focus = s.get("keep_focus", True)
+		prefs_lin = s.get("linux")
+
 		view = self.window.active_view()
 		texFile, texExt = os.path.splitext(view.file_name())
 		if texExt.upper() != ".TEX":
@@ -37,7 +41,10 @@ class View_pdfCommand(sublime_plugin.WindowCommand):
 			# the required scripts are in the 'evince' subdir
 			script_path = os.path.join(sublime.packages_path(), 'LaTeXTools', 'evince')
 			ev_sync_exec = os.path.join(script_path, 'evince_sync') # so we get inverse search
-			viewercmd = ['sh', ev_sync_exec]
+			# Get python binary if set in preferences:
+			py_binary = prefs_lin["python2"] or 'python'
+			sb_binary = prefs_lin["sublime"] or 'sublime-text'
+			viewercmd = ['sh', ev_sync_exec, py_binary, sb_binary]
 		else:
 			sublime.error_message("Platform as yet unsupported. Sorry!")
 			return	

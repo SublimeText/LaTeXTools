@@ -5,6 +5,10 @@ import getTeXRoot
 
 class jump_to_pdfCommand(sublime_plugin.TextCommand):
 	def run(self, edit, **args):
+		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
+		prefs_keep_focus = s.get("keep_focus", True)
+		prefs_lin = s.get("linux")
+
 		texFile, texExt = os.path.splitext(self.view.file_name())
 		if texExt.upper() != ".TEX":
 			sublime.error_message("%s is not a TeX source file: cannot jump." % (os.path.basename(view.fileName()),))
@@ -22,8 +26,8 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		line += 1
 
 		# Query view settings to see if we need to keep focus or let the PDF viewer grab it
-		# By default, we keep it
-		keep_focus = self.view.settings().get("keep focus",True)
+		# By default, we respect settings in Preferences
+		keep_focus = self.view.settings().get("keep focus",prefs_keep_focus)
 		print keep_focus
 
 		# platform-specific code:
@@ -75,10 +79,19 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			
 			# Run scripts through sh because the script files will lose their exec bit on github
 
-			if (not keep_focus) or (not ("evince " + pdffile in running_apps)):
+			# Get python binary if set:
+			py_binary = prefs_lin["python2"] or 'python'
+			sb_binary = prefs_lin["sublime"] or 'sublime-text'
+			# How long we should wait after launching sh before syncing
+			sync_wait = prefs_lin["sync_wait"] or 1.0
+
+			evince_running = ("evince " + pdffile in running_apps)
+			if (not keep_focus) or (not evince_running):
 				print "(Re)launching evince"
-				subprocess.Popen(['sh', ev_sync_exec, pdffile], cwd=ev_path)
-				time.sleep(0.5)
-			subprocess.Popen(['python', ev_fwd_exec, pdffile, str(line), srcfile])
+				subprocess.Popen(['sh', ev_sync_exec, py_binary, sb_binary, pdffile], cwd=ev_path)
+				print "launched evince_sync"
+				if not evince_running: # Don't wait if we have already shown the PDF
+					time.sleep(sync_wait)
+			subprocess.Popen([py_binary, ev_fwd_exec, pdffile, str(line), srcfile])
 		else: # ???
 			pass
