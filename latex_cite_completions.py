@@ -22,7 +22,12 @@ def find_bib_files(rootdir, src, bibfiles):
     dir_name = os.path.dirname(file_path)
 
     # read src file and extract all bibliography tags
-    src_file = open(file_path, "r")
+    try:
+        src_file = open(file_path, "r")
+    except IOError:
+        print "WARNING! I can't find it! Check your \\include's and \\input's." 
+        return
+
     src_content = re.sub("%.*","",src_file.read())
     bibtags =  re.findall(r'\\bibliography\{[^\}]+\}', src_content)
 

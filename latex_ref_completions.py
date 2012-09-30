@@ -23,9 +23,13 @@ def find_labels_in_files(rootdir, src, labels):
     dir_name = os.path.dirname(file_path)
 
     # read src file and extract all label tags
-    with open(file_path, "r") as src_file:
-        src_content = re.sub("%.*", "", src_file.read())
-        labels += re.findall(r'\\label\{([^\{\}]+)\}', src_content)
+    try:
+        with open(file_path, "r") as src_file:
+            src_content = re.sub("%.*", "", src_file.read())
+            labels += re.findall(r'\\label\{([^\{\}]+)\}', src_content)
+    except IOError:
+        print "WARNING! I can't find it! Check your \\include's and \\input's." 
+        return
 
     # search through input tex files recursively
     for f in re.findall(r'\\(?:input|include)\{([^\{\}]+)\}', src_content):
