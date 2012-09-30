@@ -1,0 +1,12 @@
+LaTeXTools Plugin version 2012-09-XX (!) changelog:
+
+New features:
+
+- XXX
+
+
+Bugs fixed:
+
+- Ref/cite completion: don't crash if included file does not exist. For now we report an error
+  message in the Console because bringing up an error dialog messes things up. Perhaps will use
+  the Output panel in the future.
