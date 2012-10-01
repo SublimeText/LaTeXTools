@@ -10,3 +10,5 @@ Bugs fixed:
 - Ref/cite completion: don't crash if included file does not exist. For now we report an error
   message in the Console because bringing up an error dialog messes things up. Perhaps will use
   the Output panel in the future.
+
+- Fix problem with jumpToPDF crashing on non-ASCII filenames
