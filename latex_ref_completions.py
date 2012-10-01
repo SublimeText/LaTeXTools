@@ -15,7 +15,7 @@ def match(rex, str):
 # recursively search all linked tex files to find all
 # included \label{} tags in the document and extract
 def find_labels_in_files(rootdir, src, labels):
-    if src[-4:] != ".tex":
+    if src[-4:].lower() != ".tex":
         src = src + ".tex"
 
     file_path = os.path.normpath(os.path.join(rootdir, src))

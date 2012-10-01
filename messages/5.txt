@@ -11,5 +11,7 @@ Bugs fixed:
   message in the Console because bringing up an error dialog messes things up. Perhaps will use
   the Output panel in the future.
 
+- Fixed problem with uppercase .TEX extension
+
 - Fix problem with jumpToPDF crashing on non-ASCII filenames. Additional "guards" to prevent
   crashes when printing non-ASCII filenames to the Console window
