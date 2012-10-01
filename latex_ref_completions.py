@@ -19,7 +19,7 @@ def find_labels_in_files(rootdir, src, labels):
         src = src + ".tex"
 
     file_path = os.path.normpath(os.path.join(rootdir, src))
-    print "Searching file: " + file_path
+    print "Searching file: " + repr(file_path)
     dir_name = os.path.dirname(file_path)
 
     # read src file and extract all label tags
@@ -137,7 +137,7 @@ class LatexRefCompletions(sublime_plugin.EventListener):
 
         root = getTeXRoot.get_tex_root(view)
 
-        print "TEX root: " + root
+        print "TEX root: " + repr(root)
         find_labels_in_files(os.path.dirname(root), root, completions)
         # remove duplicate bib files
         completions = list(set(completions))
@@ -240,7 +240,7 @@ class LatexRefCommand(sublime_plugin.TextCommand):
 
         root = getTeXRoot.get_tex_root(view)
 
-        print "TEX root: " + root
+        print "TEX root: " + repr(root)
         find_labels_in_files(os.path.dirname(root), root, completions)
         # remove duplicate bib files
         completions = list(set(completions))

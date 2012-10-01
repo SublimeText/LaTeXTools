@@ -14,11 +14,11 @@ def match(rex, str):
 # included bibliography tags in the document and extract
 # the absolute filepaths of the bib files
 def find_bib_files(rootdir, src, bibfiles):
-    if src[-4:] != ".tex":
+    if src[-4:].lower() != ".tex":
         src = src + ".tex"
 
     file_path = os.path.normpath(os.path.join(rootdir,src))
-    print "Searching file: " + file_path
+    print "Searching file: " + repr(file_path)
     dir_name = os.path.dirname(file_path)
 
     # read src file and extract all bibliography tags
@@ -149,13 +149,13 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         #### GET COMPLETIONS HERE #####
         root = getTeXRoot.get_tex_root(view)
 
-        print "TEX root: " + root
+        print "TEX root: " + repr(root)
         bib_files = []
         find_bib_files(os.path.dirname(root),root,bib_files)
         # remove duplicate bib files
         bib_files = list(set(bib_files))
         print "Bib files found: ",
-        print bib_files
+        print repr(bib_files)
 
         if not bib_files:
             print "Error!"
@@ -163,7 +163,7 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         bib_files = ([x.strip() for x in bib_files])
         
         print "Files:"
-        print bib_files
+        print repr(bib_files)
          
         completions = []
         kp = re.compile(r'@[^\{]+\{(.+),')
@@ -182,7 +182,7 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
             texfiledir = os.path.dirname(view.file_name())
             # fix from Tobias Schmidt to allow for absolute paths
             bibfname = os.path.normpath(os.path.join(texfiledir, bibfname))
-            print bibfname 
+            print repr(bibfname) 
             try:
                 bibf = open(bibfname)
             except IOError:
@@ -191,12 +191,12 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
             else:
                 bib = bibf.readlines()
                 bibf.close()
-            print "%s has %s lines" % (bibfname, len(bib))
+            print "%s has %s lines" % (repr(bibfname), len(bib))
             # note Unicode trickery
             keywords = [kp.search(line).group(1).decode('ascii','ignore') for line in bib if line[0] == '@']
             titles = [tp.search(line).group(1).decode('ascii','ignore') for line in bib if tp.search(line)]
             if len(keywords) != len(titles):
-                print "Bibliography " + bibfname + " is broken!"
+                print "Bibliography " + repr(bibfname) + " is broken!"
             # Filter out }'s and ,'s at the end. Ugly!
             nobraces = re.compile(r'\s*,*\}*(.+)')
             titles = [nobraces.search(t[::-1]).group(1)[::-1] for t in titles]
@@ -303,13 +303,13 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
 
         root = getTeXRoot.get_tex_root(view)
 
-        print "TEX root: " + root
+        print "TEX root: " + repr(root)
         bib_files = []
         find_bib_files(os.path.dirname(root),root,bib_files)
         # remove duplicate bib files
         bib_files = list(set(bib_files))
         print "Bib files found: ",
-        print bib_files
+        print repr(bib_files)
 
         if not bib_files:
             print "Error!"
@@ -317,7 +317,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         bib_files = ([x.strip() for x in bib_files])
         
         print "Files:"
-        print bib_files
+        print repr(bib_files)
         
         completions = []
         kp = re.compile(r'@[^\{]+\{(.+),')
@@ -338,7 +338,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             texfiledir = os.path.dirname(view.file_name())
             # fix from Tobias Schmidt to allow for absolute paths
             bibfname = os.path.normpath(os.path.join(texfiledir, bibfname))
-            print bibfname 
+            print repr(bibfname) 
             try:
                 bibf = open(bibfname)
             except IOError:
@@ -347,7 +347,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             else:
                 bib = bibf.readlines()
                 bibf.close()
-            print "%s has %s lines" % (bibfname, len(bib))
+            print "%s has %s lines" % (repr(bibfname), len(bib))
             # note Unicode trickery
             keywords = [kp.search(line).group(1).decode('ascii','ignore') for line in bib if line[0] == '@']
             titles = [tp.search(line).group(1).decode('ascii','ignore') for line in bib if tp.search(line)]
@@ -356,7 +356,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
 #            print zip(keywords,titles,authors)
 
             if len(keywords) != len(titles):
-                print "Bibliography " + bibfname + " is broken!"
+                print "Bibliography " + repr(bibfname) + " is broken!"
                 return
 
             # if len(keywords) != len(authors):
