@@ -33,7 +33,7 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		quotes = "\""
 		srcfile = texFile + u'.tex'
 		root = getTeXRoot.get_tex_root(self.view)
-		print "!TEX root = ", root
+		print "!TEX root = ", repr(root) # need something better here, but this works.
 		rootName, rootExt = os.path.splitext(root)
 		pdffile = rootName + u'.pdf'
 		(line, col) = self.view.rowcol(self.view.sel()[0].end())
@@ -70,7 +70,7 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			# First send an open command forcing reload, or ForwardSearch won't 
 			# reload if the file is on a network share
 			command = u'[Open(\"%s\",0,%d,1)]' % (pdffile,setfocus)
-			print command
+			print repr(command)
 			self.view.run_command("send_dde",
 					{ "service": "SUMATRA", "topic": "control", "command": command})
 			# Now send ForwardSearch command if needed
@@ -80,6 +80,7 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 				print command
 				self.view.run_command("send_dde",
 						{ "service": "SUMATRA", "topic": "control", "command": command})
+
 		
 		elif 'linux' in plat: # for some reason, I get 'linux2' from sys.platform
 			print "Linux!"

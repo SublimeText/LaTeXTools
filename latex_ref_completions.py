@@ -15,17 +15,21 @@ def match(rex, str):
 # recursively search all linked tex files to find all
 # included \label{} tags in the document and extract
 def find_labels_in_files(rootdir, src, labels):
-    if src[-4:] != ".tex":
+    if src[-4:].lower() != ".tex":
         src = src + ".tex"
 
     file_path = os.path.normpath(os.path.join(rootdir, src))
-    print "Searching file: " + file_path
+    print "Searching file: " + repr(file_path)
     dir_name = os.path.dirname(file_path)
 
     # read src file and extract all label tags
-    with open(file_path, "r") as src_file:
-        src_content = re.sub("%.*", "", src_file.read())
-        labels += re.findall(r'\\label\{([^\{\}]+)\}', src_content)
+    try:
+        with open(file_path, "r") as src_file:
+            src_content = re.sub("%.*", "", src_file.read())
+            labels += re.findall(r'\\label\{([^\{\}]+)\}', src_content)
+    except IOError:
+        print "WARNING! I can't find it! Check your \\include's and \\input's." 
+        return
 
     # search through input tex files recursively
     for f in re.findall(r'\\(?:input|include)\{([^\{\}]+)\}', src_content):
@@ -133,7 +137,7 @@ class LatexRefCompletions(sublime_plugin.EventListener):
 
         root = getTeXRoot.get_tex_root(view)
 
-        print "TEX root: " + root
+        print "TEX root: " + repr(root)
         find_labels_in_files(os.path.dirname(root), root, completions)
         # remove duplicate bib files
         completions = list(set(completions))
@@ -236,7 +240,7 @@ class LatexRefCommand(sublime_plugin.TextCommand):
 
         root = getTeXRoot.get_tex_root(view)
 
-        print "TEX root: " + root
+        print "TEX root: " + repr(root)
         find_labels_in_files(os.path.dirname(root), root, completions)
         # remove duplicate bib files
         completions = list(set(completions))
