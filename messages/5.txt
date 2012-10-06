@@ -2,7 +2,10 @@ LaTeXTools Plugin version 2012-09-XX (!) changelog:
 
 New features:
 
-- XXX
+- Add setting "forward_sync" and toggle (C-l,t,s) to control whether ST2 should sync the PDF
+  viewer to the current location in the editor after compilation 
+
+- "Show toggles" command: C-l,t,?
 
 
 Bugs fixed:
