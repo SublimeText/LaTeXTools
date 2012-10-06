@@ -49,11 +49,19 @@ LaTeX Package keymap for OS X
 	{ 	"keys": ["super+l","j"], 
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "jump_to_pdf"},
+		"command": "jump_to_pdf", "args": {"from_keybinding": true}},
 	{ 	"keys": ["super+l","t","f"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "toggle_focus"},
+	{ 	"keys": ["super+l","t","s"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "toggle_fwdsync"},
+	{ 	"keys": ["super+l","t","?"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "toggle_show"},
 
 	// Wrap selected text in command or environment
 	{ "keys": ["super+l","super+c"], 

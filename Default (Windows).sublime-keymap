@@ -49,11 +49,19 @@ LaTeX Package keymap for Windows
 	{ 	"keys": ["ctrl+l","j"], 
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "jump_to_pdf"},
+		"command": "jump_to_pdf", "args": {"from_keybinding": true}},
 	{ 	"keys": ["ctrl+l","t","f"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "toggle_focus"},
+	{ 	"keys": ["ctrl+l","t","s"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "toggle_fwdsync"},
+	{ 	"keys": ["ctrl+l","t","?"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "toggle_show"},
 
 	// Wrap selected text in command or environment
 	{ "keys": ["ctrl+l","ctrl+c"], 

@@ -370,7 +370,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			self.proc = None
 		
 		view = self.window.active_view()
-		
+
 		self.file_name = getTeXRoot.get_tex_root(view)
 
 		# self.file_name = view.file_name()
@@ -479,4 +479,4 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		self.output_view.show(reg) # scroll to top
 		self.output_view.end_edit(edit)
 		if can_switch_to_pdf:
-			self.window.active_view().run_command("jump_to_pdf")
+			self.window.active_view().run_command("jump_to_pdf", {"from_keybinding": False})

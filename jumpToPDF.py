@@ -2,12 +2,29 @@ import sublime, sublime_plugin, os.path, subprocess, time
 import getTeXRoot
 
 # Jump to current line in PDF file
+# NOTE: must be called with {"from_keybinding": <boolean>} as arg
 
 class jump_to_pdfCommand(sublime_plugin.TextCommand):
 	def run(self, edit, **args):
+		# Check prefs for PDF focus and sync
 		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
 		prefs_keep_focus = s.get("keep_focus", True)
+		keep_focus = self.view.settings().get("keep focus",prefs_keep_focus)
+		prefs_forward_sync = s.get("forward_sync", True)
+		forward_sync = self.view.settings().get("forward_sync",prefs_forward_sync)
+
 		prefs_lin = s.get("linux")
+
+		# If invoked from keybinding, we focus the PDF and sync
+		# Rationale: if the user invokes the jump command, s/he wants to see the result of the compilation.
+		# If the PDF viewer window is already visible, s/he probably wants to sync, or s/he would have no
+		# need to invoke the command. And if it is not visible, the natural way to just bring up the
+		# window without syncing is by using the system's window management shortcuts.
+		from_keybinding = args["from_keybinding"]
+		if from_keybinding:
+			keep_focus = False
+			forward_sync = True
+		print from_keybinding, keep_focus, forward_sync
 
 		texFile, texExt = os.path.splitext(self.view.file_name())
 		if texExt.upper() != ".TEX":
@@ -27,13 +44,13 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 
 		# Query view settings to see if we need to keep focus or let the PDF viewer grab it
 		# By default, we respect settings in Preferences
-		keep_focus = self.view.settings().get("keep focus",prefs_keep_focus)
-		print keep_focus
+		
 
 		# platform-specific code:
 		plat = sublime_plugin.sys.platform
 		if plat == 'darwin':
 			options = ["-r","-g"] if keep_focus else ["-r"]
+		# TODO HERE: fix OS X code so fwd sync doesn't happen
 			subprocess.Popen(["/Applications/Skim.app/Contents/SharedSupport/displayline"] + 
 								options + [str(line), pdffile, srcfile])
 		elif plat == 'win32':
@@ -56,12 +73,13 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			print command
 			self.view.run_command("send_dde",
 					{ "service": "SUMATRA", "topic": "control", "command": command})
-			# Now send ForwardSearch command
-			command = "[ForwardSearch(\"%s\",\"%s\",%d,%d,0,%d)]" \
-						% (pdffile, srcfile, line, col, setfocus)
-			print command
-			self.view.run_command("send_dde",
-					{ "service": "SUMATRA", "topic": "control", "command": command})
+			# Now send ForwardSearch command if needed
+			if forward_sync:
+				command = "[ForwardSearch(\"%s\",\"%s\",%d,%d,0,%d)]" \
+							% (pdffile, srcfile, line, col, setfocus)
+				print command
+				self.view.run_command("send_dde",
+						{ "service": "SUMATRA", "topic": "control", "command": command})
 		
 		elif 'linux' in plat: # for some reason, I get 'linux2' from sys.platform
 			print "Linux!"
@@ -92,6 +110,7 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 				print "launched evince_sync"
 				if not evince_running: # Don't wait if we have already shown the PDF
 					time.sleep(sync_wait)
-			subprocess.Popen([py_binary, ev_fwd_exec, pdffile, str(line), srcfile])
+			if forward_sync:
+				subprocess.Popen([py_binary, ev_fwd_exec, pdffile, str(line), srcfile])
 		else: # ???
 			pass
