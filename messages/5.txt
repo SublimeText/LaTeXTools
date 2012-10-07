@@ -1,4 +1,4 @@
-LaTeXTools Plugin version 2012-09-XX (!) changelog:
+LaTeXTools Plugin version 2012-10-06 changelog:
 
 New features:
 
