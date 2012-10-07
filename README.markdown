@@ -6,7 +6,7 @@ by Marciano Siniscalchi
 
 Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes). *If you have contributed and I haven't acknowledged you, email me!*
 
-Latest revision: *2012-09-25*. Highligth: a settings file. See the section titled "Settings."
+Latest revision: *2012-10-06*. Highlight: toggle forward search after compiling on and off.
 
 **WARNING**: I changed keybindings in mid-September 2012. Read the section titled "New-style keybindings."
 
