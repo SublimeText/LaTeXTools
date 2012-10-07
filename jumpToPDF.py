@@ -49,10 +49,14 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		# platform-specific code:
 		plat = sublime_plugin.sys.platform
 		if plat == 'darwin':
-			options = ["-r","-g"] if keep_focus else ["-r"]
-		# TODO HERE: fix OS X code so fwd sync doesn't happen
-			subprocess.Popen(["/Applications/Skim.app/Contents/SharedSupport/displayline"] + 
+			options = ["-r","-g"] if keep_focus else ["-r"]		
+			if forward_sync:
+				subprocess.Popen(["/Applications/Skim.app/Contents/SharedSupport/displayline"] + 
 								options + [str(line), pdffile, srcfile])
+			else:
+				skim = os.path.join(sublime.packages_path(),
+								'LaTeXTools', 'skim', 'displayfile')
+				subprocess.Popen(['sh', skim] + options + [pdffile])
 		elif plat == 'win32':
 			# determine if Sumatra is running, launch it if not
 			print "Windows, Calling Sumatra"

@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# displayfile (Skim)
+#
+# Usage: displayline [-r] [-g] PDFFILE
+#
+# Modified from "displayline" to only revert the file, not jump to a given line
+#
+
+if [ $# == 0 -o "$1" == "-h" -o "$1" == "-help" ]; then
+  echo "Usage: displayline [-r] [-b] [-g] PDFFILE
+Options:
+-r, -revert      Revert the file from disk if it was open
+-g, -background  Do not bring Skim to the foreground"
+  exit 0
+fi
+
+# get arguments
+revert=false
+activate=true
+while [ "${1:0:1}" == "-" ]; do
+  if [ "$1" == "-r" -o "$1" == "-revert" ]; then
+    revert=true
+  elif [ "$1" == "-g" -o "$1" == "-background" ]; then
+    activate=false
+  fi
+  shift
+done
+file="$1"
+#shopt -s extglob
+#[ $# -gt 2 ] && source="$3" || source="${file%.@(pdf|dvi|xdv)}.tex"
+
+# expand relative paths
+[ "${file:0:1}" == "/" ] || file="${PWD}/${file}"
+
+# pass file arguments as NULL-separated string to osascript
+# pass through cat to get them as raw bytes to preserve non-ASCII characters
+/usr/bin/osascript \
+  -e "set theFile to POSIX file \"$file\"" \
+  -e "set thePath to POSIX path of (theFile as alias)" \
+  -e "tell application \"Skim\"" \
+  -e "  if $activate then activate" \
+  -e "  if $revert then" \
+  -e "    try" \
+  -e "      set theDocs to get documents whose path is thePath" \
+  -e "      if (count of theDocs) > 0 then revert theDocs" \
+  -e "    end try" \
+  -e "  end if" \
+  -e "  open theFile" \
+  -e "end tell"
