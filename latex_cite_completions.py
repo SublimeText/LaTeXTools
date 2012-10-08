@@ -100,12 +100,17 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
             post_brace = "}"
             if prefix:
                 prefix = prefix[::-1] # reverse
-                prefix = prefix[1:] # chop off #
+                if prefix[0]=='_':
+                    prefix = prefix[1:] # chop off if there was a _
+            else:
+                prefix = "" # because this could be a None, not ""
             if fancy_cite:
                 fancy_cite = fancy_cite[::-1]
                 # fancy_cite = fancy_cite[1:] # no need to chop off?
                 if fancy_cite[-1] == "X":
                     fancy_cite = fancy_cite[:-1] + "*"
+            else:
+                fancy_cite = "" # just in case it's a None
             print prefix, fancy_cite
 
         # Otherwise, see if we have a preformatted \cite{}
@@ -265,12 +270,17 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             post_brace = "}"
             if prefix:
                 prefix = prefix[::-1] # reverse
-                prefix = prefix[1:] # chop off #
+                prefix = prefix[1:] # chop off 
+            else:
+                prefix = "" # just in case it's None, though here
+                            # it shouldn't happen!
             if fancy_cite:
                 fancy_cite = fancy_cite[::-1]
                 # fancy_cite = fancy_cite[1:] # no need to chop off?
                 if fancy_cite[-1] == "X":
                     fancy_cite = fancy_cite[:-1] + "*"
+            else:
+                fancy_cite = "" # again just in case
             print prefix, fancy_cite
 
         # Otherwise, see if we have a preformatted \cite{}
@@ -312,7 +322,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         print repr(bib_files)
 
         if not bib_files:
-            print "Error!"
+            sublime.error_message("No bib files found!") # here we can!
             return []
         bib_files = ([x.strip() for x in bib_files])
         

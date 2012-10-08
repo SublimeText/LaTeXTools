@@ -40,5 +40,5 @@ class LatexRefCiteCommand(sublime_plugin.TextCommand):
             print "Dispatching cite"
             view.run_command("latex_cite")
         else:
-            print "Could not dispatch"
+            sublime.error_message("Ref/cite: unrecognized format.")
             return
