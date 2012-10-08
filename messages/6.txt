@@ -1,0 +1,10 @@
+LaTeXTools Plugin version 2012-10-XX changelog:
+
+New features:
+
+- 
+
+
+Bugs fixed:
+
+- Robustified get_tex_root
