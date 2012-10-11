@@ -13,7 +13,7 @@
 	"windows": {
 		// Command to invoke Sumatra. If blank, "SumatraPDF" is used (it has to be on your PATH)
 		"sumatra": ""
-	}
+	},
 
 	// Settings that are specific to Linux platforms
 	"linux": {
