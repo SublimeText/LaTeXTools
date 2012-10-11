@@ -270,6 +270,8 @@ The following options are currently available (defaults in parentheses):
 
 - `keep_focus` (`true`): if `true`, after compiling a tex file, ST2 retains the focus; if `false`, the PDF viewer gets the focus. Also note that you can *temporarily* toggle this behavior with `C-l,t,f`.
 - `forward_sync` (`true`): if `true`, after compiling a tex file, the PDF viewer is asked to sync to the position corresponding to the current cursor location in ST2. You can also *temporarily* toggle this behavior with `C-l,t,s`.
+- `windows` settings:
+	* `sumatra` ("", i.e. empty string): path to the sumatraPDF executable, in case it is not in your PATH (portable installation)
 - `linux` settings:
   * `python2` (`""`, i.e. empty string): name of the Python 2 executable. This is useful for systems that ship with both Python 2 and Python 3. The forward/backward search used with Evince require Python 2.
   * `sublime` (`sublime-text`): name of the ST2 executable. Ubuntu supports both `sublime-text` and `subl`; other distros may vary.
