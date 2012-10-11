@@ -49,7 +49,7 @@ Note: in case you have created a symlink to Sublime Text somewhere in your path,
 
 <br>
 
-On **Windows**, both MikTeX and TeXlive are supported, but TeXLive support is currently *better*. Also, you must be running a current (>=1.4) version of the Sumatra PDF previewer. Install these as usual; then, add the SumatraPDF directory to your PATH (this requirement will be removed at some point). 
+On **Windows**, both MikTeX and TeXlive are supported, but TeXLive support is currently *better*. Also, you must be running a current (>=1.4) version of the Sumatra PDF previewer. Install these as usual; then either add the SumatraPDF directory to your PATH, or set the "sumatra" setting in your LaTeXTools Preference file.
 
 You now need to set up inverse search in Sumatra PDF. However, the GUI for doing this is hidden in Sumatra until you open a PDF file that has actual synchronization information (that is, an associated `.synctex.gz` file): see [here](http://forums.fofou.org/sumatrapdf/topic?id=2026321). If you have one such file, then open it, go to Settings|Options, and enter `"C:\Program Files\Sublime Text 2\sublime_text.exe" "%f:%l"` as the inverse-search command line (in the text-entry field at the bottom of the options dialog). If you don't already have a file with sync information, you can easily create one: compile any LaTex file you already have (or create a new one) with `pdflatex -synctex=1 <file.tex>`, and then open the resulting PDF file in SumatraPDF. 
 
@@ -249,7 +249,13 @@ becomes
 
 I have very little experience with "exotic" TeX engines. You probably know more than I do. Anyway, the key is to customize the `latexmk` parameters so they do what you want it to. Please, do **not** ask for assistance doing so: most likely I won't be able to help you. I just want to point out where to change the build variables.
 
-If you use MikTeX, you are out of luck. The `texify` command can read an environment variable to decide which engine to use, but setting this variable requires Windows- and MikTeX-specific additions to the build command. Alternatively, you can try to use `latexmk` with MikTeX, and configure the build command as above. Again, I have not tried this, and you probably know more than I do on the subject. Sorry, and thanks for your understanding!
+If you use MikTeX, it can be achieved through texify's environment variables. You can modify it on your system, or use the "env" part of your sublime-build file. For instance:
+
+	"env": {
+		"PDFLATEX":"xelatex"
+	},
+
+Alternatively, you can try to use `latexmk` with MikTeX, and configure the build command as above. Again, I have not tried this, and you probably know more than I do on the subject. Sorry, and thanks for your understanding!
 
 *Warning*: if you customize your build file, you'd better move or copy it to the `User` directory. Otherwise, the next time you update LaTeXTools, your changes will be overwritten by the default file.
 
