@@ -54,6 +54,6 @@ class View_pdfCommand(sublime_plugin.WindowCommand):
 		try:
 			Popen(viewercmd + [pdfFile], cwd=script_path)
 		except OSError:
-			sublime.error_message("Cannot launch Viewer. Make sure it is on your PATH.")
+			sublime.error_message("Cannot launch Viewer. Make sure that either it is on your PATH or that a valid path can and has been provided in your LaTeXTools Preferences file")
 
 			
