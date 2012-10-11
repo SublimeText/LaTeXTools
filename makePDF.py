@@ -269,9 +269,15 @@ class CmdThread ( threading.Thread ):
 		if DEBUG:
 			print cmd
 
+		if self.caller.env or self.caller.path:
+			old_env = os.environ
+
+		# Handle extra environment variables
+		if self.caller.env:
+			os.environ.update(dict((k.encode(sys.getfilesystemencoding()), v) for (k, v) in self.caller.env.items()))
+
 		# Handle path; copied from exec.py
 		if self.caller.path:
-			old_path = os.environ["PATH"]
 			# The user decides in the build system  whether he wants to append $PATH
 			# or tuck it at the front: "$PATH;C:\\new\\path", "C:\\new\\path;$PATH"
 			os.environ["PATH"] = os.path.expandvars(self.caller.path).encode(sys.getfilesystemencoding())
@@ -283,10 +289,10 @@ class CmdThread ( threading.Thread ):
 			proc = subprocess.Popen(cmd, startupinfo=startupinfo)
 		else:
 			proc = subprocess.Popen(cmd)
-		
-		# restore path if needed
-		if self.caller.path:
-			os.environ["PATH"] = old_path
+
+		# restore env if needed
+		if self.caller.env or self.caller.path:
+			os.environ = old_env
 
 		# Handle killing
 		# First, save process handle into caller; then communicate (which blocks)
@@ -358,7 +364,7 @@ class CmdThread ( threading.Thread ):
 
 class make_pdfCommand(sublime_plugin.WindowCommand):
 
-	def run(self, cmd="", file_regex="", path=""):
+	def run(self, cmd="", file_regex="", path="", env=""):
 		
 		# Try to handle killing
 		if hasattr(self, 'proc') and self.proc: # if we are running, try to kill running process
@@ -380,7 +386,10 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		
 		# Extra paths
 		self.path = path
-			
+
+		# Extra env variables
+		self.env = env
+
 		# Output panel: from exec.py
 		if not hasattr(self, 'output_view'):
 			self.output_view = self.window.get_output_panel("exec")
