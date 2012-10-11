@@ -11,6 +11,7 @@ class View_pdfCommand(sublime_plugin.WindowCommand):
 	def run(self):
 		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
 		prefs_keep_focus = s.get("keep_focus", True)
+		prefs_win = s.get("windows")
 		prefs_lin = s.get("linux")
 
 		view = self.window.active_view()
@@ -36,7 +37,8 @@ class View_pdfCommand(sublime_plugin.WindowCommand):
 			# Search in the GUI: under Settings|Options...
 			# Under "Set inverse search command-line", set:
 			# sublime_text "%f":%l
-			viewercmd = ["SumatraPDF", "-reuse-instance"]		
+			su_binary = prefs_win["sumatra"] or 'SumatraPDF'
+			viewercmd = [su_binary, "-reuse-instance"]		
 		elif s == "Linux":
 			# the required scripts are in the 'evince' subdir
 			script_path = os.path.join(sublime.packages_path(), 'LaTeXTools', 'evince')
