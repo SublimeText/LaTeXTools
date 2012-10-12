@@ -31,7 +31,7 @@
 		// By default, latexmk is told to use pdflatex, with synctex on for
 		// backward/forward search, forcing compilation (e.g. even if no bib file is found)
 		// and producing pdf rather than dvi output
-		"cmd": ["latexmk", 
+		"cmd": ["latexmk", "-cd",
 				"-e", "\\$pdflatex = 'pdflatex %O -interaction=nonstopmode -synctex=1 %S'",
 				//"-silent",
 				"-f", "-pdf"],
@@ -86,7 +86,7 @@
 			// ADD $PATH EXPLICITLY AT THE END
 
 			// *** BEGIN TeXLive 2011 ***
-			// "cmd": ["latexmk", 
+			// "cmd": ["latexmk", "-cd",
 			// 	"-e", "\\$pdflatex = 'pdflatex %O -interaction=nonstopmode -synctex=1 %S'",
 			//	//"-silent",
 			// 	"-f", "-pdf"],
@@ -116,7 +116,7 @@
 		// By default, latexmk is told to use pdflatex, with synctex on for
 		// backward/forward search, forcing compilation (e.g. even if no bib file is found)
 		// and producing pdf rather than dvi output
-		"cmd": ["latexmk", 
+		"cmd": ["latexmk", "-cd",
 				"-e", "\\$pdflatex = 'pdflatex %O -interaction=nonstopmode -synctex=1 %S'",
 				"-f", "-pdf"],
 
