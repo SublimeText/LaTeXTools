@@ -1,8 +1,12 @@
-LaTeXTools Plugin version 2012-10-XX changelog:
+LaTeXTools Plugin version 2012-10-11 changelog:
 
 New features:
 
-- 
+- On TeXlive-based platforms (Linux, Windows, Mac), use the "-cd" option to
+  tell latexmk to first cd to the directory containing each source file before
+  running pdflatex on it. This should help with paths containing non-ASCII
+  characters on some platforms/locales. It also leaves more space for error messages
+  in the output panel after a build. PLEASE LET ME KNOW IF THS CAUSES PROBLEMS!
 
 
 Bugs fixed:
