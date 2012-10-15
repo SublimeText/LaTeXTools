@@ -49,12 +49,20 @@ def parseTeXlog(log):
 
 	# Support function to handle warnings
 	def handle_warning(l):
+
+		if files==[]:
+			location = "[no file]"
+			errors.append("LaTeXTools cannot correctly detect file names in this LOG file.")
+			errors.append("Please let me know via GitHub. Thanks!")
+		else:
+			location = files[-1]		
+
 		warn_match_line = line_rx_latex_warn.search(l)
 		if warn_match_line:
 			warn_line = warn_match_line.group(1)
-			warnings.append(files[-1] + ":" + warn_line + ": " + l)
+			warnings.append(location + ":" + warn_line + ": " + l)
 		else:
-			warnings.append(files[-1] + ": " + l)
+			warnings.append(location + ": " + l)
 
 	
 	# State definitions
@@ -140,7 +148,13 @@ def parseTeXlog(log):
 			err_line = err_match.group(1)
 			err_text = err_match.group(2)
 			# err_msg is set from last time
-			errors.append(files[-1] + ":" + err_line + ": " + err_msg + " [" + err_text + "]")
+			if files==[]:
+				location = "[no file]"
+				errors.append("LaTeXTools cannot correctly detect file names in this LOG file.")
+				errors.append("Please let me know via GitHub. Thanks!")
+			else:
+				location = files[-1]		
+			errors.append(location + ":" + err_line + ": " + err_msg + " [" + err_text + "]")
 			continue
 		if state==STATE_REPORT_WARNING:
 			# add current line and check if we are done or not
@@ -321,23 +335,29 @@ class CmdThread ( threading.Thread ):
 				.read().decode(self.caller.encoding, 'ignore') \
 				.encode(sublime_plugin.sys.getdefaultencoding(), 'ignore').splitlines()
 
-		(errors, warnings) = parseTeXlog(data)
-		content = ["",""]
-		if errors:
-			content.append("There were errors in your LaTeX source") 
-			content.append("")
-			content.extend(errors)
-		else:
-			content.append("Texification succeeded: no errors!")
-			content.append("") 
-		if warnings:
+		try:
+			(errors, warnings) = parseTeXlog(data)
+			content = ["",""]
 			if errors:
+				content.append("There were errors in your LaTeX source") 
 				content.append("")
-				content.append("There were also warnings.") 
+				content.extend(errors)
 			else:
-				content.append("However, there were warnings in your LaTeX source") 
-			content.append("")
-			content.extend(warnings)
+				content.append("Texification succeeded: no errors!")
+				content.append("") 
+			if warnings:
+				if errors:
+					content.append("")
+					content.append("There were also warnings.") 
+				else:
+					content.append("However, there were warnings in your LaTeX source") 
+				content.append("")
+				content.extend(warnings)
+		except:
+			content=["",""]
+			content.append("LaTeXtools could not parse the TeX log file")
+			content.append("(actually, we never should have gotten here)")
+			content.append("Please let me know on GitHub. Thanks!")
 		
 		self.caller.output(content)
 		self.caller.output("\n\n[Done!]\n")
