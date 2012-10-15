@@ -392,13 +392,13 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
                 return authors
 
             # format list of authors
-            authors_formated = [format_author(author) for author in authors]
+            authors_short = [format_author(author) for author in authors]
 
             # Filter out }'s and ,'s at the end. Ugly!
             nobraces = re.compile(r'\s*,*\}*(.+)')
             titles = [nobraces.search(t[::-1]).group(1)[::-1] for t in titles]
             authors = [nobraces.search(a[::-1]).group(1)[::-1] for a in authors]
-            completions += zip(keywords, titles, authors, authors_formated, years)
+            completions += zip(keywords, titles, authors, authors_short, years)
 
         #### END COMPLETIONS HERE ####
 
