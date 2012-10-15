@@ -418,7 +418,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             last_brace = "}" if not preformatted else ""
             cite = "\\cite" + fancy_cite + "{" + completions[i][0] + last_brace
 
-            print "selected %s:%s by %s" % completions[i] 
+            print "selected %s:%s by %s" % completions[i][0:3]
             # Replace cite expression with citation
             expr_region = sublime.Region(point-len(expr),point)
             ed = view.begin_edit()
