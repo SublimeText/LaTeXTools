@@ -377,11 +377,28 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
 
             print "Found %d total bib entries" % (len(keywords),)
 
+            # format author field
+            def format_author(authors):
+                # split authors using ' and ' and get last name for 'last, first' format
+                authors = [a.split(", ")[0].strip(' {}') for a in authors.split(" and ")]
+                # get last name for 'first last' format
+                authors = [a.split(" ")[-1] for a in authors]
+                # truncate and add 'et al.'
+                if len(authors) > 2:
+                    authors = authors[0] + " et al."
+                else:
+                    authors = authors[0] if len(authors) == 1 else ' & '.join(authors)
+                # return formated string
+                return authors
+
+            # format list of authors
+            authors_formated = [format_author(author) for author in authors]
+
             # Filter out }'s and ,'s at the end. Ugly!
             nobraces = re.compile(r'\s*,*\}*(.+)')
             titles = [nobraces.search(t[::-1]).group(1)[::-1] for t in titles]
             authors = [nobraces.search(a[::-1]).group(1)[::-1] for a in authors]
-            completions += zip(keywords, titles, authors, years)
+            completions += zip(keywords, titles, authors, authors_formated, years)
 
         #### END COMPLETIONS HERE ####
 
