@@ -1,0 +1,6 @@
+{
+	// show autocompletions after '\'
+    "auto_complete_triggers": [ {"selector": "text.tex", "characters": "\\"}],
+    // turn spell check on
+    "spell_check": true
+}
