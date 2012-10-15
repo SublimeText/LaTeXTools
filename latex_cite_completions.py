@@ -425,11 +425,11 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             view.replace(ed, expr_region, cite)
             view.end_edit(ed)
 
-        panel_main = "{title} ({keyword})"
-        panel_note = "{author}"
-        # panel_main = "{author_short} {year} - {title} ({keyword})"
-        # panel_note = ""
+        # get preferences for formating of quick panel
+        s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
+        cite_panel_format = s.get("cite_panel_format", ["{title} ({keyword})","{author}"])
 
-        view.window().show_quick_panel([[str.format(keyword=keyword, title=title, author=author, author_short=author_short, year=year) for str in [panel_main, panel_note]] \
+        # show quick
+        view.window().show_quick_panel([[str.format(keyword=keyword, title=title, author=author, author_short=author_short, year=year) for str in cite_panel_format] \
                                         for (keyword,title, author, author_short, year) in completions], on_done)
 

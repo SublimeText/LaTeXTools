@@ -9,6 +9,9 @@
 	// Sync PDF to current editor position after building (true) or not 
 	"forward_sync":	true,
 
+	// Formating of references in quick panel
+	"cite_panel_format": ["{title} ({keyword})","{author}"],
+
 	// Settings that are specific to Linux platforms
 	"linux": {
 		// Command to invoke Python 2. Useful if you have both Python 2 and Python 3 on your system,
