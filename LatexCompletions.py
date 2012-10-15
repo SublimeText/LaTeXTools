@@ -105,7 +105,6 @@ class LatexCompletions(sublime_plugin.EventListener):
             ("toc\ttable of contents", "tableofcontents{}\n"),
             ("toc\tlist of figures", "listoffigures\n"),
             ("toc\tlist of tables", "listoftables\n"),
-            ("toc\tlist of tables", "listoftables\n"),
             # other stuff
             ("footnote\tinsert footnote", "footnote{$1}$0"),
             ("comment\tinsert comment", "begin{comment}\n$1\n\end{comment}\n$0"),
