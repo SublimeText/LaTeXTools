@@ -341,6 +341,8 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         # Tentatively do the same for author
         ap = re.compile(r'\bauthor\s*=\s*(?:\{+|")\s*(.+)', re.IGNORECASE)
         kp2 = re.compile(r'([^\t]+)\t*')
+        # and year...
+        yp = re.compile(r'\byear\s*=\s*(?:\{+|")\s*(\d+)[\}"]?', re.IGNORECASE)
 
         for bibfname in bib_files:
             if bibfname[-4:] != ".bib":
@@ -362,7 +364,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             keywords = [kp.search(line).group(1).decode('ascii','ignore') for line in bib if line[0] == '@']
             titles = [tp.search(line).group(1).decode('ascii','ignore') for line in bib if tp.search(line)]
             authors = [ap.search(line).group(1).decode('ascii','ignore') for line in bib if ap.search(line)]
-
+            years = [yp.search(line).group(1).decode('ascii','ignore') for line in bib if yp.search(line)]
 #            print zip(keywords,titles,authors)
 
             if len(keywords) != len(titles):
@@ -379,7 +381,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             nobraces = re.compile(r'\s*,*\}*(.+)')
             titles = [nobraces.search(t[::-1]).group(1)[::-1] for t in titles]
             authors = [nobraces.search(a[::-1]).group(1)[::-1] for a in authors]
-            completions += zip(keywords, titles, authors)
+            completions += zip(keywords, titles, authors, years)
 
         #### END COMPLETIONS HERE ####
 
