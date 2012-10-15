@@ -425,8 +425,11 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             view.replace(ed, expr_region, cite)
             view.end_edit(ed)
 
-        
-        view.window().show_quick_panel([[title + " (" + keyword+ ")", author] \
-                                        for (keyword,title, author) in completions], on_done)
- 
+        panel_main = "{title} ({keyword})"
+        panel_note = "{author}"
+        # panel_main = "{author_short} {year} - {title} ({keyword})"
+        # panel_note = ""
+
+        view.window().show_quick_panel([[str.format(keyword=keyword, title=title, author=author, author_short=author_short, year=year) for str in [panel_main, panel_note]] \
+                                        for (keyword,title, author, author_short, year) in completions], on_done)
 
