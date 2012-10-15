@@ -10,7 +10,26 @@
 	"forward_sync":	true,
 
 	// Formating of references in quick panel
-	"cite_panel_format": ["{title} ({keyword})","{author}"],
+	/* This preference sets the format of the quick panel to select citations using wildcards.
+	The setting is a list with one or two string using wildcards for author, title, keyword etc. 
+	
+	Default setting: `["{title} ({keyword})","{author}"]` 
+	Format:
+	Can quantum-mechanical description of physical reality be considered complete? This is an non-existing subtitle to illustrate (einstein1935quantum)
+	Albert Einstein and B Podolsky and N Rosen
+
+	Alternative: ["{author_short} {year} - {title_short} ({keyword})","{title}"]
+	Format:
+	Einstein et al. 1935 - Can quantum-mechanical description of physical reality be considered complete (einstein1935quantum)
+	Can quantum-mechanical description of physical reality be considered complete? This is an non-existing subtitle to illustrate
+
+	Alternative: ["{author_short} {year} ({keyword})"]
+	Format:
+	Einstein et al. 1935 (einstein1935quantum)
+
+	Valid wildcards: keyword, title, author, year, author_short, title_short
+	*/
+	"cite_panel_format": ["{author_short} {year} - {title_short} ({keyword})","{title}"],
 
 	// Settings that are specific to Linux platforms
 	"linux": {
