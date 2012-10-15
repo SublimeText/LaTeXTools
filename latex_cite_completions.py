@@ -396,13 +396,15 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
 
             # short title
             sep = re.compile(":|\.|\?")
-            title_short = [sep.split(title)[0] for title in titles]
+            titles_short = [sep.split(title)[0] for title in titles]
+            titles_short = [title[0:60] + '...' if len(title) > 60 else title for title in titles_short]
+
 
             # Filter out }'s and ,'s at the end. Ugly!
             nobraces = re.compile(r'\s*,*\}*(.+)')
             titles = [nobraces.search(t[::-1]).group(1)[::-1] for t in titles]
             authors = [nobraces.search(a[::-1]).group(1)[::-1] for a in authors]
-            completions += zip(keywords, titles, authors, years, authors_short, title_short)
+            completions += zip(keywords, titles, authors, years, authors_short, titles_short)
 
         #### END COMPLETIONS HERE ####
 
