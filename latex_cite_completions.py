@@ -380,6 +380,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             # Filter out }'s and ,'s at the end. Ugly!
             nobraces = re.compile(r'\s*,*\}*(.+)')
             titles = [nobraces.search(t[::-1]).group(1)[::-1] for t in titles]
+            titles = [t.replace('{\\textquoteright}', '') for t in titles]            
             authors = [nobraces.search(a[::-1]).group(1)[::-1] for a in authors]
 
             # format author field
