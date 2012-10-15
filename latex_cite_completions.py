@@ -394,11 +394,15 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             # format list of authors
             authors_short = [format_author(author) for author in authors]
 
+            # short title
+            sep = re.compile(":|\.|\?")
+            title_short = [sep.split(title)[0] for title in titles]
+
             # Filter out }'s and ,'s at the end. Ugly!
             nobraces = re.compile(r'\s*,*\}*(.+)')
             titles = [nobraces.search(t[::-1]).group(1)[::-1] for t in titles]
             authors = [nobraces.search(a[::-1]).group(1)[::-1] for a in authors]
-            completions += zip(keywords, titles, authors, authors_short, years)
+            completions += zip(keywords, titles, authors, years, authors_short, title_short)
 
         #### END COMPLETIONS HERE ####
 
@@ -430,6 +434,5 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         cite_panel_format = s.get("cite_panel_format", ["{title} ({keyword})","{author}"])
 
         # show quick
-        view.window().show_quick_panel([[str.format(keyword=keyword, title=title, author=author, author_short=author_short, year=year) for str in cite_panel_format] \
-                                        for (keyword,title, author, author_short, year) in completions], on_done)
-
+        view.window().show_quick_panel([[str.format(keyword=keyword, title=title, author=author, year=year, author_short=author_short, title_short=title_short) for str in cite_panel_format] \
+                                        for (keyword, title, author, year, author_short, title_short) in completions], on_done)
