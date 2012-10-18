@@ -339,7 +339,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         # and in the end we MAY but need not have }'s and "s
         tp = re.compile(r'\btitle\s*=\s*(?:\{+|")\s*(.+)', re.IGNORECASE)  # note no comma!
         # Tentatively do the same for author
-        ap = re.compile(r'\bauthor\s*=\s*(?:\{|")\s*(.+)\},', re.IGNORECASE)
+        ap = re.compile(r'\bauthor\s*=\s*(?:\{|")\s*(.+)\},?', re.IGNORECASE)
         kp2 = re.compile(r'([^\t]+)\t*')
         # and year...
         yp = re.compile(r'\byear\s*=\s*(?:\{+|")\s*(\d+)[\}"]?', re.IGNORECASE)
