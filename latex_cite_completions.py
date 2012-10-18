@@ -339,7 +339,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         # and in the end we MAY but need not have }'s and "s
         tp = re.compile(r'\btitle\s*=\s*(?:\{+|")\s*(.+)', re.IGNORECASE)  # note no comma!
         # Tentatively do the same for author
-        ap = re.compile(r'\bauthor\s*=\s*(?:\{+|")\s*(.+)', re.IGNORECASE)
+        ap = re.compile(r'\bauthor\s*=\s*(?:\{|")\s*(.+)\},', re.IGNORECASE)
         kp2 = re.compile(r'([^\t]+)\t*')
         # and year...
         yp = re.compile(r'\byear\s*=\s*(?:\{+|")\s*(\d+)[\}"]?', re.IGNORECASE)
@@ -381,20 +381,22 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             nobraces = re.compile(r'\s*,*\}*(.+)')
             titles = [nobraces.search(t[::-1]).group(1)[::-1] for t in titles]
             titles = [t.replace('{\\textquoteright}', '') for t in titles]            
-            authors = [nobraces.search(a[::-1]).group(1)[::-1] for a in authors]
 
             # format author field
             def format_author(authors):
+                print(authors)
                 # split authors using ' and ' and get last name for 'last, first' format
-                authors = [a.split(", ")[0].strip(' {}') for a in authors.split(" and ")]
-                # get last name for 'first last' format
-                authors = [a.split(" ")[-1] for a in authors]
+                authors = [a.split(", ")[0].strip(' ') for a in authors.split(" and ")]
+                # get last name for 'first last' format (preserve {...} text)
+                authors = [a.split(" ")[-1] if a[-1] != '}' or a.find('{') == -1 else re.sub(r'{|}','',a[len(a) - a[::-1].index('{'):-1]) for a in authors]
+                #     authors = [a.split(" ")[-1] for a in authors]
                 # truncate and add 'et al.'
                 if len(authors) > 2:
                     authors = authors[0] + " et al."
                 else:
                     authors = authors[0] if len(authors) == 1 else ' & '.join(authors)
                 # return formated string
+                print(authors)
                 return authors
 
             # format list of authors
