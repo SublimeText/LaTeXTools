@@ -2,4 +2,4 @@
 *.pyc
 # Ignore cache files
 *.cache
-
+*.DS_STORE
