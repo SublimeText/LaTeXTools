@@ -13,3 +13,4 @@ Bugs fixed:
 - Robustified makePDF.py; now it should always fail gracefully when it cannot parse tex file names,
   and kindly ask the user to report the bug on GitHub :-) Note TODO: better filename regexp!
 
+- Ignore non-ascii chars in output of "ps xw" when checking if evince is running (avoids crashes)
