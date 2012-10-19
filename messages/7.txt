@@ -14,3 +14,5 @@ Bugs fixed:
   and kindly ask the user to report the bug on GitHub :-) Note TODO: better filename regexp!
 
 - Ignore non-ascii chars in output of "ps xw" when checking if evince is running (avoids crashes)
+
+- Support inverse search for file names with non-ascii chars (hopefully)

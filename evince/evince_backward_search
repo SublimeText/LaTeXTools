@@ -20,7 +20,7 @@
 
 # Incorporates fixes from http://ubuntuforums.org/showthread.php?t=1716268
 
-import dbus, subprocess, time, re
+import dbus, subprocess, time, re, urllib, sys
 
 RUNNING, CLOSED = range(2)
 
@@ -108,7 +108,14 @@ class EvinceWindowProxy:
 
     def on_sync_source(self, input_file, source_link, time):
         print input_file + ":" + str(source_link[0])
+        # This is probably useless
         input_file = input_file.replace("%20", " ")
+        # This is to deal with source files with non-ascii names
+        # We get url-quoted UTF-8 from dbus; convert to url-quoted ascii
+        # and then unquote. If you don't first convert ot ascii, it fails.
+        # It's a bit magical, but it seems to work
+        input_file = urllib.unquote(input_file.encode('ascii'))
+        print type(input_file), input_file
         cmd = re.sub("%f",input_file,self.editor)
         cmd = re.sub("%l",str(source_link[0]), cmd)
         print cmd
