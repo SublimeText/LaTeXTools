@@ -2,7 +2,8 @@ LaTeXTools Plugin version 2012-10-14 changelog:
 
 New features:
 
-- 
+- The emphasize/bold/underline shortcuts (C-l,C-e and friends) now activate the corresponding
+  snippet, with the cursor inside the braces, if there is no selection.
 
 
 Bugs fixed:
