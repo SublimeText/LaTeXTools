@@ -35,7 +35,7 @@ def find_bib_files(rootdir, src, bibfiles):
     for tag in bibtags:
         bfiles = re.search(r'\{([^\}]+)', tag).group(1).split(',')
         for bf in bfiles:
-            if bf[-4:] != '.bib':
+            if bf[-4:].lower() != '.bib':
                 bf = bf + '.bib'
             bf = os.path.normpath(os.path.join(dir_name,bf))
             bibfiles.append(bf)
@@ -182,12 +182,13 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         kp2 = re.compile(r'([^\t]+)\t*')
 
         for bibfname in bib_files:
-            if bibfname[-4:] != ".bib":
-                bibfname = bibfname + ".bib"
-            texfiledir = os.path.dirname(view.file_name())
-            # fix from Tobias Schmidt to allow for absolute paths
-            bibfname = os.path.normpath(os.path.join(texfiledir, bibfname))
-            print repr(bibfname) 
+            # # THIS IS NO LONGER NEEDED as find_bib_files() takes care of it
+            # if bibfname[-4:] != ".bib":
+            #     bibfname = bibfname + ".bib"
+            # texfiledir = os.path.dirname(view.file_name())
+            # # fix from Tobias Schmidt to allow for absolute paths
+            # bibfname = os.path.normpath(os.path.join(texfiledir, bibfname))
+            # print repr(bibfname) 
             try:
                 bibf = open(bibfname)
             except IOError:
@@ -343,12 +344,13 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         kp2 = re.compile(r'([^\t]+)\t*')
 
         for bibfname in bib_files:
-            if bibfname[-4:] != ".bib":
-                bibfname = bibfname + ".bib"
-            texfiledir = os.path.dirname(view.file_name())
-            # fix from Tobias Schmidt to allow for absolute paths
-            bibfname = os.path.normpath(os.path.join(texfiledir, bibfname))
-            print repr(bibfname) 
+            # # NO LONGER NEEDED: see above
+            # if bibfname[-4:] != ".bib":
+            #     bibfname = bibfname + ".bib"
+            # texfiledir = os.path.dirname(view.file_name())
+            # # fix from Tobias Schmidt to allow for absolute paths
+            # bibfname = os.path.normpath(os.path.join(texfiledir, bibfname))
+            # print repr(bibfname) 
             try:
                 bibf = open(bibfname)
             except IOError:
