@@ -15,7 +15,7 @@ class latexenvCommand(sublime_plugin.TextCommand):
 		point = view.sel()[0].b
 		line = view.substr(sublime.Region(view.line(point).a, point))
 		line = line[::-1]
-		rex = re.compile(r"(\S*)\s?")
+		rex = re.compile(r"([^\s\{]*)\s?\{?")
 		expr = re.match(rex, line)
 		if expr:
 			environment = expr.group(1)[::-1]
