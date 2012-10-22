@@ -192,8 +192,9 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
             try:
                 bibf = open(bibfname)
             except IOError:
-                sublime.error_message("Cannot open bibliography file %s !" % (bibfname,))
-                return []
+                print "Cannot open bibliography file %s !" % (bibfname,)
+                sublime.status_message("Cannot open bibliography file %s !" % (bibfname,))
+                continue
             else:
                 bib = bibf.readlines()
                 bibf.close()
@@ -354,8 +355,9 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             try:
                 bibf = open(bibfname)
             except IOError:
-                sublime.error_message("Cannot open bibliography file %s !" % (bibfname,))
-                return []
+                print "Cannot open bibliography file %s !" % (bibfname,)
+                sublime.status_message("Cannot open bibliography file %s !" % (bibfname,))
+                continue
             else:
                 bib = bibf.readlines()
                 bibf.close()

@@ -5,6 +5,10 @@ New features:
 - The emphasize/bold/underline shortcuts (C-l,C-e and friends) now activate the corresponding
   snippet, with the cursor inside the braces, if there is no selection.
 
+- Cite completion: fail more gracefully if bib file is not found, by showing an error message
+  in the status line. Let me know if you hate this! Perhaps there should be an option to choose
+  whether you prefer to fail gracefully or in-your-face :-)
+
 
 Bugs fixed:
 
@@ -20,3 +24,5 @@ Bugs fixed:
 - Ignore non-ascii chars in output of "ps xw" when checking if evince is running (avoids crashes)
 
 - Support inverse search for file names with non-ascii chars (hopefully)
+
+- Allow .BIB as bibliography file extension

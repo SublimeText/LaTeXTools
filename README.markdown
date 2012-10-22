@@ -6,9 +6,9 @@ by Marciano Siniscalchi
 
 Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths). *If you have contributed and I haven't acknowledged you, email me!*
 
-Latest revision: *2012-10-06*. Highlight: toggle forward search after compiling on and off.
+Latest revision: *2012-10-21*. Highlight: I am going to introduce "graceful" error reporting via the status message at the bottom of the ST2 window. Right now this is implemented for cite completion. See below for details.
 
-**WARNING**: I changed keybindings in mid-September 2012. Read the section titled "New-style keybindings." Also, on Windows, please note that *TeXLive* is the "preferred" TeX distribution, not MiKTeX. This has been the case for a long time, but I forgot to update this README file.
+*Older Warning*: I changed keybindings in mid-September 2012. Read the section titled "New-style keybindings." Also, on Windows, please note that *TeXLive* is the "preferred" TeX distribution, not MiKTeX. This has been the case for a long time, but I forgot to update this README file.
 
 Introduction
 ------------
@@ -170,6 +170,8 @@ The "old-style" system works as follows. For references, you type `ref_`, then `
 
 *Deprecation alert*: the only real advantage of old-style citations is that you don't have to enter the initial `\`. I think I will eventually remove this functionality and leave only new-style completions, i.e. `\ref{}`, `\cite{}` etc. 
 
+*Graceful error reporting*: if a bib file is not found, LaTeXTools displays a warning message in the status bar. Note that this message goes away after a few seconds. So, if you hit `C-l,Ctrl-space` and nothing happens--or, in the case of multiple bib files, if you can't file a reference that you *know* must be there somewhere--look at the status bar (you may have to dismiss the quick panel and hitting the key combination again).
+
 Thanks to recent contributed code, **multi-file documents** are *fully supported*. If you have a `% !TEX root = ...` directive at the top of the current file, LaTeXTools looks for references, as well as `\bibliography{}` commands, in the root file and in all recursively included files. You can also use a project file to specify the root file (to be documented).
 
 Another note: **for now**, completions are also injected into the standard ST2 autocompletion system. Thus, if you hit `Ctrl-space` immediately after typing, e.g., `\ref{}`, you get a drop-down menu at the current cursor position (not a quick-panel) showing all labels in your document. This also works with old-style citations. However, the width of this menu is OK for (most) labels, but not really for paper titles. In other words, it is workable for references, but not really for citations. Furthermore, there are other limitations dictated by the ST2 autocompletion system. So, I encourage you to use the `C-l,Ctrl-space` keybinding instead. In fact, consider the standard autocompletion support to be *deprecated* as of today (12-09-17).
@@ -218,6 +220,7 @@ LaTeXTools' wrapping facility helps you in just these circumstances. All command
 - `C-l,C-u` gives you `\underline{blah}`
 - `C-l,C-n` wraps the selected text in a LaTeX environment structure. You get `\begin{env}`,`blah`, `\end{env}` on three separate lines, with `env` selected. Change `env` to whatever environment you want, then hit Tab to move to the end of the environment.
 
+These commands also work if there is no selection. In this case, they try to do the right thing; for example, `C-l,C-e` gives `\emph{}` with the cursor between the curly braces.
 
 Command completion, snippets, etc.
 ----------------------------------
