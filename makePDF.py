@@ -38,7 +38,7 @@ def parseTeXlog(log):
 	# This will be useful for multi-file documents
 
 	# some regexes
-	file_rx = re.compile(r"\(([^)]+)$")		# file name: "(" followed by anyting but "(" through the end of the line
+	file_rx = re.compile(r"\(([^)^()]+)$")		# file name: "(" followed by anyting but "(" through the end of the line
 	line_rx = re.compile(r"^l\.(\d+)\s(.*)")		# l.nn <text>
 	warning_rx = re.compile(r"^(.*?) Warning: (.+)") # Warnings, first line
 	line_rx_latex_warn = re.compile(r"input line (\d+)\.$") # Warnings, line number
@@ -58,6 +58,7 @@ def parseTeXlog(log):
 			location = files[-1]		
 
 		warn_match_line = line_rx_latex_warn.search(l)
+		location = files[-1] if len(files) > 0 else "[no-file]"
 		if warn_match_line:
 			warn_line = warn_match_line.group(1)
 			warnings.append(location + ":" + warn_line + ": " + l)
@@ -219,31 +220,36 @@ def parseTeXlog(log):
 				break
 			else:
 				continue
-		line.strip() # get rid of initial spaces
-		# note: in the next line, and also when we check for "!", we use the fact that "and" short-circuits
-		while len(line)>0 and line[0]==')': # denotes end of processing of current file: pop it from stack
-			# files.pop()	
-			if DEBUG:
-				print " "*len(files) + files[-1] + " (%d)" % (line_num,)
-			if files:
-				files.pop()
-			else:
-				errors.append("LaTeXTools cannot correctly detect file names in this LOG file.")
-				errors.append("Please let me know via GitHub. Thanks!")
+		files_finished = False
+		while not files_finished:
+			files_finished = True
+			line.strip() # get rid of initial spaces
+			# note: in the next line, and also when we check for "!", we use the fact that "and" short-circuits
+			while len(line)>0 and line[0]==')': # denotes end of processing of current file: pop it from stack
+				# files.pop()	
 				if DEBUG:
-					print "Popping inexistent files"
-				break
-			line = line[1:] # lather, rinse, repeat
-		line.strip() # again, to make sure there is no ") (filename" pattern
-		file_match = file_rx.search(line) # search matches everywhere, not just at the beginning of a line
-		if file_match:
-			file_name = file_match.group(1)
-			# remove quotes
-			if file_name[0] == "\"" and file_name[-1] == "\"":
-				file_name = file_name[1:-1]
-			files.append(file_name)
-			if DEBUG:
-				print " "*len(files) + files[-1] + " (%d)" % (line_num,)
+					print "Close " + " "*len(files) + files[-1] + " (%d)" % (line_num,)
+				if files:
+					files.pop()
+				else:
+					errors.append("LaTeXTools cannot correctly detect file names in this LOG file.")
+					errors.append("Please let me know via GitHub. Thanks!")
+					if DEBUG:
+						print "Popping inexistent files"
+					break
+				line = line[1:] # lather, rinse, repeat
+			line.strip() # again, to make sure there is no ") (filename" pattern
+			file_match = file_rx.search(line) # search matches everywhere, not just at the beginning of a line
+			if file_match:
+				file_name = file_match.group(1)
+				# remove quotes
+				if file_name[0] == "\"" and file_name[-1] == "\"":
+					file_name = file_name[1:-1]
+				files.append(file_name)
+				if DEBUG:
+					print "Open  " + " "*len(files) + files[-1] + " (%d)" % (line_num,)
+				line = line[len(file_name):]
+				files_finished = False
 		if len(line)>0 and line[0]=='!': # Now it's surely an error
 			print line
 			err_msg = line[2:] # skip "! "
