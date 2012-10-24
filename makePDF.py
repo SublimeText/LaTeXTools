@@ -38,7 +38,7 @@ def parseTeXlog(log):
 	# This will be useful for multi-file documents
 
 	# some regexes
-	file_rx = re.compile(r"\(([^)]+)$")		# file name: "(" followed by anyting but "(" through the end of the line
+	file_rx = re.compile(r"\(([^)]+?)( \[\d+\]?)?$")		# file name: "(" followed by anyting but "(" through the end of the line
 	line_rx = re.compile(r"^l\.(\d+)\s(.*)")		# l.nn <text>
 	warning_rx = re.compile(r"^(.*?) Warning: (.+)") # Warnings, first line
 	line_rx_latex_warn = re.compile(r"input line (\d+)\.$") # Warnings, line number
