@@ -19,12 +19,14 @@ def find_bib_files(rootdir, src, bibfiles):
 
     file_path = os.path.normpath(os.path.join(rootdir,src))
     print "Searching file: " + repr(file_path)
-    dir_name = os.path.dirname(file_path)
+    # See latex_ref_completion.py for why the following is wrong:
+    #dir_name = os.path.dirname(file_path)
 
     # read src file and extract all bibliography tags
     try:
         src_file = open(file_path, "r")
     except IOError:
+        sublime.status_message("LaTeXTools WARNING: cannot open included file " + file_path)
         print "WARNING! I can't find it! Check your \\include's and \\input's." 
         return
 
@@ -37,13 +39,14 @@ def find_bib_files(rootdir, src, bibfiles):
         for bf in bfiles:
             if bf[-4:].lower() != '.bib':
                 bf = bf + '.bib'
-            bf = os.path.normpath(os.path.join(dir_name,bf))
+            # We join with rootdir - everything is off the dir of the master file
+            bf = os.path.normpath(os.path.join(rootdir,bf))
             bibfiles.append(bf)
 
     # search through input tex files recursively
     for f in re.findall(r'\\(?:input|include)\{[^\}]+\}',src_content):
         input_f = re.search(r'\{([^\}]+)', f).group(1)
-        find_bib_files(dir_name, input_f, bibfiles)
+        find_bib_files(rootdir, input_f, bibfiles)
 
 # Based on html_completions.py
 # see also latex_ref_completions.py

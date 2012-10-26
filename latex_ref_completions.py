@@ -20,7 +20,10 @@ def find_labels_in_files(rootdir, src, labels):
 
     file_path = os.path.normpath(os.path.join(rootdir, src))
     print "Searching file: " + repr(file_path)
-    dir_name = os.path.dirname(file_path)
+    # The following was a mistake:
+    #dir_name = os.path.dirname(file_path)
+    # THe reason is that \input and \include reference files **from the directory
+    # of the master file**. So we must keep passing that (in rootdir).
 
     # read src file and extract all label tags
     try:
@@ -28,12 +31,13 @@ def find_labels_in_files(rootdir, src, labels):
             src_content = re.sub("%.*", "", src_file.read())
             labels += re.findall(r'\\label\{([^\{\}]+)\}', src_content)
     except IOError:
+        sublime.status_message("LaTeXTools WARNING: cannot find included file " + file_path)
         print "WARNING! I can't find it! Check your \\include's and \\input's." 
         return
 
     # search through input tex files recursively
     for f in re.findall(r'\\(?:input|include)\{([^\{\}]+)\}', src_content):
-        find_labels_in_files(dir_name, f, labels)
+        find_labels_in_files(rootdir, f, labels)
 
 
 # Based on html_completions.py
