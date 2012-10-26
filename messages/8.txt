@@ -1,0 +1,13 @@
+LaTeXTools Plugin version 2012-10-25 ??? changelog:
+
+New features:
+
+- 
+
+Bugs fixed:
+
+- \include{} and \input{} reference files from the master file directory; fixed
+  ref/cite completion so it matches LaTeX's behavior (otherwise labels/bibfiles
+  were not found)
+
+- Improved non-intrusive error reporting in ref/cite completion
