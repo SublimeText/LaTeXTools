@@ -33,13 +33,13 @@ def get_tex_root(view):
 			break
 		else:
 			# We have a comment match; check for a TEX root match
-			if re.match(r"%\s*!TEX\s+root *= *",line):
+			mroot = re.match(r"%\s*!TEX\s+root *= *(.*(tex|TEX))\s*$",line)
+			if mroot:
 				# we have a TEX root match 
 				# Break the match into path, file and extension
 				# Create TEX root file name
 				# If there is a TEX root path, use it
 				# If the path is not absolute and a src path exists, pre-pend it
-				mroot = re.match(r"%\s*!TEX\s+root *= *(.*tex)\s*$",line)
 				(texPath, texName) = os.path.split(texFile)
 				(rootPath, rootName) = os.path.split(mroot.group(1))
 				root = os.path.join(texPath,rootPath,rootName)
