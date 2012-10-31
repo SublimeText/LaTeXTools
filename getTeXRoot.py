@@ -1,4 +1,4 @@
-import os.path, re
+import os.path, re, sublime
 
 # Parse magic comments to retrieve TEX root
 # Stops searching for magic comments at first non-comment line of file
@@ -7,6 +7,16 @@ import os.path, re
 # Contributed by Sam Finn
 
 def get_tex_root(view):
+	# Try to get the TEX root from the current open folder
+	rootDirName = sublime.active_window().folders()[0]
+	files = [each for each in os.listdir(rootDirName) if each.endswith('.tex')]
+	for file in files:
+		fileName = os.path.join(rootDirName, file)
+		with open(fileName, 'r') as f:
+			for line in f:
+				if '\\begin{document}' in line and not line.startswith('%'):
+					return fileName
+
 	try:
 		root = os.path.abspath(view.settings().get('TEXroot'))
 		if os.path.isfile(root):
