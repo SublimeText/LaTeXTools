@@ -91,10 +91,10 @@ def parse_tex_log(data):
 	file_basic = r"\"?(?:[a-zA-Z]\:)?(?:\.|(?:\.\./)|(?:\.\.\\))*.+?\.[^\s\"\)\.]+\"?"
 	file_rx = re.compile(r"\((" + file_basic + r")(\s|\"|\)|$)(.*)")
 	# Useless file #1: {filename.ext}; capture subsequent text
-	#file_useless1_rx = re.compile(r"\{\"?\.?[^\.]+\.[^\}]*\"?\}(.*)")
-	file_useless1_rx = re.compile(r"\{\"?(?:\.|\.\./)*[^\.]+\.[^\}]*\"?\}(.*)")
+	# Will avoid nested {'s as these can't really appear, except if file names have braces
+	# which is REALLY bad!!!
+	file_useless1_rx = re.compile(r"\{\"?(?:\.|\.\./)*[^\.]+\.[^\{\}]*\"?\}(.*)")
 	# Useless file #2: <filename.ext>; capture subsequent text
-	#file_useless2_rx = re.compile(r"<\"?\.?[^\.]+\.[^>]*\"?>(.*)")
 	file_useless2_rx = re.compile(r"<\"?(?:\.|\.\./)*[^\.]+\.[^>]*\"?>(.*)")
 	pagenum_begin_rx = re.compile(r"\s*\[\d*(.*)")
 	line_rx = re.compile(r"^l\.(\d+)\s(.*)")		# l.nn <text>
