@@ -170,13 +170,15 @@ def parse_tex_log(data):
 		# also, the **<file name> line may be long, but we skip it, too (to avoid edge cases)
 		# We make sure we are NOT reprocessing a line!!!
 		if (not reprocess_extra) and line_num>1 and linelen>=79 and line[0:2] != "**": 
-			# print "Line %d is %d characters long; last char is %s" % (line_num, len(line), line[-1])
+			debug ("Line %d is %d characters long; last char is %s" % (line_num, len(line), line[-1]))
 			# HEURISTICS HERE
 			extend_line = True
 			recycle_extra = False
 			while extend_line:
+				debug("extending: " + line)
 				try:
 					extra, extralen = log_iterator.next()
+					debug("extension? " + extra)
 					line_num += 1 # for debugging purposes
 					# HEURISTIC: if extra line begins with "Package:" "File:" "Document Class:",
 					# or other "well-known markers",
@@ -195,6 +197,7 @@ def parse_tex_log(data):
 						recycle_extra = True # make sure we process the "l.<nn>" line!
 					else:
 						line += extra
+						debug("Extended: " + line)
 						linelen += extralen
 						if extralen < 79:
 							extend_line = False
@@ -243,8 +246,8 @@ def parse_tex_log(data):
 		if line=="":
 			continue
 
-		# Are we done?
-		if "Here is how much of TeX's memory you used:" in line:
+		# Are we done? Get rid of extra spaces, just in case (we may have extended a line, etc.)
+		if line.strip() == "Here is how much of TeX's memory you used:":
 			if len(files)>0:
 				if emergency_stop:
 					debug("Done processing, files on stack due to emergency stop (all is fine!).")
