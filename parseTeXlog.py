@@ -102,6 +102,7 @@ def parse_tex_log(data):
 	line_rx_latex_warn = re.compile(r"input line (\d+)\.$") # Warnings, line number
 	matched_parens_rx = re.compile(r"\([^()]*\)") # matched parentheses, to be deleted (note: not if nested)
 	assignment_rx = re.compile(r"\\[^=]*=")	# assignment, heuristics for line merging
+	xypic_rx = re.compile(r".*? loaded\)(.*)") # crazy xypic way to declare end of file processing
 
 	files = []
 
@@ -295,13 +296,30 @@ def parse_tex_log(data):
 					break
 				line_num += 1
 				debug("Over/underfull: skip " + line + " (%d) " % line_num)
-				if len(line)>0 and line[0:3] == " []":
+				# Sometimes it's " []" and sometimes it's "[]"...
+				if len(line)>0 and line in [" []", "[]"]:
 					ou_processing = False
 			if ou_processing:
 				errors.append("Malformed LOG file: over/underfull")
 				break
 			else:
 				continue
+
+		# Before we strip potential initial blank, match xypic's " loaded)" markers
+		xypic_match = xypic_rx.match(line)
+		if xypic_match:
+			debug("xypic match: " + line)
+			# Do an extra check to make sure we are not too eager: is the topmost file
+			# likely to be an xypic file? Look for xypic in the file name
+			if files and "xypic" in files[-1]:
+				debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
+				files.pop()
+				extra = xypic_match.group(1)
+				debug("Reprocessing " + extra)
+				reprocess_extra = True
+				continue
+			else:
+				debug("Found loaded) but top file name doesn't have xy")
 
 		line = line.strip() # get rid of initial spaces
 		# note: in the next line, and also when we check for "!", we use the fact that "and" short-circuits
