@@ -321,6 +321,16 @@ def parse_tex_log(data):
 			else:
 				debug("Found loaded) but top file name doesn't have xy")
 
+		# Another special case: the relsize package, which puts ")" at the end of a
+		# line beginning with "Examine \". Ah well!
+		if len(line)>0 and line[:9] == "Examine \\" and line[-3:] == ". )" \
+						and files and  "relsize" in files[-1]:
+			debug("special case: relsize")
+			debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
+			files.pop()
+			continue
+		
+
 		line = line.strip() # get rid of initial spaces
 		# note: in the next line, and also when we check for "!", we use the fact that "and" short-circuits
 		if len(line)>0 and line[0]==')': # denotes end of processing of current file: pop it from stack
