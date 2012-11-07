@@ -327,7 +327,9 @@ def parse_tex_log(data):
 			continue
 
 		# Closing page indicators: skip and reprocess
-		if len(line)>0 and line[0]==']':
+		# Also, sometimes we have a useless file <file.tex, then a warning happens and the
+		# last > appears later. Pick up such stray >'s as well.
+		if len(line)>0 and line[0] in [']', '>']:
 			extra = line[1:]
 			debug("Reprocessing " + extra)
 			reprocess_extra = True
@@ -341,6 +343,7 @@ def parse_tex_log(data):
 			debug("Reprocessing " + extra)
 			reprocess_extra = True
 			continue
+
 
 		# this seems to happen often: no need to push / pop it
 		if line[:12]=="(pdftex.def)":
