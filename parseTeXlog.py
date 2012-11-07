@@ -252,6 +252,7 @@ def parse_tex_log(data):
 					errors.append("(where: finished processing)")
 					errors.append("Please let me know via GitHub")
 					debug("Done processing, some files left on the stack")
+					debug(";".join(files))
 				files=[]			
 			break
 
