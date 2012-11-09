@@ -102,7 +102,8 @@ def parse_tex_log(data):
 	line_rx_latex_warn = re.compile(r"input line (\d+)\.$") # Warnings, line number
 	matched_parens_rx = re.compile(r"\([^()]*\)") # matched parentheses, to be deleted (note: not if nested)
 	assignment_rx = re.compile(r"\\[^=]*=")	# assignment, heuristics for line merging
-	xypic_rx = re.compile(r".*? loaded\)(.*)") # crazy xypic way to declare end of file processing
+	xypic_rx = re.compile(r"(?:.*? |^)loaded\)(.*)") # crazy xypic way to declare end of file processing
+	#xypic_rx = re.compile(r".*? loaded\)(.*)") # crazy xypic way to declare end of file processing
 
 	files = []
 
@@ -278,11 +279,21 @@ def parse_tex_log(data):
 				errors.append("TeX STOPPED: fatal errors occurred but LaTeXTools did not see them")
 				errors.append("Check the TeX log file, and please let me know via GitHub. Thanks!")
 			continue
+
+		# If tex just stops processing, we will be left with files on stack, so we keep track of it
 		if "! Emergency stop." in line:
 			state = STATE_SKIP
 			emergency_stop = True
 			debug("Emergency stop found")
 			continue
+
+		# TOo many errors: will also have files on stack. For some reason
+		# we have to do differently from above (need to double-check: why not stop processing if
+		# emergency stop, too?)
+		if "(That makes 100 errors; please try again.)" in line:
+			errors.append("Too many errors. TeX stopped.")
+			debug("100 errors, stopping")
+			break
 
 		# catch over/underfull
 		# skip everything for now
@@ -308,23 +319,7 @@ def parse_tex_log(data):
 			else:
 				continue
 
-		# Before we strip potential initial blank, match xypic's " loaded)" markers
-		xypic_match = xypic_rx.match(line)
-		if xypic_match:
-			debug("xypic match: " + line)
-			# Do an extra check to make sure we are not too eager: is the topmost file
-			# likely to be an xypic file? Look for xypic in the file name
-			if files and "xypic" in files[-1]:
-				debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
-				files.pop()
-				extra = xypic_match.group(1)
-				debug("Reprocessing " + extra)
-				reprocess_extra = True
-				continue
-			else:
-				debug("Found loaded) but top file name doesn't have xy")
-
-		# Another special case: the relsize package, which puts ")" at the end of a
+		# Special case: the relsize package, which puts ")" at the end of a
 		# line beginning with "Examine \". Ah well!
 		if len(line)>0 and line[:9] == "Examine \\" and line[-3:] == ". )" \
 						and files and  "relsize" in files[-1]:
@@ -403,6 +398,25 @@ def parse_tex_log(data):
 			reprocess_extra = True
 			continue
 
+		# Special case: match xypic's " loaded)" markers
+		# However we must do this AFTER looking for file matches. The problem is that we
+		# may have the " loaded)" marker either after non-file text, or after a loaded
+		# file name. Aaaarghh!!!
+		xypic_match = xypic_rx.match(line)
+		if xypic_match:
+			debug("xypic match: " + line)
+			# Do an extra check to make sure we are not too eager: is the topmost file
+			# likely to be an xypic file? Look for xypic in the file name
+			if files and "xypic" in files[-1]:
+				debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
+				files.pop()
+				extra = xypic_match.group(1)
+				debug("Reprocessing " + extra)
+				reprocess_extra = True
+				continue
+			else:
+				debug("Found loaded) but top file name doesn't have xy")
+
 		if len(line)>0 and line[0]=='!': # Now it's surely an error
 			debug(line)
 			err_msg = line[2:] # skip "! "
@@ -439,13 +453,13 @@ if __name__ == '__main__':
 		data = open(logfilename,'r').read()
 		(errors,warnings) = parse_tex_log(data)
 		print ""
-		print "Errors:"
-		for err in errors:
-			print err
-		print ""
 		print "Warnings:"
 		for warn in warnings:
 			print warn
+		print ""
+		print "Errors:"
+		for err in errors:
+			print err
 
 	except Exception, e:
 		import traceback
