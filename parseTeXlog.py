@@ -102,7 +102,7 @@ def parse_tex_log(data):
 	line_rx_latex_warn = re.compile(r"input line (\d+)\.$") # Warnings, line number
 	matched_parens_rx = re.compile(r"\([^()]*\)") # matched parentheses, to be deleted (note: not if nested)
 	assignment_rx = re.compile(r"\\[^=]*=")	# assignment, heuristics for line merging
-	xypic_rx = re.compile(r"(?:.*? |^)loaded\)(.*)") # crazy xypic way to declare end of file processing
+	xypic_rx = re.compile(r"(?:.*? |^)(?:not re)?loaded\)(.*)") # crazy xypic way to declare end of file processing
 	#xypic_rx = re.compile(r".*? loaded\)(.*)") # crazy xypic way to declare end of file processing
 
 	files = []
@@ -455,11 +455,11 @@ if __name__ == '__main__':
 		print ""
 		print "Warnings:"
 		for warn in warnings:
-			print warn
+			print warn.encode('UTF-8')
 		print ""
 		print "Errors:"
 		for err in errors:
-			print err
+			print err.encode('UTF-8')
 
 	except Exception, e:
 		import traceback
