@@ -102,7 +102,9 @@ def parse_tex_log(data):
 	line_rx_latex_warn = re.compile(r"input line (\d+)\.$") # Warnings, line number
 	matched_parens_rx = re.compile(r"\([^()]*\)") # matched parentheses, to be deleted (note: not if nested)
 	assignment_rx = re.compile(r"\\[^=]*=")	# assignment, heuristics for line merging
-	xypic_rx = re.compile(r"(?:.*? |^)(?:not re)?loaded\)(.*)") # crazy xypic way to declare end of file processing
+	# The following is for the xy package, which reports end of processing with "loaded)" or "not reloaded)"
+	xypic_rx = re.compile(r".*?(?:not re)?loaded\)(.*)")
+	#xypic_rx = re.compile(r"(?:.*? |^)(?:not re)?loaded\)(.*)") # crazy xypic way to declare end of file processing
 	#xypic_rx = re.compile(r".*? loaded\)(.*)") # crazy xypic way to declare end of file processing
 
 	files = []
