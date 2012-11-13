@@ -25,6 +25,14 @@ def debug_skip_file(f):
 	if ("/usr/local/texlive/" in f) or ("/usr/share/texlive/" in f) or ("Program Files\\MiKTeX" in f):
 		print "TeXlive / MiKTeX FILE! Don't skip it!"
 		return False
+	# Heuristic: "version 2010.12.02"
+	if re.match(r"version \d\d\d\d\.\d\d\.\d\d", f):
+		print "Skip it!"
+		return False
+	# Heuristic: TeX Live line
+	if re.match(r"TeX Live 20\d\d\) \(format", f):
+		print "Skip it!"
+		return False
 	# Heuristic: no two consecutive spaces in file name
 	if "  " in f:
 		print "Skip it!"
@@ -86,8 +94,10 @@ def parse_tex_log(data):
 	# NOTES:
 	# 1. we capture the initial and ending " if there is one; we'll need to remove it later
 	# 2. we define the basic filename parsing regex so we can recycle it
+	# 3. we allow for any character besides "(" before a file name starts. This gives a lot of 
+	#	 false positives but we kill them with os.path.isfile
 	file_basic = r"\"?(?:[a-zA-Z]\:)?(?:\.|(?:\.\./)|(?:\.\.\\))*.+?\.[^\s\"\)\.]+\"?"
-	file_rx = re.compile(r"\((" + file_basic + r")(\s|\"|\)|$)(.*)")
+	file_rx = re.compile(r"[^\(]*?\((" + file_basic + r")(\s|\"|\)|$)(.*)")
 	# Useless file #1: {filename.ext}; capture subsequent text
 	# Will avoid nested {'s as these can't really appear, except if file names have braces
 	# which is REALLY bad!!!
@@ -247,6 +257,12 @@ def parse_tex_log(data):
 		if line=="":
 			continue
 
+		# Skip things that are clearly not file names, though they may trigger false positives
+		if len(line)>0 and \
+			(line[0:5]=="File:" or line[0:8]=="Package:" or line[0:15]=="Document Class:") or \
+			(line[0:9]=="LaTeX2e <"):
+			continue
+
 		# Are we done? Get rid of extra spaces, just in case (we may have extended a line, etc.)
 		if line.strip() == "Here is how much of TeX's memory you used:":
 			if len(files)>0:
@@ -339,6 +355,23 @@ def parse_tex_log(data):
 			reprocess_extra = True
 			continue
 
+		# Special case: xypic's "loaded)" at the BEGINNING of a line. Will check later
+		# for matches AFTER other text.
+		xypic_match = xypic_rx.match(line)
+		if xypic_match:
+			debug("xypic match before: " + line)
+			# Do an extra check to make sure we are not too eager: is the topmost file
+			# likely to be an xypic file? Look for xypic in the file name
+			if files and "xypic" in files[-1]:
+				debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
+				files.pop()
+				extra = xypic_match.group(1)
+				debug("Reprocessing " + extra)
+				reprocess_extra = True
+				continue
+			else:
+				debug("Found loaded) but top file name doesn't have xy")
+
 
 		line = line.strip() # get rid of initial spaces
 		# note: in the next line, and also when we check for "!", we use the fact that "and" short-circuits
@@ -417,12 +450,13 @@ def parse_tex_log(data):
 			continue
 
 		# Special case: match xypic's " loaded)" markers
-		# However we must do this AFTER looking for file matches. The problem is that we
+		# You may think we already checked for this. But, NO! We must check both BEFORE and
+		# AFTER looking for file matches. The problem is that we
 		# may have the " loaded)" marker either after non-file text, or after a loaded
 		# file name. Aaaarghh!!!
 		xypic_match = xypic_rx.match(line)
 		if xypic_match:
-			debug("xypic match: " + line)
+			debug("xypic match after: " + line)
 			# Do an extra check to make sure we are not too eager: is the topmost file
 			# likely to be an xypic file? Look for xypic in the file name
 			if files and "xypic" in files[-1]:
