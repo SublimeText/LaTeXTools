@@ -384,8 +384,16 @@ def parse_tex_log(data):
 		if file_match:
 			debug("MATCHED")
 			file_name = file_match.group(1)
+			extra = file_match.group(2) + file_match.group(3)
 			# remove quotes if necessary
 			file_name = file_name.replace("\"", "")
+			# on TL2011 pdftex sometimes writes "pdfTeX warning" right after file name
+			# so fix it
+			# TODO: report pdftex warning
+			if file_name[-6:]=="pdfTeX" and extra[:8]==" warning":
+				debug("pdfTeX appended to file name; removed")
+				file_name = file_name[:-6]
+				extra = "pdfTeX" + extra
 			# This kills off stupid matches
 			if (not os.path.isfile(file_name)) and debug_skip_file(file_name):
 				continue
@@ -393,7 +401,6 @@ def parse_tex_log(data):
 			files.append(file_name)
 			debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
 			# now we recycle the remainder of this line
-			extra = file_match.group(2) + file_match.group(3)
 			debug("Reprocessing " + extra)
 			reprocess_extra = True
 			continue
