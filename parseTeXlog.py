@@ -86,8 +86,6 @@ def parse_tex_log(data):
 	# NOTES:
 	# 1. we capture the initial and ending " if there is one; we'll need to remove it later
 	# 2. we define the basic filename parsing regex so we can recycle it
-	#file_rx = re.compile(r"\(\"?(\.?[^\.]+\.[^\s\"\)]+)(\s|\"|\)|$)(.*)")
-	#file_basic = r"\"?(?:[a-zA-Z]\:)?(?:\.|(?:\.\./)*(?:\.\.\\)*)?[^\.]+\.[^\s\"\)]+"
 	file_basic = r"\"?(?:[a-zA-Z]\:)?(?:\.|(?:\.\./)|(?:\.\.\\))*.+?\.[^\s\"\)\.]+\"?"
 	file_rx = re.compile(r"\((" + file_basic + r")(\s|\"|\)|$)(.*)")
 	# Useless file #1: {filename.ext}; capture subsequent text
@@ -102,10 +100,10 @@ def parse_tex_log(data):
 	line_rx_latex_warn = re.compile(r"input line (\d+)\.$") # Warnings, line number
 	matched_parens_rx = re.compile(r"\([^()]*\)") # matched parentheses, to be deleted (note: not if nested)
 	assignment_rx = re.compile(r"\\[^=]*=")	# assignment, heuristics for line merging
-	# The following is for the xy package, which reports end of processing with "loaded)" or "not reloaded)"
+	# Special case: the xy package, which reports end of processing with "loaded)" or "not reloaded)"
 	xypic_rx = re.compile(r".*?(?:not re)?loaded\)(.*)")
-	#xypic_rx = re.compile(r"(?:.*? |^)(?:not re)?loaded\)(.*)") # crazy xypic way to declare end of file processing
-	#xypic_rx = re.compile(r".*? loaded\)(.*)") # crazy xypic way to declare end of file processing
+	# Special case: the comment package, which prints ")" after some text
+	comment_rx = re.compile(r"Excluding comment '.*?'(.*)")
 
 	files = []
 
@@ -330,6 +328,17 @@ def parse_tex_log(data):
 			files.pop()
 			continue
 		
+		# Special case: the comment package, which puts ")" at the end of a 
+		# line beginning with "Excluding comment 'something'"
+		# Since I'm not sure, we match "Excluding comment 'something'" and recycle the rest
+		comment_match = comment_rx.match(line)
+		if comment_match and files and "comment" in files[-1]:
+			debug("special case: comment")
+			extra = comment_match.group(1)
+			debug("Reprocessing " + extra)
+			reprocess_extra = True
+			continue
+
 
 		line = line.strip() # get rid of initial spaces
 		# note: in the next line, and also when we check for "!", we use the fact that "and" short-circuits
