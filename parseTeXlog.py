@@ -111,11 +111,13 @@ def parse_tex_log(data):
 	matched_parens_rx = re.compile(r"\([^()]*\)") # matched parentheses, to be deleted (note: not if nested)
 	assignment_rx = re.compile(r"\\[^=]*=")	# assignment, heuristics for line merging
 	# Special case: the xy package, which reports end of processing with "loaded)" or "not reloaded)"
+	xypic_begin_rx = re.compile(r"[^()]*?(?:not re)?loaded\)(.*)")
 	xypic_rx = re.compile(r".*?(?:not re)?loaded\)(.*)")
 	# Special case: the comment package, which prints ")" after some text
 	comment_rx = re.compile(r"Excluding comment '.*?'(.*)")
 
 	files = []
+	xypic_flag = False # If we have seen xypic, report a warning, not an error for incorrect parsing
 
 	# Support function to handle warnings
 	def handle_warning(l):
@@ -268,6 +270,14 @@ def parse_tex_log(data):
 			if len(files)>0:
 				if emergency_stop:
 					debug("Done processing, files on stack due to emergency stop (all is fine!).")
+				elif xypic_flag:
+					warnings.append("LaTeXTools cannot correctly detect file names in this LOG file.")
+					warnings.append("However, you are using the xypic package, which does nonstandard logging.")
+					warnings.append("You may report this on GitHub, but I can't promise I will fix it.")
+					warnings.append("Try recompiling without xypic to see if there are other log parsing issues.")
+					warnings.append("In any case, compilation was successful.")
+					debug("Done processing, some files left on the stack, BUT user had xypic!")
+					debug(";".join(files))
 				else:
 					errors.append("LaTeXTools cannot correctly detect file names in this LOG file.")
 					errors.append("(where: finished processing)")
@@ -357,7 +367,7 @@ def parse_tex_log(data):
 
 		# Special case: xypic's "loaded)" at the BEGINNING of a line. Will check later
 		# for matches AFTER other text.
-		xypic_match = xypic_rx.match(line)
+		xypic_match = xypic_begin_rx.match(line)
 		if xypic_match:
 			debug("xypic match before: " + line)
 			# Do an extra check to make sure we are not too eager: is the topmost file
@@ -444,6 +454,10 @@ def parse_tex_log(data):
 			debug("IT'S A FILE!")
 			files.append(file_name)
 			debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
+			# Check if it's a xypic file
+			if (not xypic_flag) and "xypic" in file_name:
+				xypic_flag = True
+				debug("xypic detected, demoting parsing error to warnings")
 			# now we recycle the remainder of this line
 			debug("Reprocessing " + extra)
 			reprocess_extra = True
