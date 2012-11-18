@@ -30,15 +30,19 @@ def debug_skip_file(f):
 		print "Skip it!"
 		return False
 	# Heuristic: TeX Live line
-	if re.match(r"TeX Live 20\d\d\) \(format", f):
+	if re.match(r"TeX Live 20\d\d(/Debian)?\) \(format", f):
 		print "Skip it!"
 		return False
 	# Heuristic: no two consecutive spaces in file name
 	if "  " in f:
 		print "Skip it!"
 		return True
+	# Heuristic: various diagnostic messages
+	if f=='e.g.,' or "ext4): destination with the same identifier" in f or "Kristoffer H. Rose" in f:
+		print "Skip it!"
+		return True
 	# Heuristic: file in local directory with .tex ending
-	file_exts = extra_file_ext + ['tex', 'aux', 'bbl', 'cls', 'sty']
+	file_exts = extra_file_ext + ['tex', 'aux', 'bbl', 'cls', 'sty','out']
 	if f[0:2] in ['./', '.\\', '..'] and os.path.splitext(f)[1].lower()[1:] in file_exts:
 		print "File! Don't skip it"
 		return False
@@ -203,9 +207,10 @@ def parse_tex_log(data):
 						# no need to recycle extra, as it's nothing we are interested in
 					# HEURISTIC: when TeX reports an error, it prints some surrounding text
 					# and may use the whole line. Then it prints "...", and "l.<nn> <text>" on a new line
+					# pdftex warnings also use "..." at the end of a line.
 					# If so, do not extend
-					elif line[-3:]=="..." and line_rx.match(extra): # a bit inefficient as we match twice
-						#print "Found l. <nn> regex"
+					elif line[-3:]=="...": # and line_rx.match(extra): # a bit inefficient as we match twice
+						debug("Found [...]")
 						extend_line = False
 						recycle_extra = True # make sure we process the "l.<nn>" line!
 					else:
