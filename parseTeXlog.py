@@ -21,8 +21,13 @@ def debug_skip_file(f):
 	if not (print_debug and interactive):
 		return True
 	debug("debug_skip_file: " + f)
+	f_ext = os.path.splitext(f)[1].lower()[1:]
 	# Heuristic: TeXlive on Mac or Linux (well, Ubuntu at least) or Windows / MiKTeX
-	if ("/usr/local/texlive/" in f) or ("/usr/share/texlive/" in f) or ("Program Files\\MiKTeX" in f):
+	# Known file extensions:
+	known_file_exts = ['tex','sty','cls','cfg','def','mkii','fd','map','clo', 'dfu', \
+						'ldf', 'bdf', 'bbx','cbx','lbx']
+	if (f_ext in known_file_exts) and \
+	   (("/usr/local/texlive/" in f) or ("/usr/share/texlive/" in f) or ("Program Files\\MiKTeX" in f)):
 		print "TeXlive / MiKTeX FILE! Don't skip it!"
 		return False
 	# Heuristic: "version 2010.12.02"
@@ -43,7 +48,7 @@ def debug_skip_file(f):
 		return True
 	# Heuristic: file in local directory with .tex ending
 	file_exts = extra_file_ext + ['tex', 'aux', 'bbl', 'cls', 'sty','out']
-	if f[0:2] in ['./', '.\\', '..'] and os.path.splitext(f)[1].lower()[1:] in file_exts:
+	if f[0:2] in ['./', '.\\', '..'] and f_ext in file_exts:
 		print "File! Don't skip it"
 		return False
 	if raw_input() == "":
@@ -186,11 +191,34 @@ def parse_tex_log(data):
 		# HEURISTIC: the first line is always long, and we don't care about it
 		# also, the **<file name> line may be long, but we skip it, too (to avoid edge cases)
 		# We make sure we are NOT reprocessing a line!!!
+		# Also, we make sure we do not have a filename match, or it would be clobbered by exending!
 		if (not reprocess_extra) and line_num>1 and linelen>=79 and line[0:2] != "**": 
 			debug ("Line %d is %d characters long; last char is %s" % (line_num, len(line), line[-1]))
 			# HEURISTICS HERE
 			extend_line = True
 			recycle_extra = False
+			# HEURISTIC: check first if we just have a long "(.../file.tex" (or similar) line
+			# A bit inefficient as we duplicate some of the code below for filename matching
+			file_match = file_rx.match(line)
+			if file_match:
+				debug("MATCHED (long line)")
+				file_name = file_match.group(1)
+				file_extra = file_match.group(2) + file_match.group(3) # don't call it "extra"
+				# remove quotes if necessary
+				file_name = file_name.replace("\"", "")
+				# NOTE: on TL201X pdftex sometimes writes "pdfTeX warning" right after file name
+				# so fix it
+				if file_name[-6:]=="pdfTeX" and file_extra[:8]==" warning":
+					debug("pdfTeX appended to file name; removed")
+					file_name = file_name[:-6]
+
+				# Next, we kills off stupid matches
+				if (not os.path.isfile(file_name)) and debug_skip_file(file_name):
+					debug("Not a file name") # Here it's NOT a file name, so we do nothing
+				else:
+					debug("IT'S A (LONG) FILE NAME!")
+					extend_line = False # so we exit right away and continue with parsing
+
 			while extend_line:
 				debug("extending: " + line)
 				try:
