@@ -398,6 +398,17 @@ def parse_tex_log(data):
 			reprocess_extra = True
 			continue
 
+		# Special case: the numprint package, which prints a line saying
+		# "No configuration file... found.)"
+		# if there is no config file (duh!), and that (!!!) signals the end of processing :-(
+
+		if len(line)>0 and line.strip() == "No configuration file `numprint.cfg' found.)" \
+						and files and "numprint" in files[-1]:
+			debug("special case: numprint")
+			debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
+			files.pop()
+			continue	
+
 		# Special case: xypic's "loaded)" at the BEGINNING of a line. Will check later
 		# for matches AFTER other text.
 		xypic_match = xypic_begin_rx.match(line)
