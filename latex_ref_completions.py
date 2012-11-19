@@ -221,6 +221,12 @@ class LatexRefCommand(sublime_plugin.TextCommand):
             pre_snippet = "\\ref{"
             post_snippet = "}"
 
+        # only match the str between the last comma and cursor point
+        last_comma_pos = prefix.rfind(',')
+        if last_comma_pos > 0:
+            prefix = prefix[last_comma_pos + 1:]
+        else:
+            last_comma_pos = 0
         if not preformatted:
             # Replace ref_blah with \ref{blah
             expr_region = sublime.Region(point - len(expr), point)
@@ -228,7 +234,7 @@ class LatexRefCommand(sublime_plugin.TextCommand):
             ed = view.begin_edit()
             view.replace(ed, expr_region, pre_snippet + prefix)
             # save prefix begin and endpoints points
-            new_point_a = point - len(expr) + len(pre_snippet)
+            new_point_a = point - len(expr) + len(pre_snippet) + last_comma_pos
             new_point_b = new_point_a + len(prefix)
             view.end_edit(ed)
 
@@ -263,7 +269,7 @@ class LatexRefCommand(sublime_plugin.TextCommand):
             if i<0:
                 return
 
-            ref = completions[i] + post_snippet
+            ref = completions[i]
             
 
             print "selected %s" % completions[i] 

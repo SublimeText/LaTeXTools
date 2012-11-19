@@ -390,6 +390,12 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
 
         #### END COMPLETIONS HERE ####
 
+        # only match the str between the last comma and cursor point
+        last_comma_pos = prefix.rfind(',')
+        if last_comma_pos > 0:
+            prefix = prefix[last_comma_pos + 1:]
+        else:
+            last_comma_pos = 0
         # filter against keyword, title, or author
         if prefix:
             completions = [comp for comp in completions if prefix.lower() in "%s %s %s" \
@@ -404,11 +410,18 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
                 return
 
             last_brace = "}" if not preformatted else ""
-            cite = "\\cite" + fancy_cite + "{" + completions[i][0] + last_brace
+            if last_comma_pos == 0:
+                # it's the first entry, allow to repalce the whole thing
+                cite = "\\cite" + fancy_cite + "{" + completions[i][0]
+                new_point_a = point - len(expr)
+            else:
+                # only replace the current entry
+                cite = completions[i][0]
+                new_point_a = point - len(prefix)
 
             print "selected %s:%s by %s" % completions[i] 
             # Replace cite expression with citation
-            expr_region = sublime.Region(point-len(expr),point)
+            expr_region = sublime.Region(new_point_a, point)
             ed = view.begin_edit()
             view.replace(ed, expr_region, cite)
             view.end_edit(ed)
