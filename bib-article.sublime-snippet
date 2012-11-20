@@ -1,0 +1,16 @@
+<snippet>
+    <content><![CDATA[@Article{${1:refName},
+  author = {${2:authors}},
+  title = {${3:title}},
+  year = {${4:year}},
+  month = {${5:month(text)}},
+  journal = {${6:journal name}},
+  volume = {${7:volumne}},
+  number = {${8:number}},
+  pages = {${9:fromPage-toPage)}}
+}
+]]></content>
+    <tabTrigger>article</tabTrigger>
+    <scope>text.bibtex</scope>
+    <description>article enrty</description>
+</snippet>
