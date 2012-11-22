@@ -452,6 +452,8 @@ def parse_tex_log(data):
 				break
 
 		# Opening page indicators: skip and reprocess
+		# Note: here we look for matches at the BEGINNING of a line. We check again below
+		# for matches elsewhere, but AFTER matching for file names.
 		pagenum_begin_match = pagenum_begin_rx.match(line)
 		if pagenum_begin_match:
 			extra = pagenum_begin_match.group(1)
@@ -502,18 +504,21 @@ def parse_tex_log(data):
 				extra = "pdfTeX" + extra
 			# This kills off stupid matches
 			if (not os.path.isfile(file_name)) and debug_skip_file(file_name):
+				#continue
+				# NOTE BIG CHANGE HERE: CONTINUE PROCESSING IF NO MATCH
+				pass
+			else:
+				debug("IT'S A FILE!")
+				files.append(file_name)
+				debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
+				# Check if it's a xypic file
+				if (not xypic_flag) and "xypic" in file_name:
+					xypic_flag = True
+					debug("xypic detected, demoting parsing error to warnings")
+				# now we recycle the remainder of this line
+				debug("Reprocessing " + extra)
+				reprocess_extra = True
 				continue
-			debug("IT'S A FILE!")
-			files.append(file_name)
-			debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
-			# Check if it's a xypic file
-			if (not xypic_flag) and "xypic" in file_name:
-				xypic_flag = True
-				debug("xypic detected, demoting parsing error to warnings")
-			# now we recycle the remainder of this line
-			debug("Reprocessing " + extra)
-			reprocess_extra = True
-			continue
 
 		# Special case: match xypic's " loaded)" markers
 		# You may think we already checked for this. But, NO! We must check both BEFORE and
@@ -541,6 +546,18 @@ def parse_tex_log(data):
 			# next time around, err_msg will be set and we'll extract all info
 			state = STATE_REPORT_ERROR
 			continue
+
+		# Second match for opening page numbers. We now use "search" which matches
+		# everywhere, not just at the beginning. We do so AFTER matching file names so we
+		# don't miss any.
+		pagenum_begin_match = pagenum_begin_rx.search(line)
+		if pagenum_begin_match:
+			debug("Matching [xx after some text")
+			extra = pagenum_begin_match.group(1)
+			debug("Reprocessing " + extra)
+			reprocess_extra = True
+			continue		
+
 
 		warning_match = warning_rx.match(line)
 		if warning_match:
