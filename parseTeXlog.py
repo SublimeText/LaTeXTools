@@ -16,6 +16,10 @@ def debug(s):
 # Rationale: if we are debugging from the command line, perhaps we are parsing
 # a log file from a user, so apply heuristics and / or ask if the file not
 # found is actually legit
+#
+# Return value: the question is, "Should I skip this file?" Hence:
+# 	True means YES, DO SKIP IT, IT IS NOT A FILE
+#	False means NO, DO NOT SKIP IT, IT IS A FILE
 def debug_skip_file(f):
 	# If we are not debugging, then it's not a file for sure, so skip it
 	if not (print_debug and interactive):
@@ -33,11 +37,11 @@ def debug_skip_file(f):
 	# Heuristic: "version 2010.12.02"
 	if re.match(r"version \d\d\d\d\.\d\d\.\d\d", f):
 		print "Skip it!"
-		return False
+		return True
 	# Heuristic: TeX Live line
 	if re.match(r"TeX Live 20\d\d(/Debian)?\) \(format", f):
 		print "Skip it!"
-		return False
+		return True
 	# Heuristic: no two consecutive spaces in file name
 	if "  " in f:
 		print "Skip it!"
