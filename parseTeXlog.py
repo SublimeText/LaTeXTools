@@ -31,7 +31,8 @@ def debug_skip_file(f):
 	known_file_exts = ['tex','sty','cls','cfg','def','mkii','fd','map','clo', 'dfu', \
 						'ldf', 'bdf', 'bbx','cbx','lbx']
 	if (f_ext in known_file_exts) and \
-	   (("/usr/local/texlive/" in f) or ("/usr/share/texlive/" in f) or ("Program Files\\MiKTeX" in f)):
+	   (("/usr/local/texlive/" in f) or ("/usr/share/texlive/" in f) or ("Program Files\\MiKTeX" in f) \
+	   	or re.search(r"\\MiKTeX\\\d\.\d+\\tex",f)):
 		print "TeXlive / MiKTeX FILE! Don't skip it!"
 		return False
 	# Heuristic: "version 2010.12.02"
@@ -40,6 +41,10 @@ def debug_skip_file(f):
 		return True
 	# Heuristic: TeX Live line
 	if re.match(r"TeX Live 20\d\d(/Debian)?\) \(format", f):
+		print "Skip it!"
+		return True
+	# Heuristic: MiKTeX line
+	if re.match("MiKTeX \d\.\d\d?",f):
 		print "Skip it!"
 		return True
 	# Heuristic: no two consecutive spaces in file name
@@ -168,6 +173,7 @@ def parse_tex_log(data):
 	recycle_extra = False		# Should we add extra to newly read line?
 	reprocess_extra = False		# Should we reprocess extra, without reading a new line?
 	emergency_stop = False		# If TeX stopped processing, we can't pop all files
+	incomplete_if = False  		# Ditto if some \if... statement is not complete	
 
 	while True:
 		# first of all, see if we have a line to recycle (see heuristic for "l.<nn>" lines)
@@ -300,6 +306,13 @@ def parse_tex_log(data):
 		if line=="":
 			continue
 
+		# Sometimes an \if... is not completed; in this case some files may remain on the stack
+		# I think the same format may apply to different \ifXXX commands, so make it flexible
+		if len(line)>0 and line.strip()[:23]=="(\\end occurred when \\if" and \
+						   line.strip()[-15:]=="was incomplete)":
+			incomplete_if = True
+			debug(line)
+
 		# Skip things that are clearly not file names, though they may trigger false positives
 		if len(line)>0 and \
 			(line[0:5]=="File:" or line[0:8]=="Package:" or line[0:15]=="Document Class:") or \
@@ -309,8 +322,8 @@ def parse_tex_log(data):
 		# Are we done? Get rid of extra spaces, just in case (we may have extended a line, etc.)
 		if line.strip() == "Here is how much of TeX's memory you used:":
 			if len(files)>0:
-				if emergency_stop:
-					debug("Done processing, files on stack due to emergency stop (all is fine!).")
+				if emergency_stop or incomplete_if:
+					debug("Done processing, files on stack due to known conditions (all is fine!)")
 				elif xypic_flag:
 					warnings.append("LaTeXTools cannot correctly detect file names in this LOG file.")
 					warnings.append("However, you are using the xypic package, which does nonstandard logging.")
