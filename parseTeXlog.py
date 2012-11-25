@@ -214,17 +214,22 @@ def parse_tex_log(data):
 				debug("MATCHED (long line)")
 				file_name = file_match.group(1)
 				file_extra = file_match.group(2) + file_match.group(3) # don't call it "extra"
-				# remove quotes if necessary
+				# remove quotes if necessary, but first save the count for a later check
+				quotecount = file_name.count("\"")
 				file_name = file_name.replace("\"", "")
 				# NOTE: on TL201X pdftex sometimes writes "pdfTeX warning" right after file name
 				# This may or may not be a stand-alone long line, but in any case if we
 				# extend, the file regex will fire regularly
 				if file_name[-6:]=="pdfTeX" and file_extra[:8]==" warning":
-					debug("pdfTeX appended to file name, can extend")
+					debug("pdfTeX appended to file name, extending")
 				# Else, if the extra stuff is NOT ")" or "", we have more than a single
 				# file name, so again the regular regex will fire
 				elif file_extra not in [")", ""]:
-					debug("additional text after file name, can extend")
+					debug("additional text after file name, extending")
+				# If we have exactly ONE quote, we are on Windows but we are missing the final quote
+				# in which case we extend, because we may be missing parentheses otherwise
+				elif quotecount==1:
+					debug("only one quote, extending")
 				# Now we have a long line consisting of a potential file name alone
 				# Check if it really is a file name
 				elif (not os.path.isfile(file_name)) and debug_skip_file(file_name):
