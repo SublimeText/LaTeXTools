@@ -6,7 +6,7 @@
   howpublished = {${4:Website}}
 }
 ]]></content>
-    <tabTrigger>article</tabTrigger>
+    <tabTrigger>booklet</tabTrigger>
     <scope>text.bibtex</scope>
-    <description>article entry</description>
+    <description>Booklet BibTex entry</description>
 </snippet>
