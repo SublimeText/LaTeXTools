@@ -1,25 +1,25 @@
 <snippet>
-    <content><![CDATA[          author = {${:Author A and Author B}},
-           title = {${:the title of the entry}},
-            type = {${:type of work (white paper, report...)}},
-           month = {${:month}},
-            year = {${:year the entry was published}}
-    howpublished = {${:how the entry was published}},
-       booktitle = {${:title of book}},
-          editor = {${:editor(s) name(s)}},
-         chapter = {${:chpater number}},
-         journal = {${:journal name}},
-         address = {${:Address of publisher}},
-           pages = {${:page ranges, comma delimited}},
-          number = {${:number of issue in volume}},
-          volume = {${:volume}},
-          series = {${:name of series of books}},
-         edition = {${:first, second, third...}},
-      insitution = {${:institution publishing the entry}},
-    organization = {${:the .org sponsering the conference}},
-          school = {${:name of school for thesises}},
-       publisher = {${:springer}},
-            note = {${:text...}}
+    <content><![CDATA[          author = {${1:Author A and Author B}},
+           title = {${2:the title of the entry}},
+            type = {${3:type of work (white paper, report...)}},
+           month = {${4:month}},
+            year = {${5:year the entry was published}}
+    howpublished = {${6:how the entry was published}},
+       booktitle = {${7:title of book}},
+          editor = {${8:editor(s) name(s)}},
+         chapter = {${9:chpater number}},
+         journal = {${10:journal name}},
+         address = {${11:Address of publisher}},
+           pages = {${12:page ranges, comma delimited}},
+          number = {${13:number of issue in volume}},
+          volume = {${14:volume}},
+          series = {${15:name of series of books}},
+         edition = {${16:first, second, third...}},
+      insitution = {${17:institution publishing the entry}},
+    organization = {${18:the .org sponsering the conference}},
+          school = {${19:name of school for thesises}},
+       publisher = {${20:springer}},
+            note = {${21:text...}}
 ]]></content>
     <tabTrigger>allfields</tabTrigger>
     <scope>text.bibtex</scope>
