@@ -1,0 +1,27 @@
+<snippet>
+    <content><![CDATA[          author = {${:Author A and Author B}},
+           title = {${:the title of the entry}},
+            type = {${:type of work (white paper, report...)}},
+           month = {${:month}},
+            year = {${:year the entry was published}}
+    howpublished = {${:how the entry was published}},
+       booktitle = {${:title of book}},
+          editor = {${:editor(s) name(s)}},
+         chapter = {${:chpater number}},
+         journal = {${:journal name}},
+         address = {${:Address of publisher}},
+           pages = {${:page ranges, comma delimited}},
+          number = {${:number of issue in volume}},
+          volume = {${:volume}},
+          series = {${:name of series of books}},
+         edition = {${:first, second, third...}},
+      insitution = {${:institution publishing the entry}},
+    organization = {${:the .org sponsering the conference}},
+          school = {${:name of school for thesises}},
+       publisher = {${:springer}},
+            note = {${:text...}}
+]]></content>
+    <tabTrigger>allfields</tabTrigger>
+    <scope>text.bibtex</scope>
+    <description>all the fields available in BibTex</description>
+</snippet>

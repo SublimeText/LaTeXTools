@@ -1,11 +1,11 @@
 <snippet>
     <content><![CDATA[@Online{${1:refname},
-    author="${2:author}",
-    title="${3:title}",
-    howpublished ="Website",
-    date = "${4:yyyy-mm-dd}",
-    url ="${5:http://site/paper}",
-    urldate="${6:yyyy-mm-dd}",
+     author = "${2:author}",
+      title = "${3:title}",
+       date = "${4:yyyy-mm-dd}",
+        url = "${5:http://site/paper}",
+    urldate = "${6:yyyy-mm-dd}",
+    howpublished = "Website",
 }]]></content>
     <tabTrigger>online</tabTrigger>
     <scope>text.bibtex</scope>
