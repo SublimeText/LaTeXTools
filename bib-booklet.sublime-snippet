@@ -2,8 +2,8 @@
     <content><![CDATA[@Booklet{${1:refName},
          title = {${2:title}},
         author = {${3:author}},
-          year = {${5:year}},
-  howpublished = {${4:Website}}
+          year = {${4:year}},
+  howpublished = {${5:Website}}
 }
 ]]></content>
     <tabTrigger>booklet</tabTrigger>

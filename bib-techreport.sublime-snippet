@@ -1,0 +1,12 @@
+<snippet>
+    <content><![CDATA[@Techreport{${1:refname},
+          title = {${2:title}},
+         author = {${3:author}},
+    institution = {${4:name of institution}},
+           year = {${5:year}},
+           type = {${6:Whitepaper}}
+}]]></content>
+    <tabTrigger>techreport</tabTrigger>
+    <scope>text.bibtex</scope>
+    <description>A tech report</description>
+</snippet>

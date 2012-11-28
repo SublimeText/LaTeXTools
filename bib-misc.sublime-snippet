@@ -1,0 +1,11 @@
+<snippet>
+    <content><![CDATA[@Misc{${1:refname},
+           title = {${2:title}},
+          author = {${3:author}},
+    howpublished = {${4:web/print/...}},
+            year = {${5:year}}
+}]]></content>
+    <tabTrigger>misc</tabTrigger>
+    <scope>text.bibtex</scope>
+    <description>Anything that doesn't fall into the common types</description>
+</snippet>

@@ -1,0 +1,11 @@
+<snippet>
+    <content><![CDATA[@Unpublished{${1:refname},
+          title = {${2:title}},
+         author = {${3:author}},
+           note = {${4:more about this entry}},
+           year = {${5:year}},
+}]]></content>
+    <tabTrigger>unpublished</tabTrigger>
+    <scope>text.bibtex</scope>
+    <description>An entry yet to be published</description>
+</snippet>

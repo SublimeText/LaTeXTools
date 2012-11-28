@@ -3,7 +3,7 @@
         author = {${2:authors}},
          title = {${3:title}},
      booktitle = {${4:title of book}},
-          year = {${5:year}}
+          year = {${5:year}},
   organization = {${6:org name}}
 }
 ]]></content>
