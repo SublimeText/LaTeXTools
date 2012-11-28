@@ -39,7 +39,7 @@
 		// Paths to TeX binaries; needed as GUI apps do not inherit
 		// the profile. MUST EXPLICITLY PRE/APPEND $PATH!
 		// This is preconfigured for MacTeX (2009 and up I guess)
-		"path": "$PATH:/usr/texbin:/usr/local/bin",
+		"path": "$PATH:/usr/texbin:/usr/local/bin:/opt/local/bin",
 		
 		// DO NOT MESS WITH THE FOLLOWING!!!
 		"file_regex": "^(...*?):([0-9]+): ([0-9]*)([^\\.]+)"
