@@ -73,7 +73,7 @@ LaTeX Package keymap for OS X
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Wrap in environment.sublime-snippet"}},
 
-	// Wrap selected text in emph, bold or underline
+	// Wrap selected text in emph, bold, typewriter or underline
 	{ "keys": ["super+l","super+e"],  
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
@@ -86,6 +86,10 @@ LaTeX Package keymap for OS X
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text underline.sublime-snippet"}},
+	{ "keys": ["super+l","super+t"],  
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text typewriter.sublime-snippet"}},
 
 
 
