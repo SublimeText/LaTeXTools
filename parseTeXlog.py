@@ -32,7 +32,7 @@ def debug_skip_file(f):
 						'ldf', 'bdf', 'bbx','cbx','lbx']
 	if (f_ext in known_file_exts) and \
 	   (("/usr/local/texlive/" in f) or ("/usr/share/texlive/" in f) or ("Program Files\\MiKTeX" in f) \
-	   	or re.search(r"\\MiKTeX\\\d\.\d+\\tex",f)):
+	   	or re.search(r"\\MiKTeX\\\d\.\d+\\tex",f)) or ("\\MiKTeX\\tex\\" in f):
 		print "TeXlive / MiKTeX FILE! Don't skip it!"
 		return False
 	# Heuristic: "version 2010.12.02"
@@ -403,6 +403,15 @@ def parse_tex_log(data):
 				break
 			else:
 				continue
+
+		# Special case: the bibgerm package, which has comments starting and ending with
+		# **, and then finishes with "**)"
+		if len(line)>0 and line[:2] == "**" and line[-3:] == "**)" \
+						and files and "bibgerm" in files[-1]:
+			debug("special case: bibgerm")
+			debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
+			files.pop()
+			continue
 
 		# Special case: the relsize package, which puts ")" at the end of a
 		# line beginning with "Examine \". Ah well!
