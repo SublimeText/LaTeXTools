@@ -3,7 +3,7 @@
            title = {${2:the title of the entry}},
             type = {${3:type of work (white paper, report...)}},
            month = {${4:month}},
-            year = {${5:year the entry was published}}
+            year = {${5:year the entry was published}},
     howpublished = {${6:how the entry was published}},
        booktitle = {${7:title of book}},
           editor = {${8:editor(s) name(s)}},
