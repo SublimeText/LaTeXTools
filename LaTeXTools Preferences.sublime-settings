@@ -8,6 +8,12 @@
 	"keep_focus":	true,
 	// Sync PDF to current editor position after building (true) or not 
 	"forward_sync":	true,
+	
+	// Settings that are specific to Windows platforms
+	"windows": {
+		// Command to invoke Sumatra. If blank, "SumatraPDF" is used (it has to be on your PATH)
+		"sumatra": ""
+	},
 
 	// Settings that are specific to Linux platforms
 	"linux": {
