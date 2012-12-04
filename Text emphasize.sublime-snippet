@@ -1,7 +1,7 @@
 <snippet>
 	<description>Emphasize text</description>
 	<content><![CDATA[
-\\emph{$SELECTION}
+\\emph{${1:$SELECTION}}
 ]]></content>
 	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
 	<!-- <tabTrigger>hello</tabTrigger> -->

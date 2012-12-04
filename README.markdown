@@ -4,11 +4,10 @@ LaTeX Plugin for Sublime Text 2
 by Marciano Siniscalchi
 [http://tekonomist.wordpress.com]
 
-Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths). *If you have contributed and I haven't acknowledged you, email me!*
+Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, skuroda (Preferences menu), Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths). *If you have contributed and I haven't acknowledged you, email me!*
 
-Latest revision: *2012-10-06*. Highlight: toggle forward search after compiling on and off.
+Latest revision: *2012-11-18*. Highlight: The new log-file parser is now in place, and I have kept improving it over the last week or so, based on error reports from users. The new parser is a lot more robust (no more silent crashes!) and picks up files that were just silently ignored by the old one. On the other hand, right now the code is strict in the sense that, if it can't make sense of a log file, it displays an error message. Please see the troubleshooting section on this. 
 
-**WARNING**: I changed keybindings in mid-September 2012. Read the section titled "New-style keybindings." Also, on Windows, please note that *TeXLive* is the "preferred" TeX distribution, not MiKTeX. This has been the case for a long time, but I forgot to update this README file.
 
 Introduction
 ------------
@@ -36,13 +35,13 @@ Third, follow the OS-specific instructions below.
 
 <br>
 
-On **OSX**, you need to be running the MacTeX distribution (which is pretty much the only one available on the Mac anyway) and the Skim PDF previewer. Just download and install these in the usual way. I have tested MacTeX versions 2010 and 2011, both 32 and 64 bits; these work fine. On the other hand, MacTeX 2008 does *not* seem to work out of the box (compilation fails), so please upgrade.
+On **OSX**, you need to be running the MacTeX distribution (which is pretty much the only one available on the Mac anyway) and the Skim PDF previewer. Just download and install these in the usual way. I have tested MacTeX versions 2010 and 2011, both 32 and 64 bits; these work fine. On the other hand, MacTeX 2008 does *not* seem to work out of the box (compilation fails), so please upgrade. If you don't want to install the entire MacTeX distro, which is pretty big, BasicTeX will also work (of course, as long as the latex packages you need are included). **However**, you need to explicitly add the `latexmk` utility, which is not included by default: from the Terminal, type `sudo tlmgr install latexmk` (you will need to provide your password, assuming you are Administrator on your machine).
 
 To configure inverse search, open the Preferences dialog of the Skim app, select the Sync tab, then:
 
 * uncheck the "Check for file changes" option
 * Preset: Custom
-* Command: `/Applications/Sublime Text 2.app/Contents/SharedSupport/bin/subl`.
+* Command: `"/Applications/Sublime Text 2.app/Contents/SharedSupport/bin/subl"`
 * Arguments: "%file":%line
 
 Note: in case you have created a symlink to Sublime Text somewhere in your path, you can of course use that, too in the Command field. The above will work in any case though, and does *not* require you to create a symlink or mess with the Terminal in any way!
@@ -170,6 +169,8 @@ The "old-style" system works as follows. For references, you type `ref_`, then `
 
 *Deprecation alert*: the only real advantage of old-style citations is that you don't have to enter the initial `\`. I think I will eventually remove this functionality and leave only new-style completions, i.e. `\ref{}`, `\cite{}` etc. 
 
+*Graceful error reporting*: if a bib file is not found, LaTeXTools displays a warning message in the status bar. Note that this message goes away after a few seconds. So, if you hit `C-l,Ctrl-space` and nothing happens--or, in the case of multiple bib files, if you can't file a reference that you *know* must be there somewhere--look at the status bar (you may have to dismiss the quick panel and hitting the key combination again).
+
 Thanks to recent contributed code, **multi-file documents** are *fully supported*. If you have a `% !TEX root = ...` directive at the top of the current file, LaTeXTools looks for references, as well as `\bibliography{}` commands, in the root file and in all recursively included files. You can also use a project file to specify the root file (to be documented).
 
 Another note: **for now**, completions are also injected into the standard ST2 autocompletion system. Thus, if you hit `Ctrl-space` immediately after typing, e.g., `\ref{}`, you get a drop-down menu at the current cursor position (not a quick-panel) showing all labels in your document. This also works with old-style citations. However, the width of this menu is OK for (most) labels, but not really for paper titles. In other words, it is workable for references, but not really for citations. Furthermore, there are other limitations dictated by the ST2 autocompletion system. So, I encourage you to use the `C-l,Ctrl-space` keybinding instead. In fact, consider the standard autocompletion support to be *deprecated* as of today (12-09-17).
@@ -218,6 +219,7 @@ LaTeXTools' wrapping facility helps you in just these circumstances. All command
 - `C-l,C-u` gives you `\underline{blah}`
 - `C-l,C-n` wraps the selected text in a LaTeX environment structure. You get `\begin{env}`,`blah`, `\end{env}` on three separate lines, with `env` selected. Change `env` to whatever environment you want, then hit Tab to move to the end of the environment.
 
+These commands also work if there is no selection. In this case, they try to do the right thing; for example, `C-l,C-e` gives `\emph{}` with the cursor between the curly braces.
 
 Command completion, snippets, etc.
 ----------------------------------
@@ -308,3 +310,16 @@ Spaces in paths and file names *are* supported. As far as I know, the only limit
 
 On Windows, sometimes a build seems to succeed, but the PDF file is not updated. This is most often the case if there is a stale pdflatex process running; a symptom is the appearence of a file with extension `.synctex.gz(busy)`. If so, launch the Task Manager and end the `pdflatex.exe` process; if you see a `perl.exe` process, end that, too. This kind of behavior is probably a bug: LaTeXTools should be able to see that something went wrong in the earlier compilation. So, *please let me know*, and provide me with as much detail as you can (ideally, with a test case). Thanks!
 
+
+### Log parsing issues, and good vs. bad path/file names (again!) ###
+
+As noted in the Highlights, the new parser is more robust and flexible than the old one---it "understands" the log file format much, much better. This is the result of *manually* and *painstakingly* debugging a fair number of users' log files. The many possible exceptions, idiosyncrasies, warts, etc. displayed by TeX packages is mind-boggling, and the parsing code reflects this :-(
+
+Anyway, hopefully, errors should now occur only in strange edge cases. Please *let me know on github* if you see an error message. I need a log file to diagnose the problem; please upload it to gist, dropbox, or similar, and paste a link in your message on github. Issue #104 is open for that purpose.
+
+There are *two exceptions* to this request. First, the *xypic* package is very, very badly behaved. I have spent more time debugging log files contaminated by xypic than I have spent fixing all other issues. Seriously. Therefore, first, parsing issues are now reported as "warnings" if the xypic package is used (so compilation and previewing continues); second, I cannot promise I will fix the issue even if you report it. Thanks for your understanding. 
+
+The second exception has to do with file and path names. In order to accommodate the many possible naming conventions across platforms and packages, as well as the different ways in which file names can occur in logs, I had to make some assumptions. The key one is that *extensions cannot contain spaces*. The reason is that the regex matching file names uses a period (".") followed by non-space characters, followed by a space as denoting the end of the file name. Trust me, it's the most robust regex I could come up with. So, you can have spaces in your base names, and you can even have multiple extensions; however, you cannot have spaces in your extensions. So, "This is a file.ver-1.tex" is OK; "file.my ext" (where "my ext" is supposed to be the extension) is *not OK*.
+
+Finally, I have done my best to accommodate non-ASCII characters in logs. I cannot promise that everything works, but I'd like to know if you see issues with this.
+ 

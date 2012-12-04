@@ -19,12 +19,14 @@ def find_bib_files(rootdir, src, bibfiles):
 
     file_path = os.path.normpath(os.path.join(rootdir,src))
     print "Searching file: " + repr(file_path)
-    dir_name = os.path.dirname(file_path)
+    # See latex_ref_completion.py for why the following is wrong:
+    #dir_name = os.path.dirname(file_path)
 
     # read src file and extract all bibliography tags
     try:
         src_file = open(file_path, "r")
     except IOError:
+        sublime.status_message("LaTeXTools WARNING: cannot open included file " + file_path)
         print "WARNING! I can't find it! Check your \\include's and \\input's." 
         return
 
@@ -35,15 +37,16 @@ def find_bib_files(rootdir, src, bibfiles):
     for tag in bibtags:
         bfiles = re.search(r'\{([^\}]+)', tag).group(1).split(',')
         for bf in bfiles:
-            if bf[-4:] != '.bib':
+            if bf[-4:].lower() != '.bib':
                 bf = bf + '.bib'
-            bf = os.path.normpath(os.path.join(dir_name,bf))
+            # We join with rootdir - everything is off the dir of the master file
+            bf = os.path.normpath(os.path.join(rootdir,bf))
             bibfiles.append(bf)
 
     # search through input tex files recursively
     for f in re.findall(r'\\(?:input|include)\{[^\}]+\}',src_content):
         input_f = re.search(r'\{([^\}]+)', f).group(1)
-        find_bib_files(dir_name, input_f, bibfiles)
+        find_bib_files(rootdir, input_f, bibfiles)
 
 # Based on html_completions.py
 # see also latex_ref_completions.py
@@ -182,17 +185,19 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         kp2 = re.compile(r'([^\t]+)\t*')
 
         for bibfname in bib_files:
-            if bibfname[-4:] != ".bib":
-                bibfname = bibfname + ".bib"
-            texfiledir = os.path.dirname(view.file_name())
-            # fix from Tobias Schmidt to allow for absolute paths
-            bibfname = os.path.normpath(os.path.join(texfiledir, bibfname))
-            print repr(bibfname) 
+            # # THIS IS NO LONGER NEEDED as find_bib_files() takes care of it
+            # if bibfname[-4:] != ".bib":
+            #     bibfname = bibfname + ".bib"
+            # texfiledir = os.path.dirname(view.file_name())
+            # # fix from Tobias Schmidt to allow for absolute paths
+            # bibfname = os.path.normpath(os.path.join(texfiledir, bibfname))
+            # print repr(bibfname) 
             try:
                 bibf = open(bibfname)
             except IOError:
-                sublime.error_message("Cannot open bibliography file %s !" % (bibfname,))
-                return []
+                print "Cannot open bibliography file %s !" % (bibfname,)
+                sublime.status_message("Cannot open bibliography file %s !" % (bibfname,))
+                continue
             else:
                 bib = bibf.readlines()
                 bibf.close()
@@ -343,17 +348,19 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         kp2 = re.compile(r'([^\t]+)\t*')
 
         for bibfname in bib_files:
-            if bibfname[-4:] != ".bib":
-                bibfname = bibfname + ".bib"
-            texfiledir = os.path.dirname(view.file_name())
-            # fix from Tobias Schmidt to allow for absolute paths
-            bibfname = os.path.normpath(os.path.join(texfiledir, bibfname))
-            print repr(bibfname) 
+            # # NO LONGER NEEDED: see above
+            # if bibfname[-4:] != ".bib":
+            #     bibfname = bibfname + ".bib"
+            # texfiledir = os.path.dirname(view.file_name())
+            # # fix from Tobias Schmidt to allow for absolute paths
+            # bibfname = os.path.normpath(os.path.join(texfiledir, bibfname))
+            # print repr(bibfname) 
             try:
                 bibf = open(bibfname)
             except IOError:
-                sublime.error_message("Cannot open bibliography file %s !" % (bibfname,))
-                return []
+                print "Cannot open bibliography file %s !" % (bibfname,)
+                sublime.status_message("Cannot open bibliography file %s !" % (bibfname,))
+                continue
             else:
                 bib = bibf.readlines()
                 bibf.close()

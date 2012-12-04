@@ -1,5 +1,5 @@
 <snippet>
-	<description>Wrap selection in LaTeX environment</description>
+	<description>Turn selection into LaTeX environment</description>
 	<content><![CDATA[
 \\begin{${1:env}}
 $SELECTION

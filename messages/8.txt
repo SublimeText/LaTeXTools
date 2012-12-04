@@ -1,0 +1,21 @@
+LaTeXTools Plugin version 2012-10-25 ??? changelog:
+
+New features:
+
+- HIGHLIGHT: merged the new, more robust log parsing code. This should resolve many
+  parsing issues reported by users, but let me know if problems persists. It was a
+  major code rewrite, and I tested it as best I could; only "battle-testing" it
+  on different users' machines will bring out any remaining issues.  
+
+- Support for MiKTeX is now again more or less on par with TeXlive on Windows. Use
+  whichever you prefer.
+
+Bugs fixed:
+
+- \include{} and \input{} reference files from the master file directory; fixed
+  ref/cite completion so it matches LaTeX's behavior (otherwise labels/bibfiles
+  were not found)
+
+- Improved non-intrusive error reporting in ref/cite completion
+
+- Robustified makePDF so (more) errors are explicitly reported.
