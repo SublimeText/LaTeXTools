@@ -134,16 +134,17 @@ class LatexRefCompletions(sublime_plugin.EventListener):
                 post_snippet = ""
 
         completions = []
-        # stop matching at FIRST } after \label{
-        # I think we don't need to match here, as getTeXroot returns our file name
-        # if there is no TEX root directive
-        # view.find_all(r'\\label\{([^\{\}]+)\}', 0, '\\1', completions)
+        # Check the file buffer first:
+        #    1) in case there are unsaved changes
+        #    2) if this file is unnamed and unsaved, get_tex_root will fail
+        view.find_all(r'\\label\{([^\{\}]+)\}', 0, '\\1', completions)
 
         root = getTeXRoot.get_tex_root(view)
+        if root:
+            print "TEX root: " + repr(root)
+            find_labels_in_files(os.path.dirname(root), root, completions)
 
-        print "TEX root: " + repr(root)
-        find_labels_in_files(os.path.dirname(root), root, completions)
-        # remove duplicate bib files
+        # remove duplicates
         completions = list(set(completions))
 
         # r = [(label + "\t\\ref{}", label + post_snippet) for label in completions]
