@@ -4,7 +4,7 @@ import re
 import getTeXRoot
 
 
-class UnrecognizedPrefixError(Exception): pass
+class UnrecognizedRefFormatError(Exception): pass
 
 
 def match(rex, str):
@@ -77,7 +77,7 @@ def get_ref_completions(view, point):
         expr = match(rex, line)
 
         if not expr:
-            raise UnrecognizedPrefixError()
+            raise UnrecognizedRefFormatError()
 
         preformatted = True
         # Return the matched bits (barely needed, in this case)
@@ -164,9 +164,8 @@ class LatexRefCompletions(sublime_plugin.EventListener):
 
         try:
             completions, prefix, post_snippet, new_point_a, new_point_b = get_ref_completions(view, point)
-        except UnrecognizedPrefixError:
-            sublime.error_message("Not a recognized format for reference completion")
-            return
+        except UnrecognizedRefFormatError:
+            return []
 
         # r = [(label + "\t\\ref{}", label + post_snippet) for label in completions]
         r = [(label, label + post_snippet) for label in completions]
@@ -192,7 +191,7 @@ class LatexRefCommand(sublime_plugin.TextCommand):
 
         try:
             completions, prefix, post_snippet, new_point_a, new_point_b = get_ref_completions(view, point)
-        except UnrecognizedPrefixError:
+        except UnrecognizedRefFormatError:
             sublime.error_message("Not a recognized format for reference completion")
             return
 
