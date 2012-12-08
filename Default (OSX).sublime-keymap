@@ -41,6 +41,13 @@ LaTeX Package keymap for OS X
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "latex_ref_cite"},
 
+	{	"keys": ["{"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
+			{"key": "preceding_text", "operator": "regex_match", "operand": "\\\\(((eq)?ref)|(cite([a-zX*]*?)))", "match_all": true}],
+		"command": "latex_ref_cite"},
+
 	// View PDF, jump to point, toggle editor/viewer focus
 	{ 	"keys": ["super+l","v"],
 		"context":  [
