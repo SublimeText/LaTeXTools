@@ -323,6 +323,11 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
 
         root = getTeXRoot.get_tex_root(view)
 
+        if root is None:
+            # This is an unnamed, unsaved file
+            # FIXME: should probably search the buffer instead of giving up
+            return []
+
         print "TEX root: " + repr(root)
         bib_files = []
         find_bib_files(os.path.dirname(root),root,bib_files)

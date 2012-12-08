@@ -242,12 +242,17 @@ class LatexRefCommand(sublime_plugin.TextCommand):
                 post_snippet = ""
 
         completions = []
+        # Check the file buffer first:
+        #    1) in case there are unsaved changes
+        #    2) if this file is unnamed and unsaved, get_tex_root will fail
+        view.find_all(r'\\label\{([^\{\}]+)\}', 0, '\\1', completions)
 
         root = getTeXRoot.get_tex_root(view)
+        if root:
+            print "TEX root: " + repr(root)
+            find_labels_in_files(os.path.dirname(root), root, completions)
 
-        print "TEX root: " + repr(root)
-        find_labels_in_files(os.path.dirname(root), root, completions)
-        # remove duplicate bib files
+        # remove duplicates
         completions = list(set(completions))
         # filter! Note matching is "less fuzzy" than ST2. Room for improvement...
         completions = [c for c in completions if prefix in c]
