@@ -91,7 +91,7 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         # Check the first location looks like a ref, but backward
         # NOTE: use lazy match for the fancy cite part!!!
         # NOTE2: restrict what to match for fancy cite
-        rex = re.compile("([^_]*_)?([a-zX]*?)etic")
+        rex = re.compile(r"([^_]*_)?([a-zX]*?)etic\\?")
         expr = match(rex, line)
         #print expr
         
@@ -269,7 +269,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         # Check the first location looks like a cite_, but backward
         # NOTE: use lazy match for the fancy cite part!!!
         # NOTE2: restrict what to match for fancy cite
-        rex = re.compile("([^_]*_)?([a-zX]*?)etic")
+        rex = re.compile(r"([^_]*_)?([a-zX]*?)etic\\?")
         expr = match(rex, line)
 
         # See first if we have a cite_ trigger

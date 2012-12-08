@@ -28,9 +28,9 @@ class LatexRefCiteCommand(sublime_plugin.TextCommand):
         # Reverse
         line = line[::-1]
 
-        rex_ref_new = re.compile(r"[^{]*\{fer")
+        rex_ref_new = re.compile(r"([^{}]*\{)?fer\\?")
         rex_ref_old = re.compile(r".*_p?fer")
-        rex_cite_new = re.compile(r".*etic\\")
+        rex_cite_new = re.compile(r"([^{}]*\{)?etic\\?")
         rex_cite_old = re.compile(r".*_[a-zA-Z]*etic")
 
         if re.match(rex_ref_old, line) or re.match(rex_ref_new, line):

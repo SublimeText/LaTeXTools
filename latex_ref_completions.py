@@ -77,7 +77,7 @@ class LatexRefCompletions(sublime_plugin.EventListener):
         #print line
 
         # Check the first location looks like a ref, but backward
-        rex = re.compile("([^_]*_)?(p)?fer(qe)?")
+        rex = re.compile(r"([^_]*_)?(p)?fer(qe)?\\?")
         expr = match(rex, line)
         # print expr
 
@@ -180,7 +180,7 @@ class LatexRefCommand(sublime_plugin.TextCommand):
         #print line
 
         # Check the first location looks like a ref, but backward
-        rex = re.compile("([^_]*_)?(p)?fer(qe)?")
+        rex = re.compile(r"([^_]*_)?(p)?fer(qe)?\\?")
         expr = match(rex, line)
         # print expr
 
