@@ -67,6 +67,7 @@ def get_ref_completions(view, point):
         if prefix:
             prefix = prefix[::-1]   # reverse
             prefix = prefix[1:]     # chop off #
+            prefix = prefix[1:]     # chop off "_"
         else:
             prefix = ""
         #print prefix, has_p, has_eq

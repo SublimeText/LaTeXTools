@@ -295,7 +295,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         try:
             completions, prefix, post_brace, new_point_a, new_point_b = get_cite_completions(view, point)
         except UnrecognizedCiteFormatError:
-            sublime.error_message("Not a recognized format for reference completion")
+            sublime.error_message("Not a recognized format for citation completion")
             return
         except NoBibFilesError:
             sublime.error_message("No bib files found!")
