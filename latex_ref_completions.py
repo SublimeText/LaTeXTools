@@ -45,7 +45,7 @@ def find_labels_in_files(rootdir, src, labels):
 
 # get_ref_completions forms the guts of the parsing shared by both the
 # autocomplete plugin and the quick panel command
-def get_ref_completions(view, point):
+def get_ref_completions(view, point, autocompleting=False):
     # Get contents of line from start up to point
     line = view.substr(sublime.Region(view.line(point).a, point))
     print line
@@ -56,17 +56,20 @@ def get_ref_completions(view, point):
     #print line
 
     # Check the first location looks like a ref, but backward
-    rex = re.compile(r"([^_]*_)?(p)?fer(qe)?\\?")
+    rex = re.compile(r"([^_]*_)?(p)?fer(qe)?(?:\\|\b)")
     expr = match(rex, line)
     # print expr
 
     if expr:
+        # Do not match on plain "ref" when autocompleting,
+        # in case the user is typing something else
+        if autocompleting and expr == "p?fer(?:eq)?\\?":
+            raise UnrecognizedRefFormatError()
         # Return the matched bits, for mangling
         prefix, has_p, has_eq = rex.match(expr).groups()
         preformatted = False
         if prefix:
             prefix = prefix[::-1]   # reverse
-            prefix = prefix[1:]     # chop off #
             prefix = prefix[1:]     # chop off "_"
         else:
             prefix = ""
@@ -164,7 +167,7 @@ class LatexRefCompletions(sublime_plugin.EventListener):
         point = locations[0]
 
         try:
-            completions, prefix, post_snippet, new_point_a, new_point_b = get_ref_completions(view, point)
+            completions, prefix, post_snippet, new_point_a, new_point_b = get_ref_completions(view, point, autocompleting=True)
         except UnrecognizedRefFormatError:
             return []
 

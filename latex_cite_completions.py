@@ -58,7 +58,7 @@ def find_bib_files(rootdir, src, bibfiles):
         find_bib_files(rootdir, input_f, bibfiles)
 
 
-def get_cite_completions(view, point):
+def get_cite_completions(view, point, autocompleting=False):
     line = view.substr(sublime.Region(view.line(point).a, point))
     print line
 
@@ -70,11 +70,15 @@ def get_cite_completions(view, point):
     # Check the first location looks like a cite_, but backward
     # NOTE: use lazy match for the fancy cite part!!!
     # NOTE2: restrict what to match for fancy cite
-    rex = re.compile(r"([^_]*_)?([a-zX]*?)etic\\?")
+    rex = re.compile(r"([^_]*_)?([a-zX*]*?)etic(?:\\|\b)")
     expr = match(rex, line)
 
     # See first if we have a cite_ trigger
     if expr:
+        # Do not match on plain "cite[a-zX*]*?" when autocompleting,
+        # in case the user is typing something else
+        if autocompleting and re.match(r"[a-zX*]*etic\\?$", expr):
+            raise UnrecognizedCiteFormatError()
         # Return the completions
         prefix, fancy_cite = rex.match(expr).groups()
         preformatted = False
@@ -252,7 +256,7 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         point = locations[0]
 
         try:
-            completions, prefix, post_brace, new_point_a, new_point_b = get_cite_completions(view, point)
+            completions, prefix, post_brace, new_point_a, new_point_b = get_cite_completions(view, point, autocompleting=True)
         except UnrecognizedCiteFormatError:
             return []
         except NoBibFilesError:
