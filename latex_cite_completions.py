@@ -12,6 +12,10 @@ class BibParsingError(Exception):
         self.filename = filename
 
 
+OLD_STYLE_CITE_REGEX = re.compile(r"([^_]*_)?([a-zX*]*?)etic(?:\\|\b)")
+NEW_STYLE_CITE_REGEX = re.compile(r"([^{},]*)(?:,[^{},]*)*\{([a-zX*]*?)etic\\")
+
+
 def match(rex, str):
     m = rex.match(str)
     if m:
@@ -70,7 +74,7 @@ def get_cite_completions(view, point, autocompleting=False):
     # Check the first location looks like a cite_, but backward
     # NOTE: use lazy match for the fancy cite part!!!
     # NOTE2: restrict what to match for fancy cite
-    rex = re.compile(r"([^_]*_)?([a-zX*]*?)etic(?:\\|\b)")
+    rex = OLD_STYLE_CITE_REGEX
     expr = match(rex, line)
 
     # See first if we have a cite_ trigger
@@ -98,7 +102,7 @@ def get_cite_completions(view, point, autocompleting=False):
 
     # Otherwise, see if we have a preformatted \cite{}
     else:
-        rex = re.compile(r"([^{},]*)(?:,[^{},]*)*\{([a-zX*]*?)etic\\")
+        rex = NEW_STYLE_CITE_REGEX
         expr = match(rex, line)
 
         if not expr:

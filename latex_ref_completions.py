@@ -7,6 +7,10 @@ import getTeXRoot
 class UnrecognizedRefFormatError(Exception): pass
 
 
+OLD_STYLE_REF_REGEX = re.compile(r"([^_]*_)?(p)?fer(qe)?(?:\\|\b)")
+NEW_STYLE_REF_REGEX = re.compile(r"([^{}]*)\{fer(qe)?\\(\()?")
+
+
 def match(rex, str):
     m = rex.match(str)
     if m:
@@ -56,7 +60,7 @@ def get_ref_completions(view, point, autocompleting=False):
     #print line
 
     # Check the first location looks like a ref, but backward
-    rex = re.compile(r"([^_]*_)?(p)?fer(qe)?(?:\\|\b)")
+    rex = OLD_STYLE_REF_REGEX
     expr = match(rex, line)
     # print expr
 
@@ -77,7 +81,7 @@ def get_ref_completions(view, point, autocompleting=False):
 
     else:
         # Check to see if the location matches a preformatted "\ref{blah"
-        rex = re.compile(r"([^{}]*)\{fer(qe)?\\(\()?")
+        rex = NEW_STYLE_REF_REGEX
         expr = match(rex, line)
 
         if not expr:
