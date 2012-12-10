@@ -6,9 +6,10 @@ import getTeXRoot
 
 class UnrecognizedRefFormatError(Exception): pass
 
+_ref_special_commands = "|".join(["eq", "page", "v", "V", "auto", "name", "c", "C", "cpage"])[::-1]
 
-OLD_STYLE_REF_REGEX = re.compile(r"([^_]*_)?(p)?fer(qe)?(?:\\|\b)")
-NEW_STYLE_REF_REGEX = re.compile(r"([^{}]*)\{fer(qe)?\\(\()?")
+OLD_STYLE_REF_REGEX = re.compile(r"([^_]*_)?(p)?fer(" + _ref_special_commands + r")?(?:\\|\b)")
+NEW_STYLE_REF_REGEX = re.compile(r"([^{}]*)\{fer(" + _ref_special_commands + r")?\\(\()?")
 
 
 def match(rex, str):
@@ -67,17 +68,17 @@ def get_ref_completions(view, point, autocompleting=False):
     if expr:
         # Do not match on plain "ref" when autocompleting,
         # in case the user is typing something else
-        if autocompleting and re.match(r"p?fer(?:eq)?\\?", expr):
+        if autocompleting and re.match(r"p?fer(?:" + _ref_special_commands + r")?\\?", expr):
             raise UnrecognizedRefFormatError()
         # Return the matched bits, for mangling
-        prefix, has_p, has_eq = rex.match(expr).groups()
+        prefix, has_p, special_command = rex.match(expr).groups()
         preformatted = False
         if prefix:
             prefix = prefix[::-1]   # reverse
             prefix = prefix[1:]     # chop off "_"
         else:
             prefix = ""
-        #print prefix, has_p, has_eq
+        #print prefix, has_p, special_command
 
     else:
         # Check to see if the location matches a preformatted "\ref{blah"
@@ -89,22 +90,19 @@ def get_ref_completions(view, point, autocompleting=False):
 
         preformatted = True
         # Return the matched bits (barely needed, in this case)
-        prefix, has_eq, has_p = rex.match(expr).groups()
+        prefix, special_command, has_p = rex.match(expr).groups()
         if prefix:
             prefix = prefix[::-1]   # reverse
         else:
             prefix = ""
-        #print prefix, has_p, has_eq
+        #print prefix, has_p, special_command
+
+    pre_snippet = "\\" + special_command[::-1] + "ref{"
+    post_snippet = "}"
 
     if has_p:
-        pre_snippet = "(\\ref{"
-        post_snippet = "})"
-    elif has_eq:
-        pre_snippet = "\\eqref{"
-        post_snippet = "}"
-    else:
-        pre_snippet = "\\ref{"
-        post_snippet = "}"
+        pre_snippet = "(" + pre_snippet
+        post_snippet = post_snippet + ")"
 
     if not preformatted:
         # Replace ref_blah with \ref{blah
