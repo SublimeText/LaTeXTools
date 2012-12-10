@@ -63,7 +63,7 @@ def get_ref_completions(view, point, autocompleting=False):
     if expr:
         # Do not match on plain "ref" when autocompleting,
         # in case the user is typing something else
-        if autocompleting and expr == "p?fer(?:eq)?\\?":
+        if autocompleting and re.match(r"p?fer(?:eq)?\\?", expr):
             raise UnrecognizedRefFormatError()
         # Return the matched bits, for mangling
         prefix, has_p, has_eq = rex.match(expr).groups()

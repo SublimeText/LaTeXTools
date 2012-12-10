@@ -77,7 +77,7 @@ def get_cite_completions(view, point, autocompleting=False):
     if expr:
         # Do not match on plain "cite[a-zX*]*?" when autocompleting,
         # in case the user is typing something else
-        if autocompleting and re.match(r"[a-zX*]*etic\\?$", expr):
+        if autocompleting and re.match(r"[a-zX*]*etic\\?", expr):
             raise UnrecognizedCiteFormatError()
         # Return the completions
         prefix, fancy_cite = rex.match(expr).groups()
