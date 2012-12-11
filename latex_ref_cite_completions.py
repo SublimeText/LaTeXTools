@@ -11,7 +11,7 @@ from latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
 class LatexRefCiteCommand(sublime_plugin.TextCommand):
 
     # Remember that this gets passed an edit object
-    def run(self, edit):
+    def run(self, edit, insert_char=""):
         # get view and location of first selection, which we expect to be just the cursor position
         view = self.view
         point = view.sel()[0].b
@@ -21,6 +21,11 @@ class LatexRefCiteCommand(sublime_plugin.TextCommand):
         if not view.score_selector(point,
                 "text.tex.latex"):
             return
+
+        if insert_char:
+            ed = view.begin_edit()
+            point += view.insert(ed, point, insert_char)
+            view.end_edit(ed)
 
         # Get the contents of the current line, from the beginning of the line to
         # the current point

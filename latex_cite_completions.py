@@ -330,7 +330,7 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
 class LatexCiteCommand(sublime_plugin.TextCommand):
 
     # Remember that this gets passed an edit object
-    def run(self, edit, insert_comma=False):
+    def run(self, edit):
         # get view and location of first selection, which we expect to be just the cursor position
         view = self.view
         point = view.sel()[0].b
@@ -340,11 +340,6 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         if not view.score_selector(point,
                 "text.tex.latex"):
             return
-
-        if insert_comma:
-            ed = view.begin_edit()
-            point += view.insert(ed, point, ",")
-            view.end_edit(ed)
 
         try:
             completions, prefix, post_brace, new_point_a, new_point_b = get_cite_completions(view, point)
