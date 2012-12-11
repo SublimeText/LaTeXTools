@@ -25,7 +25,7 @@ class LatexRefCiteCommand(sublime_plugin.TextCommand):
         # Get the contents of the current line, from the beginning of the line to
         # the current point
         line = view.substr(sublime.Region(view.line(point).a, point))
-        print line
+        # print line
 
         # Reverse
         line = line[::-1]

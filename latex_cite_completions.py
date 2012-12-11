@@ -44,6 +44,21 @@ def find_bib_files(rootdir, src, bibfiles):
         return
 
     src_content = re.sub("%.*","",src_file.read())
+    src_file.close()
+
+    m = re.search(r"\\usepackage\[(.*?)\]\{inputenc\}", src_content)
+    if m:
+        import codecs
+        f = None
+        try:
+            f = codecs.open(file_path, "r", m.group(1))
+            src_content = re.sub("%.*", "", f.read())
+        except:
+            pass
+        finally:
+            if f and not f.closed:
+                f.close()
+
     bibtags =  re.findall(r'\\bibliography\{[^\}]+\}', src_content)
 
     # extract absolute filepath for each bib file
@@ -64,7 +79,7 @@ def find_bib_files(rootdir, src, bibfiles):
 
 def get_cite_completions(view, point, autocompleting=False):
     line = view.substr(sublime.Region(view.line(point).a, point))
-    print line
+    # print line
 
     # Reverse, to simulate having the regex
     # match backwards (cool trick jps btw!)
@@ -98,7 +113,7 @@ def get_cite_completions(view, point, autocompleting=False):
                 fancy_cite = fancy_cite[:-1] + "*"
         else:
             fancy_cite = ""  # again just in case
-        print prefix, fancy_cite
+        # print prefix, fancy_cite
 
     # Otherwise, see if we have a preformatted \cite{}
     else:
@@ -120,7 +135,7 @@ def get_cite_completions(view, point, autocompleting=False):
                 fancy_cite = fancy_cite[:-1] + "*"
         else:
             fancy_cite = ""
-        print prefix, fancy_cite
+        # print prefix, fancy_cite
 
     # Reverse back expr
     expr = expr[::-1]
@@ -358,7 +373,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
 
             cite = completions[i][0] + post_brace
 
-            print "selected %s:%s by %s" % completions[i][0:3]
+            # print "selected %s:%s by %s" % completions[i][0:3]
             # Replace cite expression with citation
             expr_region = sublime.Region(new_point_a, new_point_b)
             ed = view.begin_edit()

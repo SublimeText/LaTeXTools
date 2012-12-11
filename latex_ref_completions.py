@@ -35,13 +35,29 @@ def find_labels_in_files(rootdir, src, labels):
 
     # read src file and extract all label tags
     try:
-        with open(file_path, "r") as src_file:
-            src_content = re.sub("%.*", "", src_file.read())
-            labels += re.findall(r'\\label\{([^\{\}]+)\}', src_content)
+        src_file = open(file_path, "r")
     except IOError:
         sublime.status_message("LaTeXTools WARNING: cannot find included file " + file_path)
         print "WARNING! I can't find it! Check your \\include's and \\input's." 
         return
+
+    src_content = re.sub("%.*", "", src_file.read())
+    src_file.close()
+
+    m = re.search(r"\\usepackage\[(.*?)\]\{inputenc\}", src_content)
+    if m:
+        import codecs
+        f = None
+        try:
+            f = codecs.open(file_path, "r", m.group(1))
+            src_content = re.sub("%.*", "", f.read())
+        except:
+            pass
+        finally:
+            if f and not f.closed:
+                f.close()
+
+    labels += re.findall(r'\\label\{([^{}]+)\}', src_content)
 
     # search through input tex files recursively
     for f in re.findall(r'\\(?:input|include)\{([^\{\}]+)\}', src_content):
@@ -53,7 +69,7 @@ def find_labels_in_files(rootdir, src, labels):
 def get_ref_completions(view, point, autocompleting=False):
     # Get contents of line from start up to point
     line = view.substr(sublime.Region(view.line(point).a, point))
-    print line
+    # print line
 
     # Reverse, to simulate having the regex
     # match backwards (cool trick jps btw!)
@@ -219,7 +235,7 @@ class LatexRefCommand(sublime_plugin.TextCommand):
             ref = completions[i] + post_snippet
             
 
-            print "selected %s" % completions[i] 
+            # print "selected %s" % completions[i] 
             # Replace ref expression with reference and possibly post_snippet
             expr_region = sublime.Region(new_point_a,new_point_b)
             ed = view.begin_edit()
