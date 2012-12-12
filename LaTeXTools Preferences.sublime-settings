@@ -31,6 +31,9 @@
 	*/
 	"cite_panel_format": ["{author_short} {year} - {title_short} ({keyword})","{title}"],
 
+	// Similarly, the formatting for the autocomplete panel:
+	"cite_autocomplete_format": "{keyword}: {title}",
+
 	// Settings that are specific to Linux platforms
 	"linux": {
 		// Command to invoke Python 2. Useful if you have both Python 2 and Python 3 on your system,

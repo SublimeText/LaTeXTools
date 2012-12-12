@@ -318,11 +318,16 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
 
         if prefix:
             completions = [comp for comp in completions if prefix.lower() in "%s %s" % (comp[0].lower(), comp[1].lower())]
+            prefix += " "
 
-        r = [(prefix + " "+ title + " " + keyword, keyword + post_brace)
-                        for (keyword, title, author, year, author_short, title_short) in completions]
+        # get preferences for formating of autocomplete entries
+        s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
+        cite_autocomplete_format = s.get("cite_autocomplete_format", "{keyword}: {title}")
 
-        print "%d bib entries matching %s" % (len(r), prefix)
+        r = [(prefix + cite_autocomplete_format.format(keyword=keyword, title=title, author=author, year=year, author_short=author_short, title_short=title_short),
+                keyword + post_brace) for (keyword, title, author, year, author_short, title_short) in completions]
+
+        # print "%d bib entries matching %s" % (len(r), prefix)
 
         return r
 
