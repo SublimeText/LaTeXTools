@@ -241,5 +241,9 @@ class LatexRefCommand(sublime_plugin.TextCommand):
             ed = view.begin_edit()
             view.replace(ed, expr_region, ref)
             view.end_edit(ed)
+            # Unselect the replaced region and leave the caret at the end
+            caret = view.sel()[0].b
+            view.sel().subtract(view.sel()[0])
+            view.sel().add(sublime.Region(caret, caret))
         
         view.window().show_quick_panel(completions, on_done)

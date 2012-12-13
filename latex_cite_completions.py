@@ -379,6 +379,10 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             ed = view.begin_edit()
             view.replace(ed, expr_region, cite)
             view.end_edit(ed)
+            # Unselect the replaced region and leave the caret at the end
+            caret = view.sel()[0].b
+            view.sel().subtract(view.sel()[0])
+            view.sel().add(sublime.Region(caret, caret))
 
         # get preferences for formating of quick panel
         s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
