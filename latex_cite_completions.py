@@ -344,8 +344,10 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         # and in the end we MAY but need not have }'s and "s
         tp = re.compile(r'\btitle\s*=\s*(?:\{+|")\s*(.+)', re.IGNORECASE)  # note no comma!
         # Tentatively do the same for author
-        ap = re.compile(r'\bauthor\s*=\s*(?:\{+|")\s*(.+)', re.IGNORECASE)
+        ap = re.compile(r'\bauthor\s*=\s*(?:\{|")\s*(.+)\},?', re.IGNORECASE)
         kp2 = re.compile(r'([^\t]+)\t*')
+        # and year...
+        yp = re.compile(r'\byear\s*=\s*(?:\{+|")\s*(\d+)[\}"]?', re.IGNORECASE)
 
         for bibfname in bib_files:
             # # NO LONGER NEEDED: see above
@@ -369,7 +371,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             keywords = [kp.search(line).group(1).decode('ascii','ignore') for line in bib if line[0] == '@']
             titles = [tp.search(line).group(1).decode('ascii','ignore') for line in bib if tp.search(line)]
             authors = [ap.search(line).group(1).decode('ascii','ignore') for line in bib if ap.search(line)]
-
+            years = [yp.search(line).group(1).decode('ascii','ignore') for line in bib if yp.search(line)]
 #            print zip(keywords,titles,authors)
 
             if len(keywords) != len(titles):
@@ -385,8 +387,35 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             # Filter out }'s and ,'s at the end. Ugly!
             nobraces = re.compile(r'\s*,*\}*(.+)')
             titles = [nobraces.search(t[::-1]).group(1)[::-1] for t in titles]
-            authors = [nobraces.search(a[::-1]).group(1)[::-1] for a in authors]
-            completions += zip(keywords, titles, authors)
+            titles = [t.replace('{\\textquoteright}', '') for t in titles]            
+
+            # format author field
+            def format_author(authors):
+                print(authors)
+                # split authors using ' and ' and get last name for 'last, first' format
+                authors = [a.split(", ")[0].strip(' ') for a in authors.split(" and ")]
+                # get last name for 'first last' format (preserve {...} text)
+                authors = [a.split(" ")[-1] if a[-1] != '}' or a.find('{') == -1 else re.sub(r'{|}','',a[len(a) - a[::-1].index('{'):-1]) for a in authors]
+                #     authors = [a.split(" ")[-1] for a in authors]
+                # truncate and add 'et al.'
+                if len(authors) > 2:
+                    authors = authors[0] + " et al."
+                else:
+                    authors = authors[0] if len(authors) == 1 else ' & '.join(authors)
+                # return formated string
+                print(authors)
+                return authors
+
+            # format list of authors
+            authors_short = [format_author(author) for author in authors]
+
+            # short title
+            sep = re.compile(":|\.|\?")
+            titles_short = [sep.split(title)[0] for title in titles]
+            titles_short = [title[0:60] + '...' if len(title) > 60 else title for title in titles_short]
+
+            # completions object
+            completions += zip(keywords, titles, authors, years, authors_short, titles_short)
 
         #### END COMPLETIONS HERE ####
 
@@ -406,15 +435,17 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             last_brace = "}" if not preformatted else ""
             cite = "\\cite" + fancy_cite + "{" + completions[i][0] + last_brace
 
-            print "selected %s:%s by %s" % completions[i] 
+            print "selected %s:%s by %s" % completions[i][0:3]
             # Replace cite expression with citation
             expr_region = sublime.Region(point-len(expr),point)
             ed = view.begin_edit()
             view.replace(ed, expr_region, cite)
             view.end_edit(ed)
 
-        
-        view.window().show_quick_panel([[title + " (" + keyword+ ")", author] \
-                                        for (keyword,title, author) in completions], on_done)
- 
+        # get preferences for formating of quick panel
+        s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
+        cite_panel_format = s.get("cite_panel_format", ["{title} ({keyword})","{author}"])
 
+        # show quick
+        view.window().show_quick_panel([[str.format(keyword=keyword, title=title, author=author, year=year, author_short=author_short, title_short=title_short) for str in cite_panel_format] \
+                                        for (keyword, title, author, year, author_short, title_short) in completions], on_done)
