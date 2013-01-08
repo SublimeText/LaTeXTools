@@ -47,7 +47,7 @@ LaTeX Package keymap for Windows
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "preceding_text", "operator": "regex_contains",
-				"operand": "\\\\(((eq|page|v|V|auto|name|c|C|cpage)?ref)|(cite([a-zX*]*?)))$", "match_all": true}],
+				"operand": "\\\\(((eq|page|v|V|auto|name|c|C|cpage)?ref)|(cite([a-zX*]*?)(\\[.*?\\]){0,2}))$", "match_all": true}],
 		"command": "latex_ref_cite", "args": {"insert_char": "{"}},
 
 	{	"keys": [","],
@@ -56,7 +56,7 @@ LaTeX Package keymap for Windows
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "preceding_text", "operator": "regex_contains",
-				"operand": "\\\\cite([a-zX*]*?)\\{(?:[^{},]*,)*[^{},]+$", "match_all": true}],
+				"operand": "\\\\cite([a-zX*]*?)(\\[.*?\\]){0,2}\\{(?:[^{},]*,)*[^{},]+$", "match_all": true}],
 		"command": "latex_ref_cite", "args": {"insert_char": ","}},
 
 	// View PDF, jump to point, toggle editor/viewer focus
