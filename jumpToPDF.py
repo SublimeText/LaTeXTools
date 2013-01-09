@@ -20,7 +20,10 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		# If the PDF viewer window is already visible, s/he probably wants to sync, or s/he would have no
 		# need to invoke the command. And if it is not visible, the natural way to just bring up the
 		# window without syncing is by using the system's window management shortcuts.
-		from_keybinding = args["from_keybinding"]
+		try:
+			from_keybinding = args["from_keybinding"]
+		except:
+			from_keybinding	= False
 		if from_keybinding:
 			keep_focus = False
 			forward_sync = True
