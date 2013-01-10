@@ -9,6 +9,9 @@
 	// Sync PDF to current editor position after building (true) or not 
 	"forward_sync":	true,
 
+	//Perform steady sync between editor and position after building
+	"steady_sync" : true,
+
 	// Settings that are specific to Linux platforms
 	"linux": {
 		// Command to invoke Python 2. Useful if you have both Python 2 and Python 3 on your system,

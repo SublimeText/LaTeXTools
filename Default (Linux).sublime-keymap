@@ -59,6 +59,10 @@ LaTeX Package keymap for Linux
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "toggle_fwdsync"},
+	{ 	"keys": ["ctrl+l","t","m"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "toggle_steady_sync"},
 	{ 	"keys": ["ctrl+l","t","?"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
