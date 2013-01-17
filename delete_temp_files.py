@@ -24,3 +24,6 @@ class Delete_temp_filesCommand(sublime_plugin.WindowCommand):
 			if os.path.exists(file_name_to_del):
 				#print ' deleted '
 				os.remove(file_name_to_del)
+
+		sublime.status_message("Deleted the temp files")
+		
