@@ -466,7 +466,7 @@ def parse_tex_log(data):
 
 		line = line.strip() # get rid of initial spaces
 		# note: in the next line, and also when we check for "!", we use the fact that "and" short-circuits
-		if len(line)>0 and line[0]==')': # denotes end of processing of current file: pop it from stack
+		if len(line)>0 and line[0]==')' and line.strip(')') == '': # denotes end of processing of current file: pop it from stack
 			if files:
 				debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
 				files.pop()
