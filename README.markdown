@@ -41,7 +41,7 @@ To configure inverse search, open the Preferences dialog of the Skim app, select
 
 * uncheck the "Check for file changes" option
 * Preset: Custom
-* Command: `"/Applications/Sublime Text 2.app/Contents/SharedSupport/bin/subl"`
+* Command: `/Applications/Sublime Text 2.app/Contents/SharedSupport/bin/subl`
 * Arguments: "%file":%line
 
 Note: in case you have created a symlink to Sublime Text somewhere in your path, you can of course use that, too in the Command field. The above will work in any case though, and does *not* require you to create a symlink or mess with the Terminal in any way!
@@ -132,6 +132,12 @@ You can also change the default sync behavior via the `forward_sync` option: see
 **Keybinding:** `C-l,t,?`
 
 This causes the status message to list the default settings of the focus and sync options, and their current toggle values.
+
+### Remove temporary files from build ###
+
+**Keybinding:** `C-l,backspace`
+
+This deletes all temporary files from a previous build (the PDF file is kept).
 
 Forward and Inverse Search
 ---------------------------
@@ -314,4 +320,3 @@ There are *two exceptions* to this request. First, the *xypic* package is very, 
 The second exception has to do with file and path names. In order to accommodate the many possible naming conventions across platforms and packages, as well as the different ways in which file names can occur in logs, I had to make some assumptions. The key one is that *extensions cannot contain spaces*. The reason is that the regex matching file names uses a period (".") followed by non-space characters, followed by a space as denoting the end of the file name. Trust me, it's the most robust regex I could come up with. So, you can have spaces in your base names, and you can even have multiple extensions; however, you cannot have spaces in your extensions. So, "This is a file.ver-1.tex" is OK; "file.my ext" (where "my ext" is supposed to be the extension) is *not OK*.
 
 Finally, I have done my best to accommodate non-ASCII characters in logs. I cannot promise that everything works, but I'd like to know if you see issues with this.
- 

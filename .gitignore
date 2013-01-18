@@ -2,4 +2,6 @@
 *.pyc
 # Ignore cache files
 *.cache
+package-metadata.json
+.DS_Store
 

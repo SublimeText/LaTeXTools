@@ -234,5 +234,12 @@ LaTeX Package keymap for Linux
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
 		]
-	}
+	},
+
+
+	// ctrl+l,backspace to remove temporary files
+	{ 	"keys": ["ctrl+l","backspace"], 
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "delete_temp_files"}
 ]

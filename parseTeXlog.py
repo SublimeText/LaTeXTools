@@ -140,20 +140,22 @@ def parse_tex_log(data):
 	# Support function to handle warnings
 	def handle_warning(l):
 
-		if files==[]:
-			location = "[no file]"
+		if l.startswith('Class '):
+			location = ''
+		elif files==[]:
+			location = "[no file] :"
 			errors.append("LaTeXTools cannot correctly detect file names in this LOG file.")
 			errors.append("(where: trying to display warning message)")
 			errors.append("Please let me know via GitHub (warnings). Thanks!")
 		else:
-			location = files[-1]		
+			location = files[-1] + ":"
 
 		warn_match_line = line_rx_latex_warn.search(l)
 		if warn_match_line:
 			warn_line = warn_match_line.group(1)
-			warnings.append(location + ":" + warn_line + ": " + l)
+			warnings.append(location + warn_line + ": " + l)
 		else:
-			warnings.append(location + ": " + l)
+			warnings.append(location + l)
 
 	
 	# State definitions
@@ -338,9 +340,10 @@ def parse_tex_log(data):
 					debug("Done processing, some files left on the stack, BUT user had xypic!")
 					debug(";".join(files))
 				else:
-					errors.append("LaTeXTools cannot correctly detect file names in this LOG file.")
-					errors.append("(where: finished processing)")
-					errors.append("Please let me know via GitHub")
+					warnings.append("Some files left on stack while parsing.")
+					warnings.append("LaTeXTools cannot correctly detect file names in this LOG file.")
+					warnings.append("(where: finished processing)")
+					warnings.append("Please let me know via GitHub")
 					debug("Done processing, some files left on the stack")
 					debug(";".join(files))
 				files=[]			
@@ -464,7 +467,7 @@ def parse_tex_log(data):
 
 		line = line.strip() # get rid of initial spaces
 		# note: in the next line, and also when we check for "!", we use the fact that "and" short-circuits
-		if len(line)>0 and line[0]==')': # denotes end of processing of current file: pop it from stack
+		if len(line)>0 and line[0]==')' and line.strip(')') == '': # denotes end of processing of current file: pop it from stack
 			if files:
 				debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
 				files.pop()
