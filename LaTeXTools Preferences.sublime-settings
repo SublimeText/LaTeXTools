@@ -8,6 +8,9 @@
 	"keep_focus":	true,
 	// Sync PDF to current editor position after building (true) or not 
 	"forward_sync":	true,
+	// Specify full path to default bibliography file.
+	// Leave the variable false if no default is desired.
+	"default_bibliography": false,
 
 	// Settings that are specific to Linux platforms
 	"linux": {

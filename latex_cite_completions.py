@@ -165,9 +165,16 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         print "Bib files found: ",
         print repr(bib_files)
 
+        # Loading the default bibliography as specified in the preferences
+        s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
+        default_bib_file = s.get("default_bibliography",False)
+
         if not bib_files:
-            print "Error!"
-            return []
+            if default_bib_file:
+                bib_files = [ os.path.normpath(default_bib_file) ]   #if nothing found, use default             
+            else:
+                print "Error!"
+                return []
         bib_files = ([x.strip() for x in bib_files])
         
         print "Files:"
@@ -195,9 +202,24 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
             try:
                 bibf = open(bibfname)
             except IOError:
-                print "Cannot open bibliography file %s !" % (bibfname,)
-                sublime.status_message("Cannot open bibliography file %s !" % (bibfname,))
-                continue
+                # If the file cannot be opened, we first try to open the default bib file.
+                # Otherwise, we throw a status message and go to the next iteration of the loop.
+                if default_bib_file: 
+                    print "Cannot open bibliography file %s ! Using default..." % (bibfname,)
+                    # sublime.status_message("Cannot open bibliography file %s ! Using default..." % (bibfname,))
+                    bibfname = default_bib_file
+                    try:
+                        bibf = open(bibfname)
+                    except IOError:
+                        print "Cannot open default bibliography file %s !" % (bibfname,)
+                        sublime.status_message("Cannot open default bibliogrpahy file %s !" % (bibfname,f))
+                        continue
+                    bib = bibf.readlines()
+                    bibf.close()
+                else:
+                    print "Cannot open bibliography file %s !" % (bibfname,)
+                    sublime.status_message("Cannot open bibliography file %s !" % (bibfname,))
+                    continue
             else:
                 bib = bibf.readlines()
                 bibf.close()
@@ -326,9 +348,16 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         print "Bib files found: ",
         print repr(bib_files)
 
+        # Loading the default bibliography as specified in the preferences
+        s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
+        default_bib_file = s.get("default_bibliography",False)
+
         if not bib_files:
-            sublime.error_message("No bib files found!") # here we can!
-            return []
+            if default_bib_file:
+                bib_files = [ os.path.normpath(default_bib_file) ]      #if nothing found, use default          
+            else:
+                sublime.error_message("No bib files found!") # here we can!
+                return []
         bib_files = ([x.strip() for x in bib_files])
         
         print "Files:"
@@ -358,9 +387,24 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             try:
                 bibf = open(bibfname)
             except IOError:
-                print "Cannot open bibliography file %s !" % (bibfname,)
-                sublime.status_message("Cannot open bibliography file %s !" % (bibfname,))
-                continue
+                # If the file cannot be opened, we first try to open the default bib file. 
+                # Otherwise, we throw a status message and go to the next iteration of the loop.
+                if default_bib_file:
+                    print "Cannot open bibliography file %s ! Using default..." % (bibfname,)
+                    # sublime.status_message("Cannot open bibliography file %s ! Using default..." % (bibfname,))
+                    bibfname = default_bib_file
+                    try:
+                        bibf = open(bibfname)
+                    except IOError:
+                        print "Cannot open default bibliography file %s !" % (bibfname,)
+                        sublime.status_message("Cannot open default bibliogrpahy file %s !" % (bibfname,f))
+                        continue
+                    bib = bibf.readlines()
+                    bibf.close()
+                else:
+                    print "Cannot open bibliography file %s !" % (bibfname,)
+                    sublime.status_message("Cannot open bibliography file %s !" % (bibfname,))
+                    continue
             else:
                 bib = bibf.readlines()
                 bibf.close()
