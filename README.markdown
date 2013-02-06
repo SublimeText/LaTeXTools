@@ -183,7 +183,7 @@ LaTeXTools usually searches for all bibliographies in the current directory. If 
 
 (Note: Do not modify this file directly. Copy it to your `Packages/User` folder and modify that copy.)
 
-The variable is called `default_bibliograph` and defaults to `false` (i.e. no default bibliography specified). When specifying `default_bibliograph`, make sure to include the full path to the file.
+The variable is called `default_bibliography` and defaults to `false` (i.e. no default bibliography specified). When specifying `default_bibliography`, make sure to include the full path to the file.
 
 The default will be used when (1) no `.bib` file is referenced by a `\bibliography` command, or (2) Any `.bib` file fails to open (e.g. if you have `\bibliography{refs}` in your `.tex` file, but `refs.bib` does not exist in the same directory as your `.tex` file).
 
