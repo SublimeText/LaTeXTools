@@ -175,6 +175,17 @@ Thanks to recent contributed code, **multi-file documents** are *fully supported
 
 Another note: **for now**, completions are also injected into the standard ST2 autocompletion system. Thus, if you hit `Ctrl-space` immediately after typing, e.g., `\ref{}`, you get a drop-down menu at the current cursor position (not a quick-panel) showing all labels in your document. This also works with old-style citations. However, the width of this menu is OK for (most) labels, but not really for paper titles. In other words, it is workable for references, but not really for citations. Furthermore, there are other limitations dictated by the ST2 autocompletion system. So, I encourage you to use the `C-l,Ctrl-space` keybinding instead. In fact, consider the standard autocompletion support to be *deprecated* as of today (12-09-17).
 
+### Default bibliography
+
+LaTeXTools usually searches for all bibliographies in the current directory. If this fails though, it will search a default bibliographic file provided by the user in 
+
+`LaTeXTools Preferences.sublime-settings`
+
+(Note: Do not modify this file directly. Copy it to your `Packages/User` folder and modify that copy.)
+
+The variable is called `default_bibliograph` and defaults to `false` (i.e. no default bibliography specified). When specifying `default_bibliograph`, make sure to include the full path to the file.
+
+The default will be used when (1) no `.bib` file is referenced by a `\bibliography` command, or (2) Any `.bib` file fails to open (e.g. if you have `\bibliography{refs}` in your `.tex` file, but `refs.bib` does not exist in the same directory as your `.tex` file).
 
 Jumping to sections and labels
 ------------------------------
