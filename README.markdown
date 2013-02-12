@@ -214,6 +214,23 @@ and the cursor is placed inside the environment thus created. Again, Tab exits t
 
 Note that all these commands are undoable: thus, if e.g. you accidentally hit `C-l,c` but you really meant `C-l,e`, a quick `C-z`, followed by `C-l,e`, will fix things.
 
+**Keybindings:** `C-l,u` replaces the current environment with a user-specified environment
+
+When your cursor is inside an environment you want to change, simply press `C-l,u` and you will be prompted for a new environment name. After a new environment name is entered, the environment you are in will change.
+
+_Example:_
+
+Say you have such a block of text:
+
+     \begin{align}
+       ... X ...
+     \end{align}
+
+ If your cursor is at X, press `C-l,u`, type "multline", and press `Enter` to obtain
+
+     \begin{multline}
+       ... X ...
+     \end{multline}
 
 Wrapping existing text in commands and environments
 ---------------------------------------------------
@@ -277,6 +294,7 @@ The following options are currently available (defaults in parentheses):
 
 - `keep_focus` (`true`): if `true`, after compiling a tex file, ST2 retains the focus; if `false`, the PDF viewer gets the focus. Also note that you can *temporarily* toggle this behavior with `C-l,t,f`.
 - `forward_sync` (`true`): if `true`, after compiling a tex file, the PDF viewer is asked to sync to the position corresponding to the current cursor location in ST2. You can also *temporarily* toggle this behavior with `C-l,t,s`.
+- `default_bibliography` (`false`): if `false`, no default bibliography is used for citations (`\cite` items). Otherwise, can be the full path to a bibliography to use _only if_ no bibliography is specified in a `\reference` command in your document or if the file specified in `\reference` does not exist in your working directory.
 - `linux` settings:
   * `python2` (`""`, i.e. empty string): name of the Python 2 executable. This is useful for systems that ship with both Python 2 and Python 3. The forward/backward search used with Evince require Python 2.
   * `sublime` (`sublime-text`): name of the ST2 executable. Ubuntu supports both `sublime-text` and `subl`; other distros may vary.
