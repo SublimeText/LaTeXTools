@@ -292,9 +292,9 @@ def parse_tex_log(data):
 			# err_msg is set from last time
 			if files==[]:
 				location = "[no file]"
-				errors.append("LaTeXTools cannot correctly detect file names in this LOG file.")
-				errors.append("(where: trying to display error message)")
-				errors.append("Please let me know via GitHub. Thanks!")
+				warnings.append("LaTeXTools cannot correctly detect file names in this LOG file.")
+				warnings.append("(where: trying to display error message)")
+				warnings.append("Please let me know via GitHub. Thanks!")
 			else:
 				location = files[-1]
 			debug("Found error: " + err_msg)		
@@ -338,9 +338,10 @@ def parse_tex_log(data):
 					debug("Done processing, some files left on the stack, BUT user had xypic!")
 					debug(";".join(files))
 				else:
-					errors.append("LaTeXTools cannot correctly detect file names in this LOG file.")
-					errors.append("(where: finished processing)")
-					errors.append("Please let me know via GitHub")
+					warnings.append("LaTeXTools cannot correctly detect file names in this LOG file.")
+					warnings.append("(where: finished processing)")
+					warnings.append("Please let me know via GitHub")
+					warnings.append("In any case, compilation was successful.")
 					debug("Done processing, some files left on the stack")
 					debug(";".join(files))
 				files=[]			
@@ -361,8 +362,8 @@ def parse_tex_log(data):
 		# Here, make sure there was no uncaught error, in which case we do more special processing
 		if "!  ==> Fatal error occurred, no output" in line:
 			if errors == []:
-				errors.append("TeX STOPPED: fatal errors occurred but LaTeXTools did not see them")
-				errors.append("Check the TeX log file, and please let me know via GitHub. Thanks!")
+				warnings.append("TeX STOPPED: fatal errors occurred but LaTeXTools did not see them")
+				warnings.append("Check the TeX log file, and please let me know via GitHub. Thanks!")
 			continue
 
 		# If tex just stops processing, we will be left with files on stack, so we keep track of it
@@ -399,7 +400,8 @@ def parse_tex_log(data):
 				if len(line)>0 and line in [" []", "[]"]:
 					ou_processing = False
 			if ou_processing:
-				errors.append("Malformed LOG file: over/underfull")
+				warnings.append("Malformed LOG file: over/underfull")
+				warnings.append("Please let me know via GitHub")
 				break
 			else:
 				continue
