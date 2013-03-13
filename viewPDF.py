@@ -12,6 +12,8 @@ class ViewPdfCommand(sublime_plugin.WindowCommand):
 		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
 		prefs_keep_focus = s.get("keep_focus", True)
 		prefs_lin = s.get("linux")
+		prefs_skim = s.get("use_skim", False)
+		prefs_acro = s.get("use_acrobat", False)
 
 		view = self.window.active_view()
 		texFile, texExt = os.path.splitext(view.file_name())
@@ -30,8 +32,10 @@ class ViewPdfCommand(sublime_plugin.WindowCommand):
 			# "subl" as command and "%file:%line" as argument
 			# you also have to put a symlink to subl somewhere on your path
 			# Also check the box "check for file changes"
-			if os.path.exists('/Applications/Skim.app'):
+			if os.path.exists('/Applications/Skim.app') and prefs_skim:
 				viewercmd = ["open", "-a", "Skim"]
+			elif prefs_acro:
+				viewercmd = ["open", "-a", "Adobe Acrobat Pro"]
 			else:
 				viewercmd = ["open", "-g", "-a", "Preview"]
 		elif s == "Windows":
