@@ -1,7 +1,7 @@
 import sublime, sublime_plugin
 import os, os.path
 import re
-import getTeXRoot
+from . import getTeXRoot
 
 def match(rex, str):
     m = rex.match(str)
@@ -18,7 +18,7 @@ def find_bib_files(rootdir, src, bibfiles):
         src = src + ".tex"
 
     file_path = os.path.normpath(os.path.join(rootdir,src))
-    print "Searching file: " + repr(file_path)
+    print("Searching file: " + repr(file_path))
     # See latex_ref_completion.py for why the following is wrong:
     #dir_name = os.path.dirname(file_path)
 
@@ -27,7 +27,7 @@ def find_bib_files(rootdir, src, bibfiles):
         src_file = open(file_path, "r")
     except IOError:
         sublime.status_message("LaTeXTools WARNING: cannot open included file " + file_path)
-        print "WARNING! I can't find it! Check your \\include's and \\input's." 
+        print("WARNING! I can't find it! Check your \\include's and \\input's.") 
         return
 
     src_content = re.sub("%.*","",src_file.read())
@@ -114,7 +114,7 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
                     fancy_cite = fancy_cite[:-1] + "*"
             else:
                 fancy_cite = "" # just in case it's a None
-            print prefix, fancy_cite
+            print(prefix, fancy_cite)
 
         # Otherwise, see if we have a preformatted \cite{}
         else:
@@ -137,7 +137,7 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
                     fancy_cite = fancy_cite[:-1] + "*"
             else:
                 fancy_cite = ""
-            print prefix, fancy_cite
+            print(prefix, fancy_cite)
 
         # Reverse back expr
         expr = expr[::-1]
@@ -157,21 +157,21 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         #### GET COMPLETIONS HERE #####
         root = getTeXRoot.get_tex_root(view)
 
-        print "TEX root: " + repr(root)
+        print("TEX root: " + repr(root))
         bib_files = []
         find_bib_files(os.path.dirname(root),root,bib_files)
         # remove duplicate bib files
         bib_files = list(set(bib_files))
-        print "Bib files found: ",
-        print repr(bib_files)
+        print("Bib files found: ", end=' ')
+        print(repr(bib_files))
 
         if not bib_files:
-            print "Error!"
+            print("Error!")
             return []
         bib_files = ([x.strip() for x in bib_files])
         
-        print "Files:"
-        print repr(bib_files)
+        print("Files:")
+        print(repr(bib_files))
          
         completions = []
         kp = re.compile(r'@[^\{]+\{(.+),')
@@ -195,27 +195,27 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
             try:
                 bibf = open(bibfname)
             except IOError:
-                print "Cannot open bibliography file %s !" % (bibfname,)
+                print("Cannot open bibliography file %s !" % (bibfname,))
                 sublime.status_message("Cannot open bibliography file %s !" % (bibfname,))
                 continue
             else:
                 bib = bibf.readlines()
                 bibf.close()
-            print "%s has %s lines" % (repr(bibfname), len(bib))
+            print("%s has %s lines" % (repr(bibfname), len(bib)))
             # note Unicode trickery
             keywords = [kp.search(line).group(1).decode('ascii','ignore') for line in bib if line[0] == '@']
             titles = [tp.search(line).group(1).decode('ascii','ignore') for line in bib if tp.search(line)]
             if len(keywords) != len(titles):
-                print "Bibliography " + repr(bibfname) + " is broken!"
+                print("Bibliography " + repr(bibfname) + " is broken!")
             # Filter out }'s and ,'s at the end. Ugly!
             nobraces = re.compile(r'\s*,*\}*(.+)')
             titles = [nobraces.search(t[::-1]).group(1)[::-1] for t in titles]
-            completions += zip(keywords, titles)
+            completions += list(zip(keywords, titles))
 
 
         #### END COMPLETIONS HERE ####
 
-        print "Found %d completions" % (len(completions),)
+        print("Found %d completions" % (len(completions),))
 
         if prefix:
             completions = [comp for comp in completions if prefix.lower() in "%s %s" % (comp[0].lower(),comp[1].lower())]
@@ -225,7 +225,7 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         r = [(prefix + " "+title[:t_end], keyword + post_brace) 
                         for (keyword, title) in completions]
 
-        print "%d bib entries matching %s" % (len(r), prefix)
+        print("%d bib entries matching %s" % (len(r), prefix))
 
         # def on_done(i):
         #     print "latex_cite_completion called with index %d" % (i,)
@@ -243,7 +243,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         # get view and location of first selection, which we expect to be just the cursor position
         view = self.view
         point = view.sel()[0].b
-        print point
+        print(point)
         # Only trigger within LaTeX
         # Note using score_selector rather than match_selector
         if not view.score_selector(point,
@@ -253,7 +253,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         # Get the contents of the current line, from the beginning of the line to
         # the current point
         line = view.substr(sublime.Region(view.line(point).a, point))
-        print line
+        print(line)
             
 
         # Reverse, to simulate having the regex
@@ -286,7 +286,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
                     fancy_cite = fancy_cite[:-1] + "*"
             else:
                 fancy_cite = "" # again just in case
-            print prefix, fancy_cite
+            print(prefix, fancy_cite)
 
         # Otherwise, see if we have a preformatted \cite{}
         else:
@@ -309,7 +309,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
                     fancy_cite = fancy_cite[:-1] + "*"
             else:
                 fancy_cite = ""
-            print prefix, fancy_cite
+            print(prefix, fancy_cite)
 
         # Reverse back expr
         expr = expr[::-1]
@@ -318,21 +318,21 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
 
         root = getTeXRoot.get_tex_root(view)
 
-        print "TEX root: " + repr(root)
+        print("TEX root: " + repr(root))
         bib_files = []
         find_bib_files(os.path.dirname(root),root,bib_files)
         # remove duplicate bib files
         bib_files = list(set(bib_files))
-        print "Bib files found: ",
-        print repr(bib_files)
+        print("Bib files found: ", end=' ')
+        print(repr(bib_files))
 
         if not bib_files:
             sublime.error_message("No bib files found!") # here we can!
             return []
         bib_files = ([x.strip() for x in bib_files])
         
-        print "Files:"
-        print repr(bib_files)
+        print("Files:")
+        print(repr(bib_files))
         
         completions = []
         kp = re.compile(r'@[^\{]+\{(.+),')
@@ -358,13 +358,13 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             try:
                 bibf = open(bibfname)
             except IOError:
-                print "Cannot open bibliography file %s !" % (bibfname,)
+                print("Cannot open bibliography file %s !" % (bibfname,))
                 sublime.status_message("Cannot open bibliography file %s !" % (bibfname,))
                 continue
             else:
                 bib = bibf.readlines()
                 bibf.close()
-            print "%s has %s lines" % (repr(bibfname), len(bib))
+            print("%s has %s lines" % (repr(bibfname), len(bib)))
             # note Unicode trickery
             keywords = [kp.search(line).group(1).decode('ascii','ignore') for line in bib if line[0] == '@']
             titles = [tp.search(line).group(1).decode('ascii','ignore') for line in bib if tp.search(line)]
@@ -373,20 +373,20 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
 #            print zip(keywords,titles,authors)
 
             if len(keywords) != len(titles):
-                print "Bibliography " + repr(bibfname) + " is broken!"
+                print("Bibliography " + repr(bibfname) + " is broken!")
                 return
 
             # if len(keywords) != len(authors):
             #     print "Bibliography " + bibfname + " is broken (authors)!"
             #     return
 
-            print "Found %d total bib entries" % (len(keywords),)
+            print("Found %d total bib entries" % (len(keywords),))
 
             # Filter out }'s and ,'s at the end. Ugly!
             nobraces = re.compile(r'\s*,*\}*(.+)')
             titles = [nobraces.search(t[::-1]).group(1)[::-1] for t in titles]
             authors = [nobraces.search(a[::-1]).group(1)[::-1] for a in authors]
-            completions += zip(keywords, titles, authors)
+            completions += list(zip(keywords, titles, authors))
 
         #### END COMPLETIONS HERE ####
 
@@ -397,7 +397,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
 
         # Note we now generate citation on the fly. Less copying of vectors! Win!
         def on_done(i):
-            print "latex_cite_completion called with index %d" % (i,)
+            print("latex_cite_completion called with index %d" % (i,))
             
             # Allow user to cancel
             if i<0:
@@ -406,7 +406,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             last_brace = "}" if not preformatted else ""
             cite = "\\cite" + fancy_cite + "{" + completions[i][0] + last_brace
 
-            print "selected %s:%s by %s" % completions[i] 
+            print("selected %s:%s by %s" % completions[i]) 
             # Replace cite expression with citation
             expr_region = sublime.Region(point-len(expr),point)
             ed = view.begin_edit()

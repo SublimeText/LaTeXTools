@@ -1,5 +1,5 @@
 import sublime, sublime_plugin, os, os.path, platform
-import getTeXRoot
+from . import getTeXRoot
 from subprocess import Popen
 
 # View PDF file corresonding to TEX file in current buffer
@@ -7,7 +7,7 @@ from subprocess import Popen
 # and its executable is on the %PATH%
 # Warning: we do not do "deep" safety checks (e.g. see if PDF file is old)
 
-class View_pdfCommand(sublime_plugin.WindowCommand):
+class ViewPdfCommand(sublime_plugin.WindowCommand):
 	def run(self):
 		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
 		prefs_keep_focus = s.get("keep_focus", True)
@@ -30,7 +30,10 @@ class View_pdfCommand(sublime_plugin.WindowCommand):
 			# "subl" as command and "%file:%line" as argument
 			# you also have to put a symlink to subl somewhere on your path
 			# Also check the box "check for file changes"
-			viewercmd = ["open", "-a", "Skim"]
+			if os.path.exists('/Applications/Skim.app'):
+				viewercmd = ["open", "-a", "Skim"]
+			else:
+				viewercmd = ["open", "-g", "-a", "Preview"]
 		elif s == "Windows":
 			# with new version of SumatraPDF, can set up Inverse 
 			# Search in the GUI: under Settings|Options...
@@ -48,7 +51,7 @@ class View_pdfCommand(sublime_plugin.WindowCommand):
 		else:
 			sublime.error_message("Platform as yet unsupported. Sorry!")
 			return	
-		print viewercmd + [pdfFile]
+		print(viewercmd + [pdfFile])
 		try:
 			Popen(viewercmd + [pdfFile], cwd=script_path)
 		except OSError:

@@ -1,8 +1,7 @@
-LaTeX Plugin for Sublime Text 2
-===============================
+"LaTeX Plugin for Sublime Text 2" for Sublime Text 3
+====================================================
 
-by Marciano Siniscalchi
-[http://tekonomist.wordpress.com]
+> This is a port of the [LaTeXTools plugin for Sublime Text 2](https://github.com/SublimeText/LaTeXTools) by [Marciano Siniscalchi](http://tekonomist.wordpress.com). It's been updated to run with Sublime Text 3's newer version of Python, and to use the new edit-command format. It also adds configuration options for using Skim and Adobe Acrobat Pro on Mac OS X, but defaults to using Preview.app, and a configuration option to hide intermediary LaTeX Files in `[TeX Root]/.latex-tmp`. Otherwise, Marciano's code---including this README---is largely unchanged. ---[Daniel Shannon](http://github.com/phyllisstein), 12 March 2013
 
 Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, skuroda (Preferences menu), Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths). *If you have contributed and I haven't acknowledged you, email me!*
 

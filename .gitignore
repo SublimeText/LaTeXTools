@@ -3,3 +3,4 @@
 # Ignore cache files
 *.cache
 
+.DS_Store
