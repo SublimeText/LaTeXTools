@@ -1,7 +1,7 @@
 import sublime, sublime_plugin
 import os, os.path
 import re
-import getTeXRoot
+from . import getTeXRoot
 
 
 def match(rex, str):
@@ -19,7 +19,7 @@ def find_labels_in_files(rootdir, src, labels):
         src = src + ".tex"
 
     file_path = os.path.normpath(os.path.join(rootdir, src))
-    print "Searching file: " + repr(file_path)
+    print("Searching file: " + repr(file_path))
     # The following was a mistake:
     #dir_name = os.path.dirname(file_path)
     # THe reason is that \input and \include reference files **from the directory
@@ -32,7 +32,7 @@ def find_labels_in_files(rootdir, src, labels):
             labels += re.findall(r'\\label\{([^\{\}]+)\}', src_content)
     except IOError:
         sublime.status_message("LaTeXTools WARNING: cannot find included file " + file_path)
-        print "WARNING! I can't find it! Check your \\include's and \\input's." 
+        print("WARNING! I can't find it! Check your \\include's and \\input's.") 
         return
 
     # search through input tex files recursively
@@ -141,7 +141,7 @@ class LatexRefCompletions(sublime_plugin.EventListener):
 
         root = getTeXRoot.get_tex_root(view)
 
-        print "TEX root: " + repr(root)
+        print("TEX root: " + repr(root))
         find_labels_in_files(os.path.dirname(root), root, completions)
         # remove duplicate bib files
         completions = list(set(completions))
@@ -161,7 +161,7 @@ class LatexRefCommand(sublime_plugin.TextCommand):
         # get view and location of first selection, which we expect to be just the cursor position
         view = self.view
         point = view.sel()[0].b
-        print point
+        print(point)
         # Only trigger within LaTeX
         # Note using score_selector rather than match_selector
         if not view.score_selector(point,
@@ -171,7 +171,7 @@ class LatexRefCommand(sublime_plugin.TextCommand):
         # Get the contents of the current line, from the beginning of the line to
         # the current point
         line = view.substr(sublime.Region(view.line(point).a, point))
-        print line
+        print(line)
 
                 # Reverse, to simulate having the regex
         # match backwards (cool trick jps btw!)
@@ -244,7 +244,7 @@ class LatexRefCommand(sublime_plugin.TextCommand):
 
         root = getTeXRoot.get_tex_root(view)
 
-        print "TEX root: " + repr(root)
+        print("TEX root: " + repr(root))
         find_labels_in_files(os.path.dirname(root), root, completions)
         # remove duplicate bib files
         completions = list(set(completions))
@@ -257,7 +257,7 @@ class LatexRefCommand(sublime_plugin.TextCommand):
 
         # Note we now generate refs on the fly. Less copying of vectors! Win!
         def on_done(i):
-            print "latex_ref_completion called with index %d" % (i,)
+            print("latex_ref_completion called with index %d" % (i,))
             
             # Allow user to cancel
             if i<0:
@@ -266,7 +266,7 @@ class LatexRefCommand(sublime_plugin.TextCommand):
             ref = completions[i] + post_snippet
             
 
-            print "selected %s" % completions[i] 
+            print("selected %s" % completions[i]) 
             # Replace ref expression with reference and possibly post_snippet
             expr_region = sublime.Region(new_point_a,new_point_b)
             ed = view.begin_edit()

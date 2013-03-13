@@ -8,7 +8,7 @@ extra_file_ext = []
 
 def debug(s):
 	if print_debug:
-		print "parseTeXlog: " + s.encode('UTF-8') # I think the ST2 console wants this
+		print("parseTeXlog: " + s.encode('UTF-8')) # I think the ST2 console wants this
 
 # The following function is only used when debugging interactively.
 #
@@ -33,38 +33,38 @@ def debug_skip_file(f):
 	if (f_ext in known_file_exts) and \
 	   (("/usr/local/texlive/" in f) or ("/usr/share/texlive/" in f) or ("Program Files\\MiKTeX" in f) \
 	   	or re.search(r"\\MiKTeX\\\d\.\d+\\tex",f)) or ("\\MiKTeX\\tex\\" in f):
-		print "TeXlive / MiKTeX FILE! Don't skip it!"
+		print("TeXlive / MiKTeX FILE! Don't skip it!")
 		return False
 	# Heuristic: "version 2010.12.02"
 	if re.match(r"version \d\d\d\d\.\d\d\.\d\d", f):
-		print "Skip it!"
+		print("Skip it!")
 		return True
 	# Heuristic: TeX Live line
 	if re.match(r"TeX Live 20\d\d(/Debian)?\) \(format", f):
-		print "Skip it!"
+		print("Skip it!")
 		return True
 	# Heuristic: MiKTeX line
 	if re.match("MiKTeX \d\.\d\d?",f):
-		print "Skip it!"
+		print("Skip it!")
 		return True
 	# Heuristic: no two consecutive spaces in file name
 	if "  " in f:
-		print "Skip it!"
+		print("Skip it!")
 		return True
 	# Heuristic: various diagnostic messages
 	if f=='e.g.,' or "ext4): destination with the same identifier" in f or "Kristoffer H. Rose" in f:
-		print "Skip it!"
+		print("Skip it!")
 		return True
 	# Heuristic: file in local directory with .tex ending
 	file_exts = extra_file_ext + ['tex', 'aux', 'bbl', 'cls', 'sty','out']
 	if f[0:2] in ['./', '.\\', '..'] and f_ext in file_exts:
-		print "File! Don't skip it"
+		print("File! Don't skip it")
 		return False
-	if raw_input() == "":
-		print "Skip it"
+	if input() == "":
+		print("Skip it")
 		return True
 	else:
-		print "FILE! Don't skip it"
+		print("FILE! Don't skip it")
 		return False
 
 
@@ -187,7 +187,7 @@ def parse_tex_log(data):
 			# save previous line for "! File ended while scanning use of..." message
 			prev_line = line
 			try:
-				line, linelen = log_iterator.next() # will fail when no more lines
+				line, linelen = next(log_iterator) # will fail when no more lines
 				line_num += 1
 			except StopIteration:
 				break
@@ -241,7 +241,7 @@ def parse_tex_log(data):
 			while extend_line:
 				debug("extending: " + line)
 				try:
-					extra, extralen = log_iterator.next()
+					extra, extralen = next(log_iterator)
 					debug("extension? " + extra)
 					line_num += 1 # for debugging purposes
 					# HEURISTIC: if extra line begins with "Package:" "File:" "Document Class:",
@@ -292,9 +292,9 @@ def parse_tex_log(data):
 			# err_msg is set from last time
 			if files==[]:
 				location = "[no file]"
-				warnings.append("LaTeXTools cannot correctly detect file names in this LOG file.")
-				warnings.append("(where: trying to display error message)")
-				warnings.append("Please let me know via GitHub. Thanks!")
+				errors.append("LaTeXTools cannot correctly detect file names in this LOG file.")
+				errors.append("(where: trying to display error message)")
+				errors.append("Please let me know via GitHub. Thanks!")
 			else:
 				location = files[-1]
 			debug("Found error: " + err_msg)		
@@ -338,10 +338,9 @@ def parse_tex_log(data):
 					debug("Done processing, some files left on the stack, BUT user had xypic!")
 					debug(";".join(files))
 				else:
-					warnings.append("LaTeXTools cannot correctly detect file names in this LOG file.")
-					warnings.append("(where: finished processing)")
-					warnings.append("Please let me know via GitHub")
-					warnings.append("In any case, compilation was successful.")
+					errors.append("LaTeXTools cannot correctly detect file names in this LOG file.")
+					errors.append("(where: finished processing)")
+					errors.append("Please let me know via GitHub")
 					debug("Done processing, some files left on the stack")
 					debug(";".join(files))
 				files=[]			
@@ -351,9 +350,9 @@ def parse_tex_log(data):
 		if "! File ended while scanning use of" in line:
 			scanned_command = line[35:-2] # skip space and period at end
 			# we may be unable to report a file by popping it, so HACK HACK HACK
-			file_name, linelen = log_iterator.next() # <inserted text>
-			file_name, linelen = log_iterator.next() #      \par
-			file_name, linelen = log_iterator.next()
+			file_name, linelen = next(log_iterator) # <inserted text>
+			file_name, linelen = next(log_iterator) #      \par
+			file_name, linelen = next(log_iterator)
 			file_name = file_name[3:] # here is the file name with <*> in front
 			errors.append("TeX STOPPED: " + line[2:-2]+prev_line[:-5])
 			errors.append("TeX reports the error was in file:" + file_name)
@@ -362,8 +361,8 @@ def parse_tex_log(data):
 		# Here, make sure there was no uncaught error, in which case we do more special processing
 		if "!  ==> Fatal error occurred, no output" in line:
 			if errors == []:
-				warnings.append("TeX STOPPED: fatal errors occurred but LaTeXTools did not see them")
-				warnings.append("Check the TeX log file, and please let me know via GitHub. Thanks!")
+				errors.append("TeX STOPPED: fatal errors occurred but LaTeXTools did not see them")
+				errors.append("Check the TeX log file, and please let me know via GitHub. Thanks!")
 			continue
 
 		# If tex just stops processing, we will be left with files on stack, so we keep track of it
@@ -390,7 +389,7 @@ def parse_tex_log(data):
 			ou_processing = True
 			while ou_processing:
 				try:
-					line, linelen = log_iterator.next() # will fail when no more lines
+					line, linelen = next(log_iterator) # will fail when no more lines
 				except StopIteration:
 					debug("Over/underfull: StopIteration (%d)" % line_num)
 					break
@@ -400,8 +399,7 @@ def parse_tex_log(data):
 				if len(line)>0 and line in [" []", "[]"]:
 					ou_processing = False
 			if ou_processing:
-				warnings.append("Malformed LOG file: over/underfull")
-				warnings.append("Please let me know via GitHub")
+				errors.append("Malformed LOG file: over/underfull")
 				break
 			else:
 				continue
@@ -616,15 +614,15 @@ if __name__ == '__main__':
 			extra_file_ext = sys.argv[2].split(" ")
 		data = open(logfilename,'r').read()
 		(errors,warnings) = parse_tex_log(data)
-		print ""
-		print "Warnings:"
+		print("")
+		print("Warnings:")
 		for warn in warnings:
-			print warn.encode('UTF-8')
-		print ""
-		print "Errors:"
+			print(warn.encode('UTF-8'))
+		print("")
+		print("Errors:")
 		for err in errors:
-			print err.encode('UTF-8')
+			print(err.encode('UTF-8'))
 
-	except Exception, e:
+	except Exception as e:
 		import traceback
 		traceback.print_exc()

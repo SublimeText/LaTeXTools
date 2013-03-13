@@ -2,7 +2,7 @@ import sublime, sublime_plugin
 
 # Show current toggles and prefs
 
-class toggle_showCommand(sublime_plugin.TextCommand):
+class ToggleShowCommand(sublime_plugin.TextCommand):
 	def run(self, edit, **args):
 		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
 		prefs_keep_focus = s.get("keep_focus", "undefined")

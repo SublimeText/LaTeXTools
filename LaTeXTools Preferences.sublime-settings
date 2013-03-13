@@ -8,6 +8,13 @@
 	"keep_focus":	true,
 	// Sync PDF to current editor position after building (true) or not 
 	"forward_sync":	true,
+	// Hide intermediary LaTeX build files in `.latex-tmp`
+	"use_temporary_dir": false,
+
+	// Use Skim on Mac OS X instead of Preview.app
+	"use_skim": false,
+	// Use Adobe Acrobat Pro on Mac OS X instead of Preview.app
+	"use_acrobat": false,
 
 	// Settings that are specific to Linux platforms
 	"linux": {

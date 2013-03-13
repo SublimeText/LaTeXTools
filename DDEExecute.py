@@ -3,10 +3,10 @@ from ctypes import *
 
 # Send DDE Execute command to running program
 
-class send_ddeCommand(sublime_plugin.TextCommand):
+class SendDdeCommand(sublime_plugin.TextCommand):
 	def run(self, edit, service = "", topic = "", command = ""):
 		
-		print "Got request for DDE!"
+		print("Got request for DDE!")
 
 		# define win32 api functions
 		DdeInitialize = windll.user32.DdeInitializeW
@@ -34,7 +34,8 @@ class send_ddeCommand(sublime_plugin.TextCommand):
 		# server and topic names, as LPTSTR = wchar *
 		service = c_wchar_p(service)
 		topic = c_wchar_p(topic)
-		pData = c_char_p(command)
+		encCommand = command.encode("utf-8")
+		pData = c_char_p(encCommand)
 		cbData = len(command)+1 # Important! Zero-terminated!
 		
 		# initialize
@@ -49,10 +50,10 @@ class send_ddeCommand(sublime_plugin.TextCommand):
 			#print "start!"
 			XTYP_EXECUTE = int("4050",16) # transaction type; note -1 for timeout_async
 			hDdeData = DdeClientTransaction(pData, cbData, hConv, 0, 0, XTYP_EXECUTE, 10000, 0)
-			print "DDE Execute returned: ", hex(windll.user32.DdeGetLastError(idInst))
+			print("DDE Execute returned: ", hex(windll.user32.DdeGetLastError(idInst)))
 			DdeFreeDataHandle(hDdeData)
 		else:
-			print "Could not connect!"
+			print("Could not connect!")
 		
 		#print ret, idInst, hszService, hszTopic, hConv
 		

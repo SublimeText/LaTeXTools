@@ -1,10 +1,12 @@
 import sublime, sublime_plugin, os.path, subprocess, time
-import getTeXRoot
+from . import getTeXRoot
+import os
+import shutil
 
 # Jump to current line in PDF file
 # NOTE: must be called with {"from_keybinding": <boolean>} as arg
 
-class jump_to_pdfCommand(sublime_plugin.TextCommand):
+class JumpToPdfCommand(sublime_plugin.TextCommand):
 	def run(self, edit, **args):
 		# Check prefs for PDF focus and sync
 		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
@@ -12,6 +14,8 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		keep_focus = self.view.settings().get("keep focus",prefs_keep_focus)
 		prefs_forward_sync = s.get("forward_sync", True)
 		forward_sync = self.view.settings().get("forward_sync",prefs_forward_sync)
+		prefs_skim = s.get("use_skim", False)
+		prefs_acro = s.get("use_acrobat", False)
 
 		prefs_lin = s.get("linux")
 
@@ -24,20 +28,34 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		if from_keybinding:
 			keep_focus = False
 			forward_sync = True
-		print from_keybinding, keep_focus, forward_sync
+		print(from_keybinding, keep_focus, forward_sync)
 
 		texFile, texExt = os.path.splitext(self.view.file_name())
 		if texExt.upper() != ".TEX":
 			sublime.error_message("%s is not a TeX source file: cannot jump." % (os.path.basename(view.fileName()),))
 			return
 		quotes = "\""
-		srcfile = texFile + u'.tex'
+		srcfile = texFile + '.tex'
 		root = getTeXRoot.get_tex_root(self.view)
-		print "!TEX root = ", repr(root) # need something better here, but this works.
+		print("!TEX root = ", repr(root)) # need something better here, but this works.
 		rootName, rootExt = os.path.splitext(root)
-		pdffile = rootName + u'.pdf'
+		pdffile = rootName + '.pdf'
+
+		if s.get("use_temporary_dir", False):
+			pdfHead, pdfTail = os.path.split(rootName)
+			pdfHead += '/.latex-tmp/'
+			generatedPDF = pdfHead + pdfTail + '.pdf'
+			shutil.copy(generatedPDF, '../')
+			os.remove(generatedPDF)
+		
+		if prefs_skim and s.get("use_temporary_dir", False):
+			generatedSyncTeX = pdfHead + pdfTail + u'.synctex.gz'
+			shutil.copy(generatedSyncTeX, '../')
+			os.remove(generatedSyncTeX)
+
+
 		(line, col) = self.view.rowcol(self.view.sel()[0].end())
-		print "Jump to: ", line,col
+		print("Jump to: ", line,col)
 		# column is actually ignored up to 0.94
 		# HACK? It seems we get better results incrementing line
 		line += 1
@@ -48,7 +66,7 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 
 		# platform-specific code:
 		plat = sublime_plugin.sys.platform
-		if plat == 'darwin':
+		if plat == 'darwin' and prefs_skim:
 			options = ["-r","-g"] if keep_focus else ["-r"]		
 			if forward_sync:
 				subprocess.Popen(["/Applications/Skim.app/Contents/SharedSupport/displayline"] + 
@@ -57,37 +75,43 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 				skim = os.path.join(sublime.packages_path(),
 								'LaTeXTools', 'skim', 'displayfile')
 				subprocess.Popen(['sh', skim] + options + [pdffile])
+		elif plat == 'darwin' and prefs_acro:
+			options = ["-g", "-a", "Adobe Acrobat Pro"] if keep_focus else ["-a", "Adobe Acrobat Pro"]
+			subprocess.Popen(["open"] + options + [pdffile])
+		elif plat == 'darwin':
+			options = ["-g", "-a", "Preview"] if keep_focus else ["-a", "Preview"]
+			subprocess.Popen(["open"] + options + [pdffile])
 		elif plat == 'win32':
 			# determine if Sumatra is running, launch it if not
-			print "Windows, Calling Sumatra"
+			print("Windows, Calling Sumatra")
 			# hide console
 			startupinfo = subprocess.STARTUPINFO()
 			startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 			tasks = subprocess.Popen(["tasklist"], stdout=subprocess.PIPE,
 					startupinfo=startupinfo).communicate()[0]
 			# Popen returns a byte stream, i.e. a single line. So test simply:
-			if "SumatraPDF.exe" not in tasks:
-				print "Sumatra not running, launch it"
+			if "SumatraPDF.exe" not in str(tasks, encoding='utf8' ):
+				print("Sumatra not running, launch it")
 				self.view.window().run_command("view_pdf")
 				time.sleep(0.5) # wait 1/2 seconds so Sumatra comes up
 			setfocus = 0 if keep_focus else 1
 			# First send an open command forcing reload, or ForwardSearch won't 
 			# reload if the file is on a network share
-			command = u'[Open(\"%s\",0,%d,1)]' % (pdffile,setfocus)
-			print repr(command)
+			command = '[Open(\"%s\",0,%d,1)]' % (pdffile,setfocus)
+			print(repr(command))
 			self.view.run_command("send_dde",
 					{ "service": "SUMATRA", "topic": "control", "command": command})
 			# Now send ForwardSearch command if needed
 			if forward_sync:
 				command = "[ForwardSearch(\"%s\",\"%s\",%d,%d,0,%d)]" \
 							% (pdffile, srcfile, line, col, setfocus)
-				print command
+				print(command)
 				self.view.run_command("send_dde",
 						{ "service": "SUMATRA", "topic": "control", "command": command})
 
 		
 		elif 'linux' in plat: # for some reason, I get 'linux2' from sys.platform
-			print "Linux!"
+			print("Linux!")
 			
 			# the required scripts are in the 'evince' subdir
 			ev_path = os.path.join(sublime.packages_path(), 'LaTeXTools', 'evince')
@@ -112,9 +136,9 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 
 			evince_running = ("evince " + pdffile in running_apps)
 			if (not keep_focus) or (not evince_running):
-				print "(Re)launching evince"
+				print("(Re)launching evince")
 				subprocess.Popen(['sh', ev_sync_exec, py_binary, sb_binary, pdffile], cwd=ev_path)
-				print "launched evince_sync"
+				print("launched evince_sync")
 				if not evince_running: # Don't wait if we have already shown the PDF
 					time.sleep(sync_wait)
 			if forward_sync:

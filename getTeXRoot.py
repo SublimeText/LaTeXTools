@@ -1,4 +1,5 @@
 import os.path, re
+import codecs
 
 # Parse magic comments to retrieve TEX root
 # Stops searching for magic comments at first non-comment line of file
@@ -10,14 +11,14 @@ def get_tex_root(view):
 	try:
 		root = os.path.abspath(view.settings().get('TEXroot'))
 		if os.path.isfile(root):
-			print "Main file defined in project settings : " + root
+			print("Main file defined in project settings : " + root)
 			return root
 	except:
 		pass
 
 
 	texFile = view.file_name()
-	for line in open(texFile, "rU").readlines():
+	for line in codecs.open(texFile, "rU", "utf-8").readlines():
 		if not line.startswith('%'):
 			root = texFile
 			break

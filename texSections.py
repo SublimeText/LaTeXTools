@@ -72,5 +72,5 @@ class TexSectionsCommand(sublime_plugin.TextCommand):
 			s.add(secRegions[i])
 			self.view.runCommand("moveTo bol")
 
-		print prettySecs
+		print(prettySecs)
 		#self.view.window().show_select_panel(prettySecs, onSelect, None, 0)
