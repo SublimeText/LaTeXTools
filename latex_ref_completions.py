@@ -123,9 +123,10 @@ class LatexRefCompletions(sublime_plugin.EventListener):
             # Replace ref_blah with \ref{blah
             expr_region = sublime.Region(l - len(expr), l)
             #print expr[::-1], view.substr(expr_region)
-            ed = view.begin_edit()
-            view.replace(ed, expr_region, pre_snippet + prefix)
-            view.end_edit(ed)
+            # ed = view.begin_edit()
+            # view.replace(ed, expr_region, pre_snippet + prefix)
+            view.run_command("latex_tools_replace", {"a": expr_region.a, "b": expr_region.b, "replacement": pre_snippet + prefix})
+            # view.end_edit(ed)
 
         else:
             # Don't include post_snippet if it's already present
@@ -158,6 +159,7 @@ class LatexRefCommand(sublime_plugin.TextCommand):
 
     # Remember that this gets passed an edit object
     def run(self, edit):
+        self.edit = edit
         # get view and location of first selection, which we expect to be just the cursor position
         view = self.view
         point = view.sel()[0].b
@@ -269,8 +271,14 @@ class LatexRefCommand(sublime_plugin.TextCommand):
             print("selected %s" % completions[i]) 
             # Replace ref expression with reference and possibly post_snippet
             expr_region = sublime.Region(new_point_a,new_point_b)
-            ed = view.begin_edit()
-            view.replace(ed, expr_region, ref)
-            view.end_edit(ed)
+            # ed = view.begin_edit()
+            # view.replace(self.edit, expr_region, ref)
+            view.run_command("latex_tools_replace", {"a": expr_region.a, "b": expr_region.b, "replacement": ref})
+            # view.end_edit(ed)
         
         view.window().show_quick_panel(completions, on_done)
+
+class LatexToolsReplaceCommand(sublime_plugin.TextCommand):
+    def run(self, edit, a, b, replacement):
+        region = sublime.Region(a, b)
+        self.view.replace(edit, region, replacement)

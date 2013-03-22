@@ -146,10 +146,11 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
             # Replace cite expression with "C" to save space in drop-down menu
             expr_region = sublime.Region(l-len(expr),l)
             #print expr, view.substr(expr_region)
-            ed = view.begin_edit()
+            # ed = view.begin_edit()
             expr = "\cite" + fancy_cite + "{" + prefix
-            view.replace(ed, expr_region, expr)
-            view.end_edit(ed)
+            # view.replace(ed, expr_region, expr)
+            view.run_command("latex_tools_replace", {"a": expr_region.a, "b": expr_region.b, "replacement": expr})
+            # view.end_edit(ed)
         
 
         completions = ["TEST"]
@@ -203,8 +204,8 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
                 bibf.close()
             print("%s has %s lines" % (repr(bibfname), len(bib)))
             # note Unicode trickery
-            keywords = [kp.search(line).group(1).decode('ascii','ignore') for line in bib if line[0] == '@']
-            titles = [tp.search(line).group(1).decode('ascii','ignore') for line in bib if tp.search(line)]
+            keywords = [kp.search(line).group(1).encode().decode('ascii','ignore') for line in bib if line[0] == '@']
+            titles = [tp.search(line).group(1).encode().decode('ascii','ignore') for line in bib if tp.search(line)]
             if len(keywords) != len(titles):
                 print("Bibliography " + repr(bibfname) + " is broken!")
             # Filter out }'s and ,'s at the end. Ugly!
@@ -409,12 +410,12 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             print("selected %s:%s by %s" % completions[i]) 
             # Replace cite expression with citation
             expr_region = sublime.Region(point-len(expr),point)
-            ed = view.begin_edit()
-            view.replace(ed, expr_region, cite)
-            view.end_edit(ed)
+            # ed = view.begin_edit()
+            # view.replace(self.edit, expr_region, cite)
+            view.run_command("latex_tools_replace", {"a": expr_region.a, "b": expr_region.b, "replacement": cite})
+            # view.end_edit(ed)
 
         
         view.window().show_quick_panel([[title + " (" + keyword+ ")", author] \
                                         for (keyword,title, author) in completions], on_done)
- 
 
