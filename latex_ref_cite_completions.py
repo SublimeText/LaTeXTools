@@ -5,11 +5,13 @@
 
 import sublime, sublime_plugin
 import re
+from latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX
+from latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
 
 class LatexRefCiteCommand(sublime_plugin.TextCommand):
 
     # Remember that this gets passed an edit object
-    def run(self, edit):
+    def run(self, edit, insert_char=""):
         # get view and location of first selection, which we expect to be just the cursor position
         view = self.view
         point = view.sel()[0].b
@@ -20,23 +22,24 @@ class LatexRefCiteCommand(sublime_plugin.TextCommand):
                 "text.tex.latex"):
             return
 
+        if insert_char:
+            ed = view.begin_edit()
+            point += view.insert(ed, point, insert_char)
+            view.end_edit(ed)
+
         # Get the contents of the current line, from the beginning of the line to
         # the current point
         line = view.substr(sublime.Region(view.line(point).a, point))
-        print line
+        # print line
 
         # Reverse
         line = line[::-1]
 
-        rex_ref_new = re.compile(r"[^{]*\{fer")
-        rex_ref_old = re.compile(r".*_p?fer")
-        rex_cite_new = re.compile(r".*etic\\")
-        rex_cite_old = re.compile(r".*_[a-zA-Z]*etic")
 
-        if re.match(rex_ref_old, line) or re.match(rex_ref_new, line):
+        if re.match(OLD_STYLE_REF_REGEX, line) or re.match(NEW_STYLE_REF_REGEX, line):
             print "Dispatching ref"
             view.run_command("latex_ref")
-        elif re.match(rex_cite_old, line) or re.match(rex_cite_new, line):
+        elif re.match(OLD_STYLE_CITE_REGEX, line) or re.match(NEW_STYLE_CITE_REGEX, line):
             print "Dispatching cite"
             view.run_command("latex_cite")
         else:
