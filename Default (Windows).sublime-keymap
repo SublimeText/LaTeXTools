@@ -73,7 +73,7 @@ LaTeX Package keymap for Windows
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Wrap in environment.sublime-snippet"}},
 
-	// Wrap selected text in emph, bold or underline
+	// Wrap selected text in emph, bold, typewriter or underline
 	{ "keys": ["ctrl+l","ctrl+e"],  
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
@@ -86,7 +86,10 @@ LaTeX Package keymap for Windows
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text underline.sublime-snippet"}},
-
+	{ "keys": ["ctrl+l","ctrl+t"],  
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text typewriter.sublime-snippet"}},
 
 
 
