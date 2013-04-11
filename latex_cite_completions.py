@@ -32,6 +32,9 @@ def find_bib_files(rootdir, src, bibfiles):
 
     src_content = re.sub("%.*","",src_file.read())
     bibtags =  re.findall(r'\\bibliography\{[^\}]+\}', src_content)
+    biblatags =  re.findall(r'\\addbibresource\{[^\}]+\}', src_content)
+
+    bibtags = bibtags + biblatags
 
     # extract absolute filepath for each bib file
     for tag in bibtags:
@@ -203,7 +206,7 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
                 bibf.close()
             print "%s has %s lines" % (repr(bibfname), len(bib))
             # note Unicode trickery
-            keywords = [kp.search(line).group(1).decode('ascii','ignore') for line in bib if line[0] == '@']
+            keywords = [kp.search(line).group(1).decode('ascii','ignore') for line in bib if kp.search(line)]
             titles = [tp.search(line).group(1).decode('ascii','ignore') for line in bib if tp.search(line)]
             if len(keywords) != len(titles):
                 print "Bibliography " + repr(bibfname) + " is broken!"
@@ -366,7 +369,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
                 bibf.close()
             print "%s has %s lines" % (repr(bibfname), len(bib))
             # note Unicode trickery
-            keywords = [kp.search(line).group(1).decode('ascii','ignore') for line in bib if line[0] == '@']
+            keywords = [kp.search(line).group(1).decode('ascii','ignore') for line in bib if kp.search(line)]
             titles = [tp.search(line).group(1).decode('ascii','ignore') for line in bib if tp.search(line)]
             authors = [ap.search(line).group(1).decode('ascii','ignore') for line in bib if ap.search(line)]
 
