@@ -40,9 +40,7 @@ On **OSX**, you need to be running the MacTeX distribution (which is pretty much
 To configure inverse search, open the Preferences dialog of the Skim app, select the Sync tab, then:
 
 * uncheck the "Check for file changes" option
-* Preset: Custom
-* Command: `"/Applications/Sublime Text 2.app/Contents/SharedSupport/bin/subl"`
-* Arguments: "%file":%line
+* Preset: Sublime Text 2
 
 Note: in case you have created a symlink to Sublime Text somewhere in your path, you can of course use that, too in the Command field. The above will work in any case though, and does *not* require you to create a symlink or mess with the Terminal in any way!
 
