@@ -203,15 +203,17 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
                 bibf.close()
             print "%s has %s lines" % (repr(bibfname), len(bib))
             # note Unicode trickery
-            keywords = [kp.search(line).group(1).decode('ascii','ignore') for line in bib if line[0] == '@']
-            titles = [tp.search(line).group(1).decode('ascii','ignore') for line in bib if tp.search(line)]
+
+            # PROBLEM: This assumes that every entry has a title 
+            keywords = [(kp.search(line).group(1).decode('ascii','ignore') if kp.search(line)  else "???") for line in bib if (line[0] == '@') ]
+            # titles = [tp.search(line).group(1).decode('ascii','ignore') for line in bib if tp.search(line)]
             if len(keywords) != len(titles):
                 print "Bibliography " + repr(bibfname) + " is broken!"
             # Filter out }'s and ,'s at the end. Ugly!
-            nobraces = re.compile(r'\s*,*\}*(.+)')
-            titles = [nobraces.search(t[::-1]).group(1)[::-1] for t in titles]
-            completions += zip(keywords, titles)
-
+            #nobraces = re.compile(r'\s*,*\}*(.+)')
+            #titles = [nobraces.search(t[::-1]).group(1)[::-1] for t in titles]
+            #completions += zip(keywords, map(lambda x, y: str(x) + " " + str(y), keywords, titles)) # keywords, titles
+            completions += zip(keywords, keywords)
 
         #### END COMPLETIONS HERE ####
 
