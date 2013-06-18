@@ -138,7 +138,7 @@ Forward and Inverse Search
 
 **Keybinding:** `C-l,j` (for forward search; inverse search depends on the previewer)
 
-When working in an ST2 view on a TeX document, `C-l,j` will display the PDF page where the text corresponding to the current cursor position is located; this is called a "forward search". The focus remains on ST2; this is useful especially if you set up the ST2 window and the PDF viewer window side by side.
+When working in an ST2 view on a TeX document, `C-l,j` will display the PDF page where the text corresponding to the current cursor position is located; this is called a "forward search". The focus is controlled by the `C-l,t,f` toggle setting and the `keep_focus` option.
 
 If you are viewing a PDF file, then hitting `CMD+Shift+Click` in Skim (OSX), double-clicking in Sumatra (Windows), or hitting `Ctrl+click` in Evince (Linux) will bring you to the location in the source tex file corresponding to the PDF text you clicked on. This is called "inverse search".
 
