@@ -5,7 +5,7 @@ the first of hopefully many updates! Thank you for your continued support and PA
 
 New features:
 
-- 
+- Basic cupport for biblatex bibliographies (contributed by Jeremy Jay)
 
 Bugs fixed:
 

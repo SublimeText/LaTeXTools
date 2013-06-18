@@ -155,7 +155,7 @@ The basic idea is to help you insert labels in `\ref{}` commands and bibtex keys
 
 1. In order to find all applicable labels and bibtex keys, the plugin looks at the **saved** file. So, if you invoke this command and do not see the label or key you just entered, perhaps you haven't saved the file.
 
-2. Only bibtex bibliographies are supported. Sorry. It's hard as it is.
+2. Only bibliographies in external `.bib` files are supported: no `\bibitem...`. Sorry. It's hard as it is. 
 
 3. Multi-file documents are fully supported.
 
@@ -171,7 +171,9 @@ The "old-style" system works as follows. For references, you type `ref_`, then `
 
 *Graceful error reporting*: if a bib file is not found, LaTeXTools displays a warning message in the status bar. Note that this message goes away after a few seconds. So, if you hit `C-l,Ctrl-space` and nothing happens--or, in the case of multiple bib files, if you can't file a reference that you *know* must be there somewhere--look at the status bar (you may have to dismiss the quick panel and hitting the key combination again).
 
-Thanks to recent contributed code, **multi-file documents** are *fully supported*. If you have a `% !TEX root = ...` directive at the top of the current file, LaTeXTools looks for references, as well as `\bibliography{}` commands, in the root file and in all recursively included files. You can also use a project file to specify the root file (to be documented).
+Thanks to recent contributed code, **multi-file documents** are *fully supported*. If you have a `% !TEX root = ...` directive at the top of the current file, LaTeXTools looks for references, as well as `\bibliography{}` commands, in the root file and in all recursively included files. You can also use a project file to specify the root file (to be documented). 
+
+LaTeXTools now also looks `\addbibresource{}` commands, which provides basic compatibility with biblatex.
 
 Another note: **for now**, completions are also injected into the standard ST2 autocompletion system. Thus, if you hit `Ctrl-space` immediately after typing, e.g., `\ref{}`, you get a drop-down menu at the current cursor position (not a quick-panel) showing all labels in your document. This also works with old-style citations. However, the width of this menu is OK for (most) labels, but not really for paper titles. In other words, it is workable for references, but not really for citations. Furthermore, there are other limitations dictated by the ST2 autocompletion system. So, I encourage you to use the `C-l,Ctrl-space` keybinding instead. In fact, consider the standard autocompletion support to be *deprecated* as of today (12-09-17).
 
