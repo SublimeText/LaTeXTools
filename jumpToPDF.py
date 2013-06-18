@@ -15,14 +15,14 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 
 		prefs_lin = s.get("linux")
 
-		# If invoked from keybinding, we focus the PDF and sync
+		# If invoked from keybinding, we sync
 		# Rationale: if the user invokes the jump command, s/he wants to see the result of the compilation.
 		# If the PDF viewer window is already visible, s/he probably wants to sync, or s/he would have no
 		# need to invoke the command. And if it is not visible, the natural way to just bring up the
 		# window without syncing is by using the system's window management shortcuts.
+		# As for focusing, we honor the toggles / prefs.
 		from_keybinding = args["from_keybinding"]
 		if from_keybinding:
-			keep_focus = False
 			forward_sync = True
 		print from_keybinding, keep_focus, forward_sync
 
