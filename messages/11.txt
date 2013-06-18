@@ -1,4 +1,4 @@
-LaTeXTools Plugin version 2013-06-XX changelog:
+LaTeXTools Plugin version 2013-06-18 changelog:
 
 I'm back! Finally, I anticipate having some spare time to work on LaTeXTools! This will be
 the first of hopefully many updates! Thank you for your continued support and PATIENCE :)
