@@ -4,7 +4,7 @@ LaTeX Plugin for Sublime Text 2
 by Marciano Siniscalchi
 [http://tekonomist.wordpress.com]
 
-Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, skuroda (Preferences menu), Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths), Jeremy Jay (basic biblatex support). *If you have contributed and I haven't acknowledged you, email me!*
+Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, skuroda (Preferences menu), Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths), Jeremy Jay (basic biblatex support), Ray Fang (texttt snippet). *If you have contributed and I haven't acknowledged you, email me!*
 
 Latest revision: *2012-11-18*. Highlight: The new log-file parser is now in place, and I have kept improving it over the last week or so, based on error reports from users. The new parser is a lot more robust (no more silent crashes!) and picks up files that were just silently ignored by the old one. On the other hand, right now the code is strict in the sense that, if it can't make sense of a log file, it displays an error message. Please see the troubleshooting section on this. 
 
@@ -35,16 +35,14 @@ Third, follow the OS-specific instructions below.
 
 <br>
 
-On **OSX**, you need to be running the MacTeX distribution (which is pretty much the only one available on the Mac anyway) and the Skim PDF previewer. Just download and install these in the usual way. I have tested MacTeX versions 2010 and 2011, both 32 and 64 bits; these work fine. On the other hand, MacTeX 2008 does *not* seem to work out of the box (compilation fails), so please upgrade. If you don't want to install the entire MacTeX distro, which is pretty big, BasicTeX will also work (of course, as long as the latex packages you need are included). **However**, you need to explicitly add the `latexmk` utility, which is not included by default: from the Terminal, type `sudo tlmgr install latexmk` (you will need to provide your password, assuming you are Administrator on your machine).
+On **OSX**, you need to be running the MacTeX distribution (which is pretty much the only one available on the Mac anyway) and the Skim PDF previewer. Just download and install these in the usual way. I have tested MacTeX versions 2010, 2011 and 2012, both 32 and 64 bits; these work fine. On the other hand, MacTeX 2008 does *not* seem to work out of the box (compilation fails), so please upgrade. 
+
+If you don't want to install the entire MacTeX distro, which is pretty big, BasicTeX will also work (of course, as long as the latex packages you need are included). **However**, you need to explicitly add the `latexmk` utility, which is not included by default: from the Terminal, type `sudo tlmgr install latexmk` (you will need to provide your password, assuming you are Administrator on your machine).
 
 To configure inverse search, open the Preferences dialog of the Skim app, select the Sync tab, then:
 
 * uncheck the "Check for file changes" option
-* Preset: Custom
-* Command: `"/Applications/Sublime Text 2.app/Contents/SharedSupport/bin/subl"`
-* Arguments: "%file":%line
-
-Note: in case you have created a symlink to Sublime Text somewhere in your path, you can of course use that, too in the Command field. The above will work in any case though, and does *not* require you to create a symlink or mess with the Terminal in any way!
+* Preset: Sublime Text 2 (yes, Skim now supports ST2 by default!)
 
 <br>
 
@@ -219,6 +217,7 @@ LaTeXTools' wrapping facility helps you in just these circumstances. All command
 - `C-l,C-e` gives you `\emph{blah}`, and the cursor moves to the end of the command.
 - `C-l,C-b` gives you `\textbf{blah}`
 - `C-l,C-u` gives you `\underline{blah}`
+- `C-l,C-t` gives you `\texttt{blah}`
 - `C-l,C-n` wraps the selected text in a LaTeX environment structure. You get `\begin{env}`,`blah`, `\end{env}` on three separate lines, with `env` selected. Change `env` to whatever environment you want, then hit Tab to move to the end of the environment.
 
 These commands also work if there is no selection. In this case, they try to do the right thing; for example, `C-l,C-e` gives `\emph{}` with the cursor between the curly braces.

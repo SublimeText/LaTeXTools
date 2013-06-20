@@ -15,6 +15,20 @@
 
                 { "trigger": "use", "contents": "\\usepackage"},
 
+                { "trigger": "eqb", "contents": "\\[\n$1\n\\]$0"},
+                { "trigger": "eqn", "contents": "\\begin{equation*}\n$1\n\\end{equation*}\n$0"},
+                { "trigger": "eqga", "contents": "\\begin{gather}\n$1\n\\end{gather}\n$0"},
+                { "trigger": "eqgan", "contents": "\\begin{gather*}\n$1\n\\end{gather*}\n$0"},
+                { "trigger": "eqal", "contents": "\\begin{align}\n$1\n\\end{align}\n$0"},
+                { "trigger": "eqaln", "contents": "\\begin{align*}\n$1\n\\end{align*}\n$0"},
+                { "trigger": "eqalat", "contents": "\\begin{alignat}\n$1\n\\end{alignat}\n$0"},
+                { "trigger": "eqalatn", "contents": "\\begin{alignat*}\n$1\n\\end{alignat*}\n$0"},
+                { "trigger": "eqfl", "contents": "\\begin{flalign}\n$1\n\\end{flalign}\n$0"},
+                { "trigger": "eqfln", "contents": "\\begin{flalign*}\n$1\n\\end{flalign*}\n$0"},
+                { "trigger": "eqml", "contents": "\\begin{multiline}\n$1\n\\end{multiline}\n$0"},
+                { "trigger": "eqmln", "contents": "\\begin{multiline*}\n$1\n\\end{multiline*}\n$0"},
+                { "trigger": "eqsp", "contents": "\\begin{split}\n$1\n\\end{split}\n$0"},
+
                 { "trigger": "bit", "contents": "\\begin{itemize}\n\t\\item $1 \n\\end{itemize}\n"},
                 { "trigger": "ben", "contents": "\\begin{enumerate}\n\t\\item $1 \n\\end{enumerate}\n"},
                 { "trigger": "i", "contents": "\\item "}
