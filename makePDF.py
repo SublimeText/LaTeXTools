@@ -208,6 +208,21 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 
 		# Get parameters from sublime-build file:
 		self.make_cmd = cmd
+
+		texFile = view.file_name() # Maybe get_tex_root() instead???
+		self.engine = 'pdflatex' # Standard pdflatex
+		for line in open(texFile, "rU").readlines():
+			if not line.startswith('%'):
+				break
+			else:
+				# We have a comment match; check for a TS-program match
+				mroot = re.match(r"%\s*!TEX\s+TS-program *= *(xelatex|lualatex|pdflatex)\s*$",line)
+				if mroot:
+					self.engine = mroot.group(1)
+					break
+		if self.engine != 'pdflatex': # Since pdflatex is standard, we do not output a msg. for it.
+			self.output("Using engine " + self.engine + "\n")
+		self.make_cmd[3] = self.make_cmd[3].replace("%E", self.engine)
 		self.output_view.settings().set("result_file_regex", file_regex)
 
 		if view.is_dirty():
