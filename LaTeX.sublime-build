@@ -89,7 +89,7 @@
 
 			// *** BEGIN TeXLive 2011 ***
 			// "cmd": ["latexmk", "-cd",
-			// 	"-e", "\\$pdflatex = 'pdflatex %O -interaction=nonstopmode -synctex=1 %S'",
+			// 	"-e", "\\$pdflatex = '%E %O -interaction=nonstopmode -synctex=1 %S'",
 			//	//"-silent",
 			// 	"-f", "-pdf"],
 

@@ -216,7 +216,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 				break
 			else:
 				# We have a comment match; check for a TS-program match
-				mroot = re.match(r"%\s*!TEX\s+TS-program *= *(xelatex|lualatex|pdflatex)\s*$",line)
+				mroot = re.match(r"%\s*!TEX\s+(?:TS-)?program *= *(xelatex|lualatex|pdflatex)\s*$",line)
 				if mroot:
 					self.engine = mroot.group(1)
 					break
