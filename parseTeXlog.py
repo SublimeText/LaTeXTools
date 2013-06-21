@@ -140,20 +140,22 @@ def parse_tex_log(data):
 	# Support function to handle warnings
 	def handle_warning(l):
 
-		if files==[]:
-			location = "[no file]"
+		if l.startswith('Class '):
+			location = ''
+		elif files==[]:
+			location = "[no file] :"
 			errors.append("LaTeXTools cannot correctly detect file names in this LOG file.")
 			errors.append("(where: trying to display warning message)")
 			errors.append("Please let me know via GitHub (warnings). Thanks!")
 		else:
-			location = files[-1]		
+			location = files[-1] + ":"
 
 		warn_match_line = line_rx_latex_warn.search(l)
 		if warn_match_line:
 			warn_line = warn_match_line.group(1)
-			warnings.append(location + ":" + warn_line + ": " + l)
+			warnings.append(location + warn_line + ": " + l)
 		else:
-			warnings.append(location + ": " + l)
+			warnings.append(location + l)
 
 	
 	# State definitions
