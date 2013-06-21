@@ -1,4 +1,5 @@
 [
+	{ "caption": "LaTexTools: Delete temporary files", "command", "delete_temp_files"},
 	{ "caption": "LaTeXTools: View PDF", "command": "view_pdf"},
 	{ "caption": "LaTeXTools: Jump to PDF", "command": "jump_to_pdf"},
 	{ "caption": "LaTeXTools: Toggle focus (PDF/editor)", "command": "toggle_focus"}
