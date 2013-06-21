@@ -131,6 +131,12 @@ You can also change the default sync behavior via the `forward_sync` option: see
 
 This causes the status message to list the default settings of the focus and sync options, and their current toggle values.
 
+### Remove temporary files from build ###
+
+**Keybinding:** `C-l,backspace`
+
+This deletes all temporary files from a previous build (the PDF file is kept).
+
 Forward and Inverse Search
 ---------------------------
 
