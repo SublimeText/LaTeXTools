@@ -7,6 +7,8 @@
 // NOTE: the viewer is NOT configured from here! 
 // As of 5/24/11, it cannot be changed, but I will introduce a setting later
 
+// %E will be replaced by the engine to use, so i.e. pdflatex, lualatex, xelatex
+
 {
 
 	// General settings; DO NOT MODIFY!!!
@@ -32,7 +34,7 @@
 		// backward/forward search, forcing compilation (e.g. even if no bib file is found)
 		// and producing pdf rather than dvi output
 		"cmd": ["latexmk", "-cd",
-				"-e", "\\$pdflatex = 'pdflatex %O -interaction=nonstopmode -synctex=1 %S'",
+				"-e", "\\$pdflatex = '%E -interaction=nonstopmode -synctex=1 %S %O'",
 				//"-silent",
 				"-f", "-pdf"],
 
@@ -117,7 +119,7 @@
 		// backward/forward search, forcing compilation (e.g. even if no bib file is found)
 		// and producing pdf rather than dvi output
 		"cmd": ["latexmk", "-cd",
-				"-e", "\\$pdflatex = 'pdflatex %O -interaction=nonstopmode -synctex=1 %S'",
+				"-e", "\\$pdflatex = '%E -interaction=nonstopmode -synctex=1 %S %O'",
 				"-f", "-pdf"],
 
 		// Paths to TeX binaries; needed as GUI apps do not inherit
