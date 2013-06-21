@@ -29,6 +29,12 @@ LaTeX Package keymap for OS X
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "latex_env_closer"},
 
+	// Replace the current environment you're in with an environment you are promted for
+	{ 	"keys": ["super+l","u"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "replace_environment"},
+
 	// Complete reference or citation
 	// cmd+l,ctrl+space suggests ST2's standard autocompletion keybinding, but for LaTeX;
 	// cmd+l,x suggests "cross" references, which both cites and refs are 
