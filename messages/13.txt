@@ -1,6 +1,6 @@
 LaTeXTools Plugin version 2013-06-21 changelog:
 
-A few more fixes and new featurettes :)
+Two new features highly demanded features, thanks to contributor Ulrich Gabor!
 
 New features:
 
@@ -13,6 +13,9 @@ New features:
 
 Bugs fixed:
 
-- 
+- Fixed an ST1-ism in viewPDF
+- Slightly robustified latex_cite_completions
+
+
 
   
