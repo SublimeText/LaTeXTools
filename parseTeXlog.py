@@ -338,9 +338,10 @@ def parse_tex_log(data):
 					debug("Done processing, some files left on the stack, BUT user had xypic!")
 					debug(";".join(files))
 				else:
-					errors.append("LaTeXTools cannot correctly detect file names in this LOG file.")
-					errors.append("(where: finished processing)")
-					errors.append("Please let me know via GitHub")
+					warnings.append("Some files left on stack while parsing.")
+					warnings.append("LaTeXTools cannot correctly detect file names in this LOG file.")
+					warnings.append("(where: finished processing)")
+					warnings.append("Please let me know via GitHub")
 					debug("Done processing, some files left on the stack")
 					debug(";".join(files))
 				files=[]			
