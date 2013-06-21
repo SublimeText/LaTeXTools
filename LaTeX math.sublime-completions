@@ -116,7 +116,9 @@
                 { "trigger": "lbr", "contents": "\\left\\\\{ $0 \\right\\\\}"},
                 { "trigger": "fr", "contents": "\\frac"},
                 { "trigger": "fra", "contents": "\\frac{$1}{$2}$0"},
-                { "trigger": "stack", "contents": "\\stackrel{$1}{$2}$0"}
+                { "trigger": "stack", "contents": "\\stackrel{$1}{$2}$0"},
+
+                { "trigger": "sp", "contents": "\\begin{split}\n$0\n\\end{split}\n"}
 
         ]
 }
