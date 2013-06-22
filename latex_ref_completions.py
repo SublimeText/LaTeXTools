@@ -4,6 +4,14 @@ import re
 import getTeXRoot
 
 
+class UnrecognizedRefFormatError(Exception): pass
+
+_ref_special_commands = "|".join(["", "eq", "page", "v", "V", "auto", "name", "c", "C", "cpage"])[::-1]
+
+OLD_STYLE_REF_REGEX = re.compile(r"([^_]*_)?(p)?fer(" + _ref_special_commands + r")?(?:\\|\b)")
+NEW_STYLE_REF_REGEX = re.compile(r"([^{}]*)\{fer(" + _ref_special_commands + r")?\\(\()?")
+
+
 def match(rex, str):
     m = rex.match(str)
     if m:
@@ -27,17 +35,125 @@ def find_labels_in_files(rootdir, src, labels):
 
     # read src file and extract all label tags
     try:
-        with open(file_path, "r") as src_file:
-            src_content = re.sub("%.*", "", src_file.read())
-            labels += re.findall(r'\\label\{([^\{\}]+)\}', src_content)
+        src_file = open(file_path, "r")
     except IOError:
         sublime.status_message("LaTeXTools WARNING: cannot find included file " + file_path)
         print "WARNING! I can't find it! Check your \\include's and \\input's." 
         return
 
+    src_content = re.sub("%.*", "", src_file.read())
+    src_file.close()
+
+    m = re.search(r"\\usepackage\[(.*?)\]\{inputenc\}", src_content)
+    if m:
+        import codecs
+        f = None
+        try:
+            f = codecs.open(file_path, "r", m.group(1))
+            src_content = re.sub("%.*", "", f.read())
+        except:
+            pass
+        finally:
+            if f and not f.closed:
+                f.close()
+
+    labels += re.findall(r'\\label\{([^{}]+)\}', src_content)
+
     # search through input tex files recursively
     for f in re.findall(r'\\(?:input|include)\{([^\{\}]+)\}', src_content):
         find_labels_in_files(rootdir, f, labels)
+
+
+# get_ref_completions forms the guts of the parsing shared by both the
+# autocomplete plugin and the quick panel command
+def get_ref_completions(view, point, autocompleting=False):
+    # Get contents of line from start up to point
+    line = view.substr(sublime.Region(view.line(point).a, point))
+    # print line
+
+    # Reverse, to simulate having the regex
+    # match backwards (cool trick jps btw!)
+    line = line[::-1]
+    #print line
+
+    # Check the first location looks like a ref, but backward
+    rex = OLD_STYLE_REF_REGEX
+    expr = match(rex, line)
+    # print expr
+
+    if expr:
+        # Do not match on plain "ref" when autocompleting,
+        # in case the user is typing something else
+        if autocompleting and re.match(r"p?fer(?:" + _ref_special_commands + r")?\\?", expr):
+            raise UnrecognizedRefFormatError()
+        # Return the matched bits, for mangling
+        prefix, has_p, special_command = rex.match(expr).groups()
+        preformatted = False
+        if prefix:
+            prefix = prefix[::-1]   # reverse
+            prefix = prefix[1:]     # chop off "_"
+        else:
+            prefix = ""
+        #print prefix, has_p, special_command
+
+    else:
+        # Check to see if the location matches a preformatted "\ref{blah"
+        rex = NEW_STYLE_REF_REGEX
+        expr = match(rex, line)
+
+        if not expr:
+            raise UnrecognizedRefFormatError()
+
+        preformatted = True
+        # Return the matched bits (barely needed, in this case)
+        prefix, special_command, has_p = rex.match(expr).groups()
+        if prefix:
+            prefix = prefix[::-1]   # reverse
+        else:
+            prefix = ""
+        #print prefix, has_p, special_command
+
+    pre_snippet = "\\" + special_command[::-1] + "ref{"
+    post_snippet = "}"
+
+    if has_p:
+        pre_snippet = "(" + pre_snippet
+        post_snippet = post_snippet + ")"
+
+    if not preformatted:
+        # Replace ref_blah with \ref{blah
+        expr_region = sublime.Region(point - len(expr), point)
+        #print expr[::-1], view.substr(expr_region)
+        ed = view.begin_edit()
+        view.replace(ed, expr_region, pre_snippet + prefix)
+        # save prefix begin and endpoints points
+        new_point_a = point - len(expr) + len(pre_snippet)
+        new_point_b = new_point_a + len(prefix)
+        view.end_edit(ed)
+
+    else:
+        # Don't include post_snippet if it's already present
+        suffix = view.substr(sublime.Region(point, point + len(post_snippet)))
+        new_point_a = point - len(prefix)
+        new_point_b = point
+        if post_snippet == suffix:
+            post_snippet = ""
+
+    completions = []
+    # Check the file buffer first:
+    #    1) in case there are unsaved changes
+    #    2) if this file is unnamed and unsaved, get_tex_root will fail
+    view.find_all(r'\\label\{([^\{\}]+)\}', 0, '\\1', completions)
+
+    root = getTeXRoot.get_tex_root(view)
+    if root:
+        print "TEX root: " + repr(root)
+        find_labels_in_files(os.path.dirname(root), root, completions)
+
+    # remove duplicates
+    completions = list(set(completions))
+
+    return completions, prefix, post_snippet, new_point_a, new_point_b
 
 
 # Based on html_completions.py
@@ -66,85 +182,12 @@ class LatexRefCompletions(sublime_plugin.EventListener):
                 "text.tex.latex"):
             return []
 
-        # Get the contents of line 0, from the beginning of the line to
-        # the current point
-        l = locations[0]
-        line = view.substr(sublime.Region(view.line(l).a, l))
+        point = locations[0]
 
-        # Reverse, to simulate having the regex
-        # match backwards (cool trick jps btw!)
-        line = line[::-1]
-        #print line
-
-        # Check the first location looks like a ref, but backward
-        rex = re.compile("([^_]*_)?(p)?fer(qe)?")
-        expr = match(rex, line)
-        # print expr
-
-        if expr:
-            # Return the matched bits, for mangling
-            prefix, has_p, has_eq = rex.match(expr).groups()
-            preformatted = False
-            if prefix:
-                prefix = prefix[::-1]   # reverse
-                prefix = prefix[1:]     # chop off #
-            else:
-                prefix = ""
-            #print prefix, has_p, has_eq
-
-        else:
-            # Check to see if the location matches a preformatted "\ref{blah"
-            rex = re.compile(r"([^{}]*)\{fer(qe)?\\(\()?")
-            expr = match(rex, line)
-
-            if not expr:
-                return []
-
-            preformatted = True
-            # Return the matched bits (barely needed, in this case)
-            prefix, has_eq, has_p = rex.match(expr).groups()
-            if prefix:
-                prefix = prefix[::-1]   # reverse
-            else:
-                prefix = ""
-            #print prefix, has_p, has_eq
-
-        if has_p:
-            pre_snippet = "(\\ref{"
-            post_snippet = "})"
-        elif has_eq:
-            pre_snippet = "\\eqref{"
-            post_snippet = "}"
-        else:
-            pre_snippet = "\\ref{"
-            post_snippet = "}"
-
-        if not preformatted:
-            # Replace ref_blah with \ref{blah
-            expr_region = sublime.Region(l - len(expr), l)
-            #print expr[::-1], view.substr(expr_region)
-            ed = view.begin_edit()
-            view.replace(ed, expr_region, pre_snippet + prefix)
-            view.end_edit(ed)
-
-        else:
-            # Don't include post_snippet if it's already present
-            suffix = view.substr(sublime.Region(l, l + len(post_snippet)))
-            if post_snippet == suffix:
-                post_snippet = ""
-
-        completions = []
-        # stop matching at FIRST } after \label{
-        # I think we don't need to match here, as getTeXroot returns our file name
-        # if there is no TEX root directive
-        # view.find_all(r'\\label\{([^\{\}]+)\}', 0, '\\1', completions)
-
-        root = getTeXRoot.get_tex_root(view)
-
-        print "TEX root: " + repr(root)
-        find_labels_in_files(os.path.dirname(root), root, completions)
-        # remove duplicate bib files
-        completions = list(set(completions))
+        try:
+            completions, prefix, post_snippet, new_point_a, new_point_b = get_ref_completions(view, point, autocompleting=True)
+        except UnrecognizedRefFormatError:
+            return []
 
         # r = [(label + "\t\\ref{}", label + post_snippet) for label in completions]
         r = [(label, label + post_snippet) for label in completions]
@@ -168,86 +211,12 @@ class LatexRefCommand(sublime_plugin.TextCommand):
                 "text.tex.latex"):
             return
 
-        # Get the contents of the current line, from the beginning of the line to
-        # the current point
-        line = view.substr(sublime.Region(view.line(point).a, point))
-        print line
+        try:
+            completions, prefix, post_snippet, new_point_a, new_point_b = get_ref_completions(view, point)
+        except UnrecognizedRefFormatError:
+            sublime.error_message("Not a recognized format for reference completion")
+            return
 
-                # Reverse, to simulate having the regex
-        # match backwards (cool trick jps btw!)
-        line = line[::-1]
-        #print line
-
-        # Check the first location looks like a ref, but backward
-        rex = re.compile("([^_]*_)?(p)?fer(qe)?")
-        expr = match(rex, line)
-        # print expr
-
-        if expr:
-            # Return the matched bits, for mangling
-            prefix, has_p, has_eq = rex.match(expr).groups()
-            preformatted = False
-            if prefix:
-                prefix = prefix[::-1]   # reverse
-                prefix = prefix[1:]     # chop off #
-            else:
-                prefix = ""
-            #print prefix, has_p, has_eq
-
-        else:
-            # Check to see if the location matches a preformatted "\ref{blah"
-            rex = re.compile(r"([^{}]*)\{fer(qe)?\\(\()?")
-            expr = match(rex, line)
-
-            if not expr:
-                return []
-
-            preformatted = True
-            # Return the matched bits (barely needed, in this case)
-            prefix, has_eq, has_p = rex.match(expr).groups()
-            if prefix:
-                prefix = prefix[::-1]   # reverse
-            else:
-                prefix = ""
-            #print prefix, has_p, has_eq
-
-        if has_p:
-            pre_snippet = "(\\ref{"
-            post_snippet = "})"
-        elif has_eq:
-            pre_snippet = "\\eqref{"
-            post_snippet = "}"
-        else:
-            pre_snippet = "\\ref{"
-            post_snippet = "}"
-
-        if not preformatted:
-            # Replace ref_blah with \ref{blah
-            expr_region = sublime.Region(point - len(expr), point)
-            #print expr[::-1], view.substr(expr_region)
-            ed = view.begin_edit()
-            view.replace(ed, expr_region, pre_snippet + prefix)
-            # save prefix begin and endpoints points
-            new_point_a = point - len(expr) + len(pre_snippet)
-            new_point_b = new_point_a + len(prefix)
-            view.end_edit(ed)
-
-        else:
-            # Don't include post_snippet if it's already present
-            suffix = view.substr(sublime.Region(point, point + len(post_snippet)))
-            new_point_a = point - len(prefix)
-            new_point_b = point
-            if post_snippet == suffix:
-                post_snippet = ""
-
-        completions = []
-
-        root = getTeXRoot.get_tex_root(view)
-
-        print "TEX root: " + repr(root)
-        find_labels_in_files(os.path.dirname(root), root, completions)
-        # remove duplicate bib files
-        completions = list(set(completions))
         # filter! Note matching is "less fuzzy" than ST2. Room for improvement...
         completions = [c for c in completions if prefix in c]
 
@@ -266,11 +235,15 @@ class LatexRefCommand(sublime_plugin.TextCommand):
             ref = completions[i] + post_snippet
             
 
-            print "selected %s" % completions[i] 
+            # print "selected %s" % completions[i] 
             # Replace ref expression with reference and possibly post_snippet
             expr_region = sublime.Region(new_point_a,new_point_b)
             ed = view.begin_edit()
             view.replace(ed, expr_region, ref)
             view.end_edit(ed)
+            # Unselect the replaced region and leave the caret at the end
+            caret = view.sel()[0].b
+            view.sel().subtract(view.sel()[0])
+            view.sel().add(sublime.Region(caret, caret))
         
         view.window().show_quick_panel(completions, on_done)

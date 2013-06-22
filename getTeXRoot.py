@@ -2,7 +2,8 @@ import os.path, re
 
 # Parse magic comments to retrieve TEX root
 # Stops searching for magic comments at first non-comment line of file
-# Returns root file or current file
+# Returns root file or current file or None (if there is no root file,
+# and the current buffer is an unnamed unsaved file)
 
 # Contributed by Sam Finn
 
@@ -17,9 +18,23 @@ def get_tex_root(view):
 
 
 	texFile = view.file_name()
-	for line in open(texFile, "rU").readlines():
+	root = texFile
+	if texFile is None:
+		# We are in an unnamed, unsaved file.
+		# Read from the buffer instead.
+		if view.substr(0) != '%':
+			return None
+		reg = view.find(r"^%[^\n]*(\n%[^\n]*)*", 0)
+		if not reg:
+			return None
+		line_regs = view.lines(reg)
+		lines = map(view.substr, line_regs)
+
+	else:
+		lines = open(texFile, "rU")
+
+	for line in lines:
 		if not line.startswith('%'):
-			root = texFile
 			break
 		else:
 			# We have a comment match; check for a TEX root match
@@ -30,9 +45,14 @@ def get_tex_root(view):
 				# Create TEX root file name
 				# If there is a TEX root path, use it
 				# If the path is not absolute and a src path exists, pre-pend it
-				(texPath, texName) = os.path.split(texFile)
-				(rootPath, rootName) = os.path.split(mroot.group(1))
-				root = os.path.join(texPath,rootPath,rootName)
+				root = mroot.group(1)
+				if not os.path.isabs(root) and texFile is not None:
+					(texPath, texName) = os.path.split(texFile)
+					root = os.path.join(texPath,root)
 				root = os.path.normpath(root)
 				break
+
+	if isinstance(lines, file):
+		lines.close()
+
 	return root
