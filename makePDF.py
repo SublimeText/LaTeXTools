@@ -209,9 +209,9 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# Get parameters from sublime-build file:
 		self.make_cmd = cmd
 
-		texFile = view.file_name() # Maybe get_tex_root() instead???
+		# I actually think self.file_name is it already
 		self.engine = 'pdflatex' # Standard pdflatex
-		for line in open(texFile, "rU").readlines():
+		for line in open(self.file_name, "rU").readlines():
 			if not line.startswith('%'):
 				break
 			else:

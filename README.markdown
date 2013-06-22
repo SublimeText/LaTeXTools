@@ -4,9 +4,9 @@ LaTeX Plugin for Sublime Text 2
 by Marciano Siniscalchi
 [http://tekonomist.wordpress.com]
 
-Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, skuroda (Preferences menu), Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths), Jeremy Jay (basic biblatex support), Ray Fang (texttt snippet). *If you have contributed and I haven't acknowledged you, email me!*
+Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, skuroda (Preferences menu), Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths), Jeremy Jay (basic biblatex support), Ray Fang (texttt snippet), Ulrich Gabor (tex engine selection and cleaning aux files). *If you have contributed and I haven't acknowledged you, email me!*
 
-Latest revision: *2012-11-18*. Highlight: The new log-file parser is now in place, and I have kept improving it over the last week or so, based on error reports from users. The new parser is a lot more robust (no more silent crashes!) and picks up files that were just silently ignored by the old one. On the other hand, right now the code is strict in the sense that, if it can't make sense of a log file, it displays an error message. Please see the troubleshooting section on this. 
+Latest revision: *2013-6-21*. Highlight: initial support for tex engine selection! Also, cleaning up aux files.
 
 
 Introduction
@@ -109,6 +109,8 @@ The ST2 Build command takes care of the following:
 
 There is also support for project files; this is to be documented.
 
+**TeX engine selection** is supported, but *only* if you are running TeXlive (any platform). Sorry, MiKTeX support is not there yet. If the first line of the current file consists of the text `%!TEX program = <program>`, where `program` is `pdflatex`, `lualatex` or `xelatex`, the corresponding engine is selected. If no such directive is specified, `pdflatex` is the default. Multi-file documents are supported: the directive must be in the *root* (i.e. master) file. Also, for compatibility with TeXshop, you can use `TS-program` instead of `program`. **Note**: this functionality requires changes in your `LaTeX.sublime-build` file. If you copied the default file to the `User` directory and modified it, you will not get this functionality. In this case, copy the new default file to `User` and apply your personalizations again. I know this is not ideal; I will put a better system in place in the near future.
+
 ### Toggling window focus following a build ###
 
 **Keybinding:** `C-l,t,f` (yes, this means `C-l`, then `t`, then `f`)
@@ -131,7 +133,7 @@ You can also change the default sync behavior via the `forward_sync` option: see
 
 This causes the status message to list the default settings of the focus and sync options, and their current toggle values.
 
-### Remove temporary files from build ###
+### Removing temporary files from build ###
 
 **Keybinding:** `C-l,backspace`
 
