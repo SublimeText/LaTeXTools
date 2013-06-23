@@ -1,0 +1,13 @@
+LaTeXTools Plugin version 2013-06-22 changelog:
+
+Minor fixes, while I work on a couple of BIG new features...
+
+Bugs fixed:
+
+- Fixed overeager beamer overlay specification ('<' would trigger in math mode)
+- Robustify latexCommand
+- Small fix in LaTeX.sublime-commands
+
+
+
+  
