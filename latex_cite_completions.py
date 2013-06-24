@@ -201,10 +201,12 @@ def get_cite_completions(view, point, autocompleting=False):
     # Tentatively do the same for author
     # Note: match ending } or " (surely safe for author names!)
     ap = re.compile(r'\bauthor\s*=\s*(?:\{|")\s*(.+)(?:\}|"),?', re.IGNORECASE)
+    # Editors
+    ep = re.compile(r'\beditor\s*=\s*(?:\{|")\s*(.+)(?:\}|"),?', re.IGNORECASE)
     # kp2 = re.compile(r'([^\t]+)\t*')
     # and year...
     # Note: year can be provided without quotes or braces (yes, I know...)
-    yp = re.compile(r'\byear\s*=\s*(?:\{+|"|\b)\s*(\d+)[\}"]?', re.IGNORECASE)
+    yp = re.compile(r'\byear\s*=\s*(?:\{+|"|\b)\s*(\d+)[\}"]?,?', re.IGNORECASE)
 
     for bibfname in bib_files:
         # # THIS IS NO LONGER NEEDED as find_bib_files() takes care of it
@@ -224,20 +226,79 @@ def get_cite_completions(view, point, autocompleting=False):
             bib = bibf.readlines()
             bibf.close()
         print "%s has %s lines" % (repr(bibfname), len(bib))
-        # note Unicode trickery
-        # Note fix for @comment etc.
-        keywords = [kp.search(line).group(1).decode('ascii', 'ignore') for line in bib if line[0] == '@' and kp.search(line)]
-        titles = [tp.search(line).group(1).decode('ascii', 'ignore') for line in bib if tp.search(line)]
-        authors = [ap.search(line).group(1).decode('ascii', 'ignore') for line in bib if ap.search(line)]
-        years = [yp.search(line).group(1).decode('ascii', 'ignore') for line in bib if yp.search(line)]
+
+        keywords = []
+        titles = []
+        authors = []
+        years = []
+        #
+        keyword = ""
+        title = ""
+        author = ""
+        year = ""
+        editor = ""
+        for line in bib:
+            line = line.strip()
+            # Let's get rid of irrelevant lines first
+            if line == "":
+                continue
+            if line.lower()[0:8] == "@comment":
+                continue
+            if line.lower()[0:7] == "@string":
+                continue
+            if line[0] == "@":
+                # First, see if we can add a record; the keyword must be non-empty, other fields not
+                if keyword:
+                    keywords.append(keyword)
+                    titles.append(title)
+                    years.append(year)
+                    # For author, if there is an editor, that's good enough
+                    authors.append(author if author else editor if editor else "????")
+                    # Now reset for the next iteration
+                    keyword = ""
+                    title = ""
+                    author = ""
+                    year = ""
+                    editor = ""
+                # Now see if we get a new keyword
+                kp_match = kp.search(line)
+                if kp_match:
+                    keyword = kp_match.group(1).decode('ascii','ignore')
+                else:
+                    print "Cannot process this @ line: " + line
+                    print "Previous record keyword: " + (keywords[-1] if keywords else "none")
+                continue
+            # Now test for title, author, etc.
+            # Note: we capture only the first line, but that's OK for our purposes
+            tp_match = tp.search(line)
+            if tp_match:
+                title = tp_match.group(1).decode('ascii', 'ignore')
+                continue
+            ap_match = ap.search(line)
+            if ap_match:
+                author = ap_match.group(1).decode('ascii', 'ignore')
+                continue
+            yp_match = yp.search(line)
+            if yp_match:
+                year = yp_match.group(1).decode('ascii', 'ignore')
+                continue
+            ep_match = ep.search(line)
+            if ep_match:
+                editor = ep_match.group(1).decode('ascii', 'ignore')
+                continue
+
+        # Older approach:
+        # # note Unicode trickery
+        # # Note fix for @comment etc.
+        # keywords = [kp.search(line).group(1).decode('ascii', 'ignore') for line in bib if line[0] == '@' and kp.search(line)]
+        # titles = [tp.search(line).group(1).decode('ascii', 'ignore') for line in bib if tp.search(line)]
+        # authors = [ap.search(line).group(1).decode('ascii', 'ignore') for line in bib if ap.search(line)]
+        # years = [yp.search(line).group(1).decode('ascii', 'ignore') for line in bib if yp.search(line)]
 
 
-        # print zip(keywords,titles,authors)
-
-        if not len(keywords) == len(titles) == len(authors) == len(years):
-            # print "Bibliography " + repr(bibfname) + " is broken!"
-            print len(keywords),len(titles),len(authors),len(years)
-            raise BibParsingError(bibfname)
+        # if not len(keywords) == len(titles) == len(authors) == len(years):
+        #     # print "Bibliography " + repr(bibfname) + " is broken!"
+        #     raise BibParsingError(bibfname)
 
         print "Found %d total bib entries" % (len(keywords),)
 
