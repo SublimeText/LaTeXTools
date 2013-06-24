@@ -203,6 +203,9 @@ def get_cite_completions(view, point, autocompleting=False):
     ap = re.compile(r'\bauthor\s*=\s*(?:\{|")\s*(.+)(?:\}|"),?', re.IGNORECASE)
     # Editors
     ep = re.compile(r'\beditor\s*=\s*(?:\{|")\s*(.+)(?:\}|"),?', re.IGNORECASE)
+    # Journal and eprint
+    jp = re.compile(r'\bjournal\s*=\s*(?:\{|")\s*(.+)(?:\}|"),?', re.IGNORECASE)
+    pp = re.compile(r'\beprint\s*=\s*(?:\{|")\s*(.+)(?:\}|"),?', re.IGNORECASE)
     # kp2 = re.compile(r'([^\t]+)\t*')
     # and year...
     # Note: year can be provided without quotes or braces (yes, I know...)
@@ -230,11 +233,14 @@ def get_cite_completions(view, point, autocompleting=False):
         keywords = []
         titles = []
         authors = []
+        journals = []
         years = []
         #
         keyword = ""
         title = ""
         author = ""
+        journal = ""
+        eprint = ""
         year = ""
         editor = ""
         for line in bib:
@@ -254,10 +260,14 @@ def get_cite_completions(view, point, autocompleting=False):
                     years.append(year)
                     # For author, if there is an editor, that's good enough
                     authors.append(author if author else editor if editor else "????")
+                    # Journal or eprint
+                    journals.append(journal or eprint or "????")
                     # Now reset for the next iteration
                     keyword = ""
                     title = ""
                     author = ""
+                    journal = ""
+                    eprint = ""
                     year = ""
                     editor = ""
                 # Now see if we get a new keyword
@@ -277,6 +287,14 @@ def get_cite_completions(view, point, autocompleting=False):
             ap_match = ap.search(line)
             if ap_match:
                 author = ap_match.group(1).decode('ascii', 'ignore')
+                continue
+            jp_match = jp.search(line)
+            if jp_match:
+                journal = jp_match.group(1).decode('ascii', 'ignore')
+                continue
+            pp_match = pp.search(line)
+            if pp_match:
+                eprint = pp_match.group(1).decode('ascii', 'ignore')
                 continue
             yp_match = yp.search(line)
             if yp_match:
@@ -333,7 +351,7 @@ def get_cite_completions(view, point, autocompleting=False):
         titles_short = [title[0:60] + '...' if len(title) > 60 else title for title in titles_short]
 
         # completions object
-        completions += zip(keywords, titles, authors, years, authors_short, titles_short)
+        completions += zip(keywords, titles, authors, years, authors_short, titles_short, journals)
 
 
     #### END COMPLETIONS HERE ####
@@ -391,8 +409,8 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
         cite_autocomplete_format = s.get("cite_autocomplete_format", "{keyword}: {title}")
 
-        r = [(prefix + cite_autocomplete_format.format(keyword=keyword, title=title, author=author, year=year, author_short=author_short, title_short=title_short),
-                keyword + post_brace) for (keyword, title, author, year, author_short, title_short) in completions]
+        r = [(prefix + cite_autocomplete_format.format(keyword=keyword, title=title, author=author, year=year, author_short=author_short, title_short=title_short, journal=journal),
+                keyword + post_brace) for (keyword, title, author, year, author_short, title_short, journal) in completions]
 
         # print "%d bib entries matching %s" % (len(r), prefix)
 
@@ -456,5 +474,5 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         cite_panel_format = s.get("cite_panel_format", ["{title} ({keyword})", "{author}"])
 
         # show quick
-        view.window().show_quick_panel([[str.format(keyword=keyword, title=title, author=author, year=year, author_short=author_short, title_short=title_short) for str in cite_panel_format] \
-                                        for (keyword, title, author, year, author_short, title_short) in completions], on_done)
+        view.window().show_quick_panel([[str.format(keyword=keyword, title=title, author=author, year=year, author_short=author_short, title_short=title_short, journal=journal) for str in cite_panel_format] \
+                                        for (keyword, title, author, year, author_short, title_short, journal) in completions], on_done)
