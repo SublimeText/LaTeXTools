@@ -199,10 +199,12 @@ def get_cite_completions(view, point, autocompleting=False):
     # and in the end we MAY but need not have }'s and "s
     tp = re.compile(r'\btitle\s*=\s*(?:\{+|")\s*(.+)', re.IGNORECASE)  # note no comma!
     # Tentatively do the same for author
-    ap = re.compile(r'\bauthor\s*=\s*(?:\{|")\s*(.+)\},?', re.IGNORECASE)
+    # Note: match ending } or " (surely safe for author names!)
+    ap = re.compile(r'\bauthor\s*=\s*(?:\{|")\s*(.+)(?:\}|"),?', re.IGNORECASE)
     # kp2 = re.compile(r'([^\t]+)\t*')
     # and year...
-    yp = re.compile(r'\byear\s*=\s*(?:\{+|")\s*(\d+)[\}"]?', re.IGNORECASE)
+    # Note: year can be provided without quotes or braces (yes, I know...)
+    yp = re.compile(r'\byear\s*=\s*(?:\{+|"|\b)\s*(\d+)[\}"]?', re.IGNORECASE)
 
     for bibfname in bib_files:
         # # THIS IS NO LONGER NEEDED as find_bib_files() takes care of it
@@ -229,10 +231,12 @@ def get_cite_completions(view, point, autocompleting=False):
         authors = [ap.search(line).group(1).decode('ascii', 'ignore') for line in bib if ap.search(line)]
         years = [yp.search(line).group(1).decode('ascii', 'ignore') for line in bib if yp.search(line)]
 
+
         # print zip(keywords,titles,authors)
 
         if not len(keywords) == len(titles) == len(authors) == len(years):
             # print "Bibliography " + repr(bibfname) + " is broken!"
+            print len(keywords),len(titles),len(authors),len(years)
             raise BibParsingError(bibfname)
 
         print "Found %d total bib entries" % (len(keywords),)
