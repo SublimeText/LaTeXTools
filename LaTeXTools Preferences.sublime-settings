@@ -27,9 +27,11 @@
 	Format:
 	Einstein et al. 1935 (einstein1935quantum)
 
-	Valid wildcards: keyword, title, author, year, author_short, title_short
+	Valid wildcards: keyword, title, author, year, author_short, title_short, journal
 	*/
-	"cite_panel_format": ["{author_short} {year} - {title_short} ({keyword})","{title}"],
+	//"cite_panel_format": ["{author_short} {year} - {title_short} ({keyword})","{title}"],
+	// another possibility (a lot in the first line so to make it searchable):
+	"cite_panel_format": ["({keyword}) {title} - {author}","{author} ({journal})"],
 
 	// Similarly, the formatting for the autocomplete panel:
 	"cite_autocomplete_format": "{keyword}: {title}",
