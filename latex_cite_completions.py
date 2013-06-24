@@ -259,7 +259,7 @@ def get_cite_completions(view, point, autocompleting=False):
                     titles.append(title)
                     years.append(year)
                     # For author, if there is an editor, that's good enough
-                    authors.append(author if author else editor if editor else "????")
+                    authors.append(author or editor or "????")
                     # Journal or eprint
                     journals.append(journal or eprint or "????")
                     # Now reset for the next iteration
