@@ -22,10 +22,21 @@ class LatexRefCiteCommand(sublime_plugin.TextCommand):
                 "text.tex.latex"):
             return
 
+
         if insert_char:
             ed = view.begin_edit()
             point += view.insert(ed, point, insert_char)
             view.end_edit(ed)
+            # Get prefs and toggles to see if we are auto-triggering
+            # This is only the case if we also must insert , or {, so we don't need a separate arg
+            s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
+            do_ref = self.view.settings().get("ref auto trigger",s.get("ref_auto_trigger", True))
+            do_cite = self.view.settings().get("cite auto trigger",s.get("cite_auto_trigger", True))
+        else: # if we didn't autotrigger, we must surely run
+            do_ref = True
+            do_cite = True
+
+        print do_ref,do_cite
 
         # Get the contents of the current line, from the beginning of the line to
         # the current point
@@ -37,11 +48,17 @@ class LatexRefCiteCommand(sublime_plugin.TextCommand):
 
 
         if re.match(OLD_STYLE_REF_REGEX, line) or re.match(NEW_STYLE_REF_REGEX, line):
-            print "Dispatching ref"
-            view.run_command("latex_ref")
+            if do_ref:
+                print "Dispatching ref"
+                view.run_command("latex_ref")
+            else:
+                pass # Don't do anything if we match ref completion but we turned it off
         elif re.match(OLD_STYLE_CITE_REGEX, line) or re.match(NEW_STYLE_CITE_REGEX, line):
-            print "Dispatching cite"
-            view.run_command("latex_cite")
-        else:
+            if do_cite:
+                print "Dispatching cite"
+                view.run_command("latex_cite")
+            else:
+                pass # ditto for cite
+        else: # here we match nothing, so error out regardless of autotrigger settings
             sublime.error_message("Ref/cite: unrecognized format.")
             return
