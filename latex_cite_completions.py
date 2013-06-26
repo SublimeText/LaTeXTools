@@ -208,6 +208,10 @@ def get_cite_completions(view, point, autocompleting=False):
     # Note: year can be provided without quotes or braces (yes, I know...)
     yp = re.compile(r'\byear\s*=\s*(?:\{+|"|\b)\s*(\d+)[\}"]?,?', re.IGNORECASE)
 
+    # This may speed things up
+    # So far this captures: the tag, and the THREE possible groups
+    multip = re.compile(r'\b(author|title|year|editor)\s*=\s*(?:\{|"|\b)(.+?)(?:\}|"|\b)\s*,?\s*\Z',re.IGNORECASE)
+
     for bibfname in bib_files:
         # # THIS IS NO LONGER NEEDED as find_bib_files() takes care of it
         # if bibfname[-4:] != ".bib":
@@ -232,11 +236,7 @@ def get_cite_completions(view, point, autocompleting=False):
         authors = []
         years = []
         #
-        keyword = ""
-        title = ""
-        author = ""
-        year = ""
-        editor = ""
+        entry = {"keyword": "", "title": "", "author": "", "year": "", "editor": ""}
         for line in bib:
             line = line.strip()
             # Let's get rid of irrelevant lines first
@@ -248,64 +248,41 @@ def get_cite_completions(view, point, autocompleting=False):
                 continue
             if line[0] == "@":
                 # First, see if we can add a record; the keyword must be non-empty, other fields not
-                if keyword:
-                    keywords.append(keyword)
-                    titles.append(title)
-                    years.append(year)
+                if entry["keyword"]:
+                    keywords.append(entry["keyword"])
+                    titles.append(entry["title"])
+                    years.append(entry["year"])
                     # For author, if there is an editor, that's good enough
-                    authors.append(author if author else editor if editor else "????")
+                    authors.append(entry["author"] if entry["author"] else entry["editor"] if entry["editor"] else "????")
                     # Now reset for the next iteration
-                    keyword = ""
-                    title = ""
-                    author = ""
-                    year = ""
-                    editor = ""
+                    entry["keyword"] = ""
+                    entry["title"] = ""
+                    entry["year"] = ""
+                    entry["author"] = ""
+                    entry["editor"] = ""
                 # Now see if we get a new keyword
                 kp_match = kp.search(line)
                 if kp_match:
-                    keyword = kp_match.group(1).decode('ascii','ignore')
+                    entry["keyword"] = kp_match.group(1).decode('ascii','ignore')
                 else:
                     print "Cannot process this @ line: " + line
-                    print "Previous record keyword: " + (keywords[-1] if keywords else "none")
+                    print "Previous record " + entry
                 continue
             # Now test for title, author, etc.
             # Note: we capture only the first line, but that's OK for our purposes
-            tp_match = tp.search(line)
-            if tp_match:
-                title = tp_match.group(1).decode('ascii', 'ignore')
-                continue
-            ap_match = ap.search(line)
-            if ap_match:
-                author = ap_match.group(1).decode('ascii', 'ignore')
-                continue
-            yp_match = yp.search(line)
-            if yp_match:
-                year = yp_match.group(1).decode('ascii', 'ignore')
-                continue
-            ep_match = ep.search(line)
-            if ep_match:
-                editor = ep_match.group(1).decode('ascii', 'ignore')
-                continue
+            multip_match = multip.search(line)
+            if multip_match:
+                key = multip_match.group(1).decode('ascii','ignore')
+                value = multip_match.group(2).decode('ascii','ignore')
+#                print key,value
+                entry[key] = value
+            continue
 
-        # Older approach:
-        # # note Unicode trickery
-        # # Note fix for @comment etc.
-        # keywords = [kp.search(line).group(1).decode('ascii', 'ignore') for line in bib if line[0] == '@' and kp.search(line)]
-        # titles = [tp.search(line).group(1).decode('ascii', 'ignore') for line in bib if tp.search(line)]
-        # authors = [ap.search(line).group(1).decode('ascii', 'ignore') for line in bib if ap.search(line)]
-        # years = [yp.search(line).group(1).decode('ascii', 'ignore') for line in bib if yp.search(line)]
-
-
-        # if not len(keywords) == len(titles) == len(authors) == len(years):
-        #     # print "Bibliography " + repr(bibfname) + " is broken!"
-        #     raise BibParsingError(bibfname)
 
         print "Found %d total bib entries" % (len(keywords),)
 
-        # Filter out }'s and ,'s at the end. Ugly!
-        nobraces = re.compile(r'\s*,*\}*(.+)')
-        titles = [nobraces.search(t[::-1]).group(1)[::-1] for t in titles]
-        titles = [t.replace('{\\textquoteright}', '') for t in titles]
+        # # Filter out }'s at the end. There should be no commas left
+        titles = [t.replace('{\\textquoteright}', '').replace('{','').replace('}','') for t in titles]
 
         # format author field
         def format_author(authors):
