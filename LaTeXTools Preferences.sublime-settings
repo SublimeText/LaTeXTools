@@ -9,27 +9,36 @@
 	// Sync PDF to current editor position after building (true) or not 
 	"forward_sync":	true,
 
-	// Formating of references in quick panel
+	// Formatting of references in quick panel
 	/* This preference sets the format of the quick panel to select citations using wildcards.
 	The setting is a list with one or two string using wildcards for author, title, keyword etc. 
 	
-	Default setting: `["{title} ({keyword})","{author}"]` 
+	Default setting: the traditional display, `["{title} ({keyword})","{author}"]` 
 	Format:
 	Can quantum-mechanical description of physical reality be considered complete? This is an non-existing subtitle to illustrate (einstein1935quantum)
 	Albert Einstein and B Podolsky and N Rosen
 
-	Alternative: ["{author_short} {year} - {title_short} ({keyword})","{title}"]
+	Richer alternative: ["{author_short} {year} - {title_short} ({keyword})","{title}"]
 	Format:
 	Einstein et al. 1935 - Can quantum-mechanical description of physical reality be considered complete (einstein1935quantum)
 	Can quantum-mechanical description of physical reality be considered complete? This is an non-existing subtitle to illustrate
 
-	Alternative: ["{author_short} {year} ({keyword})"]
+	Another alternative: ["({keyword}) {author_short} - {year}","{title} - {journal}"]
+	Format:
+	(einstein1935quantum) Einstein et al. - 1935
+	Can quantum-mechanical description of physical reality be considered complete? - Physical Review
+
+	No-title alternative: ["{author_short} {year} ({keyword})"]
 	Format:
 	Einstein et al. 1935 (einstein1935quantum)
 
-	Valid wildcards: keyword, title, author, year, author_short, title_short
+	Valid wildcards: keyword, title, author, year, author_short, title_short, journal
 	*/
+
+	// Uncomment or modify at will
 	"cite_panel_format": ["{author_short} {year} - {title_short} ({keyword})","{title}"],
+	//"cite_panel_format": ["({keyword}) {author_short} - {year}","{title} - {journal}"],
+	//"cite_panel_format": ["{author_short} {year} ({keyword})"],
 
 	// Similarly, the formatting for the autocomplete panel:
 	"cite_autocomplete_format": "{keyword}: {title}",
