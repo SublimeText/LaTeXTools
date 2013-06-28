@@ -6,16 +6,18 @@ by Marciano Siniscalchi
 
 Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, skuroda (Preferences menu), Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths), Jeremy Jay (basic biblatex support), Ray Fang (texttt snippet), Ulrich Gabor (tex engine selection and cleaning aux files), Wes Campaigne and 'jlegewie' (ref/cite completion 2.0!). *If you have contributed and I haven't acknowledged you, email me!*
 
-Latest revision: *2013-6-29*. Highlight: Incorporate Westacular's and jlegewie's amazing work on ref/cite completion. See below!
+*Latest revision:* 2013-6-29. 
+
+*Highlight*: Incorporate Westacular's and jlegewie's amazing work on ref/cite completion. See below!
 
 
 Introduction
 ------------
 This plugin provides several features that simplify working with LaTeX files:
 
-* The ST2 build command takes care of compiling your LaTeX source to PDF using `texify` (Windows/MikTeX) or `latexmk` (OSX/MacTeX, Windows/TeXlive, Linux/TeXlive). Then, it parses the log file and lists errors and warning. Finally, it launches (or refreshes) the PDF viewer (SumatraPDF on Windows, Skim on OSX, and Evince on Linux) and jumps to the current cursor position (as of 2012-9-18, consider Linux preview support experimental; it works for me, but it may have glitches).
+* The ST2 build command takes care of compiling your LaTeX source to PDF using `texify` (Windows/MikTeX) or `latexmk` (OSX/MacTeX, Windows/TeXlive, Linux/TeXlive). Then, it parses the log file and lists errors and warning. Finally, it launches (or refreshes) the PDF viewer (SumatraPDF on Windows, Skim on OSX, and Evince on Linux) and jumps to the current cursor position.
 * Forward and inverse search with the named PDF previewers is fully supported
-* Easy insertion of references and citations (from BibTeX files) via tab completion
+* Easy insertion of references and citations (from BibTeX files)
 * Plugs into the "Goto anything" facility to make jumping to any section or label in your LaTeX file(s)
 * Smart command completion for a variety of text and math commands is provided
 * Additional snippets and commands are also provided
@@ -23,7 +25,7 @@ This plugin provides several features that simplify working with LaTeX files:
 Requirements and Setup
 ----------------------
 
-First, you need to be running Sublime Text 2 (ST2 henceforth); either the release version or late beta builds (>2100) are fine. 
+First, you need to be running Sublime Text 2 (ST2 henceforth). *Support for ST3 is planned*.
 
 Second, get the LaTeXTools plugin. These days, the easiest way to do so is via Package Control: see [here](http://wbond.net/sublime_packages/package_control) for details on how to set it up (it's very easy). Once you have Package Control up and running, invoke it (via the Command Palette or from Preferences), select the Install Package command, and look for LaTeXTools.
 
@@ -43,6 +45,8 @@ To configure inverse search, open the Preferences dialog of the Skim app, select
 
 * uncheck the "Check for file changes" option
 * Preset: Sublime Text 2 (yes, Skim now supports ST2 by default!)
+
+If you have installed Skim in a non-standard location, there is not much you can do short of hacking the `jumpToPDF.py` file (**not supported!**). This will hopefully change in the near future. 
 
 <br>
 
