@@ -157,7 +157,7 @@ To open a PDF file without performing a forward search, use `C-l,v`. I'm not sur
 References and Citations
 ------------------------
 
-**Keybinding:** *autotriggered* by default (see below). Otherwise, `C-l,x` for 'cross-reference,' or (*deprecated!*)  `C-l, Ctrl-space` (on OS X, this means `Cmd-l,Ctrl-space`).
+**Keybinding:** *autotriggered* by default (see below). Otherwise, `C-l,x` for 'cross-reference,' or ( *deprecated* )  `C-l, Ctrl-space` (on OS X, this means `Cmd-l,Ctrl-space`).
 
 The basic idea is to help you insert labels in `\ref{}` commands and bibtex keys in `\cite{}` commands. The appropriate key combination shows a list of available labels or keys, and you can easily select the appropriate one. Full filtering facilities are provided. 
 
@@ -185,7 +185,7 @@ Thanks to recent contributed code, **multi-file documents** are *fully supported
 
 LaTeXTools now also looks `\addbibresource{}` commands, which provides basic compatibility with biblatex.
 
-## Toggle auto trigger mode on/off ##
+### Toggle auto trigger mode on/off ###
 
 **Keybinding:** `C-l,t,a,r` for references; `C-l,t,a,c` for citations
 
@@ -193,7 +193,7 @@ These toggles work just like the sync and focus toggles above. Indeed, `C-l,t,?`
 
 
 
-## Old-style, deprecated functionality ##
+### Old-style, deprecated functionality ###
 
 If auto-trigger is off, you can use either `C-l,x` or `C-l, Ctrl-Space`. I'm **deprecating** `C-l,Ctrl-Space`. It is not as nice to use on the Mac, and the only reason it was there was that it was reminiscent of ST2's autocomplete shortcut, `Ctrl-Space` (actually, on the Mac, I think it's `Cmd-Space`, so even that was not much of a mnemonic!). Bottom line: start using `C-l,x`, or better yet, auto trigger.
 
