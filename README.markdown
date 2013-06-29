@@ -4,18 +4,20 @@ LaTeX Plugin for Sublime Text 2
 by Marciano Siniscalchi
 [http://tekonomist.wordpress.com]
 
-Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, skuroda (Preferences menu), Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths), Jeremy Jay (basic biblatex support), Ray Fang (texttt snippet), Ulrich Gabor (tex engine selection and cleaning aux files). *If you have contributed and I haven't acknowledged you, email me!*
+Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, skuroda (Preferences menu), Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths), Jeremy Jay (basic biblatex support), Ray Fang (texttt snippet), Ulrich Gabor (tex engine selection and cleaning aux files), Wes Campaigne and 'jlegewie' (ref/cite completion 2.0!). *If you have contributed and I haven't acknowledged you, email me!*
 
-Latest revision: *2013-6-21*. Highlight: initial support for tex engine selection! Also, cleaning up aux files.
+*Latest revision:* 2013-6-29. 
+
+*Highlight*: Incorporate Westacular's and jlegewie's amazing work on ref/cite completion. See below!
 
 
 Introduction
 ------------
 This plugin provides several features that simplify working with LaTeX files:
 
-* The ST2 build command takes care of compiling your LaTeX source to PDF using `texify` (Windows/MikTeX) or `latexmk` (OSX/MacTeX, Windows/TeXlive, Linux/TeXlive). Then, it parses the log file and lists errors and warning. Finally, it launches (or refreshes) the PDF viewer (SumatraPDF on Windows, Skim on OSX, and Evince on Linux) and jumps to the current cursor position (as of 2012-9-18, consider Linux preview support experimental; it works for me, but it may have glitches).
+* The ST2 build command takes care of compiling your LaTeX source to PDF using `texify` (Windows/MikTeX) or `latexmk` (OSX/MacTeX, Windows/TeXlive, Linux/TeXlive). Then, it parses the log file and lists errors and warning. Finally, it launches (or refreshes) the PDF viewer (SumatraPDF on Windows, Skim on OSX, and Evince on Linux) and jumps to the current cursor position.
 * Forward and inverse search with the named PDF previewers is fully supported
-* Easy insertion of references and citations (from BibTeX files) via tab completion
+* Easy insertion of references and citations (from BibTeX files)
 * Plugs into the "Goto anything" facility to make jumping to any section or label in your LaTeX file(s)
 * Smart command completion for a variety of text and math commands is provided
 * Additional snippets and commands are also provided
@@ -23,7 +25,7 @@ This plugin provides several features that simplify working with LaTeX files:
 Requirements and Setup
 ----------------------
 
-First, you need to be running Sublime Text 2 (ST2 henceforth); either the release version or late beta builds (>2100) are fine. 
+First, you need to be running Sublime Text 2 (ST2 henceforth). *Support for ST3 is planned*.
 
 Second, get the LaTeXTools plugin. These days, the easiest way to do so is via Package Control: see [here](http://wbond.net/sublime_packages/package_control) for details on how to set it up (it's very easy). Once you have Package Control up and running, invoke it (via the Command Palette or from Preferences), select the Install Package command, and look for LaTeXTools.
 
@@ -43,6 +45,8 @@ To configure inverse search, open the Preferences dialog of the Skim app, select
 
 * uncheck the "Check for file changes" option
 * Preset: Sublime Text 2 (yes, Skim now supports ST2 by default!)
+
+If you have installed Skim in a non-standard location, there is not much you can do short of hacking the `jumpToPDF.py` file (**not supported!**). This will hopefully change in the near future. 
 
 <br>
 
@@ -131,7 +135,7 @@ You can also change the default sync behavior via the `forward_sync` option: see
 
 **Keybinding:** `C-l,t,?`
 
-This causes the status message to list the default settings of the focus and sync options, and their current toggle values.
+This causes the status message to list the default settings of the focus and sync options, and their current toggle values. It also display the status of the ref/cite auto trigger toggles (see below).
 
 ### Removing temporary files from build ###
 
@@ -153,7 +157,7 @@ To open a PDF file without performing a forward search, use `C-l,v`. I'm not sur
 References and Citations
 ------------------------
 
-**Keybinding:** `C-l, Ctrl-space` (on OS X, this means `Cmd-l,Ctrl-space`) or `C-l,x`
+**Keybinding:** *autotriggered* by default (see below). Otherwise, `C-l,x` for 'cross-reference,' or ( *deprecated* )  `C-l, Ctrl-space` (on OS X, this means `Cmd-l,Ctrl-space`).
 
 The basic idea is to help you insert labels in `\ref{}` commands and bibtex keys in `\cite{}` commands. The appropriate key combination shows a list of available labels or keys, and you can easily select the appropriate one. Full filtering facilities are provided. 
 
@@ -165,23 +169,37 @@ The basic idea is to help you insert labels in `\ref{}` commands and bibtex keys
 
 3. Multi-file documents are fully supported.
 
-Now for the details. There are two styles of reference / citation completion commands. Let me describe the "new-style" first. 
+Now for the details. As of 6/29/2013, I have incorporated a fantastic set of much-needed improvements contributed by Wes Campaigne (Westacular) and jlewegie, whom I thank profusely.
 
-Type, for example, `\ref{`; as soon as you type the brace, ST2 helpfully provides the closing brace, leaving your cursor between the two braces. Now, type `C-l,Ctrl-space` to get a quick panel (the fancy drop-down list ST2 displays at the top of the screen) showing all labels in the current file. You can also type e.g. `\ref{aa` [again, the closing brace is provided by ST2], then `C-l, Ctrl+Space`, and LaTeXTools will show a list of labels that contain the string `aa`. You select the label you want, hit Return, and LaTeXTools inserts the **full ref command**, as in `\ref{my-label}`. The LaTeX command `\eqref` works the same way. 
+By default, as soon as you type, for example, `\ref{` or `\cite`, a quick panel is shown (this is the fancy drop-down list ST2 displays at the top of the screen), listing, respectively, all the labels in your files, or all the entries in the bibliographies you reference your file(s) using the `\bibliography{}` command. This is the default *auto-trigger* behavior, and it can be a big time saver. You can, however, turn it off, either temporarily using a toggle, or permanently by way of preference settings: see below. Once the quick panel is shown, you can narrow down the entries shown by typing a few characters. As with any ST2 quick panel, what you type will be fuzzy-matched against the label names or, for citations, the content of the first displayed line in each entry (by default, the author names, year of publication, short title and citation key: see below). This is *wildly* convenient, and one of the best ST2 features: try it!
 
-Citations from bibtex files are also supported in a similar way. Use `\cite{}`,  `\citet{}`,  `\citeyear{}` etc.; again, you can filter the keys, as in e.g. `\cite{a}`. The quick panel is really useful for citations, as you get a nice display of paper titles and bibtex keys (which you can narrow down by typing a few characters, as usual in ST2), and also of the author names (not searchable, but still useful). 
+If auto-triggering is off, when you type e.g. `\ref{`, ST2 helpfully provides the closing brace, leaving your cursor between the two braces. Now, you need to type `C-l,x` to get the quick panel  showing all labels in the current file. You can also type e.g. `\ref{aa` [again, the closing brace is provided by ST2], then `C-l, x`, and LaTeXTools will show a list of labels that fuzzy-match the string `aa`. 
 
-The "old-style" system works as follows. For references, you type `ref_`, then `C-l,Ctrl-space`; again, you can filter by typing, e.g., `ref_a`. Using `refp_` instead of `ref_` will surround the reference with parentheses. You can also use `eqref` to generate `\eqref{my-equation}`. Citations work the same way: you use `cite_`, etc. If you want fancy citations, as in the natbib package, that's allowed, but you must replace asterisks with `X`: so, to get `\cite*{...}` with old-style completions, you need to start by typing `citeX_`. 
+In either case, you then select the label you want, hit Return, and LaTeXTools inserts the **full ref command**, as in `\ref{my-label}`. The LaTeX command `\eqref` works the same way.  Citations from bibtex files are also supported in a similar way. Use `\cite{}`,  `\citet{}`,  `\citeyear{}` etc.
 
-*Deprecation alert*: the only real advantage of old-style citations is that you don't have to enter the initial `\`. I think I will eventually remove this functionality and leave only new-style completions, i.e. `\ref{}`, `\cite{}` etc. 
+One often needs to enter **multiple citations**, as e.g. in `\cite{paper1,paper2}`. This is easy to do: either cite the first paper, e.g. `\cite{paper1}` and then, *with your cursor immediately before the right brace*, type a comma (`,`). Again, the default auto-trigger behavior is that the quick panel with appear, and you can select the second paper. If auto-trigger is off, then you enter the comma, then use the shortcut `C-l,x` to bring up the quick panel (note: you *must* add the comma before invoking the shortcut, or you won't get the intended result). Of course, you can enter as many citations as you want.
 
-*Graceful error reporting*: if a bib file is not found, LaTeXTools displays a warning message in the status bar. Note that this message goes away after a few seconds. So, if you hit `C-l,Ctrl-space` and nothing happens--or, in the case of multiple bib files, if you can't file a reference that you *know* must be there somewhere--look at the status bar (you may have to dismiss the quick panel and hitting the key combination again).
+The display of bibliographic entries is *customizable*. There is a setting, `cite-panel-format`, that controls exactly what to display in each of the two lines each entry gets in the citation quick panel. Options include author, title, short title, year, bibtex key, and journal. This is useful because people may prefer to use different strategies to refer to papers---author-year, short title-year, bibtex key (!), etc. Since only the first line in each quick panel entry is searchable, how you present the information matters. The default should be useful for most people; if you wish to change the format, check the `LaTeXTools Preferences.sublime-settings` file for detailed information. (As usual, copy that file to the `User` directory and edit your copy, not the original). s
 
 Thanks to recent contributed code, **multi-file documents** are *fully supported*. If you have a `% !TEX root = ...` directive at the top of the current file, LaTeXTools looks for references, as well as `\bibliography{}` commands, in the root file and in all recursively included files. You can also use a project file to specify the root file (to be documented). 
 
 LaTeXTools now also looks `\addbibresource{}` commands, which provides basic compatibility with biblatex.
 
-Another note: **for now**, completions are also injected into the standard ST2 autocompletion system. Thus, if you hit `Ctrl-space` immediately after typing, e.g., `\ref{}`, you get a drop-down menu at the current cursor position (not a quick-panel) showing all labels in your document. This also works with old-style citations. However, the width of this menu is OK for (most) labels, but not really for paper titles. In other words, it is workable for references, but not really for citations. Furthermore, there are other limitations dictated by the ST2 autocompletion system. So, I encourage you to use the `C-l,Ctrl-space` keybinding instead. In fact, consider the standard autocompletion support to be *deprecated* as of today (12-09-17).
+### Toggle auto trigger mode on/off ###
+
+**Keybinding:** `C-l,t,a,r` for references; `C-l,t,a,c` for citations
+
+These toggles work just like the sync and focus toggles above. Indeed, `C-l,t,?` will now also display the status of the auto trigger toggles. Check the status bar for feedback (i.e. to see what the current state of the toggle is), but remember the message stays on for only a few seconds. `C-l,t,?` is your friend.
+
+
+
+### Old-style, deprecated functionality ###
+
+If auto-trigger is off, you can use either `C-l,x` or `C-l, Ctrl-Space`. I'm **deprecating** `C-l,Ctrl-Space`. It is not as nice to use on the Mac, and the only reason it was there was that it was reminiscent of ST2's autocomplete shortcut, `Ctrl-Space` (actually, on the Mac, I think it's `Cmd-Space`, so even that was not much of a mnemonic!). Bottom line: start using `C-l,x`, or better yet, auto trigger.
+
+Earlier versions of LaTeXTools used a different way to trigger ref/cite completions. For references, you typed `ref_`, then `C-l,Ctrl-x`; you could filter by typing, e.g., `ref_a`. Using `refp_` instead of `ref_` would surround the reference with parentheses. You could also use `eqref` to generate `\eqref{my-equation}`. Citations worked the same way: you used `cite_`, etc. If you wanted fancy citations, as in the natbib package, that was allowed, but you had to replace asterisks with `X`: so, to get `\cite*{...}` with old-style completions, you needed to start by typing `citeX_`. This style of ref/cite completion is also **deprecated**. It works for now, but it will almost certainly be removed, unless enough people make a strong enough case for it.
+
+Another note: **for now**, completions are also injected into the standard ST2 autocompletion system. Thus, if you hit `Ctrl-space` immediately after typing, e.g., `\ref{}`, you get a drop-down menu at the current cursor position (not a quick-panel) showing all labels in your document. This also works with old-style citations. However, the width of this menu is OK for (most) labels, but not really for paper titles. In other words, it is workable for references, but not really for citations. Furthermore, there are other limitations dictated by the ST2 autocompletion system. So, this is **deprecated**, and I encourage you to use auto-trigger mode or the `C-l,x` keybinding instead.
 
 
 Jumping to sections and labels
@@ -275,6 +293,9 @@ The following options are currently available (defaults in parentheses):
 
 - `keep_focus` (`true`): if `true`, after compiling a tex file, ST2 retains the focus; if `false`, the PDF viewer gets the focus. Also note that you can *temporarily* toggle this behavior with `C-l,t,f`.
 - `forward_sync` (`true`): if `true`, after compiling a tex file, the PDF viewer is asked to sync to the position corresponding to the current cursor location in ST2. You can also *temporarily* toggle this behavior with `C-l,t,s`.
+- `cite-auto-trigger` (`true`): if `true`, typing e.g. `\cite{` brings up the citation completion quick panel, without the need to type `C-l,x`. If `false`, you must explicitly type `C-l,x`.
+- `ref-auto-trigger` (`true`): ditto, but for `\ref{` and similar reference commands
+- `cite-panel-format`: see the section on ref/cite completion, and the comments in `LaTeXTools Preferences.sublime-settings`
 - `linux` settings:
   * `python2` (`""`, i.e. empty string): name of the Python 2 executable. This is useful for systems that ship with both Python 2 and Python 3. The forward/backward search used with Evince require Python 2.
   * `sublime` (`sublime-text`): name of the ST2 executable. Ubuntu supports both `sublime-text` and `subl`; other distros may vary.
