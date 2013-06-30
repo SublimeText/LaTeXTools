@@ -1,5 +1,15 @@
+# ST2/ST3 compat
+from __future__ import print_function 
+import sys
+if sys.version_info[0] == 2:
+    # we are on ST2 and Python 2.X
+    pass
+else:
+    pass
+
 import sublime, sublime_plugin
 import re
+
 
 # Insert LaTeX command based on current word
 # Position cursor inside braces

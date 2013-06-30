@@ -1,7 +1,15 @@
+# ST2/ST3 compat
+from __future__ import print_function 
+import sys
+if sys.version_info[0] == 2:
+    # we are on ST2 and Python 2.X
+    import getTeXRoot
+else:
+    import LaTeXTools.getTeXRoot
+
 import sublime, sublime_plugin
 import os, os.path
 import re
-import getTeXRoot
 
 
 class UnrecognizedRefFormatError(Exception): pass
@@ -27,7 +35,7 @@ def find_labels_in_files(rootdir, src, labels):
         src = src + ".tex"
 
     file_path = os.path.normpath(os.path.join(rootdir, src))
-    print "Searching file: " + repr(file_path)
+    print ("Searching file: " + repr(file_path))
     # The following was a mistake:
     #dir_name = os.path.dirname(file_path)
     # THe reason is that \input and \include reference files **from the directory
@@ -38,7 +46,7 @@ def find_labels_in_files(rootdir, src, labels):
         src_file = open(file_path, "r")
     except IOError:
         sublime.status_message("LaTeXTools WARNING: cannot find included file " + file_path)
-        print "WARNING! I can't find it! Check your \\include's and \\input's." 
+        print ("WARNING! I can't find it! Check your \\include's and \\input's." )
         return
 
     src_content = re.sub("%.*", "", src_file.read())
@@ -147,7 +155,7 @@ def get_ref_completions(view, point, autocompleting=False):
 
     root = getTeXRoot.get_tex_root(view)
     if root:
-        print "TEX root: " + repr(root)
+        print ("TEX root: " + repr(root))
         find_labels_in_files(os.path.dirname(root), root, completions)
 
     # remove duplicates
@@ -204,7 +212,7 @@ class LatexRefCommand(sublime_plugin.TextCommand):
         # get view and location of first selection, which we expect to be just the cursor position
         view = self.view
         point = view.sel()[0].b
-        print point
+        print (point)
         # Only trigger within LaTeX
         # Note using score_selector rather than match_selector
         if not view.score_selector(point,
@@ -226,7 +234,7 @@ class LatexRefCommand(sublime_plugin.TextCommand):
 
         # Note we now generate refs on the fly. Less copying of vectors! Win!
         def on_done(i):
-            print "latex_ref_completion called with index %d" % (i,)
+            print ("latex_ref_completion called with index %d" % (i,))
             
             # Allow user to cancel
             if i<0:

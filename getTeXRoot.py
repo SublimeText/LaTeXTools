@@ -1,4 +1,16 @@
+# ST2/ST3 compat
+from __future__ import print_function 
+import sys
+if sys.version_info[0] == 2:
+	# we are on ST2 and Python 2.X
+	pass
+else:
+	pass
+
+
 import os.path, re
+
+
 
 # Parse magic comments to retrieve TEX root
 # Stops searching for magic comments at first non-comment line of file
@@ -11,7 +23,7 @@ def get_tex_root(view):
 	try:
 		root = os.path.abspath(view.settings().get('TEXroot'))
 		if os.path.isfile(root):
-			print "Main file defined in project settings : " + root
+			print("Main file defined in project settings : " + root)
 			return root
 	except:
 		pass
@@ -29,9 +41,11 @@ def get_tex_root(view):
 			return None
 		line_regs = view.lines(reg)
 		lines = map(view.substr, line_regs)
+		is_file = False
 
 	else:
 		lines = open(texFile, "rU")
+		is_file = True
 
 	for line in lines:
 		if not line.startswith('%'):
@@ -52,7 +66,7 @@ def get_tex_root(view):
 				root = os.path.normpath(root)
 				break
 
-	if isinstance(lines, file):
+	if is_file: # Not very Pythonic, but works...
 		lines.close()
 
 	return root

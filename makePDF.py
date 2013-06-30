@@ -1,10 +1,19 @@
+# ST2/ST3 compat
+from __future__ import print_function 
+import sys
+if sys.version_info[0] == 2:
+    # we are on ST2 and Python 2.X
+    import getTeXRoot
+    import parseTeXlog
+else:
+    import LaTeXTools.getTeXRoot
+    import LaTeXTools.parseTeXlog
+
 import sublime, sublime_plugin
 import sys, os, os.path, platform, threading, functools
 import subprocess
 import types
 import re
-import getTeXRoot
-import parseTeXlog
 
 DEBUG = False
 
@@ -40,11 +49,11 @@ class CmdThread ( threading.Thread ):
 		threading.Thread.__init__ ( self )
 
 	def run ( self ):
-		print "Welcome to thread " + self.getName()
+		print ("Welcome to thread " + self.getName())
 		cmd = self.caller.make_cmd + [self.caller.file_name]
 		self.caller.output("[Compiling " + self.caller.file_name + "]")
 		if DEBUG:
-			print cmd.encode('UTF-8')
+			print (cmd.encode('UTF-8'))
 
 		# Handle path; copied from exec.py
 		if self.caller.path:
@@ -85,14 +94,14 @@ class CmdThread ( threading.Thread ):
 		# Since we set self.caller.proc above, if it is None, the process must have been killed.
 		# TODO: clean up?
 		if not self.caller.proc:
-			print proc.returncode
+			print (proc.returncode)
 			self.caller.output("\n\n[User terminated compilation process]\n")
 			self.caller.finish(False)	# We kill, so won't switch to PDF anyway
 			return
 		# Here we are done cleanly:
 		self.caller.proc = None
-		print "Finished normally"
-		print proc.returncode
+		print ("Finished normally")
+		print (proc.returncode)
 
 		# this is a conundrum. We used (ST1) to open in binary mode ('rb') to avoid
 		# issues, but maybe we just need to decode?
@@ -226,7 +235,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		self.output_view.settings().set("result_file_regex", file_regex)
 
 		if view.is_dirty():
-			print "saving..."
+			print ("saving...")
 			view.run_command('save') # call this on view, not self.window
 		
 		if self.tex_ext.upper() != ".TEX":
@@ -243,11 +252,11 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		else:
 			sublime.error_message("Platform as yet unsupported. Sorry!")
 			return	
-		print self.make_cmd + [self.file_name]
+		print (self.make_cmd + [self.file_name])
 		
 		os.chdir(tex_dir)
 		CmdThread(self).start()
-		print threading.active_count()
+		print (threading.active_count())
 
 
 	# Threading headaches :-)

@@ -1,6 +1,15 @@
+# ST2/ST3 compat
+from __future__ import print_function
+import sys
+if sys.version_info[0] == 2:
+	# we are on ST2 and Python 2.X
+	import getTeXRoot
+else:
+	from . import getTeXRoot
+
 import sublime, sublime_plugin, os, os.path, platform
-import getTeXRoot
 from subprocess import Popen
+
 
 # View PDF file corresonding to TEX file in current buffer
 # Assumes that the SumatraPDF viewer is used (great for inverse search!)
@@ -48,7 +57,7 @@ class View_pdfCommand(sublime_plugin.WindowCommand):
 		else:
 			sublime.error_message("Platform as yet unsupported. Sorry!")
 			return	
-		print viewercmd + [pdfFile]
+		print (viewercmd + [pdfFile])
 		try:
 			Popen(viewercmd + [pdfFile], cwd=script_path)
 		except OSError:

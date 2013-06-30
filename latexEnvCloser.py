@@ -1,3 +1,13 @@
+# ST2/ST3 compat
+from __future__ import print_function 
+import sys
+if sys.version_info[0] == 2:
+    # we are on ST2 and Python 2.X
+    pass
+else:
+    pass
+
+
 import sublime, sublime_plugin
 
 # Insert environment closer
@@ -31,7 +41,7 @@ class latex_env_closerCommand(sublime_plugin.TextCommand):
 		else:
 			# note the double escaping of \end
 			#view.run_command("insertCharacters \"\\\\end" + b[-1] + "\\n\"")
-			print "now we insert"
+			print ("now we insert")
 			# for some reason insert does not work
 			view.run_command("insert_snippet", 
 								{'contents': "\\\\end" + b[-1] + "\n"})

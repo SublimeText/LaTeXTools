@@ -1,6 +1,15 @@
+# ST2/ST3 compat
+from __future__ import print_function 
+import sys
+if sys.version_info[0] == 2:
+    # we are on ST2 and Python 2.X
+    import getTeXRoot
+else:
+    import LaTeXTools.getTeXRoot
+
+
 import sublime, sublime_plugin
 import os
-import getTeXRoot
 
 class Delete_temp_filesCommand(sublime_plugin.WindowCommand):
 	def run(self):

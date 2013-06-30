@@ -1,3 +1,17 @@
+# ST2/ST3 compat
+from __future__ import print_function
+import sys
+if sys.version_info[0] == 2:
+    # we are on ST2 and Python 2.X
+    import getTeXRoot
+    from latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX
+    from latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
+else:
+    from . import getTeXRoot
+    from LaTeXTools.latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX
+    from LaTeXTools.latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
+
+
 ## Match both refs and cites, then dispatch as needed
 
 # First stab: ideally we should do all matching here, then dispatch via Python, without
@@ -5,8 +19,7 @@
 
 import sublime, sublime_plugin
 import re
-from latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX
-from latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
+
 
 class LatexRefCiteCommand(sublime_plugin.TextCommand):
 
@@ -15,7 +28,7 @@ class LatexRefCiteCommand(sublime_plugin.TextCommand):
         # get view and location of first selection, which we expect to be just the cursor position
         view = self.view
         point = view.sel()[0].b
-        print point
+        print (point)
         # Only trigger within LaTeX
         # Note using score_selector rather than match_selector
         if not view.score_selector(point,
@@ -36,7 +49,7 @@ class LatexRefCiteCommand(sublime_plugin.TextCommand):
             do_ref = True
             do_cite = True
 
-        print do_ref,do_cite
+        print (do_ref,do_cite)
 
         # Get the contents of the current line, from the beginning of the line to
         # the current point
@@ -49,13 +62,13 @@ class LatexRefCiteCommand(sublime_plugin.TextCommand):
 
         if re.match(OLD_STYLE_REF_REGEX, line) or re.match(NEW_STYLE_REF_REGEX, line):
             if do_ref:
-                print "Dispatching ref"
+                print ("Dispatching ref")
                 view.run_command("latex_ref")
             else:
                 pass # Don't do anything if we match ref completion but we turned it off
         elif re.match(OLD_STYLE_CITE_REGEX, line) or re.match(NEW_STYLE_CITE_REGEX, line):
             if do_cite:
-                print "Dispatching cite"
+                print ("Dispatching cite")
                 view.run_command("latex_cite")
             else:
                 pass # ditto for cite

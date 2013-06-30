@@ -1,7 +1,16 @@
+# ST2/ST3 compat
+from __future__ import print_function 
+import sys
+if sys.version_info[0] == 2:
+    # we are on ST2 and Python 2.X
+    import getTeXRoot
+else:
+    import LaTeXTools.getTeXRoot
+
+
 import sublime, sublime_plugin
 import os, os.path
 import re
-import getTeXRoot
 
 
 class UnrecognizedCiteFormatError(Exception): pass
@@ -31,7 +40,7 @@ def find_bib_files(rootdir, src, bibfiles):
         src = src + ".tex"
 
     file_path = os.path.normpath(os.path.join(rootdir,src))
-    print "Searching file: " + repr(file_path)
+    print("Searching file: " + repr(file_path))
     # See latex_ref_completion.py for why the following is wrong:
     #dir_name = os.path.dirname(file_path)
 
@@ -40,7 +49,7 @@ def find_bib_files(rootdir, src, bibfiles):
         src_file = open(file_path, "r")
     except IOError:
         sublime.status_message("LaTeXTools WARNING: cannot open included file " + file_path)
-        print "WARNING! I can't find it! Check your \\include's and \\input's." 
+        print ("WARNING! I can't find it! Check your \\include's and \\input's.")
         return
 
     src_content = re.sub("%.*","",src_file.read())
@@ -172,13 +181,13 @@ def get_cite_completions(view, point, autocompleting=False):
         # FIXME: should probably search the buffer instead of giving up
         raise NoBibFilesError()
 
-    print "TEX root: " + repr(root)
+    print ("TEX root: " + repr(root))
     bib_files = []
     find_bib_files(os.path.dirname(root), root, bib_files)
     # remove duplicate bib files
     bib_files = list(set(bib_files))
-    print "Bib files found: ",
-    print repr(bib_files)
+    print ("Bib files found: ")
+    print (repr(bib_files))
 
     if not bib_files:
         # sublime.error_message("No bib files found!") # here we can!
@@ -186,8 +195,8 @@ def get_cite_completions(view, point, autocompleting=False):
 
     bib_files = ([x.strip() for x in bib_files])
 
-    print "Files:"
-    print repr(bib_files)
+    print ("Files:")
+    print (repr(bib_files))
 
     completions = []
     kp = re.compile(r'@[^\{]+\{(.+),')
@@ -223,13 +232,13 @@ def get_cite_completions(view, point, autocompleting=False):
         try:
             bibf = open(bibfname)
         except IOError:
-            print "Cannot open bibliography file %s !" % (bibfname,)
+            print ("Cannot open bibliography file %s !" % (bibfname,))
             sublime.status_message("Cannot open bibliography file %s !" % (bibfname,))
             continue
         else:
             bib = bibf.readlines()
             bibf.close()
-        print "%s has %s lines" % (repr(bibfname), len(bib))
+        print ("%s has %s lines" % (repr(bibfname), len(bib)))
 
         keywords = []
         titles = []
@@ -275,8 +284,8 @@ def get_cite_completions(view, point, autocompleting=False):
                 if kp_match:
                     entry["keyword"] = kp_match.group(1).decode('ascii','ignore')
                 else:
-                    print "Cannot process this @ line: " + line
-                    print "Previous record " + entry
+                    print ("Cannot process this @ line: " + line)
+                    print ("Previous record " + entry)
                 continue
             # Now test for title, author, etc.
             # Note: we capture only the first line, but that's OK for our purposes
@@ -289,7 +298,7 @@ def get_cite_completions(view, point, autocompleting=False):
             continue
 
 
-        print "Found %d total bib entries" % (len(keywords),)
+        print ( "Found %d total bib entries" % (len(keywords),) )
 
         # # Filter out }'s at the end. There should be no commas left
         titles = [t.replace('{\\textquoteright}', '').replace('{','').replace('}','') for t in titles]
@@ -393,7 +402,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         # get view and location of first selection, which we expect to be just the cursor position
         view = self.view
         point = view.sel()[0].b
-        print point
+        print (point)
         # Only trigger within LaTeX
         # Note using score_selector rather than match_selector
         if not view.score_selector(point,
@@ -419,7 +428,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
 
         # Note we now generate citation on the fly. Less copying of vectors! Win!
         def on_done(i):
-            print "latex_cite_completion called with index %d" % (i,)
+            print ("latex_cite_completion called with index %d" % (i,) )
 
             # Allow user to cancel
             if i<0:

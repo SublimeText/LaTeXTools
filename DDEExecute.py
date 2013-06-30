@@ -1,3 +1,12 @@
+# ST2/ST3 compat
+from __future__ import print_function 
+import sys
+if sys.version_info[0] == 2:
+    # we are on ST2 and Python 2.X
+    pass
+else:
+    pass
+
 import sublime, sublime_plugin
 from ctypes import *
 
@@ -6,7 +15,7 @@ from ctypes import *
 class send_ddeCommand(sublime_plugin.TextCommand):
 	def run(self, edit, service = "", topic = "", command = ""):
 		
-		print "Got request for DDE!"
+		print ("Got request for DDE!")
 
 		# define win32 api functions
 		DdeInitialize = windll.user32.DdeInitializeW
@@ -49,10 +58,10 @@ class send_ddeCommand(sublime_plugin.TextCommand):
 			#print "start!"
 			XTYP_EXECUTE = int("4050",16) # transaction type; note -1 for timeout_async
 			hDdeData = DdeClientTransaction(pData, cbData, hConv, 0, 0, XTYP_EXECUTE, 10000, 0)
-			print "DDE Execute returned: ", hex(windll.user32.DdeGetLastError(idInst))
+			print ("DDE Execute returned: ", hex(windll.user32.DdeGetLastError(idInst)))
 			DdeFreeDataHandle(hDdeData)
 		else:
-			print "Could not connect!"
+			print ("Could not connect!")
 		
 		#print ret, idInst, hszService, hszTopic, hConv
 		
