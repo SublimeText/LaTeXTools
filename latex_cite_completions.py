@@ -221,7 +221,7 @@ def get_cite_completions(view, point, autocompleting=False):
 
     # This may speed things up
     # So far this captures: the tag, and the THREE possible groups
-    multip = re.compile(r'\b(author|title|year|editor|journal|eprint)\s*=\s*(?:\{|"|\b)(.+?)(?:\}|"|\b)\s*,?\s*\Z',re.IGNORECASE)
+    multip = re.compile(r'\b(author|title|year|editor|journal|eprint)\s*=\s*(?:\{|"|\b)(.+?)(?:\}+|"|\b)\s*,?\s*\Z',re.IGNORECASE)
 
     for bibfname in bib_files:
         # # THIS IS NO LONGER NEEDED as find_bib_files() takes care of it
@@ -258,7 +258,7 @@ def get_cite_completions(view, point, autocompleting=False):
         for line in bib:
             line = line.strip()
             # Let's get rid of irrelevant lines first
-            if line == "":
+            if line == "" or line[0] == '%':
                 continue
             if line.lower()[0:8] == "@comment":
                 continue
@@ -293,12 +293,17 @@ def get_cite_completions(view, point, autocompleting=False):
             # Note: we capture only the first line, but that's OK for our purposes
             multip_match = multip.search(line)
             if multip_match:
-                key = multip_match.group(1)     # no longer decode. Was:    .decode('ascii','ignore')
-                value = multip_match.group(2)   #                           .decode('ascii','ignore')
-#                print key,value
+                key = multip_match.group(1).lower()     # no longer decode. Was:    .decode('ascii','ignore')
+                value = multip_match.group(2)           #                           .decode('ascii','ignore')
                 entry[key] = value
             continue
 
+        # at the end, we are left with one bib entry
+        keywords.append(entry["keyword"])
+        titles.append(entry["title"])
+        years.append(entry["year"])
+        authors.append(entry["author"] or entry["editor"] or "????")
+        journals.append(entry["journal"] or entry["eprint"] or "????")
 
         print ( "Found %d total bib entries" % (len(keywords),) )
 

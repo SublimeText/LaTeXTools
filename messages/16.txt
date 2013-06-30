@@ -1,0 +1,15 @@
+LaTeXTools Plugin version 2013-0X-XX changelog:
+
+Text...
+
+New features:
+
+- 
+
+Bugs fixed:
+
+- Fixed issue with mixed-case bibtex entry keys
+
+
+
+  
