@@ -5,7 +5,7 @@ if sys.version_info[0] == 2:
     # we are on ST2 and Python 2.X
     import getTeXRoot
 else:
-    import LaTeXTools.getTeXRoot
+    from . import getTeXRoot
 
 import sublime, sublime_plugin
 import os, os.path
@@ -245,13 +245,22 @@ class LatexRefCommand(sublime_plugin.TextCommand):
 
             # print "selected %s" % completions[i] 
             # Replace ref expression with reference and possibly post_snippet
-            expr_region = sublime.Region(new_point_a,new_point_b)
-            ed = view.begin_edit()
-            view.replace(ed, expr_region, ref)
-            view.end_edit(ed)
+            # expr_region = sublime.Region(new_point_a,new_point_b)
+            # ed = view.begin_edit()
+            # view.replace(ed, expr_region, ref)
+            # view.end_edit(ed)
+            view.run_command("latex_tools_replace", {"a": new_point_a, "b": new_point_b, "replacement": ref})
             # Unselect the replaced region and leave the caret at the end
             caret = view.sel()[0].b
             view.sel().subtract(view.sel()[0])
             view.sel().add(sublime.Region(caret, caret))
         
         view.window().show_quick_panel(completions, on_done)
+
+
+# ST3 cannot use an edit object after the TextCommand has returned; and on_done gets 
+# called after TextCommand has returned. Thus, we need this work-around (works on ST2, too)
+class LatexToolsReplaceCommand(sublime_plugin.TextCommand):
+    def run(self, edit, a, b, replacement):
+        region = sublime.Region(a, b)
+        self.view.replace(edit, region, replacement)

@@ -5,7 +5,7 @@ if sys.version_info[0] == 2:
     # we are on ST2 and Python 2.X
     import getTeXRoot
 else:
-    import LaTeXTools.getTeXRoot
+    from . import getTeXRoot
 
 
 import sublime, sublime_plugin
@@ -439,9 +439,10 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             # print "selected %s:%s by %s" % completions[i][0:3]
             # Replace cite expression with citation
             expr_region = sublime.Region(new_point_a, new_point_b)
-            ed = view.begin_edit()
-            view.replace(ed, expr_region, cite)
-            view.end_edit(ed)
+            # ed = view.begin_edit()
+            # view.replace(ed, expr_region, cite)
+            # view.end_edit(ed)
+            view.replace(edit, expr_region, cite)
             # Unselect the replaced region and leave the caret at the end
             caret = view.sel()[0].b
             view.sel().subtract(view.sel()[0])

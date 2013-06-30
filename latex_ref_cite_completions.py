@@ -37,9 +37,11 @@ class LatexRefCiteCommand(sublime_plugin.TextCommand):
 
 
         if insert_char:
-            ed = view.begin_edit()
-            point += view.insert(ed, point, insert_char)
-            view.end_edit(ed)
+#            ed = view.begin_edit()
+#            point += view.insert(ed, point, insert_char)
+#            view.end_edit(ed)
+            # The above was roundabout and did not work on ST3!
+            point += view.insert(edit, point, insert_char)
             # Get prefs and toggles to see if we are auto-triggering
             # This is only the case if we also must insert , or {, so we don't need a separate arg
             s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
