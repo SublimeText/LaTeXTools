@@ -5,7 +5,7 @@ if sys.version_info[0] == 2:
     # we are on ST2 and Python 2.X
     import getTeXRoot
 else:
-    import LaTeXTools.getTeXRoot
+    from . import getTeXRoot
 
 
 import sublime, sublime_plugin, os.path, subprocess, time
@@ -75,24 +75,27 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			tasks = subprocess.Popen(["tasklist"], stdout=subprocess.PIPE,
 					startupinfo=startupinfo).communicate()[0]
 			# Popen returns a byte stream, i.e. a single line. So test simply:
-			if "SumatraPDF.exe" not in tasks:
+			# Wait! ST3 is stricter. We MUST convert to str
+			tasks_str = tasks.decode('UTF-8') #guess..
+			if "SumatraPDF.exe" not in tasks_str:
 				print ("Sumatra not running, launch it")
 				self.view.window().run_command("view_pdf")
 				time.sleep(0.5) # wait 1/2 seconds so Sumatra comes up
 			setfocus = 0 if keep_focus else 1
 			# First send an open command forcing reload, or ForwardSearch won't 
 			# reload if the file is on a network share
-			command = u'[Open(\"%s\",0,%d,1)]' % (pdffile,setfocus)
-			print (repr(command))
-			self.view.run_command("send_dde",
-					{ "service": "SUMATRA", "topic": "control", "command": command})
+			# command = u'[Open(\"%s\",0,%d,1)]' % (pdffile,setfocus)
+			# print (repr(command))
+			# self.view.run_command("send_dde",
+			# 		{ "service": "SUMATRA", "topic": "control", "command": command})
 			# Now send ForwardSearch command if needed
 			if forward_sync:
-				command = "[ForwardSearch(\"%s\",\"%s\",%d,%d,0,%d)]" \
-							% (pdffile, srcfile, line, col, setfocus)
-				print (command)
-				self.view.run_command("send_dde",
-						{ "service": "SUMATRA", "topic": "control", "command": command})
+				subprocess.Popen(["SumatraPDF.exe","-reuse-instance","-forward-search", srcfile, str(line), pdffile])
+				# command = "[ForwardSearch(\"%s\",\"%s\",%d,%d,0,%d)]" \
+				# 			% (pdffile, srcfile, line, col, setfocus)
+				# print (command)
+				# self.view.run_command("send_dde",
+				# 		{ "service": "SUMATRA", "topic": "control", "command": command})
 
 		
 		elif 'linux' in plat: # for some reason, I get 'linux2' from sys.platform

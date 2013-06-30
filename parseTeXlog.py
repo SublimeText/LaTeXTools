@@ -12,6 +12,15 @@ import re
 import sys
 import os.path
 
+
+# To accommodate both Python 2 and 3
+def advance_iterator(it):
+	if sys.version_info[0] == 2:
+		return it.next()
+	else:
+		return next(it)
+
+
 print_debug = False
 interactive = False
 extra_file_ext = []
@@ -197,7 +206,7 @@ def parse_tex_log(data):
 			# save previous line for "! File ended while scanning use of..." message
 			prev_line = line
 			try:
-				line, linelen = log_iterator.next() # will fail when no more lines
+				line, linelen = advance_iterator(log_iterator) # will fail when no more lines
 				line_num += 1
 			except StopIteration:
 				break
@@ -251,7 +260,8 @@ def parse_tex_log(data):
 			while extend_line:
 				debug("extending: " + line)
 				try:
-					extra, extralen = log_iterator.next()
+					# different handling for Python 2 and 3
+					extra, extralen = advance_iterator(log_iterator)
 					debug("extension? " + extra)
 					line_num += 1 # for debugging purposes
 					# HEURISTIC: if extra line begins with "Package:" "File:" "Document Class:",
@@ -361,9 +371,9 @@ def parse_tex_log(data):
 		if "! File ended while scanning use of" in line:
 			scanned_command = line[35:-2] # skip space and period at end
 			# we may be unable to report a file by popping it, so HACK HACK HACK
-			file_name, linelen = log_iterator.next() # <inserted text>
-			file_name, linelen = log_iterator.next() #      \par
-			file_name, linelen = log_iterator.next()
+			file_name, linelen = advance_iterator(log_iterator) # <inserted text>
+			file_name, linelen = advance_iterator(log_iterator) #      \par
+			file_name, linelen = advance_iterator(log_iterator)
 			file_name = file_name[3:] # here is the file name with <*> in front
 			errors.append("TeX STOPPED: " + line[2:-2]+prev_line[:-5])
 			errors.append("TeX reports the error was in file:" + file_name)
@@ -400,7 +410,7 @@ def parse_tex_log(data):
 			ou_processing = True
 			while ou_processing:
 				try:
-					line, linelen = log_iterator.next() # will fail when no more lines
+					line, linelen = advance_iterator(log_iterator) # will fail when no more lines
 				except StopIteration:
 					debug("Over/underfull: StopIteration (%d)" % line_num)
 					break

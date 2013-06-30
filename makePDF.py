@@ -6,8 +6,8 @@ if sys.version_info[0] == 2:
     import getTeXRoot
     import parseTeXlog
 else:
-    import LaTeXTools.getTeXRoot
-    import LaTeXTools.parseTeXlog
+    from . import getTeXRoot
+    from . import parseTeXlog
 
 import sublime, sublime_plugin
 import sys, os, os.path, platform, threading, functools
@@ -60,7 +60,12 @@ class CmdThread ( threading.Thread ):
 			old_path = os.environ["PATH"]
 			# The user decides in the build system  whether he wants to append $PATH
 			# or tuck it at the front: "$PATH;C:\\new\\path", "C:\\new\\path;$PATH"
-			os.environ["PATH"] = os.path.expandvars(self.caller.path).encode(sys.getfilesystemencoding())
+			# Handle differently in Python 2 and 3, to be safe:
+			if sys.version_info[0] == 2:
+				os.environ["PATH"] = os.path.expandvars(self.caller.path).encode(sys.getfilesystemencoding())
+			else:
+				os.environ["PATH"] = os.path.expandvars(self.caller.path)
+
 
 		try:
 			if platform.system() == "Windows":
@@ -282,21 +287,27 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 
 		# decoding in thread, so we can pass coded and decoded data
 		# handle both lists and strings
-		str = data if isinstance(data, types.StringTypes) else "\n".join(data)
+		# Need different handling for python 2 and 3
+		if sys.version_info[0] == 2:
+			strdata = data if isinstance(data, types.StringTypes) else "\n".join(data)
+		else:
+			strdata = data if isinstance(data, str) else "\n".join(data)
 
 		# Normalize newlines, Sublime Text always uses a single \n separator
 		# in memory.
-		str = str.replace('\r\n', '\n').replace('\r', '\n')
+		strdata = strdata.replace('\r\n', '\n').replace('\r', '\n')
 
 		selection_was_at_end = (len(self.output_view.sel()) == 1
 		    and self.output_view.sel()[0]
 		        == sublime.Region(self.output_view.size()))
 		self.output_view.set_read_only(False)
-		edit = self.output_view.begin_edit()
-		self.output_view.insert(edit, self.output_view.size(), str)
-		if selection_was_at_end:
-		    self.output_view.show(self.output_view.size())
-		self.output_view.end_edit(edit)
+		# Move this to a TextCommand for compatibility with ST3
+		self.output_view.run_command("do_output_edit", {"data": strdata, "selection_was_at_end": selection_was_at_end})
+		# edit = self.output_view.begin_edit()
+		# self.output_view.insert(edit, self.output_view.size(), strdata)
+		# if selection_was_at_end:
+		#     self.output_view.show(self.output_view.size())
+		# self.output_view.end_edit(edit)
 		self.output_view.set_read_only(True)	
 
 	# Also from exec.py
@@ -307,11 +318,27 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		sublime.set_timeout(functools.partial(self.do_finish, can_switch_to_pdf), 0)
 
 	def do_finish(self, can_switch_to_pdf):
-		edit = self.output_view.begin_edit()
-		self.output_view.sel().clear()
-		reg = sublime.Region(0)
-		self.output_view.sel().add(reg)
-		self.output_view.show(reg) # scroll to top
-		self.output_view.end_edit(edit)
+		# Move to TextCommand for compatibility with ST3
+		# edit = self.output_view.begin_edit()
+		# self.output_view.sel().clear()
+		# reg = sublime.Region(0)
+		# self.output_view.sel().add(reg)
+		# self.output_view.show(reg) # scroll to top
+		# self.output_view.end_edit(edit)
+		self.output_view.run_command("do_finish_edit")
 		if can_switch_to_pdf:
 			self.window.active_view().run_command("jump_to_pdf", {"from_keybinding": False})
+
+
+class DoOutputEditCommand(sublime_plugin.TextCommand):
+    def run(self, edit, data, selection_was_at_end):
+        self.view.insert(edit, self.view.size(), data)
+        if selection_was_at_end:
+            self.view.show(self.view.size())
+
+class DoFinishEditCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        self.view.sel().clear()
+        reg = sublime.Region(0)
+        self.view.sel().add(reg)
+        self.view.show(reg)

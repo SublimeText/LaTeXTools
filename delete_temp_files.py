@@ -5,7 +5,7 @@ if sys.version_info[0] == 2:
     # we are on ST2 and Python 2.X
     import getTeXRoot
 else:
-    import LaTeXTools.getTeXRoot
+    from . import getTeXRoot
 
 
 import sublime, sublime_plugin
