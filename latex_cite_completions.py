@@ -11,6 +11,7 @@ else:
 import sublime, sublime_plugin
 import os, os.path
 import re
+import codecs
 
 
 class UnrecognizedCiteFormatError(Exception): pass
@@ -46,7 +47,7 @@ def find_bib_files(rootdir, src, bibfiles):
 
     # read src file and extract all bibliography tags
     try:
-        src_file = open(file_path, "r")
+        src_file = codecs.open(file_path, "r", 'UTF-8')
     except IOError:
         sublime.status_message("LaTeXTools WARNING: cannot open included file " + file_path)
         print ("WARNING! I can't find it! Check your \\include's and \\input's.")
@@ -57,7 +58,6 @@ def find_bib_files(rootdir, src, bibfiles):
 
     m = re.search(r"\\usepackage\[(.*?)\]\{inputenc\}", src_content)
     if m:
-        import codecs
         f = None
         try:
             f = codecs.open(file_path, "r", m.group(1))
@@ -154,15 +154,17 @@ def get_cite_completions(view, point, autocompleting=False):
 
     if not preformatted:
         # Replace cite_blah with \cite{blah
-        expr_region = sublime.Region(point - len(expr), point)
-        #print expr, view.substr(expr_region)
-        ed = view.begin_edit()
+#        expr_region = sublime.Region(point - len(expr), point)
+#        #print expr, view.substr(expr_region)
+#        ed = view.begin_edit()
         pre_snippet = "\cite" + fancy_cite + "{"
-        view.replace(ed, expr_region, pre_snippet + prefix)
+#        view.replace(edit, expr_region, pre_snippet + prefix)
+        # The "latex_tools_replace" command is defined in latex_ref_cite_completions.py
+        view.run_command("latex_tools_replace", {"a": point-len(expr), "b": point, "replacement": pre_snippet + prefix})        
         # save prefix begin and endpoints points
         new_point_a = point - len(expr) + len(pre_snippet)
         new_point_b = new_point_a + len(prefix)
-        view.end_edit(ed)
+#        view.end_edit(ed)
 
     else:
         # Don't include post_brace if it's already present
@@ -230,7 +232,7 @@ def get_cite_completions(view, point, autocompleting=False):
         # bibfname = os.path.normpath(os.path.join(texfiledir, bibfname))
         # print repr(bibfname)
         try:
-            bibf = open(bibfname)
+            bibf = codecs.open(bibfname,'r','UTF-8', 'ignore')  # 'ignore' to be safe
         except IOError:
             print ("Cannot open bibliography file %s !" % (bibfname,))
             sublime.status_message("Cannot open bibliography file %s !" % (bibfname,))
@@ -282,7 +284,7 @@ def get_cite_completions(view, point, autocompleting=False):
                 # Now see if we get a new keyword
                 kp_match = kp.search(line)
                 if kp_match:
-                    entry["keyword"] = kp_match.group(1).decode('ascii','ignore')
+                    entry["keyword"] = kp_match.group(1) # No longer decode. Was: .decode('ascii','ignore')
                 else:
                     print ("Cannot process this @ line: " + line)
                     print ("Previous record " + entry)
@@ -291,8 +293,8 @@ def get_cite_completions(view, point, autocompleting=False):
             # Note: we capture only the first line, but that's OK for our purposes
             multip_match = multip.search(line)
             if multip_match:
-                key = multip_match.group(1).decode('ascii','ignore')
-                value = multip_match.group(2).decode('ascii','ignore')
+                key = multip_match.group(1)     # no longer decode. Was:    .decode('ascii','ignore')
+                value = multip_match.group(2)   #                           .decode('ascii','ignore')
 #                print key,value
                 entry[key] = value
             continue
@@ -442,7 +444,8 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             # ed = view.begin_edit()
             # view.replace(ed, expr_region, cite)
             # view.end_edit(ed)
-            view.replace(edit, expr_region, cite)
+            # the "latex_tools_replace" command is defined in latex_ref_cite_completions.py
+            view.run_command("latex_tools_replace", {"a": new_point_a, "b": new_point_b, "replacement": cite})
             # Unselect the replaced region and leave the caret at the end
             caret = view.sel()[0].b
             view.sel().subtract(view.sel()[0])

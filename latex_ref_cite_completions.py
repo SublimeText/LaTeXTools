@@ -77,3 +77,11 @@ class LatexRefCiteCommand(sublime_plugin.TextCommand):
         else: # here we match nothing, so error out regardless of autotrigger settings
             sublime.error_message("Ref/cite: unrecognized format.")
             return
+
+# ST3 cannot use an edit object after the TextCommand has returned; and on_done gets 
+# called after TextCommand has returned. Thus, we need this work-around (works on ST2, too)
+# Used by both cite and ref completion
+class LatexToolsReplaceCommand(sublime_plugin.TextCommand):
+    def run(self, edit, a, b, replacement):
+        region = sublime.Region(a, b)
+        self.view.replace(edit, region, replacement)
