@@ -8,8 +8,8 @@ if sys.version_info[0] == 2:
     from latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
 else:
     from . import getTeXRoot
-    from LaTeXTools.latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX
-    from LaTeXTools.latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
+    from .latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX
+    from .latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
 
 
 ## Match both refs and cites, then dispatch as needed
