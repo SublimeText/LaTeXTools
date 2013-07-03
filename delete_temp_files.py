@@ -1,14 +1,16 @@
 # ST2/ST3 compat
 from __future__ import print_function 
-import sys
-if sys.version_info[0] == 2:
+import sublime
+if sublime.version() < '3000':
+	_ST3 = False
     # we are on ST2 and Python 2.X
     import getTeXRoot
 else:
+	_ST3 = True
     from . import getTeXRoot
 
 
-import sublime, sublime_plugin
+import sublime_plugin
 import os
 
 class Delete_temp_filesCommand(sublime_plugin.WindowCommand):

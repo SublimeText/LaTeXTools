@@ -1,11 +1,11 @@
 # ST2/ST3 compat
 from __future__ import print_function 
-import sys
-if sys.version_info[0] == 2:
+import sublime
+if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
-    pass
+    _ST3 = False
 else:
-    pass
+    _ST3 = True
 
 
 import sublime, sublime_plugin

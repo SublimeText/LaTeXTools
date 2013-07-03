@@ -1,12 +1,15 @@
 # ST2/ST3 compat
 from __future__ import print_function
 import sys
-if sys.version_info[0] == 2:
+import sublime
+if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
+    _ST3 = False
     import getTeXRoot
     from latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX
     from latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
 else:
+    _ST3 = True
     from . import getTeXRoot
     from .latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX
     from .latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
@@ -17,7 +20,7 @@ else:
 # First stab: ideally we should do all matching here, then dispatch via Python, without
 # invoking commands
 
-import sublime, sublime_plugin
+import sublime_plugin
 import re
 
 

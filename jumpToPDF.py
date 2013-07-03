@@ -1,14 +1,16 @@
 # ST2/ST3 compat
 from __future__ import print_function 
-import sys
-if sys.version_info[0] == 2:
+import sublime
+if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
+    _ST3 = False
     import getTeXRoot
 else:
+	_ST3 = True
     from . import getTeXRoot
 
 
-import sublime, sublime_plugin, os.path, subprocess, time
+import sublime_plugin, os.path, subprocess, time
 
 # Jump to current line in PDF file
 # NOTE: must be called with {"from_keybinding": <boolean>} as arg

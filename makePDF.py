@@ -1,11 +1,13 @@
 # ST2/ST3 compat
 from __future__ import print_function 
-import sys
-if sys.version_info[0] == 2:
+import sublime
+if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
+    _ST3 = False
     import getTeXRoot
     import parseTeXlog
 else:
+	_ST3 = True
     from . import getTeXRoot
     from . import parseTeXlog
 
@@ -61,7 +63,7 @@ class CmdThread ( threading.Thread ):
 			# The user decides in the build system  whether he wants to append $PATH
 			# or tuck it at the front: "$PATH;C:\\new\\path", "C:\\new\\path;$PATH"
 			# Handle differently in Python 2 and 3, to be safe:
-			if sys.version_info[0] == 2:
+			if not _ST3:
 				os.environ["PATH"] = os.path.expandvars(self.caller.path).encode(sys.getfilesystemencoding())
 			else:
 				os.environ["PATH"] = os.path.expandvars(self.caller.path)
@@ -288,7 +290,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# decoding in thread, so we can pass coded and decoded data
 		# handle both lists and strings
 		# Need different handling for python 2 and 3
-		if sys.version_info[0] == 2:
+		if not _ST3:
 			strdata = data if isinstance(data, types.StringTypes) else "\n".join(data)
 		else:
 			strdata = data if isinstance(data, str) else "\n".join(data)
