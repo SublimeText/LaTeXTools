@@ -3,11 +3,11 @@ from __future__ import print_function
 import sublime
 if sublime.version() < '3000':
 	_ST3 = False
-    # we are on ST2 and Python 2.X
-    import getTeXRoot
+	# we are on ST2 and Python 2.X
+	import getTeXRoot
 else:
 	_ST3 = True
-    from . import getTeXRoot
+	from . import getTeXRoot
 
 
 import sublime_plugin
