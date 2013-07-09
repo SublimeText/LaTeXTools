@@ -11,11 +11,12 @@ else:
 	from . import getTeXRoot
 	from . import parseTeXlog
 
-import sublime, sublime_plugin
+import sublime_plugin
 import sys, os, os.path, platform, threading, functools
 import subprocess
 import types
 import re
+import codecs
 
 DEBUG = False
 
@@ -133,6 +134,7 @@ class CmdThread ( threading.Thread ):
 		# However, we must still decode the resulting lines using the relevant encoding.
 		# 121101 -- moved splitting and decoding logic to parseTeXlog, where it belongs.
 		
+		# Note to self: need to think whether we don't want to codecs.open this, too...
 		data = open(self.caller.tex_base + ".log", 'rb').read()		
 
 		errors = []
@@ -227,7 +229,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 
 		# I actually think self.file_name is it already
 		self.engine = 'pdflatex' # Standard pdflatex
-		for line in open(self.file_name, "rU").readlines():
+		for line in codecs.open(self.file_name, "r", "UTF-8").readlines():
 			if not line.startswith('%'):
 				break
 			else:

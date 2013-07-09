@@ -9,7 +9,7 @@ else:
 
 
 import os.path, re
-
+import codecs
 
 
 # Parse magic comments to retrieve TEX root
@@ -44,7 +44,9 @@ def get_tex_root(view):
 		is_file = False
 
 	else:
-		lines = open(texFile, "rU")
+		# This works on ST2 and ST3, but does not automatically convert line endings.
+		# We should be OK though.
+		lines = codecs.open(texFile, "r", "UTF-8")
 		is_file = True
 
 	for line in lines:
