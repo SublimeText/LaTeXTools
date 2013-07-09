@@ -12,6 +12,7 @@ else:
 import sublime_plugin
 import os, os.path
 import re
+import codecs
 
 
 class UnrecognizedRefFormatError(Exception): pass
@@ -44,8 +45,13 @@ def find_labels_in_files(rootdir, src, labels):
     # of the master file**. So we must keep passing that (in rootdir).
 
     # read src file and extract all label tags
+
+    # We open with utf-8 by default. If you use a different encoding, too bad.
+    # If we really wanted to be safe, we would read until \begin{document},
+    # then stop. Hopefully we wouldn't encounter any non-ASCII chars there. 
+    # But for now do the dumb thing.
     try:
-        src_file = open(file_path, "r")
+        src_file = codecs.open(file_path, "r", "UTF-8")
     except IOError:
         sublime.status_message("LaTeXTools WARNING: cannot find included file " + file_path)
         print ("WARNING! I can't find it! Check your \\include's and \\input's." )
@@ -54,15 +60,17 @@ def find_labels_in_files(rootdir, src, labels):
     src_content = re.sub("%.*", "", src_file.read())
     src_file.close()
 
+    # If the file uses inputenc with a DIFFERENT encoding, try re-opening
+    # This is still not ideal because we may still fail to decode properly, but still... 
     m = re.search(r"\\usepackage\[(.*?)\]\{inputenc\}", src_content)
-    if m:
-        import codecs
+    if m and (m.group(1) not in ["utf8", "UTF-8", "utf-8"]):
+        print("reopening with encoding " + m.group(1))
         f = None
         try:
             f = codecs.open(file_path, "r", m.group(1))
             src_content = re.sub("%.*", "", f.read())
         except:
-            pass
+            print("Uh-oh, could not read file " + file_path + " with encoding " + m.group(1))
         finally:
             if f and not f.closed:
                 f.close()
