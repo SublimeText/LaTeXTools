@@ -240,6 +240,12 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 					break
 		if self.engine != 'pdflatex': # Since pdflatex is standard, we do not output a msg. for it.
 			self.output("Using engine " + self.engine + "\n")
+		if "texify" == self.make_cmd[0]:
+			sublime.error_message("Sorry, cannot select engine using a %!TEX program directive on MikTeX.")
+			return 
+		if not ("$pdflatex = '%E" in self.make_cmd[3]):
+			sublime.error_message("You are using a custom LaTeX.sublime-build file (in User maybe?). Cannot select engine using a %!TEX program directive.")
+			return
 		self.make_cmd[3] = self.make_cmd[3].replace("%E", self.engine)
 		self.output_view.settings().set("result_file_regex", file_regex)
 
