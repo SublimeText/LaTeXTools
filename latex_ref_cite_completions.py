@@ -86,5 +86,6 @@ class LatexRefCiteCommand(sublime_plugin.TextCommand):
 # Used by both cite and ref completion
 class LatexToolsReplaceCommand(sublime_plugin.TextCommand):
     def run(self, edit, a, b, replacement):
+        print("DEBUG: types of a and b are " + repr(type(a)) + " and " + repr(type(b)))
         region = sublime.Region(a, b)
         self.view.replace(edit, region, replacement)
