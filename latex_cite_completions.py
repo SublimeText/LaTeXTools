@@ -445,6 +445,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
 
             cite = completions[i][0] + post_brace
 
+            print("DEBUG: types of new_point_a and new_point_b are " + repr(type(new_point_a)) + " and " + repr(type(new_point_b)))
             # print "selected %s:%s by %s" % completions[i][0:3]
             # Replace cite expression with citation
             expr_region = sublime.Region(new_point_a, new_point_b)
