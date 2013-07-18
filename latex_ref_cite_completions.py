@@ -86,6 +86,11 @@ class LatexRefCiteCommand(sublime_plugin.TextCommand):
 # Used by both cite and ref completion
 class LatexToolsReplaceCommand(sublime_plugin.TextCommand):
     def run(self, edit, a, b, replacement):
-        print("DEBUG: types of a and b are " + repr(type(a)) + " and " + repr(type(b)))
-        region = sublime.Region(a, b)
+        #print("DEBUG: types of a and b are " + repr(type(a)) + " and " + repr(type(b)))
+        # On ST2, a and b are passed as long, but received as floats
+        # It's probably a bug. Convert to be safe.
+        if _ST3:
+            region = sublime.Region(a, b)
+        else:
+            region = sublime.Region(long(a), long(b))
         self.view.replace(edit, region, replacement)

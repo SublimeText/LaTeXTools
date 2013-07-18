@@ -140,10 +140,6 @@ def get_ref_completions(view, point, autocompleting=False):
 
     if not preformatted:
         # Replace ref_blah with \ref{blah
-#        expr_region = sublime.Region(point - len(expr), point)
-        #print expr[::-1], view.substr(expr_region)
-#        ed = view.begin_edit()
-#        view.replace(ed, expr_region, pre_snippet + prefix)
         # The "latex_tools_replace" command is defined in latex_ref_cite_completions.py
         view.run_command("latex_tools_replace", {"a": point-len(expr), "b": point, "replacement": pre_snippet + prefix})
         # save prefix begin and endpoints points
@@ -255,12 +251,7 @@ class LatexRefCommand(sublime_plugin.TextCommand):
             ref = completions[i] + post_snippet
             
 
-            # print "selected %s" % completions[i] 
             # Replace ref expression with reference and possibly post_snippet
-            # expr_region = sublime.Region(new_point_a,new_point_b)
-            # ed = view.begin_edit()
-            # view.replace(ed, expr_region, ref)
-            # view.end_edit(ed)
             # The "latex_tools_replace" command is defined in latex_ref_cite_completions.py
             view.run_command("latex_tools_replace", {"a": new_point_a, "b": new_point_b, "replacement": ref})
             # Unselect the replaced region and leave the caret at the end

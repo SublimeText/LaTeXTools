@@ -156,17 +156,12 @@ def get_cite_completions(view, point, autocompleting=False):
 
     if not preformatted:
         # Replace cite_blah with \cite{blah
-#        expr_region = sublime.Region(point - len(expr), point)
-#        #print expr, view.substr(expr_region)
-#        ed = view.begin_edit()
         pre_snippet = "\cite" + fancy_cite + "{"
-#        view.replace(edit, expr_region, pre_snippet + prefix)
         # The "latex_tools_replace" command is defined in latex_ref_cite_completions.py
         view.run_command("latex_tools_replace", {"a": point-len(expr), "b": point, "replacement": pre_snippet + prefix})        
         # save prefix begin and endpoints points
         new_point_a = point - len(expr) + len(pre_snippet)
         new_point_b = new_point_a + len(prefix)
-#        view.end_edit(ed)
 
     else:
         # Don't include post_brace if it's already present
@@ -445,13 +440,9 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
 
             cite = completions[i][0] + post_brace
 
-            print("DEBUG: types of new_point_a and new_point_b are " + repr(type(new_point_a)) + " and " + repr(type(new_point_b)))
+            #print("DEBUG: types of new_point_a and new_point_b are " + repr(type(new_point_a)) + " and " + repr(type(new_point_b)))
             # print "selected %s:%s by %s" % completions[i][0:3]
             # Replace cite expression with citation
-            expr_region = sublime.Region(new_point_a, new_point_b)
-            # ed = view.begin_edit()
-            # view.replace(ed, expr_region, cite)
-            # view.end_edit(ed)
             # the "latex_tools_replace" command is defined in latex_ref_cite_completions.py
             view.run_command("latex_tools_replace", {"a": new_point_a, "b": new_point_b, "replacement": cite})
             # Unselect the replaced region and leave the caret at the end
