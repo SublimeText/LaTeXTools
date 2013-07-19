@@ -229,7 +229,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 
 		# I actually think self.file_name is it already
 		self.engine = 'pdflatex' # Standard pdflatex
-		for line in codecs.open(self.file_name, "r", "UTF-8").readlines():
+		for line in codecs.open(self.file_name, "r", "UTF-8", "ignore").readlines():
 			if not line.startswith('%'):
 				break
 			else:
