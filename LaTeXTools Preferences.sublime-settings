@@ -52,9 +52,10 @@
 	"linux": {
 		// Command to invoke Python 2. Useful if you have both Python 2 and Python 3 on your system,
 		// and "python" by default is liked to Python 3. If blank, "python" is used
+		// Note: ST3 uses Python 3 internally, but the evince scripts need Python 2
 		"python2": "",
-		// The name of the ST2 executable. On Ubuntu, both subl and sublime-text are available;
-		// adjust as needed for other platforms
+		// The name of the ST2 or ST3 executable. On Ubuntu, both subl and sublime-text are 
+		// available for ST2; adjust as needed for other platforms, and for ST3
 		"sublime": "sublime-text",
 		// How long to wait after evince has launched before sending a sync message
 		// in seconds, floating point; choose 2.0 or 3.0 on a slower machine, 0.5 on a fast one
