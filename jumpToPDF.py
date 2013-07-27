@@ -72,17 +72,18 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			# determine if Sumatra is running, launch it if not
 			print ("Windows, Calling Sumatra")
 			# hide console
-			startupinfo = subprocess.STARTUPINFO()
-			startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-			tasks = subprocess.Popen(["tasklist"], stdout=subprocess.PIPE,
-					startupinfo=startupinfo).communicate()[0]
-			# Popen returns a byte stream, i.e. a single line. So test simply:
-			# Wait! ST3 is stricter. We MUST convert to str
-			tasks_str = tasks.decode('UTF-8') #guess..
-			if "SumatraPDF.exe" not in tasks_str:
-				print ("Sumatra not running, launch it")
-				self.view.window().run_command("view_pdf")
-				time.sleep(0.5) # wait 1/2 seconds so Sumatra comes up
+			# NO LONGER NEEDED with new Sumatra?
+			# startupinfo = subprocess.STARTUPINFO()
+			# startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+			# tasks = subprocess.Popen(["tasklist"], stdout=subprocess.PIPE,
+			# 		startupinfo=startupinfo).communicate()[0]
+			# # Popen returns a byte stream, i.e. a single line. So test simply:
+			# # Wait! ST3 is stricter. We MUST convert to str
+			# tasks_str = tasks.decode('UTF-8') #guess..
+			# if "SumatraPDF.exe" not in tasks_str:
+			# 	print ("Sumatra not running, launch it")
+			# 	self.view.window().run_command("view_pdf")
+			# 	time.sleep(0.5) # wait 1/2 seconds so Sumatra comes up
 			setfocus = 0 if keep_focus else 1
 			# First send an open command forcing reload, or ForwardSearch won't 
 			# reload if the file is on a network share
