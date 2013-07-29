@@ -276,7 +276,7 @@ def parse_tex_log(data):
 			continue
 		if state==STATE_REPORT_ERROR:
 			# skip everything except "l.<nn> <text>"
-			debug(line)
+			debug("Reporting error in line: " + line)
 			# We check for emergency stops here, too, because it may occur before the l.nn text
 			if "! Emergency stop." in line:
 				emergency_stop = True
@@ -345,7 +345,8 @@ def parse_tex_log(data):
 					debug("Done processing, some files left on the stack")
 					debug(";".join(files))
 				files=[]			
-			break
+			# break
+			# We cannot stop here because pdftex may yet have errors to report.
 
 		# Special error reporting for e.g. \footnote{text NO MATCHING PARENS & co
 		if "! File ended while scanning use of" in line:
@@ -360,7 +361,9 @@ def parse_tex_log(data):
 			continue
 
 		# Here, make sure there was no uncaught error, in which case we do more special processing
-		if "!  ==> Fatal error occurred, no output" in line:
+		# This will match both tex and pdftex Fatal Error messages
+		if "==> Fatal error occurred," in line:
+			debug("Fatal error detected")
 			if errors == []:
 				warnings.append("TeX STOPPED: fatal errors occurred but LaTeXTools did not see them")
 				warnings.append("Check the TeX log file, and please let me know via GitHub. Thanks!")
@@ -570,7 +573,16 @@ def parse_tex_log(data):
 				debug("Found loaded) but top file name doesn't have xy")
 
 		if len(line)>0 and line[0]=='!': # Now it's surely an error
-			debug(line)
+			debug("Error found: " + line)
+			# If it's a pdftex error, it's on the current line, so report it
+			if "pdfTeX error" in line:
+				err_msg = line[1:].strip() # remove '!' and possibly spaces
+				# This may or may not have a file location associated with it. 
+				# Be conservative and do not try to report one.
+				errors.append(err_msg)
+				errors.append("(You may want to check the log file for more information)")
+				continue
+			# Now it's a regular TeX error 
 			err_msg = line[2:] # skip "! "
 			# next time around, err_msg will be set and we'll extract all info
 			state = STATE_REPORT_ERROR
