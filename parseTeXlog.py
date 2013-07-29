@@ -95,6 +95,7 @@ def parse_tex_log(data):
 	debug("Parsing log file")
 	errors = []
 	warnings = []
+	parsing = []
 
 	guessed_encoding = 'UTF-8' # for now
 
@@ -161,9 +162,7 @@ def parse_tex_log(data):
 
 		if files==[]:
 			location = "[no file]"
-			errors.append("LaTeXTools cannot correctly detect file names in this LOG file.")
-			errors.append("(where: trying to display warning message)")
-			errors.append("Please let me know via GitHub (warnings). Thanks!")
+			parsing.append("PERR [handle_warning no files] " + l)
 		else:
 			location = files[-1]		
 
@@ -312,9 +311,7 @@ def parse_tex_log(data):
 			# err_msg is set from last time
 			if files==[]:
 				location = "[no file]"
-				warnings.append("LaTeXTools cannot correctly detect file names in this LOG file.")
-				warnings.append("(where: trying to display error message)")
-				warnings.append("Please let me know via GitHub. Thanks!")
+				parsing.append("PERR [STATE_REPORT_ERROR no files] " + line)
 			else:
 				location = files[-1]
 			debug("Found error: " + err_msg)		
@@ -350,20 +347,9 @@ def parse_tex_log(data):
 				if emergency_stop or incomplete_if:
 					debug("Done processing, files on stack due to known conditions (all is fine!)")
 				elif xypic_flag:
-					warnings.append("LaTeXTools cannot correctly detect file names in this LOG file.")
-					warnings.append("However, you are using the xypic package, which does nonstandard logging.")
-					warnings.append("You may report this on GitHub, but I can't promise I will fix it.")
-					warnings.append("Try recompiling without xypic to see if there are other log parsing issues.")
-					warnings.append("In any case, compilation was successful.")
-					debug("Done processing, some files left on the stack, BUT user had xypic!")
-					debug(";".join(files))
+					parsing.append("PERR [files on stack (xypic)] " + ";".join(files))
 				else:
-					warnings.append("LaTeXTools cannot correctly detect file names in this LOG file.")
-					warnings.append("(where: finished processing)")
-					warnings.append("Please let me know via GitHub")
-					warnings.append("In any case, compilation was successful.")
-					debug("Done processing, some files left on the stack")
-					debug(";".join(files))
+					parsing.append("PERR [files on stack] " + ";".join(files))
 				files=[]			
 			# break
 			# We cannot stop here because pdftex may yet have errors to report.
@@ -385,8 +371,7 @@ def parse_tex_log(data):
 		if "==> Fatal error occurred," in line:
 			debug("Fatal error detected")
 			if errors == []:
-				warnings.append("TeX STOPPED: fatal errors occurred but LaTeXTools did not see them")
-				warnings.append("Check the TeX log file, and please let me know via GitHub. Thanks!")
+				errors.append("TeX STOPPED: fatal errors occurred. Check the TeX log file for details")
 			continue
 
 		# If tex just stops processing, we will be left with files on stack, so we keep track of it
@@ -498,9 +483,7 @@ def parse_tex_log(data):
 				reprocess_extra = True
 				continue
 			else:
-				errors.append("LaTeXTools cannot correctly detect file names in this LOG file.")
-				errors.append("Please let me know via GitHub. Thanks!")
-				debug("Popping inexistent files")
+				parsing.append("PERR [')' no files]")
 				break
 
 		# Opening page indicators: skip and reprocess
@@ -600,7 +583,7 @@ def parse_tex_log(data):
 				# This may or may not have a file location associated with it. 
 				# Be conservative and do not try to report one.
 				errors.append(err_msg)
-				errors.append("(You may want to check the log file for more information)")
+				errors.append("Check the TeX log file for more information")
 				continue
 			# Now it's a regular TeX error 
 			err_msg = line[2:] # skip "! "
@@ -631,6 +614,12 @@ def parse_tex_log(data):
 			state = STATE_REPORT_WARNING
 			continue
 
+	# If there were parsing issues, output them to debug
+	if parsing:
+		warnings.append("(Log parsing issues. Disregard unless something else is wrong.)")
+		print_debug = True
+		for l in parsing:
+			debug(l)
 	return (errors, warnings)
 
 
