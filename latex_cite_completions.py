@@ -1,7 +1,19 @@
-import sublime, sublime_plugin
+# ST2/ST3 compat
+from __future__ import print_function 
+import sublime
+if sublime.version() < '3000':
+    # we are on ST2 and Python 2.X
+    _ST3 = False
+    import getTeXRoot
+else:
+    _ST3 = True
+    from . import getTeXRoot
+
+
+import sublime_plugin
 import os, os.path
 import re
-import getTeXRoot
+import codecs
 
 
 class UnrecognizedCiteFormatError(Exception): pass
@@ -31,16 +43,16 @@ def find_bib_files(rootdir, src, bibfiles):
         src = src + ".tex"
 
     file_path = os.path.normpath(os.path.join(rootdir,src))
-    print "Searching file: " + repr(file_path)
+    print("Searching file: " + repr(file_path))
     # See latex_ref_completion.py for why the following is wrong:
     #dir_name = os.path.dirname(file_path)
 
     # read src file and extract all bibliography tags
     try:
-        src_file = open(file_path, "r")
+        src_file = codecs.open(file_path, "r", 'UTF-8')
     except IOError:
         sublime.status_message("LaTeXTools WARNING: cannot open included file " + file_path)
-        print "WARNING! I can't find it! Check your \\include's and \\input's." 
+        print ("WARNING! I can't find it! Check your \\include's and \\input's.")
         return
 
     src_content = re.sub("%.*","",src_file.read())
@@ -48,7 +60,6 @@ def find_bib_files(rootdir, src, bibfiles):
 
     m = re.search(r"\\usepackage\[(.*?)\]\{inputenc\}", src_content)
     if m:
-        import codecs
         f = None
         try:
             f = codecs.open(file_path, "r", m.group(1))
@@ -145,15 +156,12 @@ def get_cite_completions(view, point, autocompleting=False):
 
     if not preformatted:
         # Replace cite_blah with \cite{blah
-        expr_region = sublime.Region(point - len(expr), point)
-        #print expr, view.substr(expr_region)
-        ed = view.begin_edit()
         pre_snippet = "\cite" + fancy_cite + "{"
-        view.replace(ed, expr_region, pre_snippet + prefix)
+        # The "latex_tools_replace" command is defined in latex_ref_cite_completions.py
+        view.run_command("latex_tools_replace", {"a": point-len(expr), "b": point, "replacement": pre_snippet + prefix})        
         # save prefix begin and endpoints points
         new_point_a = point - len(expr) + len(pre_snippet)
         new_point_b = new_point_a + len(prefix)
-        view.end_edit(ed)
 
     else:
         # Don't include post_brace if it's already present
@@ -172,13 +180,13 @@ def get_cite_completions(view, point, autocompleting=False):
         # FIXME: should probably search the buffer instead of giving up
         raise NoBibFilesError()
 
-    print "TEX root: " + repr(root)
+    print ("TEX root: " + repr(root))
     bib_files = []
     find_bib_files(os.path.dirname(root), root, bib_files)
     # remove duplicate bib files
     bib_files = list(set(bib_files))
-    print "Bib files found: ",
-    print repr(bib_files)
+    print ("Bib files found: ")
+    print (repr(bib_files))
 
     if not bib_files:
         # sublime.error_message("No bib files found!") # here we can!
@@ -186,8 +194,8 @@ def get_cite_completions(view, point, autocompleting=False):
 
     bib_files = ([x.strip() for x in bib_files])
 
-    print "Files:"
-    print repr(bib_files)
+    print ("Files:")
+    print (repr(bib_files))
 
     completions = []
     kp = re.compile(r'@[^\{]+\{(.+),')
@@ -221,15 +229,15 @@ def get_cite_completions(view, point, autocompleting=False):
         # bibfname = os.path.normpath(os.path.join(texfiledir, bibfname))
         # print repr(bibfname)
         try:
-            bibf = open(bibfname)
+            bibf = codecs.open(bibfname,'r','UTF-8', 'ignore')  # 'ignore' to be safe
         except IOError:
-            print "Cannot open bibliography file %s !" % (bibfname,)
+            print ("Cannot open bibliography file %s !" % (bibfname,))
             sublime.status_message("Cannot open bibliography file %s !" % (bibfname,))
             continue
         else:
             bib = bibf.readlines()
             bibf.close()
-        print "%s has %s lines" % (repr(bibfname), len(bib))
+        print ("%s has %s lines" % (repr(bibfname), len(bib)))
 
         keywords = []
         titles = []
@@ -273,17 +281,17 @@ def get_cite_completions(view, point, autocompleting=False):
                 # Now see if we get a new keyword
                 kp_match = kp.search(line)
                 if kp_match:
-                    entry["keyword"] = kp_match.group(1).decode('ascii','ignore')
+                    entry["keyword"] = kp_match.group(1) # No longer decode. Was: .decode('ascii','ignore')
                 else:
-                    print "Cannot process this @ line: " + line
-                    print "Previous record " + entry
+                    print ("Cannot process this @ line: " + line)
+                    print ("Previous record " + entry)
                 continue
             # Now test for title, author, etc.
             # Note: we capture only the first line, but that's OK for our purposes
             multip_match = multip.search(line)
             if multip_match:
-                key = multip_match.group(1).decode('ascii','ignore').lower()
-                value = multip_match.group(2).decode('ascii','ignore')
+                key = multip_match.group(1).lower()     # no longer decode. Was:    .decode('ascii','ignore')
+                value = multip_match.group(2)           #                           .decode('ascii','ignore')
                 entry[key] = value
             continue
 
@@ -294,7 +302,7 @@ def get_cite_completions(view, point, autocompleting=False):
         authors.append(entry["author"] or entry["editor"] or "????")
         journals.append(entry["journal"] or entry["eprint"] or "????")
 
-        print "Found %d total bib entries" % (len(keywords),)
+        print ( "Found %d total bib entries" % (len(keywords),) )
 
         # # Filter out }'s at the end. There should be no commas left
         titles = [t.replace('{\\textquoteright}', '').replace('{','').replace('}','') for t in titles]
@@ -398,7 +406,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         # get view and location of first selection, which we expect to be just the cursor position
         view = self.view
         point = view.sel()[0].b
-        print point
+        print (point)
         # Only trigger within LaTeX
         # Note using score_selector rather than match_selector
         if not view.score_selector(point,
@@ -424,7 +432,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
 
         # Note we now generate citation on the fly. Less copying of vectors! Win!
         def on_done(i):
-            print "latex_cite_completion called with index %d" % (i,)
+            print ("latex_cite_completion called with index %d" % (i,) )
 
             # Allow user to cancel
             if i<0:
@@ -432,12 +440,11 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
 
             cite = completions[i][0] + post_brace
 
+            #print("DEBUG: types of new_point_a and new_point_b are " + repr(type(new_point_a)) + " and " + repr(type(new_point_b)))
             # print "selected %s:%s by %s" % completions[i][0:3]
             # Replace cite expression with citation
-            expr_region = sublime.Region(new_point_a, new_point_b)
-            ed = view.begin_edit()
-            view.replace(ed, expr_region, cite)
-            view.end_edit(ed)
+            # the "latex_tools_replace" command is defined in latex_ref_cite_completions.py
+            view.run_command("latex_tools_replace", {"a": new_point_a, "b": new_point_b, "replacement": cite})
             # Unselect the replaced region and leave the caret at the end
             caret = view.sel()[0].b
             view.sel().subtract(view.sel()[0])

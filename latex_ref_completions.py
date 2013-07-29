@@ -1,7 +1,18 @@
-import sublime, sublime_plugin
+# ST2/ST3 compat
+from __future__ import print_function 
+import sublime
+if sublime.version() < '3000':
+    # we are on ST2 and Python 2.X
+    _ST3 = False
+    import getTeXRoot
+else:
+    _ST3 = True
+    from . import getTeXRoot
+
+import sublime_plugin
 import os, os.path
 import re
-import getTeXRoot
+import codecs
 
 
 class UnrecognizedRefFormatError(Exception): pass
@@ -27,32 +38,39 @@ def find_labels_in_files(rootdir, src, labels):
         src = src + ".tex"
 
     file_path = os.path.normpath(os.path.join(rootdir, src))
-    print "Searching file: " + repr(file_path)
+    print ("Searching file: " + repr(file_path))
     # The following was a mistake:
     #dir_name = os.path.dirname(file_path)
     # THe reason is that \input and \include reference files **from the directory
     # of the master file**. So we must keep passing that (in rootdir).
 
     # read src file and extract all label tags
+
+    # We open with utf-8 by default. If you use a different encoding, too bad.
+    # If we really wanted to be safe, we would read until \begin{document},
+    # then stop. Hopefully we wouldn't encounter any non-ASCII chars there. 
+    # But for now do the dumb thing.
     try:
-        src_file = open(file_path, "r")
+        src_file = codecs.open(file_path, "r", "UTF-8")
     except IOError:
         sublime.status_message("LaTeXTools WARNING: cannot find included file " + file_path)
-        print "WARNING! I can't find it! Check your \\include's and \\input's." 
+        print ("WARNING! I can't find it! Check your \\include's and \\input's." )
         return
 
     src_content = re.sub("%.*", "", src_file.read())
     src_file.close()
 
+    # If the file uses inputenc with a DIFFERENT encoding, try re-opening
+    # This is still not ideal because we may still fail to decode properly, but still... 
     m = re.search(r"\\usepackage\[(.*?)\]\{inputenc\}", src_content)
-    if m:
-        import codecs
+    if m and (m.group(1) not in ["utf8", "UTF-8", "utf-8"]):
+        print("reopening with encoding " + m.group(1))
         f = None
         try:
             f = codecs.open(file_path, "r", m.group(1))
             src_content = re.sub("%.*", "", f.read())
         except:
-            pass
+            print("Uh-oh, could not read file " + file_path + " with encoding " + m.group(1))
         finally:
             if f and not f.closed:
                 f.close()
@@ -122,14 +140,12 @@ def get_ref_completions(view, point, autocompleting=False):
 
     if not preformatted:
         # Replace ref_blah with \ref{blah
-        expr_region = sublime.Region(point - len(expr), point)
-        #print expr[::-1], view.substr(expr_region)
-        ed = view.begin_edit()
-        view.replace(ed, expr_region, pre_snippet + prefix)
+        # The "latex_tools_replace" command is defined in latex_ref_cite_completions.py
+        view.run_command("latex_tools_replace", {"a": point-len(expr), "b": point, "replacement": pre_snippet + prefix})
         # save prefix begin and endpoints points
         new_point_a = point - len(expr) + len(pre_snippet)
         new_point_b = new_point_a + len(prefix)
-        view.end_edit(ed)
+#        view.end_edit(ed)
 
     else:
         # Don't include post_snippet if it's already present
@@ -147,7 +163,7 @@ def get_ref_completions(view, point, autocompleting=False):
 
     root = getTeXRoot.get_tex_root(view)
     if root:
-        print "TEX root: " + repr(root)
+        print ("TEX root: " + repr(root))
         find_labels_in_files(os.path.dirname(root), root, completions)
 
     # remove duplicates
@@ -204,7 +220,7 @@ class LatexRefCommand(sublime_plugin.TextCommand):
         # get view and location of first selection, which we expect to be just the cursor position
         view = self.view
         point = view.sel()[0].b
-        print point
+        print (point)
         # Only trigger within LaTeX
         # Note using score_selector rather than match_selector
         if not view.score_selector(point,
@@ -226,7 +242,7 @@ class LatexRefCommand(sublime_plugin.TextCommand):
 
         # Note we now generate refs on the fly. Less copying of vectors! Win!
         def on_done(i):
-            print "latex_ref_completion called with index %d" % (i,)
+            print ("latex_ref_completion called with index %d" % (i,))
             
             # Allow user to cancel
             if i<0:
@@ -235,12 +251,9 @@ class LatexRefCommand(sublime_plugin.TextCommand):
             ref = completions[i] + post_snippet
             
 
-            # print "selected %s" % completions[i] 
             # Replace ref expression with reference and possibly post_snippet
-            expr_region = sublime.Region(new_point_a,new_point_b)
-            ed = view.begin_edit()
-            view.replace(ed, expr_region, ref)
-            view.end_edit(ed)
+            # The "latex_tools_replace" command is defined in latex_ref_cite_completions.py
+            view.run_command("latex_tools_replace", {"a": new_point_a, "b": new_point_b, "replacement": ref})
             # Unselect the replaced region and leave the caret at the end
             caret = view.sel()[0].b
             view.sel().subtract(view.sel()[0])

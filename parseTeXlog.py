@@ -1,6 +1,25 @@
+# ST2/ST3 compat
+from __future__ import print_function 
+import sublime
+if sublime.version() < '3000':
+    # we are on ST2 and Python 2.X
+    _ST3 = False
+else:
+    _ST3 = True
+
+
 import re
 import sys
 import os.path
+
+
+# To accommodate both Python 2 and 3
+def advance_iterator(it):
+	if not _ST3:
+		return it.next()
+	else:
+		return next(it)
+
 
 print_debug = False
 interactive = False
@@ -8,7 +27,7 @@ extra_file_ext = []
 
 def debug(s):
 	if print_debug:
-		print "parseTeXlog: " + s.encode('UTF-8') # I think the ST2 console wants this
+		print ("parseTeXlog: " + s.encode('UTF-8')) # I think the ST2 console wants this
 
 # The following function is only used when debugging interactively.
 #
@@ -33,38 +52,38 @@ def debug_skip_file(f):
 	if (f_ext in known_file_exts) and \
 	   (("/usr/local/texlive/" in f) or ("/usr/share/texlive/" in f) or ("Program Files\\MiKTeX" in f) \
 	   	or re.search(r"\\MiKTeX\\\d\.\d+\\tex",f)) or ("\\MiKTeX\\tex\\" in f):
-		print "TeXlive / MiKTeX FILE! Don't skip it!"
+		print ("TeXlive / MiKTeX FILE! Don't skip it!")
 		return False
 	# Heuristic: "version 2010.12.02"
 	if re.match(r"version \d\d\d\d\.\d\d\.\d\d", f):
-		print "Skip it!"
+		print ("Skip it!")
 		return True
 	# Heuristic: TeX Live line
 	if re.match(r"TeX Live 20\d\d(/Debian)?\) \(format", f):
-		print "Skip it!"
+		print ("Skip it!")
 		return True
 	# Heuristic: MiKTeX line
 	if re.match("MiKTeX \d\.\d\d?",f):
-		print "Skip it!"
+		print ("Skip it!")
 		return True
 	# Heuristic: no two consecutive spaces in file name
 	if "  " in f:
-		print "Skip it!"
+		print ("Skip it!")
 		return True
 	# Heuristic: various diagnostic messages
 	if f=='e.g.,' or "ext4): destination with the same identifier" in f or "Kristoffer H. Rose" in f:
-		print "Skip it!"
+		print ("Skip it!")
 		return True
 	# Heuristic: file in local directory with .tex ending
 	file_exts = extra_file_ext + ['tex', 'aux', 'bbl', 'cls', 'sty','out']
 	if f[0:2] in ['./', '.\\', '..'] and f_ext in file_exts:
-		print "File! Don't skip it"
+		print ("File! Don't skip it")
 		return False
 	if raw_input() == "":
-		print "Skip it"
+		print ("Skip it")
 		return True
 	else:
-		print "FILE! Don't skip it"
+		print ("FILE! Don't skip it")
 		return False
 
 
@@ -186,7 +205,7 @@ def parse_tex_log(data):
 			# save previous line for "! File ended while scanning use of..." message
 			prev_line = line
 			try:
-				line, linelen = log_iterator.next() # will fail when no more lines
+				line, linelen = advance_iterator(log_iterator) # will fail when no more lines
 				line_num += 1
 			except StopIteration:
 				break
@@ -240,7 +259,8 @@ def parse_tex_log(data):
 			while extend_line:
 				debug("extending: " + line)
 				try:
-					extra, extralen = log_iterator.next()
+					# different handling for Python 2 and 3
+					extra, extralen = advance_iterator(log_iterator)
 					debug("extension? " + extra)
 					line_num += 1 # for debugging purposes
 					# HEURISTIC: if extra line begins with "Package:" "File:" "Document Class:",
@@ -338,9 +358,9 @@ def parse_tex_log(data):
 		if "! File ended while scanning use of" in line:
 			scanned_command = line[35:-2] # skip space and period at end
 			# we may be unable to report a file by popping it, so HACK HACK HACK
-			file_name, linelen = log_iterator.next() # <inserted text>
-			file_name, linelen = log_iterator.next() #      \par
-			file_name, linelen = log_iterator.next()
+			file_name, linelen = advance_iterator(log_iterator) # <inserted text>
+			file_name, linelen = advance_iterator(log_iterator) #      \par
+			file_name, linelen = advance_iterator(log_iterator)
 			file_name = file_name[3:] # here is the file name with <*> in front
 			errors.append("TeX STOPPED: " + line[2:-2]+prev_line[:-5])
 			errors.append("TeX reports the error was in file:" + file_name)
@@ -378,7 +398,7 @@ def parse_tex_log(data):
 			ou_processing = True
 			while ou_processing:
 				try:
-					line, linelen = log_iterator.next() # will fail when no more lines
+					line, linelen = advance_iterator(log_iterator) # will fail when no more lines
 				except StopIteration:
 					debug("Over/underfull: StopIteration (%d)" % line_num)
 					break
@@ -617,15 +637,15 @@ if __name__ == '__main__':
 			extra_file_ext = sys.argv[2].split(" ")
 		data = open(logfilename,'r').read()
 		(errors,warnings) = parse_tex_log(data)
-		print ""
-		print "Warnings:"
+		print ("")
+		print ("Warnings:")
 		for warn in warnings:
-			print warn.encode('UTF-8')
-		print ""
-		print "Errors:"
+			print (warn.encode('UTF-8'))
+		print ("")
+		print ("Errors:")
 		for err in errors:
-			print err.encode('UTF-8')
+			print (err.encode('UTF-8'))
 
-	except Exception, e:
+	except Exception as e:
 		import traceback
 		traceback.print_exc()
