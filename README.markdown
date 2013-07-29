@@ -8,10 +8,11 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* 2013-7-20. 
+*Latest revision:* 2013-7-29. 
 
 *Highlight*: Beginning with this version of the plugin, *both Sublime Text2 and Sublime Text 3 are fully supported!* The same code base works on ST2 and ST3. For the latter, I am testing on build 3047 (aka ST3 Beta). Again, *huge* thanks to phyllisstein; my port to ST3 is largely based on his great work.
 
+*Emergency fallback notice*: I have been testing this version of the plugin for a while, and have had no issues. However, you never know. I have created a separate branch, called `st2`, containing the "old" code, right before merging support for Sublime Text 3. In case anything goes wrong, as an emergency fallback, you can switch to that branch on GitHub, download the code, and unzip the file in a (fresh) LaTeXTools directory. But, hopefully that won't be necessary.
 
 Introduction
 ------------
@@ -76,7 +77,7 @@ TeXlive has one main advantage over MikTeX: it supports file names and paths wit
 
 <br>
 
-**Linux** support is coming along nicely. You need to install TeXlive; if you are on Ubuntu, note that `apt-get install texlive` will get you a working but incomplete setup. In particular, it will *not* bring in `latexmk`, which is essential to LaTeXTools. You need to install it via `apt-get install latexmk`. If on the other hand you choose to install the TeXlive distro from TUG, `latexmk` comes with it, so you don't need to do anything else.
+**Linux** support is coming along nicely. You need to install TeXlive; if you are on Ubuntu, note that `apt-get install texlive` will get you a working but incomplete setup. In particular, it will *not* bring in `latexmk`, which is essential to LaTeXTools. You need to install it via `apt-get install latexmk`. If on the other hand you choose to install the TeXlive distro from TUG, `latexmk` comes with it, so you don't need to do anything else. Also, to get inverse search working on ST3, make sure you set the `sublime` option in `LaTeXTools Preferences.sublime-settings` correctly; the Ubuntu package from the ST web page uses `subl`, but check from the command line first.
 
 Only the Evince PDF viewer is supported; it's installed by default on Ubuntu or, more generally, any distro that provides the Gnome desktop, and you don't need to configure anything. Backward and forward search Work For Me (TM). Hopefully they will work for you, too, but let me know if this is not the case.
 
@@ -262,6 +263,8 @@ In addition, the LaTeXTools plugin provides useful completions for both regular 
 
 Using different TeX engines
 ---------------------------
+
+**Note**: as described above, there is now a  `%!TEX program = <program>` directive to select the TeX engine (on TeXLive). That is the preferred way to do so, but I'm keeping the material here for reference. In any case, this will shortly be replaced by a more flexible build customization feature that I am going to implement next.
 
 In short: on OS X, or on Windows if you use TeXLive, changing the TeX engine used to build your files is very easy. Open the file `LaTeX.sublime-build` and look for the following text (correct as of 11/8/11):
 
