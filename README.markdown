@@ -1,15 +1,14 @@
-LaTeX Plugin for Sublime Text 2
-===============================
+LaTeX Plugin for Sublime Text 2 - EMERGENCY FALLBACK
+====================================================
 
 by Marciano Siniscalchi
 [http://tekonomist.wordpress.com]
 
 Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, skuroda (Preferences menu), Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths), Jeremy Jay (basic biblatex support), Ray Fang (texttt snippet), Ulrich Gabor (tex engine selection and cleaning aux files), Wes Campaigne and 'jlegewie' (ref/cite completion 2.0!). *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* 2013-6-29. 
+*Latest revision:* 2013-7-29. 
 
-*Highlight*: Incorporate Westacular's and jlegewie's amazing work on ref/cite completion. See below!
-
+**Emergency fallback**. This is a copy of the `master` branch of the LaTeXTools repo right before merging the new code in the `st3` branch, which works with both Sublime Text 2 and Sublime Text 3. *Everybody should be using the master branch*. This is here only as an emergency fallback in case unexpected, serious issues arise, and until a fix is found. This code also incorporates some fixes to the log parsing engine. 
 
 Introduction
 ------------
