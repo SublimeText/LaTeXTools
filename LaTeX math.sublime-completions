@@ -10,7 +10,7 @@
                 { "trigger": "delta", "contents": "partial" },
                 //{ "trigger": "partial", "contents": "delta" },  # can't have trigger as it conflicts with p -> \pi
 		{ "trigger": "e", "contents": "\\epsilon" },
-		{ "trigger": "epsilon", "contents": "varepsilon" }, 
+		{ "trigger": "\\epsilon", "contents": "\\varepsilon" }, 
                 /* toggle the two! */
 		{ "trigger": "varepsilon", "contents": "epsilon" },
 		{ "trigger": "z", "contents": "\\zeta"},
