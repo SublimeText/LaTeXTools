@@ -20,13 +20,8 @@ import codecs
 
 DEBUG = False
 
-# Compile current .tex file using platform-specific tool
-# On Windows, use texify; on Mac, use latexmk
-# Assumes executables are on the path
-# Warning: we do not do "deep" safety checks
-
-# This is basically a specialized exec command: we do not capture output,
-# but instead look at log files to parse errors
+# Compile current .tex file
+# Allow user to specify build system by subclassing the PdfBuilder class
 
 # Encoding: especially useful for Windows
 # TODO: counterpart for OSX? Guess encoding of files?
