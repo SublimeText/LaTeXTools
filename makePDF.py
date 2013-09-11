@@ -148,7 +148,7 @@ class CmdThread ( threading.Thread ):
 				content.append("")
 				content.extend(errors)
 			else:
-				content.append("Texification succeeded: no errors!")
+				content.append("Texification succeeded!")
 				content.append("")
 			if warnings:
 				if errors:
@@ -216,10 +216,11 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# Obtain parameters values
 		global_settings = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
 		show_panel_on_build = global_settings.get('show_panel_on_build', view.settings().get('show_panel_on_build', True))
-		show_build_status = global_settings.get('show_build_status', view.settings().get('show_build_status', False))
+		self.show_build_status = global_settings.get('show_build_status', view.settings().get('show_build_status', False))
+		print("Show panel:", show_panel_on_build)
 
 		# Put in the status that we are building
-		if show_build_status:
+		if self.show_build_status:
 			self.set_status("Building...")
 
 		# Output panel: from exec.py
@@ -352,7 +353,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# self.output_view.end_edit(edit)
 		self.output_view.run_command("do_finish_edit")
 
-		if show_build_status:
+		if self.show_build_status:
 			# Built has finished!
 			self.set_status("Build finished")
 
