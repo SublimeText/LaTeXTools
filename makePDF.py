@@ -60,14 +60,10 @@ class PdfBuilder:
 		print(out)
 		self.out = out
 
-	# This is where the real work is done. This generator must yield successive commands,
+	# This is where the real work is done. This generator must yield (cmd, msg) tuples,
 	# as a function of the parameters and the output from previous commands (via send()).
-	#
-	# E.g out = yield "pdflatex " + self.texroot
-	#     if undefinedreferences(out):
-	#		yield "pdflatex " + self.texroot
-	# where undefinedreferences() is a method that checks if, well, there are undefined
-	# references
+	# "cmd" is the command to be run, as an array
+	# "msg" is the message to be displayed (or None)
 	def commands(self):
 		pass
 
@@ -94,26 +90,35 @@ class SimpleBuilder(PdfBuilder):
 	def __init__(self, tex_root, output, prefs):
 		# Sets the file name parts, plus internal stuff
 		super(SimpleBuilder, self).__init__(tex_root, output, prefs) 
-		# Now do our own initialization: just set our name
+		# Now do our own initialization: set our name, see if we want to display output
 		self.name = "Simple Builder"
+		self.display_log = prefs.get("display_log", False)
 
 	def commands(self):
 		# Print greeting
-		self.display("\nSimpleBuilder starting\n\n")
+		self.display("\n\nSimpleBuilder: ")
+
+		quoted_fname = "\"" + self.tex_base + "\""
+		pdflatex = ["pdflatex", "-interaction=nonstopmode", "-synctex=1"]
+
 		# We have commands in our PATH, and are in the same dir as the master file
 
-		yield (["pdflatex", "\""+ self.tex_base + "\""])
-		self.display("Command results, run 1:\n")
-		self.display(self.out)
-		self.display("\n")
+		def display_results(n):
+			if self.display_log:
+				self.display("Command results, run %d:\n" % (n,) )
+				self.display(self.out)
+				self.display("\n")	
 
-		run_pdflatex(1)
+		yield (pdflatex + [quoted_fname], "pdflatex run 1; ")
+		display_results(1)
+
 		# Check for changed labels
-		if "LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right." in self.out:
-			yield (["pdflatex", "\""+ self.tex_base + "\""])
-			self.display("Command results, run 2:\n")
-			self.display(self.out)
-			self.display("\n")
+		if "Rerun to get cross-references right." in self.out:
+			yield (pdflatex + [quoted_fname], "pdflatex run 2; ")
+			display_results(2)
+
+		self.display("done.\n")
+			
 
 
 
@@ -182,8 +187,9 @@ class CmdThread ( threading.Thread ):
 		# Now, iteratively call the builder iterator
 		#
 		cmd_iterator = self.caller.builder.commands()
-		for cmd in cmd_iterator:
-			print(cmd)
+		for (cmd, msg) in cmd_iterator:
+			if msg:
+				self.caller.output(msg)
 			# First, create a Popen object
 			try:
 				if platform.system() == "Windows":
@@ -194,7 +200,7 @@ class CmdThread ( threading.Thread ):
 				self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
 				self.caller.output("Attempted command:")
 				self.caller.output(" ".join(cmd))
-				self.caller.output("Builder: " + self.caller.builder.name)
+				self.caller.output("\nBuild engine: " + self.caller.builder.name)
 				self.caller.proc = None
 				if self.caller.path:
 					os.environ["PATH"] = old_path
@@ -248,22 +254,22 @@ class CmdThread ( threading.Thread ):
 
 		try:
 			(errors, warnings) = parseTeXlog.parse_tex_log(data)
-			content = ["",""]
+			content = [""]
 			if errors:
-				content.append("There were errors in your LaTeX source") 
+				content.append("Errors:") 
 				content.append("")
 				content.extend(errors)
 			else:
-				content.append("Texification succeeded: no errors!")
-				content.append("") 
+				content.append("No errors.")
 			if warnings:
 				if errors:
-					content.append("")
-					content.append("There were also warnings.") 
+					content.append(["", "Warnings:"])
 				else:
-					content.append("However, there were warnings in your LaTeX source") 
+					content[-1] = content[-1] + " Warnings:" 
 				content.append("")
 				content.extend(warnings)
+			else:
+				content.append("")
 		except Exception as e:
 			content=["",""]
 			content.append("LaTeXtools could not parse the TeX log file")
