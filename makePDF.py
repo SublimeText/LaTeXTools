@@ -20,13 +20,24 @@ import codecs
 
 DEBUG = False
 
-# Compile current .tex file using platform-specific tool
-# On Windows, use texify; on Mac, use latexmk
-# Assumes executables are on the path
-# Warning: we do not do "deep" safety checks
+# Compile current .tex file to pdf
+# Allow custom scripts and build engines!
 
-# This is basically a specialized exec command: we do not capture output,
-# but instead look at log files to parse errors
+
+
+#---------------------------------------------------------------
+# PdfBuilder class
+#
+# Build engines subclass PdfBuilder
+#
+
+class PdfBuilder:
+	"""Base class for build engines"""
+	def __init__(self, arg):
+		self.arg = arg
+		
+
+
 
 # Encoding: especially useful for Windows
 # TODO: counterpart for OSX? Guess encoding of files?
@@ -69,15 +80,14 @@ class CmdThread ( threading.Thread ):
 			else:
 				os.environ["PATH"] = os.path.expandvars(self.caller.path)
 
-
 		try:
 			if platform.system() == "Windows":
 				# make sure console does not come up
 				startupinfo = subprocess.STARTUPINFO()
 				startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-				proc = subprocess.Popen(cmd, startupinfo=startupinfo)
+				proc = subprocess.Popen(cmd, startupinfo=startupinfo, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 			else:
-				proc = subprocess.Popen(cmd)
+				proc = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 		except:
 			self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
 			self.caller.output("Attempted command:")
@@ -92,11 +102,12 @@ class CmdThread ( threading.Thread ):
 		# Handle killing
 		# First, save process handle into caller; then communicate (which blocks)
 		self.caller.proc = proc
-		# out, err = proc.communicate()
-		proc.wait() # TODO: if needed, must use tempfiles instead of stdout/err
 
-		# if DEBUG:
-		# 	self.caller.output(out)
+		# I want to experiment with this:
+		out, err = proc.communicate()
+		self.caller.output("\n\n Command output: \n\n")
+		self.caller.output(out.decode(self.caller.encoding,'ignore'))
+		# proc.wait() # TODO: if needed, must use tempfiles instead of stdout/err
 
 		# Here the process terminated, but it may have been killed. If so, do not process log file.
 		# Since we set self.caller.proc above, if it is None, the process must have been killed.
