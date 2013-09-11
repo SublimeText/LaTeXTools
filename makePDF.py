@@ -168,7 +168,10 @@ class CmdThread ( threading.Thread ):
 			content.append("Please let me know on GitHub. Thanks!")
 
 		self.caller.output(content)
-		self.caller.output("\n\n[Done!]\n")
+		if errors:
+			self.caller.output("\n\n[Finished, with Errors...]\n")
+		else:
+			self.caller.output("\n\n[Done!]\n")
 		self.caller.finish(len(errors) == 0)
 
 
@@ -209,7 +212,16 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 
 		# Extra paths
 		self.path = path
-			
+
+		# Obtain parameters values
+		global_settings = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
+		show_panel_on_build = global_settings.get('show_panel_on_build', view.settings().get('show_panel_on_build', True))
+		show_build_status = global_settings.get('show_build_status', view.settings().get('show_build_status', False))
+
+		# Put in the status that we are building
+		if show_build_status:
+			self.set_status("Building...")
+
 		# Output panel: from exec.py
 		if not hasattr(self, 'output_view'):
 			self.output_view = self.window.get_output_panel("exec")
@@ -222,7 +234,9 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# self.output_view.settings().set("result_line_regex", line_regex)
 		self.output_view.settings().set("result_base_dir", tex_dir)
 
-		self.window.run_command("show_panel", {"panel": "output.exec"})
+		# Show output panel if needed only
+		if show_panel_on_build:
+			self.window.run_command("show_panel", {"panel": "output.exec"})
 
 		# Get parameters from sublime-build file:
 		self.make_cmd = cmd
@@ -337,8 +351,22 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# self.output_view.show(reg) # scroll to top
 		# self.output_view.end_edit(edit)
 		self.output_view.run_command("do_finish_edit")
+
+		if show_build_status:
+			# Built has finished!
+			self.set_status("Build finished")
+
+			# Remove the status after 2sec
+			sublime.set_timeout(functools.partial(self.set_status, ""), 2000)
+
 		if can_switch_to_pdf:
 			self.window.active_view().run_command("jump_to_pdf", {"from_keybinding": False})
+
+	def set_status(self, status_text):
+		'''
+			Set a message in the status bar
+		'''
+		sublime.active_window().active_view().set_status("latextools", status_text)
 
 
 class DoOutputEditCommand(sublime_plugin.TextCommand):
