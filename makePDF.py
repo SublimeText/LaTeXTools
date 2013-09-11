@@ -29,13 +29,109 @@ DEBUG = False
 # PdfBuilder class
 #
 # Build engines subclass PdfBuilder
+# NOTE: this will have to be moved eventually.
 #
 
 class PdfBuilder:
 	"""Base class for build engines"""
-	def __init__(self, arg):
-		self.arg = arg
-		
+
+	# Configure parameters here
+	#
+	# tex_root: the full path to the tex root file
+	# output: object in main thread responsible for writing to the output panel
+	# prefs : a dictionary with the appropriate prefs (from the settings file, or defaults)
+	#
+	# E.g.: self.path = prefs["path"]
+	def __init__(self, tex_root, output, prefs):
+		self.tex_root = tex_root
+		self.tex_base, self.tex_ext = os.path.splitext(self.tex_root)
+		self.tex_dir = os.path.dirname(self.tex_root)
+		self.output_callable = output
+		self.name = "Abstract Builder: does nothing!"
+		self.out = ""
+
+	# Send to callable object
+	def display(self, data):
+		self.output_callable(data)
+
+	# Save command output
+	def set_output(self, out):
+		print("Setting out")
+		print(out)
+		self.out = out
+
+	# This is where the real work is done. This generator must yield successive commands,
+	# as a function of the parameters and the output from previous commands (via send()).
+	#
+	# E.g out = yield "pdflatex " + self.texroot
+	#     if undefinedreferences(out):
+	#		yield "pdflatex " + self.texroot
+	# where undefinedreferences() is a method that checks if, well, there are undefined
+	# references
+	def commands(self):
+		pass
+
+	# Clean up after ourselves
+	# Only the build system knows what to delete for sure, so give this option
+	# Return True if we actually handle this, False if not
+	#
+	# NOTE: problem. Either we make the builder class persistent, or we have to
+	# pass the tex root again. Need to think about this
+	def cleantemps(self):
+		return False
+
+
+
+#----------------------------------------------------------------
+# SimpleBuilder class
+#
+# Just call a bunch of commands in sequence
+# Demonstrate basics
+#
+
+class SimpleBuilder(PdfBuilder):
+
+	def __init__(self, tex_root, output, prefs):
+		# Sets the file name parts, plus internal stuff
+		super(SimpleBuilder, self).__init__(tex_root, output, prefs) 
+		# Now do our own initialization: just set our name
+		self.name = "Simple Builder"
+
+	def commands(self):
+		# Print greeting
+		self.display("\nSimpleBuilder starting\n\n")
+		# We have commands in our PATH, and are in the same dir as the master file
+
+		yield (["pdflatex", "\""+ self.tex_base + "\""])
+		self.display("Command results, run 1:\n")
+		self.display(self.out)
+		self.display("\n")
+
+		run_pdflatex(1)
+		# Check for changed labels
+		if "LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right." in self.out:
+			yield (["pdflatex", "\""+ self.tex_base + "\""])
+			self.display("Command results, run 2:\n")
+			self.display(self.out)
+			self.display("\n")
+
+
+
+
+
+
+
+#----------------------------------------------------------------
+# TraditionalBuilder class
+#
+# Implement existing functionality, more or less
+# NOTE: move this to a different file, too
+#
+class TraditionalBuilder(PdfBuilder):
+
+	def __init__(self, params):
+		pass
+#### TO BE CONTINUED		
 
 
 
@@ -64,10 +160,7 @@ class CmdThread ( threading.Thread ):
 
 	def run ( self ):
 		print ("Welcome to thread " + self.getName())
-		cmd = self.caller.make_cmd + [self.caller.file_name]
 		self.caller.output("[Compiling " + self.caller.file_name + "]")
-		if DEBUG:
-			print (cmd.encode('UTF-8'))
 
 		# Handle path; copied from exec.py
 		if self.caller.path:
@@ -80,60 +173,61 @@ class CmdThread ( threading.Thread ):
 			else:
 				os.environ["PATH"] = os.path.expandvars(self.caller.path)
 
-		try:
-			if platform.system() == "Windows":
-				# make sure console does not come up
-				startupinfo = subprocess.STARTUPINFO()
-				startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-				proc = subprocess.Popen(cmd, startupinfo=startupinfo, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-			else:
-				proc = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-		except:
-			self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
-			self.caller.output("Attempted command:")
-			self.caller.output(" ".join(cmd))
+		# Set up Windows-specific parameters
+		if platform.system() == "Windows":
+			# make sure console does not come up
+			startupinfo = subprocess.STARTUPINFO()
+			startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
+		# Now, iteratively call the builder iterator
+		#
+		cmd_iterator = self.caller.builder.commands()
+		for cmd in cmd_iterator:
+			print(cmd)
+			# First, create a Popen object
+			try:
+				if platform.system() == "Windows":
+					proc = subprocess.Popen(cmd, startupinfo=startupinfo, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+				else:
+					proc = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+			except:
+				self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
+				self.caller.output("Attempted command:")
+				self.caller.output(" ".join(cmd))
+				self.caller.output("Builder: " + self.caller.builder.name)
+				self.caller.proc = None
+				if self.caller.path:
+					os.environ["PATH"] = old_path
+				return
+			
+			# Now actually invoke the command, making sure we allow for killing
+			# First, save process handle into caller; then communicate (which blocks)
+			self.caller.proc = proc
+			out, err = proc.communicate()
+			self.caller.builder.set_output(out.decode(self.caller.encoding,"ignore"))
+
+			# Here the process terminated, but it may have been killed. If so, stop and don't read log
+			# Since we set self.caller.proc above, if it is None, the process must have been killed.
+			# TODO: clean up?
+			if not self.caller.proc:
+				print (proc.returncode)
+				self.caller.output("\n\n[User terminated compilation process]\n")
+				self.caller.finish(False)	# We kill, so won't switch to PDF anyway
+				return
+			# Here we are done cleanly:
 			self.caller.proc = None
-			return
-		
+			print ("Finished normally")
+			print (proc.returncode)
+
+			# At this point, out contains the output from the current command;
+			# we pass it to the cmd_iterator and get the next command, until completion
+
+		# Clean up
+		cmd_iterator.close()
+
 		# restore path if needed
 		if self.caller.path:
 			os.environ["PATH"] = old_path
-
-		# Handle killing
-		# First, save process handle into caller; then communicate (which blocks)
-		self.caller.proc = proc
-
-		# I want to experiment with this:
-		out, err = proc.communicate()
-		self.caller.output("\n\n Command output: \n\n")
-		self.caller.output(out.decode(self.caller.encoding,'ignore'))
-		# proc.wait() # TODO: if needed, must use tempfiles instead of stdout/err
-
-		# Here the process terminated, but it may have been killed. If so, do not process log file.
-		# Since we set self.caller.proc above, if it is None, the process must have been killed.
-		# TODO: clean up?
-		if not self.caller.proc:
-			print (proc.returncode)
-			self.caller.output("\n\n[User terminated compilation process]\n")
-			self.caller.finish(False)	# We kill, so won't switch to PDF anyway
-			return
-		# Here we are done cleanly:
-		self.caller.proc = None
-		print ("Finished normally")
-		print (proc.returncode)
-
-		# this is a conundrum. We used (ST1) to open in binary mode ('rb') to avoid
-		# issues, but maybe we just need to decode?
-		# 12-10-27 NO! We actually do need rb, because MikTeX on Windows injects Ctrl-Z's in the
-		# log file, and this just causes Python to stop reading the file.
-
-		# OK, this seems solid: first we decode using the self.caller.encoding, 
-		# then we reencode using the default locale's encoding.
-		# Note: we get this using ST2's own getdefaultencoding(), not the locale module
-		# We ignore bad chars in both cases.
-
-		# CHANGED 12/10/19: use platform encoding (self.caller.encoding), then
-		# keep it that way!
 
 		# CHANGED 12-10-27. OK, here's the deal. We must open in binary mode on Windows
 		# because silly MiKTeX inserts ASCII control characters in over/underfull warnings.
@@ -146,6 +240,7 @@ class CmdThread ( threading.Thread ):
 		# 121101 -- moved splitting and decoding logic to parseTeXlog, where it belongs.
 		
 		# Note to self: need to think whether we don't want to codecs.open this, too...
+		# Also, we may want to move part of this logic to the builder...
 		data = open(self.caller.tex_base + ".log", 'rb').read()		
 
 		errors = []
@@ -235,30 +330,32 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 
 		self.window.run_command("show_panel", {"panel": "output.exec"})
 
-		# Get parameters from sublime-build file:
-		self.make_cmd = cmd
+		###
+		# THIS WILL BE IN THE TRADITIONAL BUILDER
+		###
 
-		# I actually think self.file_name is it already
-		self.engine = 'pdflatex' # Standard pdflatex
-		for line in codecs.open(self.file_name, "r", "UTF-8", "ignore").readlines():
-			if not line.startswith('%'):
-				break
-			else:
-				# We have a comment match; check for a TS-program match
-				mroot = re.match(r"%\s*!TEX\s+(?:TS-)?program *= *(xelatex|lualatex|pdflatex)\s*$",line)
-				if mroot:
-					# Sanity checks
-					if "texify" == self.make_cmd[0]:
-						sublime.error_message("Sorry, cannot select engine using a %!TEX program directive on MikTeX.")
-						return 
-					if not ("$pdflatex = '%E" in self.make_cmd[3]):
-						sublime.error_message("You are using a custom LaTeX.sublime-build file (in User maybe?). Cannot select engine using a %!TEX program directive.")
-						return
-					self.engine = mroot.group(1)
-					break
-		if self.engine != 'pdflatex': # Since pdflatex is standard, we do not output a msg. for it.
-			self.output("Using engine " + self.engine + "\n")
-		self.make_cmd[3] = self.make_cmd[3].replace("%E", self.engine)
+		# # I actually think self.file_name is it already
+		# self.engine = 'pdflatex' # Standard pdflatex
+		# for line in codecs.open(self.file_name, "r", "UTF-8", "ignore").readlines():
+		# 	if not line.startswith('%'):
+		# 		break
+		# 	else:
+		# 		# We have a comment match; check for a TS-program match
+		# 		mroot = re.match(r"%\s*!TEX\s+(?:TS-)?program *= *(xelatex|lualatex|pdflatex)\s*$",line)
+		# 		if mroot:
+		# 			# Sanity checks
+		# 			if "texify" == self.make_cmd[0]:
+		# 				sublime.error_message("Sorry, cannot select engine using a %!TEX program directive on MikTeX.")
+		# 				return 
+		# 			if not ("$pdflatex = '%E" in self.make_cmd[3]):
+		# 				sublime.error_message("You are using a custom LaTeX.sublime-build file (in User maybe?). Cannot select engine using a %!TEX program directive.")
+		# 				return
+		# 			self.engine = mroot.group(1)
+		# 			break
+		# if self.engine != 'pdflatex': # Since pdflatex is standard, we do not output a msg. for it.
+		# 	self.output("Using engine " + self.engine + "\n")
+		# self.make_cmd[3] = self.make_cmd[3].replace("%E", self.engine)
+		
 		self.output_view.settings().set("result_file_regex", file_regex)
 
 		if view.is_dirty():
@@ -279,7 +376,12 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		else:
 			sublime.error_message("Platform as yet unsupported. Sorry!")
 			return	
-		print (self.make_cmd + [self.file_name])
+		
+		# Now we need to get the builder from preferences
+		# Now fake it
+
+		fakeprefs = {}
+		self.builder = SimpleBuilder(self.file_name, self.output, fakeprefs)
 		
 		os.chdir(tex_dir)
 		CmdThread(self).start()
