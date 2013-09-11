@@ -263,7 +263,7 @@ class CmdThread ( threading.Thread ):
 				content.append("No errors.")
 			if warnings:
 				if errors:
-					content.append(["", "Warnings:"])
+					content.extend(["", "Warnings:"])
 				else:
 					content[-1] = content[-1] + " Warnings:" 
 				content.append("")
