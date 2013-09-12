@@ -4,6 +4,36 @@
 //
 
 {
+
+	// Basic platform settings: adapt as needed. All MUST be specified
+	"platform_settings" : {
+		"osx": 	{
+			// Path to tex & friends; 
+			"texpath" : "$PATH:/usr/texbin:/usr/local/bin:/opt/local/bin",
+			// Path to PDF viewer, if needed
+			// TODO think about it. Also, maybe configure it here!
+		},
+
+		"windows": {
+			// Path to tex & friends, for MiKTEX
+			"texpath" : ""
+			// For TeXlive 2011 (adapt as needed)
+			// "path" : "C:\\texlive\\2011\\bin\\win32;$PATH",
+		},
+
+		"linux" : {
+			// Path to tex & friends
+			"texpath" : "/usr/texbin"
+		}
+	},
+
+	// Build engine
+	"builder": "simple",
+	// Following are the builder-dependent preferences.
+	"builder_settings" : {
+		// None for now
+	},
+
 	// Keep focus on Sublime Text after building (true) or switch to PDF viewer (false)
 	"keep_focus":	true,
 	// Sync PDF to current editor position after building (true) or not 
