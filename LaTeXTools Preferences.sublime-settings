@@ -5,14 +5,19 @@
 
 {
 
-	// Basic platform settings: adapt as needed. All MUST be specified
+// ------------------------------------------------------------------
+// Basic platform settings: adapt as needed for your machine
+// ------------------------------------------------------------------
+
 	"platform_settings" : {
+
 		"osx": 	{
 			// Path to tex & friends; 
 			"texpath" : "$PATH:/usr/texbin:/usr/local/bin:/opt/local/bin",
 			// Path to PDF viewer, if needed
 			// TODO think about it. Also, maybe configure it here!
 		},
+
 
 		"windows": {
 			// Path to tex & friends, for MiKTEX
@@ -27,19 +32,41 @@
 		}
 	},
 
-	// Build engine
+// ------------------------------------------------------------------
+// Build engine settings
+// ------------------------------------------------------------------
+	
+	// OPTION: "builder"
+	// Specifies a build engine
+	// Possible values:
+	//
+	// "simple"			invokes pdflatex 1x or 2x as needed, then
+	//					bibtex and pdflatex again if needed;
+	//					intended mainly as a simple example for
+	//					peoeple writing their own build engines.
+	//
+	// "traditional"	replicates the 'old' system based on
+	//					latexmk (TeXLive) / texify (MiKTeX)
+	//
+	// "script"			external script: just invokes the script
+	//					specified in "builder_settings"
+
 	"builder": "simple",
-	// Following are the builder-dependent preferences.
+
+	// OPTION: "builder_settings"
+	// Specify builder-dependent settings and preferences
+	// Possible values: see README or documentation provided with
+	// third-party build engine.
+
 	"builder_settings" : {
 		// None for now
 	},
 
-	// Keep focus on Sublime Text after building (true) or switch to PDF viewer (false)
-	"keep_focus":	true,
-	// Sync PDF to current editor position after building (true) or not 
-	"forward_sync":	true,
 
-	// Formatting of references in quick panel
+// ------------------------------------------------------------------
+// Formatting of bibliographic references in quick panel
+// ------------------------------------------------------------------
+
 	/* This preference sets the format of the quick panel to select citations using wildcards.
 	The setting is a list with one or two string using wildcards for author, title, keyword etc. 
 	
@@ -73,12 +100,23 @@
 	// Similarly, the formatting for the autocomplete panel:
 	"cite_autocomplete_format": "{keyword}: {title}",
 
+
+// ------------------------------------------------------------------
+// General settings
+// ------------------------------------------------------------------
+
 	// Cite/ref autocompletion by default is triggered after e.g. \ref{. If you don't like this,
 	// uncomment below. You can also use toggles: C-l,t,a,c and C-l,t,a,r.
 	// "cite_auto_trigger": false,
 	// "ref_auto_trigger": false, 
 
-	// Settings that are specific to Linux platforms
+
+	// Keep focus on Sublime Text after building (true) or switch to PDF viewer (false)
+	"keep_focus":	true,
+	// Sync PDF to current editor position after building (true) or not 
+	"forward_sync":	true,
+
+	// Settings that are specific to Linux platforms NOTE: MOVE ABOVE!!!
 	"linux": {
 		// Command to invoke Python 2. Useful if you have both Python 2 and Python 3 on your system,
 		// and "python" by default is liked to Python 3. If blank, "python" is used
