@@ -13,7 +13,7 @@
 
 		"osx": 	{
 			// Path to tex & friends; 
-			"texpath" : "$PATH:/usr/texbin:/usr/local/bin:/opt/local/bin",
+			"texpath" : "$PATH:/usr/texbin:/usr/local/bin:/opt/local/bin"
 			// Path to PDF viewer, if needed
 			// TODO think about it. Also, maybe configure it here!
 		},

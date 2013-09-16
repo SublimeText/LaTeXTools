@@ -32,7 +32,7 @@ DEBUG = False
 # NOTE: this will have to be moved eventually.
 #
 
-class PdfBuilder:
+class PdfBuilder(object):
 	"""Base class for build engines"""
 
 	# Configure parameters here
