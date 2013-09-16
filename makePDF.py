@@ -98,7 +98,6 @@ class SimpleBuilder(PdfBuilder):
 		# Print greeting
 		self.display("\n\nSimpleBuilder: ")
 
-		quoted_fname = "\"" + self.tex_base + "\""
 		pdflatex = ["pdflatex", "-interaction=nonstopmode", "-synctex=1"]
 
 		# We have commands in our PATH, and are in the same dir as the master file
@@ -109,12 +108,12 @@ class SimpleBuilder(PdfBuilder):
 				self.display(self.out)
 				self.display("\n")	
 
-		yield (pdflatex + [quoted_fname], "pdflatex run 1; ")
+		yield (pdflatex + [self.tex_root], "pdflatex run 1; ")
 		display_results(1)
 
 		# Check for changed labels
 		if "Rerun to get cross-references right." in self.out:
-			yield (pdflatex + [quoted_fname], "pdflatex run 2; ")
+			yield (pdflatex + [self.tex_root], "pdflatex run 2; ")
 			display_results(2)
 
 		self.display("done.\n")
