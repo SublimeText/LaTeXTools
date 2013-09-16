@@ -44,8 +44,14 @@ class PdfBuilder(object):
 	# E.g.: self.path = prefs["path"]
 	def __init__(self, tex_root, output, prefs):
 		self.tex_root = tex_root
-		self.tex_base, self.tex_ext = os.path.splitext(self.tex_root)
-		self.tex_dir = os.path.dirname(self.tex_root)
+		self.tex_dir, self.tex_name = os.path.split(tex_root)
+		self.base_name, self.tex_ext = os.path.splitext(self.tex_name)
+		output("\n\n")
+		output(tex_root + "\n")
+		output(self.tex_dir + "\n")
+		output(self.tex_name + "\n") 
+		output(self.base_name + "\n")
+		output(self.tex_ext + "\n")
 		self.output_callable = output
 		self.name = "Abstract Builder: does nothing!"
 		self.out = ""
@@ -64,6 +70,7 @@ class PdfBuilder(object):
 	# as a function of the parameters and the output from previous commands (via send()).
 	# "cmd" is the command to be run, as an array
 	# "msg" is the message to be displayed (or None)
+	# Remember that we are now in the root file's directory
 	def commands(self):
 		pass
 
@@ -99,6 +106,12 @@ class SimpleBuilder(PdfBuilder):
 		self.display("\n\nSimpleBuilder: ")
 
 		pdflatex = ["pdflatex", "-interaction=nonstopmode", "-synctex=1"]
+		bibtex = ["bibtex"]
+
+		# Regex to look for missing citations
+		# This works for plain latex; apparently natbib requires special handling
+		# TODO: does it work with biblatex?
+		citations_rx = re.compile(r"Warning: Citation `.+' on page \d+ undefined")
 
 		# We have commands in our PATH, and are in the same dir as the master file
 
@@ -108,13 +121,44 @@ class SimpleBuilder(PdfBuilder):
 				self.display(self.out)
 				self.display("\n")	
 
-		yield (pdflatex + [self.tex_root], "pdflatex run 1; ")
-		display_results(1)
+		run = 1
+		brun = 0
+		yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run, ))
+		display_results(run)
+
+		# Check for citations
+		# Use search, not match: match looks at the beginning of the string
+		# We need to run pdflatex twice after bibtex
+		if citations_rx.search(self.out):
+			brun = brun + 1
+			yield (bibtex + [self.base_name], "bibtex run %d; " % (brun,))
+			display_results(1)
+			run = run + 1
+			yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run, ))
+			display_results(run)
+			run = run + 1
+			yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run, ))
+			display_results(run)
+
+		# Apparently natbib needs separate processing
+		if "Package natbib Warning: There were undefined citations." in self.out:
+			brun = brun + 1
+			yield (bibtex + [self.base_name], "bibtex run %d; " % (brun,))
+			display_results(2)
+			run = run + 1
+			yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run, ))
+			display_results(run)
+			run = run + 1
+			yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run, ))
+			display_results(run)
 
 		# Check for changed labels
+		# Do this at the end, so if there are also citations to resolve,
+		# we may save one pdflatex run
 		if "Rerun to get cross-references right." in self.out:
-			yield (pdflatex + [self.tex_root], "pdflatex run 2; ")
-			display_results(2)
+			run = run + 1
+			yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run, ))
+			display_results(run)
 
 		self.display("done.\n")
 			
