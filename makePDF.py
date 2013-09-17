@@ -245,17 +245,26 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		build_settings = s.get("builder_settings")
 
 		# Now actually get the builder
-		ltt_path = os.path.join(sublime.packages_path(),'LaTeXTools','builders',builder_file_name)
-		usr_path = os.path.join(sublime.packages_path(),'User','builders',builder_file_name)
-		print(ltt_path)
-		print(usr_path)
-		if os.path.isfile(ltt_path):
-			builder_module = imp.load_source(builder_class_name, ltt_path)
-		elif os.path.isfile(usr_path):
-			builder_module = imp.load_source(builder_class_name, usr_path)
+		ltt_path = os.path.join(sublime.packages_path(),'LaTeXTools','builders')
+		ltt_file = os.path.join(ltt_path,builder_file_name)
+		usr_path = os.path.join(sublime.packages_path(),'User','builders')
+		usr_file = os.path.join(usr_path, builder_file_name)
+		
+		# We save the system path and TEMPORARILY add the builder path to it,
+		# so we can simply "import pdfBuilder"
+		# The mechanics are from http://effbot.org/zone/import-string.htm
+		syspath_save = list(sys.path)
+		
+		if os.path.isfile(ltt_file):
+			sys.path.insert(0, ltt_path)
+			builder_module = __import__(builder_name + 'Builder')
+		elif os.path.isfile(usr_file):
+			sys.path.insert(0, usr_path)
+			builder_module = __import__(builder_name + 'Builder')
 		else:
 			sublime.error_message("Cannot find builder " + builder_name + ".\n" \
 							      "Check your LaTeXTools Preferences")
+			sys.path[:] = syspath_save
 			return
 
 		print(repr(builder_module))
@@ -263,6 +272,9 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		print(repr(builder_class))
 		# We should now be able to construct the builder object
 		self.builder = builder_class(self.file_name, self.output, build_settings)
+		
+		# Restore Python system path
+		sys.path[:] = syspath_save
 		
 		# Now get the tex binary path from prefs, change directory to
 		# that of the tex root file, and run!
