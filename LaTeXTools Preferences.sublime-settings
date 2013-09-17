@@ -65,7 +65,10 @@
 	// OPTION: "builder_path"
 	// If non-empty, specifies a path to a custom builder, relative to the
 	// Sublime Text Packages directory.
-	// For instance, "User" is a good choice if you roll your own.
+	// For instance, "User/builders" (on Windows: "User\builders") is a good
+	// choice if you roll your own. 
+	// (Note: if you choose "User", you may get a Python import error in the
+	// console, but things will still work). 
 	// Leave empty ("") for a built-in builder.
 
 	"builder_path": "",
