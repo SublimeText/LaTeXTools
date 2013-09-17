@@ -68,7 +68,7 @@ class CmdThread ( threading.Thread ):
 				os.environ["PATH"] = os.path.expandvars(self.caller.path)
 
 		# Set up Windows-specific parameters
-		if sublime.platform() == "windows":
+		if self.caller.plat == "windows":
 			# make sure console does not come up
 			startupinfo = subprocess.STARTUPINFO()
 			startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -84,7 +84,7 @@ class CmdThread ( threading.Thread ):
 
 			# Now create a Popen object
 			try:
-				if sublime.platform() == "windows":
+				if self.caller.plat == "windows":
 					proc = subprocess.Popen(cmd, startupinfo=startupinfo, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 				else:
 					proc = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
@@ -178,16 +178,6 @@ class CmdThread ( threading.Thread ):
 
 # Actual Command
 
-# TODO latexmk stops if bib files can't be found (on subsequent compiles)
-# I.e. it doesn't even start bibtex!
-# If so, find out! Otherwise log file is never refreshed
-# Work-around: check file creation times
-
-# We get the texification command (cmd), file regex and path (TODO) from
-# the sublime-build file. This allows us to use the ST2 magic: we can keep both
-# windows and osx settings there, and we get handed the right one depending on
-# the platform! Cool!
-
 class make_pdfCommand(sublime_plugin.WindowCommand):
 
 	def run(self, cmd="", file_regex="", path=""):
@@ -248,7 +238,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		
 		# Get platform settings, builder, and builder settings
 		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
-		plat_settings  = s.get("platform_settings")[self.plat]
+		platform_settings  = s.get("platform_settings")[self.plat]
 		builder_name   = s.get("builder")
 		builder_file_name   = builder_name + 'Builder.py'
 		builder_class_name  = builder_name.capitalize() + 'Builder'
