@@ -60,7 +60,7 @@
 	// NOTE: custom builders CANNOT have the same name as an existing
 	// built-in build engine (including "default")
 
-	"builder": "simple",
+	"builder": "traditional",
 
 	// OPTION: "builder_path"
 	// If non-empty, specifies a path to a custom builder, relative to the
@@ -81,18 +81,23 @@
 
 	"builder_settings" : {
 		
-		// General settings go here
+		// General settings:
+		// See README or third-party documentation
 
+		// (built-ins): true shows the log of each command in the output panel
+		"display_log" : false,	
+
+		// Platform-specific settings:
 		"osx" : {
-			// None for now
+			// See README or third-party documentation
 		},
 
 		"windows" : {
-			// None for now
+			// See README or third-party documentation
 		},
 
 		"linux" : {
-			// None for now
+			// See README or third-party documentation
 		}
 	},
 

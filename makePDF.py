@@ -245,6 +245,9 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
 		platform_settings  = s.get("platform_settings")[self.plat]
 		builder_name = s.get("builder")
+		# Default to 'traditional' builder
+		if builder_name in ['', 'default']:
+			builder_name = 'traditional'
 		builder_path = s.get("builder_path") # relative to ST packages dir!
 		builder_file_name   = builder_name + 'Builder.py'
 		builder_class_name  = builder_name.capitalize() + 'Builder'
@@ -254,10 +257,6 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# builder_path, even if it was specified in the pref file
 		if builder_name in ['simple', 'traditional', 'script', 'default','']:
 			builder_path = None
-
-		# Default to 'traditional' builder
-		if builder_name in ['', 'default']:
-			builder_name = 'traditional'
 
 		# Now actually get the builder
 		ltt_path = os.path.join(sublime.packages_path(),'LaTeXTools','builders')
