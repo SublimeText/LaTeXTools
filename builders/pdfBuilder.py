@@ -38,30 +38,28 @@ class PdfBuilder(object):
 		self.tex_root = tex_root
 		self.tex_dir, self.tex_name = os.path.split(tex_root)
 		self.base_name, self.tex_ext = os.path.splitext(self.tex_name)
-		# output("\n\n")
-		# output(tex_root + "\n")
-		# output(self.tex_dir + "\n")
-		# output(self.tex_name + "\n") 
-		# output(self.base_name + "\n")
-		# output(self.tex_ext + "\n")
 		self.output_callable = output
-		self.name = "Abstract Builder: does nothing!"
 		self.out = ""
 
 	# Send to callable object
+	# Usually no need to override
 	def display(self, data):
 		self.output_callable(data)
 
 	# Save command output
+	# Usually no need to override
 	def set_output(self, out):
-		print("Setting out")
-		print(out)
+		if DEBUG:
+			print("Setting out")
+			print(out)
 		self.out = out
 
 	# This is where the real work is done. This generator must yield (cmd, msg) tuples,
 	# as a function of the parameters and the output from previous commands (via send()).
 	# "cmd" is the command to be run, as an array
 	# "msg" is the message to be displayed (or None)
+	# As of now, this function *must* yield at least *one* tuple.
+	# If no command must be run, just yield ("","")
 	# Remember that we are now in the root file's directory
 	def commands(self):
 		pass
