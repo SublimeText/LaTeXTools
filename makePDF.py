@@ -6,12 +6,10 @@ if sublime.version() < '3000':
 	_ST3 = False
 	import getTeXRoot
 	import parseTeXlog
-	import builders.pdfBuilder
 else:
 	_ST3 = True
 	from . import getTeXRoot
 	from . import parseTeXlog
-	from .builders import pdfBuilder
 
 import sublime_plugin
 import sys
@@ -70,7 +68,7 @@ class CmdThread ( threading.Thread ):
 				os.environ["PATH"] = os.path.expandvars(self.caller.path)
 
 		# Set up Windows-specific parameters
-		if platform.system() == "Windows":
+		if sublime.platform() == "windows":
 			# make sure console does not come up
 			startupinfo = subprocess.STARTUPINFO()
 			startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -86,7 +84,7 @@ class CmdThread ( threading.Thread ):
 
 			# Now create a Popen object
 			try:
-				if platform.system() == "Windows":
+				if sublime.platform() == "windows":
 					proc = subprocess.Popen(cmd, startupinfo=startupinfo, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 				else:
 					proc = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
@@ -254,25 +252,30 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# Get platform settings, builder, and builder settings
 		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
 		plat_settings  = s.get("platform_settings")[plat]
-		builder_name   = s.get("builder") + 'Builder.py'
+		builder_name   = s.get("builder")
+		builder_file_name   = builder_name + 'Builder.py'
+		builder_class_name  = builder_name.capitalize() + 'Builder'
 		build_settings = s.get("builder_settings")
 
 		# Now actually get the builder
-		ltt_path = os.path.join(sublime.packages_path(),'LaTeXTools','builders',builder_name)
-		usr_path = os.path.join(sublime.packages_path(),'User','builders',builder_name)
+		ltt_path = os.path.join(sublime.packages_path(),'LaTeXTools','builders',builder_file_name)
+		usr_path = os.path.join(sublime.packages_path(),'User','builders',builder_file_name)
 		print(ltt_path)
 		print(usr_path)
 		if os.path.isfile(ltt_path):
-			builder_module = imp.load_source('builder', ltt_path)
+			builder_module = imp.load_source(builder_class_name, ltt_path)
 		elif os.path.isfile(usr_path):
-			builder_module = imp.load_source('builder', usr_path)
+			builder_module = imp.load_source(builder_class_name, usr_path)
 		else:
 			sublime.error_message("Cannot find builder " + builder_name + ".\n" \
 							      "Check your LaTeXTools Preferences")
 			return
 
+		print(repr(builder_module))
+		builder_class = getattr(builder_module, builder_class_name)
+		print(repr(builder_class))
 		# We should now be able to construct the builder object
-		self.builder = builder(self.file_name, self.output, build_settings)
+		self.builder = builder_class(self.file_name, self.output, build_settings)
 		
 		os.chdir(tex_dir)
 		CmdThread(self).start()
