@@ -82,6 +82,11 @@ class CmdThread ( threading.Thread ):
 			if msg:
 				self.caller.output(msg)
 
+			# If there is nothing to be done, exit loop
+			# (Avoids error with empty cmd_iterator)
+			if cmd == "":
+				break
+
 			# Now create a Popen object
 			try:
 				if self.caller.plat == "windows":
@@ -239,34 +244,47 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# Get platform settings, builder, and builder settings
 		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
 		platform_settings  = s.get("platform_settings")[self.plat]
-		builder_name   = s.get("builder")
+		builder_name = s.get("builder")
+		builder_path = s.get("builder_path") # relative to ST packages dir!
 		builder_file_name   = builder_name + 'Builder.py'
 		builder_class_name  = builder_name.capitalize() + 'Builder'
 		build_settings = s.get("builder_settings")
 
+		# Safety check: if we are using a built-in builder, disregard
+		# builder_path, even if it was specified in the pref file
+		if builder_name in ['simple', 'traditional', 'script', 'default','']:
+			builder_path = None
+
+		# Default to 'traditional' builder
+		if builder_name in ['', 'default']:
+			builder_name = 'traditional'
+
 		# Now actually get the builder
 		ltt_path = os.path.join(sublime.packages_path(),'LaTeXTools','builders')
-		ltt_file = os.path.join(ltt_path,builder_file_name)
-		usr_path = os.path.join(sublime.packages_path(),'User','builders')
-		usr_file = os.path.join(usr_path, builder_file_name)
-		
-		# We save the system path and TEMPORARILY add the builder path to it,
-		# so we can simply "import pdfBuilder"
-		# The mechanics are from http://effbot.org/zone/import-string.htm
-		syspath_save = list(sys.path)
-		
-		if os.path.isfile(ltt_file):
-			sys.path.insert(0, ltt_path)
-			builder_module = __import__(builder_name + 'Builder')
-		elif os.path.isfile(usr_file):
-			sys.path.insert(0, usr_path)
-			builder_module = __import__(builder_name + 'Builder')
+		if builder_path:
+			bld_path = os.path.join(sublime.packages_path(), builder_path)
 		else:
+			bld_path = ltt_path
+		bld_file = os.path.join(bld_path, builder_file_name)
+
+		if not os.path.isfile(bld_file):
 			sublime.error_message("Cannot find builder " + builder_name + ".\n" \
 							      "Check your LaTeXTools Preferences")
-			sys.path[:] = syspath_save
 			return
+		
+		# We save the system path and TEMPORARILY add the builders path to it,
+		# so we can simply "import pdfBuilder" in the builder module
+		# For custom builders, we need to add both the LaTeXTools builders
+		# path, as well as the custom path specified above.
+		# The mechanics are from http://effbot.org/zone/import-string.htm
 
+		syspath_save = list(sys.path)
+		sys.path.insert(0, ltt_path)
+		if builder_path:
+			sys.path.insert(0, bld_path)
+		builder_module = __import__(builder_name + 'Builder')
+		sys.path[:] = syspath_save
+		
 		print(repr(builder_module))
 		builder_class = getattr(builder_module, builder_class_name)
 		print(repr(builder_class))

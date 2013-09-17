@@ -40,6 +40,9 @@
 	// Specifies a build engine
 	// Possible values:
 	//
+	// "default" or ""	the default built-in build engine; currently
+	//					this is the same as "traditional"
+	//
 	// "simple"			invokes pdflatex 1x or 2x as needed, then
 	//					bibtex and pdflatex again if needed;
 	//					intended mainly as a simple example for
@@ -50,8 +53,22 @@
 	//
 	// "script"			external script: just invokes the script
 	//					specified in "builder_settings"
+	//
+	// custom name		you can also use third-party build engines;
+	//					if so, set the "builder_path" option below
+	//
+	// NOTE: custom builders CANNOT have the same name as an existing
+	// built-in build engine (including "default")
 
 	"builder": "simple",
+
+	// OPTION: "builder_path"
+	// If non-empty, specifies a path to a custom builder, relative to the
+	// Sublime Text Packages directory.
+	// For instance, "User" is a good choice if you roll your own.
+	// Leave empty ("") for a built-in builder.
+
+	"builder_path": "",
 
 	// OPTION: "builder_settings"
 	// Specify builder-dependent settings and preferences
