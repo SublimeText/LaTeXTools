@@ -6,13 +6,19 @@ if sublime.version() < '3000':
 	_ST3 = False
 	import getTeXRoot
 	import parseTeXlog
+	import builders.pdfBuilder
 else:
 	_ST3 = True
 	from . import getTeXRoot
 	from . import parseTeXlog
+	from .builders import pdfBuilder
 
 import sublime_plugin
-import sys, os, os.path, platform, threading, functools
+import sys
+import imp
+import os, os.path
+import threading
+import functools
 import subprocess
 import types
 import re
@@ -23,165 +29,7 @@ DEBUG = False
 # Compile current .tex file to pdf
 # Allow custom scripts and build engines!
 
-
-
-#---------------------------------------------------------------
-# PdfBuilder class
-#
-# Build engines subclass PdfBuilder
-# NOTE: this will have to be moved eventually.
-#
-
-class PdfBuilder(object):
-	"""Base class for build engines"""
-
-	# Configure parameters here
-	#
-	# tex_root: the full path to the tex root file
-	# output: object in main thread responsible for writing to the output panel
-	# prefs : a dictionary with the appropriate prefs (from the settings file, or defaults)
-	#
-	# E.g.: self.path = prefs["path"]
-	def __init__(self, tex_root, output, prefs):
-		self.tex_root = tex_root
-		self.tex_dir, self.tex_name = os.path.split(tex_root)
-		self.base_name, self.tex_ext = os.path.splitext(self.tex_name)
-		output("\n\n")
-		output(tex_root + "\n")
-		output(self.tex_dir + "\n")
-		output(self.tex_name + "\n") 
-		output(self.base_name + "\n")
-		output(self.tex_ext + "\n")
-		self.output_callable = output
-		self.name = "Abstract Builder: does nothing!"
-		self.out = ""
-
-	# Send to callable object
-	def display(self, data):
-		self.output_callable(data)
-
-	# Save command output
-	def set_output(self, out):
-		print("Setting out")
-		print(out)
-		self.out = out
-
-	# This is where the real work is done. This generator must yield (cmd, msg) tuples,
-	# as a function of the parameters and the output from previous commands (via send()).
-	# "cmd" is the command to be run, as an array
-	# "msg" is the message to be displayed (or None)
-	# Remember that we are now in the root file's directory
-	def commands(self):
-		pass
-
-	# Clean up after ourselves
-	# Only the build system knows what to delete for sure, so give this option
-	# Return True if we actually handle this, False if not
-	#
-	# NOTE: problem. Either we make the builder class persistent, or we have to
-	# pass the tex root again. Need to think about this
-	def cleantemps(self):
-		return False
-
-
-
-#----------------------------------------------------------------
-# SimpleBuilder class
-#
-# Just call a bunch of commands in sequence
-# Demonstrate basics
-#
-
-class SimpleBuilder(PdfBuilder):
-
-	def __init__(self, tex_root, output, prefs):
-		# Sets the file name parts, plus internal stuff
-		super(SimpleBuilder, self).__init__(tex_root, output, prefs) 
-		# Now do our own initialization: set our name, see if we want to display output
-		self.name = "Simple Builder"
-		self.display_log = prefs.get("display_log", False)
-
-	def commands(self):
-		# Print greeting
-		self.display("\n\nSimpleBuilder: ")
-
-		pdflatex = ["pdflatex", "-interaction=nonstopmode", "-synctex=1"]
-		bibtex = ["bibtex"]
-
-		# Regex to look for missing citations
-		# This works for plain latex; apparently natbib requires special handling
-		# TODO: does it work with biblatex?
-		citations_rx = re.compile(r"Warning: Citation `.+' on page \d+ undefined")
-
-		# We have commands in our PATH, and are in the same dir as the master file
-
-		def display_results(n):
-			if self.display_log:
-				self.display("Command results, run %d:\n" % (n,) )
-				self.display(self.out)
-				self.display("\n")	
-
-		run = 1
-		brun = 0
-		yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run, ))
-		display_results(run)
-
-		# Check for citations
-		# Use search, not match: match looks at the beginning of the string
-		# We need to run pdflatex twice after bibtex
-		if citations_rx.search(self.out):
-			brun = brun + 1
-			yield (bibtex + [self.base_name], "bibtex run %d; " % (brun,))
-			display_results(1)
-			run = run + 1
-			yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run, ))
-			display_results(run)
-			run = run + 1
-			yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run, ))
-			display_results(run)
-
-		# Apparently natbib needs separate processing
-		if "Package natbib Warning: There were undefined citations." in self.out:
-			brun = brun + 1
-			yield (bibtex + [self.base_name], "bibtex run %d; " % (brun,))
-			display_results(2)
-			run = run + 1
-			yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run, ))
-			display_results(run)
-			run = run + 1
-			yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run, ))
-			display_results(run)
-
-		# Check for changed labels
-		# Do this at the end, so if there are also citations to resolve,
-		# we may save one pdflatex run
-		if "Rerun to get cross-references right." in self.out:
-			run = run + 1
-			yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run, ))
-			display_results(run)
-
-		self.display("done.\n")
-			
-
-
-
-
-
-
-
-#----------------------------------------------------------------
-# TraditionalBuilder class
-#
-# Implement existing functionality, more or less
-# NOTE: move this to a different file, too
-#
-class TraditionalBuilder(PdfBuilder):
-
-	def __init__(self, params):
-		pass
-#### TO BE CONTINUED		
-
-
+# The actual work is done by builders, loaded on-demand from prefs
 
 # Encoding: especially useful for Windows
 # TODO: counterpart for OSX? Guess encoding of files?
@@ -231,9 +79,12 @@ class CmdThread ( threading.Thread ):
 		#
 		cmd_iterator = self.caller.builder.commands()
 		for (cmd, msg) in cmd_iterator:
+
+			# If there is a message, display it
 			if msg:
 				self.caller.output(msg)
-			# First, create a Popen object
+
+			# Now create a Popen object
 			try:
 				if platform.system() == "Windows":
 					proc = subprocess.Popen(cmd, startupinfo=startupinfo, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
@@ -378,32 +229,6 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		self.output_view.settings().set("result_base_dir", tex_dir)
 
 		self.window.run_command("show_panel", {"panel": "output.exec"})
-
-		###
-		# THIS WILL BE IN THE TRADITIONAL BUILDER
-		###
-
-		# # I actually think self.file_name is it already
-		# self.engine = 'pdflatex' # Standard pdflatex
-		# for line in codecs.open(self.file_name, "r", "UTF-8", "ignore").readlines():
-		# 	if not line.startswith('%'):
-		# 		break
-		# 	else:
-		# 		# We have a comment match; check for a TS-program match
-		# 		mroot = re.match(r"%\s*!TEX\s+(?:TS-)?program *= *(xelatex|lualatex|pdflatex)\s*$",line)
-		# 		if mroot:
-		# 			# Sanity checks
-		# 			if "texify" == self.make_cmd[0]:
-		# 				sublime.error_message("Sorry, cannot select engine using a %!TEX program directive on MikTeX.")
-		# 				return 
-		# 			if not ("$pdflatex = '%E" in self.make_cmd[3]):
-		# 				sublime.error_message("You are using a custom LaTeX.sublime-build file (in User maybe?). Cannot select engine using a %!TEX program directive.")
-		# 				return
-		# 			self.engine = mroot.group(1)
-		# 			break
-		# if self.engine != 'pdflatex': # Since pdflatex is standard, we do not output a msg. for it.
-		# 	self.output("Using engine " + self.engine + "\n")
-		# self.make_cmd[3] = self.make_cmd[3].replace("%E", self.engine)
 		
 		self.output_view.settings().set("result_file_regex", file_regex)
 
@@ -415,22 +240,39 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			sublime.error_message("%s is not a TeX source file: cannot compile." % (os.path.basename(view.file_name()),))
 			return
 		
-		s = platform.system()
-		if s == "Darwin":
+		plat = sublime.platform()
+		if plat == "osx":
 			self.encoding = "UTF-8"
-		elif s == "Windows":
+		elif plat == "windows":
 			self.encoding = getOEMCP()
-		elif s == "Linux":
+		elif plat == "linux":
 			self.encoding = "UTF-8"
 		else:
 			sublime.error_message("Platform as yet unsupported. Sorry!")
 			return	
 		
-		# Now we need to get the builder from preferences
-		# Now fake it
+		# Get platform settings, builder, and builder settings
+		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
+		plat_settings  = s.get("platform_settings")[plat]
+		builder_name   = s.get("builder") + 'Builder.py'
+		build_settings = s.get("builder_settings")
 
-		fakeprefs = {}
-		self.builder = SimpleBuilder(self.file_name, self.output, fakeprefs)
+		# Now actually get the builder
+		ltt_path = os.path.join(sublime.packages_path(),'LaTeXTools','builders',builder_name)
+		usr_path = os.path.join(sublime.packages_path(),'User','builders',builder_name)
+		print(ltt_path)
+		print(usr_path)
+		if os.path.isfile(ltt_path):
+			builder_module = imp.load_source('builder', ltt_path)
+		elif os.path.isfile(usr_path):
+			builder_module = imp.load_source('builder', usr_path)
+		else:
+			sublime.error_message("Cannot find builder " + builder_name + ".\n" \
+							      "Check your LaTeXTools Preferences")
+			return
+
+		# We should now be able to construct the builder object
+		self.builder = builder(self.file_name, self.output, build_settings)
 		
 		os.chdir(tex_dir)
 		CmdThread(self).start()

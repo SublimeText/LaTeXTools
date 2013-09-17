@@ -57,9 +57,23 @@
 	// Specify builder-dependent settings and preferences
 	// Possible values: see README or documentation provided with
 	// third-party build engine.
+	// Builder setting can be general or OS-dependent
 
 	"builder_settings" : {
-		// None for now
+		
+		// General settings go here
+
+		"osx" : {
+			// None for now
+		},
+
+		"windows" : {
+			// None for now
+		},
+
+		"linux" : {
+			// None for now
+		}
 	},
 
 
