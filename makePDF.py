@@ -211,9 +211,6 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		self.tex_base, self.tex_ext = os.path.splitext(self.file_name)
 		tex_dir = os.path.dirname(self.file_name)
 		
-		# Extra paths
-		self.path = path
-			
 		# Output panel: from exec.py
 		if not hasattr(self, 'output_view'):
 			self.output_view = self.window.get_output_panel("exec")
@@ -238,12 +235,12 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			sublime.error_message("%s is not a TeX source file: cannot compile." % (os.path.basename(view.file_name()),))
 			return
 		
-		plat = sublime.platform()
-		if plat == "osx":
+		self.plat = sublime.platform()
+		if self.plat == "osx":
 			self.encoding = "UTF-8"
-		elif plat == "windows":
+		elif self.plat == "windows":
 			self.encoding = getOEMCP()
-		elif plat == "linux":
+		elif self.plat == "linux":
 			self.encoding = "UTF-8"
 		else:
 			sublime.error_message("Platform as yet unsupported. Sorry!")
@@ -251,7 +248,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		
 		# Get platform settings, builder, and builder settings
 		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
-		plat_settings  = s.get("platform_settings")[plat]
+		plat_settings  = s.get("platform_settings")[self.plat]
 		builder_name   = s.get("builder")
 		builder_file_name   = builder_name + 'Builder.py'
 		builder_class_name  = builder_name.capitalize() + 'Builder'
@@ -277,6 +274,9 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# We should now be able to construct the builder object
 		self.builder = builder_class(self.file_name, self.output, build_settings)
 		
+		# Now get the tex binary path from prefs, change directory to
+		# that of the tex root file, and run!
+		self.path = platform_settings['texpath']
 		os.chdir(tex_dir)
 		CmdThread(self).start()
 		print (threading.active_count())

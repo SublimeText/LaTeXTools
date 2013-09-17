@@ -23,7 +23,7 @@
 			// Path to tex & friends, for MiKTEX
 			"texpath" : ""
 			// For TeXlive 2011 (adapt as needed)
-			// "path" : "C:\\texlive\\2011\\bin\\win32;$PATH",
+			// "texpath" : "C:\\texlive\\2011\\bin\\win32;$PATH",
 		},
 
 		"linux" : {
