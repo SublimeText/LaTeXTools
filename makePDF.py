@@ -86,7 +86,7 @@ class CmdThread ( threading.Thread ):
 			# (Avoids error with empty cmd_iterator)
 			if cmd == "":
 				break
-
+			print(cmd)
 			# Now create a Popen object
 			try:
 				if self.caller.plat == "windows":

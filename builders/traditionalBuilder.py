@@ -15,11 +15,11 @@ import codecs
 
 DEBUG = False
 
-DEFAULT_COMMAND_UNICES = ["latexmk", "-cd",
+DEFAULT_COMMAND_LATEXMK = ["latexmk", "-cd",
 				"-e", "$pdflatex = '%E -interaction=nonstopmode -synctex=1 %S %O'",
 				"-f", "-pdf"]
 
-DEFAULT_COMMAND_WINDOWS = ["texify", 
+DEFAULT_COMMAND_WINDOWS_MIKTEX = ["texify", 
 					"-b", "-p",
 					"--tex-option=\"--synctex=1\""]
 
@@ -40,10 +40,11 @@ class TraditionalBuilder(PdfBuilder):
 		# Display output?
 		self.display_log = prefs.get("display_log", False)
 		# Build command, with reasonable defaults
-		if sublime.platform() == 'windows':
-			default_command = DEFAULT_COMMAND_WINDOWS
-		else: # osx, linux
-			default_command = DEFAULT_COMMAND_UNICES
+		plat = sublime.platform()
+		if plat == 'windows' and prefs[plat].get("distro", "miktex") == "miktex": # default to miktex
+			default_command = DEFAULT_COMMAND_WINDOWS_MIKTEX
+		else: # osx, linux, windows/texlive
+			default_command = DEFAULT_COMMAND_LATEXMK
 		self.cmd = prefs.get("command", default_command)
 		# Default tex engine (pdflatex if none specified)
 		self.engine = prefs.get("program", "pdflatex")
@@ -86,7 +87,8 @@ class TraditionalBuilder(PdfBuilder):
 			
 		cmd[3] = cmd[3].replace("%E", engine)
 
-		yield (cmd + [self.base_name], "Invoking " + cmd[0] + "... ")
+		# texify wants the .tex extension; latexmk doesn't care either way
+		yield (cmd + [self.tex_name], "Invoking " + cmd[0] + "... ")
 
 		self.display("done.\n")
 		
