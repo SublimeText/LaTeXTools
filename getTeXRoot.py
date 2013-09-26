@@ -46,7 +46,15 @@ def get_tex_root(view):
 	else:
 		# This works on ST2 and ST3, but does not automatically convert line endings.
 		# We should be OK though.
-		lines = codecs.open(texFile, "r", "UTF-8")
+		encodings = ['utf-8', 'iso-8859-1', 'windows-1252']
+		for e in encodings:
+			try:
+				lines = codecs.open(texFile, "r", e)
+			except UnicodeDecodeError:
+				print('Got unicode error with %s , trying different encoding' % e)
+			else:
+				print('Opening the file with encoding:  %s ' % e)
+				continue 				
 		is_file = True
 
 	for line in lines:
