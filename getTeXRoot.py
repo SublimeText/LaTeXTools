@@ -26,7 +26,7 @@ def get_tex_root(view):
 
 	# relative TEXroot handling by cpbotha
 	# get directory containing the tex file
-	cur_file_dir = os.path.dirname(view.file_name())
+	cur_file_dir = os.path.dirname(texFile)
 	# get the spec from the project settings (can return None)
 	texroot = view.settings().get('TEXroot')
 
