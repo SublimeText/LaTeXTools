@@ -20,16 +20,28 @@ import codecs
 # Contributed by Sam Finn
 
 def get_tex_root(view):
-	try:
-		root = os.path.abspath(view.settings().get('TEXroot'))
-		if os.path.isfile(root):
-			print("Main file defined in project settings : " + root)
-			return root
-	except:
-		pass
 
-
+	# this is the absolute path name of the file being edited
 	texFile = view.file_name()
+
+	# relative TEXroot handling by cpbotha
+	# get directory containing the tex file
+	cur_file_dir = os.path.dirname(view.file_name())
+	# get the spec from the project settings (can return None)
+	texroot = view.settings().get('TEXroot')
+
+	if texroot is not None:
+		if not os.path.isabs(texroot):
+			# it's a relative path specification
+			# mash it up with the dir, then get its absolute version
+			texroot = os.path.abspath(os.path.join(cur_file_dir, texroot))
+
+		if os.path.isfile(texroot):
+			print("Main file defined in project settings : " + texroot)
+			return texroot
+
+	# couldn't find it in the project, falling back to % !TEXroot = ... syntax
+
 	root = texFile
 	if texFile is None:
 		# We are in an unnamed, unsaved file.
