@@ -81,7 +81,7 @@ class CmdThread ( threading.Thread ):
 		except:
 			self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
 			self.caller.output("Attempted command:")
-			self.caller.output(" ".join(cmd))
+			self.caller.output(subprocess.list2cmdline(cmd))
 			self.caller.proc = None
 			return
 		
