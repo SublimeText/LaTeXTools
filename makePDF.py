@@ -141,7 +141,7 @@ class CmdThread ( threading.Thread ):
 		warnings = []
 
 		try:
-			(errors, warnings) = parseTeXlog.parse_tex_log(data)
+			(errors, warnings, badboxes) = parseTeXlog.parse_tex_log(data)
 			content = ["",""]
 			if errors:
 				content.append("There were errors in your LaTeX source") 
@@ -149,7 +149,6 @@ class CmdThread ( threading.Thread ):
 				content.extend(errors)
 			else:
 				content.append("Texification succeeded: no errors!")
-				content.append("") 
 			if warnings:
 				if errors:
 					content.append("")
@@ -158,6 +157,10 @@ class CmdThread ( threading.Thread ):
 					content.append("However, there were warnings in your LaTeX source") 
 				content.append("")
 				content.extend(warnings)
+			if badboxes:
+				content.append("")
+				content.append("Bad boxes detected...")
+				content.extend(badboxes)
 		except Exception as e:
 			content=["",""]
 			content.append("LaTeXtools could not parse the TeX log file")
