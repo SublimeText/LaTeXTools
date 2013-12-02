@@ -8,6 +8,7 @@
                 { "trigger": "em", "contents": "\\emph{$1}$0"},
                 { "trigger": "tt", "contents": "\\texttt{$1}$0"},
                 { "trigger": "un", "contents": "\\underline{$1}$0"},
+                { "trigger": "enq", "contents": "\\enquote{$1}$0"},
 
                 { "trigger": "bs", "contents": "\\bigskip"},
                 { "trigger": "ms", "contents": "\\medskip"},
