@@ -237,10 +237,11 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 				mroot = re.match(r"%\s*!TEX\s+(?:TS-)?program *= *(xelatex|lualatex|pdflatex)\s*$",line)
 				if mroot:
 					# Sanity checks
-					if "texify" == self.make_cmd[0]:
-						sublime.error_message("Sorry, cannot select engine using a %!TEX program directive on MikTeX.")
-						return 
-					if not ("$pdflatex = '%E" in self.make_cmd[3]):
+					if "texify" == self.make_cmd[0]:						
+						self.engine = mroot.group(1)
+						self.engine = self.engine.replace("la","") # --engine takes pdftex/xetex/luatex as options
+						self.make_cmd.append("--engine={0}".format(self.engine))						
+					elif not ("$pdflatex = '%E" in self.make_cmd[3]):
 						sublime.error_message("You are using a custom LaTeX.sublime-build file (in User maybe?). Cannot select engine using a %!TEX program directive.")
 						return
 					self.engine = mroot.group(1)
