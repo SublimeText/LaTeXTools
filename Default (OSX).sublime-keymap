@@ -56,7 +56,7 @@ LaTeX Package keymap for OS X
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "preceding_text", "operator": "regex_contains",
-				"operand": "\\\\cite([a-zX*]*?)(\\[.*?\\]){0,2}\\{(?:[^{},]*,)*[^{},]+$", "match_all": true}],
+				"operand": "\\\\(cref|cite([a-zX*]*?))(\\[.*?\\]){0,2}\\{(?:[^{},]*,)*[^{},]+$", "match_all": true}],
 		"command": "latex_ref_cite", "args": {"insert_char": ","}},
 
 	// Toggle autocomplete
