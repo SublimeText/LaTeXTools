@@ -55,7 +55,7 @@ def find_bib_files(rootdir, src, bibfiles):
         print ("WARNING! I can't find it! Check your \\include's and \\input's.")
         return
 
-    src_content = re.sub("%.*","",src_file.read())
+    src_content = re.sub("%[^\n\r]*","",src_file.read())
     src_file.close()
 
     m = re.search(r"\\usepackage\[(.*?)\]\{inputenc\}", src_content)
@@ -63,7 +63,7 @@ def find_bib_files(rootdir, src, bibfiles):
         f = None
         try:
             f = codecs.open(file_path, "r", m.group(1))
-            src_content = re.sub("%.*", "", f.read())
+            src_content = re.sub("%[^\n\r]*", "", f.read())
         except:
             pass
         finally:
