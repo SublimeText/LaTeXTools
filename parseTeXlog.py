@@ -79,7 +79,9 @@ def debug_skip_file(f):
 	if f[0:2] in ['./', '.\\', '..'] and f_ext in file_exts:
 		print ("File! Don't skip it")
 		return False
-	if raw_input() == "":
+	try: input = raw_input
+	except NameError: pass
+	if input() == "":
 		print ("Skip it")
 		return True
 	else:
