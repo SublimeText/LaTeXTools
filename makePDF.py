@@ -234,7 +234,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 				break
 			else:
 				# We have a comment match; check for a TS-program match
-				mroot = re.match(r"%\s*!TEX\s+(?:TS-)?program *= *(xelatex|lualatex|pdflatex)\s*$",line)
+				mroot = re.match(r"%\s*!TEX\s+(?:TS-)?program *= *(xelatex|lualatex|pdflatex)\s*$", line, re.I)
 				if mroot:
 					# Sanity checks
 					if "texify" == self.make_cmd[0]:
