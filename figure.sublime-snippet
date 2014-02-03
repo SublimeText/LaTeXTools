@@ -5,7 +5,7 @@
 		\includegraphics[$2]{$3}
 	\end{center}
 	\caption{${4:Caption here}}
-	\label{${5:fig:figure1}}
+	\label{fig:${5:figure1}}
 \end{figure}
 ]]></content>
 	<tabTrigger>bfigure</tabTrigger>
