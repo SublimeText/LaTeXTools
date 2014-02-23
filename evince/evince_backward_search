@@ -42,7 +42,7 @@ class EvinceWindowProxy:
 
     def __init__(self, uri, editor, spawn = False, logger = None):
         self._log = logger
-        self.uri = uri.replace(" ", "%20")
+        self.uri = uri
         self.editor = editor
         self.status = CLOSED
         self.source_handler = None
@@ -66,7 +66,7 @@ class EvinceWindowProxy:
                 self._log.debug("Could not connect to the Evince Daemon")
 
     def _on_doc_loaded(self, uri, **keyargs):
-        if uri == self.uri and self._handler is None:
+        if urllib.unquote( uri.encode( 'ascii' ) ) == self.uri and self._handler is None:
             self.handle_find_document_reply(keyargs['sender'])
         
     def _get_dbus_name(self, spawn):
