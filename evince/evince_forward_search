@@ -34,10 +34,14 @@ try:
 except ValueError:
     print_usage()
 
-# The PDF file name MUST be URI-encoded;
-# the TEX file instead must be left alone, or SyncView will fail.
+# The PDF file name MUST be URI-encoded
+# RFC 1738: unreserved = alpha | digit | safe | extra
+#           safe       = "$" | "-" | "_" | "." | "+"
+#           extra      = "!" | "*" | "'" | "(" | ")" | ","
 pdf_file = os.path.abspath(sys.argv[1])
 pdf_file = urllib.quote( pdf_file, '/$+!*\'(),' )
+
+# The TEX file instead must be left alone, or SyncView will fail
 tex_file = os.path.abspath(sys.argv[4])
 
 try:
