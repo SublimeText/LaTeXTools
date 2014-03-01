@@ -228,8 +228,19 @@ def get_cite_completions(view, point, autocompleting=False):
         # # fix from Tobias Schmidt to allow for absolute paths
         # bibfname = os.path.normpath(os.path.join(texfiledir, bibfname))
         # print repr(bibfname)
+
         try:
-            bibf = codecs.open(bibfname,'r','UTF-8', 'ignore')  # 'ignore' to be safe
+            # Handle varying types of encodings in addtion to the standard encoding: UTF-8
+            raw = open(bibfname, 'rb').read(32)
+
+            if raw.startswith(codecs.BOM_UTF8):
+                encoding = 'utf_8_sig'
+            elif raw.startswith(codecs.BOM_UTF16_LE) or raw.startswith(codecs.BOM_UTF16_BE):
+                encoding = 'utf_16'
+            else:
+                encoding = 'utf_8'
+
+            bibf = codecs.open(bibfname,'r', encoding, 'ignore')  # 'ignore' to be safe
         except IOError:
             print ("Cannot open bibliography file %s !" % (bibfname,))
             sublime.status_message("Cannot open bibliography file %s !" % (bibfname,))
