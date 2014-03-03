@@ -231,7 +231,8 @@ def get_cite_completions(view, point, autocompleting=False):
 
         try:
             # Handle varying types of encodings in addition to the standard encoding: UTF-8
-            raw = open(bibfname, 'rb').read(32)
+            with open(bibfname, 'rb') as f:
+                raw = f.read(32)
 
             if raw.startswith(codecs.BOM_UTF8):
                 encoding = 'utf_8_sig'
