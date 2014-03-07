@@ -10,7 +10,7 @@ else:
 	from . import getTeXRoot
 
 
-import sublime_plugin, os.path, subprocess, time
+import sublime_plugin, os.path, subprocess, time, sys
 
 # Jump to current line in PDF file
 # NOTE: must be called with {"from_keybinding": <boolean>} as arg
@@ -19,11 +19,17 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 	def run(self, edit, **args):
 		# Check prefs for PDF focus and sync
 		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
+		old_path = os.environ["PATH"]
+		custom_path = s.get("path","")
+		if not _ST3:
+			os.environ["PATH"] = os.path.expandvars(custom_path).encode(sys.getfilesystemencoding())
+		else:
+			os.environ["PATH"] = os.path.expandvars(custom_path)
 		prefs_keep_focus = s.get("keep_focus", True)
 		keep_focus = self.view.settings().get("keep focus",prefs_keep_focus)
 		prefs_forward_sync = s.get("forward_sync", True)
 		forward_sync = self.view.settings().get("forward_sync",prefs_forward_sync)
-
+ 
 		prefs_lin = s.get("linux")
 
 		# If invoked from keybinding, we sync
@@ -40,6 +46,7 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		texFile, texExt = os.path.splitext(self.view.file_name())
 		if texExt.upper() != ".TEX":
 			sublime.error_message("%s is not a TeX source file: cannot jump." % (os.path.basename(view.fileName()),))
+			os.environ["PATH"] = old_path
 			return
 		quotes = "\""
 		srcfile = texFile + u'.tex'
@@ -136,3 +143,5 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 				subprocess.Popen([py_binary, ev_fwd_exec, pdffile, str(line), srcfile])
 		else: # ???
 			pass
+
+		os.environ["PATH"] = old_path

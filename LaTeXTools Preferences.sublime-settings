@@ -9,6 +9,11 @@
 	// Sync PDF to current editor position after building (true) or not 
 	"forward_sync":	true,
 
+	// Custom PATH environment variable;
+	// should append the current PATH;
+	// used (currently) for Evince, SumatraPDF or Skim
+	"path":"$PATH",
+
 	// Formatting of references in quick panel
 	/* This preference sets the format of the quick panel to select citations using wildcards.
 	The setting is a list with one or two string using wildcards for author, title, keyword etc. 
