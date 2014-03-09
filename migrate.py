@@ -38,16 +38,18 @@ OLD_SETTINGS = "LaTeXTools Preferences.sublime-settings"
 # "line" is the line in the .default-settings file (starting from 0, not 1);
 #        the code below looks for it, but set to -1 to flag errors, issues, etc.
 # "tabs" is the number of tabs before the key
+# "last" is True if it's the last line in a {...} block (so must omit comma at the end)
 # WARNING: obviously, this works ONLY with a known default-settings file.
-settings = [	{"key": "cite_panel_format", "type": "list", "line": -1, "tabs": 1 },
-				{"key": "cite_autocomplete_format", "type": "string", "line": -1, "tabs": 1},
-				{"key": "cite_auto_trigger", "type": "bool", "line": -1, "tabs": 1},
-				{"key": "ref_auto_trigger", "type": "bool", "line": -1, "tabs": 1},
-				{"key": "keep_focus", "type": "bool", "line": -1, "tabs": 1},
-				{"key": "forward_sync", "type": "bool", "line": -1, "tabs": 1},
-				{"key": "python2", "type": "string", "line": -1, "tabs": 2},
-				{"key": "sublime", "type": "string", "line": -1, "tabs": 2},
-				{"key": "sync_wait", "type": "num", "line": -1, "tabs": 2} ]
+settings = [	{"key": "cite_auto_trigger", "type": "bool", "line": -1, "tabs": 1, "last": False},
+				{"key": "ref_auto_trigger", "type": "bool", "line": -1, "tabs": 1, "last": False},
+				{"key": "keep_focus", "type": "bool", "line": -1, "tabs": 1, "last": False},
+				{"key": "forward_sync", "type": "bool", "line": -1, "tabs": 1, "last": False},
+				{"key": "python2", "type": "string", "line": -1, "tabs": 2, "last": False},
+				{"key": "sublime", "type": "string", "line": -1, "tabs": 2, "last": False},
+				{"key": "sync_wait", "type": "num", "line": -1, "tabs": 2, "last": True},
+				{"key": "cite_panel_format", "type": "list", "line": -1, "tabs": 1, "last": False },
+				{"key": "cite_autocomplete_format", "type": "string", "line": -1, "tabs": 1, "last": True}
+				]
 
 class latextoolsMigrateCommand(sublime_plugin.ApplicationCommand):
 
@@ -126,7 +128,10 @@ class latextoolsMigrateCommand(sublime_plugin.ApplicationCommand):
 					l = l[:-1] + "]" # replace last comma with bracket
 				else:
 					l += quotes + s_old_entry + quotes
-				l += ",\n"
+				if s["last"]: # Add comma, unless at the end of a {...} block
+					l+= "\n"
+				else:
+					l += ",\n"
 				print(l)
 				def_lines[s["line"]] = l
 
