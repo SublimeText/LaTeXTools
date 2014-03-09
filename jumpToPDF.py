@@ -18,7 +18,7 @@ import sublime_plugin, os.path, subprocess, time
 class jump_to_pdfCommand(sublime_plugin.TextCommand):
 	def run(self, edit, **args):
 		# Check prefs for PDF focus and sync
-		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
+		s = sublime.load_settings("LaTeXTools.sublime-settings")
 		prefs_keep_focus = s.get("keep_focus", True)
 		keep_focus = self.view.settings().get("keep focus",prefs_keep_focus)
 		prefs_forward_sync = s.get("forward_sync", True)

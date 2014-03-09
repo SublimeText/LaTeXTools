@@ -77,7 +77,7 @@ TeXlive has one main advantage over MikTeX: it supports file names and paths wit
 
 <br>
 
-**Linux** support is coming along nicely. You need to install TeXlive; if you are on Ubuntu, note that `apt-get install texlive` will get you a working but incomplete setup. In particular, it will *not* bring in `latexmk`, which is essential to LaTeXTools. You need to install it via `apt-get install latexmk`. If on the other hand you choose to install the TeXlive distro from TUG, `latexmk` comes with it, so you don't need to do anything else. Also, to get inverse search working on ST3, make sure you set the `sublime` option in `LaTeXTools Preferences.sublime-settings` correctly; the Ubuntu package from the ST web page uses `subl`, but check from the command line first.
+**Linux** support is coming along nicely. You need to install TeXlive; if you are on Ubuntu, note that `apt-get install texlive` will get you a working but incomplete setup. In particular, it will *not* bring in `latexmk`, which is essential to LaTeXTools. You need to install it via `apt-get install latexmk`. If on the other hand you choose to install the TeXlive distro from TUG, `latexmk` comes with it, so you don't need to do anything else. Also, to get inverse search working on ST3, make sure you set the `sublime` option in `LaTeXTools.sublime-settings` correctly; the Ubuntu package from the ST web page uses `subl`, but check from the command line first.
 
 Only the Evince PDF viewer is supported; it's installed by default on Ubuntu or, more generally, any distro that provides the Gnome desktop, and you don't need to configure anything. Backward and forward search Work For Me (TM). Hopefully they will work for you, too, but let me know if this is not the case.
 
@@ -184,7 +184,7 @@ In either case, you then select the label you want, hit Return, and LaTeXTools i
 
 One often needs to enter **multiple citations**, as e.g. in `\cite{paper1,paper2}`. This is easy to do: either cite the first paper, e.g. `\cite{paper1}` and then, *with your cursor immediately before the right brace*, type a comma (`,`). Again, the default auto-trigger behavior is that the quick panel with appear, and you can select the second paper. If auto-trigger is off, then you enter the comma, then use the shortcut `C-l,x` to bring up the quick panel (note: you *must* add the comma before invoking the shortcut, or you won't get the intended result). Of course, you can enter as many citations as you want.
 
-The display of bibliographic entries is *customizable*. There is a setting, `cite-panel-format`, that controls exactly what to display in each of the two lines each entry gets in the citation quick panel. Options include author, title, short title, year, bibtex key, and journal. This is useful because people may prefer to use different strategies to refer to papers---author-year, short title-year, bibtex key (!), etc. Since only the first line in each quick panel entry is searchable, how you present the information matters. The default should be useful for most people; if you wish to change the format, check the `LaTeXTools Preferences.sublime-settings` file for detailed information. (As usual, copy that file to the `User` directory and edit your copy, not the original). s
+The display of bibliographic entries is *customizable*. There is a setting, `cite-panel-format`, that controls exactly what to display in each of the two lines each entry gets in the citation quick panel. Options include author, title, short title, year, bibtex key, and journal. This is useful because people may prefer to use different strategies to refer to papers---author-year, short title-year, bibtex key (!), etc. Since only the first line in each quick panel entry is searchable, how you present the information matters. The default should be useful for most people; if you wish to change the format, check the `LaTeXTools.sublime-settings` file for detailed information. (As usual, copy that file to the `User` directory and edit your copy, not the original). s
 
 Thanks to recent contributed code, **multi-file documents** are *fully supported*. If you have a `% !TEX root = ...` directive at the top of the current file, LaTeXTools looks for references, as well as `\bibliography{}` commands, in the root file and in all recursively included files. You can also use a project file to specify the root file (to be documented). 
 
@@ -292,7 +292,7 @@ If you use MikTeX, you are out of luck. The `texify` command can read an environ
 Settings
 --------
 
-LaTeXTools now supports user-defined settings. The *default* settings file is called `LaTeXTools Preferences.sublime-settings`, in the plugin's folder (normally `Packages/LaTeXTools`). You can take a look at it to see what options are available, but **do not edit it**. Instead, copy it to the `Packages/User` folder, and edit your copy. This way your settings won't be clobbered the next time you update the plugin.
+LaTeXTools now supports user-defined settings. The *default* settings file is called `LaTeXTools.sublime-settings`, in the plugin's folder (normally `Packages/LaTeXTools`). You can take a look at it to see what options are available, but **do not edit it**. Instead, copy it to the `Packages/User` folder, and edit your copy. This way your settings won't be clobbered the next time you update the plugin.
 
 *Warning*: tweaking options can cause breakage. For instance, if you change the default `python2` setting (empty by default) to a non-existent binary, forward and inverse search will stop working. If you think you have found a bug, *delete your settings file in the `Packages/User` folder before reporting it!* Thanks :-)
 
@@ -302,7 +302,7 @@ The following options are currently available (defaults in parentheses):
 - `forward_sync` (`true`): if `true`, after compiling a tex file, the PDF viewer is asked to sync to the position corresponding to the current cursor location in ST. You can also *temporarily* toggle this behavior with `C-l,t,s`.
 - `cite-auto-trigger` (`true`): if `true`, typing e.g. `\cite{` brings up the citation completion quick panel, without the need to type `C-l,x`. If `false`, you must explicitly type `C-l,x`.
 - `ref-auto-trigger` (`true`): ditto, but for `\ref{` and similar reference commands
-- `cite-panel-format`: see the section on ref/cite completion, and the comments in `LaTeXTools Preferences.sublime-settings`
+- `cite-panel-format`: see the section on ref/cite completion, and the comments in `LaTeXTools.sublime-settings`
 - `linux` settings:
   * `python2` (`""`, i.e. empty string): name of the Python 2 executable. This is useful for systems that ship with both Python 2 and Python 3. The forward/backward search used with Evince require Python 2.
   * `sublime` (`sublime-text`): name of the ST executable. Ubuntu supports both `sublime-text` and `subl`; other distros may vary.

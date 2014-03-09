@@ -23,12 +23,7 @@
                             { "caption": "-" },
                             {
                                 "command": "open_file",
-                                "args": {"file": "${packages}/LaTeXTools/LaTeXTools Preferences.sublime-settings"},
-                                "caption": "Settings – Default"
-                            },
-                            {
-                                "command": "open_file",
-                                "args": {"file": "${packages}/User/LaTeXTools Preferences.sublime-settings"},
+                                "args": {"file": "${packages}/User/LaTeXTools.sublime-settings"},
                                 "caption": "Settings – User"
                             },
                             { "caption": "-" },

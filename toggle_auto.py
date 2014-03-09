@@ -15,7 +15,7 @@ import sublime_plugin
 class ToggleAutoCommand(sublime_plugin.TextCommand):
 	def run(self, edit, which, **args):
 		print ("Toggling Auto " + which)
-		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
+		s = sublime.load_settings("LaTeXTools.sublime-settings")
 		prefs_auto = s.get(which+"_auto_trigger", True)
         
 		if self.view.settings().get(which + " auto trigger",prefs_auto):
