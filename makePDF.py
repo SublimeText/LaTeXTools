@@ -242,9 +242,13 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			return	
 		
 		# Get platform settings, builder, and builder settings
-		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
-		platform_settings  = s.get("platform_settings")[self.plat]
+		s = sublime.load_settings("LaTeXTools.sublime-settings")
+		platform_settings  = s.get(self.plat)
 		builder_name = s.get("builder")
+		# This *must* exist, so if it doesn't, the user didn't migrate
+		if builder_name is None:
+			sublime.error_message("LaTeXTools: you need to migrate your preferences. See the README file for instructions.")
+			return
 		# Default to 'traditional' builder
 		if builder_name in ['', 'default']:
 			builder_name = 'traditional'

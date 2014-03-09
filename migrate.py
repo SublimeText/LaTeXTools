@@ -12,13 +12,14 @@ else:
 	from . import parseTeXlog
 
 import sublime_plugin
-import sys
-import imp
+#import sys
+#import imp
 import os, os.path
-import threading
-import functools
-import subprocess
-import types
+import shutil
+#import threading
+#import functools
+#import subprocess
+#import types
 import re
 import codecs
 
@@ -31,7 +32,24 @@ DEFAULT_SETTINGS = "LaTeXTools.default-settings"
 USER_SETTINGS = "LaTeXTools.sublime-settings"
 OLD_SETTINGS = "LaTeXTools Preferences.sublime-settings"
 
-class migrateCommand(sublime_plugin.ApplicationCommand):
+# Settings to be ported over
+# "key" is the preference key
+# "type" is the type, for fixups (e.g. true vs. True)
+# "line" is the line in the .default-settings file (starting from 0, not 1);
+#        the code below looks for it, but set to -1 to flag errors, issues, etc.
+# "tabs" is the number of tabs before the key
+# WARNING: obviously, this works ONLY with a known default-settings file.
+settings = [	{"key": "cite_panel_format", "type": "list", "line": -1, "tabs": 1 },
+				{"key": "cite_autocomplete_format", "type": "string", "line": -1, "tabs": 1},
+				{"key": "cite_auto_trigger", "type": "bool", "line": -1, "tabs": 1},
+				{"key": "ref_auto_trigger", "type": "bool", "line": -1, "tabs": 1},
+				{"key": "keep_focus", "type": "bool", "line": -1, "tabs": 1},
+				{"key": "forward_sync", "type": "bool", "line": -1, "tabs": 1},
+				{"key": "python2", "type": "string", "line": -1, "tabs": 2},
+				{"key": "sublime", "type": "string", "line": -1, "tabs": 2},
+				{"key": "sync_wait", "type": "num", "line": -1, "tabs": 2} ]
+
+class latextoolsMigrateCommand(sublime_plugin.ApplicationCommand):
 
 	def run(self):
 		
@@ -41,19 +59,85 @@ class migrateCommand(sublime_plugin.ApplicationCommand):
 		# NOTE: we will move this code somewhere else, but for now, it's here
 
 		print ("Running migrate")
-		s_user = sublime.load_settings(USER_SETTINGS)
-		# This will always be a well-defined object. However, it may be empty.
-		# To figure out if this actually exists, look for something that *must* be there
-		if s_user.get("builder"):
-			print(USER_SETTINGS + " already exists!")
-		else:
-			print(USER_SETTINGS + " does not yet exist.")
+		ltt_path = os.path.join(sublime.packages_path(),"LaTeXTools")
+		user_path = os.path.join(sublime.packages_path(),"User")
+		default_file = os.path.join(ltt_path,DEFAULT_SETTINGS)
+		user_file = os.path.join(user_path,USER_SETTINGS)
+		old_file = os.path.join(user_path,OLD_SETTINGS)
 
-		# Get platform settings, builder, and builder settings
+		if os.path.exists(user_file):
+			print(USER_SETTINGS + " already exists in the User directory: quitting")
+			return
+		
+		with codecs.open(default_file,'r','UTF-8') as def_fp:
+			def_lines = def_fp.readlines()
+
+		quotes = "\""
+
+		# Find lines where keys are in the default file
+		comments = False
+		for i in range(len(def_lines)):
+			l = def_lines[i].strip() # Get rid of tabs and leading spaces
+			# skip comments
+			# This works as long as multiline comments do not start/end on a line that
+			# also contains code.
+			# It's also safest if a line with code does NOT also contain comments
+			beg_cmts = l[:2]
+			end_cmts = l[-2:]
+			if comments:
+				if beg_cmts == "*/":
+					comments = False
+					l = l[2:] # and process the line just in case
+				elif end_cmts == "*/":
+					comments = False
+					continue
+				else: # HACK: this fails if we have "...*/ <code>", which however is bad form
+					continue
+			if beg_cmts=="//": # single-line comments
+				continue
+			if beg_cmts=="/*": # Beginning of multiline comment.
+				comments = True # HACK: this fails if "<code> /* ..." begins a multiline comment
+				continue
+			for s in settings:
+				# Be conservative: precise match.
+				m = quotes + s["key"] + quotes + ":"
+				if m == l[:len(m)]:
+					s["line"] = i
+					print(s["key"] + " is on line " + str(i) + " (0-based)")
+
+		# Collect needed modifications
+		def_modify = {}
 		s_old = sublime.load_settings(OLD_SETTINGS)
-		s_def = sublime.load_settings(DEFAULT_SETTINGS)
+		for s in settings:
+			key = s["key"]
+			print("Trying " + key)
+			s_old_entry = s_old.get(key)
+			if s_old_entry is not None: # Checking for True misses all bool's set to False!
+				print("Porting " + key)
+				l = s["tabs"]*"\t" + quotes + key + quotes + ": "
+				if s["type"]=="bool":
+					l += "true" if s_old_entry==True else "false"
+				elif s["type"]=="num":
+					l += str(s_old_entry)
+				elif s["type"]=="list": # HACK HACK HACK! List of strings only!
+					l += "["
+					for el in s_old_entry:
+						l += quotes + el + quotes + ","
+					l = l[:-1] + "]" # replace last comma with bracket
+				else:
+					l += quotes + s_old_entry + quotes
+				l += ",\n"
+				print(l)
+				def_lines[s["line"]] = l
 
-		return # for now
+		# Modify text saying "don't touch this!" in the default file
+		def_lines[0] = '// LaTeXTools Preferences\n'
+		def_lines[2] = '// Keep in the User directory. Personalize as needed\n'
+		for i in range(3,10):
+			def_lines.pop(3) # Must be 3: 4 becomes 3, then 5 becomes 3...
 
-		# Copy s_old into s_user
-		# Save to s_user. Hopefully this will end up in the right place!
+		with codecs.open(user_file,'w','UTF-8') as user_fp:
+			user_fp.writelines(def_lines)
+
+		return
+
