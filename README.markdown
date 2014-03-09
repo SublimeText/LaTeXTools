@@ -8,11 +8,21 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* 2013-7-29. 
+*Latest revision:* 2014-3-09. 
 
-*Highlight*: Beginning with this version of the plugin, *both Sublime Text2 and Sublime Text 3 are fully supported!* The same code base works on ST2 and ST3. For the latter, I am testing on build 3047 (aka ST3 Beta). Again, *huge* thanks to phyllisstein; my port to ST3 is largely based on his great work.
+*Highlight*: New, fully customizable build system! See below for a complete description. Note that, for now, things work more or less as before, but the infrastructure is there to customize things beyond your wildest dreams!
 
-*Emergency fallback notice*: I have been testing this version of the plugin for a while, and have had no issues. However, you never know. I have created a separate branch, called `st2`, containing the "old" code, right before merging support for Sublime Text 3. In case anything goes wrong, as an emergency fallback, you can switch to that branch on GitHub, download the code, and unzip the file in a (fresh) LaTeXTools directory. But, hopefully that won't be necessary.
+**NOTE**: due to the change in the build system, I had to overhaul the preferences settings. Please **read this** before proceeding any further:
+
+* From now on, LaTeXTools will use a single settings file, called `LaTeXTools.sublime-settings`, which *must* exist in the `User` directory. By this I mean that LaTeXTools *will not work* until you have a proper `LaTeXTools.sublime-settings` file in the `User` directory.
+* Because of this, LaTeXtools provides an easy way to create it, and even *automagically* migrate your settings from any old `LaTeXTools Preferences.sublime-settings` file you may have. Launch Sublime Text, open the Sublime Text console (key combo: `Ctrl+backtick` on all platforms) and type `sublime.run_command("latextools_migrate")`. That's it!
+* The old settings file, `LaTeXTools Preferences.sublime-settings`, will no longer be honored.
+* The `LaTeX.sublime-build` file is now for *internal use only*. Do *not* modify it! If you have a customized copy in `User`, delete it (but do *not* delete the original in the `LaTeXTools` directory--that is needed for Sublime Text's own build functionality, which this plugin relies on, for now). 
+
+Now the fine print: if you really want to, you can create the `LaTeXTools.sublime-settings` file manually. Copy the file `LaTeXTools.default-settings` file from the `LaTeXTools` directory to your `User` directory, and change the extension to `.sublime-settings` (or it won't work). Then, edit at will.
+
+Also, if you have edited the `"cmd"` entry in `LaTeX.sublime-build`, there is a corresponding `"command"` entry to the `"builder_settings"` section in `LaTeXTools.sublime-settings` (did I mention that this file must be in the `User` directory?). See below for more info.
+
 
 Introduction
 ------------
@@ -24,19 +34,18 @@ This plugin provides several features that simplify working with LaTeX files:
 * Plugs into the "Goto anything" facility to make jumping to any section or label in your LaTeX file(s)
 * Smart command completion for a variety of text and math commands is provided
 * Additional snippets and commands are also provided
+* The build command is fully customizable. In the near future, so will be the PDF previewer.
 
 Requirements and Setup
 ----------------------
 
 First, you need to be running Sublime Text 2 or 3 (ST2 and ST3 henceforth, or simply ST to refer to either ST2 or ST3). For ST3, I have only tested build 3047 and will of course test subsequent builds.
 
-Second, get the LaTeXTools plugin. These days, the easiest way to do so if you are on ST2 is via Package Control: see [here](http://wbond.net/sublime_packages/package_control) for details on how to set it up (it's very easy). Once you have Package Control up and running, invoke it (via the Command Palette or from Preferences), select the Install Package command, and look for LaTeXTools.
+Second, get the LaTeXTools plugin. These days, the easiest way to do so is via Package Control: see [here](https://sublime.wbond.net) for details on how to set it up (it's very easy). Once you have Package Control up and running, invoke it (via the Command Palette or from Preferences), select the Install Package command, and look for LaTeXTools.
 
-If you prefer a more hands-on approach, you can always clone the git repository, or else just grab this plugin's .zip file from GitHub and extract it to your Packages directory (you can open it easily from ST2, by clicking on Preferences|Browse Packages). Then, (re)launch ST2.
+If you prefer a more hands-on approach, you can always clone the git repository, or else just grab this plugin's .zip file from GitHub and extract it to your Packages directory (you can open it easily from ST, by clicking on Preferences|Browse Packages). Then, (re)launch ST.
 
 I encourage you to install Package Control anyway, because it's awesome, and it makes it easy to keep your installed packages up-to-date (see the aforelinked page for details). 
-
-For ST3, Package Control is still in beta, so you need to use the hands-on approach for now. Surely this will change at some point.
 
 Third, follow the OS-specific instructions below.
 
@@ -49,10 +58,11 @@ If you don't want to install the entire MacTeX distro, which is pretty big, Basi
 To configure inverse search, open the Preferences dialog of the Skim app, select the Sync tab, then:
 
 * uncheck the "Check for file changes" option
-* For ST2, choose the Sublime Text 2 preset (yes, Skim now supports ST2 by default!)
-* For ST3, choose the Custom preset and enter `/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl` in the Command field, and `"%file":%line` in the Arguments field. (This is correct as of 7/18/2013; you may want to double-check that ST3 is indeed in `/Applications/Sublime Text`; just go to the Applications folder in the Finder.)
+* choose the Sublime Text 2 or Sublme Text 3 preset (yes, Skim now supports both ST2 and ST3 by default!)
 
-If you have installed Skim in a non-standard location, there is not much you can do short of hacking the `jumpToPDF.py` file (**not supported!**). This will hopefully change in the near future. 
+In case you are using an old version of Skim, you can always choose the Custom preset and enter `/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl` (for ST3) in the Command field, and `"%file":%line` in the Arguments field. (This is correct as of 7/18/2013; you may want to double-check that ST3 is indeed in `/Applications/Sublime Text`; just go to the Applications folder in the Finder. Adapt as needed for ST2).
+
+If you have installed Skim in a non-standard location, there is not much you can do short of hacking the `jumpToPDF.py` file (**not supported!**). This will change in the near future. 
 
 <br>
 
@@ -68,9 +78,7 @@ As an alternative, you can open a command-line console (run `cmd.exe`), and issu
 
 Recent versions of MikTeX add themselves to your path automatically, but in case the build system does not work, that's the first thing to check. TeXlive can also add itself to your path.
 
-Finally, you **must** check the file `LaTeX.sublime-build` in the directory in which you unzipped the LaTeXTools plugin to make sure that the configuration reflects your preferred TeX distribution. Open the file and scroll down to the section beginning with the keyword "windows". You will see that there are two blocks of settings for the "cmd" and "path" keywords; by default, the MikTeX one is active, and the TeXlive one is commented out. If you use MikTeX, you don't need to change anything: congratulations, you are done!
-
-If instead you use TeXlive, comment out the lines between the comments `*** BEGIN MikTeX 2009 ***` and `*** END MikTeX 2009 ***`, and uncomment the lines between the comments `*** BEGIN TeXlive 2011 ***` and `*** END TeXlive 2011 ***`. Do *not* uncomment the `BEGIN`/`END` lines themselves---just the lines between them. Now you are really done! (The dates "2009" and "2011" are only indicative.)
+Finally, edit the file `LaTeX.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution. Open the file and scroll down to the  section titled "Platform settings." Look at the block for your OS, namely `"osx"`. Within that block, verify that the `"texpath"` setting is correct. Then, scroll down to the section called "Build engine Settings", in the block called `"builder_settings"`, subblock `"windows"`: set the `"distro"` option to either `"miktex"` or `"texlive"`, as needed.
 
 TeXlive has one main advantage over MikTeX: it supports file names and paths with spaces. Furthermore, it is easier to change the compilation engine from the default, `pdflatex`, to e.g. `xelatex`: see below for details.
 
@@ -107,7 +115,9 @@ Compiling LaTeX files
 
 **Keybinding:** `C-b` (standard ST keybinding)
 
-The ST Build command takes care of the following:
+Beginning with the 3/2014 releases, LaTeXTools offers a fully customizable build process. This section describes the default process, also called "traditional" because it is the same (with minor tweaks) as the one used in previous releases. However, see below for how to customize the build process.
+
+The default ST Build command takes care of the following:
 
 * It saves the current file
 * It invokes the tex build command (`texify` for MikTeX; `latexmk` for TeXlive and MacTeX).
@@ -118,7 +128,7 @@ The ST Build command takes care of the following:
 
 There is also support for project files; this is to be documented.
 
-**TeX engine selection** is supported, but *only* if you are running TeXlive (any platform). Sorry, MiKTeX support is not there yet. If the first line of the current file consists of the text `%!TEX program = <program>`, where `program` is `pdflatex`, `lualatex` or `xelatex`, the corresponding engine is selected. If no such directive is specified, `pdflatex` is the default. Multi-file documents are supported: the directive must be in the *root* (i.e. master) file. Also, for compatibility with TeXshop, you can use `TS-program` instead of `program`. **Note**: this functionality requires changes in your `LaTeX.sublime-build` file. If you copied the default file to the `User` directory and modified it, you will not get this functionality. In this case, copy the new default file to `User` and apply your personalizations again. I know this is not ideal; I will put a better system in place in the near future.
+**TeX engine selection** is supported, but *only* if you are running TeXlive (any platform). Sorry, MiKTeX support is not there yet. If the first line of the current file consists of the text `%!TEX program = <program>`, where `program` is `pdflatex`, `lualatex` or `xelatex`, the corresponding engine is selected. If no such directive is specified, `pdflatex` is the default. Multi-file documents are supported: the directive must be in the *root* (i.e. master) file. Also, for compatibility with TeXshop, you can use `TS-program` instead of `program`. **Note**: for this to work, you must **not** customize the `"command"` option in `LaTeX.sublime-settings`. If you do, you will not get this functionality. 
 
 ### Toggling window focus following a build ###
 
@@ -261,52 +271,65 @@ By default, ST provides a number of snippets for LaTeX editing; the LaTeXTools p
 In addition, the LaTeXTools plugin provides useful completions for both regular and math text; check out files `LaTeX.sublime-completions` and `LaTeX math.sublime-completions` in the LaTeXTools directory for details. Some of these are semi-intelligent: i.e. `bf` expands to `\textbf{}` if you are typing text, and to `\mathbf{}` if you are in math mode. Others allow you to cycle among different completions: e.g. `f` in math mode expands to `\phi` first, but if you hit Tab again you get `\varphi`; if you hit Tab a third time, you get back `\phi`.
 
 
-Using different TeX engines
----------------------------
-
-**Note**: as described above, there is now a  `%!TEX program = <program>` directive to select the TeX engine (on TeXLive). That is the preferred way to do so, but I'm keeping the material here for reference. In any case, this will shortly be replaced by a more flexible build customization feature that I am going to implement next.
-
-In short: on OS X, or on Windows if you use TeXLive, changing the TeX engine used to build your files is very easy. Open the file `LaTeX.sublime-build` and look for the following text (correct as of 11/8/11):
-
-	"cmd": ["latexmk", 
-		"-e", "\\$pdflatex = 'pdflatex %O -synctex=1 %S'",
-		"-silent",
-		"-f", "-pdf"],
-
-(note the final comma). On Mac OS X, the relevant entry is in the `osx` section; on Windows, it is in the `windows` section, between `*** BEGIN TeXlive 2011 ***` and `*** END TeXlive 2011 ***`, and (per the above instructions) it should be uncommented if you are using TeXlive.
-
-The trick is to change the *second* line: e.g.
-
-	"-e", "\\$pdflatex = 'pdflatex %O -synctex=1 %S'",
-
-becomes
-
-	"-e", "\\$pdflatex = 'xelatex %O -synctex=1 %S'",
-
-I have very little experience with "exotic" TeX engines. You probably know more than I do. Anyway, the key is to customize the `latexmk` parameters so they do what you want it to. Please, do **not** ask for assistance doing so: most likely I won't be able to help you. I just want to point out where to change the build variables.
-
-If you use MikTeX, you are out of luck. The `texify` command can read an environment variable to decide which engine to use, but setting this variable requires Windows- and MikTeX-specific additions to the build command. Alternatively, you can try to use `latexmk` with MikTeX, and configure the build command as above. Again, I have not tried this, and you probably know more than I do on the subject. Sorry, and thanks for your understanding!
-
-*Warning*: if you customize your build file, you'd better move or copy it to the `User` directory. Otherwise, the next time you update LaTeXTools, your changes will be overwritten by the default file.
-
 Settings
 --------
 
-LaTeXTools now supports user-defined settings. The *default* settings file is called `LaTeXTools.sublime-settings`, in the plugin's folder (normally `Packages/LaTeXTools`). You can take a look at it to see what options are available, but **do not edit it**. Instead, copy it to the `Packages/User` folder, and edit your copy. This way your settings won't be clobbered the next time you update the plugin.
+LaTeXTools now supports user-defined settings. The *default* settings file is called `LaTeXTools.sublime-settings`. This **must** be in the `User` directory. As described above, when you first install LaTeXTools, the file `LaTeXTools.sublime-settings` does not exist anywhere. After installing the plugin, open the Sublime Text console (`Ctrl+backtick` on all platforms) and type `sublime.run_command("latextools_migrate")` to create this settings file in `User`, and automatically migrate your existing settings from the old file (`LaTeXTools Preferences.sublime-settings`). 
 
-*Warning*: tweaking options can cause breakage. For instance, if you change the default `python2` setting (empty by default) to a non-existent binary, forward and inverse search will stop working. If you think you have found a bug, *delete your settings file in the `Packages/User` folder before reporting it!* Thanks :-)
+*Warning*:  in general, tweaking options can cause breakage. For instance, if on Linux you change the default `python2` setting (empty by default) to a non-existent binary, forward and inverse search will stop working. With great power comes great responsibility! If you think you have found a bug, *delete your settings file in the `User` directory and rerun the `latextools_migrate` command before reporting it!* Thanks :-)
 
 The following options are currently available (defaults in parentheses):
 
-- `keep_focus` (`true`): if `true`, after compiling a tex file, ST retains the focus; if `false`, the PDF viewer gets the focus. Also note that you can *temporarily* toggle this behavior with `C-l,t,f`.
-- `forward_sync` (`true`): if `true`, after compiling a tex file, the PDF viewer is asked to sync to the position corresponding to the current cursor location in ST. You can also *temporarily* toggle this behavior with `C-l,t,s`.
+**General settings**:
 - `cite-auto-trigger` (`true`): if `true`, typing e.g. `\cite{` brings up the citation completion quick panel, without the need to type `C-l,x`. If `false`, you must explicitly type `C-l,x`.
 - `ref-auto-trigger` (`true`): ditto, but for `\ref{` and similar reference commands
-- `cite-panel-format`: see the section on ref/cite completion, and the comments in `LaTeXTools.sublime-settings`
-- `linux` settings:
+- `keep_focus` (`true`): if `true`, after compiling a tex file, ST retains the focus; if `false`, the PDF viewer gets the focus. Also note that you can *temporarily* toggle this behavior with `C-l,t,f`.
+- `forward_sync` (`true`): if `true`, after compiling a tex file, the PDF viewer is asked to sync to the position corresponding to the current cursor location in ST. You can also *temporarily* toggle this behavior with `C-l,t,s`.
+
+**Platform settings**:
+- all platforms:
+  * `texpath`: the path to TeX & friends
+- `linux`-specific settings:
   * `python2` (`""`, i.e. empty string): name of the Python 2 executable. This is useful for systems that ship with both Python 2 and Python 3. The forward/backward search used with Evince require Python 2.
   * `sublime` (`sublime-text`): name of the ST executable. Ubuntu supports both `sublime-text` and `subl`; other distros may vary.
   * `sync_wait` (1.5): when you ask LaTeXTools to do a forward search, and the PDF file is not yet open (for example, right after compiling a tex file for the first time), LaTeXTools first launches evince, then waits a bit for it to come up, and then it performs the forward search. This parameter controls how long LaTeXTools should wait. If you notice that your machine opens the PDF, then sits there doing nothing, and finally performs the search, you can decrease this value to 1.0 or 0.5; if instead the PDF file comes up but the forward search does not seem to happen, increase it to 2.0.
+
+**Build engine settings**
+NOTE: for the time being, you will need to refer to the `LaTeX.sublime-settings` file for detailed explanations. Also, since the new build system is meant to be fully customizable, if you use a third-party builder (which hopefully will become available!), you need to refer to its documentation.
+- `builder`: the builder you want to use. Leave blank (`""`) or set to `"default"` or `"traditional"` for the traditional (`latexmk`/`texify`) behavior.
+- `builder_path`: builders can reside anywhere Sublime Text can access. Specify a path *relative to the Sublime text Packages directory*. In particular, `User` is a good choice. If you use a third-party builder, specify the builder-provided directory.
+- `builder-settings`: these are builder-specific settings. For the `default`/`traditional` builder, the following settings are useful:
+  * `command`: the precise `latexmk` or `texify` command to be invoked. This is specified exactly as in the `cmd` entry of the old `LaTeX.sublime-build` file (which is no longer honored): it must be a list of strings. The defaults are 
+
+  	["latexmk", "-cd",
+	"-e", "$pdflatex = '%E -interaction=nonstopmode -synctex=1 %S %O'",
+	"-f", "-pdf"]
+
+  for TeXLive, and
+
+  	["texify", "-b", "-p", "--tex-option=\"--synctex=1\""]
+
+  for MiKTeX.
+  * `program`: one of `pdflatex` (the default), `xelatex` or `lualatex`. This selects the build engine.
+  * In addition, there can be platform-specific settings. An important one for Windows is `distro`, which must be set to either `miktex` or `texlive`.
+
+** Bibliographic references settings
+- `cite-panel-format` and `cite_autocomplete_format`: see the section on ref/cite completion, and the comments in `LaTeXTools.sublime-settings`
+
+
+Customizing the Build System
+----------------------------
+
+Starting with the 3/2014 versions, LaTeXTools allows you to fully customize the build process using Python. The default builder (called `traditional`) works like the one in prior releases. 
+
+To create and use a new builder, you place the code somewhere off the ST `Packages` directory (for instance, in `User`), then set the `builder` and `builder_path` options in your `LaTeXTools.sublime-settings` file accordingly. A builder can define its own options, also in `LaTeXTools.sublime-settings`, which will be passed whenever a build is invoked.
+
+Due to time constraints, I have not yet been able to document how to write a builder. The basic idea is that you subclass the `PdfBuilder` class in the file `LaTeXTools/builders/pdfBuilder.py`. The comments in that file describe how builders interact with the build command (hint: they use Pyton's `yield` command). I provide three builders (one is in progress and not usable yet). The code is in the `LaTeXTools/builders` directory. You can use them as examples:
+- `traditional` is the traditional builder. 
+- `simple` does not use external tools, but invokes `pdflatex` and friends, each time checking the log file to figure out what to do next. It is a very, very simple "make" tool, but it demonstrates the back-and-forth interaction between LaTeXTools and a builder.
+- `script` (in progress!) will eventually allow the user to specify a list of compilation commands in the settings file, and just execute them in sequence. 
+
+Let me know if you are interested in writing a custom builder!
 
 Troubleshooting
 ---------------
