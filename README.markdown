@@ -64,6 +64,8 @@ In case you are using an old version of Skim, you can always choose the Custom p
 
 If you have installed Skim in a non-standard location, there is not much you can do short of hacking the `jumpToPDF.py` file (**not supported!**). This will change in the near future. 
 
+Finally, edit the file `LaTeX.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution. Open the file and scroll down to the  section titled "Platform settings." Look at the block for your OS, namely `"osx"`. Within that block, verify that the `"texpath"` setting is correct.
+
 <br>
 
 On **Windows**, both MikTeX and TeXlive are supported, but TeXLive support is currently *better*. Also, you must be running a current (>=1.4) version of the Sumatra PDF previewer. Install these as usual; then, add the SumatraPDF directory to your PATH (this requirement will be removed at some point). 
@@ -78,7 +80,7 @@ As an alternative, you can open a command-line console (run `cmd.exe`), and issu
 
 Recent versions of MikTeX add themselves to your path automatically, but in case the build system does not work, that's the first thing to check. TeXlive can also add itself to your path.
 
-Finally, edit the file `LaTeX.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution. Open the file and scroll down to the  section titled "Platform settings." Look at the block for your OS, namely `"osx"`. Within that block, verify that the `"texpath"` setting is correct. Then, scroll down to the section called "Build engine Settings", in the block called `"builder_settings"`, subblock `"windows"`: set the `"distro"` option to either `"miktex"` or `"texlive"`, as needed.
+Finally, edit the file `LaTeX.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution. Open the file and scroll down to the  section titled "Platform settings." Look at the block for your OS, namely `"windows"`. Within that block, verify that the `"texpath"` setting is correct. Then, scroll down to the section called "Build engine Settings", in the block called `"builder_settings"`, subblock `"windows"`: set the `"distro"` option to either `"miktex"` or `"texlive"`, as needed.
 
 TeXlive has one main advantage over MikTeX: it supports file names and paths with spaces. Furthermore, it is easier to change the compilation engine from the default, `pdflatex`, to e.g. `xelatex`: see below for details.
 
@@ -86,6 +88,8 @@ TeXlive has one main advantage over MikTeX: it supports file names and paths wit
 <br>
 
 **Linux** support is coming along nicely. You need to install TeXlive; if you are on Ubuntu, note that `apt-get install texlive` will get you a working but incomplete setup. In particular, it will *not* bring in `latexmk`, which is essential to LaTeXTools. You need to install it via `apt-get install latexmk`. If on the other hand you choose to install the TeXlive distro from TUG, `latexmk` comes with it, so you don't need to do anything else. Also, to get inverse search working on ST3, make sure you set the `sublime` option in `LaTeXTools.sublime-settings` correctly; the Ubuntu package from the ST web page uses `subl`, but check from the command line first.
+
+You also need to edit the file `LaTeX.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution. Open the file and scroll down to the  section titled "Platform settings." Look at the block for your OS, namely `"windows"`. Within that block, verify that the `"texpath"` setting is correct.
 
 Only the Evince PDF viewer is supported; it's installed by default on Ubuntu or, more generally, any distro that provides the Gnome desktop, and you don't need to configure anything. Backward and forward search Work For Me (TM). Hopefully they will work for you, too, but let me know if this is not the case.
 
@@ -299,17 +303,7 @@ NOTE: for the time being, you will need to refer to the `LaTeX.sublime-settings`
 - `builder`: the builder you want to use. Leave blank (`""`) or set to `"default"` or `"traditional"` for the traditional (`latexmk`/`texify`) behavior.
 - `builder_path`: builders can reside anywhere Sublime Text can access. Specify a path *relative to the Sublime text Packages directory*. In particular, `User` is a good choice. If you use a third-party builder, specify the builder-provided directory.
 - `builder-settings`: these are builder-specific settings. For the `default`/`traditional` builder, the following settings are useful:
-  * `command`: the precise `latexmk` or `texify` command to be invoked. This is specified exactly as in the `cmd` entry of the old `LaTeX.sublime-build` file (which is no longer honored): it must be a list of strings. The defaults are 
-
-  	["latexmk", "-cd",
-	"-e", "$pdflatex = '%E -interaction=nonstopmode -synctex=1 %S %O'",
-	"-f", "-pdf"]
-
-  for TeXLive, and
-
-  	["texify", "-b", "-p", "--tex-option=\"--synctex=1\""]
-
-  for MiKTeX.
+  * `command`: the precise `latexmk` or `texify` command to be invoked. This is specified exactly as in the `cmd` entry of the old `LaTeX.sublime-build` file (which is no longer honored): it must be a list of strings. The defaults are `["latexmk", "-cd", "-e", "$pdflatex = '%E -interaction=nonstopmode -synctex=1 %S %O'", "-f", "-pdf"]' for TeXLive, and `["texify", "-b", "-p", "--tex-option=\"--synctex=1\""]' for MiKTeX.
   * `program`: one of `pdflatex` (the default), `xelatex` or `lualatex`. This selects the build engine.
   * In addition, there can be platform-specific settings. An important one for Windows is `distro`, which must be set to either `miktex` or `texlive`.
 
