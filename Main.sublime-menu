@@ -26,6 +26,10 @@
                                 "args": {"file": "${packages}/User/LaTeXTools.sublime-settings"},
                                 "caption": "Settings – User"
                             },
+                            {
+                                "command": "latextools_migrate",
+                                "caption": "Reconfigure LaTeXTools and migrate settings"
+                            },
                             { "caption": "-" },
                             {
                                 "command": "open_file",

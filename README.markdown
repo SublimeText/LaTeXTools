@@ -15,7 +15,7 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 **NOTE**: due to the change in the build system, I had to overhaul the preferences settings. Please **read this** before proceeding any further:
 
 * From now on, LaTeXTools will use a single settings file, called `LaTeXTools.sublime-settings`, which *must* exist in the `User` directory. By this I mean that LaTeXTools *will not work* until you have a proper `LaTeXTools.sublime-settings` file in the `User` directory.
-* Because of this, LaTeXtools provides an easy way to create it, and even *automagically* migrate your settings from any old `LaTeXTools Preferences.sublime-settings` file you may have. Launch Sublime Text, open the Sublime Text console (key combo: `Ctrl+backtick` on all platforms) and type `sublime.run_command("latextools_migrate")`. That's it!
+* Because of this, LaTeXtools provides an easy way to create it, and even *automagically* migrate your settings from any old `LaTeXTools Preferences.sublime-settings` file you may have. In Sublime Text, open the command palette from the Tools menu and search for "LaTeXTools: Reconfigure and migrate settings". You can also invoke the "Reconfigure LaTeXTools and migrate settings" item from the Preferences, Package Settings, LaTeXTools menu. That's it!
 * The old settings file, `LaTeXTools Preferences.sublime-settings`, will no longer be honored.
 * The `LaTeX.sublime-build` file is now for *internal use only*. Do *not* modify it! If you have a customized copy in `User`, delete it (but do *not* delete the original in the `LaTeXTools` directory--that is needed for Sublime Text's own build functionality, which this plugin relies on, for now). 
 
@@ -278,7 +278,13 @@ In addition, the LaTeXTools plugin provides useful completions for both regular 
 Settings
 --------
 
-LaTeXTools now supports user-defined settings. The *default* settings file is called `LaTeXTools.sublime-settings`. This **must** be in the `User` directory. As described above, when you first install LaTeXTools, the file `LaTeXTools.sublime-settings` does not exist anywhere. After installing the plugin, open the Sublime Text console (`Ctrl+backtick` on all platforms) and type `sublime.run_command("latextools_migrate")` to create this settings file in `User`, and automatically migrate your existing settings from the old file (`LaTeXTools Preferences.sublime-settings`). 
+LaTeXTools now supports user-defined settings. The *default* settings file is called `LaTeXTools.sublime-settings`. This **must** be in the `User` directory. As described above, when you first install LaTeXTools, the file `LaTeXTools.sublime-settings` does not exist anywhere. A migration / reconfiguration command is provided to create this settings file in `User`, and automatically migrate your existing settings from the old file (`LaTeXTools Preferences.sublime-settings`). . You can run it in three ways:
+
+* from the Command Palette (in the Tools) menu, search for "LaTeXTools: Reconfigure and migrate settings"
+* from the "Reconfigure LaTeXTools and migrate settings" item in the Preferences, Package Settings, LaTeXTools menu
+* from the Sublime Text console (`Ctrl+backtick` on all platforms), typing `sublime.run_command("latextools_migrate")`.
+
+If you ever want to revert your settings to their default state, just invoke the migration command again, as above.
 
 *Warning*:  in general, tweaking options can cause breakage. For instance, if on Linux you change the default `python2` setting (empty by default) to a non-existent binary, forward and inverse search will stop working. With great power comes great responsibility! If you think you have found a bug, *delete your settings file in the `User` directory and rerun the `latextools_migrate` command before reporting it!* Thanks :-)
 
