@@ -19,19 +19,20 @@ DEBUG = False
 # ScriptBuilder class
 #
 # Launch a user-specified script
+# STILL NOT FUNCTIONAL!!!
 #
-class TraditionalBuilder(PdfBuilder):
+class ScriptBuilder(PdfBuilder):
 
-	def __init__(self, tex_root, output, prefs):
+	def __init__(self, tex_root, output, builder_settings, platform_settings):
 		# Sets the file name parts, plus internal stuff
-		super(TraditionalBuilder, self).__init__(tex_root, output, prefs) 
+		super(TraditionalBuilder, self).__init__(tex_root, output, builder_settings, platform_settings) 
 		# Now do our own initialization: set our name
 		self.name = "Script Builder"
 		# Display output?
-		self.display_log = prefs.get("display_log", False)
+		self.display_log = builder_settings.get("display_log", False)
 		plat = sublime.platform()
-		self.cmd = prefs[plat]["command"]
-		self.env = prefs[plat]["env"]
+		self.cmd = builder_settings[plat]["command"]
+		self.env = builder_settings[plat]["env"]
 
 
 	#

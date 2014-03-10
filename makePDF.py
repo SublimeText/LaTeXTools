@@ -255,7 +255,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		builder_path = s.get("builder_path") # relative to ST packages dir!
 		builder_file_name   = builder_name + 'Builder.py'
 		builder_class_name  = builder_name.capitalize() + 'Builder'
-		build_settings = s.get("builder_settings")
+		builder_settings = s.get("builder_settings")
 
 		# Safety check: if we are using a built-in builder, disregard
 		# builder_path, even if it was specified in the pref file
@@ -292,7 +292,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		builder_class = getattr(builder_module, builder_class_name)
 		print(repr(builder_class))
 		# We should now be able to construct the builder object
-		self.builder = builder_class(self.file_name, self.output, build_settings)
+		self.builder = builder_class(self.file_name, self.output, builder_settings, platform_settings)
 		
 		# Restore Python system path
 		sys.path[:] = syspath_save
