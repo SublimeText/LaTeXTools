@@ -42,9 +42,11 @@
 
 	"windows": {
 		// Path to tex & friends. "" is fine for MiKTeX
-		"texpath" : ""
-		// For TeXlive 2011 (or other years) use the following
+		// For TeXlive 2011 (or other years) use
 		// "texpath" : "C:\\texlive\\2011\\bin\\win32;$PATH"
+		"texpath" : "",
+		// TeX distro: "miktex" or "texlive"
+		"distro" : "miktex"
 	},
 
 	"linux" : {
@@ -127,9 +129,6 @@
 
 		"windows" : {
 			// See README or third-party documentation
-
-			// (traditional/default): tex distro; "texlive" or "miktex"
-			"distro": "miktex"
 		},
 
 		"linux" : {
