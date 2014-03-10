@@ -43,7 +43,7 @@
 	"windows": {
 		// Path to tex & friends. "" is fine for MiKTeX
 		// For TeXlive 2011 (or other years) use
-		// "texpath" : "C:\\texlive\\2011\\bin\\win32;$PATH"
+		// "texpath" : "C:\\texlive\\2011\\bin\\win32;$PATH",
 		"texpath" : "",
 		// TeX distro: "miktex" or "texlive"
 		"distro" : "miktex"
