@@ -68,6 +68,7 @@ class latextoolsMigrateCommand(sublime_plugin.ApplicationCommand):
 		user_file = os.path.join(user_path,USER_SETTINGS)
 		old_file = os.path.join(user_path,OLD_SETTINGS)
 
+		killall = False # So final message check works even if there is no existing setting file
 		if os.path.exists(user_file):
 			killall = sublime.ok_cancel_dialog(USER_SETTINGS + " already exists in the User directory!\n"
 				"Are you sure you want to DELETE YOUR CURRENT SETTINGS and revert them to default?",
@@ -149,8 +150,11 @@ class latextoolsMigrateCommand(sublime_plugin.ApplicationCommand):
 		with codecs.open(user_file,'w','UTF-8') as user_fp:
 			user_fp.writelines(def_lines)
 
+		if killall:
+			msg_preserved = ""
+		else:
+			msg_preserved = "Your existing settings, if any, have been migrated."
 		sublime.status_message("Reconfiguration complete.")
-		sublime.message_dialog("LaTeXTools settings successfully reconfigured." \
-		 "Your existing settings, if any, have been migrated.")
+		sublime.message_dialog("LaTeXTools settings successfully reconfigured. " + msg_preserved)
 		return
 
