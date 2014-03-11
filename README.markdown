@@ -324,7 +324,9 @@ Customizing the Build System
 
 Starting with the 3/2014 versions, LaTeXTools allows you to fully customize the build process using Python. The default builder (called `traditional`) works like the one in prior releases. 
 
-To create and use a new builder, you place the code somewhere off the ST `Packages` directory (for instance, in `User`), then set the `builder` and `builder_path` options in your `LaTeXTools.sublime-settings` file accordingly. A builder can define its own options, also in `LaTeXTools.sublime-settings`, which will be passed whenever a build is invoked.
+For minor customizations of the default builder, as noted in the Settings section above, there are two key options. If you want to use, say, `xelatex` instead of `pdflatex` (the default), set the `program` option in `builder-settings`. If instead you want to change the build command completely, set the `command` option there. *There is no longer any need to fiddle with the `LaTeX.sublime-build` file!* In fact, if you have a copy of that file in your User directory, it's best to delete it. However, do *not* delete the `LaTeX.sublime-build` file in the plugin's own directory! That file is now *internal* and shold not be modified. 
+
+Some information on the new flexible builder system: to create and use a new builder, you place the code somewhere off the ST `Packages` directory (for instance, in `User`), then set the `builder` and `builder_path` options in your `LaTeXTools.sublime-settings` file accordingly. A builder can define its own options, also in `LaTeXTools.sublime-settings`, which will be passed whenever a build is invoked.
 
 Due to time constraints, I have not yet been able to document how to write a builder. The basic idea is that you subclass the `PdfBuilder` class in the file `LaTeXTools/builders/pdfBuilder.py`. The comments in that file describe how builders interact with the build command (hint: they use Pyton's `yield` command). I provide three builders (one is in progress and not usable yet). The code is in the `LaTeXTools/builders` directory. You can use them as examples:
 - `traditional` is the traditional builder. 
