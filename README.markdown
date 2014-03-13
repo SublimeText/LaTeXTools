@@ -8,20 +8,17 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* 2014-3-09. 
+*Latest revision:* 2014-3-12. 
 
 *Highlight*: New, fully customizable build system! See below for a complete description. Note that, for now, things work more or less as before, but the infrastructure is there to customize things beyond your wildest dreams!
 
 **NOTE**: due to the change in the build system, I had to overhaul the preferences settings. Please **read this** before proceeding any further:
 
 * From now on, LaTeXTools will use a single settings file, called `LaTeXTools.sublime-settings`, which *must* exist in the `User` directory. By this I mean that LaTeXTools *will not work* until you have a proper `LaTeXTools.sublime-settings` file in the `User` directory.
-* Because of this, LaTeXtools provides an easy way to create it, and even *automagically* migrate your settings from any old `LaTeXTools Preferences.sublime-settings` file you may have. In Sublime Text, open the command palette from the Tools menu and search for "LaTeXTools: Reconfigure and migrate settings". You can also invoke the "Reconfigure LaTeXTools and migrate settings" item from the Preferences, Package Settings, LaTeXTools menu. That's it!
+* Because of this, LaTeXtools provides an easy way to create it, and even *automagically* migrate your settings from any old `LaTeXTools Preferences.sublime-settings` file you may have. In Sublime Text, open the command palette from the Tools menu, search for "LaTeXTools: Reconfigure and migrate settings," and hit Return. That's it! See the Settings section for other ways to migrate or reconfigure settings.
 * The old settings file, `LaTeXTools Preferences.sublime-settings`, will no longer be honored.
-* The `LaTeX.sublime-build` file is now for *internal use only*. Do *not* modify it! If you have a customized copy in `User`, delete it (but do *not* delete the original in the `LaTeXTools` directory--that is needed for Sublime Text's own build functionality, which this plugin relies on, for now). 
+* The `LaTeX.sublime-build` file is now for *internal use only*. Do *not* modify it! If you have a customized copy in `User`, delete it (but do *not* delete the original in the `LaTeXTools` directory). See the Settings section below for ways to *easily* customize the build command. 
 
-Now the fine print: if you really want to, you can create the `LaTeXTools.sublime-settings` file manually. Copy the file `LaTeXTools.default-settings` file from the `LaTeXTools` directory to your `User` directory, and change the extension to `.sublime-settings` (or it won't work). Then, edit at will.
-
-Also, if you have edited the `"cmd"` entry in `LaTeX.sublime-build`, there is a corresponding `"command"` entry to the `"builder_settings"` section in `LaTeXTools.sublime-settings` (did I mention that this file must be in the `User` directory?). See below for more info.
 
 
 Introduction
@@ -133,6 +130,9 @@ The default ST Build command takes care of the following:
 There is also support for project files; this is to be documented.
 
 **TeX engine selection** is supported, but *only* if you are running TeXlive (any platform). Sorry, MiKTeX support is not there yet. If the first line of the current file consists of the text `%!TEX program = <program>`, where `program` is `pdflatex`, `lualatex` or `xelatex`, the corresponding engine is selected. If no such directive is specified, `pdflatex` is the default. Multi-file documents are supported: the directive must be in the *root* (i.e. master) file. Also, for compatibility with TeXshop, you can use `TS-program` instead of `program`. **Note**: for this to work, you must **not** customize the `"command"` option in `LaTeX.sublime-settings`. If you do, you will not get this functionality. 
+
+**Customizing or replacing the compilation command** (`latexmk` or `texify`) is also possible by setting the `command` option under Builder Settings. If you do, the TeX engine selection facility will no longer work (because it relies on a specific compilation command). However, if you want to customize or replace `latexmk`/`texify`, you probably know how to select the right TeX engine, so this shouldn't be a concern. See the Settings option below for details. *Note*: if you change the compilation command, you are responsible for making it work on your setup. Only customize the compilation command if you know what you're doing. 
+
 
 ### Toggling window focus following a build ###
 
@@ -310,8 +310,8 @@ NOTE: for the time being, you will need to refer to the `LaTeX.sublime-settings`
 - `builder`: the builder you want to use. Leave blank (`""`) or set to `"default"` or `"traditional"` for the traditional (`latexmk`/`texify`) behavior.
 - `builder_path`: builders can reside anywhere Sublime Text can access. Specify a path *relative to the Sublime text Packages directory*. In particular, `User` is a good choice. If you use a third-party builder, specify the builder-provided directory.
 - `builder-settings`: these are builder-specific settings. For the `default`/`traditional` builder, the following settings are useful:
+  * `program`: one of `pdflatex` (the default), `xelatex` or `lualatex`. This selects the TeX engine.
   * `command`: the precise `latexmk` or `texify` command to be invoked. This is specified exactly as in the `cmd` entry of the old `LaTeX.sublime-build` file (which is no longer honored): it must be a list of strings. The defaults (hardcoded, not shown in the settings file) are `["latexmk", "-cd", "-e", "$pdflatex = '%E -interaction=nonstopmode -synctex=1 %S %O'", "-f", "-pdf"]` for TeXLive, and `["texify", "-b", "-p", "--tex-option=\"--synctex=1\""]` for MiKTeX.
-  * `program`: one of `pdflatex` (the default), `xelatex` or `lualatex`. This selects the build engine.
   * In addition, there can be platform-specific settings. An important one for Windows is `distro`, which must be set to either `miktex` or `texlive`.
 
 **Bibliographic references settings**:
