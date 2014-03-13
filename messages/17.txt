@@ -21,9 +21,12 @@ NOTE: due to the change in the build system, I had to overhaul the preferences s
 
 New features:
 
-- New build system
-- Change the default TeX engine and build command using simple options
-  in "LaTeXTools.sublime-settings" (in your User directory).
+- New pluggable build system back-end
+- Two standard builders: "traditional" (the default; same as in
+  previous releases, using latexmk/texify) and "simple" (invokes tex
+  and friends directly). Switch using a simple configuration setting. 
+- With the "traditional" builder, the TeX engine and build command can
+  be customized by editing simple options in "LaTeXTools.sublime-settings"
 - Remark snippet (Ivan Canay)
 
 Bugs fixed:
