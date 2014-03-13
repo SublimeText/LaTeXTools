@@ -12,7 +12,7 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *Highlight*: New, fully customizable build system! See below for a complete description. Note that, for now, things work more or less as before, but the infrastructure is there to customize things beyond your wildest dreams!
 
-**NOTE**: due to the change in the build system, I had to overhaul the preferences settings. Please **read this** before proceeding any further:
+**NOTE**: due to the change in the build system, I had to overhaul the preferences settings. If you are already using LaTeXTools, please **read this** before proceeding any further:
 
 * From now on, LaTeXTools will use a single settings file, called `LaTeXTools.sublime-settings`, which *must* exist in the `User` directory. By this I mean that LaTeXTools *will not work* until you have a proper `LaTeXTools.sublime-settings` file in the `User` directory.
 * Because of this, LaTeXtools provides an easy way to create it, and even *automagically* migrate your settings from any old `LaTeXTools Preferences.sublime-settings` file you may have. In Sublime Text, open the command palette from the Tools menu, search for "LaTeXTools: Reconfigure and migrate settings," and hit Return. That's it! See the Settings section for other ways to migrate or reconfigure settings.
@@ -38,13 +38,15 @@ Requirements and Setup
 
 First, you need to be running Sublime Text 2 or 3 (ST2 and ST3 henceforth, or simply ST to refer to either ST2 or ST3). For ST3, I have only tested build 3047 and will of course test subsequent builds.
 
-Second, get the LaTeXTools plugin. These days, the easiest way to do so is via Package Control: see [here](https://sublime.wbond.net) for details on how to set it up (it's very easy). Once you have Package Control up and running, invoke it (via the Command Palette or from Preferences), select the Install Package command, and look for LaTeXTools.
+Second, get the LaTeXTools plugin. These days, the easiest way to do so is via Package Control: see [here](https://sublime.wbond.net) for details on how to set it up (it's very easy). Once you have Package Control up and running, invoke it (via the Command Palette from the Tools menu, or from Preferences), select the Install Package command, and look for LaTeXTools.
 
 If you prefer a more hands-on approach, you can always clone the git repository, or else just grab this plugin's .zip file from GitHub and extract it to your Packages directory (you can open it easily from ST, by clicking on Preferences|Browse Packages). Then, (re)launch ST.
 
 I encourage you to install Package Control anyway, because it's awesome, and it makes it easy to keep your installed packages up-to-date (see the aforelinked page for details). 
 
-Third, follow the OS-specific instructions below.
+Third, if you are installing LaTeXTools for the first time, you need to create a configuration file, `LaTeXTools.sublime-settings`, in your `User` directory (off the `Packages`) directory. To do so, open the command palette from the Tools menu, search for "LaTeXTools: Reconfigure and migrate settings," and hit Return. That's it! See the Settings section for details on configuration options.
+
+Fourth, follow the OS-specific instructions below.
 
 <br>
 
