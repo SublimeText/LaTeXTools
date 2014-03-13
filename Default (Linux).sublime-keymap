@@ -285,7 +285,7 @@ LaTeX Package keymap for Linux
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
-			{ "key": "following_text", "operator": "regex_match", "operand": "^$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_match", "operand": "^$", "match_all": true }
 		]
 	}
 ]
