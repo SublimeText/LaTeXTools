@@ -24,6 +24,7 @@ New features:
 - New build system
 - Change the default TeX engine and build command using simple options
   in "LaTeXTools.sublime-settings" (in your User directory).
+- Remark snippet (Ivan Canay)
 
 Bugs fixed:
 

@@ -282,6 +282,7 @@ LaTeX Package keymap for Linux
 	{ "keys": ["{"], "command": "insert_snippet", "args": {"contents": "{$0}"}, "context":
 		[
 			{ "key": "indented_block", "match_all": true },
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
 			{ "key": "following_text", "operator": "regex_match", "operand": "^$", "match_all": true },
