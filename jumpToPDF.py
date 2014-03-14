@@ -92,8 +92,21 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			# self.view.run_command("send_dde",
 			# 		{ "service": "SUMATRA", "topic": "control", "command": command})
 			# Now send ForwardSearch command if needed
+
+			si = subprocess.STARTUPINFO()
+			if setfocus == 0:
+				si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+				si.wShowWindow = 4 #constant for SHOWNOACTIVATE
+
+			startCommands = ["SumatraPDF.exe","-reuse-instance"]
 			if forward_sync:
-				subprocess.Popen(["SumatraPDF.exe","-reuse-instance","-forward-search", srcfile, str(line), pdffile])
+				startCommands.append("-forward-search")
+				startCommands.append(srcfile)
+				startCommands.append(str(line))
+
+			startCommands.append(pdffile)
+
+			subprocess.Popen(startCommands, startupinfo = si)
 				# command = "[ForwardSearch(\"%s\",\"%s\",%d,%d,0,%d)]" \
 				# 			% (pdffile, srcfile, line, col, setfocus)
 				# print (command)
