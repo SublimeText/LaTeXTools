@@ -33,7 +33,7 @@
 // ------------------------------------------------------------------
 
 	"osx": 	{
-		// Path to tex & friends; 
+		// Path used when invoking tex & friends; MUST include $PATH
 		"texpath" : "$PATH:/usr/texbin:/usr/local/bin:/opt/local/bin"
 		// Path to PDF viewer, if needed
 		// TODO think about it. Also, maybe configure it here!
@@ -41,7 +41,7 @@
 
 
 	"windows": {
-		// Path to tex & friends. "" is fine for MiKTeX
+		// Path used when invoking tex & friends; "" is fine for MiKTeX
 		// For TeXlive 2011 (or other years) use
 		// "texpath" : "C:\\texlive\\2011\\bin\\win32;$PATH",
 		"texpath" : "",
@@ -50,8 +50,8 @@
 	},
 
 	"linux" : {
-		// Path to tex & friends
-		"texpath" : "/usr/texbin",
+		// Path used when invoking tex & friends; MUST include $PATH
+		"texpath" : "$PATH:/usr/texbin",
 		// Command to invoke Python 2. Useful if you have both Python 2 and Python 3 on your system,
 		// and "python" by default is liked to Python 3. If blank, "python" is used
 		// Note: ST3 uses Python 3 internally, but the evince scripts need Python 2
