@@ -139,7 +139,12 @@ The default ST Build command takes care of the following:
 
 **Multi-file documents** are supported as follows. If the first line in the current file consists of the text `%!TEX root = <master file name>`, then tex & friends are invoked on the specified master file, instead of the current one. Note: the only file that gets saved automatically is the current one. Also, the master file name **must** have a `.tex` extension, or it won't be recognized.
 
-There is also support for project files; this is to be documented.
+There is also support for project files; Simply add `
+"settings":
+{
+  "TEXroot": <your_root.tex>
+}
+`.
 
 **TeX engine selection** is supported, but *only* if you are running TeXlive (any platform). Sorry, MiKTeX support is not there yet. If the first line of the current file consists of the text `%!TEX program = <program>`, where `program` is `pdflatex`, `lualatex` or `xelatex`, the corresponding engine is selected. If no such directive is specified, `pdflatex` is the default. Multi-file documents are supported: the directive must be in the *root* (i.e. master) file. Also, for compatibility with TeXshop, you can use `TS-program` instead of `program`. **Note**: for this to work, you must **not** customize the `"command"` option in `LaTeX.sublime-settings`. If you do, you will not get this functionality. 
 
@@ -212,7 +217,12 @@ One often needs to enter **multiple citations**, as e.g. in `\cite{paper1,paper2
 
 The display of bibliographic entries is *customizable*. There is a setting, `cite-panel-format`, that controls exactly what to display in each of the two lines each entry gets in the citation quick panel. Options include author, title, short title, year, bibtex key, and journal. This is useful because people may prefer to use different strategies to refer to papers---author-year, short title-year, bibtex key (!), etc. Since only the first line in each quick panel entry is searchable, how you present the information matters. The default should be useful for most people; if you wish to change the format, check the `LaTeXTools.sublime-settings` file for detailed information. (As usual, copy that file to the `User` directory and edit your copy, not the original). s
 
-Thanks to recent contributed code, **multi-file documents** are *fully supported*. If you have a `% !TEX root = ...` directive at the top of the current file, LaTeXTools looks for references, as well as `\bibliography{}` commands, in the root file and in all recursively included files. You can also use a project file to specify the root file (to be documented). 
+Thanks to recent contributed code, **multi-file documents** are *fully supported*. If you have a `% !TEX root = ...` directive at the top of the current file, LaTeXTools looks for references, as well as `\bibliography{}` commands, in the root file and in all recursively included files. You can also use a project file to specify the root file by adding `
+"settings":
+{
+  "TEXroot": <your_root.tex>
+}
+`. 
 
 LaTeXTools now also looks `\addbibresource{}` commands, which provides basic compatibility with biblatex.
 
