@@ -261,6 +261,8 @@ def get_cite_completions(view, point, autocompleting=False):
                 continue
             if line.lower()[0:7] == "@string":
                 continue
+            if line.lower()[0:9] == "@preamble":
+                continue
             if line[0] == "@":
                 # First, see if we can add a record; the keyword must be non-empty, other fields not
                 if entry["keyword"]:
