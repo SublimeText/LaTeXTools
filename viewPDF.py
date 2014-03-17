@@ -1,6 +1,17 @@
-import sublime, sublime_plugin, os, os.path, platform
-import getTeXRoot
+# ST2/ST3 compat
+from __future__ import print_function
+import sublime
+if sublime.version() < '3000':
+	# we are on ST2 and Python 2.X
+	_ST3 = False
+	import getTeXRoot
+else:
+	_ST3 = True
+	from . import getTeXRoot
+
+import sublime_plugin, os, os.path, platform
 from subprocess import Popen
+
 
 # View PDF file corresonding to TEX file in current buffer
 # Assumes that the SumatraPDF viewer is used (great for inverse search!)
@@ -9,14 +20,14 @@ from subprocess import Popen
 
 class View_pdfCommand(sublime_plugin.WindowCommand):
 	def run(self):
-		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
+		s = sublime.load_settings("LaTeXTools.sublime-settings")
 		prefs_keep_focus = s.get("keep_focus", True)
 		prefs_lin = s.get("linux")
 
 		view = self.window.active_view()
 		texFile, texExt = os.path.splitext(view.file_name())
 		if texExt.upper() != ".TEX":
-			sublime.error_message("%s is not a TeX source file: cannot view." % (os.path.basename(view.fileName()),))
+			sublime.error_message("%s is not a TeX source file: cannot view." % (os.path.basename(view.file_name()),))
 			return
 		quotes = ""# \"" MUST CHECK WHETHER WE NEED QUOTES ON WINDOWS!!!
 		root = getTeXRoot.get_tex_root(view)
@@ -48,7 +59,7 @@ class View_pdfCommand(sublime_plugin.WindowCommand):
 		else:
 			sublime.error_message("Platform as yet unsupported. Sorry!")
 			return	
-		print viewercmd + [pdfFile]
+		print (viewercmd + [pdfFile])
 		try:
 			Popen(viewercmd + [pdfFile], cwd=script_path)
 		except OSError:

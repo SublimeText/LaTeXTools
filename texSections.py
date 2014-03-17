@@ -1,4 +1,14 @@
-import sublime, sublime_plugin, os, os.path, re
+# ST2/ST3 compat
+from __future__ import print_function 
+import sublime
+if sublime.version() < '3000':
+    # we are on ST2 and Python 2.X
+    _ST3 = False
+else:
+    _ST3 = True
+
+
+import sublime_plugin, os, os.path, re
 
 # References and citations
 
@@ -72,5 +82,5 @@ class TexSectionsCommand(sublime_plugin.TextCommand):
 			s.add(secRegions[i])
 			self.view.runCommand("moveTo bol")
 
-		print prettySecs
+		print (prettySecs)
 		#self.view.window().show_select_panel(prettySecs, onSelect, None, 0)

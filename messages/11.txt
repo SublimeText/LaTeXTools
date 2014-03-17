@@ -1,0 +1,19 @@
+LaTeXTools Plugin version 2013-06-18 changelog:
+
+I'm back! Finally, I anticipate having some spare time to work on LaTeXTools! This will be
+the first of hopefully many updates! Thank you for your continued support and PATIENCE :)
+
+New features:
+
+- Basic support for biblatex bibliographies (contributed by Jeremy Jay)
+
+Bugs fixed:
+
+- When jumping to PDF using the keybinding (C-l,j), honor the
+  "keep_focus" setting and the focus toggle.
+
+- Added "/opt/local/bin" path on OSX. Note: this is a temporary fix; I
+  am planning a slight refactoring of build configuration that will
+  hopefully give greater flexibility.
+
+  

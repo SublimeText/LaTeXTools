@@ -1,131 +1,29 @@
 // Compilation settings
 // ====================
 //
-// The actual magic happens in the make_pdf command
-// I stick to the format of standard ST2 sublime-build files
-// with minor variations.
-// NOTE: the viewer is NOT configured from here! 
-// As of 5/24/11, it cannot be changed, but I will introduce a setting later
+// DO NOT TOUCH THIS FILE!
+// All configuration now occurs in LaTeXTools Preferences.sublime-settings
+// Put a copy of *that* file in your User directory and customize at will
+//
+// Again: there is NOTHING user-customizable here anymore.
 
 {
 
-	// General settings; DO NOT MODIFY!!!
 	"target": "make_pdf",
 	"selector": "text.tex.latex",
 
-	// Mac-specific settings
-	// ---------------------
-
 	"osx":
 		{
-		// Mac texification settings
-		// -------------------------
-		// Personalize this, IF you know what you are doing!
-		// e.g. change 'pdflatex...' to 'xelatex...'
-		// Refer to the documentation for latexmk
-		//
-		// Note: do NOT include $file or similar!!!
-		// Only configure the compilation parameters you need, MINUS the
-		// actual file to be compiled
-		// 
-		// By default, latexmk is told to use pdflatex, with synctex on for
-		// backward/forward search, forcing compilation (e.g. even if no bib file is found)
-		// and producing pdf rather than dvi output
-		"cmd": ["latexmk", "-cd",
-				"-e", "\\$pdflatex = 'pdflatex %O -interaction=nonstopmode -synctex=1 %S'",
-				//"-silent",
-				"-f", "-pdf"],
-
-		// Paths to TeX binaries; needed as GUI apps do not inherit
-		// the profile. MUST EXPLICITLY PRE/APPEND $PATH!
-		// This is preconfigured for MacTeX (2009 and up I guess)
-		"path": "$PATH:/usr/texbin:/usr/local/bin",
-		
-		// DO NOT MESS WITH THE FOLLOWING!!!
-		"file_regex": "^(...*?):([0-9]+): ([0-9]*)([^\\.]+)"
+			"file_regex": "^(...*?):([0-9]+): ([0-9]*)([^\\.]+)"
 		},
 
-	// Windows-specific settings
-	// -------------------------
 	"windows":
 		{
-			// Texification command
-			// -----------------------------
-			// See above comments on Mac parameters
-			// Refer to the documentation for texify
-			//
-			// Again, do NOT include $file or similar!!!
-			//
-
-			// Uncomment ONLY ONE of the "cmd"s given here,
-			// depending on your tex distro (miktex or texlive)
-
-			// MikTeX 2009 configuration			
-			// You can also set the MikTeX binaries path here, if you have them
-			// in a non-standard location that is NOT on your %PATH%
-			// Useful also if you have both MikTeX and TeXlive installed, and want
-			// to use MikTeX.
-			// If you don't need this, leave it blank, i.e. ""
-			// ADD $PATH EXPLICITLY AT THE END
-			
-			// *** BEGIN MikTeX 2009 ***
-			"cmd": ["texify", 
-					"-b", "-p",
-					"--tex-option=\"--synctex=1\""
-			],
-			
-			"path": "",
-			// *** END MikTeX 2009 ***
-
-			// TeXlive 2011 configuration
-			// You can als set the TeXlive binaries path here, if you have them
-			// in a non-standard location that is NOT on your %PATH%
-			// Useful also if you have both MikTeX and TeXlive installed, and want
-			// to use TeXlive.
-			// If you don't need this, leave it blank, i.e. ""
-			// ADD $PATH EXPLICITLY AT THE END
-
-			// *** BEGIN TeXLive 2011 ***
-			// "cmd": ["latexmk", "-cd",
-			// 	"-e", "\\$pdflatex = 'pdflatex %O -interaction=nonstopmode -synctex=1 %S'",
-			//	//"-silent",
-			// 	"-f", "-pdf"],
-
-			// "path": "C:\\texlive\\2011\\bin\\win32;$PATH",
-			// *** END TeXLive 2011 ***
-			
-
-			// END OF USER-CONFIGURABLE STUFF!!!
-
-			// DO NOT MESS WITH THE FOLLOWING!!!
 			"file_regex": "^((?:.:)?[^:\n\r]*):([0-9]+):?([0-9]+)?:? (.*)$"
 		},
 
 	"linux":
 		{
-		// Linux texification settings
-		// -------------------------
-		// Personalize this, IF you know what you are doing!
-		// e.g. change 'pdflatex...' to 'xelatex...'
-		// Refer to the documentation for latexmk
-		//
-		// Note: do NOT include $file or similar!!!
-		// Only configure the compilation parameters you need, MINUS the
-		// actual file to be compiled
-		// 
-		// By default, latexmk is told to use pdflatex, with synctex on for
-		// backward/forward search, forcing compilation (e.g. even if no bib file is found)
-		// and producing pdf rather than dvi output
-		"cmd": ["latexmk", "-cd",
-				"-e", "\\$pdflatex = 'pdflatex %O -interaction=nonstopmode -synctex=1 %S'",
-				"-f", "-pdf"],
-
-		// Paths to TeX binaries; needed as GUI apps do not inherit
-		// the profile. MUST EXPLICITLY PRE/APPEND $PATH!
-		// This is preconfigured for MacTeX (2009 and up I guess)
-		"path": "$PATH:/usr/texbin",
-		
-		// DO NOT MESS WITH THE FOLLOWING!!!
-		"file_regex": "^(...*?):([0-9]+): ([0-9]*)([^\\.]+)"
+			"file_regex": "^(...*?):([0-9]+): ([0-9]*)([^\\.]+)"
 		}
 }
