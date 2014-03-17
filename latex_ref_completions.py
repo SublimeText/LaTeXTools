@@ -57,8 +57,14 @@ def find_labels_in_files(rootdir, src, labels):
         print ("WARNING! I can't find it! Check your \\include's and \\input's." )
         return
 
-    src_content = re.sub("%.*", "", src_file.read())
-    src_file.close()
+    try:
+        src_content = re.sub("%.*", "", src_file.read())
+        src_file.close()
+
+    except UnicodeDecodeError:
+        sublime.status_message("LaTeXTools WARNING: cannot read included file (UTF-8?)" + file_path)
+        print ("WARNING! I can't read file")
+        return
 
     # If the file uses inputenc with a DIFFERENT encoding, try re-opening
     # This is still not ideal because we may still fail to decode properly, but still... 
