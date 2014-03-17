@@ -55,8 +55,13 @@ def find_bib_files(rootdir, src, bibfiles):
         print ("WARNING! I can't find it! Check your \\include's and \\input's.")
         return
 
-    src_content = re.sub("%.*","",src_file.read())
-    src_file.close()
+    try:
+        src_content = re.sub("%.*","",src_file.read())
+        src_file.close()
+    except UnicodeDecodeError:
+        sublime.status_message("LaTeXTools WARNING: cannot read included file (UTF-8?)" + file_path)
+        print ("WARNING! I can't read file")
+        return
 
     m = re.search(r"\\usepackage\[(.*?)\]\{inputenc\}", src_content)
     if m:
