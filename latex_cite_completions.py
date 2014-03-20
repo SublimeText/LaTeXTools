@@ -186,7 +186,7 @@ def get_cite_completions(view, point, autocompleting=False):
 
     # better would be to use : kpsewhich -var-value TEXMFHOME or BIBINPUTS
     texmfbibhome = None
-    s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
+    s = sublime.load_settings("LaTeXTools.sublime-settings")
     texmf = s.get('texmf')
     if texmf:
         print ("texmf tree path defined in LaTeXTools settings: " + texmf)
