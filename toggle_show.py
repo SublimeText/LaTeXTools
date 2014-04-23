@@ -4,7 +4,7 @@ import sublime, sublime_plugin
 
 class toggle_showCommand(sublime_plugin.TextCommand):
 	def run(self, edit, **args):
-		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
+		s = sublime.load_settings("LaTeXTools.sublime-settings")
 		prefs_keep_focus = s.get("keep_focus", "(default)")
 		prefs_forward_sync = s.get("forward_sync", "(default)")
 		prefs_auto_ref = s.get("ref_auto_trigger", "(default)")

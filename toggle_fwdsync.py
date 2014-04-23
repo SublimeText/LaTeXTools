@@ -14,7 +14,7 @@ import sublime, sublime_plugin
 
 class toggle_fwdsyncCommand(sublime_plugin.TextCommand):
 	def run(self, edit, **args):
-		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
+		s = sublime.load_settings("LaTeXTools.sublime-settings")
 		prefs_forward_sync = s.get("forward_sync", True)
 
 		if self.view.settings().get("forward_sync",prefs_forward_sync):
