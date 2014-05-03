@@ -86,6 +86,9 @@
 	// "traditional"	replicates the 'old' system based on
 	//					latexmk (TeXLive) / texify (MiKTeX)
 	//
+	// "autolatex"		invoke autolatex with the settings
+	//					specified in "builder_settings"
+	//
 	// "script"			external script: just invokes the script
 	//					specified in "builder_settings"
 	//
@@ -121,6 +124,9 @@
 
 		// (built-ins): true shows the log of each command in the output panel
 		"display_log" : false,	
+
+		// (built-ins): the level of verbosity for the builder (greater or equal to 0)
+		"verbose_level" : 2,
 
 		// Platform-specific settings:
 		"osx" : {

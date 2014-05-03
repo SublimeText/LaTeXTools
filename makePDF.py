@@ -259,7 +259,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 
 		# Safety check: if we are using a built-in builder, disregard
 		# builder_path, even if it was specified in the pref file
-		if builder_name in ['simple', 'traditional', 'script', 'default','']:
+		if builder_name in ['simple', 'traditional', 'script', 'default','autolatex','']:
 			builder_path = None
 
 		# Now actually get the builder
