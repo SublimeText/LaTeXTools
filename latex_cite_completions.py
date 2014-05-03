@@ -70,18 +70,26 @@ def find_bib_files(rootdir, src, bibfiles):
             if f and not f.closed:
                 f.close()
 
-    bibtags =  re.findall(r'\\bibliography\{[^\}]+\}', src_content)
-    bibtags += re.findall(r'\\addbibresource\{[^\}]+.bib\}', src_content)
+    # While these commands only allow a single resource as their argument...
+    resources = re.findall(r'\\addbibresource(?:\[[^\]]+\])?\{([^\}]+\.bib)\}', src_content)
+    resources += re.findall(r'\\addglobalbib(?:\[[^\]]+\])?\{([^\}]+\.bib)\}', src_content)
+    resources += re.findall(r'\\addsectionbib(?:\[[^\]]+\])?\{([^\}]+\.bib)\}', src_content)
+
+    # ... these can have a comma-separated list of resources as their argument.
+    multi_resources = re.findall(r'\\begin\{refsection\}\[([^\]]+)\]', src_content)
+    multi_resources += re.findall(r'\\bibliography\{([^\}]+)\}', src_content)
+
+    for multi_resource in multi_resources:
+        for res in multi_resource.split(','):
+            if res[-4:].lower() != '.bib':
+                res = res + '.bib'
+            resources.append(res)
 
     # extract absolute filepath for each bib file
-    for tag in bibtags:
-        bfiles = re.search(r'\{([^\}]+)', tag).group(1).split(',')
-        for bf in bfiles:
-            if bf[-4:].lower() != '.bib':
-                bf = bf + '.bib'
-            # We join with rootdir - everything is off the dir of the master file
-            bf = os.path.normpath(os.path.join(rootdir,bf))
-            bibfiles.append(bf)
+    for res in resources:
+        # We join with rootdir - everything is off the dir of the master file
+        bibfile = os.path.normpath(os.path.join(rootdir, res))
+        bibfiles.append(bibfile)
 
     # search through input tex files recursively
     for f in re.findall(r'\\(?:input|include)\{[^\}]+\}',src_content):
