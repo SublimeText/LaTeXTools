@@ -75,7 +75,7 @@ def find_labels_in_files(rootdir, src, labels):
             if f and not f.closed:
                 f.close()
 
-    labels += re.findall(r'\\label\{([^{}]+)\}', src_content)
+    labels += re.findall(r'\\(?:nllabel|label)\{([^{}]+)\}', src_content)
 
     # search through input tex files recursively
     for f in re.findall(r'\\(?:input|include)\{([^\{\}]+)\}', src_content):
