@@ -20,15 +20,15 @@ def winsys(cmd, capture=True, shell=False):
 
 	print("Running winsys: "); print(cmd); print(capture)
 	startupinfo = subprocess.STARTUPINFO()
-#	startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+	startupinfo.dwFlags = subprocess.STARTF_USESHOWWINDOW | subprocess.STARTF_USESTDHANDLES # was |=
 	# proc = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE,
 	# 			startupinfo=startupinfo, creationflags=subprocess.CREATE_NEW_CONSOLE)
 	if capture:
-		out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=shell,
+		out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=shell, bufsize=4096,
 			startupinfo=startupinfo, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP).decode('UTF-8', 'ignore') #guess.
 	else:
 		out = ""
-		subprocess.check_call(cmd, startupinfo=startupinfo, shell=shell)
+		subprocess.check_call(cmd, startupinfo=startupinfo, shell=shell, bufsize=4096)
 	# Popen returns a byte stream, i.e. a single line. So test simply:
 	# Wait! ST3 is stricter. We MUST convert to str
 	
