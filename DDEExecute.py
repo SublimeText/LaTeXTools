@@ -12,6 +12,7 @@ else:
 
 import sublime_plugin
 from ctypes import *
+import ctypes.wintypes
 
 
 class send_ddeCommand(sublime_plugin.TextCommand):
@@ -47,9 +48,11 @@ class send_ddeCommand(sublime_plugin.TextCommand):
 		topic = c_wchar_p(topic)
 		# Potential ST2/ST3 difference:
 		if _ST3:
-			bcommand = (command + '\x00').encode("utf-8")
-			pData = c_char_p(bcommand)
-			print(repr(bcommand))
+			bcommand = create_unicode_buffer(command) # when all else fails, RTFM!
+			pData = bcommand # just to avoid changes...
+			#bcommand = (command + '\x00').encode("utf-16")
+			#pData = c_char_p(bcommand)
+			print(bcommand)
 			print(len(command),len(bcommand))
 			cbData = len(bcommand)
 		else:
@@ -64,6 +67,7 @@ class send_ddeCommand(sublime_plugin.TextCommand):
 		hszService = DdeCreateStringHandle(idInst, service, 1200) 
 		hszTopic = DdeCreateStringHandle(idInst, topic, 1200)
 		hConv = DdeConnect(idInst, hszService, hszTopic, 0)
+		print("DdeConnect ", hConv)
 		
 		if hConv:  # zero means we could not connect for some reason
 			#print "start!"

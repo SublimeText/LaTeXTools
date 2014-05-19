@@ -112,6 +112,9 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			if "SumatraPDF.exe" not in tasks_str:
 				print ("Sumatra not running, launch it")
 				self.view.window().run_command("view_pdf")
+				# DEBUG: try returning here if the problem is that we get a SINGLE
+				# invokation, or just an invokation right after launching Sumatra
+				#return #NOPE, it's that you are calling it right away...????
 				time.sleep(0.5) # wait 1/2 seconds so Sumatra comes up
 			setfocus = 0 if keep_focus else 1
 			# First send an open command forcing reload, or ForwardSearch won't 
@@ -143,9 +146,9 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			command2 = "[ForwardSearch(\"%s\",\"%s\",%d,%d,0,%d)]" \
 						% (pdffile, srcfile, line, col, setfocus)
 			print (command2)
-			# self.view.run_command("send_dde",
-			# 			{ "service": "SUMATRA", "topic": "control", "command": command})
-			out = winsys([ddeexec, 'SUMATRA', 'control', command1+command2 ], capture=True, shell=True)
+			self.view.run_command("send_dde",
+						{ "service": "SUMATRA", "topic": "control", "command": command1+command2})
+			#out = winsys([ddeexec, 'SUMATRA', 'control', command1+command2 ], capture=True, shell=True)
 			#print(out)
 		
 		elif 'linux' in plat: # for some reason, I get 'linux2' from sys.platform
