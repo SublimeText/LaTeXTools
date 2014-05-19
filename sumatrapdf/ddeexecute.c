@@ -27,6 +27,7 @@ int dde_execute(LPWSTR service, LPWSTR topic, LPWSTR command, UINT *lasterr)
 
    DWORD idInst = 0;
    DWORD cbCmdLength;
+   int retcode = 0;
    
    UINT ret = DdeInitializeW(&idInst, &dummy_callback, APPCLASS_STANDARD, 0);
    if (ret)
@@ -37,24 +38,33 @@ int dde_execute(LPWSTR service, LPWSTR topic, LPWSTR command, UINT *lasterr)
    HSZ hszService = DdeCreateStringHandleW(idInst, service, CP_WINUNICODE);
    HSZ hszTopic = DdeCreateStringHandleW(idInst, topic, CP_WINUNICODE);
 
+   printf("Created string handles\n");
+
    HCONV hConv = DdeConnect(idInst, hszService, hszTopic, 0);
+
 
    if (hConv)
    {   
+      printf("Connected!\n");
       cbCmdLength = (wcslen(command)+1) * sizeof(wchar_t);
       HDDEDATA hDdeData = DdeClientTransaction((LPBYTE)command, cbCmdLength, hConv, 0,0, XTYP_EXECUTE, 1000, 0);
       *lasterr = DdeGetLastError(idInst);
       DdeFreeDataHandle(hDdeData);
+      printf("Completed transaction\n");
    }
-   else
-      return 3;
+   else {
+      printf("Could not connect!\n");
+      retcode = 3;
+   }
 
 
    DdeFreeStringHandle(idInst, hszTopic);
    DdeFreeStringHandle(idInst, hszService);
    DdeDisconnect(hConv);
    DdeUninitialize(idInst);
-   return 0;
+
+   printf("Cleaned up\n");
+   return retcode;
 }
 
 
@@ -63,7 +73,6 @@ int main()
 {
    LPWSTR *szArglist;
    int nArgs;
-   int i;
 
    UINT lasterr;
    int dderes;
@@ -76,12 +85,14 @@ int main()
       return 1;
    }
 
-   // Diagnostics:
-   for( i=0; i<nArgs; i++) 
-      wprintf(L"%d: %ws\n", i, szArglist[i]);
+   // // Diagnostics:
+   // int i;
+
+   // for( i=0; i<nArgs; i++) 
+   //    wprintf(L"%d: %ws\n", i, szArglist[i]);
    
    if( nArgs != 4 ) {
-      wprintf(L"usage: ddeexecute <service> <topic> <command>");
+      printf("usage: ddeexecute <service> <topic> <command>");
       return 1;
    }
 
@@ -91,12 +102,15 @@ int main()
 
    // Diagnostics:
    if(dderes == 0)
-      wprintf(L"DdeClientTransaction returned %d\n", lasterr);
+      printf("DdeClientTransaction returned %d\n", lasterr);
    else
-      wprintf(L"dderes = %d\n", dderes);
+      printf("dderes = %d\n", dderes);
 
    // Free memory allocated for CommandLineToArgvW arguments.
    LocalFree(szArglist);
+
+   // printf("Hit any key to exit...");
+   // char c; c = getchar();
 
    return dderes;
 }

@@ -12,6 +12,39 @@ else:
 
 import sublime_plugin, os.path, subprocess, time
 
+#
+# Factor out invoking Windows console programs
+#
+
+def winsys(cmd, capture=True, shell=False):
+
+	print("Running winsys: "); print(cmd); print(capture)
+	startupinfo = subprocess.STARTUPINFO()
+#	startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+	# proc = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE,
+	# 			startupinfo=startupinfo, creationflags=subprocess.CREATE_NEW_CONSOLE)
+	if capture:
+		out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=shell,
+			startupinfo=startupinfo, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP).decode('UTF-8', 'ignore') #guess.
+	else:
+		out = ""
+		subprocess.check_call(cmd, startupinfo=startupinfo, shell=shell)
+	# Popen returns a byte stream, i.e. a single line. So test simply:
+	# Wait! ST3 is stricter. We MUST convert to str
+	
+	print(out)
+	return out
+
+# For testing purposes, export a command
+
+class winsysCommand(sublime_plugin.TextCommand):
+
+		def run(self, edit, cmd = "dir"):
+			out = winsys([cmd])
+			print(out)
+
+
+
 # Jump to current line in PDF file
 # NOTE: must be called with {"from_keybinding": <boolean>} as arg
 
@@ -71,48 +104,49 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		elif plat == 'win32':
 			# determine if Sumatra is running, launch it if not
 			print ("Windows, Calling Sumatra")
-			# hide console
-			# NO LONGER NEEDED with new Sumatra?
-			# startupinfo = subprocess.STARTUPINFO()
-			# startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-			# tasks = subprocess.Popen(["tasklist"], stdout=subprocess.PIPE,
-			# 		startupinfo=startupinfo).communicate()[0]
-			# # Popen returns a byte stream, i.e. a single line. So test simply:
-			# # Wait! ST3 is stricter. We MUST convert to str
-			# tasks_str = tasks.decode('UTF-8') #guess..
-			# if "SumatraPDF.exe" not in tasks_str:
-			# 	print ("Sumatra not running, launch it")
-			# 	self.view.window().run_command("view_pdf")
-			# 	time.sleep(0.5) # wait 1/2 seconds so Sumatra comes up
+			ddeexec = os.path.join(sublime.packages_path(), 
+								'LaTeXTools', 'sumatrapdf', 'ddeexecute.exe')
+
+
+			tasks_str = winsys(["tasklist"])
+			if "SumatraPDF.exe" not in tasks_str:
+				print ("Sumatra not running, launch it")
+				self.view.window().run_command("view_pdf")
+				time.sleep(0.5) # wait 1/2 seconds so Sumatra comes up
 			setfocus = 0 if keep_focus else 1
 			# First send an open command forcing reload, or ForwardSearch won't 
 			# reload if the file is on a network share
-			# command = u'[Open(\"%s\",0,%d,1)]' % (pdffile,setfocus)
-			# print (repr(command))
+			command1 = u'[Open(\"%s\",0,%d,1)]' % (pdffile,setfocus)
+			print (repr(command1))
 			# self.view.run_command("send_dde",
 			# 		{ "service": "SUMATRA", "topic": "control", "command": command})
+			#out = winsys([ddeexec, 'SUMATRA', 'control', command], capture=False)
+			#print(out)
+			
 			# Now send ForwardSearch command if needed
 
-			si = subprocess.STARTUPINFO()
-			if setfocus == 0:
-				si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-				si.wShowWindow = 4 #constant for SHOWNOACTIVATE
+			# si = subprocess.STARTUPINFO()
+			# if setfocus == 0:
+			# 	si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+			# 	si.wShowWindow = 4 #constant for SHOWNOACTIVATE
 
-			startCommands = ["SumatraPDF.exe","-reuse-instance"]
-			if forward_sync:
-				startCommands.append("-forward-search")
-				startCommands.append(srcfile)
-				startCommands.append(str(line))
+			# startCommands = ["SumatraPDF.exe","-reuse-instance"]
+			# if forward_sync:
+			# 	startCommands.append("-forward-search")
+			# 	startCommands.append(srcfile)
+			# 	startCommands.append(str(line))
 
-			startCommands.append(pdffile)
+			# startCommands.append(pdffile)
 
-			subprocess.Popen(startCommands, startupinfo = si)
-				# command = "[ForwardSearch(\"%s\",\"%s\",%d,%d,0,%d)]" \
-				# 			% (pdffile, srcfile, line, col, setfocus)
-				# print (command)
-				# self.view.run_command("send_dde",
-				# 		{ "service": "SUMATRA", "topic": "control", "command": command})
-
+			# subprocess.Popen(startCommands, startupinfo = si)
+			
+			command2 = "[ForwardSearch(\"%s\",\"%s\",%d,%d,0,%d)]" \
+						% (pdffile, srcfile, line, col, setfocus)
+			print (command2)
+			# self.view.run_command("send_dde",
+			# 			{ "service": "SUMATRA", "topic": "control", "command": command})
+			out = winsys([ddeexec, 'SUMATRA', 'control', command1+command2 ], capture=True, shell=True)
+			#print(out)
 		
 		elif 'linux' in plat: # for some reason, I get 'linux2' from sys.platform
 			print ("Linux!")
