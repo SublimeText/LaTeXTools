@@ -20,6 +20,8 @@ class send_ddeCommand(sublime_plugin.TextCommand):
 		
 		print ("Got request for DDE!")
 
+		print(command)
+
 		# define win32 api functions
 		DdeInitialize = windll.user32.DdeInitializeW
 		DdeUninitialize = windll.user32.DdeUninitialize
@@ -48,13 +50,9 @@ class send_ddeCommand(sublime_plugin.TextCommand):
 		topic = c_wchar_p(topic)
 		# Potential ST2/ST3 difference:
 		if _ST3:
-			bcommand = create_unicode_buffer(command) # when all else fails, RTFM!
-			pData = bcommand # just to avoid changes...
-			#bcommand = (command + '\x00').encode("utf-16")
-			#pData = c_char_p(bcommand)
-			print(bcommand)
-			print(len(command),len(bcommand))
-			cbData = len(bcommand)
+			pData = create_unicode_buffer(command) # when all else fails, RTFM!
+			cbData = len(bytes(pData))
+			print (cbData, len(command))
 		else:
 			pData = c_char_p(command)
 			cbData = len(command)+1 # Important! Zero-terminated!
