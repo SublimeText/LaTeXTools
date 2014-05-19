@@ -12,6 +12,8 @@ else:
 
 import sublime_plugin, os.path, subprocess, time
 
+DETACHED_PROCESS = 0x00000008
+
 #
 # Factor out invoking Windows console programs
 #
@@ -25,10 +27,11 @@ def winsys(cmd, capture=True, shell=False):
 	# 			startupinfo=startupinfo, creationflags=subprocess.CREATE_NEW_CONSOLE)
 	if capture:
 		out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=shell, bufsize=4096,
-			startupinfo=startupinfo, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP).decode('UTF-8', 'ignore') #guess.
+			startupinfo=startupinfo).decode('UTF-8', 'ignore') #guess.
 	else:
 		out = ""
-		subprocess.check_call(cmd, startupinfo=startupinfo, shell=shell, bufsize=4096)
+		subprocess.check_call(cmd, startupinfo=startupinfo, creationflags=DETACHED_PROCESS, 
+			shell=shell, bufsize=4096)
 	# Popen returns a byte stream, i.e. a single line. So test simply:
 	# Wait! ST3 is stricter. We MUST convert to str
 	
@@ -146,9 +149,9 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			command2 = "[ForwardSearch(\"%s\",\"%s\",%d,%d,0,%d)]" \
 						% (pdffile, srcfile, line, col, setfocus)
 			print (command2)
-			self.view.run_command("send_dde",
-						{ "service": "SUMATRA", "topic": "control", "command": command1+command2})
-			#out = winsys([ddeexec, 'SUMATRA', 'control', command1+command2 ], capture=True, shell=True)
+			# self.view.run_command("send_dde",
+			# 			{ "service": "SUMATRA", "topic": "control", "command": command1+command2})
+			out = winsys([ddeexec, 'SUMATRA', 'control', command1+command2 ], capture=True, shell=True)
 			#print(out)
 		
 		elif 'linux' in plat: # for some reason, I get 'linux2' from sys.platform
