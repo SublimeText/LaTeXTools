@@ -14,7 +14,7 @@ import sublime_plugin
 
 class toggle_focusCommand(sublime_plugin.TextCommand):
 	def run(self, edit, **args):
-		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
+		s = sublime.load_settings("LaTeXTools.sublime-settings")
 		prefs_keep_focus = s.get("keep_focus", True)
 
 		if self.view.settings().get("keep focus",prefs_keep_focus):
