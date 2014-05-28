@@ -120,7 +120,11 @@
 		// See README or third-party documentation
 
 		// (built-ins): true shows the log of each command in the output panel
-		"display_log" : false,	
+		"display_log" : false,
+		
+		// Command:
+		// Below, standard command for the "traditional" builder
+		// "command": ["latexmk", "-cd", "-e", "$pdflatex = '%E -interaction=nonstopmode -synctex=1 %S %O'", "-f", "-pdf"],
 
 		// Platform-specific settings:
 		"osx" : {
