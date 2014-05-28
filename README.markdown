@@ -321,7 +321,7 @@ The following options are currently available (defaults in parentheses):
 NOTE: for the time being, you will need to refer to the `LaTeX.sublime-settings` file for detailed explanations. Also, since the new build system is meant to be fully customizable, if you use a third-party builder (which hopefully will become available!), you need to refer to its documentation.
 - `builder`: the builder you want to use. Leave blank (`""`) or set to `"default"` or `"traditional"` for the traditional (`latexmk`/`texify`) behavior.
 - `builder_path`: builders can reside anywhere Sublime Text can access. Specify a path *relative to the Sublime text Packages directory*. In particular, `User` is a good choice. If you use a third-party builder, specify the builder-provided directory.
-- `builder-settings`: these are builder-specific settings. For the `default`/`traditional` builder, the following settings are useful:
+- `builder_settings`: these are builder-specific settings. For the `default`/`traditional` builder, the following settings are useful:
   * `program`: one of `pdflatex` (the default), `xelatex` or `lualatex`. This selects the TeX engine.
   * `command`: the precise `latexmk` or `texify` command to be invoked. This is specified exactly as in the `cmd` entry of the old `LaTeX.sublime-build` file (which is no longer honored): it must be a list of strings. The defaults (hardcoded, not shown in the settings file) are `["latexmk", "-cd", "-e", "$pdflatex = '%E -interaction=nonstopmode -synctex=1 %S %O'", "-f", "-pdf"]` for TeXLive, and `["texify", "-b", "-p", "--tex-option=\"--synctex=1\""]` for MiKTeX.
   * In addition, there can be platform-specific settings. An important one for Windows is `distro`, which must be set to either `miktex` or `texlive`.
