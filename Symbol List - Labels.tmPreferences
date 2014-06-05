@@ -12,8 +12,14 @@
 		<integer>1</integer>
 		<key>symbolTransformation</key>
 		<string>
-		s/\\label\{([^\}]+)\}/L $1/g;
-	</string>
+			s/\\label\{([^\}]+)\}/L $1/g;
+		</string>
+		<key>showInIndexedSymbolList</key>
+		<integer>1</integer>
+		<key>symbolIndexTransformation</key>
+		<string>
+			s/\\label\{([^\}]+)\}/L $1/g;
+		</string>
 	</dict>
 	<key>uuid</key>
 	<string>005BE156-8D74-4036-AF38-283708645115</string>
