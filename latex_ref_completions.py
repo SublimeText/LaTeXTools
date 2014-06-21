@@ -37,8 +37,13 @@ def find_labels_in_files(rootdir, src, labels):
     if src[-4:].lower() != ".tex":
         src = src + ".tex"
 
+    isSubfolder = re.search(r"\\", src)
+    if isSubfolder:
+        subfolder = "".join(src.split("\\")[:-1])
+
     file_path = os.path.normpath(os.path.join(rootdir, src))
     print ("Searching file: " + repr(file_path))
+
     # The following was a mistake:
     #dir_name = os.path.dirname(file_path)
     # THe reason is that \input and \include reference files **from the directory
@@ -63,6 +68,7 @@ def find_labels_in_files(rootdir, src, labels):
     # If the file uses inputenc with a DIFFERENT encoding, try re-opening
     # This is still not ideal because we may still fail to decode properly, but still... 
     m = re.search(r"\\usepackage\[(.*?)\]\{inputenc\}", src_content)
+    
     if m and (m.group(1) not in ["utf8", "UTF-8", "utf-8"]):
         print("reopening with encoding " + m.group(1))
         f = None
@@ -77,9 +83,19 @@ def find_labels_in_files(rootdir, src, labels):
 
     labels += re.findall(r'\\label\{([^{}]+)\}', src_content)
 
+    isSubfolder = re.search(r"\\", src)
+    if isSubfolder:
+        subfolder = "".join(src.split("\\")[:-1]) + "\\"
+    else:
+        subfolder = ""
+
+    for f in re.findall(r'\\includechapter\{([^\{\}]+)\}', src_content):
+        str = "chapter_" + f + "\\" + "chapter_" + f
+        find_labels_in_files(rootdir, str, labels)
+
     # search through input tex files recursively
     for f in re.findall(r'\\(?:input|include)\{([^\{\}]+)\}', src_content):
-        find_labels_in_files(rootdir, f, labels)
+        find_labels_in_files(rootdir, subfolder + f, labels)
 
 
 # get_ref_completions forms the guts of the parsing shared by both the
