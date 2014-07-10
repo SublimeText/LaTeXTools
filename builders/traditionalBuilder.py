@@ -53,9 +53,9 @@ class TraditionalBuilder(PdfBuilder):
 			default_command = DEFAULT_COMMAND_WINDOWS_MIKTEX
 		else: # osx, linux, windows/texlive, everything else really!
 			default_command = DEFAULT_COMMAND_LATEXMK
-		self.cmd = builder_settings.get("command", default_command)
+		self.cmd = builder_settings[plat].get("command", default_command)
 		# Default tex engine (pdflatex if none specified)
-		self.engine = builder_settings.get("program", "pdflatex")
+		self.engine = builder_settings[plat].get("program", "pdflatex")
 		# Sanity check: if "strange" engine, default to pdflatex (silently...)
 		if not(self.engine in ['pdflatex', 'xelatex', 'lualatex']):
 			self.engine = 'pdflatex'
