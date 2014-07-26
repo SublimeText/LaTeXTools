@@ -55,7 +55,8 @@ def find_bib_files(rootdir, src, bibfiles):
         print ("WARNING! I can't find it! Check your \\include's and \\input's.")
         return
 
-    src_content = re.sub("%.*","",src_file.read())
+    src_content_with_comments = src_file.read()
+    src_content = re.sub("%.*","",src_content_with_comments)
     src_file.close()
 
     m = re.search(r"\\usepackage\[(.*?)\]\{inputenc\}", src_content)
@@ -87,6 +88,11 @@ def find_bib_files(rootdir, src, bibfiles):
     # search through input tex files recursively
     for f in re.findall(r'\\(?:input|include)\{[^\}]+\}',src_content):
         input_f = re.search(r'\{([^\}]+)', f).group(1)
+        find_bib_files(rootdir, input_f, bibfiles)
+
+    # search through the root file too
+    for f in re.findall(r'%!TEX\sroot\s=.*',src_content_with_comments):
+        input_f = f.strip().split('=')[-1]
         find_bib_files(rootdir, input_f, bibfiles)
 
 
