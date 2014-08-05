@@ -12,7 +12,7 @@
 		<integer>1</integer>
 		<key>symbolTransformation</key>
 		<string>
-			s/\\(?:sub)*(.)(?:ection|hapter)(?:\*)?\{([^\}]+)\}/\u$1 $2/g;
+			s/\\(?:add)?(?:sub)*(.)(?:ection|hap|ec|hap)(?:\*)?\{([^\}]+)\}/\u$1 $2/g;
 		</string>
 	</dict>
 	<key>uuid</key>
