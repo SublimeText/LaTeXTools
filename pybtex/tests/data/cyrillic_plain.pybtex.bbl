@@ -1,0 +1,25 @@
+%%% pybtex example file
+\begin{thebibliography}{1}
+
+\bibitem[1]{test-booklet}
+First~Middle de~Last, Jr.
+\newblock Just a booklet.
+\newblock Published by Foo, Moscow, January 2006.
+
+\bibitem[2]{test-inbook}
+Peter Jackson.
+\newblock \emph{Some Title}., pages 44--59.
+\newblock number~3 in Some series.
+\newblock Some Publisher, Second edition, 1933.
+
+\bibitem[3]{ruckenstein-diffusion}
+Hongquin Liu and Eli Ruckenstein.
+\newblock Predicting the diffusion coefficient in supercritical fluids.
+\newblock \emph{Ind. Eng. Chem. Res.}, 36:888--895, 1997.
+
+\bibitem[4]{viktorov-metodoj}
+Михаил~Маркович Викторов.
+\newblock \emph{Методы вычисления физико-химических величин и прикладные расчёты}.
+\newblock Л.: <<Химия>>, 1977.
+
+\end{thebibliography}

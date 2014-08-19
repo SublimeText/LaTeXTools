@@ -1,0 +1,361 @@
+% Copyright (C) 1988, 2010 Oren Patashnik.
+% Unlimited copying and redistribution of this file are permitted if it
+% is unmodified.  Modifications (and their redistribution) are also
+% permitted, as long as the resulting file is renamed.
+
+@preamBle{ "\newcommand{\noopsort}[1]{} "
+        # "\newcommand{\printfirst}[2]{#1} "
+        # "\newcommand{\singleletter}[1]{#1} "
+        # "\newcommand{\switchargs}[2]{#2#1} " }
+
+@ArTIclE{arTicLe-MiniMAl,
+   AuTHoR = {L[eslie] A. Aamport},
+   TiTLe = {The Gnats and Gnus Document Preparation System},
+   jouRnaL = {\mbox{G-Animal's} Journal},
+   Year = 1986,
+}
+
+@ArTiCLe{artIclE-fulL,
+   AUThOr = {L[eslie] A. Aamport},
+   titlE = {The Gnats and Gnus Document Preparation System},
+   journal = {\mbox{G-Animal's} Journal},
+   yEaR = 1986,
+   VOlUMe = 41,
+   nUMber = 7,
+   pagEs = "73+",
+   mONth = Jul,
+   nOte = "This is a full ARTICLE entry",
+}
+
+ThE key field is hERE TO OvErRIdE The kEY fiELD iN The jOURNaL BeING
+CrOSS rEferEnCeD (so is ThE nOTE fiEld, In aDditioN to Its ImPaRTiNg
+inFoRmAtioN).
+
+@ARTiClE{aRtIcLE-crOssREf,
+   CROsSREF = {WHOLE-JOURNAL},
+   kEy = "",
+   author = {L[eslie] A. Aamport},
+   title = {The Gnats and Gnus Document Preparation System},
+   pAgeS = "73+",
+   NOte = "This is a cross-referencing ARTICLE entry",
+}
+
+@aRtIcLe{WholE-journAl,
+   kEy = "GAJ",
+   JourNal = {\mbox{G-Animal's} Journal},
+   yeAr = 1986,
+   vOluME = 41,
+   numbEr = 7,
+   mOnTh = jUl,
+   note = {The entire issue is devoted to gnats and gnus
+                (this entry is a cross-referenced ARTICLE (journal))},
+}
+
+@InBOoK{iNbOOk-MiNiMal,
+   authOr = "Donald E. Knuth",
+   titLe = "Fundamental Algorithms",
+   PUBLishEr = "Addison-Wesley",
+   YeAR = "{\noopsort{1973b}}1973",
+   ChApter = "1.2",
+}
+
+@inBOOk{iNbOok-full,
+   AUthOR = "Donald E. Knuth",
+   tiTLe = "Fundamental Algorithms",
+   VolUMe = 1,
+   serIEs = "The Art of Computer Programming",
+   pubLisher = "Addison-Wesley",
+   addResS = "Reading, Massachusetts",
+   eDiTiOn = "Second",
+   mONth = "10~" # jaN,
+   yeaR = "{\noopsort{1973b}}1973",
+   type = "Section",
+   ChapteR = "1.2",
+   paGES = "10--119",
+   noTe = "This is a full INBOOK entry",
+}
+
+@iNBOOk{inBoOk-cRossRef,
+   cRossrEf = "whole-set",
+   Title = "Fundamental Algorithms",
+   vOluMe = 1,
+   serIEs = "The Art of Computer Programming",
+   EdITioN = "Second",
+   year = "{\noopsort{1973b}}1973",
+   TYpE = "Section",
+   CHAPtEr = "1.2",
+   NOTE = "This is a cross-referencing INBOOK entry",
+}
+
+@BOok{Book-minimal,
+   aUthOr = "Donald E. Knuth",
+   TitlE = "Seminumerical Algorithms",
+   pUbLIsheR = "Addison-Wesley",
+   yeAr = "{\noopsort{1973c}}1981",
+}
+
+@BOoK{boOK-Full,
+   AuThor = "Donald E. Knuth",
+   tiTLE = "Seminumerical Algorithms",
+   volumE = 2,
+   Series = "The Art of Computer Programming",
+   pUbLIshEr = "Addison-Wesley",
+   AddresS = "Reading, Massachusetts",
+   eDitioN = "Second",
+   MOnTh = "10~" # jAn,
+   year = "{\noopsort{1973c}}1981",
+   noTe = "This is a full BOOK entry",
+}
+
+@boOK{bOOk-CroSsref,
+   CROsSRef = "whole-set",
+   titLE = "Seminumerical Algorithms",
+   VOLume = 2,
+   serIEs = "The Art of Computer Programming",
+   EDITIon = "Second",
+   yeAR = "{\noopsort{1973c}}1981",
+   nOTE = "This is a cross-referencing BOOK entry",
+}
+
+@BOok{Whole-SEt,
+   AUThOR = "Donald E. Knuth",
+   PublisheR = "Addison-Wesley",
+   TitLe = "The Art of Computer Programming",
+   SerIes = "Four volumes",
+   yEaR = "{\noopsort{1973a}}{\switchargs{--90}{1968}}",
+   nOte = "Seven volumes planned (this is a cross-referenced set of BOOKs)",
+}
+
+@bOoklET{BoOkleT-minImAl,
+   keY = "Kn{\printfirst{v}{1987}}",
+   tiTle = "The Programming of Computer Art",
+}
+
+@BoOKLEt{booKLeT-fuLl,
+   autHoR = "Jill C. Knvth",
+   title = "The Programming of Computer Art",
+   HowpUBlisHED = "Vernier Art Center",
+   aDdreSs = "Stanford, California",
+   Month = fEb,
+   YeaR = 1988,
+   nOte = "This is a full BOOKLET entry",
+}
+
+@IncOLLecTiOn{iNcoLLEcTIOn-MiniMal,
+   AutHor = "Daniel D. Lincoll",
+   TiTLE = "Semigroups of Recurrences",
+   boOktItLE = "High Speed Computer and Algorithm Organization",
+   pUblisHer = "Academic Press",
+   YEar = 1977,
+}
+
+@INCoLlecTiON{iNcoLlection-FUll,
+   author = "Daniel D. Lincoll",
+   TitlE = "Semigroups of Recurrences",
+   editoR = "David J. Lipcoll and D. H. Lawrie and A. H. Sameh",
+   booktiTlE = "High Speed Computer and Algorithm Organization",
+   nUmbER = 23,
+   sErIeS = "Fast Computers",
+   cHapTEr = 3,
+   tyPe = "Part",
+   pagEs = "179--183",
+   PubLishEr = "Academic Press",
+   aDDreSS = "New York",
+   eDition = "Third",
+   monTh = SeP,
+   yeAr = 1977,
+   noTe = "This is a full INCOLLECTION entry",
+}
+
+@InCollectiOn{inCoLlectIon-CroSsRef,
+   CroSSREF = "whole-collection",
+   AUthOR = "Daniel D. Lincoll",
+   tiTlE = "Semigroups of Recurrences",
+   PAGes = "179--183",
+   note = "This is a cross-referencing INCOLLECTION entry",
+}
+
+@bOok{whOle-CoLlECTion,
+   EdITor = "David J. Lipcoll and D. H. Lawrie and A. H. Sameh",
+   TItle = "High Speed Computer and Algorithm Organization",
+   bOoktitLE = "High Speed Computer and Algorithm Organization",
+   nUmBer = 23,
+   seRies = "Fast Computers",
+   pUblIShER = "Academic Press",
+   aDdRESs = "New York",
+   ediTION = "Third",
+   Month = SeP,
+   YeaR = 1977,
+   nOte = "This is a cross-referenced BOOK (collection) entry",
+}
+
+@MAnUAl{MaNuAl-MInImal,
+   keY = "Manmaker",
+   titLe = "The Definitive Computer Manual",
+}
+
+@mAnuaL{manual-Full,
+   AuThOr = "Larry Manmaker",
+   tiTle = "The Definitive Computer Manual",
+   orGanizatioN = "Chips-R-Us",
+   AdDReSS = "Silicon Valley",
+   ediTIoN = "Silver",
+   MoNth = aPr # "-" # May,
+   YEaR = 1986,
+   nOte = "This is a full MANUAL entry",
+}
+
+@MasteRsThesIs{MAstersThesIs-miNImAl,
+   author = "{\'{E}}douard Masterly",
+   titLE = "Mastering Thesis Writing",
+   schOoL = "Stanford University",
+   yeaR = 1988,
+}
+
+@MaSteRSTHesiS{MasterSTheSIs-FULL,
+   aUtHOr = "{\'{E}}douard Masterly",
+   TiTle = "Mastering Thesis Writing",
+   ScHoOL = "Stanford University",
+   TYPe = "Master's project",
+   adDreSS = "English Department",
+   month = juN # "-" # aUg,
+   yeAr = 1988,
+   NOte = "This is a full MASTERSTHESIS entry",
+}
+
+@miSC{misc-mINiMAl,
+   KEy = "Missilany",
+   nOte = "This is a minimal MISC entry",
+}
+
+@Misc{MIsc-fuLl,
+   AuThOr = "Joe-Bob Missilany",
+   tITle = "Handing out random pamphlets in airports",
+   howpuBLiShED = "Handed out at O'Hare",
+   MONtH = ocT,
+   yeaR = 1984,
+   nOtE = "This is a full MISC entry",
+}
+
+@StRING{SToC-Key = "OX{\singleletter{stoc}}"}
+
+@stRInG{acm = "The OX Association for Computing Machinery"}
+
+@STrinG{Stoc = " Symposium on the Theory of Computing"}
+
+@iNProcEedInGS{iNPRoCEEdinGs-MiNIMaL,
+   AUThoR = "Alfred V. Oaho and Jeffrey D. Ullman and Mihalis Yannakakis",
+   titLe = "On Notions of Information Transfer in {VLSI} Circuits",
+   BooktItlE = "Proc. Fifteenth Annual ACM" # sToC,
+   YeAR = 1983,
+}
+
+@inproCEeDINgs{inprocEEdIngS-FUlL,
+   aUtHOr = "Alfred V. Oaho and Jeffrey D. Ullman and Mihalis Yannakakis",
+   title = "On Notions of Information Transfer in {VLSI} Circuits",
+   eDItoR = "Wizard V. Oz and Mihalis Yannakakis",
+   BOOktiTLE = "Proc. Fifteenth Annual ACM" # StOc,
+   NUMBer = 17,
+   sERiEs = "All ACM Conferences",
+   pages = "133--139",
+   mONTh = mAr,
+   yeAr = 1983,
+   ADDREsS = "Boston",
+   orgAnIZatIon = acm,
+   publISHER = "Academic Press",
+   nOte = "This is a full INPROCEDINGS entry",
+}
+
+@iNprOcEediNGs{InproceedINgS-cROssrEf,
+   cROSSrEF = "whole-proceedings",
+   aUtHOR = "Alfred V. Oaho and Jeffrey D. Ullman and Mihalis Yannakakis",
+   titLE = "On Notions of Information Transfer in {VLSI} Circuits",
+   ORgaNiZAtioN = "",
+   PaGEs = "133--139",
+   NOte = "This is a cross-referencing INPROCEEDINGS entry",
+}
+
+@pROceEDingS{ProCEEDInGs-miNIMAl,
+   kEy = sTOC-key,
+   TitLe = "Proc. Fifteenth Annual" # STOC,
+   YEAR = 1983,
+}
+
+@pRocEEDiNgS{pRoceedINGS-fuLl,
+   editOr = "Wizard V. Oz and Mihalis Yannakakis",
+   tiTLe = "Proc. Fifteenth Annual" # stOC,
+   NUMBeR = 17,
+   SeRieS = "All ACM Conferences",
+   monTH = MaR,
+   YEAr = 1983,
+   adDress = "Boston",
+   OrgAnizaTIoN = ACM,
+   puBliShEr = "Academic Press",
+   notE = "This is a full PROCEEDINGS entry",
+}
+
+@PRoCeEDINGs{whole-PrOCeEdIngs,
+   key = sTOC-keY,
+   oRGaNIzAtIoN = aCm,
+   TitlE = "Proc. Fifteenth Annual" # sToc,
+   ADDrEss = "Boston",
+   yEAr = 1983,
+   BOoktiTLe = "Proc. Fifteenth Annual ACM" # Stoc,
+   NOte = "This is a cross-referenced PROCEEDINGS",
+}
+
+@PhDthEsIs{phdtHESIs-mInimAl,
+   AUThOR = "F. Phidias Phony-Baloney",
+   tItle = "Fighting Fire with Fire: Festooning {F}rench Phrases",
+   SChOOl = "Fanstord University",
+   yeaR = 1988,
+}
+
+@PHdthesIs{phdtHESIs-full,
+   autHoR = "F. Phidias Phony-Baloney",
+   tiTlE = "Fighting Fire with Fire: Festooning {F}rench Phrases",
+   sCHool = "Fanstord University",
+   TYpE = "{PhD} Dissertation",
+   AddReSs = "Department of French",
+   mOnTH = juN # "-" # Aug,
+   yEAR = 1988,
+   NOtE = "This is a full PHDTHESIS entry",
+}
+
+@TecHrEpORT{tEchrEport-miNIMAl,
+   aUthoR = "Tom Terrific",
+   tITlE = "An {$O(n \log n / \! \log\log n)$} Sorting Algorithm",
+   iNstitutIon = "Fanstord University",
+   yeAR = 1988,
+}
+
+@TeCHrEPOrT{TEChreport-fUll,
+   aUtHOr = "Tom T{\'{e}}rrific",
+   tiTlE = "An {$O(n \log n / \! \log\log n)$} Sorting Algorithm",
+   inSTiTUTion = "Fanstord University",
+   typE = "Wishful Research Result",
+   NUmBeR = "7",
+   AdDrEsS = "Computer Science Department, Fanstord, California",
+   month = oCT,
+   YeAR = 1988,
+   NOtE = "This is a full TECHREPORT entry",
+}
+
+@UnpUBlisHeD{uNpubLiSHed-minIMal,
+   aUtHOr = "Ulrich {\"{U}}nderwood and Ned {\~N}et and Paul {\={P}}ot",
+   TitLE = "Lower Bounds for Wishful Research Results",
+   note = "Talk at Fanstord University (this is a minimal UNPUBLISHED entry)",
+}
+
+@uNpublISHed{unpubLIshEd-fulL,
+   aUtHor = "Ulrich {\"{U}}nderwood and Ned {\~N}et and Paul {\={P}}ot",
+   TitlE = "Lower Bounds for Wishful Research Results",
+   month = nOv # ", " # dec,
+   yEar = 1988,
+   nOTe = "Talk at Fanstord University (this is a full UNPUBLISHED entry)",
+}
+
+@misC{ranDom-note-cRoSsREf,
+   Key = {Volume-2},
+   noTE = "Volume~2 is listed under Knuth \cite{book-full}"
+}
