@@ -34,9 +34,7 @@ def get_tex_root(view):
 	if texFile is None:
 		# We are in an unnamed, unsaved file.
 		# Read from the buffer instead.
-		if view.substr(0) != '%':
-			return None
-		reg = view.find(r"^%[^\n]*(\n%[^\n]*)*", 0)
+		reg = view.find(r"^\s*%[^\n]*(\n\s*%[^\n]*)*", 0)
 		if not reg:
 			return None
 		line_regs = view.lines(reg)
@@ -49,12 +47,18 @@ def get_tex_root(view):
 		lines = codecs.open(texFile, "r", "UTF-8")
 		is_file = True
 
+	i = 0
 	for line in lines:
-		if not line.startswith('%'):
+		line = line.lstrip()
+		if i >= 20:
 			break
+		i += 1
+
+		if not line.startswith('%'):
+			continue
 		else:
 			# We have a comment match; check for a TEX root match
-			mroot = re.match(r"%\s*!TEX\s+root *= *(.*(tex|TEX))\s*$",line)
+			mroot = re.match(r"%+\s*!TEX\s+root *= *(.*(tex|TEX))\s*$",line)
 			if mroot:
 				# we have a TEX root match 
 				# Break the match into path, file and extension
