@@ -14,10 +14,22 @@ become available by calling latex.register().
 We also make public a dictionary latex_equivalents,
 mapping ord(unicode char) to LaTeX code.
 
+Modified from http://code.activestate.com/recipes/252124-latex-codec/
+
 D. Eppstein, October 2003.
 """
 import codecs
 import re
+import sys
+
+if sys.version > (3, 0):
+    PYTHON_3 = True
+    def get_unicode_char(i, *args):
+        chr(i, *args)
+else:
+    PYTHON_3 = False
+    def get_unicode_char(i, *args):
+        unichr(i, *args)
 
 def register():
     """Enable encodings of the form 'latex+x' where x describes another encoding.
@@ -75,7 +87,10 @@ def _tokenize(tex):
     start = 0
     try:
         # skip quickly across boring stuff
-        pos = _stoppers.finditer(tex).__next__().span()[0]
+        if PYTHON_3:
+            pos = _stoppers.finditer(tex).__next__().span()[0]
+        else:
+            pos = _stoppers.finditer(tex).next().span()[0]
     except StopIteration:
         yield tex
         return
@@ -131,6 +146,9 @@ class _unlatex:
         t = self.tex
         return p < len(t) and t[p] or None
 
+    def next(self):
+        return self.__next__()
+
     def __next__(self):
         """Find and return another piece of converted output."""
         if self.pos >= len(self.tex):
@@ -144,15 +162,16 @@ class _unlatex:
     def chunk(self):
         """Grab another set of input tokens and convert them to an output string."""
         for delta,c in self.candidates(0):
+            result = None
             if c in _l2u:
                 self.pos += delta
-                return chr(_l2u[c])
+                return get_unicode_char(_l2u[c])
             elif len(c) == 2 and c[1] == 'i' and (c[0],'\\i') in _l2u:
                 self.pos += delta       # correct failure to undot i
-                return chr(_l2u[(c[0],'\\i')])
+                return get_unicode_char(_l2u[(c[0],'\\i')])
             elif len(c) == 1 and c[0].startswith('\\char') and c[0][5:].isdigit():
                 self.pos += delta
-                return chr(int(c[0][5:]))
+                return get_unicode_char(int(c[0][5:]))
     
         # nothing matches, just pass through token as-is
         self.pos += 1
