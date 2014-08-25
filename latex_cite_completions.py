@@ -247,6 +247,7 @@ def get_cite_completions(view, point, autocompleting=False):
             keywords = []
             titles = []
             authors = []
+            authors_short = []
             years = []
             journals = []
 
@@ -259,7 +260,8 @@ def get_cite_completions(view, point, autocompleting=False):
                 persons = bib_data.entries[key].persons
 
                 # locate the author or editor of the title
-                person = u'????'
+                author_short_string = u'????'
+                author_full_string = u'????'
                 people = None
                 if 'author' in persons:
                     people = persons['author']
@@ -274,9 +276,10 @@ def get_cite_completions(view, point, autocompleting=False):
                             people = crossref_persons['editor']
                 if people:
                     if len(people) <= 2:
-                        person = ' & '.join([' '.join(x.last()) for x in people])
+                        author_short_string = ' & '.join([' '.join(x.last()) for x in people])
                     else:
-                        person = ' '.join(people[0].last()) + ', et al.'
+                        author_short_string = ' '.join(people[0].last()) + ', et al.'
+                    author_full_string = ' and '.join([str(x) for x in people])
 
                 title = u'????'
                 if 'title' in fields:
@@ -301,7 +304,8 @@ def get_cite_completions(view, point, autocompleting=False):
                 keywords.append(key)
                 titles.append(remove_latex_commands(codecs.decode(title, 'latex')))
                 years.append(codecs.decode(fields['year'], 'latex'))
-                authors.append(remove_latex_commands(codecs.decode(person, 'latex')))
+                authors.append(remove_latex_commands(codecs.decode(author_full_string)))
+                authors_short.append(remove_latex_commands(codecs.decode(author_short_string, 'latex')))
                 journals.append(journal)
 
         print ( "Found %d total bib entries" % (len(keywords),) )
@@ -312,7 +316,7 @@ def get_cite_completions(view, point, autocompleting=False):
         titles_short = [title[0:60] + '...' if len(title) > 60 else title for title in titles_short]
 
         # completions object
-        completions += zip(keywords, titles, authors, years, authors, titles_short, journals)
+        completions += zip(keywords, titles, authors, years, authors_short, titles_short, journals)
 
 
     #### END COMPLETIONS HERE ####
