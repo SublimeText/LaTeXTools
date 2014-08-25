@@ -19,10 +19,14 @@ import sys
 
 sys.path.append(os.path.dirname(__file__))
 
+import pybtex
 from pybtex.database.input import bibtex
 import pyparsing
 from pyparsing import ZeroOrMore, Literal, Suppress, Forward, Optional, CharsNotIn, ParserElement, White
-import latex_chars
+if _ST3:
+    from . import latex_chars
+else:
+    import latex_chars
 
 # LaTeX -> Unicode decoder
 latex_chars.register()
