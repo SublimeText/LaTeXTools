@@ -85,7 +85,7 @@ class TraditionalBuilder(PdfBuilder):
 				break
 			else:
 				# We have a comment match; check for a TS-program match
-				mroot = re.match(r"%\s*!TEX\s+(?:TS-)?program *= *(xelatex|lualatex|pdflatex)\s*$",line)
+				mroot = re.match(r"%+\s*!TEX\s+(?:TS-)?program *= *(xelatex|lualatex|pdflatex)\s*$",line)
 				if mroot:
 					# Sanity checks
 					if "texify" == cmd[0]:
