@@ -304,7 +304,7 @@ def get_cite_completions(view, point, autocompleting=False):
                 keywords.append(key)
                 titles.append(remove_latex_commands(codecs.decode(title, 'latex')))
                 years.append(codecs.decode(fields['year'], 'latex'))
-                authors.append(remove_latex_commands(codecs.decode(author_full_string)))
+                authors.append(remove_latex_commands(codecs.decode(author_full_string, 'latex')))
                 authors_short.append(remove_latex_commands(codecs.decode(author_short_string, 'latex')))
                 journals.append(journal)
 
