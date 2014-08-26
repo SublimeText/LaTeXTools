@@ -162,7 +162,6 @@ class _unlatex:
     def chunk(self):
         """Grab another set of input tokens and convert them to an output string."""
         for delta,c in self.candidates(0):
-            result = None
             if c in _l2u:
                 self.pos += delta
                 return get_unicode_char(_l2u[c])
