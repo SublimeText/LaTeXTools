@@ -44,7 +44,7 @@ try:
     basestring
     next = lambda o: o.next()
     from cStringIO import StringIO as BytesIO
-except NameError:
+except:
     basestring = str
     from io import BytesIO
     def execfile(fn, globs=None, locs=None):
