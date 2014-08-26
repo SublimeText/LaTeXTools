@@ -1,5 +1,5 @@
 # ST2/ST3 compat
-from __future__ import print_function 
+from __future__ import print_function
 import sublime
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
@@ -19,9 +19,11 @@ import sys
 
 sys.path.append(os.path.dirname(__file__))
 
-import pybtex
+if not _ST3:
+    import pybtex
 from pybtex.database.input import bibtex
-import pyparsing
+if not _ST3:
+    import pyparsing
 from pyparsing import ZeroOrMore, Literal, Suppress, Forward, Optional, CharsNotIn, ParserElement, White
 if _ST3:
     from . import latex_chars
@@ -110,7 +112,7 @@ def build_latex_command_parser():
     content         = CharsNotIn(u'{}' + ParserElement.DEFAULT_WHITE_CHARS) + Optional(White())
     content.leaveWhitespace()
     brackets        <<= Suppress(u'{') + ZeroOrMore(latex_command | brackets | content) + Suppress(u'}')
-    latex_command   <<= (Suppress(Literal('\\')) + Suppress(CharsNotIn(u'{')) + brackets) | brackets
+    latex_command   <<= (Suppress(Literal(u'\\')) + Suppress(CharsNotIn(u'{')) + brackets) | brackets
 
     def _remove_latex_commands(s):
         result = latex_command.scanString(s)
