@@ -1,30 +1,31 @@
 # ST2/ST3 compat
 from __future__ import print_function
 import sublime
+
+import os, os.path
+import sys
+sys.path.append(os.path.dirname(__file__))
+
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
     _ST3 = False
     import getTeXRoot
+    import latex_commands_grammar
+    from latex_commands_grammar import remove_latex_commands
 else:
     _ST3 = True
     from . import getTeXRoot
 
+    from .latex_commands_grammar import remove_latex_commands
 
 import sublime_plugin
 import os, os.path
 import re
 import codecs
 
-import sys
-
-sys.path.append(os.path.dirname(__file__))
-
 if not _ST3:
     import pybtex
 from pybtex.database.input import bibtex
-if not _ST3:
-    import pyparsing
-from pyparsing import ZeroOrMore, Literal, Suppress, Forward, Optional, CharsNotIn, ParserElement, White
 if _ST3:
     from . import latex_chars
 else:
@@ -104,27 +105,6 @@ def find_bib_files(rootdir, src, bibfiles):
     for f in re.findall(r'\\(?:input|include)\{[^\}]+\}',src_content):
         input_f = re.search(r'\{([^\}]+)', f).group(1)
         find_bib_files(rootdir, input_f, bibfiles)
-
-def build_latex_command_parser():
-    # mini-grammar for LaTeX commands. Note we want to extract the raw text.
-    latex_command   = Forward()
-    brackets        = Forward()
-    content         = CharsNotIn(u'{}' + ParserElement.DEFAULT_WHITE_CHARS) + Optional(White())
-    content.leaveWhitespace()
-    brackets        <<= Suppress(u'{') + ZeroOrMore(latex_command | brackets | content) + Suppress(u'}')
-    latex_command   <<= (Suppress(Literal(u'\\')) + Suppress(CharsNotIn(u'{')) + brackets) | brackets
-
-    def _remove_latex_commands(s):
-        result = latex_command.scanString(s)
-        if result:
-            for r in result:
-                tokens, preloc, nextloc = r
-                s = s[:preloc] \
-                    + u''.join(tokens) \
-                    + s[nextloc:]
-        return s
-    return _remove_latex_commands
-remove_latex_commands = build_latex_command_parser()
 
 def get_cite_completions(view, point, autocompleting=False):
     line = view.substr(sublime.Region(view.line(point).a, point))
