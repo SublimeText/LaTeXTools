@@ -1,20 +1,34 @@
 # ST2/ST3 compat
-from __future__ import print_function 
+from __future__ import print_function
 import sublime
+
+import os, os.path
+import sys
+sys.path.append(os.path.dirname(__file__))
+
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
     _ST3 = False
     import getTeXRoot
+    import pybtex
+    import latex_chars
+    
+    import latex_commands_grammar
+    from latex_commands_grammar import remove_latex_commands
 else:
     _ST3 = True
     from . import getTeXRoot
-
+    from . import latex_chars
+    from .latex_commands_grammar import remove_latex_commands
 
 import sublime_plugin
-import os, os.path
 import re
 import codecs
 
+from pybtex.database.input import bibtex
+
+# LaTeX -> Unicode decoder
+latex_chars.register()
 
 class UnrecognizedCiteFormatError(Exception): pass
 class NoBibFilesError(Exception): pass
@@ -87,7 +101,6 @@ def find_bib_files(rootdir, src, bibfiles):
     for f in re.findall(r'\\(?:input|include)\{[^\}]+\}',src_content):
         input_f = re.search(r'\{([^\}]+)', f).group(1)
         find_bib_files(rootdir, input_f, bibfiles)
-
 
 def get_cite_completions(view, point, autocompleting=False):
     line = view.substr(sublime.Region(view.line(point).a, point))
@@ -198,36 +211,9 @@ def get_cite_completions(view, point, autocompleting=False):
     print (repr(bib_files))
 
     completions = []
-    kp = re.compile(r'@[^\{]+\{(.+),')
-    # new and improved regex
-    # we must have "title" then "=", possibly with spaces
-    # then either {, maybe repeated twice, or "
-    # then spaces and finally the title
-    # # We capture till the end of the line as maybe entry is broken over several lines
-    # # and in the end we MAY but need not have }'s and "s
-    # tp = re.compile(r'\btitle\s*=\s*(?:\{+|")\s*(.+)', re.IGNORECASE)  # note no comma!
-    # # Tentatively do the same for author
-    # # Note: match ending } or " (surely safe for author names!)
-    # ap = re.compile(r'\bauthor\s*=\s*(?:\{|")\s*(.+)(?:\}|"),?', re.IGNORECASE)
-    # # Editors
-    # ep = re.compile(r'\beditor\s*=\s*(?:\{|")\s*(.+)(?:\}|"),?', re.IGNORECASE)
-    # # kp2 = re.compile(r'([^\t]+)\t*')
-    # # and year...
-    # # Note: year can be provided without quotes or braces (yes, I know...)
-    # yp = re.compile(r'\byear\s*=\s*(?:\{+|"|\b)\s*(\d+)[\}"]?,?', re.IGNORECASE)
-
-    # This may speed things up
-    # So far this captures: the tag, and the THREE possible groups
-    multip = re.compile(r'\b(author|title|year|editor|journal|eprint)\s*=\s*(?:\{|"|\b)(.+?)(?:\}+|"|\b)\s*,?\s*\Z',re.IGNORECASE)
+    parser = bibtex.Parser()
 
     for bibfname in bib_files:
-        # # THIS IS NO LONGER NEEDED as find_bib_files() takes care of it
-        # if bibfname[-4:] != ".bib":
-        #     bibfname = bibfname + ".bib"
-        # texfiledir = os.path.dirname(view.file_name())
-        # # fix from Tobias Schmidt to allow for absolute paths
-        # bibfname = os.path.normpath(os.path.join(texfiledir, bibfname))
-        # print repr(bibfname)
         try:
             bibf = codecs.open(bibfname,'r','UTF-8', 'ignore')  # 'ignore' to be safe
         except IOError:
@@ -235,97 +221,76 @@ def get_cite_completions(view, point, autocompleting=False):
             sublime.status_message("Cannot open bibliography file %s !" % (bibfname,))
             continue
         else:
-            bib = bibf.readlines()
+            bib_data = parser.parse_stream(bibf)
             bibf.close()
-        print ("%s has %s lines" % (repr(bibfname), len(bib)))
 
-        keywords = []
-        titles = []
-        authors = []
-        years = []
-        journals = []
-        #
-        entry = {   "keyword": "", 
-                    "title": "",
-                    "author": "", 
-                    "year": "", 
-                    "editor": "",
-                    "journal": "",
-                    "eprint": "" }
-        for line in bib:
-            line = line.strip()
-            # Let's get rid of irrelevant lines first
-            if line == "" or line[0] == '%':
-                continue
-            if line.lower()[0:8] == "@comment":
-                continue
-            if line.lower()[0:7] == "@string":
-                continue
-            if line[0] == "@":
-                # First, see if we can add a record; the keyword must be non-empty, other fields not
-                if entry["keyword"]:
-                    keywords.append(entry["keyword"])
-                    titles.append(entry["title"])
-                    years.append(entry["year"])
-                    # For author, if there is an editor, that's good enough
-                    authors.append(entry["author"] or entry["editor"] or "????")
-                    journals.append(entry["journal"] or entry["eprint"] or "????")
-                    # Now reset for the next iteration
-                    entry["keyword"] = ""
-                    entry["title"] = ""
-                    entry["year"] = ""
-                    entry["author"] = ""
-                    entry["editor"] = ""
-                    entry["journal"] = ""
-                    entry["eprint"] = ""
-                # Now see if we get a new keyword
-                kp_match = kp.search(line)
-                if kp_match:
-                    entry["keyword"] = kp_match.group(1) # No longer decode. Was: .decode('ascii','ignore')
+            print ('Loaded %d bibitems' % (len(bib_data.entries)))
+
+            keywords = []
+            titles = []
+            authors = []
+            authors_short = []
+            years = []
+            journals = []
+
+            for key in bib_data.entries:
+                entry = bib_data.entries[key]
+                if entry.type == 'xdata' or entry.type == 'comment' or entry.type == 'string':
+                    continue
+
+                fields  = bib_data.entries[key].fields
+                persons = bib_data.entries[key].persons
+
+                # locate the author or editor of the title
+                author_short_string = u'????'
+                author_full_string = u'????'
+                people = None
+                if 'author' in persons:
+                    people = persons['author']
+                elif 'editor' in persons:
+                    people = persons['editor']
                 else:
-                    print ("Cannot process this @ line: " + line)
-                    print ("Previous record " + entry)
-                continue
-            # Now test for title, author, etc.
-            # Note: we capture only the first line, but that's OK for our purposes
-            multip_match = multip.search(line)
-            if multip_match:
-                key = multip_match.group(1).lower()     # no longer decode. Was:    .decode('ascii','ignore')
-                value = multip_match.group(2)           #                           .decode('ascii','ignore')
-                entry[key] = value
-            continue
+                    if 'crossref' in fields:
+                        crossref_persons = bib_data.entries[fields['crossref']].persons
+                        if 'author' in crossref_persons:
+                            people = crossref_persons['author']
+                        elif 'editor' in persons:
+                            people = crossref_persons['editor']
+                if people:
+                    if len(people) <= 2:
+                        author_short_string = ' & '.join([' '.join(x.last()) for x in people])
+                    else:
+                        author_short_string = ' '.join(people[0].last()) + ', et al.'
+                    author_full_string = ' and '.join([str(x) for x in people])
 
-        # at the end, we are left with one bib entry
-        keywords.append(entry["keyword"])
-        titles.append(entry["title"])
-        years.append(entry["year"])
-        authors.append(entry["author"] or entry["editor"] or "????")
-        journals.append(entry["journal"] or entry["eprint"] or "????")
+                title = u'????'
+                if 'title' in fields:
+                    title = fields['title']
+                elif 'crossref' in fields:
+                    crossref_fields = bib_data.entries[fields['crossref']].fields
+                    if 'title' in crossref_fields:
+                        title = crossref_fields['title']
+
+                journal = u'????'
+                if 'journal' in fields:
+                    journal = fields['journal']
+                elif 'eprint' in fields:
+                    journal = fields['eprint']
+                elif 'crossref' in fields:
+                    crossref_fields = bib_data.entries[fields['crossref']].fields
+                    if 'journal' in crossref_fields:
+                        journal = crossref_fields['journal']
+                    elif 'eprint' in crossref_fields:
+                        journal = crossref_fields['eprint']
+                
+                keywords.append(key)
+                titles.append(remove_latex_commands(codecs.decode(title, 'latex')))
+                years.append(codecs.decode(fields['year'], 'latex'))
+                authors.append(remove_latex_commands(codecs.decode(author_full_string, 'latex')))
+                authors_short.append(remove_latex_commands(codecs.decode(author_short_string, 'latex')))
+                journals.append(journal)
 
         print ( "Found %d total bib entries" % (len(keywords),) )
-
-        # # Filter out }'s at the end. There should be no commas left
-        titles = [t.replace('{\\textquoteright}', '').replace('{','').replace('}','') for t in titles]
-
-        # format author field
-        def format_author(authors):
-            # print(authors)
-            # split authors using ' and ' and get last name for 'last, first' format
-            authors = [a.split(", ")[0].strip(' ') for a in authors.split(" and ")]
-            # get last name for 'first last' format (preserve {...} text)
-            authors = [a.split(" ")[-1] if a[-1] != '}' or a.find('{') == -1 else re.sub(r'{|}', '', a[len(a) - a[::-1].index('{'):-1]) for a in authors]
-            #     authors = [a.split(" ")[-1] for a in authors]
-            # truncate and add 'et al.'
-            if len(authors) > 2:
-                authors = authors[0] + " et al."
-            else:
-                authors = ' & '.join(authors)
-            # return formated string
-            # print(authors)
-            return authors
-
-        # format list of authors
-        authors_short = [format_author(author) for author in authors]
 
         # short title
         sep = re.compile(":|\.|\?")
@@ -452,7 +417,11 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
 
         # get preferences for formating of quick panel
         s = sublime.load_settings("LaTeXTools.sublime-settings")
-        cite_panel_format = s.get("cite_panel_format", ["{title} ({keyword})", "{author}"])
+        if _ST3:
+            cite_panel_format = s.get("cite_panel_format", ["{title} ({keyword})", "{author}"])
+        else:
+            cite_panel_format = map(unicode, s.get("cite_panel_format", ["{title} ({keyword})", "{author}"]))
+
 
         # show quick
         view.window().show_quick_panel([[str.format(keyword=keyword, title=title, author=author, year=year, author_short=author_short, title_short=title_short, journal=journal) for str in cite_panel_format] \

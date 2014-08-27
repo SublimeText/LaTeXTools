@@ -73,12 +73,19 @@ class TraditionalBuilder(PdfBuilder):
 		# See if the root file specifies a custom engine
 		engine = self.engine
 		cmd = self.cmd[:] # Warning! If I omit the [:], cmd points to self.cmd!
+		i = 0
 		for line in codecs.open(self.tex_root, "r", "UTF-8", "ignore").readlines():
+			line = line.lstrip()
+			if i >= 20:
+				break
+			i += 1
+
 			if not line.startswith('%'):
+				continue
 				break
 			else:
 				# We have a comment match; check for a TS-program match
-				mroot = re.match(r"%\s*!TEX\s+(?:TS-)?program *= *(xelatex|lualatex|pdflatex)\s*$",line)
+				mroot = re.match(r"%+\s*!TEX\s+(?:TS-)?program *= *(xelatex|lualatex|pdflatex)\s*$",line)
 				if mroot:
 					# Sanity checks
 					if "texify" == cmd[0]:
