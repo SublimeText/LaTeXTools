@@ -40,9 +40,9 @@ def remove_latex_commands(s):
                     if frame.f_back.f_code.co_name != 'remove_latex_commands':
                         remove_latex_commands(s)
                     else:
-                        raise exc_info[0], exc_info[1], exc_info[2]
+                        raise exc_info
                 finally:
                     del frame
             else:
-                raise exc_info[0], exc_info[1], exc_info[2]
+                raise exc_info[1]
     return s
