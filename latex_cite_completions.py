@@ -5,9 +5,12 @@ if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
     _ST3 = False
     import getTeXRoot
+    import kpsewhich
+    from kpsewhich import kpsewhich
 else:
     _ST3 = True
     from . import getTeXRoot
+    from .kpsewhich import kpsewhich
 
 
 import sublime_plugin
@@ -79,9 +82,14 @@ def find_bib_files(rootdir, src, bibfiles):
         for bf in bfiles:
             if bf[-4:].lower() != '.bib':
                 bf = bf + '.bib'
-            # We join with rootdir - everything is off the dir of the master file
-            bf = os.path.normpath(os.path.join(rootdir,bf))
-            bibfiles.append(bf)
+            # We join with rootdir, the dir of the master file
+            candidate_file = os.path.normpath(os.path.join(rootdir,bf))
+            # if the file doesn't exist, search the default tex paths
+            if not os.path.exists(candidate_file):
+                candidate_file = kpsewhich(bf, 'mlbib')
+
+            if candidate_file is not None and os.path.exists(candidate_file):
+                bibfiles.append(candidate_file)
 
     # search through input tex files recursively
     for f in re.findall(r'\\(?:input|include)\{[^\}]+\}',src_content):
