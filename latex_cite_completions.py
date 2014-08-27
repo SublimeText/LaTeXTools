@@ -417,7 +417,11 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
 
         # get preferences for formating of quick panel
         s = sublime.load_settings("LaTeXTools.sublime-settings")
-        cite_panel_format = s.get("cite_panel_format", ["{title} ({keyword})", "{author}"])
+        if _ST3:
+            cite_panel_format = s.get("cite_panel_format", ["{title} ({keyword})", "{author}"])
+        else:
+            cite_panel_format = map(unicode, s.get("cite_panel_format", ["{title} ({keyword})", "{author}"]))
+
 
         # show quick
         view.window().show_quick_panel([[str.format(keyword=keyword, title=title, author=author, year=year, author_short=author_short, title_short=title_short, journal=journal) for str in cite_panel_format] \
