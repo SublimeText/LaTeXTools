@@ -10,26 +10,22 @@ if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
     _ST3 = False
     import getTeXRoot
+    import pybtex
+    import latex_chars
+    
     import latex_commands_grammar
     from latex_commands_grammar import remove_latex_commands
 else:
     _ST3 = True
     from . import getTeXRoot
-
+    from . import latex_chars
     from .latex_commands_grammar import remove_latex_commands
 
 import sublime_plugin
-import os, os.path
 import re
 import codecs
 
-if not _ST3:
-    import pybtex
 from pybtex.database.input import bibtex
-if _ST3:
-    from . import latex_chars
-else:
-    import latex_chars
 
 # LaTeX -> Unicode decoder
 latex_chars.register()
