@@ -32,7 +32,7 @@ def remove_latex_commands(s):
             # save the current exception state
             exc_info = sys.exc_info()
 
-            if sublime.version < '3000':
+            if sublime.version() < '3000':
                 # check that the caller is not this function to avoid an infinite recursion
                 import inspect
                 frame = inspect.currentframe()
