@@ -25,8 +25,138 @@ class BibParsingError(Exception):
 
 
 OLD_STYLE_CITE_REGEX = re.compile(r"([^_]*_)?([a-zX*]*?)etic(?:\\|\b)")
-NEW_STYLE_CITE_REGEX = re.compile(r"([^{},]*)(?:,[^{},]*)*\{(?:\].*?\[){0,2}([a-zX*]*?)etic\\")
-
+# I apoligise profusely for this regex
+# forward version with explanation:
+# \\
+#    (?:
+#       (?# 
+#           first branch matches \foreigntextquote, 
+#           \hypentextquote, \foreignblockquote, \hyphenblockquote,
+#           \hybridblockquote and starred versions
+#           syntax is:
+#           \foreigntextquote{lang}[key][punct]{text}
+#       )
+#       (?:foreign|hyphen|hybrid(?=block))(?:text|block)quote\*?
+#           \{[^}]*\}\[(?:(?:[^[\],]*,)*)?|
+#       (?#
+#           second branch matches \textquote, \blockquote and
+#           starred versions
+#           syntax is:
+#           \textquote[key]{text}
+#       )
+#       (?:text|block)quote\*?\[(?:(?:[^[\],]*,)*)?|
+#       (?#
+#           third branch matches \foreigntextcquote,
+#           \hyphentextcquote, \foreignblockcquote, \hypenblockcquote,
+#           \hybridblockcquote and starred versions
+#           syntax is:
+#           \foreigntextcquote{lang}[<prenote>][<postnote]{key}{text}
+#       )
+#       (?:foreign|hyphen|hybrid(?=block))(?:text|block)cquote\*?
+#           \{[^}]*\}(?:\[[^\]]*\]){0,2}\{(?:(?:[^{},]*,)*)?|
+#       (?#
+#           fourth branch matches \textcquote, \blockcquote and 
+#           starred versions
+#           syntax is:
+#           \textcquote[<prenote>][<postnote>]{key}{text}
+#       )
+#       (?:text|block)cquote\*?(?:\[[^\]]*\]){0,2}\{(?:(?:[^{},]*,)*)?|
+#       (?#
+#           fifth branch matches \volcite and friends
+#           syntax is:
+#           \volcite[<prenote>]{volume}[<page>]{key}
+#       )
+#       (?:p|P|f|ft|s|S|t|T|a|A)?volcite
+#           (?:\[[^\]]*\])?\{[^}]*\}(?:\[[^\]]*\])?\{(?:(?:[^{},]*,)*)?|
+#       (?#
+#           sixth branch matches \volcites and friends
+#           syntax is:
+#           \volcites(<multiprenote>)(<multipostnote>)[<prenote>]{volume}[<page>]{key}
+#               ...[<prenote>]{volume}[<page>]{key}
+#       )
+#       (?:p|P|f|ft|s|S|t|T|a|A)?volcites
+#           (?:\([^)]*\)){0,2}
+#               (?:(?:\[[^\]]*\])?\{[^}]*\}
+#               (?:\[[^\]]*\])?\{(?:(?:[^{},]*,)*)?(?:\}(?=.*?\{))?){1,}|
+#       (?#
+#           seventh branch matches \cites and friends, excluding \volcite
+#           syntax is:
+#           \cites(<multiprenote>)(<multipostnote>)[<prenote>][<postnote>]{key}
+#               ...[<prenote>][<postnote>]{key}
+#       )
+#       (?:(?:[A-Z]?[a-z]*(?<!vol)c)|C)ites(?:\([^)]*\)){0,2}(?:(?:\[[^\]]*\]){0,2}\{(?:(?:[^{},]*,)*)?(?:\}(?=.*?\{))?){1,}|
+#       (?#
+#           final branch matches most everything else, excluding \volcite,
+#           \mcite, \citereset and \citestyle
+#           syntax is:
+#           \cite[<prenote>][<postnote>]{key}
+#       )
+#       (?:(?:[A-Z]?[a-z]*(?<!vol|\\m)c)|C)ite(?!reset|style)([a-zX*]*?)([.*?]){0,2}(?:\[[^\]]*\]){0,2}\{(?:(?:[^{},]*,)*)?)$
+NEW_STYLE_CITE_REGEX = re.compile(
+    r"""(?:
+            (?# 
+                first branch matches \foreigntextquote, 
+                \hypentextquote, \foreignblockquote, \hyphenblockquote,
+                \hybridblockquote and starred versions
+                syntax is:
+                \foreigntextquote{lang}[key][punct]{text}
+            )
+            (?:(?P<prefix1>[^\[\],]*)(?:,[^\[\],]*)*\[\{[^\}]*\}
+                \*?etouq(?:kcolb|txet)(?:ngierof|nehpyh|(?<=kcolb)dirbyh))|
+            (?#
+                second branch matches \textquote, \blockquote and
+                starred versions
+                syntax is:
+                \textquote[key]{text}
+            )
+            (?:(?P<prefix2>[^\[\],]*)(?:,[^\[\],]*)*\[\*etouq(?:kcolb|txet))|
+            (?#
+                third branch matches \foreigntextcquote,
+                \hyphentextcquote, \foreignblockcquote, \hypenblockcquote,
+                \hybridblockcquote and starred versions
+                syntax is:
+                \foreigntextcquote{lang}[<prenote>][<postnote]{key}{text}
+            )
+            (?:(?P<prefix3>[^{},]*)(?:,[^{},]*)*\{(?:\[[^\]]*\]){0,2}\{[^\}]*\}
+                \*?etouqc(?:kcolb|txet)(?:ngierof|nehpyh|(?<=kcolb)dirbyh))|
+            (?#
+                fourth branch matches \textcquote, \blockcquote and 
+                starred versions
+                syntax is:
+                \textcquote[<prenote>][<postnote>]{key}{text}
+            )
+            (?:(?P<prefix4>[^{},]*)(?:,[^{},]*)*\{(?:\[[^\]]*\]){0,2}
+                \*?etouqc(?:kcolb|txet))|
+            (?#
+                fifth branch matches \volcite and friends
+                syntax is:
+                \volcite[<prenote>]{volume}[<page>]{key}
+            )
+            (?:(?P<prefix5>[^{},]*)(?:,[^{},]*)*\{(?:\][^\[]*\[)?\}[^\{}]*\{(?:\][^\[]*\[)?
+                eticlov(?:p|P|f|ft|s|S|t|T|a|A)?)|
+            (?#
+                sixth branch matches \volcites and friends
+            )
+            (?:(?P<prefix6>[^{},]*)(?:,[^{},]*)*\{(?:\][^\[]*\[)?\}[^\{}]*\{(?:\][^\[]*\[)?
+                (?:\}[^\{}]*\{(?:\][^\[]*\[)?\}[^\{}]*\{(?:\][^\[]*\[)?)*
+                seticlov(?:p|P|f|ft|s|S|t|T|a|A)?)|
+            (?#
+                seventh branch matches \cites and friends, excluding \volcite
+            )
+            (?:(?P<prefix7>[^{},]*)(?:,[^{},]*)*\{(?:\][^\[]*\[){0,2}
+                (?:\}(?:(?:[^\{\},]*,)*\{)?(?:\][^\[]*\[){0,2})*
+                (?:[\.\*\?]){0,2}([a-zX\*]*?)
+                seti(?:C|c(?!lov)[a-z]*[A-Z]?))|
+            (?#
+                final branch matches most everything else, excluding \volcite,
+                \mcite, \citereset and \citestyle
+                syntax is:
+                \cite[<prenote>][<postnote>]{key}
+            )
+            (?:(?P<prefix8>[^{},]*)(?:,[^{},]*)*\{(?:\][^\[]*\[){0,2}
+                (?:[\.\*\?]){0,2}(?P<fancy_cite>[a-zX\*]*?)(?<!teser|elyts)
+                eti(?:C|c(?!lov|m\\)[a-z]*[A-Z]?))
+        )\\""", re.X)
 
 def match(rex, str):
     m = rex.match(str)
@@ -136,11 +266,20 @@ def get_cite_completions(view, point, autocompleting=False):
             raise UnrecognizedCiteFormatError()
 
         preformatted = True
-        prefix, fancy_cite = rex.match(expr).groups()
+        match = rex.match(expr)
+        prefix =   (match.group('prefix1') or
+                    match.group('prefix2') or
+                    match.group('prefix3') or
+                    match.group('prefix4') or
+                    match.group('prefix5') or
+                    match.group('prefix6') or
+                    match.group('prefix7') or
+                    match.group('prefix8'))
         if prefix:
             prefix = prefix[::-1]
         else:
             prefix = ""
+        fancy_cite = match.group('fancy_cite')
         if fancy_cite:
             fancy_cite = fancy_cite[::-1]
             if fancy_cite[-1] == "X":
