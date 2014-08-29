@@ -266,20 +266,20 @@ def get_cite_completions(view, point, autocompleting=False):
             raise UnrecognizedCiteFormatError()
 
         preformatted = True
-        match = rex.match(expr)
-        prefix =   (match.group('prefix1') or
-                    match.group('prefix2') or
-                    match.group('prefix3') or
-                    match.group('prefix4') or
-                    match.group('prefix5') or
-                    match.group('prefix6') or
-                    match.group('prefix7') or
-                    match.group('prefix8'))
+        m = rex.match(expr)
+        prefix =   (m.group('prefix1') or
+                    m.group('prefix2') or
+                    m.group('prefix3') or
+                    m.group('prefix4') or
+                    m.group('prefix5') or
+                    m.group('prefix6') or
+                    m.group('prefix7') or
+                    m.group('prefix8'))
         if prefix:
             prefix = prefix[::-1]
         else:
             prefix = ""
-        fancy_cite = match.group('fancy_cite')
+        fancy_cite = m.group('fancy_cite')
         if fancy_cite:
             fancy_cite = fancy_cite[::-1]
             if fancy_cite[-1] == "X":
