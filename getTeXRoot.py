@@ -25,6 +25,13 @@ def get_tex_root(view):
 		if os.path.isfile(root):
 			print("Main file defined in project settings : " + root)
 			return root
+		else:
+			project_dir = os.path.dirname(os.path.abspath(view.window().project_file_name()))
+			texroot = view.window().project_data().get('settings').get('TEXroot')
+			root = os.path.normpath('{}/{}'.format(project_dir,texroot))
+			if os.path.isfile(root):
+				print("Main file defined in project settings : " + root)
+				return root
 	except:
 		pass
 
