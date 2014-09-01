@@ -59,6 +59,14 @@ LaTeX Package keymap for OS X
 				"operand": "\\\\cite([a-zX*]*?)(\\[.*?\\]){0,2}\\{(?:[^{},]*,)*[^{},]+$", "match_all": true}],
 		"command": "latex_ref_cite", "args": {"insert_char": ","}},
 
+	{	"keys": ["ctrl+l", "ctrl+l"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			//{"key": "preceding_text", "operator": "regex_contains",
+			//	"operand": "\\\\input\\{[^{}\\[\\]]*|\\\\include\\{[^\\{\\}]*|\\\\includegraphics(?:\\[[^{}\\[\\]]*\\])?\\{[^{}\\[\\]]*", "match_all": true}],
+			],
+		"command": "latex_fill_all"},
+
 	// Toggle autocomplete
 	{ 	"keys": ["super+l","t","a", "r"],
 		"context":  [

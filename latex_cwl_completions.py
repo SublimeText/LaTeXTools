@@ -3,20 +3,34 @@ import sublime_plugin
 import os
 import re
 
-settings = sublime.load_settings("LaTeXTools.sublime-settings")
+from .latex_cite_completions import NEW_STYLE_CITE_REGEX, OLD_STYLE_CITE_REGEX, match
+from .latex_ref_completions import NEW_STYLE_REF_REGEX, OLD_STYLE_REF_REGEX
+from .latex_input_completions import TEX_INPUT_FILE_REGEX
+
+env_donot_compl = [TEX_INPUT_FILE_REGEX, OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX, OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX]
 
 class LatexCwlCompletion(sublime_plugin.EventListener):
 
     def on_query_completions(self, view, prefix, locations):
-
+        
+        settings = sublime.load_settings("LaTeXTools.sublime-settings")
         cwl_completion = settings.get('cwl_completion')
-
         if cwl_completion == None or cwl_completion == False:
             return []
 
         point = locations[0]
         if not view.score_selector(point, "text.tex.latex"):
-            return ([], 0)
+            return []
+
+        point = locations[0]
+        line = view.substr(sublime.Region(view.line(point).a, point))
+        line = line[::-1]
+
+        # Do not do completions in actions
+        for rex in env_donot_compl:
+            if match(rex, line) != None:
+                print(match(rex,line))
+                return []
 
         completions = parse_cwl_file()
         return (completions, sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS)
@@ -27,6 +41,7 @@ def parse_cwl_file():
     CLW_COMMENT = re.compile(r'#[^#]*')
     # Get cwl file list
     cwl_path = sublime.packages_path() + "/LaTeX-cwl"
+    settings = sublime.load_settings("LaTeXTools.sublime-settings")
     cwl_file_list = settings.get('cwl_list')
 
     
