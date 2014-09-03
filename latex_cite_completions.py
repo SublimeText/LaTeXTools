@@ -84,14 +84,19 @@ OLD_STYLE_CITE_REGEX = re.compile(r"([^_]*_)?([a-zX*]*?)etic(?:\\|\b)")
 #           \cites(<multiprenote>)(<multipostnote>)[<prenote>][<postnote>]{key}
 #               ...[<prenote>][<postnote>]{key}
 #       )
-#       (?:(?:[A-Z]?[a-z]*(?<!vol)c)|C)ites(?:\([^)]*\)){0,2}(?:(?:\[[^\]]*\]){0,2}\{(?:(?:[^{},]*,)*)?(?:\}(?=.*?\{))?){1,}|
+#       (?:(?!(?:p|P|f|ft|s|S|t|T|a|A)?volcites)
+#           (?:[A-Z]?[a-z]*c)|C)ites
+#           (?:\([^)]*\)){0,2}
+#           (?:(?:\[[^\]]*\]){0,2}\{(?:(?:[^{},]*,)*)?(?:\}(?=.*?\{))?){1,}|
 #       (?#
 #           final branch matches most everything else, excluding \volcite,
 #           \mcite, \citereset and \citestyle
 #           syntax is:
 #           \cite[<prenote>][<postnote>]{key}
 #       )
-#       (?:(?:[A-Z]?[a-z]*(?<!vol|\\m)c)|C)ite(?!reset|style)([a-zX*]*?)([.*?]){0,2}(?:\[[^\]]*\]){0,2}\{(?:(?:[^{},]*,)*)?)$
+#       (?:(?!(?:p|P|f|ft|s|S|t|T|a|A)?volcite|mcite)
+#           (?:[A-Z]?[a-z]*c)|C)ite(?!reset|style)([a-zX*]*?)
+#           ([.*?]){0,2}(?:\[[^\]]*\]){0,2}\{(?:(?:[^{},]*,)*)?)$
 NEW_STYLE_CITE_REGEX = re.compile(
     r"""(?:
             (?# 
