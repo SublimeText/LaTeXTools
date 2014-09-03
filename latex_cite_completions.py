@@ -150,7 +150,7 @@ NEW_STYLE_CITE_REGEX = re.compile(
                 seventh branch matches \cites and friends, excluding \volcite
             )
             (?:(?P<prefix7>[^{},]*)(?:,[^{},]*)*\{(?:\][^\[]*\[){0,2}
-                (?:\}(?:(?:[^\{\},]*,)*\{)?(?:\][^\[]*\[){0,2})*
+                (?:\}[^\}]*\{(?:\][^\[]*\[){0,2})*
                 (?:[\.\*\?]){0,2}(?:\)[^(]*\(){0,2}([a-zX\*]*?)
                 seti(?:C|c(?!lov)[a-z]*[A-Z]?))|
             (?#
