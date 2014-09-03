@@ -15,7 +15,7 @@ import re
 
 
 # Only work for \include{} and \input{} and \includegraphics
-TEX_INPUT_FILE_REGEX = re.compile(r'([a-zA-Z_]*)\{edulcni\\|([^{}]*)\{tupni\\|([^{}]*)\{(?:\][^{}\[\]]*\[)?scihpargedulcni\\')
+TEX_INPUT_FILE_REGEX = re.compile(r'([^{}\[\]]*)\{edulcni\\|([^{}\[\]]*)\{tupni\\|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?scihpargedulcni\\')
 
 # Get all file by types
 def get_file_list(root, types):
@@ -52,7 +52,6 @@ def get_file_list(root, types):
                 continue  
             completions.append((os.path.relpath(dir_name, path), i)) 
 
-    print(completions)
     return completions
 
 
@@ -71,21 +70,24 @@ def get_file_completions(view, point):
         return '', []
 
     if include_filter != None:
-        prefix = include_filter[::-1] # if is \include
-        types = ['tex']
+        # if is \include
+        prefix = include_filter[::-1] 
+        input_file_types = ['tex']
     elif input_filter != None:
-        prefix = input_filter[::-1] # if is \input search type set to tex
-        types = ['tex'] 
+        # if is \input search type set to tex
+        prefix = input_filter[::-1] 
+        input_file_types = ['tex'] 
     elif image_filter != None:
-        prefix = image_filter[::-1] # if is \includegraphics
+        # if is \includegraphics
+        prefix = image_filter[::-1] 
 
         # Load image types from configurations
         # In order to user input, "image_types" must be set in 
         # LaTeXTools.sublime-settings configure files.
         settings = sublime.load_settings("LaTeXTools.sublime-settings")
-        types = settings.get('images_type')
-        if types == None or len(types) == 0:
-            types = ['pdf', 'png', 'jpeg', 'jpg', 'eps']
+        input_file_types = settings.get('image_types')
+        if input_file_types == None or len(input_file_types) == 0:
+            input_file_types = ['pdf', 'png', 'jpeg', 'jpg', 'eps']
     else:
         prefix = ''
 
@@ -94,7 +96,7 @@ def get_file_completions(view, point):
     if root:
         print ("TEX root: " + repr(root))
 
-    completions = get_file_list(root, types)
+    completions = get_file_list(root, input_file_types)
 
     return prefix, completions
 
@@ -129,7 +131,6 @@ class LatexInputFileCommand(sublime_plugin.TextCommand):
             return
 
         prefix, completions = get_file_completions(view, point)
-        print(prefix)
 
         root_path = os.path.dirname(getTeXRoot.get_tex_root(self.view))
         result = [[os.path.normpath('{}/{}'.format(relpath, filename)), 
@@ -144,20 +145,6 @@ class LatexInputFileCommand(sublime_plugin.TextCommand):
             view.run_command("latex_tools_replace", {"a": startpos, "b": point, "replacement": key})
             caret = view.sel()[0].b
             view.sel().subtract(view.sel()[0])
-            view.sel().add(sublime.Region(caret, caret))        
+            view.sel().add(sublime.Region(caret, caret))
 
         view.window().show_quick_panel(result, on_done)
-
-
-                      
-
-
-
-
-
-
-
-
-
-
-

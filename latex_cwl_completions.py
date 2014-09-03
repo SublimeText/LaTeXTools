@@ -3,10 +3,23 @@ import sublime_plugin
 import os
 import re
 
-from .latex_cite_completions import NEW_STYLE_CITE_REGEX, OLD_STYLE_CITE_REGEX, match
-from .latex_ref_completions import NEW_STYLE_REF_REGEX, OLD_STYLE_REF_REGEX
-from .latex_input_completions import TEX_INPUT_FILE_REGEX
+index = 0
 
+if sublime.version() < '3000':
+    # we are on ST2 and Python 2.X
+    _ST3 = False
+    from latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX, match
+    from latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
+    from latex_input_completions import TEX_INPUT_FILE_REGEX
+    from latexFoldSection import get_Region
+else:
+    _ST3 = True
+    from .latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX, match
+    from .latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
+    from .latex_input_completions import TEX_INPUT_FILE_REGEX
+    from .latexFoldSection import get_Region
+
+# Do not do completions in this envrioments
 env_donot_compl = [TEX_INPUT_FILE_REGEX, OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX, OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX]
 
 class LatexCwlCompletion(sublime_plugin.EventListener):
@@ -23,7 +36,7 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
             return []
 
         point = locations[0]
-        line = view.substr(sublime.Region(view.line(point).a, point))
+        line = view.substr(get_Region(view.line(point).a, point))
         line = line[::-1]
 
         # Do not do completions in actions
@@ -71,9 +84,9 @@ def parse_cwl_file():
 def parse_keyword(keyword):
     
     # Replace strings in [] and {} with snippet syntax
-    index = 0
+
     def replace_braces(matchobj):
-        nonlocal index
+        global index
         index += 1
         if matchobj.group(1) != None:
             word = matchobj.group(1)
