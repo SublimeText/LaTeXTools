@@ -106,7 +106,7 @@ NEW_STYLE_CITE_REGEX = re.compile(
                 syntax is:
                 \foreigntextquote{lang}[key][punct]{text}
             )
-            (?:(?P<prefix1>[^\[\],]*)(?:,[^\[\],]*)*\[\{[^\}]*\}
+            (?:(?P<prefix1>[^\[\],]*)(?:,[^\[\],]*)*\[\}[^\{]*\{
                 \*?etouq(?:kcolb|txet)(?:ngierof|nehpyh|(?<=kcolb)dirbyh))|
             (?#
                 second branch matches \textquote, \blockquote and
@@ -114,7 +114,7 @@ NEW_STYLE_CITE_REGEX = re.compile(
                 syntax is:
                 \textquote[key]{text}
             )
-            (?:(?P<prefix2>[^\[\],]*)(?:,[^\[\],]*)*\[\*etouq(?:kcolb|txet))|
+            (?:(?P<prefix2>[^\[\],]*)(?:,[^\[\],]*)*\[\*?etouq(?:kcolb|txet))|
             (?#
                 third branch matches \foreigntextcquote,
                 \hyphentextcquote, \foreignblockcquote, \hypenblockcquote,
@@ -122,7 +122,7 @@ NEW_STYLE_CITE_REGEX = re.compile(
                 syntax is:
                 \foreigntextcquote{lang}[<prenote>][<postnote]{key}{text}
             )
-            (?:(?P<prefix3>[^{},]*)(?:,[^{},]*)*\{(?:\[[^\]]*\]){0,2}\{[^\}]*\}
+            (?:(?P<prefix3>[^{},]*)(?:,[^{},]*)*\{(?:\][^\[]*\[){0,2}\}[^\{]*\{
                 \*?etouqc(?:kcolb|txet)(?:ngierof|nehpyh|(?<=kcolb)dirbyh))|
             (?#
                 fourth branch matches \textcquote, \blockcquote and 
@@ -130,7 +130,7 @@ NEW_STYLE_CITE_REGEX = re.compile(
                 syntax is:
                 \textcquote[<prenote>][<postnote>]{key}{text}
             )
-            (?:(?P<prefix4>[^{},]*)(?:,[^{},]*)*\{(?:\[[^\]]*\]){0,2}
+            (?:(?P<prefix4>[^{},]*)(?:,[^{},]*)*\{(?:\][^\[]*\[){0,2}
                 \*?etouqc(?:kcolb|txet))|
             (?#
                 fifth branch matches \volcite and friends
@@ -144,13 +144,14 @@ NEW_STYLE_CITE_REGEX = re.compile(
             )
             (?:(?P<prefix6>[^{},]*)(?:,[^{},]*)*\{(?:\][^\[]*\[)?\}[^\{}]*\{(?:\][^\[]*\[)?
                 (?:\}[^\{}]*\{(?:\][^\[]*\[)?\}[^\{}]*\{(?:\][^\[]*\[)?)*
+                (?:\)[^(]*\(){0,2}
                 seticlov(?:p|P|f|ft|s|S|t|T|a|A)?)|
             (?#
                 seventh branch matches \cites and friends, excluding \volcite
             )
             (?:(?P<prefix7>[^{},]*)(?:,[^{},]*)*\{(?:\][^\[]*\[){0,2}
                 (?:\}(?:(?:[^\{\},]*,)*\{)?(?:\][^\[]*\[){0,2})*
-                (?:[\.\*\?]){0,2}([a-zX\*]*?)
+                (?:[\.\*\?]){0,2}(?:\)[^(]*\(){0,2}([a-zX\*]*?)
                 seti(?:C|c(?!lov)[a-z]*[A-Z]?))|
             (?#
                 final branch matches most everything else, excluding \volcite,
@@ -159,7 +160,7 @@ NEW_STYLE_CITE_REGEX = re.compile(
                 \cite[<prenote>][<postnote>]{key}
             )
             (?:(?P<prefix8>[^{},]*)(?:,[^{},]*)*\{(?:\][^\[]*\[){0,2}
-                (?:[\.\*\?]){0,2}(?P<fancy_cite>[a-zX\*]*?)(?<!teser|elyts)
+                (?:[\.\*\?]){0,2}(?!teser|elyts)(?P<fancy_cite>[a-zX\*]*?)
                 eti(?:C|c(?!lov|m\\)[a-z]*[A-Z]?))
         )\\""", re.X)
 
