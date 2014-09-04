@@ -18,10 +18,8 @@ else:
     from .latex_input_completions import TEX_INPUT_FILE_REGEX
     from .latexFoldSection import get_Region
 
-trigger_trim_cite = False
-current_word = ''
-after_current_word = ''
-
+# used to flag whether command is triggered for cite
+TRIGGER_CITE = False
 
 def get_current_word(view, point, type):
 
@@ -30,44 +28,44 @@ def get_current_word(view, point, type):
 
     if type == 'cite':
             
-        # prefix is the characters before caret
+        # prefix is the characters before cursor's position
         prefix = re.match(r'([^{},]*)[\{,]', line_prefix).group(1)
-        suffix, after_current_word = re.match(r'([^{},]*)([\},])', line_suffix).groups()
+        # suffix is the characters following cursor's position
+        suffix, nc_current_word = re.match(r'([^{},]*)([\},])', line_suffix).groups()
 
-        return prefix[::-1], suffix, after_current_word
+        return prefix[::-1], suffix, nc_current_word
 
-    if type != 'ref':
-            
+    if type != 'ref':     
         # prefix is the characters before caret
         prefix = re.match(r'([^{}]*)\{', line_prefix).group(1)
         suffix = re.match(r'([^{}]*)\}', line_suffix).group(1)
-
+        
         return prefix[::-1], suffix, ''
-    
 
 class LatexFillAllCommand(sublime_plugin.TextCommand):
 
     def run(self, edit):
 
-        global trigger_trim_cite
-        global current_word
+        global TRIGGER_CITE
         
         view = self.view
         point = view.sel()[0].b
 
-        # Current lines, used to detemine which situation
+        # Current lines, used to detemine whether is input, include, cite, or includegraphics
         line = view.substr(get_Region(view.line(point).a, point))[::-1]
-        # if in cite envoriments
+        
+        # if \cite
         if match(OLD_STYLE_CITE_REGEX, line) != None or match(NEW_STYLE_CITE_REGEX, line) != None:
 
-            prefix, suffix, after_current_word = get_current_word(view, point, 'cite')
+            prefix, suffix, nc_current_word = get_current_word(view, point, 'cite')
 
             # Current_word
             current_word = prefix + suffix 
+            print(current_word)
 
             if current_word != '':
-                if after_current_word == ',':
-                    trigger_trim_cite = True
+                if nc_current_word == ',':
+                    TRIGGER_CITE = True
                 # If the current word is not null, delte it!
                 startpoint = point - len(prefix)
                 endpoint = point + len(suffix)
@@ -76,10 +74,10 @@ class LatexFillAllCommand(sublime_plugin.TextCommand):
             else:
                 view.run_command('latex_cite')
             
-
+        # if \ref
         if match(OLD_STYLE_REF_REGEX, line) != None or match(NEW_STYLE_REF_REGEX, line) != None:
             
-            prefix, suffix, after_current_word = get_current_word(view, point, 'ref')
+            prefix, suffix, nc_current_word = get_current_word(view, point, 'ref')
             current_word = prefix + suffix
             if current_word != '':
                 # If the current word is not null, delte it!
@@ -90,9 +88,10 @@ class LatexFillAllCommand(sublime_plugin.TextCommand):
             else:
                 view.run_command('latex_ref')
 
+        # if \input, \include or \includegraphics
         if TEX_INPUT_FILE_REGEX.match(line) != None:
 
-            prefix, suffix, after_current_word = get_current_word(view, point, 'input')
+            prefix, suffix, nc_current_word = get_current_word(view, point, 'input')
             current_word = prefix + suffix
             if current_word != '':
                 startpoint = point - len(prefix)
@@ -102,20 +101,22 @@ class LatexFillAllCommand(sublime_plugin.TextCommand):
             else:
                 view.run_command("latex_input_file")
 
-class OnLateFillAllReplacement(sublime_plugin.EventListener):
+class OnLatexFillAllReplacement(sublime_plugin.EventListener):
 
-
-    # Process the extra and the end of the input by cite command,
-    # when fill the citations between two commas.
+    # This trigger is used to delete the last "}"
+    # character inserted by latex_cite command 
+    # when modifing the keyword between two commas.
     def on_selection_modified(self, view):
         
-        global trigger_trim_cite
+        global TRIGGER_CITE
 
         # If selection is modifed by fill all commands
-        if trigger_trim_cite:
+        if TRIGGER_CITE:
 
             caret = view.sel()[0].b
             last_char = view.substr(get_Region(caret-1, caret))
             if last_char == '}':
-                trigger_trim_cite = False
+                TRIGGER_CITE = False # Turn off triggers
                 view.run_command('latex_tools_replace', {'a': caret-1, 'b': caret, 'replacement': ''})
+            else:
+                TRIGGER_CITE = False # Turn off triggers

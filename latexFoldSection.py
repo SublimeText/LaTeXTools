@@ -11,7 +11,6 @@ else:
 SECTION_TYPES = ['part', 'chapter', 'section', 'subsection',
                  'subsubsection', 'paragraph', 'subparagraph']
 
-# Get the start position of a line contains point 'point'
 def get_begin_mark_patter(sec_type):
     return r'\\' + sec_type + r'\*?(?:\[.*\])?\{.*\}(?:\s*%\s\(fold\))?'
 
@@ -67,6 +66,8 @@ def find_sec_regions(view, sec_type):
         # sorted by apperance
         return sorted(result, key = lambda x: x.begin())
 
+    # Find sec_type's parent mark in region range a to b
+    # if find, return first match's index, else return None
     def find_child_tags(sec_type, a, b):
         result = []
         s = view.substr(get_Region(a,b))
@@ -80,22 +81,7 @@ def find_sec_regions(view, sec_type):
 
         return sorted(result, key = lambda x: x.begin())
 
-    def find_parent_end_tags(sec_type, a, b):
-        result = []
-        s = view.substr(get_Region(a,b))
-        for i in SECTION_TYPES[:SECTION_TYPES.index(sec_type)]:
-            rs = re.findall(get_end_mark_patter(i), s)
-            if len(rs) != 0:
-                for r in rs:
-                    m_pos = s.find(r)
-                    m_size = len(r)
-                    result.append(get_Region(a + m_pos, a + m_pos + m_size))
-
-        # sorted by apperance
-        return sorted(result, key = lambda x: x.begin())
-
     start_regions = view.find_all(begin_mark)
-
     code_segs = []
 
     for i in range(len(start_regions)):
@@ -140,8 +126,6 @@ def find_sec_regions(view, sec_type):
                     current_end_mark = first_end_mark
         else:
             current_end_mark = next_mark
-
-        # actual content, withline
 
         # if just one line at the last
         if current_mark.end() == current_end_mark.end():

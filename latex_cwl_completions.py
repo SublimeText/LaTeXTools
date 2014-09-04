@@ -46,14 +46,15 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
                 return []
 
         completions = parse_cwl_file()
-        return (completions, sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS)
+        return(completions)
+        #return (completions, sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS)
 
 
 def parse_cwl_file():
 
     CLW_COMMENT = re.compile(r'#[^#]*')
     # Get cwl file list
-    cwl_path = sublime.packages_path() + "/LaTeX-cwl"
+    # cwl_path = sublime.packages_path() + "/LaTeX-cwl"
     settings = sublime.load_settings("LaTeXTools.sublime-settings")
     cwl_file_list = settings.get('cwl_list')
 
@@ -61,23 +62,21 @@ def parse_cwl_file():
     # Configurations of cwl_list do not exists!
     if cwl_file_list == None:
         return []
-    
-    # Generating cwl_file_list with absolute path
-    cwl_files = [os.path.normpath(
-        '{}/{}'.format(cwl_path, x)) for x in cwl_file_list]
 
+    cwl_files = ['Packages/LaTeX-cwl/{}'.format(x) for x in cwl_file_list]
     completions = []
     for cwl in cwl_files:
-        # Process cwl files
-        with open(cwl, 'r') as f:
-            for line in f:
-                if CLW_COMMENT.match(line.strip()):
-                    pass
-                else:
-                    keyword = line.strip()
-                    method = os.path.splitext(os.path.basename(cwl))[0]
-                    item = ('{}\t{}'.format(keyword, method), parse_keyword(keyword))
-                    completions.append(item)
+        s = sublime.load_resource(cwl)
+        print(s)
+        for line in s.split('\n'):
+            if CLW_COMMENT.match(line.strip()):
+                pass
+            else:
+                keyword = line.strip()
+                method = os.path.splitext(os.path.basename(cwl))[0]
+                item = ('{}\t{}'.format(keyword, method), parse_keyword(keyword))
+                completions.append(item)
+
     return completions
 
 
