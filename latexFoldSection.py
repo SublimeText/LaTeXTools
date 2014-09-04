@@ -46,6 +46,13 @@ def get_Region(a, b):
 # is in fold start mark or end mark
 def find_sec_regions(view, sec_type):
 
+    extrame_fold = sublime.load_settings("LaTeXTools.sublime-settings").get('extreme_fold')
+
+    if extrame_fold != "ALL":
+        extrame_fold = True
+    else:
+        extrame_fold = False
+
     begin_mark = get_begin_mark_patter(sec_type)
     end_mark = get_end_mark_patter(sec_type)
 
@@ -99,31 +106,18 @@ def find_sec_regions(view, sec_type):
 
         child_tags = find_child_tags(sec_type, current_mark.end(), next_mark.begin())
 
-        # print("next_mark is %s"%view.substr(next_mark))
-        # find first end mark
-        first_end_mark = view.find(end_mark, current_mark.end())
-
-        # print("first end_mark is %s"%view.substr(first_end_mark))
-
-        # if there is no end mark
-        if first_end_mark.begin() == -1:
-            current_end_mark = next_mark
-        elif first_end_mark.begin() < next_mark.begin():
-
-            feb = first_end_mark.begin()
-
-            # if end mark among child sections
+        if extrame_fold: # if extreme_fold set to all, ignore the end mark in the form of '% ... (end)'
             if len(child_tags) != 0:
-                
-                ctb = [x.begin() for x in child_tags]
-                if feb < max(ctb):
-                    # if meet '%...(end)' mark before some of the child 
-                    current_end_mark = next_mark
-                else: 
-                    current_end_mark = first_end_mark
-
+                first_end_mark = view.find(end_mark, child_tags[-1].end())
             else:
-                    current_end_mark = first_end_mark
+                first_end_mark = view.find(end_mark, current_mark.end())           
+
+            # if there is no end mark or next end mark is bellow next same level's mark
+            # or a parents' mark
+            if first_end_mark.begin() == -1 or first_end_mark.begin() > next_mark.begin():
+                current_end_mark = next_mark
+            else:
+                current_end_mark = first_end_mark
         else:
             current_end_mark = next_mark
 
@@ -139,8 +133,11 @@ def find_sec_regions(view, sec_type):
 
 
 # Functions to find all foldable code segments
+# This function is only used for fold to toc when
+# extreme_fold set to None
 def find_all_fold(view, depth = None):
 
+    # Find fold depth
     if depth != None:
         top_level = find_top_level(view)
         if top_level != None:
@@ -152,19 +149,20 @@ def find_all_fold(view, depth = None):
     else:
         search_secs = SECTION_TYPES
 
+    # Finding all regions need to be folded
     result = []
     for sec in search_secs:
         r = find_sec_regions(view, sec)
         if len(r) == 0:
             continue
-
         result += r
 
     return result
 
 # Reform the whole buffer to foldable regions following 
 # the struct of TOC. Return result format is identical to 
-# find_sec_regions function
+# find_sec_regions function, this function is only used for
+# none extreme_fold satuations
 def get_toc(view):
     s = sublime.load_settings("LaTeXTools.sublime-settings")
     fold_toc_depth = s.get('fold_toc_depth')
@@ -196,6 +194,40 @@ def get_toc(view):
 
     return toc_strc
 
+def extreme_fold(view, FocusCurrent = False):
+    depth = sublime.load_settings("LaTeXTools.sublime-settings").get('fold_toc_depth')
+
+    if depth == None:
+        depth = 4
+
+    top_level = find_top_level(view)
+
+    if top_level != None:
+        top_level = SECTION_TYPES.index(top_level)
+        if top_level + depth - 1 > len(SECTION_TYPES):
+            search_secs = SECTION_TYPES[top_level:]
+        else:
+            search_secs = SECTION_TYPES[top_level:top_level + depth]
+
+    s = r'|'.join([get_begin_mark_patter(x) for x in search_secs])
+    print(get_begin_mark_patter(s))
+    regions = view.find_all(s)
+        
+    for r in regions:
+        if r != regions[-1]:
+            j = regions[regions.index(r) + 1]
+            nr = sublime.Region(view.line(r.end()).end(), view.line(j.begin()).begin() - 1)
+        else:
+            if view.line(r.end()).end() != view.size():
+                nr = sublime.Region(view.line(r.end()).end(), view.size())
+            else:
+                nr = None
+
+        if FocusCurrent and (nr == None or nr.contains(view.sel()[0].b)):
+            continue
+        else:
+            view.fold(nr)
+
 # Fold whole buffer to "Table of Contents",
 # TOC depth is set by "fold_toc_depth" in settings files 
 class LatexFoldTocCommand(sublime_plugin.TextCommand):
@@ -203,6 +235,12 @@ class LatexFoldTocCommand(sublime_plugin.TextCommand):
     def run(self, edit, FocusCurrent = False):
 
         view = self.view
+
+        extrame_fold = sublime.load_settings("LaTeXTools.sublime-settings").get('extreme_fold')
+
+        if extrame_fold == None or extrame_fold == 'TOC':
+            extreme_fold(view, FocusCurrent)
+            return
 
         # Getting fold_toc_depth from settings
         toc_strc = get_toc(view)
@@ -221,6 +259,8 @@ class LatexFoldTocCommand(sublime_plugin.TextCommand):
                 continue
             else:
                 view.fold(i[0])
+
+
 
 # Command to fold expect levels.
 class LatexFoldLevelCommand(sublime_plugin.TextCommand):
@@ -249,10 +289,11 @@ class LatexFoldLevelCommand(sublime_plugin.TextCommand):
                 view.fold(i[0])
                 
 
-# Fold current
+# Fold current section
 class LatexFoldCurrentCommand(sublime_plugin.TextCommand):
 
     def run(self, edit):
+        extrame_fold = sublime.load_settings("LaTeXTools.sublime-settings").get('extreme_fold')
 
         view = self.view
         point = view.sel()[0].end()
@@ -264,8 +305,9 @@ class LatexFoldCurrentCommand(sublime_plugin.TextCommand):
                 region_span = i[0].cover(i[1])
 
                 # if end mark is a norm end mark
-                if re.search(r'%\s*.*\(end\)', view.substr(i[2])) != None:
-                    region_span = region_span.cover(i[2])
+                if extrame_fold != 'ALL':
+                    if re.search(r'%\s*.*\(end\)', view.substr(i[2])) != None:
+                        region_span = region_span.cover(i[2])
 
                 if region_span.contains(point):
 
@@ -277,9 +319,12 @@ class LatexFoldCurrentCommand(sublime_plugin.TextCommand):
                     else:
                         break
 
+# Unfold current section.
 class LatexUnfoldCurrentCommand(sublime_plugin.TextCommand):
 
     def run(self, edit): 
+
+        extrame_fold = sublime.load_settings("LaTeXTools.sublime-settings").get('extreme_fold')
 
         view = self.view
         point = view.sel()[0].end()
@@ -293,8 +338,9 @@ class LatexUnfoldCurrentCommand(sublime_plugin.TextCommand):
                 # print(i[2])
 
                 # if end mark is a norm end mark
-                if re.search(r'%\s*.*\(end\)', view.substr(i[2])) != None:
-                    region_span = region_span.cover(i[2])
+                if extrame_fold != 'ALL':
+                    if re.search(r'%\s*.*\(end\)', view.substr(i[2])) != None:
+                        region_span = region_span.cover(i[2])
 
                 if region_span.contains(point):
                     regions = view.unfold(i[0])

@@ -212,6 +212,7 @@
 
 	//Setting fold depth of command latex_fold_toc
 	"fold_toc_depth": 4,
+	"extreme_fold": "ALL",
 
 // ------------------------------------------------------------------
 // Fill all command's default settings
