@@ -67,7 +67,6 @@ def parse_cwl_file():
     completions = []
     for cwl in cwl_files:
         s = sublime.load_resource(cwl)
-        print(s)
         for line in s.split('\n'):
             if CLW_COMMENT.match(line.strip()):
                 pass

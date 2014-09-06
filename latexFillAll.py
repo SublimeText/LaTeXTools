@@ -26,21 +26,19 @@ def get_current_word(view, point, type):
     line_prefix = view.substr(get_Region(view.line(point).a, point))[::-1]
     line_suffix = view.substr(get_Region(point, view.line(point).b))
 
+    nc_current_word = ''
     if type == 'cite':
             
         # prefix is the characters before cursor's position
         prefix = re.match(r'([^{},]*)[\{,]', line_prefix).group(1)
         # suffix is the characters following cursor's position
         suffix, nc_current_word = re.match(r'([^{},]*)([\},])', line_suffix).groups()
-
-        return prefix[::-1], suffix, nc_current_word
-
-    if type != 'ref':     
+    else:     
         # prefix is the characters before caret
         prefix = re.match(r'([^{}]*)\{', line_prefix).group(1)
         suffix = re.match(r'([^{}]*)\}', line_suffix).group(1)
-        
-        return prefix[::-1], suffix, ''
+    
+    return prefix[::-1], suffix, nc_current_word
 
 class LatexFillAllCommand(sublime_plugin.TextCommand):
 
@@ -112,11 +110,8 @@ class OnLatexFillAllReplacement(sublime_plugin.EventListener):
 
         # If selection is modifed by fill all commands
         if TRIGGER_CITE:
-
             caret = view.sel()[0].b
             last_char = view.substr(get_Region(caret-1, caret))
             if last_char == '}':
                 TRIGGER_CITE = False # Turn off triggers
                 view.run_command('latex_tools_replace', {'a': caret-1, 'b': caret, 'replacement': ''})
-            else:
-                TRIGGER_CITE = False # Turn off triggers
