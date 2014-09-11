@@ -208,11 +208,20 @@
 	in current buffer, for example, if the top-level is \chapter, then with the default depth 
 	settings, "fold to toc" command will fold the whole buffer to only "chapter", "section", 
 	"subsection" and "subsubsection".
+	And also there is an extreme fold mode for code folding. When extrem_fold is used, code folding
+	will ignore fold marks such as "\section{...} % (fold) .... % section ... (end)", it will fold 
+	the whole code between current "\section" mark to next "\section" mark or "\section" mark's 
+	next direct parent mark, such as "\chapter" mark. The default settings of extreme fold is set 
+	to "TOC", which means only used in fold_to_toc command. 
 	*/
 
 	//Setting fold depth of command latex_fold_toc
 	"fold_toc_depth": 4,
-	"extreme_fold": "ALL",
+	//extreme_fold is the option setting the behavior of fold. It has there optional values,
+	//	TOC: extreme fold is used only in fold_to_toc command
+	// 	ALL: extreme fold is applied in whole buffer
+	// 	None: do not use extreme fold.
+	"extreme_fold": "TOC",
 
 // ------------------------------------------------------------------
 // Fill all command's default settings
