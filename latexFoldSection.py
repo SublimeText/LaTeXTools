@@ -37,6 +37,7 @@ def get_Region(a, b):
     else:
         return sublime.Region(long(a), long(b))
 
+
 # Retrive all segments by section types
 # returned result is a list, each element in it 
 # is a tuple in the form of
@@ -110,7 +111,10 @@ def find_sec_regions(view, sec_type):
             if len(child_tags) != 0:
                 first_end_mark = view.find(end_mark, child_tags[-1].end())
             else:
-                first_end_mark = view.find(end_mark, current_mark.end())           
+                first_end_mark = view.find(end_mark, current_mark.end())
+
+            if not _ST3 and first_end_mark == None:
+                first_end_mark = sublime.Region(-1, -1)        
 
             # if there is no end mark or next end mark is bellow next same level's mark
             # or a parents' mark
@@ -210,7 +214,7 @@ def extreme_fold(view, FocusCurrent = False):
             search_secs = SECTION_TYPES[top_level:top_level + depth]
 
     s = r'|'.join([get_begin_mark_patter(x) for x in search_secs])
-    print(get_begin_mark_patter(s))
+    # print(get_begin_mark_patter(s))
     regions = view.find_all(s)
         
     for r in regions:

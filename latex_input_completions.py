@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 # ST2/ST3 compat
 from __future__ import print_function 
 import sublime
@@ -12,15 +13,23 @@ else:
 import sublime_plugin
 import os, os.path
 import re
+import json
 
 
 # Only work for \include{} and \input{} and \includegraphics
-TEX_INPUT_FILE_REGEX = re.compile(r'([^{}\[\]]*)\{edulcni\\|([^{}\[\]]*)\{tupni\\|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?scihpargedulcni\\')
+TEX_INPUT_FILE_REGEX = re.compile(r'([^{}\[\]]*)\{edulcni\\'
+    + r'|([^{}\[\]]*)\{tupni\\'
+    + r'|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?scihpargedulcni\\'
+    + r'|([^{}\[\]]*)\{ecruoserbibdda\\'
+    + r'|([^{}\[\]]*)\{yhpargoilbib\\'
+    + r'|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?ssalctnemucod\\'
+    + r'|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?egakcapesu\\'
+    + r'|([^{}\[\]]*)\{elytsyhpargoilbib\\'
+)
 
 # Get all file by types
 def get_file_list(root, types):
 
-    # Find if the file of f is a tex source file or image files
     path = os.path.dirname(root)
 
     def file_match(f):
@@ -43,8 +52,8 @@ def get_file_list(root, types):
         files = [f for f in files if f[0] != '.' and file_match(f)]
         dirs[:] = [d for d in dirs if d[0] != '.']
         for i in files:
-            path_i = '{}/{}'.format(dir_name, i)
-
+            #path_i = '{}/{}'.format(dir_name, i)
+            path_i = "%s/%s"%(dir_name, i)
             # Exclude image file have the same name of root file, 
             # which may be the pdf file of the root files,
             # only pdf format.
@@ -55,7 +64,7 @@ def get_file_list(root, types):
     return completions
 
 
-def get_file_completions(view, point):
+def parse_completions(view, point):
 
     # reverse line, copied from latex_cite_completions, very cool :)
     line = view.substr(sublime.Region(view.line(point).a, point))
@@ -64,8 +73,20 @@ def get_file_completions(view, point):
     # Do matches!
     search = TEX_INPUT_FILE_REGEX.match(line)
 
+    installed_cls = []
+    installed_bst = []
+    installed_pkg = []
+    input_file_types = None
+
     if search != None:
-        include_filter, input_filter, image_filter = search.groups()
+        include_filter, \
+        input_filter, \
+        image_filter, \
+        addbib_filter, \
+        bib_filter, \
+        cls_filter, \
+        pkg_filter, \
+        bst_filter = search.groups()
     else:
         return '', []
 
@@ -80,7 +101,6 @@ def get_file_completions(view, point):
     elif image_filter != None:
         # if is \includegraphics
         prefix = image_filter[::-1] 
-
         # Load image types from configurations
         # In order to user input, "image_types" must be set in 
         # LaTeXTools.sublime-settings configure files.
@@ -88,15 +108,56 @@ def get_file_completions(view, point):
         input_file_types = settings.get('image_types')
         if input_file_types == None or len(input_file_types) == 0:
             input_file_types = ['pdf', 'png', 'jpeg', 'jpg', 'eps']
+    elif addbib_filter != None or bib_filter != None:
+
+        # For bibliography
+        prefix = addbib_filter[::-1] if addbib_filter != None else bib_filter[::-1]
+        input_file_types = ['bib']
+    elif cls_filter != None or pkg_filter != None or bst_filter != None:
+        # for packages, classes and bsts
+        if _ST3:
+            cache_path = os.path.normpath(sublime.cache_path() + "/" + "LaTeXTools")
+        else:
+            cache_path = os.path.normpath(sublime.packages_path() + "/" + "LaTeXTools")
+
+        pkg_cache_file = os.path.normpath(cache_path + '/' + 'pkg_cache.cache')
+
+        cache = None
+        if not os.path.exists(pkg_cache_file):
+            gen_cache = sublime.ok_cancel_dialog("Cache files for installed packages, " 
+                +"classes and bibliographystyles do not exists, " 
+                + "would you like to generate it? After generating complete, please re-run this completion action!"
+            )
+            if gen_cache:
+                print("wokao")
+                sublime.active_window().run_command("latex_gen_pkg_cache")
+                completions = []
+        else:
+            with open(pkg_cache_file) as f:
+                cache = json.load(f)    
+
+        if cache != None:
+            if cls_filter != None:
+                installed_cls = cache.get("cls")
+            elif bst_filter != None:
+                installed_bst = cache.get("bst")
+            else:
+                installed_pkg = cache.get("pkg")
+
+        prefix = ''
     else:
         prefix = ''
 
 
-    root = getTeXRoot.get_tex_root(view)
-    if root:
-        print ("TEX root: " + repr(root))
-
-    completions = get_file_list(root, input_file_types)
+    if len(installed_cls) != 0:
+        completions = installed_cls
+    elif len(installed_bst) != 0:
+        completions = installed_bst
+    elif len(installed_pkg) != 0:
+        completions = installed_pkg
+    elif input_file_types != None:
+        root = getTeXRoot.get_tex_root(view)
+        completions = get_file_list(root, input_file_types)
 
     return prefix, completions
 
@@ -110,15 +171,18 @@ class LatexInputComplete(sublime_plugin.EventListener):
         point = locations[0]
 
         # Get some fileters
-        prefix, completions = get_file_completions(view, point)
+        prefix, completions = parse_completions(view, point)
 
         result = []
-        result += [('{}\t{}'.format(filename, relpath), '{}/{}'.format(relpath, filename)) for relpath, filename in completions]
+        if len(completions) != 0 and type(completions[0]) is str:
+            result = completions
+        else:
+            result += [('%s\t%s'%(filename, relpath), '%s/%s'%(relpath, filename)) for relpath, filename in completions]
 
         return (result, sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS)
 
 
-class LatexInputFileCommand(sublime_plugin.TextCommand):
+class LatexFillInputCommand(sublime_plugin.TextCommand):
 
     def run(self, edit):
 
@@ -130,17 +194,27 @@ class LatexInputFileCommand(sublime_plugin.TextCommand):
                 "text.tex.latex"):
             return
 
-        prefix, completions = get_file_completions(view, point)
+        prefix, completions = parse_completions(view, point)
 
-        root_path = os.path.dirname(getTeXRoot.get_tex_root(self.view))
-        result = [[os.path.normpath('{}/{}'.format(relpath, filename)), 
-            os.path.normpath('{}/{}/{}'.format(root_path, relpath, filename))] for relpath, filename in completions]
+        if len(completions) != 0 and type(completions[0]) is str:
+            result = completions
+        else:
+            root_path = os.path.dirname(getTeXRoot.get_tex_root(self.view))
+            #result = [[os.path.normpath('{}/{}'.format(relpath, filename)), 
+            #    os.path.normpath('{}/{}/{}'.format(root_path, relpath, filename))] for relpath, filename in completions]
+            result = [[os.path.normpath('%s/%s'%(relpath, filename)), 
+                os.path.normpath('%s/%s/%s'%(root_path, relpath, filename))] for relpath, filename in completions]
+
 
         def on_done(i):
             # Doing Nothing
             if i < 0:
                 return
-            key = result[i][0]
+            if type(result[i]) is str:
+                key = result[i]
+            else:
+                print(result)
+                key = result[i][0]
             startpos = point - len(prefix)
             view.run_command("latex_tools_replace", {"a": startpos, "b": point, "replacement": key})
             caret = view.sel()[0].b

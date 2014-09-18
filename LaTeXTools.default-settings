@@ -179,20 +179,8 @@
 // ------------------------------------------------------------------
 	
 	/*This preference sets the auto completions actions from LaTeX-cwl's cwl files.
-	In order to use this function, cwl files must be puted in the sublime text's package directory.
-	LaTeX-cwl files can be downloaded at https://github.com/LaTeXing/LaTeX-cwl.
-	After putting laTeX-cwl's file in packages directory, adding configurations as bellow to user's configuration
-	to turn on the auto completion triggered by '\' charactor.
-	"auto_complete_triggers":
-	[
-		{
-			"characters": "\\",
-			"selector": "text.tex.latex"
-		}
-	]
+	In order to use this function, LaTeX-cwl package should be installed
 	*/
-	// If using cwl_completion
-	"cwl_completion": false,
 
 	// cwl files used by auto completion
 	"cwl_list" : ["tex.cwl", "latex-209.cwl", "latex-dev.cwl", "latex-document.cwl", "latex-l2tabu.cwl", "latex-mathsymbols.cwl"],

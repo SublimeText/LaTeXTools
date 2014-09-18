@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 import sublime
 import sublime_plugin
 import os
@@ -19,16 +20,25 @@ else:
     from .latex_input_completions import TEX_INPUT_FILE_REGEX
     from .latexFoldSection import get_Region
 
-# Do not do completions in this envrioments
-env_donot_compl = [TEX_INPUT_FILE_REGEX, OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX, OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX]
+# Do not do completions in these envrioments
+ENV_DONOT_AUTO_COM = [
+    TEX_INPUT_FILE_REGEX, 
+    OLD_STYLE_CITE_REGEX, 
+    NEW_STYLE_CITE_REGEX, 
+    OLD_STYLE_REF_REGEX, 
+    NEW_STYLE_REF_REGEX
+]
+
+CWL_COMPLETION = False
 
 class LatexCwlCompletion(sublime_plugin.EventListener):
 
     def on_query_completions(self, view, prefix, locations):
         
-        settings = sublime.load_settings("LaTeXTools.sublime-settings")
-        cwl_completion = settings.get('cwl_completion')
-        if cwl_completion == None or cwl_completion == False:
+        # settings = sublime.load_settings("LaTeXTools.sublime-settings")
+        # cwl_completion = settings.get('cwl_completion')
+
+        if CWL_COMPLETION == False:
             return []
 
         point = locations[0]
@@ -40,15 +50,49 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
         line = line[::-1]
 
         # Do not do completions in actions
-        for rex in env_donot_compl:
+        for rex in ENV_DONOT_AUTO_COM:
             if match(rex, line) != None:
                 print(match(rex,line))
                 return []
 
         completions = parse_cwl_file()
-        return(completions)
-        #return (completions, sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS)
+        return (completions, sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS)
 
+    # This functions is to determine whether LaTeX-cwl is installed,
+    # if so, trigger auto-completion in latex buffers by '\'
+    def on_activated(self, view):
+        point = view.sel()[0].b
+        if not view.score_selector(point, "text.tex.latex"):
+            return
+
+        # Checking whether LaTeX-cwl is installed
+        global CWL_COMPLETION
+        if os.path.exists(sublime.packages_path() + "/LaTeX-cwl") or \
+            os.path.exists(sublime.installed_packages_path() + "/LaTeX-cwl.sublime-package"):
+            CWL_COMPLETION = True
+
+        if CWL_COMPLETION == True:
+
+            g_settings = sublime.load_settings("Preferences.sublime-settings")
+            acts = g_settings.get("auto_complete_triggers")
+
+            #check where packages of LaTeX-cwl is installed.
+
+            if acts == None:
+                acts = []
+
+            # Whether auto trigger is already set in Preferences.sublime-settings
+            TEX_AUTO_COM = False
+            for i in acts:
+                if i.get("selector") == "text.tex.latex" and i.get("charactor") == "\\":
+                    TEX_AUTO_COM = True
+
+            if not TEX_AUTO_COM:
+                acts.append({
+                    "characters": "\\",
+                    "selector": "text.tex.latex"
+                })
+                g_settings.set("auto_complete_triggers", acts)
 
 def parse_cwl_file():
 
@@ -61,19 +105,30 @@ def parse_cwl_file():
     
     # Configurations of cwl_list do not exists!
     if cwl_file_list == None:
-        return []
+        cwl_file_list = ["tex.cwl", "latex-209.cwl", "latex-document.cwl", "latex-l2tabu.cwl", "latex-mathsymbols.cwl"]
 
-    cwl_files = ['Packages/LaTeX-cwl/{}'.format(x) for x in cwl_file_list]
+    # ST3 can use load_resource api, while ST2 do not has this api
+    # so a little different with implementation of loading cwl files.
+    if _ST3:
+        cwl_files = ['Packages/LaTeX-cwl/%s'%x for x in cwl_file_list]
+    else:
+        cwl_files = [os.path.normpath(sublime.packages_path() + "/LaTeX-cwl/%s"%x) for x in cwl_file_list]
+
     completions = []
     for cwl in cwl_files:
-        s = sublime.load_resource(cwl)
+        if _ST3:
+            s = sublime.load_resource(cwl)
+        else:
+            with open(cwl) as f:
+                s = ''.join(f.readlines())
+
         for line in s.split('\n'):
             if CLW_COMMENT.match(line.strip()):
                 pass
             else:
                 keyword = line.strip()
                 method = os.path.splitext(os.path.basename(cwl))[0]
-                item = ('{}\t{}'.format(keyword, method), parse_keyword(keyword))
+                item = ('%s\t%s'%(keyword, method), parse_keyword(keyword))
                 completions.append(item)
 
     return completions
@@ -82,16 +137,15 @@ def parse_cwl_file():
 def parse_keyword(keyword):
     
     # Replace strings in [] and {} with snippet syntax
-
     def replace_braces(matchobj):
         global index
         index += 1
         if matchobj.group(1) != None:
             word = matchobj.group(1)
-            return '{{${{{}:{}}}}}'.format(index, word)
+            return '{${%d:%s}}'%(index,word)
         else:
             word = matchobj.group(2)
-            return '[${{{}:{}}}]'.format(index, word)
+            return '[${%d:%s}]'%(index,word)
         
 
     replace, n = re.subn(r'\{([^\{\}\[\]]*)\}|\[([^\{\}\[\]]*)\]', replace_braces, keyword[1:])
