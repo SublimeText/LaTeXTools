@@ -59,7 +59,6 @@ class LatexFillAllCommand(sublime_plugin.TextCommand):
 
             # Current_word
             current_word = prefix + suffix 
-            print(current_word)
 
             if current_word != '':
                 if nc_current_word == ',':
@@ -91,7 +90,6 @@ class LatexFillAllCommand(sublime_plugin.TextCommand):
 
             prefix, suffix, nc_current_word = get_current_word(view, point, 'input')
             current_word = prefix + suffix
-            print(current_word)
             if current_word != '':
                 startpoint = point - len(prefix)
                 endpoint = point + len(suffix)

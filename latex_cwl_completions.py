@@ -52,7 +52,6 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
         # Do not do completions in actions
         for rex in ENV_DONOT_AUTO_COM:
             if match(rex, line) != None:
-                print(match(rex,line))
                 return []
 
         completions = parse_cwl_file()

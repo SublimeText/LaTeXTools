@@ -160,25 +160,29 @@ def parse_completions(view, point):
 
     return prefix, completions
 
-class LatexInputComplete(sublime_plugin.EventListener):
+# class LatexInputComplete(sublime_plugin.EventListener):
     
-    def on_query_completions(self, view, prefix, locations):
-        if not view.match_selector(locations[0],
-                "text.tex.latex"):
-            return []
+#     def on_query_completions(self, view, prefix, locations):
+#         if not view.match_selector(locations[0],
+#                 "text.tex.latex"):
+#             return []
 
-        point = locations[0]
+#         point = locations[0]
 
-        # Get some fileters
-        prefix, completions = parse_completions(view, point)
+#         # Get some fileters
+#         prefix, completions = parse_completions(view, point)
 
-        result = []
-        if len(completions) != 0 and type(completions[0]) is str:
-            result = completions
-        else:
-            result += [('%s\t%s'%(filename, relpath), '%s/%s'%(relpath, filename)) for relpath, filename in completions]
+#         result = []
 
-        return (result, sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS)
+#         # if element in completions is tuple, is does not comes from pkg, 
+#         # cls and bst completions. Use not tuple is to make it work with ST2
+#         # where unicode str is the type of "unicode" not "str" in ST3.
+#         if len(completions) != 0 and not type(completions[0]) is tuple:
+#             result = [('%s'%x, x) for x in completions]
+#         else:
+#             result += [('%s\t%s'%(filename, relpath), '%s/%s'%(relpath, filename)) for relpath, filename in completions]
+
+#         return (result, sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS)
 
 
 class LatexFillInputCommand(sublime_plugin.TextCommand):
@@ -195,12 +199,10 @@ class LatexFillInputCommand(sublime_plugin.TextCommand):
 
         prefix, completions = parse_completions(view, point)
 
-        if len(completions) != 0 and type(completions[0]) is str:
+        if len(completions) != 0 and not type(completions[0]) is tuple:
             result = completions
         else:
             root_path = os.path.dirname(getTeXRoot.get_tex_root(self.view))
-            #result = [[os.path.normpath('{}/{}'.format(relpath, filename)), 
-            #    os.path.normpath('{}/{}/{}'.format(root_path, relpath, filename))] for relpath, filename in completions]
             result = [[os.path.normpath('%s/%s'%(relpath, filename)), 
                 os.path.normpath('%s/%s/%s'%(root_path, relpath, filename))] for relpath, filename in completions]
 
@@ -209,10 +211,10 @@ class LatexFillInputCommand(sublime_plugin.TextCommand):
             # Doing Nothing
             if i < 0:
                 return
-            if type(result[i]) is str:
-                key = result[i]
-            else:
+            if type(result[i]) is list: # if result[i] is a list, it comes from input, include and includegraphics
                 key = result[i][0]
+            else:
+                key = result[i]
             startpos = point - len(prefix)
             view.run_command("latex_tools_replace", {"a": startpos, "b": point, "replacement": key})
             caret = view.sel()[0].b
