@@ -129,7 +129,6 @@ def parse_completions(view, point):
                 + "would you like to generate it? After generating complete, please re-run this completion action!"
             )
             if gen_cache:
-                print("wokao")
                 sublime.active_window().run_command("latex_gen_pkg_cache")
                 completions = []
         else:
@@ -213,7 +212,6 @@ class LatexFillInputCommand(sublime_plugin.TextCommand):
             if type(result[i]) is str:
                 key = result[i]
             else:
-                print(result)
                 key = result[i][0]
             startpos = point - len(prefix)
             view.run_command("latex_tools_replace", {"a": startpos, "b": point, "replacement": key})
