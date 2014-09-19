@@ -287,5 +287,71 @@ LaTeX Package keymap for Windows
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
 			{ "key": "following_text", "operator": "regex_match", "operand": "^$", "match_all": true }
 		]
-	}
+	},
+
+	// Fill all command
+        // Similar to latexing's fill all command
+        {       "keys": ["ctrl+l", "ctrl+f"],
+                "context":  [
+                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+                        ],
+                "command": "latex_fill_all"},
+
+        //Redefine Fold Command shortcuts
+        {       "keys": ["ctrl+k", "ctrl+1"],
+                "context":  [
+                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+                        ],
+                "command": "latex_fold_level", "args": {"FoldLevel": 1}},
+        {       "keys": ["ctrl+k", "ctrl+2"],
+                "context":  [
+                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+                        ],
+                "command": "latex_fold_level", "args": {"FoldLevel": 2}},
+        {       "keys": ["ctrl+k", "ctrl+3"],
+                "context":  [
+                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+                        ],
+                "command": "latex_fold_level", "args": {"FoldLevel": 3}},
+        {       "keys": ["ctrl+k", "ctrl+4"],
+                "context":  [
+                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+                        ],
+                "command": "latex_fold_level", "args": {"FoldLevel": 4}},
+        {       "keys": ["ctrl+k", "ctrl+5"],
+                "context":  [
+                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+                        ],
+                "command": "latex_fold_level", "args": {"FoldLevel": 5}},
+        {       "keys": ["ctrl+k", "ctrl+6"],
+                "context":  [
+                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+                        ],
+                "command": "latex_fold_level", "args": {"FoldLevel": 6}},
+        {       "keys": ["ctrl+k", "ctrl+7"],
+                "context":  [
+                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+                        ],
+                "command": "latex_fold_level", "args": {"FoldLevel": 7}},
+
+        // Fold to toc
+        {       "keys": ["ctrl+k", "ctrl+9"],
+                "context":  [
+                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+                        ],
+                "command": "latex_fold_toc", "args": {"FocusCurrent": false}},
+
+        //Fold to toc except current focus
+        {       "keys": ["ctrl+k", "ctrl+0"],
+                "context":  [
+                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+                        ],
+                "command": "latex_fold_toc", "args": {"FocusCurrent": true}},   
+
+        //Fold current
+        {       "keys": ["ctrl+shift+["],
+                "context":  [
+                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+                        ],
+                "command": "latex_fold_current"},
 ]
