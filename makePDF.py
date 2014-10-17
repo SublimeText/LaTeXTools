@@ -92,7 +92,7 @@ class CmdThread ( threading.Thread ):
 				if self.caller.plat == "windows":
 					proc = subprocess.Popen(cmd, startupinfo=startupinfo, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 				else:
-					proc = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+					proc = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=os.environ)
 			except:
 				self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
 				self.caller.output("Attempted command:")
