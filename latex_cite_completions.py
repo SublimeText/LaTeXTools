@@ -77,6 +77,7 @@ def find_bib_files(rootdir, src, bibfiles):
     for tag in bibtags:
         bfiles = re.search(r'\{([^\}]+)', tag).group(1).split(',')
         for bf in bfiles:
+            bf = bf.strip()
             if bf[-4:].lower() != '.bib':
                 bf = bf + '.bib'
             # We join with rootdir - everything is off the dir of the master file
