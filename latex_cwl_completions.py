@@ -26,7 +26,8 @@ ENV_DONOT_AUTO_COM = [
     OLD_STYLE_CITE_REGEX, 
     NEW_STYLE_CITE_REGEX, 
     OLD_STYLE_REF_REGEX, 
-    NEW_STYLE_REF_REGEX
+    NEW_STYLE_REF_REGEX,
+    re.compile(r'\\\\')
 ]
 
 CWL_COMPLETION = False
@@ -135,7 +136,7 @@ def parse_cwl_file():
 
 def parse_keyword(keyword):
     
-    # Replace strings in [] and {} with snippet syntax
+    # Replace strings in [] and {} in LaTeX-cwl's file with snippet syntax
     def replace_braces(matchobj):
         global index
         index += 1
