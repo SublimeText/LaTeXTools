@@ -38,7 +38,7 @@ class SimpleBuilder(PdfBuilder):
 		# Print greeting
 		self.display("\n\nSimpleBuilder: ")
 
-		pdflatex = ["pdflatex", "-interaction=nonstopmode", "-synctex=1"]
+		pdflatex = ["pdflatex", "-shell-escape", "-interaction=nonstopmode", "-synctex=1"]
 		bibtex = ["bibtex"]
 
 		# Regex to look for missing citations
