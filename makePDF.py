@@ -91,7 +91,10 @@ class CmdThread ( threading.Thread ):
 			try:
 				if self.caller.plat == "windows":
 					proc = subprocess.Popen(cmd, startupinfo=startupinfo, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-				else:
+				elif self.caller.plat == "osx":
+					# Temporary (?) fix for Yosemite: pass environment
+					proc = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=os.environ)
+				else: # Must be linux
 					proc = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 			except:
 				self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
