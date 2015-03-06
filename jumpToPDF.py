@@ -62,8 +62,13 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		if plat == 'darwin':
 			options = ["-r","-g"] if keep_focus else ["-r"]		
 			if forward_sync:
-				subprocess.Popen(["/Applications/Skim.app/Contents/SharedSupport/displayline"] + 
-								options + [str(line), pdffile, srcfile])
+				path_to_skim = '/Applications/Skim.app/'
+				if not os.path.exists(path_to_skim):
+					path_to_skim = subprocess.check_output(
+						['osascript', '-e', 'POSIX path of (path to app id "net.sourceforge.skim-app.skim")']
+					).decode("utf8")[:-1]
+				subprocess.Popen([os.path.join(path_to_skim, "Contents/SharedSupport/displayline")] + 
+								  options + [str(line), pdffile, srcfile])
 			else:
 				skim = os.path.join(sublime.packages_path(),
 								'LaTeXTools', 'skim', 'displayfile')
