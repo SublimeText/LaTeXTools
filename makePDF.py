@@ -278,6 +278,8 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		builder_platform_settings = builder_settings.get(self.plat)
 		if builder_platform_settings:
 			self.env = builder_platform_settings.get("env")
+		else:
+			self.env = None
 
 		# Safety check: if we are using a built-in builder, disregard
 		# builder_path, even if it was specified in the pref file
