@@ -21,7 +21,8 @@ DEFAULT_COMMAND_LATEXMK = ["latexmk", "-cd",
 
 DEFAULT_COMMAND_WINDOWS_MIKTEX = ["texify", 
 					"-b", "-p",
-					"--tex-option=\"--synctex=1\""]
+					"--tex-option=\"--synctex=1\"",
+					"--tex-option=\"--interaction=batchmode\""]
 
 
 #----------------------------------------------------------------
