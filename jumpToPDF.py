@@ -25,6 +25,7 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		forward_sync = self.view.settings().get("forward_sync",prefs_forward_sync)
 
 		prefs_lin = s.get("linux")
+		prefs_win = s.get("windows")
 
 		# If invoked from keybinding, we sync
 		# Rationale: if the user invokes the jump command, s/he wants to see the result of the compilation.
@@ -98,7 +99,8 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 				si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 				si.wShowWindow = 4 #constant for SHOWNOACTIVATE
 
-			startCommands = ["SumatraPDF.exe","-reuse-instance"]
+			su_binary = prefs_win["sumatra"] or 'SumatraPDF.exe'
+			startCommands = [su_binary,"-reuse-instance"]
 			if forward_sync:
 				startCommands.append("-forward-search")
 				startCommands.append(srcfile)
