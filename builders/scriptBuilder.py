@@ -25,14 +25,24 @@ class ScriptBuilder(PdfBuilder):
 
 	def __init__(self, tex_root, output, builder_settings, platform_settings):
 		# Sets the file name parts, plus internal stuff
-		super(TraditionalBuilder, self).__init__(tex_root, output, builder_settings, platform_settings) 
+		super(ScriptBuilder, self).__init__(tex_root, output, builder_settings, platform_settings) 
 		# Now do our own initialization: set our name
 		self.name = "Script Builder"
 		# Display output?
 		self.display_log = builder_settings.get("display_log", False)
 		plat = sublime.platform()
-		self.cmd = builder_settings[plat]["command"]
-		self.env = builder_settings[plat]["env"]
+
+		self.cmd = ""
+		if "command" in builder_settings:
+			self.cmd = builder_settings["command"]
+		if "command" in builder_settings[plat]:
+			self.cmd = builder_settings[plat]["command"]
+
+		self.env = {}
+		if "env" in builder_settings:
+			self.env.update(builder_settings["env"])
+		if "env" in builder_settings[plat]:
+			self.env.update(builder_settings[plat]["env"])
 
 
 	#
@@ -48,7 +58,7 @@ class ScriptBuilder(PdfBuilder):
 		# and pass via Popen. Wait for now
 
 		# pass the base name, without extension
-		yield (cmd + [self.base_name], " ".join(cmd) + "... ")
+		yield (self.cmd + [self.base_name], " ".join(self.cmd) + "... ")
 
 		self.display("done.\n")
 		
