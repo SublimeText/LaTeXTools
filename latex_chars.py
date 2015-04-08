@@ -46,7 +46,11 @@ def _registry(encoding):
         encoding = encoding[6:]
     else:
         return None
-        
+    
+    # something akin to http://bugs.python.org/issue14847 appears to
+    # occur in ST3 b3083; this apparently-redundant reimport resolves
+    # the issue
+    import codecs
     class Codec(codecs.Codec):
         def encode(self,input,errors='strict'):
             """Convert unicode string to latex."""
