@@ -139,7 +139,12 @@ The default ST Build command takes care of the following:
 
 **Multi-file documents** are supported as follows. If the first line in the current file consists of the text `%!TEX root = <master file name>`, then tex & friends are invoked on the specified master file, instead of the current one. Note: the only file that gets saved automatically is the current one. Also, the master file name **must** have a `.tex` extension, or it won't be recognized.
 
-There is also support for project files; this is to be documented.
+There is also support for project files. A master file can be specified in the project's settings section by setting the `"TEXroot"` key. In the following example `"main.tex"` is the project's master file:
+
+	"settings":
+	{
+		"TEXroot": "main.tex"
+	}
 
 **TeX engine selection** is supported. If the first line of the current file consists of the text `%!TEX program = <program>`, where `program` is `pdflatex`, `lualatex` or `xelatex`, the corresponding engine is selected. If no such directive is specified, `pdflatex` is the default. Multi-file documents are supported: the directive must be in the *root* (i.e. master) file. Also, for compatibility with TeXshop, you can use `TS-program` instead of `program`. **Note**: for this to work, you must **not** customize the `"command"` option in `LaTeX.sublime-settings`. If you do, you will not get this functionality. 
 

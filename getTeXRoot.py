@@ -20,14 +20,30 @@ import codecs
 # Contributed by Sam Finn
 
 def get_tex_root(view):
+
+	# Get TEXroot from project.
 	try:
-		root = os.path.abspath(view.settings().get('TEXroot'))
+		projFile = view.window().project_file_name()
+		projData = view.window().project_data()
+
+		# TEXroot is relative project file.
+		(projPath, _) = os.path.split(projFile)
+		root = os.path.join(projPath, projData.get('settings').get('TEXroot'))
+
 		if os.path.isfile(root):
 			print("Main file defined in project settings : " + root)
 			return root
 	except:
 		pass
 
+	# Get TEXroot from global settings.
+	try:
+		root = os.path.abspath(view.settings().get('TEXroot'))
+		if os.path.isfile(root):
+			print("Main file defined in global settings : " + root)
+			return root
+	except:
+		pass
 
 	texFile = view.file_name()
 	root = texFile
