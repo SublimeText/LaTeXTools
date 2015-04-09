@@ -46,7 +46,9 @@
 		// "texpath" : "C:\\texlive\\2011\\bin\\win32;$PATH",
 		"texpath" : "",
 		// TeX distro: "miktex" or "texlive"
-		"distro" : "miktex"
+		"distro" : "miktex",
+		// Command to invoke Sumatra. If blank, "SumatraPDF.exe" is used (it has to be on your PATH)
+		"sumatra": ""
 	},
 
 	"linux" : {
