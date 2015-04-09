@@ -311,6 +311,9 @@ The following options are currently available (defaults in parentheses):
 **Platform settings**:
 - all platforms:
   * `texpath`: the path to TeX & friends
+- `windows`-specific settings:
+  * `distro`: either `miktex` or `texlive`, depending on your TeX distribution
+  * `sumatra`: leave blank or omit if the SumatraPDF executable is in your `PATH` and is called `SumatraPDF.exe`, as in a default installation; otherwise, specify the *full path and file name* of the SumatraPDF executable.
 - `linux`-specific settings:
   * `python2` (`""`, i.e. empty string): name of the Python 2 executable. This is useful for systems that ship with both Python 2 and Python 3. The forward/backward search used with Evince require Python 2.
   * `sublime` (`sublime-text`): name of the ST executable. Ubuntu supports both `sublime-text` and `subl`; other distros may vary.
