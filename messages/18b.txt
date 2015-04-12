@@ -1,0 +1,12 @@
+LaTeXTools Plugin version 2015-04-10 changelog:
+
+
+New features (William le Doux):
+
+N/A
+
+Bugs fixed:
+
+- Fixed incorrect handling when the "sumatra" option is not specified
+
+  

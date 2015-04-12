@@ -99,7 +99,9 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 				si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 				si.wShowWindow = 4 #constant for SHOWNOACTIVATE
 
-			su_binary = prefs_win["sumatra"] or 'SumatraPDF.exe'
+			# If the option doesn't exist, return "SumatraPDF.exe"; else return the option
+			# And, if the option is "", use "SumatraPDF.exe"
+			su_binary = prefs_win.get("sumatra", "SumatraPDF.exe") or 'SumatraPDF.exe'
 			startCommands = [su_binary,"-reuse-instance"]
 			if forward_sync:
 				startCommands.append("-forward-search")
