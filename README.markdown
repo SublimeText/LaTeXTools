@@ -61,7 +61,9 @@ To configure inverse search, open the Preferences dialog of the Skim app, select
 
 In case you are using an old version of Skim, you can always choose the Custom preset and enter `/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl` (for ST3) in the Command field, and `"%file":%line` in the Arguments field. (This is correct as of 7/18/2013; you may want to double-check that ST3 is indeed in `/Applications/Sublime Text`; just go to the Applications folder in the Finder. Adapt as needed for ST2).
 
-If you have installed Skim in a non-standard location, there is not much you can do short of hacking the `jumpToPDF.py` file (**not supported!**). This will change in the near future. 
+After installed Skim, you may want to make a symbolic link to get the forward search function.
+
+    $ ln -s path/to/Skim.app/Contents/SharedSupport/displayline /usr/local/bin/displayline
 
 Finally, edit the file `LaTeX.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution. Open the file and scroll down to the  section titled "Platform settings." Look at the block for your OS, namely `"osx"`. Within that block, verify that the `"texpath"` setting is correct. Note that `"texpath"` **must** include `$PATH` somewhere.
 

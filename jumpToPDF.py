@@ -63,7 +63,8 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		if plat == 'darwin':
 			options = ["-r","-g"] if keep_focus else ["-r"]		
 			if forward_sync:
-				subprocess.Popen(["/Applications/Skim.app/Contents/SharedSupport/displayline"] + 
+				# make sure you have displayline in PATH
+				subprocess.Popen(["displayline"] +
 								options + [str(line), pdffile, srcfile])
 			else:
 				skim = os.path.join(sublime.packages_path(),
