@@ -1,9 +1,9 @@
 LaTeXTools Plugin version 2015-04-10 changelog:
 
 
-New features (William le Doux):
+New features:
 
-N/A
+- On OSX, find Skim.app if installed in a non-standard location (Sean Zhu)
 
 Bugs fixed:
 
