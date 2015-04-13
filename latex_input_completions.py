@@ -203,8 +203,19 @@ class LatexFillInputCommand(sublime_plugin.TextCommand):
             result = completions
         else:
             root_path = os.path.dirname(getTeXRoot.get_tex_root(self.view))
-            result = [[os.path.normpath('%s/%s'%(relpath, filename)), 
-                os.path.normpath('%s/%s/%s'%(root_path, relpath, filename))] for relpath, filename in completions]
+            
+            # Process path separators on Windows platform
+            plat = sublime.platform()
+            if plat == 'windows':
+                result = []
+                for relpath, filename in completions:
+                    converted_path = os.path.normpath('%s/%s'%(relpath, filename))
+                    converted_path = converted_path.replace('\\', '/')
+                    result.append([converted_path, os.path.normpath('%s/%s/%s'%(root_path, relpath, filename))])
+            else:
+                result = [[os.path.normpath('%s/%s'%(relpath, filename)), 
+                    os.path.normpath('%s/%s/%s'%(root_path, relpath, filename))] for relpath, filename in completions]
+
 
 
         def on_done(i):
