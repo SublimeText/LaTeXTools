@@ -4,6 +4,7 @@ LaTeXTools Plugin version 2015-04-10 changelog:
 New features:
 
 - On OSX, find Skim.app if installed in a non-standard location (Sean Zhu)
+- Recursively delete temp files (Lucas Nanni)
 
 Bugs fixed:
 
