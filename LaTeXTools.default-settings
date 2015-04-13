@@ -174,6 +174,55 @@
 	//"cite_panel_format": ["{author_short} {year} ({keyword})"],
 
 	// Similarly, the formatting for the autocomplete panel:
-	"cite_autocomplete_format": "{keyword}: {title}"
+	"cite_autocomplete_format": "{keyword}: {title}",
+
+// ------------------------------------------------------------------
+// LaTeX-cwl completion configurations
+// ------------------------------------------------------------------
+	
+	/*This preference sets the auto completions actions from LaTeX-cwl's cwl files.
+	In order to use this function, LaTeX-cwl package should be installed
+	*/
+
+	// cwl files used by auto completion
+	"cwl_list" : ["tex.cwl", "latex-209.cwl", "latex-dev.cwl", "latex-document.cwl", "latex-l2tabu.cwl", "latex-mathsymbols.cwl"],
+
+// ------------------------------------------------------------------
+// Fold to TOC configurations
+// ------------------------------------------------------------------
+	/*Fold to TOC function fold the whole buffer to a form of "Table of Content", 
+	this function's default short cut is set to "super+k, super+9", while "super+k, super+0"
+	shortcut will also fold the whole buffer to TOC form, but will leave the current section
+	which is the most inner section contains current cursor's position.
+	OPTION 'fold_toc_depth' set the depth of TOC, default is 4 from the top-level section mark
+	in current buffer, for example, if the top-level is \chapter, then with the default depth 
+	settings, "fold to toc" command will fold the whole buffer to only "chapter", "section", 
+	"subsection" and "subsubsection".
+	And also there is an extreme fold mode for code folding. When extrem_fold is used, code folding
+	will ignore fold marks such as "\section{...} % (fold) .... % section ... (end)", it will fold 
+	the whole code between current "\section" mark to next "\section" mark or "\section" mark's 
+	next direct parent mark, such as "\chapter" mark. The default settings of extreme fold is set 
+	to "TOC", which means only used in fold_to_toc command. 
+	*/
+
+	//Setting fold depth of command latex_fold_toc
+	"fold_toc_depth": 4,
+	//extreme_fold is the option setting the behavior of fold. It has there optional values,
+	//	TOC: extreme fold is used only in fold_to_toc command
+	// 	ALL: extreme fold is applied in whole buffer
+	// 	None: do not use extreme fold.
+	"extreme_fold": "TOC",
+
+// ------------------------------------------------------------------
+// Fill all command's default settings
+// ------------------------------------------------------------------
+	/*Fill all command's funtion is identical to latexing's fill all command,
+	this option set the default image types searched by fill all command in 
+	project's directory. 
+	The default shortcut for fill all command is **NOT** latxing's
+	"super+l, super+l" but "super+l, super+f"
+	*/
+	// Default image types
+	"image_types" : ["pdf", "png", "jpeg", "jpg", "eps"]
 
 }
