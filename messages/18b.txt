@@ -10,5 +10,6 @@ Bugs fixed:
 - Fixed incorrect handling when the "sumatra" option is not specified
 - Better center/table snippets (Maximilian Berger)
 - Crash in cite completion when an @ line cannot be processed
+- Added @preamble to ignored directives in bib file parsing
 
   
