@@ -8,5 +8,6 @@ New features:
 Bugs fixed:
 
 - Fixed incorrect handling when the "sumatra" option is not specified
+- Better center/table snippets (Maximilian Berger)
 
   
