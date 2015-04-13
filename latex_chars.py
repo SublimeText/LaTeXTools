@@ -1,11 +1,11 @@
-"""latex.py
+"""latex_chars.py
 
 Character translation utilities for LaTeX-formatted text.
 
 Usage:
  - codecs.encode(string,'latex')
  - codecs.decode('latex')
-are both available just by letting "import latex" find this file.
+are both available just by letting "import latex_chars" find this file.
  - unicode(string,'latex+latin1')
  - ustring.decode('latex+latin1')
 where latin1 can be replaced by any other known encoding, also
