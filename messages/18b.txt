@@ -12,5 +12,6 @@ Bugs fixed:
 - Better center/table snippets (Maximilian Berger)
 - Crash in cite completion when an @ line cannot be processed
 - Added @preamble to ignored directives in bib file parsing
+- Fix $ auto-pairing and move-over with Vintage (Sergey Slipchenko)
 
   
