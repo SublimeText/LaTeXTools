@@ -10,33 +10,32 @@ if sublime.version() < '3000':
     from latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX, match
     from latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
     from latex_input_completions import TEX_INPUT_FILE_REGEX
-    from latexFoldSection import get_Region
 else:
     _ST3 = True
     from .latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX, match
     from .latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
     from .latex_input_completions import TEX_INPUT_FILE_REGEX
-    from .latexFoldSection import get_Region
 
 # used to flag whether command is triggered for cite
 TRIGGER_CITE = False
 
-def get_current_word(view, point, type):
+def get_Region(a, b):
+
+    if _ST3:
+        return sublime.Region(a, b)
+    else:
+        return sublime.Region(long(a), long(b))
+
+def get_current_word(view, point):
 
     line_prefix = view.substr(get_Region(view.line(point).a, point))[::-1]
     line_suffix = view.substr(get_Region(point, view.line(point).b))
 
     nc_current_word = ''
-    if type == 'cite':
-            
-        # prefix is the characters before cursor's position
-        prefix = re.match(r'([^{},]*)[\{,]', line_prefix).group(1)
-        # suffix is the characters following cursor's position
-        suffix, nc_current_word = re.match(r'([^{},]*)([\},])', line_suffix).groups()
-    else:     
-        # prefix is the characters before caret
-        prefix = re.match(r'([^{}]*)\{', line_prefix).group(1)
-        suffix = re.match(r'([^{}]*)\}', line_suffix).group(1)
+    
+    # prefix is the characters before caret
+    prefix = re.match(r'([^{}]*)\{', line_prefix).group(1)
+    suffix = re.match(r'([^{}]*)\}', line_suffix).group(1)
     
     return prefix[::-1], suffix, nc_current_word
 
@@ -52,43 +51,16 @@ class LatexFillAllCommand(sublime_plugin.TextCommand):
         # Current lines, used to detemine whether is input, include, cite, or includegraphics
         line = view.substr(get_Region(view.line(point).a, point))[::-1]
         
-        # if \cite
-        if match(OLD_STYLE_CITE_REGEX, line) != None or match(NEW_STYLE_CITE_REGEX, line) != None:
+        # if \cite or \ref
+        if match(OLD_STYLE_CITE_REGEX, line) != None or match(NEW_STYLE_CITE_REGEX, line) != None or \
+            match(OLD_STYLE_REF_REGEX, line) != None or match(NEW_STYLE_REF_REGEX, line) != None:
 
-            prefix, suffix, nc_current_word = get_current_word(view, point, 'cite')
-
-            # Current_word
-            current_word = prefix + suffix 
-
-            if current_word != '':
-                if nc_current_word == ',':
-                    TRIGGER_CITE = True
-                # If the current word is not null, delte it!
-                startpoint = point - len(prefix)
-                endpoint = point + len(suffix)
-                view.run_command('latex_tools_replace', {'a': startpoint, 'b': endpoint, 'replacement': ''})
-                view.run_command('latex_cite')
-            else:
-                view.run_command('latex_cite')
-            
-        # if \ref
-        if match(OLD_STYLE_REF_REGEX, line) != None or match(NEW_STYLE_REF_REGEX, line) != None:
-            
-            prefix, suffix, nc_current_word = get_current_word(view, point, 'ref')
-            current_word = prefix + suffix
-            if current_word != '':
-                # If the current word is not null, delte it!
-                startpoint = point - len(prefix)
-                endpoint = point + len(suffix)
-                view.run_command('latex_tools_replace', {'a': startpoint, 'b': endpoint, 'replacement': ''})
-                view.run_command('latex_ref')
-            else:
-                view.run_command('latex_ref')
+            view.run_command('latex_ref_cite')
 
         # if \input, \include or \includegraphics
         if TEX_INPUT_FILE_REGEX.match(line) != None:
 
-            prefix, suffix, nc_current_word = get_current_word(view, point, 'input')
+            prefix, suffix, nc_current_word = get_current_word(view, point)
             current_word = prefix + suffix
             if current_word != '':
                 startpoint = point - len(prefix)

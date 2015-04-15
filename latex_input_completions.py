@@ -160,31 +160,6 @@ def parse_completions(view, point):
 
     return prefix, completions
 
-# class LatexInputComplete(sublime_plugin.EventListener):
-    
-#     def on_query_completions(self, view, prefix, locations):
-#         if not view.match_selector(locations[0],
-#                 "text.tex.latex"):
-#             return []
-
-#         point = locations[0]
-
-#         # Get some fileters
-#         prefix, completions = parse_completions(view, point)
-
-#         result = []
-
-#         # if element in completions is tuple, is does not comes from pkg, 
-#         # cls and bst completions. Use not tuple is to make it work with ST2
-#         # where unicode str is the type of "unicode" not "str" in ST3.
-#         if len(completions) != 0 and not type(completions[0]) is tuple:
-#             result = [('%s'%x, x) for x in completions]
-#         else:
-#             result += [('%s\t%s'%(filename, relpath), '%s/%s'%(relpath, filename)) for relpath, filename in completions]
-
-#         return (result, sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS)
-
-
 class LatexFillInputCommand(sublime_plugin.TextCommand):
 
     def run(self, edit):
