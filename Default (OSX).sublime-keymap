@@ -296,5 +296,75 @@ LaTeX Package keymap for OS X
                 "context":  [
                         {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
                         ],
-                "command": "latex_fill_all"}
+                "command": "latex_fill_all"},
+
+        //Redefine Fold Command shortcuts
+        {       "keys": ["super+k", "super+1"],
+                "context":  [
+                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+                        ],
+                "command": "latex_fold_level", "args": {"FoldLevel": 1}},
+        {       "keys": ["super+k", "super+2"],
+                "context":  [
+                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+                        ],
+                "command": "latex_fold_level", "args": {"FoldLevel": 2}},
+        {       "keys": ["super+k", "super+3"],
+                "context":  [
+                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+                        ],
+                "command": "latex_fold_level", "args": {"FoldLevel": 3}},
+        {       "keys": ["super+k", "super+4"],
+                "context":  [
+                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+                        ],
+                "command": "latex_fold_level", "args": {"FoldLevel": 4}},
+        {       "keys": ["super+k", "super+5"],
+                "context":  [
+                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+                        ],
+                "command": "latex_fold_level", "args": {"FoldLevel": 5}},
+        {       "keys": ["super+k", "super+6"],
+                "context":  [
+                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+                        ],
+                "command": "latex_fold_level", "args": {"FoldLevel": 6}},
+        {       "keys": ["super+k", "super+7"],
+                "context":  [
+                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+                        ],
+                "command": "latex_fold_level", "args": {"FoldLevel": 7}},
+
+        // Fold to toc
+        {       "keys": ["super+k", "super+9"],
+                "context":  [
+                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+                        ],
+                "command": "latex_fold_toc", "args": {"FocusCurrent": false}},
+
+        //Fold to toc except current focus
+        {       "keys": ["super+k", "super+0"],
+                "context":  [
+                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+                        ],
+                "command": "latex_fold_toc", "args": {"FocusCurrent": true}},   
+
+        //Fold current
+        {       "keys": ["super+alt+["],
+                "context":  [
+                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+                        ],
+                "command": "latex_fold_current"},
+
+        {       "keys": ["super+alt+]"],
+                "context":  [
+                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+                        ],
+                "command": "latex_unfold_current"},
+
+        {       "keys": ["super+k", "super+o"],
+                "context":  [
+                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+                        ],
+                "command": "latex_unfold_current"}
 ]
