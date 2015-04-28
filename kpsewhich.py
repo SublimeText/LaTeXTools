@@ -55,6 +55,8 @@ def kpsewhich(filename, file_format=None):
         path = p.communicate()[0].decode('utf-8').rstrip()
         if p.returncode == 0:
             return path
+        else:
+            sublime.error_message('An error occurred while trying to run kpsewhich. TEXMF tree could not be accessed.')
     except OSError:
         sublime.error_message('Could not run kpsewhich. Please ensure that your texpath setting is configured correctly in the LaTeXTools settings.')
 
