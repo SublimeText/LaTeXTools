@@ -46,7 +46,7 @@ def kpsewhich(filename, file_format=None):
             
         print('Running %s' % (' '.join(command)))
         p = Popen(
-            command, 
+            command,
             stdout=PIPE,
             stdin=PIPE,
             startupinfo=startupinfo,
