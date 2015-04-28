@@ -3,6 +3,7 @@ import subprocess
 from subprocess import Popen, PIPE
 import os
 import sublime
+import sys
 
 if sublime.version() < '3000':
     _ST3 = False
