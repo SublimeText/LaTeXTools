@@ -245,17 +245,21 @@ def get_cite_completions(view, point, autocompleting=False):
                 author_short_string = u'????'
                 author_full_string = u'????'
                 people = None
-                if 'author' in persons:
+
+                try:
                     people = persons['author']
-                elif 'editor' in persons:
-                    people = persons['editor']
-                else:
-                    if 'crossref' in fields:
-                        crossref_persons = bib_data.entries[fields['crossref']].persons
-                        if 'author' in crossref_persons:
-                            people = crossref_persons['author']
-                        elif 'editor' in persons:
-                            people = crossref_persons['editor']
+                except KeyError:
+                    try:
+                        people = entry.get_crossref().persons['author']
+                    except KeyError:
+                        try:
+                            people = persons['editor']
+                        except KeyError:
+                            try:
+                                people = entry.get_crossref().persons['editor']
+                            except KeyError:
+                                pass
+
                 if people:
                     if len(people) <= 2:
                         author_short_string = ' & '.join([' '.join(x.last()) for x in people])
@@ -263,46 +267,35 @@ def get_cite_completions(view, point, autocompleting=False):
                         author_short_string = ' '.join(people[0].last()) + ', et al.'
                     author_full_string = ' and '.join([str(x) for x in people])
 
-                title = u'????'
-                if 'title' in fields:
+                try:
                     title = fields['title']
-                elif 'crossref' in fields:
-                    crossref_fields = bib_data.entries[fields['crossref']].fields
-                    if 'title' in crossref_fields:
-                        title = crossref_fields['title']
+                except KeyError:
+                    title = u'????'
 
-                year = u'????'
-                if 'year' in fields:
+                try:
                     year = fields['year']
-                elif 'date' in fields:
-                    date_matcher = re.match(r'(\d{4})', fields['date'])
-                    if date_matcher:
-                        year = date_matcher.group(1)
-                if year == u'????' and 'crossref' in fields:
-                    crossref_fields = bib_data.entries[fields['crossref']].fields
-                    if 'year' in crossref_fields:
-                        year = crossref_fields['year']
-                    elif 'date' in crossref_fields:
-                        date_matcher = re.match(r'(\d{4})', crossref_fields['date'])
+                except KeyError:
+                    try:
+                        date = fields['date']
+                        date_matcher = re.match(r'(\d{4})', date)
                         if date_matcher:
                             year = date_matcher.group(1)
+                        else:
+                            year = u'????'
+                    except KeyError:
+                        year = u'????'
 
-                journal = u'????'
-                if 'journal' in fields:
+                try:
                     journal = fields['journal']
-                elif 'journaltitle' in fields:
-                    journal = fields['journaltitle']
-                elif 'eprint' in fields:
-                    journal = fields['eprint']
-                elif 'crossref' in fields:
-                    crossref_fields = bib_data.entries[fields['crossref']].fields
-                    if 'journal' in crossref_fields:
-                        journal = crossref_fields['journal']
-                    elif 'journaltitle' in crossref_fields:
-                        journal = crossref_fields['journaltitle']
-                    elif 'eprint' in crossref_fields:
-                        journal = crossref_fields['eprint']
-                
+                except KeyError:
+                    try:
+                        journal = fields['journaltitle']
+                    except KeyError:
+                        try:
+                            journal = fields['eprint']
+                        except KeyError:
+                            journal = u'????'
+
                 keywords.append(key)
                 titles.append(remove_latex_commands(codecs.decode(title, 'latex')))
                 years.append(codecs.decode(year, 'latex'))
