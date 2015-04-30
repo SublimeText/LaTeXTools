@@ -274,10 +274,18 @@ def get_cite_completions(view, point, autocompleting=False):
                 year = u'????'
                 if 'year' in fields:
                     year = fields['year']
-                elif 'crossref' in fields:
+                elif 'date' in fields:
+                    date_matcher = re.match(r'(\d{4})', fields['date'])
+                    if date_matcher:
+                        year = date_matcher.group(1)
+                if year == u'????' and 'crossref' in fields:
                     crossref_fields = bib_data.entries[fields['crossref']].fields
                     if 'year' in crossref_fields:
                         year = crossref_fields['year']
+                    elif 'date' in crossref_fields:
+                        date_matcher = re.match(r'(\d{4})', crossref_fields['date'])
+                        if date_matcher:
+                            year = date_matcher.group(1)
 
                 journal = u'????'
                 if 'journal' in fields:
