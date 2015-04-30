@@ -288,7 +288,7 @@ def get_cite_completions(view, point, autocompleting=False):
                 years.append(codecs.decode(fields['year'], 'latex') if 'year' in fields else u'????')
                 authors.append(remove_latex_commands(codecs.decode(author_full_string, 'latex')))
                 authors_short.append(remove_latex_commands(codecs.decode(author_short_string, 'latex')))
-                journals.append(journal)
+                journals.append(remove_latex_commands(codecs.decode(journal, 'latex')))
 
         print ( "Found %d total bib entries" % (len(keywords),) )
 
