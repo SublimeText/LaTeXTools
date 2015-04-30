@@ -274,12 +274,16 @@ def get_cite_completions(view, point, autocompleting=False):
                 journal = u'????'
                 if 'journal' in fields:
                     journal = fields['journal']
+                elif 'journaltitle' in fields:
+                    journal = fields['journaltitle']
                 elif 'eprint' in fields:
                     journal = fields['eprint']
                 elif 'crossref' in fields:
                     crossref_fields = bib_data.entries[fields['crossref']].fields
                     if 'journal' in crossref_fields:
                         journal = crossref_fields['journal']
+                    elif 'journaltitle' in crossref_fields:
+                        journal = crossref_fields['journaltitle']
                     elif 'eprint' in crossref_fields:
                         journal = crossref_fields['eprint']
                 
