@@ -271,6 +271,14 @@ def get_cite_completions(view, point, autocompleting=False):
                     if 'title' in crossref_fields:
                         title = crossref_fields['title']
 
+                year = u'????'
+                if 'year' in fields:
+                    year = fields['year']
+                elif 'crossref' in fields:
+                    crossref_fields = bib_data.entries[fields['crossref']].fields
+                    if 'year' in crossref_fields:
+                        year = crossref_fields['year']
+
                 journal = u'????'
                 if 'journal' in fields:
                     journal = fields['journal']
@@ -289,7 +297,7 @@ def get_cite_completions(view, point, autocompleting=False):
                 
                 keywords.append(key)
                 titles.append(remove_latex_commands(codecs.decode(title, 'latex')))
-                years.append(codecs.decode(fields['year'], 'latex') if 'year' in fields else u'????')
+                years.append(codecs.decode(year, 'latex'))
                 authors.append(remove_latex_commands(codecs.decode(author_full_string, 'latex')))
                 authors_short.append(remove_latex_commands(codecs.decode(author_short_string, 'latex')))
                 journals.append(remove_latex_commands(codecs.decode(journal, 'latex')))
