@@ -27,6 +27,11 @@ class LatexGenPkgCacheCommand(sublime_plugin.WindowCommand):
         else:
             delim = ':'
 
+        # Setting path
+        platform_settings = sublime.load_settings("LaTeXTools.sublime-settings").get(plat)
+        path = platform_settings.get('texpath')
+        os.environ['PATH'] = os.path.expandvars(path)
+
         # Search path.
         p = sp.Popen("kpsewhich --show-path=tex", shell = True, stdout = sp.PIPE)
         pkg_path = p.communicate()[0].decode('utf-8')
