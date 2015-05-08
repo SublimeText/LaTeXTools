@@ -12,13 +12,13 @@ if sublime.version() < '3000':
     from latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX, match
     from latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
     from latex_input_completions import TEX_INPUT_FILE_REGEX
-    from latexFoldSection import get_Region
+    from getRegion import get_Region
 else:
     _ST3 = True
     from .latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX, match
     from .latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
     from .latex_input_completions import TEX_INPUT_FILE_REGEX
-    from .latexFoldSection import get_Region
+    from .getRegion import get_Region
 
 # Do not do completions in these envrioments
 ENV_DONOT_AUTO_COM = [
