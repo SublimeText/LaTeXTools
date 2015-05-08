@@ -69,12 +69,7 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
 
         if CWL_COMPLETION:
             g_settings = sublime.load_settings("Preferences.sublime-settings")
-            acts = g_settings.get("auto_complete_triggers")
-
-            #check where packages of LaTeX-cwl is installed.
-
-            if acts == None:
-                acts = []
+            acts = g_settings.get("auto_complete_triggers", [])
 
             # Whether auto trigger is already set in Preferences.sublime-settings
             TEX_AUTO_COM = False
