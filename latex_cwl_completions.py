@@ -36,7 +36,7 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
         # settings = sublime.load_settings("LaTeXTools.sublime-settings")
         # cwl_completion = settings.get('cwl_completion')
 
-        if CWL_COMPLETION == False:
+        if not CWL_COMPLETION:
             return []
 
         point = locations[0]
@@ -68,8 +68,8 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
             os.path.exists(sublime.installed_packages_path() + "/LaTeX-cwl.sublime-package"):
             CWL_COMPLETION = True
 
-        if CWL_COMPLETION == True:
 
+        if CWL_COMPLETION:
             g_settings = sublime.load_settings("Preferences.sublime-settings")
             acts = g_settings.get("auto_complete_triggers")
 
