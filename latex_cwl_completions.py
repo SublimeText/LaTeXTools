@@ -79,7 +79,7 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
             # Whether auto trigger is already set in Preferences.sublime-settings
             TEX_AUTO_COM = False
             for i in acts:
-                if i.get("selector") == "text.tex.latex" and i.get("charactor") == "\\":
+                if i.get("selector") == "text.tex.latex" and i.get("characters") == "\\":
                     TEX_AUTO_COM = True
 
             if not TEX_AUTO_COM:
