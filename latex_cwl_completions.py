@@ -20,9 +20,9 @@ else:
 
 # Do not do completions in these envrioments
 ENV_DONOT_AUTO_COM = [
-    OLD_STYLE_CITE_REGEX, 
-    NEW_STYLE_CITE_REGEX, 
-    OLD_STYLE_REF_REGEX, 
+    OLD_STYLE_CITE_REGEX,
+    NEW_STYLE_CITE_REGEX,
+    OLD_STYLE_REF_REGEX,
     NEW_STYLE_REF_REGEX,
     re.compile(r'\\\\')
 ]
@@ -32,7 +32,6 @@ CWL_COMPLETION = False
 class LatexCwlCompletion(sublime_plugin.EventListener):
 
     def on_query_completions(self, view, prefix, locations):
-        
         # settings = sublime.load_settings("LaTeXTools.sublime-settings")
         # cwl_completion = settings.get('cwl_completion')
 
@@ -68,7 +67,6 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
             os.path.exists(sublime.installed_packages_path() + "/LaTeX-cwl.sublime-package"):
             CWL_COMPLETION = True
 
-
         if CWL_COMPLETION:
             g_settings = sublime.load_settings("Preferences.sublime-settings")
             acts = g_settings.get("auto_complete_triggers")
@@ -92,7 +90,6 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
                 g_settings.set("auto_complete_triggers", acts)
 
 def parse_cwl_file():
-
     CLW_COMMENT = re.compile(r'#[^#]*')
     # Get cwl file list
     # cwl_path = sublime.packages_path() + "/LaTeX-cwl"
@@ -135,7 +132,6 @@ def parse_cwl_file():
 
 
 def parse_keyword(keyword):
-    
     # Replace strings in [] and {} with snippet syntax
     def replace_braces(matchobj):
         global index
@@ -146,10 +142,9 @@ def parse_keyword(keyword):
         else:
             word = matchobj.group(2)
             return '[${%d:%s}]'%(index,word)
-        
 
     replace, n = re.subn(r'\{([^\{\}\[\]]*)\}|\[([^\{\}\[\]]*)\]', replace_braces, keyword[1:])
-    
+
     # I do not understand why some of the input will eat the '\' charactor before it!
     # This code is to avoid these things.
     if n == 0 and re.search(r'^[a-zA-Z]+$', keyword[1:].strip()) != None:
