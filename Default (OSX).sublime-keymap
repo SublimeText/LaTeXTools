@@ -132,6 +132,7 @@ LaTeX Package keymap for OS X
 	{ "keys": ["$"], "command": "insert_snippet", "args": {"contents": "\\$$0\\$"}, 
 	"context":  
 		[
+			{ "key": "setting.command_mode", "operator": "equal", "operand": false },
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
@@ -143,6 +144,7 @@ LaTeX Package keymap for OS X
 	// wrap in $
 	{ "keys": ["$"], "command": "insert_snippet", "args": {"contents": "\\$${0:$SELECTION}\\$"}, "context":
 		[
+			{ "key": "setting.command_mode", "operator": "equal", "operand": false },
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": false, "match_all": true }
@@ -151,6 +153,7 @@ LaTeX Package keymap for OS X
 	// move over closing $
 	{ "keys": ["$"], "command": "move", "args": {"by": "characters", "forward": true}, "context":
 		[	
+			{ "key": "setting.command_mode", "operator": "equal", "operand": false },
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },

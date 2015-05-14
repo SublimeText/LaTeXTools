@@ -1,0 +1,15 @@
+LaTeXTools Plugin version 2015-04-08 changelog:
+
+Sorry for the long hiatus. This release incorporates some user-contributed fixes.
+
+New features (William le Doux):
+
+- TeX engine selection now works with MikTeX, too
+- env builder setting
+- Specify Sumatra executable path
+
+Bugs fixed:
+
+N/A
+
+  
