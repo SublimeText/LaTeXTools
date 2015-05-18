@@ -280,6 +280,11 @@ LaTeX Package keymap for Windows
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "delete_temp_files"},
 
+	// ctrl+l,w to display word count
+	{	"keys": ["ctrl+l", "w"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "texcount" },
 
 	// Avoid weird brace-matching behavior with indented text
 	{ "keys": ["{"], "command": "insert_snippet", "args": {"contents": "{$0}"}, "context":
