@@ -119,6 +119,10 @@ LaTeX Package keymap for Linux
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text monospace.sublime-snippet"}},
+	{ "keys": ["ctrl+l","ctrl+q"],  
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text enquote.sublime-snippet"}},
 
 
 
