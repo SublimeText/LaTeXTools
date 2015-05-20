@@ -29,8 +29,6 @@ import sublime_plugin
 import re
 import codecs
 
-from pybtex.database.input import bibtex
-
 # LaTeX -> Unicode decoder
 latex_chars.register()
 
@@ -218,6 +216,8 @@ def get_cite_completions(view, point, autocompleting=False):
 
     print ("Files:")
     print (repr(bib_files))
+
+    from pybtex.database.input import bibtex
 
     completions = []
     parser = bibtex.Parser()
