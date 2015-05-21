@@ -282,7 +282,7 @@ LaTeX Package keymap for OS X
 		"command": "delete_temp_files"},
 
 	// super+l,w to display word count
-	{	"keys": ["ctrl+l", "w"],
+	{	"keys": ["super+l", "w"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "texcount" },
