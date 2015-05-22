@@ -295,7 +295,7 @@ def get_cite_completions(view, point, autocompleting=False):
         # print prefix, fancy_cite
 
     # if the key is an optional parameter, ensure we close the optional parameter
-    post_brace = "}" if not re.match(r'(?:[^\[\],]*)*\[', expr) else ']'
+    post_brace = "}" if not re.match(r'(?:[^\[\],]*)\[', expr) else ']'
 
     # Reverse back expr
     expr = expr[::-1]
