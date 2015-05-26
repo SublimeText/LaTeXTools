@@ -122,7 +122,7 @@ def parse_completions(view, point):
                     "LaTeXTools"
                 ))
 
-       pkg_cache_file = os.path.normpath(
+        pkg_cache_file = os.path.normpath(
             os.path.join(cache_path, 'pkg_cache.cache'))
 
         cache = None
