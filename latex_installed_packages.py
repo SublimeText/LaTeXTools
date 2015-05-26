@@ -89,12 +89,12 @@ def _get_files_matching_extensions(paths, extensions=[]):
             for _, _, files in os.walk(path):
                 for f in files:
                     for ext in extensions:
-                        if f.endswith(''.join(('.',ext))):
-                            matched_files[ext].append(f)
+                        if f.endswith(''.join((os.extsep, ext))):
+                            matched_files[ext].append(os.path.splitext(f)[0])
         else:
             for _, _, files in os.walk(path):
                 for f in files:
-                    matched_files['*'].append(f)
+                    matched_files['*'].append(os.path.splitext(f)[0])
 
     return matched_files
 
