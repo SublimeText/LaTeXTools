@@ -290,10 +290,11 @@ LaTeX Package keymap for Windows
 	},
 
 	// Fill all command
-        // Similar to latexing's fill all command
-        {       "keys": ["ctrl+l", "ctrl+f"],
-                "context":  [
-                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-                        ],
-                "command": "latex_fill_all"}
+	// Similar to latexing's fill all command
+	{	"keys": ["ctrl+l", "ctrl+f"],
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+		],
+		"command": "latex_fill_all"
+	}
 ]

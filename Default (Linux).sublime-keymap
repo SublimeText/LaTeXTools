@@ -240,9 +240,9 @@ LaTeX Package keymap for Linux
 		]
 	},
 	// automatic addition of new \items when hitting Shift+Enter in a list environment
- 	{ "keys": ["shift+enter"], "command": "insert_snippet", "args": {"contents": "\n\\item $0"}, 
- 	"context":  
-	 	[
+	{ "keys": ["shift+enter"], "command": "insert_snippet", "args": {"contents": "\n\\item $0"}, 
+	"context":  
+		[
 			{"key": "selector", "operator": "equal", "operand": "meta.function.environment.list.latex"},
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
@@ -290,10 +290,11 @@ LaTeX Package keymap for Linux
 	},
 
 	// Fill all command
-        // Similar to latexing's fill all command
-        {       "keys": ["ctrl+l", "ctrl+f"],
-                "context":  [
-                        {"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-                        ],
-                "command": "latex_fill_all"}
+	// Similar to latexing's fill all command
+	{	"keys": ["ctrl+l", "ctrl+f"],
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+		],
+		"command": "latex_fill_all"
+	}
 ]
