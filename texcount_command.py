@@ -52,7 +52,7 @@ class TexcountCommand(sublime_plugin.TextCommand):
 
             result = p.communicate()[0].decode('utf-8').strip()
             if p.returncode == 0:
-                self.view.window().show_quick_panel(result.split('\r')[1:-4], None)
+                self.view.window().show_quick_panel(result.splitlines()[1:-4], None)
             else:
                 sublime.error_message(
                     'Error while running TeXCount: {}'.format(
