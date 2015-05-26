@@ -52,20 +52,19 @@ def get_file_list(root, types):
     for dir_name, dirs, files in os.walk(path):
         files = [f for f in files if f[0] != '.' and file_match(f)]
         dirs[:] = [d for d in dirs if d[0] != '.']
-        for i in files:
-            path_i = os.path.join(dir_name, i)
-            # Exclude image file have the same name of root file, 
+        for f in files:
+            full_path = os.path.join(dir_name, f)
+            # Exclude image file have the same name of root file,
             # which may be the pdf file of the root files,
             # only pdf format.
-            if os.path.splitext(root)[0] == os.path.splitext(path_i)[0]:
-                continue  
-            completions.append((os.path.relpath(dir_name, path), i)) 
+            if os.path.splitext(root)[0] == os.path.splitext(full_path)[0]:
+                continue
+            completions.append((os.path.relpath(dir_name, path), f))
 
     return completions
 
 
 def parse_completions(view, point):
-
     # reverse line, copied from latex_cite_completions, very cool :)
     line = view.substr(sublime.Region(view.line(point).a, point))
     line = line[::-1]
