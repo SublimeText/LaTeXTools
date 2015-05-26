@@ -70,15 +70,15 @@ def parse_completions(view, point):
     installed_pkg = []
     input_file_types = None
 
-    if search != None:
-        include_filter, \
-        input_filter, \
-        image_filter, \
-        addbib_filter, \
-        bib_filter, \
-        cls_filter, \
-        pkg_filter, \
-        bst_filter = search.groups()
+    if search is not None:
+        (   include_filter,
+            input_filter,
+            image_filter,
+            addbib_filter,
+            bib_filter,
+            cls_filter,
+            pkg_filter,
+            bst_filter) = search.groups()
     else:
         return '', []
 
@@ -97,7 +97,7 @@ def parse_completions(view, point):
         # In order to user input, "image_types" must be set in 
         # LaTeXTools.sublime-settings configure files.
         settings = sublime.load_settings("LaTeXTools.sublime-settings")
-        input_file_types = settings.get('image_types',[
+        input_file_types = settings.get('image_types', [
             'pdf', 'png', 'jpeg', 'jpg', 'eps'
         ])
     elif addbib_filter is not None or bib_filter is not None:
@@ -180,9 +180,9 @@ class LatexFillInputCommand(sublime_plugin.TextCommand):
         else:
             root_path = os.path.dirname(
                 getTeXRoot.get_tex_root(self.view))
-            
+
             result = [[
-                os.path.normpath(os.path.join(relpath, filename)), 
+                os.path.normpath(os.path.join(relpath, filename)),
                 os.path.normpath(os.path.join(root_path, relpath, filename))
             ] for relpath, filename in completions]
 
