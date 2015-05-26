@@ -34,19 +34,12 @@ def get_file_list(root, types):
     path = os.path.dirname(root)
 
     def file_match(f):
-        result = True
+        filename, extname = os.path.splitext(f)
+        # ensure file has extension and its in the list of types
+        if extname and not extname[1:].lower() in types:
+            return False
 
-        # Check is file has an extension name
-        if len(os.path.splitext(f)) > 1:
-            filename, extname = os.path.splitext(f)
-
-            # if file is in the type list
-            if extname[1:] in types:
-                result &= True
-            else:
-                return False
-
-        return result
+        return True
 
     completions = []
     for dir_name, dirs, files in os.walk(path):
