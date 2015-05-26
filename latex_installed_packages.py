@@ -3,17 +3,100 @@ from __future__ import print_function
 import sublime
 import sublime_plugin
 
-import subprocess as sp
+import subprocess
+from subprocess import Popen, PIPE
+
 import os
 import json
+
+from collections import defaultdict
 
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
     _ST3 = False
+    strbase = basestring
 else:
     _ST3 = True
+    strbase = str
 
 __all__ = ['LatexGenPkgCacheCommand']
+
+def get_texpath():
+    settings = sublime.load_settings('LaTeXTools.sublime-settings')
+    platform_settings = settings.get(sublime.platform())
+    texpath = platform_settings['texpath']
+
+    if not _ST3:
+        return os.path.expandvars(texpath).encode(sys.getfilesystemencoding())
+    else:
+        return os.path.expandvars(texpath)
+
+def _get_tex_searchpath(file_type):
+    if file_type is None:
+        raise Exception('file_type must be set for _get_tex_searchpath')
+
+    command = ['kpsewhich']
+    command.append('--show-path={}'.format(file_type))
+
+    texpath = get_texpath() or os.environ['PATH']
+    env = dict(os.environ)
+    env['PATH'] = texpath
+
+    try:
+        # Windows-specific adjustments
+        startupinfo = None
+        shell = False
+        if sublime.platform() == 'windows':
+            # ensure console window doesn't show
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            shell = True
+
+        print('Running %s' % (' '.join(command)))
+        p = Popen(
+            command,
+            stdout=PIPE,
+            stdin=PIPE,
+            startupinfo=startupinfo,
+            shell=shell,
+            env=env
+        )
+
+        paths = p.communicate()[0].decode('utf-8').rstrip()
+        if p.returncode == 0:
+            return paths
+        else:
+            sublime.eror_message('An error occurred while trying to run kpsewhich. TEXMF tree could not be accessed.')
+    except OSError:
+        sublime.error_message('Could not run kpsewhich. Please ensure that your texpath setting is configured correctly in the LaTeXTools settings.')
+
+    return None
+
+def _get_files_matching_extensions(paths, extensions=[]):
+    if isinstance(extensions, strbase):
+        extensions = [extensions]
+
+    matched_files = defaultdict(lambda: [])
+
+    for path in paths.split(os.pathsep):
+        # !! sometimes occurs in the results on POSIX; remove them
+        path = path.replace('!!', '')
+        path = os.path.normpath(path)
+        if not os.path.exists(path):  # ensure path exists
+            continue
+
+        if len(extensions) > 0:
+            for _, _, files in os.walk(path):
+                for f in files:
+                    for ext in extensions:
+                        if f.endswith(''.join(('.',ext))):
+                            matched_files[ext].append(f)
+        else:
+            for _, _, files in os.walk(path):
+                for f in files:
+                    matched_files['*'].append(f)
+
+    return matched_files
 
 # Generates a cache for installed latex packages, classes and bst.
 # Used for fill all command for \documentclass, \usepackage and
@@ -21,64 +104,21 @@ __all__ = ['LatexGenPkgCacheCommand']
 class LatexGenPkgCacheCommand(sublime_plugin.WindowCommand):
 
     def run(self):
-        # Setting path
-        platform_settings = sublime.load_settings(
-            "LaTeXTools.sublime-settings"
-        ).get(sublime.platform())
-        path = platform_settings.get('texpath')
-        os.environ['PATH'] = os.path.expandvars(path)
-
-        # Search path.
-        p = sp.Popen(
-            "kpsewhich --show-path=tex",
-            shell=True,
-            stdout=sp.PIPE
+        installed_tex_items = _get_files_matching_extensions(
+            _get_tex_searchpath('tex'),
+            ['sty', 'cls']
         )
-        pkg_path = p.communicate()[0].decode('utf-8').strip()
 
-        p = sp.Popen(
-            "kpsewhich --show-path=bst",
-            shell=True,
-            stdout=sp.PIPE
+        installed_bst = _get_files_matching_extensions(
+            _get_tex_searchpath('bst'),
+            ['bst']
         )
-        bst_path = p.communicate()[0].decode('utf-8').strip()
 
-        # For installed packages.
-        installed_pkg = []
-
-        # For installed bst files.
-        installed_bst = []
-
-        # For installed class files.
-        installed_cls = []
-
-        for path in pkg_path.split(os.pathsep):
-            # In OSX and Linux, there will be !! for some of the
-            # results of kpsewhich strip them
-            path = path.replace('!!', '')
-            if not os.path.exists(path):  # Make sure path exists
-                continue
-            for _, _, files in os.walk(os.path.normpath(path)):
-                for f in files:
-                    if f.endswith('.sty'):  # Searching package files
-                        installed_pkg.append(os.path.splitext(f)[0])
-                    if f.endswith('.cls'):  # Searching class files
-                        installed_cls.append(os.path.splitext(f)[0])
-
-        for path in bst_path.split(os.pathsep):
-            path = path.replace('!!', '')
-            if not os.path.exists(path):
-                continue
-            for _, _, files in os.walk(os.path.normpath(path)):
-                for f in files:
-                    if f.endswith('.bst'):  # Searching bst files.
-                        installed_bst.append(os.path.splitext(f)[0])
-
-        # pkg_cache
+        # create the cache object
         pkg_cache = {
-            'pkg': installed_pkg,
-            'bst': installed_bst,
-            'cls': installed_cls
+            'pkg': installed_tex_items['sty'],
+            'bst': installed_bst['bst'],
+            'cls': installed_tex_items['cls']
         }
 
         # For ST3, put the cache files in cache dir
