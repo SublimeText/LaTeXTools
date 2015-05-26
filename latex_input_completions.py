@@ -1,7 +1,13 @@
 # -*- coding:utf-8 -*-
 # ST2/ST3 compat
-from __future__ import print_function 
+from __future__ import print_function
 import sublime
+import sublime_plugin
+
+import os
+import re
+import json
+
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
     _ST3 = False
@@ -10,14 +16,10 @@ else:
     _ST3 = True
     from . import getTeXRoot
 
-import sublime_plugin
-import os, os.path
-import re
-import json
-
 
 # Only work for \include{} and \input{} and \includegraphics
-TEX_INPUT_FILE_REGEX = re.compile(r'([^{}\[\]]*)\{edulcni\\'
+TEX_INPUT_FILE_REGEX = re.compile(
+      r'([^{}\[\]]*)\{edulcni\\'
     + r'|([^{}\[\]]*)\{tupni\\'
     + r'|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?scihpargedulcni\\'
     + r'|([^{}\[\]]*)\{ecruoserbibdda\\'
@@ -29,7 +31,6 @@ TEX_INPUT_FILE_REGEX = re.compile(r'([^{}\[\]]*)\{edulcni\\'
 
 # Get all file by types
 def get_file_list(root, types):
-
     path = os.path.dirname(root)
 
     def file_match(f):
@@ -52,7 +53,7 @@ def get_file_list(root, types):
         files = [f for f in files if f[0] != '.' and file_match(f)]
         dirs[:] = [d for d in dirs if d[0] != '.']
         for i in files:
-            #path_i = '{}/{}'.format(dir_name, i)
+            path_i = os.path.join(dir_name, i)
             path_i = "%s/%s"%(dir_name, i)
             # Exclude image file have the same name of root file, 
             # which may be the pdf file of the root files,
@@ -90,50 +91,62 @@ def parse_completions(view, point):
     else:
         return '', []
 
-    if include_filter != None:
+    if include_filter is not None:
         # if is \include
-        prefix = include_filter[::-1] 
+        prefix = include_filter[::-1]
         input_file_types = ['tex']
-    elif input_filter != None:
+    elif input_filter is not None:
         # if is \input search type set to tex
-        prefix = input_filter[::-1] 
-        input_file_types = ['tex'] 
-    elif image_filter != None:
+        prefix = input_filter[::-1]
+        input_file_types = ['tex']
+    elif image_filter is not None:
         # if is \includegraphics
-        prefix = image_filter[::-1] 
+        prefix = image_filter[::-1]
         # Load image types from configurations
         # In order to user input, "image_types" must be set in 
         # LaTeXTools.sublime-settings configure files.
         settings = sublime.load_settings("LaTeXTools.sublime-settings")
-        input_file_types = settings.get('image_types')
-        if input_file_types == None or len(input_file_types) == 0:
-            input_file_types = ['pdf', 'png', 'jpeg', 'jpg', 'eps']
-    elif addbib_filter != None or bib_filter != None:
-
+        input_file_types = settings.get('image_types',[
+            'pdf', 'png', 'jpeg', 'jpg', 'eps'
+        ])
+    elif addbib_filter is not None or bib_filter is not None:
         # For bibliography
-        prefix = addbib_filter[::-1] if addbib_filter != None else bib_filter[::-1]
+        if addbib_filter is not None:
+            prefix = addbib_filter[::-1]
+        else:
+            bib_filter[::-1]
         input_file_types = ['bib']
-    elif cls_filter != None or pkg_filter != None or bst_filter != None:
+    elif cls_filter is not None or pkg_filter is not None or bst_filter is not None:
         # for packages, classes and bsts
         if _ST3:
-            cache_path = os.path.normpath(sublime.cache_path() + "/" + "LaTeXTools")
+            cache_path = os.path.normpath(
+                os.path.join(
+                    sublime.cache_path(),
+                    "LaTeXTools"
+                ))
         else:
-            cache_path = os.path.normpath(sublime.packages_path() + "/" + "LaTeXTools")
+            cache_path = os.path.normpath(
+                os.path.join(
+                    sublime.packages_path(),
+                    "LaTeXTools"
+                ))
 
-        pkg_cache_file = os.path.normpath(cache_path + '/' + 'pkg_cache.cache')
+       pkg_cache_file = os.path.normpath(
+            os.path.join(cache_path, 'pkg_cache.cache'))
 
         cache = None
         if not os.path.exists(pkg_cache_file):
             gen_cache = sublime.ok_cancel_dialog("Cache files for installed packages, " 
-                +"classes and bibliographystyles do not exists, " 
+                + "classes and bibliographystyles do not exists, " 
                 + "would you like to generate it? After generating complete, please re-run this completion action!"
             )
+
             if gen_cache:
                 sublime.active_window().run_command("latex_gen_pkg_cache")
                 completions = []
         else:
             with open(pkg_cache_file) as f:
-                cache = json.load(f)    
+                cache = json.load(f)   
 
         if cache != None:
             if cls_filter != None:
@@ -147,23 +160,20 @@ def parse_completions(view, point):
     else:
         prefix = ''
 
-
-    if len(installed_cls) != 0:
+    if len(installed_cls) > 0:
         completions = installed_cls
-    elif len(installed_bst) != 0:
+    elif len(installed_bst) > 0:
         completions = installed_bst
-    elif len(installed_pkg) != 0:
+    elif len(installed_pkg) > 0:
         completions = installed_pkg
-    elif input_file_types != None:
+    elif input_file_types is not None:
         root = getTeXRoot.get_tex_root(view)
         completions = get_file_list(root, input_file_types)
 
     return prefix, completions
 
 class LatexFillInputCommand(sublime_plugin.TextCommand):
-
     def run(self, edit):
-
         view = self.view
         point = view.sel()[0].b
         # Only trigger within LaTeX
@@ -174,30 +184,22 @@ class LatexFillInputCommand(sublime_plugin.TextCommand):
 
         prefix, completions = parse_completions(view, point)
 
-        if len(completions) != 0 and not type(completions[0]) is tuple:
+        if len(completions) > 0 and not type(completions[0]) is tuple:
             result = completions
         else:
-            root_path = os.path.dirname(getTeXRoot.get_tex_root(self.view))
+            root_path = os.path.dirname(
+                getTeXRoot.get_tex_root(self.view))
             
-            # Process path separators on Windows platform
-            plat = sublime.platform()
-            if plat == 'windows':
-                result = []
-                for relpath, filename in completions:
-                    converted_path = os.path.normpath('%s/%s'%(relpath, filename))
-                    converted_path = converted_path.replace('\\', '/')
-                    result.append([converted_path, os.path.normpath('%s/%s/%s'%(root_path, relpath, filename))])
-            else:
-                result = [[os.path.normpath('%s/%s'%(relpath, filename)), 
-                    os.path.normpath('%s/%s/%s'%(root_path, relpath, filename))] for relpath, filename in completions]
-
-
+            result = [[
+                os.path.normpath(os.path.join(relpath, filename)), 
+                os.path.normpath(os.path.join(root_path, relpath, filename))
+            ] for relpath, filename in completions]
 
         def on_done(i):
             # Doing Nothing
             if i < 0:
                 return
-            if type(result[i]) is list: # if result[i] is a list, it comes from input, include and includegraphics
+            if type(result[i]) is list:  # if result[i] is a list, it comes from input, include and includegraphics
                 key = result[i][0]
             else:
                 key = result[i]
