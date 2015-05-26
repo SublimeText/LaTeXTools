@@ -54,7 +54,6 @@ def get_file_list(root, types):
         dirs[:] = [d for d in dirs if d[0] != '.']
         for i in files:
             path_i = os.path.join(dir_name, i)
-            path_i = "%s/%s"%(dir_name, i)
             # Exclude image file have the same name of root file, 
             # which may be the pdf file of the root files,
             # only pdf format.
