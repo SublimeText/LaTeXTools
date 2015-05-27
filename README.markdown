@@ -1,118 +1,217 @@
-LaTeX Plugin for Sublime Text 2 and 3
-=====================================
+# LaTeX Plugin for Sublime Text 2 and 3
+
 
 by Marciano Siniscalchi
 [http://tekonomist.wordpress.com]
 
-Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, skuroda (Preferences menu), Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths), Jeremy Jay (basic biblatex support), Ray Fang (texttt snippet), Ulrich Gabor (tex engine selection and cleaning aux files), Wes Campaigne and 'jlegewie' (ref/cite completion 2.0!). **Huge** thanks to Daniel Shannon (aka phyllisstein) who first ported LaTeXTools to ST3. Also thanks for Charley Peng, who has been assisting users and generating great pull requests; I'll merge them as soon as possible. Also William Ledoux (various Windows fixes, env support), Sean Zhu (find Skim.app in non-standard locations), Maximilian Berger (new center/table snippet), Lucas Nanni (recursively delete temp files), Sergey Slipchenko (`$` auto-pairing with Vintage) ig0774 (use `kpsewhich` to find bib files in the `TEXMF` tree).
+Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. 
+Also, skuroda (Preferences menu), Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths), Jeremy Jay (basic biblatex support), Ray Fang (texttt snippet), Ulrich Gabor (tex engine selection and cleaning aux files), Wes Campaigne and 'jlegewie' (ref/cite completion 2.0!). 
+**Huge** thanks to Daniel Shannon (aka phyllisstein) who first ported LaTeXTools to ST3. 
+Also thanks for Charley Peng, who has been assisting users and generating great pull requests; I'll merge them as soon as possible. 
+Also William Ledoux (various Windows fixes, env support), Sean Zhu (find Skim.app in non-standard locations), Maximilian Berger (new center/table snippet), Lucas Nanni (recursively delete temp files), Sergey Slipchenko (`$` auto-pairing with Vintage) ig0774 (use `kpsewhich` to find bib files in the `TEXMF` tree).
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
 *Latest revision:* 2015-4-12. 
 
-*Highlight*: New, fully customizable build system! See below for a complete description. Note that, for now, things work more or less as before, but the infrastructure is there to customize things beyond your wildest dreams!
+*Highlight*: New, fully customizable build system! 
+See below for a complete description. 
+Note that, for now, things work more or less as before, but the infrastructure is there to customize things beyond your wildest dreams!
 
-**NOTE**: due to the change in the build system, I had to overhaul the preferences settings. If you are already using LaTeXTools, please **read this** before proceeding any further:
+**NOTE**: due to the change in the build system, I had to overhaul the preferences settings. 
+If you are already using LaTeXTools, please **read this** before proceeding any further:
 
-* From now on, LaTeXTools will use a single settings file, called `LaTeXTools.sublime-settings`, which *must* exist in the `User` directory. By this I mean that LaTeXTools *will not work* until you have a proper `LaTeXTools.sublime-settings` file in the `User` directory.
-* Because of this, LaTeXtools provides an easy way to create it, and even *automagically* migrate your settings from any old `LaTeXTools Preferences.sublime-settings` file you may have. In Sublime Text, open the command palette from the Tools menu, search for "LaTeXTools: Reconfigure and migrate settings," and hit Return. That's it! See the Settings section for other ways to migrate or reconfigure settings.
+* From now on, LaTeXTools will use a single settings file, called `LaTeXTools.sublime-settings`, which *must* exist in the `User` directory. 
+By this I mean that LaTeXTools *will not work* until you have a proper `LaTeXTools.sublime-settings` file in the `User` directory.
+
+* Because of this, LaTeXtools provides an easy way to create it, and even *automagically* migrate your settings from any old `LaTeXTools Preferences.sublime-settings` file you may have. 
+In Sublime Text, open the command palette from the Tools menu, search for "LaTeXTools: Reconfigure and migrate settings," and hit Return. 
+That's it! 
+See the Settings section for other ways to migrate or reconfigure settings.
+
 * The old settings file, `LaTeXTools Preferences.sublime-settings`, will no longer be honored.
-* The `LaTeX.sublime-build` file is now for *internal use only*. Do *not* modify it! If you have a customized copy in `User`, delete it (but do *not* delete the original in the `LaTeXTools` directory). See the Settings section below for ways to *easily* customize the build command. 
+
+* The `LaTeX.sublime-build` file is now for *internal use only*. 
+**Do *not* modify it!**
+If you have a customized copy in `User`, delete it (but do *not* delete the original in the `LaTeXTools` directory). 
+See the Settings section below for ways to *easily* customize the build command. 
 
 
 
-Introduction
-------------
+## Introduction
+
 This plugin provides several features that simplify working with LaTeX files:
 
-* The ST build command takes care of compiling your LaTeX source to PDF using `texify` (Windows/MikTeX) or `latexmk` (OSX/MacTeX, Windows/TeXlive, Linux/TeXlive). Then, it parses the log file and lists errors and warning. Finally, it launches (or refreshes) the PDF viewer (SumatraPDF on Windows, Skim on OSX, and Evince on Linux) and jumps to the current cursor position.
+* The ST build command takes care of compiling your LaTeX source to PDF using `texify` (Windows/MikTeX) or `latexmk` (OSX/MacTeX, Windows/TeXlive, Linux/TeXlive). 
+Then, it parses the log file and lists errors and warning. 
+Finally, it launches (or refreshes) the PDF viewer (SumatraPDF on Windows, Skim on OSX, and Evince on Linux) and jumps to the current cursor position.
+
 * Forward and inverse search with the named PDF previewers is fully supported
+
 * Easy insertion of references and citations (from BibTeX files)
+
 * Plugs into the "Goto anything" facility to make jumping to any section or label in your LaTeX file(s)
+
 * Smart command completion for a variety of text and math commands is provided
+
 * Additional snippets and commands are also provided
+
 * The build command is fully customizable. In the near future, so will be the PDF previewer.
 
-Requirements and Setup
-----------------------
+## Requirements and Setup
 
-First, you need to be running Sublime Text 2 or 3 (ST2 and ST3 henceforth, or simply ST to refer to either ST2 or ST3). For ST3, I have only tested build 3047 and will of course test subsequent builds.
 
-Second, get the LaTeXTools plugin. These days, the easiest way to do so is via Package Control: see [here](https://sublime.wbond.net) for details on how to set it up (it's very easy). Once you have Package Control up and running, invoke it (via the Command Palette from the Tools menu, or from Preferences), select the Install Package command, and look for LaTeXTools.
+* You need to be running [Sublime Text 2 or 3](http://www.sublimetext.com/3) (ST2 and ST3 henceforth, or simply ST to refer to either ST2 or ST3). 
+For ST3, I have only tested build 3047 and will of course test subsequent builds.
 
-If you prefer a more hands-on approach, you can always clone the git repository, or else just grab this plugin's .zip file from GitHub and extract it to your Packages directory (you can open it easily from ST, by clicking on Preferences|Browse Packages). Then, (re)launch ST.
+* Get the LaTeXTools plugin. 
+These days, the easiest way to do so is [via Package Control](https://sublime.wbond.net). 
+	* Once you have Package Control up and running, invoke it (via the Command Palette from the Tools menu, or from Preferences), select the Install Package command (`Ctrl + Shift + P`), and look for *LaTeXTools*.
+
+	* If you prefer a more hands-on approach, you can always clone the git repository, or else just grab this plugin's .zip file from GitHub and extract it to your Packages directory (you can open it easily from ST, by clicking on Preferences|Browse Packages). 
+	Then, (re)launch ST.
 
 I encourage you to install Package Control anyway, because it's awesome, and it makes it easy to keep your installed packages up-to-date (see the aforelinked page for details). 
 
-Third, if you are installing LaTeXTools for the first time, you need to create a configuration file, `LaTeXTools.sublime-settings`, in your `User` directory (off the `Packages`) directory. To do so, open the command palette from the Tools menu, search for "LaTeXTools: Reconfigure and migrate settings," and hit Return. That's it! See the Settings section for details on configuration options.
+* If you are installing LaTeXTools for the first time, you need to create a configuration file, `LaTeXTools.sublime-settings`, in your `User` directory (off the `Packages`) directory. 
+	* To do so, open the command palette from the Tools menu (``Ctrl + Shift + P``), search for *LaTeXTools: Reconfigure and migrate settings*, and hit Enter. 
+	
+	That's it! 
+	See the Settings section for details on configuration options.
 
-Fourth, follow the OS-specific instructions below.
+* Follow the OS-specific instructions below.
 
-<br>
+### OSX
 
-On **OSX**, you need to be running the MacTeX distribution (which is pretty much the only one available on the Mac anyway) and the Skim PDF previewer. Just download and install these in the usual way. I have tested MacTeX versions 2010, 2011 and 2012, both 32 and 64 bits; these work fine. On the other hand, MacTeX 2008 does *not* seem to work out of the box (compilation fails), so please upgrade. 
+* On *OSX*, you need to be running [the MacTeX distribution](https://tug.org/mactex/) (which is pretty much the only one available on the Mac anyway) and [the Skim PDF previewer](http://skim-app.sourceforge.net/). 
+Just download and install these in the usual way. 
+I have tested MacTeX versions 2010, 2011 and 2012, both 32 and 64 bits; these work fine. 
+**MacTeX 2008 does *not* seem to work out of the box (compilation fails), so please upgrade. **
 
-If you don't want to install the entire MacTeX distro, which is pretty big, BasicTeX will also work (of course, as long as the latex packages you need are included). **However**, you need to explicitly add the `latexmk` utility, which is not included by default: from the Terminal, type `sudo tlmgr install latexmk` (you will need to provide your password, assuming you are Administrator on your machine).
+	* If you don't want to install the entire MacTeX distro, which is pretty big, BasicTeX will also work (of course, as long as the latex packages you need are included). 
+	**However**, you need to explicitly add the `latexmk` utility, which is not included by default: from the Terminal, type `sudo tlmgr install latexmk` (you will need to provide your password, assuming you are Administrator on your machine).
 
-To configure inverse search, open the Preferences dialog of the Skim app, select the Sync tab, then:
+* To configure inverse search, open the Preferences dialog of the Skim app, select the Sync tab, then:
 
-* uncheck the "Check for file changes" option
-* choose the Sublime Text 2 or Sublme Text 3 preset (yes, Skim now supports both ST2 and ST3 by default!)
+	* Uncheck the "Check for file changes" option
+	* Choose the Sublime Text 2 or Sublime Text 3 preset (yes, Skim now supports both ST2 and ST3 by default!)
 
-In case you are using an old version of Skim, you can always choose the Custom preset and enter `/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl` (for ST3) in the Command field, and `"%file":%line` in the Arguments field. (This is correct as of 7/18/2013; you may want to double-check that ST3 is indeed in `/Applications/Sublime Text`; just go to the Applications folder in the Finder. Adapt as needed for ST2).
+	* In case you are using an old version of Skim, you can always choose the Custom preset and enter `/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl` (for ST3) in the Command field, and `"%file":%line` in the Arguments field. 
+	
+	(This is correct as of 7/18/2013; you may want to double-check that ST3 is indeed in `/Applications/Sublime Text`; just go to the Applications folder in the Finder. Adapt as needed for ST2).
 
-If you have installed Skim in a non-standard location, there is not much you can do short of hacking the `jumpToPDF.py` file (**not supported!**). This will change in the near future. 
+	* If you have installed Skim in a non-standard location, there is not much you can do short of hacking the `jumpToPDF.py` file (**not supported!**). 
+	This will change in the near future. 
 
-Finally, edit the file `LaTeX.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution. Open the file and scroll down to the  section titled "Platform settings." Look at the block for your OS, namely `"osx"`. Within that block, verify that the `"texpath"` setting is correct. Note that `"texpath"` **must** include `$PATH` somewhere.
+* Finally, edit the file `LaTeX.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution. 
+	* Open the file and scroll down to the  section titled "Platform settings."  
+	Look at the block for your OS, namely `"osx"`. 
+	Within that block, verify that the `"texpath"` setting is correct. 
+	**Note that `"texpath"` **must** include `$PATH` somewhere.**
 
-<br>
 
-On **Windows**, both MikTeX and TeXlive are supported. You must be running a current (>=1.4) version of the Sumatra PDF previewer. Install these as usual; then, add the SumatraPDF directory to your PATH or set the `sumatra` command in the `windows` platform setting.
+### Windows
 
-You now need to set up inverse search in Sumatra PDF. However, the GUI for doing this is hidden in Sumatra until you open a PDF file that has actual synchronization information (that is, an associated `.synctex.gz` file): see [here](http://forums.fofou.org/sumatrapdf/topic?id=2026321). If you have one such file, then open it, go to Settings|Options, and enter `"C:\Program Files\Sublime Text 2\sublime_text.exe" "%f:%l"` for ST2, and `"C:\Program Files\Sublime Text 3\sublime_text.exe" "%f:%l"` for ST3, as the inverse-search command line (in the text-entry field at the bottom of the options dialog). If you don't already have a file with sync information, you can easily create one: compile any LaTex file you already have (or create a new one) with `pdflatex -synctex=1 <file.tex>`, and then open the resulting PDF file in SumatraPDF. 
+* On Windows, both [MikTeX](http://miktex.org/download) and [TeXlive](https://www.tug.org/texlive/acquire-netinstall.html) are supported. 
+You must be running a current (>=1.4) version of the Sumatra PDF previewer. 
+Install these as usual.
 
-As an alternative, you can open a command-line console (run `cmd.exe`), and issue the following command:
+* Add [the SumatraPDF](http://www.sumatrapdfreader.org/download-free-pdf-viewer.html) directory to your PATH or set the `sumatra` command in the `windows` platform setting.
 
-	sumatrapdf.exe -inverse-search "\"C:\Program Files\Sublime Text 2\sublime_text.exe\" \"%f:%l\""
+* You now need to set up inverse search in Sumatra PDF.
+You can do this with the GUI or with the commando prompt: 
 
-(this assumes that sumatraPDF is in your path; replace 2 with 3 for ST3 of course). I'm sorry this is not straightforward---it's not my fault :-)
+	* (May require restart before this can be done). Go the command promt (Windows key + R) and type:
+		* For ST2: ``sumatrapdf.exe -inverse-search "\"C:\Program Files\Sublime Text 2\sublime_text.exe\" \"%f:%l\""``
+		* For ST3: ``sumatrapdf.exe -inverse-search "\"C:\Program Files\Sublime Text 3\sublime_text.exe\" \"%f:%l\""``
 
-Recent versions of MikTeX add themselves to your path automatically, but in case the build system does not work, that's the first thing to check. TeXlive can also add itself to your path.
+		(this assumes that sumatraPDF is in your path).
 
-Finally, edit the file `LaTeX.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution. Open the file and scroll down to the  section titled "Platform settings." Look at the block for your OS, namely `windows`. Within that block, verify that the `texpath` setting is correct; for MiKTeX, you can leave this empty, i.e., `""`. If you do specify a path, note that it **must** include the system path variable, i.e., `$PATH` (this syntax seems to be OK). Also verify that the `distro` setting is correct: the possible values are `"miktex"` and `"texlive"`.
+	* The GUI for doing this is hidden in Sumatra until you open a PDF file that has actual synchronization information (that is, an associated `.synctex.gz` file): 
+	
+		* If you have one such file, then open it, go to `Settings|Options`, and enter in the *inverse-search command-line* (in the text-entry field at the bottom of the options dialog). 
+			* For ST2: `"C:\Program Files\Sublime Text 2\sublime_text.exe" "%f:%l"` 
+			* For ST3: `"C:\Program Files\Sublime Text 3\sublime_text.exe" "%f:%l"`
+
+		* If you don't already have a file with sync information, you can easily create one: compile any LaTex file you already have (or create a new one) with `pdflatex -synctex=1 <file.tex>`, and then open the resulting PDF file in SumatraPDF. 
+
+* Recent versions of MikTeX add themselves to your path automatically, but in case the build system does not work, that's the first thing to check. 
+TeXlive can also add itself to your path.
+
+* Edit the file `LaTeX.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution. 
+	
+	* Open the file and scroll down to the section titled "Platform settings." 
+	Look at the block for your OS, namely `windows`. 
+
+		* Within that block, verify that the `texpath` setting is correct; for MiKTeX, you can leave this empty, i.e., `""`. 
+		If you do specify a path, note that it **must** include the system path variable, i.e., `$PATH` (this syntax seems to be OK). 
+
+		* Also verify that the `distro` setting is correct: the possible values are `"miktex"` and `"texlive"`.
 
 TeXlive has one main advantage over MikTeX: it supports file names and paths with spaces.
 
 
-<br>
+### Linux
 
-**Linux** support is coming along nicely. However, as a general rule, you will need to do some customization before things work. This is due to differences across distributions (a.k.a. "fragmentation"). Do not expect things to work out of the box.
+Linux support is coming along nicely. 
+However, as a general rule, you will need to do some customization before things work. 
+This is due to differences across distributions (a.k.a. "fragmentation"). 
+**Do not expect things to work out of the box.**
 
-You need to install TeXlive; if you are on Ubuntu, note that `apt-get install texlive` will get you a working but incomplete setup. In particular, it will *not* bring in `latexmk`, which is essential to LaTeXTools. You need to install it via `apt-get install latexmk`. If on the other hand you choose to install the TeXlive distro from TUG, `latexmk` comes with it, so you don't need to do anything else. Also, to get inverse search working on ST3, make sure you set the `sublime` option in `LaTeXTools.sublime-settings` correctly; the Ubuntu package from the ST web page uses `subl`, but check from the command line first.
+* You need to install TeXlive.
+	
+	* If you are on Ubuntu, note that `apt-get install texlive` will get you a working **but incomplete** setup. 
+	In particular, it will *not* bring in `latexmk`, which is essential to LaTeXTools. 
 
-You also need to edit the file `LaTeX.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution.  Open that file and scroll down to the  section titled "Platform settings." Look at the block for your OS, namely `"linux"`. Within that block, verify that the `"texpath"` setting is correct. Notice that this **must** include `$PATH` somewhere, or things will not work.
+		* You need to install it via `apt-get install latexmk`. 
 
-You may also have to set the `command` option in `"builder_settings"`, which tells the builder how to invoke `latexmk`. By default (i.e., if `command` is empty or not given) it is `["latexmk", "-cd", "-e", "$pdflatex = '%E -interaction=nonstopmode -synctex=1 %S %O'", "-f", "-pdf"]`. Users have reported the following possible issues and fixes (thanks!), so if you get a "Cannot compile!" error, try the following.
+	* If on the other hand you choose to install [the TeXlive distro from TUG](https://www.tug.org/texlive/acquire-netinstall.html), `latexmk` comes with it, so you don't need to do anything else. 
 
-* some distros do *not* want a space before and after the `=` in `$pdflatex = %E`. But some *do* want the space there (sigh!)
-* sometimes `latexmk` is not on the `PATH`, or the path is not correctly picked up by ST. In this case, instead of `"latexmk"`, use `"/usr/bin/latexmk"` or wherever `latexmk` is in your system. 
-* some distros require quoting the `$pdflatex` assignment, as in `"$pdflatex = \"'%E -interaction=nonstopmode -synctex=1 %S %O'\""`
+* To get inverse search working on ST3, make sure you set the `sublime` option in `LaTeXTools.sublime-settings` correctly.
+	* The Ubuntu package from the ST web page uses `subl`, but check from the command line first.
 
-There are several variants to deal with; each distro is a little bit different, so there are basically no universal defaults. There's not much I can do about it. Good luck! 
+* You need to edit the file `LaTeX.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution.  
 
-Only the Evince PDF viewer is supported; it's installed by default on Ubuntu or, more generally, any distro that provides the Gnome desktop, and you don't need to configure anything. Backward and forward search Work For Me (TM). Hopefully they will work for you, too, but let me know if this is not the case.
+	* Open that file and scroll down to the  section titled "Platform settings." 
+	* Look at the block for your OS, namely `"linux"`. 
+	Within that block, verify that the `"texpath"` setting is correct. 
+	**Notice that this *must* include `$PATH` somewhere, or things will not work.**
 
-Note: I already have patches to support Okular. Indeed, Okular is very easy to support, as it provides a sane command-line interface; Evince insists on using DBus, which requires considerable gyrations (luckily, it was relatively easy to adapt solutions already existing for other editors to ST). What is harder is supporting *both* Evince and Okular. This would need a revamp of the building-related facilites of the plugin, basically supporting user settings to select a particular viewer. But the incentive to add such support is very low as far as other platforms are concerned: only SumatraPDF supports forward/inverse search on Windows, and Skim is the easiest-to-control and most powerful/complete PDF viewer on OS X that does. Bottom line: multiple viewer support is probably not coming in the near future. Sorry!
+	* You may also have to set the `command` option in `"builder_settings"`, which tells the builder how to invoke `latexmk`. 
+	By default (i.e., if `command` is empty or not given) it is `["latexmk", "-cd", "-e", "$pdflatex = '%E -interaction=nonstopmode -synctex=1 %S %O'", "-f", "-pdf"]`. 
+	Users have reported the following possible issues and fixes (thanks!), so if you get a "Cannot compile!" error, try the following.
+
+		* some distros do *not* want a space before and after the `=` in `$pdflatex = %E`. 
+		But some *do* want the space there (sigh!)
+
+		* sometimes `latexmk` is not on the `PATH`, or the path is not correctly picked up by ST. In this case, instead of `"latexmk"`, use `"/usr/bin/latexmk"` or wherever `latexmk` is in your system. 
+		
+		* some distros require quoting the `$pdflatex` assignment, as in `"$pdflatex = \"'%E -interaction=nonstopmode -synctex=1 %S %O'\""`
+		
+		There are several variants to deal with; each distro is a little bit different, so there are basically no universal defaults. There's not much I can do about it. Good luck! 
+
+* Only the Evince PDF viewer is supported; it's installed by default on Ubuntu or, more generally, any distro that provides the Gnome desktop, and you don't need to configure anything. 
+Backward and forward search Work For Me (TM). 
+Hopefully they will work for you, too, but let me know if this is not the case.
+
+Note: I already have patches to support Okular. 
+Indeed, Okular is very easy to support, as it provides a sane command-line interface; 
+Evince insists on using DBus, which requires considerable gyrations (luckily, it was relatively easy to adapt solutions already existing for other editors to ST). 
+What is harder is supporting *both* Evince and Okular. 
+This would need a revamp of the building-related facilites of the plugin, basically supporting user settings to select a particular viewer. 
+But the incentive to add such support is very low as far as other platforms are concerned: only SumatraPDF supports forward/inverse search on Windows, and Skim is the easiest-to-control and most powerful/complete PDF viewer on OS X that does. 
+Bottom line: multiple viewer support is probably not coming in the near future. Sorry!
 
 
-Keybindings
------------
+## Keybindings
 
-Keybindings have been chosen to make them easier to remember, and also to minimize clashes with existing (and standard) ST bindings. I am taking advantage of the fact that ST supports key combinations, i.e. sequences of two (or more) keys. The basic principle is simple:
+Keybindings have been chosen to make them easier to remember, and also to minimize clashes with existing (and standard) ST bindings. 
+I am taking advantage of the fact that ST supports key combinations, i.e. sequences of two (or more) keys. 
+The basic principle is simple:
 
-- **Most LaTeXTools facilities are triggered using `Ctrl+l` (Windows, Linux) or `Cmd+l` (OS X), followed by some other key or key combination**
+* **Most LaTeXTools facilities are triggered using `Ctrl+l` (Windows, Linux) or `Cmd+l` (OS X), followed by some other key or key combination**.
 
-- Compilation uses the standard ST "build" keybinding, i.e. `Ctrl-b` on Windows and Linux and `Cmd-b` on OS X. So does the "goto anything" facility (though this may change).
+* Compilation uses the standard ST "build" keybinding, i.e. `Ctrl-b` on Windows and Linux and `Cmd-b` on OS X. So does the "goto anything" facility (though this may change).
 
 For example: to jump to the point in the PDF file corresponding to the current cursor position, use `Ctrl-l, j`: that is, hit `Ctrl-l`, then release both the `Ctrl` and the `l` keys, and quickly type the `j` key (OS X users: replace `Ctrl` with `Cmd`). To wrap the selected text in an `\emph{}` command, use `Ctrl-l, Ctrl-e`: that is, hit `Ctrl-l`, release both keys, then hit `Ctrl-e` (again, OS X users hit `Cmd-l` and then `Cmd-e`). 
 
@@ -123,8 +222,8 @@ Most plugin facilities are invoked using sequences of 2 keys or key combinations
 Henceforth, I will write `C-` to mean `Ctrl-` for Linux or Windows, and `Cmd-` for OS X. You know your platform, so you know what you should use. In a few places, to avoid ambiguities, I will spell out which key I mean.
 
 
-Compiling LaTeX files
----------------------
+## Compiling LaTeX files
+
 
 **Keybinding:** `C-b` (standard ST keybinding)
 
