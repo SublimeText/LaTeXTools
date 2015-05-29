@@ -1,6 +1,7 @@
 # mini-grammar to remove LaTeX commands from the string, replacing them with the text inside the brackets.
 import pyparsing
 from pyparsing import ZeroOrMore, Literal, Suppress, Forward, Optional, CharsNotIn, ParserElement, White
+import sublime
 
 __all__ = ['remove_latex_commands']
 
@@ -11,7 +12,7 @@ content.leaveWhitespace()
 brackets        <<= Suppress(u'{') + ZeroOrMore(latex_command | brackets | content) + Suppress(u'}')
 latex_command   <<= (Suppress(Literal(u'\\')) + Suppress(CharsNotIn(u'{')) + brackets) | brackets
 
-if sublime.version < '3000':
+if sublime.version() < '3000':
         exec("""def reraise(tp, value, tb=None):
     raise tp, value, tb
 """)
@@ -39,7 +40,6 @@ def remove_latex_commands(s):
             # running Python 2.6.8, so I've resorted to this ugly hack which, in the case of the type error on
             # ST2 will re-process the string; for whatever reason, the error doesn't appear in the second 
             # and subsequent invocations of this grammar.
-            import sublime
             import sys
 
             # save the current exception state
