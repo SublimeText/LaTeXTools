@@ -11,6 +11,19 @@ content.leaveWhitespace()
 brackets        <<= Suppress(u'{') + ZeroOrMore(latex_command | brackets | content) + Suppress(u'}')
 latex_command   <<= (Suppress(Literal(u'\\')) + Suppress(CharsNotIn(u'{')) + brackets) | brackets
 
+if sublime.version < '3000':
+        exec("""def reraise(tp, value, tb=None):
+    raise tp, value, tb
+""")
+else:
+    def reraise(tp, value, tb=None):
+        if value is None:
+            value = tp()
+        if value.__traceback__ is not tb:
+            raise value.with_traceback(tb)
+        raise value
+
+
 def remove_latex_commands(s):
     result = latex_command.scanString(s)
     if result:
@@ -40,9 +53,9 @@ def remove_latex_commands(s):
                     if frame.f_back.f_code.co_name != 'remove_latex_commands':
                         remove_latex_commands(s)
                     else:
-                        raise exc_info
+                        reraise(*exec_info)
                 finally:
                     del frame
             else:
-                raise exc_info[1]
+                reraise(*exec_info)
     return s
