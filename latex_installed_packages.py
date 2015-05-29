@@ -96,6 +96,9 @@ def _get_files_matching_extensions(paths, extensions=[]):
                 for f in files:
                     matched_files['*'].append(os.path.splitext(f)[0])
 
+    matched_files = dict([(key, sorted(set(value))) 
+        for key, value in matched_files.items()])
+
     return matched_files
 
 # Generates a cache for installed latex packages, classes and bst.
