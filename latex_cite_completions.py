@@ -167,7 +167,7 @@ NEW_STYLE_CITE_REGEX = re.compile(
             )
             (?:(?P<prefix8>[^{},]*)(?:,[^{},]*)*\{(?:\][^\[]*\[){0,2}
                 (?:[\.\*\?]){0,2}(?!teser|elyts)(?P<fancy_cite>[a-zX\*]*?)
-                eti(?:C|c(?!lov|m\\)[a-z]*[A-Z]?))
+                eti(?:C|c(?!lov|m\\)[a-z]*[A-Z]?))|
             (?#
                 ninth branch matches apacite commands
             )
