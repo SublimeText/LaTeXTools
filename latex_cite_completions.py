@@ -50,7 +50,7 @@ OLD_STYLE_CITE_REGEX = re.compile(r"([^_]*_)?([a-zX*]*?)etic(?:\\|\b)")
 #           \hyphentextcquote, \foreignblockcquote, \hypenblockcquote,
 #           \hybridblockcquote and starred versions
 #           syntax is:
-#           \foreigntextcquote{lang}[<prenote>][<postnote]{key}{text}
+#           \foreigntextcquote{lang}[prenote][postnote]{key}{text}
 #       )
 #       (?:foreign|hyphen|hybrid(?=block))(?:text|block)cquote\*?
 #           \{[^}]*\}(?:\[[^\]]*\]){0,2}\{(?:(?:[^{},]*,)*)?|
@@ -58,21 +58,21 @@ OLD_STYLE_CITE_REGEX = re.compile(r"([^_]*_)?([a-zX*]*?)etic(?:\\|\b)")
 #           fourth branch matches \textcquote, \blockcquote and 
 #           starred versions
 #           syntax is:
-#           \textcquote[<prenote>][<postnote>]{key}{text}
+#           \textcquote[prenote][postnote]{key}{text}
 #       )
 #       (?:text|block)cquote\*?(?:\[[^\]]*\]){0,2}\{(?:(?:[^{},]*,)*)?|
 #       (?#
 #           fifth branch matches \volcite and friends
 #           syntax is:
-#           \volcite[<prenote>]{volume}[<page>]{key}
+#           \volcite[prenote]{volume}[page]{key}
 #       )
 #       (?:p|P|f|ft|s|S|t|T|a|A)?volcite
 #           (?:\[[^\]]*\])?\{[^}]*\}(?:\[[^\]]*\])?\{(?:(?:[^{},]*,)*)?|
 #       (?#
 #           sixth branch matches \volcites and friends
 #           syntax is:
-#           \volcites(<multiprenote>)(<multipostnote>)[<prenote>]{volume}[<page>]{key}
-#               ...[<prenote>]{volume}[<page>]{key}
+#           \volcites(multiprenote)(multipostnote)[prenote]{volume}[page]{key}
+#               ...[prenote]{volume}[page]{key}
 #       )
 #       (?:p|P|f|ft|s|S|t|T|a|A)?volcites
 #           (?:\([^)]*\)){0,2}
@@ -81,22 +81,28 @@ OLD_STYLE_CITE_REGEX = re.compile(r"([^_]*_)?([a-zX*]*?)etic(?:\\|\b)")
 #       (?#
 #           seventh branch matches \cites and friends, excluding \volcite
 #           syntax is:
-#           \cites(<multiprenote>)(<multipostnote>)[<prenote>][<postnote>]{key}
-#               ...[<prenote>][<postnote>]{key}
+#           \cites(multiprenote)(multipostnote)[prenote][postnote]{key}
+#               ...[prenote][postnote]{key}
 #       )
 #       (?:(?!(?:p|P|f|ft|s|S|t|T|a|A)?volcites)
 #           (?:[A-Z]?[a-z]*c)|C)ites
 #           (?:\([^)]*\)){0,2}
 #           (?:(?:\[[^\]]*\]){0,2}\{(?:(?:[^{},]*,)*)?(?:\}(?=.*?\{))?){1,}|
 #       (?#
-#           final branch matches most everything else, excluding \volcite,
+#           eighth branch matches most everything else, excluding \volcite,
 #           \mcite, \citereset and \citestyle
 #           syntax is:
 #           \cite[<prenote>][<postnote>]{key}
 #       )
 #       (?:(?!(?:p|P|f|ft|s|S|t|T|a|A)?volcite|mcite)
 #           (?:[A-Z]?[a-z]*c)|C)ite(?!reset|style)([a-zX*]*?)
-#           ([.*?]){0,2}(?:\[[^\]]*\]){0,2}\{(?:(?:[^{},]*,)*)?)$
+#           ([.*?]){0,2}(?:\[[^\]]*\]){0,2}\{(?:(?:[^{},]*,)*)?|
+#       (?#
+#           ninth branch matches apacite commands
+#           syntax is:
+#           \citeA<prenote>[postnote]{key}
+#       )
+#       cite(?:(?:author|year)(?:NP)?|A)?(?:<[^>]*>)?(?:\[[^\]]*\])?\{(?:(?:[^{},]*,)*)?)$
 NEW_STYLE_CITE_REGEX = re.compile(
     r"""(?:
             (?# 
@@ -120,7 +126,7 @@ NEW_STYLE_CITE_REGEX = re.compile(
                 \hyphentextcquote, \foreignblockcquote, \hypenblockcquote,
                 \hybridblockcquote and starred versions
                 syntax is:
-                \foreigntextcquote{lang}[<prenote>][<postnote]{key}{text}
+                \foreigntextcquote{lang}[prenote][postnote]{key}{text}
             )
             (?:(?P<prefix3>[^{},]*)(?:,[^{},]*)*\{(?:\][^\[]*\[){0,2}\}[^\{]*\{
                 \*?etouqc(?:kcolb|txet)(?:ngierof|nehpyh|(?<=kcolb)dirbyh))|
@@ -128,14 +134,14 @@ NEW_STYLE_CITE_REGEX = re.compile(
                 fourth branch matches \textcquote, \blockcquote and 
                 starred versions
                 syntax is:
-                \textcquote[<prenote>][<postnote>]{key}{text}
+                \textcquote[prenote][postnote]{key}{text}
             )
             (?:(?P<prefix4>[^{},]*)(?:,[^{},]*)*\{(?:\][^\[]*\[){0,2}
                 \*?etouqc(?:kcolb|txet))|
             (?#
                 fifth branch matches \volcite and friends
                 syntax is:
-                \volcite[<prenote>]{volume}[<page>]{key}
+                \volcite[prenote]{volume}[page]{key}
             )
             (?:(?P<prefix5>[^{},]*)(?:,[^{},]*)*\{(?:\][^\[]*\[)?\}[^\{}]*\{(?:\][^\[]*\[)?
                 eticlov(?:p|P|f|ft|s|S|t|T|a|A)?)|
@@ -154,14 +160,19 @@ NEW_STYLE_CITE_REGEX = re.compile(
                 (?:[\.\*\?]){0,2}(?:\)[^(]*\(){0,2}([a-zX\*]*?)
                 seti(?:C|c(?!lov)[a-z]*[A-Z]?))|
             (?#
-                final branch matches most everything else, excluding \volcite,
+                eighth branch matches most everything else, excluding \volcite,
                 \mcite, \citereset and \citestyle
                 syntax is:
-                \cite[<prenote>][<postnote>]{key}
+                \cite[prenote][postnote]{key}
             )
             (?:(?P<prefix8>[^{},]*)(?:,[^{},]*)*\{(?:\][^\[]*\[){0,2}
                 (?:[\.\*\?]){0,2}(?!teser|elyts)(?P<fancy_cite>[a-zX\*]*?)
                 eti(?:C|c(?!lov|m\\)[a-z]*[A-Z]?))
+            (?#
+                ninth branch matches apacite commands
+            )
+            (?:(?P<prefix9>[^{},]*)(?:,[^{},]*)*\{(?:\][^\[]*\[)?
+                (?:>[^<]*<)?(?:A|(?:PN)?(?:raey|rohtua)?)?etic)
         )\\""", re.X)
 
 def match(rex, str):
@@ -280,7 +291,8 @@ def get_cite_completions(view, point, autocompleting=False):
                     m.group('prefix5') or
                     m.group('prefix6') or
                     m.group('prefix7') or
-                    m.group('prefix8'))
+                    m.group('prefix8') or
+                    m.group('prefix9'))
         if prefix:
             prefix = prefix[::-1]
         else:
