@@ -102,7 +102,7 @@ OLD_STYLE_CITE_REGEX = re.compile(r"([^_]*_)?([a-zX*]*?)etic(?:\\|\b)")
 #           syntax is:
 #           \citeA<prenote>[postnote]{key}
 #       )
-#       cite(?:(?:author|year)(?:NP)?|A)?(?:<[^>]*>)?(?:\[[^\]]*\])?\{(?:(?:[^{},]*,)*)?)$
+#       cite(?:(?:author|year)(?:NP)?|NP|A)?(?:<[^>]*>)?(?:\[[^\]]*\])?\{(?:(?:[^{},]*,)*)?)$
 NEW_STYLE_CITE_REGEX = re.compile(
     r"""(?:
             (?# 
@@ -172,7 +172,7 @@ NEW_STYLE_CITE_REGEX = re.compile(
                 ninth branch matches apacite commands
             )
             (?:(?P<prefix9>[^{},]*)(?:,[^{},]*)*\{(?:\][^\[]*\[)?
-                (?:>[^<]*<)?(?:A|(?:PN)?(?:raey|rohtua)?)?etic)
+                (?:>[^<]*<)?(?:(?:PN)?(?:raey|rohtua)|PN|A)?etic)
         )\\""", re.X)
 
 def match(rex, str):
