@@ -11,6 +11,8 @@ import json
 
 from collections import defaultdict
 
+import threading
+
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
     _ST3 = False
@@ -101,11 +103,8 @@ def _get_files_matching_extensions(paths, extensions=[]):
 
     return matched_files
 
-# Generates a cache for installed latex packages, classes and bst.
-# Used for fill all command for \documentclass, \usepackage and
-# \bibliographystyle envrioments
-class LatexGenPkgCacheCommand(sublime_plugin.WindowCommand):
-
+# generate package cache in its own thread
+class GenPkgThread(threading.Thread):
     def run(self):
         installed_tex_items = _get_files_matching_extensions(
             _get_tex_searchpath('tex'),
@@ -147,3 +146,13 @@ class LatexGenPkgCacheCommand(sublime_plugin.WindowCommand):
 
         with open(pkg_cache_file, 'w+') as f:
             json.dump(pkg_cache, f)
+
+        sublime.status_message('Finished generating LaTeX package cache')
+
+# Generates a cache for installed latex packages, classes and bst.
+# Used for fill all command for \documentclass, \usepackage and
+# \bibliographystyle envrioments
+class LatexGenPkgCacheCommand(sublime_plugin.WindowCommand):
+
+    def run(self):
+        GenPkgThread().start()
