@@ -66,7 +66,7 @@ def _view_texdoc(file):
 
         p.communicate()
         if p.returncode != 0:
-            sublime.eror_message('An error occurred while trying to run texdoc.')
+            sublime.error_message('An error occurred while trying to run texdoc.')
     except OSError:
         sublime.error_message('Could not run texdoc. Please ensure that your texpath setting is configured correctly in the LaTeXTools settings.')
 
