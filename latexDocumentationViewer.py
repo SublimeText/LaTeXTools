@@ -25,6 +25,19 @@ def get_texpath():
     else:
         return os.path.expandvars(texpath)
 
+def using_miktex():
+    if sublime.platform() != 'windows':
+        return False
+
+    settings = sublime.load_settings('LaTeXTools.sublime-settings')
+    platform_settings = settings.get(sublime.platform())
+
+    try:
+        distro = platform_settings['distro']
+        return distro in ['miktex', '']
+    except KeyError:
+        return True  # assumed
+
 def is_latex_doc(view):
     point = view.sel()[0].b
     return (
@@ -38,7 +51,7 @@ def _view_texdoc(file):
     if not isinstance(file, strbase):
         raise TypeError('File must be a string')
 
-    command = ['texdoc', file]
+    command = ['texdoc']
 
     texpath = get_texpath() or os.environ['PATH']
     env = dict(os.environ)
@@ -54,6 +67,11 @@ def _view_texdoc(file):
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             shell = True
 
+            if using_miktex():
+                command.append('--view')
+
+        command.append(file)
+
         print('Running %s' % (' '.join(command)))
         p = Popen(
             command,
@@ -64,9 +82,10 @@ def _view_texdoc(file):
             env=env
         )
 
-        p.communicate()
-        if p.returncode != 0:
-            sublime.error_message('An error occurred while trying to run texdoc.')
+        if not using_miktex():  # see http://sourceforge.net/p/miktex/bugs/2367/
+            p.communicate()     # cannot rely on texdoc --view from MiKTeX returning
+            if p.returncode != 0:
+                sublime.error_message('An error occurred while trying to run texdoc.')
     except OSError:
         sublime.error_message('Could not run texdoc. Please ensure that your texpath setting is configured correctly in the LaTeXTools settings.')
 
