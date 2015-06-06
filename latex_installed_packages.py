@@ -68,7 +68,7 @@ def _get_tex_searchpath(file_type):
         if p.returncode == 0:
             return paths
         else:
-            sublime.eror_message('An error occurred while trying to run kpsewhich. TEXMF tree could not be accessed.')
+            sublime.error_message('An error occurred while trying to run kpsewhich. TEXMF tree could not be accessed.')
     except OSError:
         sublime.error_message('Could not run kpsewhich. Please ensure that your texpath setting is configured correctly in the LaTeXTools settings.')
 
