@@ -1,0 +1,251 @@
+'''
+Plugin auto-discovery system intended for use in LaTeXTools package.
+
+Configuration options:
+    `plugin_paths`: in the standard user configuration.
+         A list of paths to search for plugins. Defaults to an empty list, in which
+         case nothing will be done.
+
+        Paths can either be specified as absolute paths, paths relative to the
+        LaTeXTools package or paths relative to the User package. Paths in the
+        User package will mask paths in the LaTeXTools package. This is intended to
+        emulate the behaviour of ST.
+
+NB Since this doesn't rely on any plugin naming conventions, this code *will* load any
+Python (.py) file found in any of the configured `plugin_paths`. It is advisable that
+users keep this setting restricted to a folder that only contains LaTeXTools-related
+plugins, e.g., a folder named LaTeXToolsPlugins or similar.
+
+Plugin authors should import the LaTeXToolsPlugin class and use it as a base for any
+plugins. Only subclasses of LaTeXToolsPlugin will be registered and properly treated as
+plugins.
+
+Any consumers of plugins, i.e., code in the main LaTeXTools tree, should primarily
+interact with this system through the `get_plugin()` function, which provides access
+to the internal plugin registry.
+
+A quick example plugin:
+
+    from latextools_plugin import LaTeXToolsPlugin
+
+    class PluginSample(LaTeXToolsPlugin):
+        def do_something():
+            pass
+
+And example consuming code:
+
+    from latextools_plugin import get_plugin
+
+    plugin = get_plugin('plugin_sample')
+    plugin.do_something()
+
+Note that we make no assumption about how plugins are used, just how they are loaded.
+It is up to the consuming code to provide a protocol for interaction, i.e., methods
+that will be called, etc.
+'''
+from __future__ import print_function
+
+import sublime
+
+import glob
+import os
+import sys
+import re
+
+from collections import MutableMapping
+
+if sys.version_info < (3, 0):
+    import imp
+
+    def _load_module(module_name, name, paths):
+        f, path, description = imp.find_module(name, list(paths))
+        try:
+            module = imp.load_module(module_name, f, path, description)
+        finally:
+            f.close()
+        return module
+else:
+    from importlib.machinery import PathFinder
+
+    # WARNING:
+    # imp module is deprecated in 3.x, unfortunately, importlib does not seem
+    # to have a stable API, as in 3.4, `find_module` is deprecated in favour of
+    # `find_spec` and discussions of how best to provide access to the import
+    # internals seem to be on-going
+    def _load_module(module_name, name, paths):
+        loader = PathFinder.find_module(name, path=paths)
+        loader.name = module_name
+        return loader.load_module()
+
+__all__ = ['LaTeXToolsPlugin', 'get_plugin']
+
+_MODULE_PREFIX = 'latextools'
+
+class LaTeXToolsPluginException(Exception):
+    '''
+    Base class for plugin-related exceptions
+    '''
+    pass
+
+class NoSuchPluginException(LaTeXToolsPluginException):
+    '''
+    Exception raised if an attempt is made to access a plugin that does not exist
+
+    Intended to allow the consumer to provide the user with some more useful information
+    e.g., how to properly configure a module for an extension point
+    '''
+    pass
+
+class InvalidPluginException(LaTeXToolsPluginException):
+    '''
+    Exception raised if an attempt is made to register a plugin that is not a
+    subclass of LaTeXToolsPlugin.
+    '''
+    pass
+
+class LaTeXToolsPluginRegistry(MutableMapping):
+    def __init__(self):
+        self._registry = {}
+
+    def __getitem__(self, key):
+        try:
+            return self._registry[key]
+        except KeyError:
+            raise NoSuchPluginException(
+                'Plugin {} does not exist. Please ensure that the plugin is configured as documented'.format(key))
+
+    def __setitem__(self, key, value):
+        if not isinstance(value, LaTeXToolsPlugin):
+            raise InvalidPluginException(type(value))
+
+        self._registry[key] = value
+
+    def __delitem__(self, key):
+        del self._registry[key]
+
+    def __iter__(self):
+        return iter(self._registry)
+
+    def __len__(self):
+        return len(self._registry)
+
+    def __str__(self):
+        return str(self._registry)
+
+_REGISTRY = LaTeXToolsPluginRegistry()
+
+def _classname_to_internal_name(s):
+    '''
+    Converts a Python class name in to an internal name
+
+    The intention here is to mirror how ST treats *Command objects, i.e., by
+    converting them from CamelCase to under_scored (it also chops off 'Command,'
+    but there's no need to to that here)
+
+    E.g.,
+        ReferencesPlugin will become references_plugin
+        BibLaTeXPlugin will become biblatex_plugin
+    '''
+    if not s:
+        return s
+
+    # little hack to support LaTeX or TeX in the plugin name
+    while True:
+        match = re.search(r'(?:La)?TeX', s)
+        if match:
+            s = s.replace(match.group(0), match.group(0).capitalize())
+        else:
+            break
+
+    # pilfered from http://code.activestate.com/recipes/66009/
+    return re.sub(r'(?<=[a-z])[A-Z]|(?<!^)[A-Z](?=[a-z])', r"_\g<0>", s).lower()
+
+class LaTeXToolsPluginMeta(type):
+    '''
+    Metaclass for plugins which will automatically register them with the
+    plugin registry
+    '''
+    def __init__(cls, name, bases, attrs):
+        super(LaTeXToolsPluginMeta, cls).__init__(name, bases, attrs)
+        if cls == LaTeXToolsPluginMeta:
+            return
+
+        try:
+            if not LaTeXToolsPlugin in bases:
+                return
+        except NameError:
+            return
+
+        registered_name = _classname_to_internal_name(name)
+        _REGISTRY[registered_name] = cls()
+
+LaTeXToolsPlugin = LaTeXToolsPluginMeta('LaTeXToolsPlugin', (object,), {})
+LaTeXToolsPlugin.__doc__ = '''
+Base class for LaTeXTools plugins. Implementation details will depend on where this
+plugin is supposed to be loaded. See the documentation for details.
+'''
+
+def _get_plugin_paths():
+    settings = sublime.load_settings('LaTeXTools.sublime-settings')
+    plugin_paths = settings.get('plugin_paths', [])
+    return plugin_paths
+
+def _load_plugin(name, *paths):
+    # hopefully a unique-enough module name!
+    module_name = '_{}_{}_{}_'.format(__name__, _MODULE_PREFIX, name)
+    try:
+        return sys.modules[module_name]
+    except KeyError:
+        pass
+
+    try:
+        return _load_module(module_name, name, paths)
+    except ImportError:
+        print('Could not load module {} using path {}.'.format(name, paths))
+
+    return None
+
+def _load_plugins():
+    for path in _get_plugin_paths():
+        if not os.path.isabs(path):
+            path = os.path.normpath(
+                os.path.join(sublime.packages_path(), 'User', path))
+            if not os.path.exists(path):
+                path = os.path.normpath(
+                    os.path.join(sublime.packages_path(), 'LaTeXTools', path))
+        if not os.path.exists(path):
+            continue
+        for file in glob.iglob(os.path.join(path, '*.py')):
+            _load_plugin(os.path.splitext(
+                os.path.basename(file))[0], path)
+
+def get_plugin(name):
+    '''
+    This is intended to be the main entry-point used by consumers (not implementors)
+    of plugins, to find any plugins that have registered themselves by name.
+
+    If a plugin cannot be found, a NoSuchPluginException will be thrown. Please try
+    to provide the user with any helpful information.
+
+    Use case:
+        Provide the user with the ability to load a plugin by a memorable name,
+        e.g., in a settings file.
+
+        For example, 'biblatex' will get the plugin named 'BibLaTeX', etc.
+    '''
+    return _REGISTRY[name]
+
+# load plugins when the Sublime API is available, just in case...
+def plugin_load():
+    # ugly, ugly hack to ensure plugin authors can import latextools_plugin
+    old_latextools_plugin = None
+    if 'latextools_plugin' in sys.modules:
+        old_latextools_plugin = sys.modules['latextools_plugin']
+
+    sys.modules['latextools_plugin'] = sys.modules[__name__]
+    _load_plugins()
+    del sys.modules['latextools_plugin']
+
+    if old_latextools_plugin:
+        sys.modules['latextools_plugin'] = old_latextools_plugin
+
