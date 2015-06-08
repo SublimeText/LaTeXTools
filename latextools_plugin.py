@@ -255,7 +255,7 @@ def add_plugin_path(path, glob='*.py'):
             os.path.basename(file))[0], path)
 
 # load plugins when the Sublime API is available, just in case...
-def plugin_load():
+def plugin_loaded():
     # ugly, ugly hack to ensure plugin authors can import latextools_plugin
     old_latextools_plugin = None
     if 'latextools_plugin' in sys.modules:
