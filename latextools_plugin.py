@@ -139,12 +139,14 @@ def _classname_to_internal_name(s):
     Converts a Python class name in to an internal name
 
     The intention here is to mirror how ST treats *Command objects, i.e., by
-    converting them from CamelCase to under_scored (it also chops off 'Command,'
-    but there's no need to to that here)
+    converting them from CamelCase to under_scored. Similarly, we will chop "Plugin"
+    off the end of the plugin, though it isn't necessary for the class to be treated
+    as a plugin.
 
     E.g.,
-        ReferencesPlugin will become references_plugin
-        BibLaTeXPlugin will become biblatex_plugin
+        SomeClass will become some_class
+        ReferencesPlugin will become references
+        BibLaTeXPlugin will become biblatex
     '''
     if not s:
         return s
@@ -153,12 +155,17 @@ def _classname_to_internal_name(s):
     while True:
         match = re.search(r'(?:La)?TeX', s)
         if match:
-            s = s.replace(match.group(0), match.group(0).capitalize())
+            s = s.replace(match.group(0), match.group(0).lower())
         else:
             break
 
     # pilfered from http://code.activestate.com/recipes/66009/
-    return re.sub(r'(?<=[a-z])[A-Z]|(?<!^)[A-Z](?=[a-z])', r"_\g<0>", s).lower()
+    s = re.sub(r'(?<=[a-z])[A-Z]|(?<!^)[A-Z](?=[a-z])', r"_\g<0>", s).lower()
+
+    if s.endswith('_plugin'):
+        s = s[:-7]
+
+    return s
 
 class LaTeXToolsPluginMeta(type):
     '''
