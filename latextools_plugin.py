@@ -77,7 +77,7 @@ else:
         loader.name = module_name
         return loader.load_module()
 
-__all__ = ['LaTeXToolsPlugin', 'get_plugin']
+__all__ = ['LaTeXToolsPlugin', 'get_plugin', 'add_plugin_path']
 
 _MODULE_PREFIX = 'latextools'
 
@@ -220,11 +220,7 @@ def _load_plugins():
             if not os.path.exists(path):
                 path = os.path.normpath(
                     os.path.join(sublime.packages_path(), 'LaTeXTools', path))
-        if not os.path.exists(path):
-            continue
-        for file in glob.iglob(os.path.join(path, '*.py')):
-            _load_plugin(os.path.splitext(
-                os.path.basename(file))[0], path)
+        add_plugin_path(path)
 
 def get_plugin(name):
     '''
@@ -241,6 +237,22 @@ def get_plugin(name):
         For example, 'biblatex' will get the plugin named 'BibLaTeX', etc.
     '''
     return _REGISTRY[name]
+
+def add_plugin_path(path, glob='*.py'):
+    '''
+    This function adds plugins from a specified path.
+
+    It is primarily intended to be used by consumers to load plugins from a custom 
+    path without needing to access the internals. For example, consuming code could
+    use this to load any default plugins
+
+    `glob`, if specified should be a valid Python glob. See the `glob` module.
+    '''
+    if not os.path.exists(path):
+        return
+    for file in glob.iglob(os.path.join(path, glob)):
+        _load_plugin(os.path.splitext(
+            os.path.basename(file))[0], path)
 
 # load plugins when the Sublime API is available, just in case...
 def plugin_load():
