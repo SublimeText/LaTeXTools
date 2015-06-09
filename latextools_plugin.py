@@ -52,6 +52,8 @@ import os
 import sys
 import re
 
+from contextlib import contextmanager
+
 from collections import MutableMapping
 
 if sys.version_info < (3, 0):
@@ -238,6 +240,20 @@ def get_plugin(name):
     '''
     return _REGISTRY[name]
 
+@contextmanager
+def _latextools_module_hack():
+    # ugly, ugly hack to ensure plugin authors can import latextools_plugin
+    old_latextools_plugin = None
+    if 'latextools_plugin' in sys.modules:
+        old_latextools_plugin = sys.modules['latextools_plugin']
+
+    sys.modules['latextools_plugin'] = sys.modules[__name__]
+    yield
+    del sys.modules['latextools_plugin']
+
+    if old_latextools_plugin:
+        sys.modules['latextools_plugin'] = old_latextools_plugin
+
 def add_plugin_path(path, glob='*.py'):
     '''
     This function adds plugins from a specified path.
@@ -248,23 +264,13 @@ def add_plugin_path(path, glob='*.py'):
 
     `glob`, if specified should be a valid Python glob. See the `glob` module.
     '''
-    if not os.path.exists(path):
-        return
-    for file in _glob.iglob(os.path.join(path, glob)):
-        _load_plugin(os.path.splitext(
-            os.path.basename(file))[0], path)
+    with _latextools_module_hack():
+        if not os.path.exists(path):
+            return
+        for file in _glob.iglob(os.path.join(path, glob)):
+            _load_plugin(os.path.splitext(
+                os.path.basename(file))[0], path)
 
 # load plugins when the Sublime API is available, just in case...
 def plugin_loaded():
-    # ugly, ugly hack to ensure plugin authors can import latextools_plugin
-    old_latextools_plugin = None
-    if 'latextools_plugin' in sys.modules:
-        old_latextools_plugin = sys.modules['latextools_plugin']
-
-    sys.modules['latextools_plugin'] = sys.modules[__name__]
     _load_plugins()
-    del sys.modules['latextools_plugin']
-
-    if old_latextools_plugin:
-        sys.modules['latextools_plugin'] = old_latextools_plugin
-
