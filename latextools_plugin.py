@@ -47,7 +47,7 @@ from __future__ import print_function
 
 import sublime
 
-import glob
+import glob as _glob
 import os
 import sys
 import re
@@ -250,7 +250,7 @@ def add_plugin_path(path, glob='*.py'):
     '''
     if not os.path.exists(path):
         return
-    for file in glob.iglob(os.path.join(path, glob)):
+    for file in _glob.iglob(os.path.join(path, glob)):
         _load_plugin(os.path.splitext(
             os.path.basename(file))[0], path)
 
