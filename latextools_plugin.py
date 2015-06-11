@@ -285,6 +285,6 @@ def plugin_loaded():
 
 # when this plugin is unloaded, unload all custom plugins from sys.modules
 def plugin_unloaded():
-    for module in sys.modules:
+    for module in list(sys.modules.keys()):
         if module.startswith(_MODULE_PREFIX):
             del sys.modules[module]
