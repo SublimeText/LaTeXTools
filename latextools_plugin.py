@@ -319,6 +319,7 @@ def add_plugin_path(path, glob='*.py'):
 
 # load plugins when the Sublime API is available, just in case...
 def plugin_loaded():
+    global _REGISTRY
     _REGISTRY = LaTeXToolsPluginRegistry()
     _load_plugins()
 
