@@ -268,8 +268,13 @@ def add_plugin_path(path, glob='*.py'):
         if not os.path.exists(path):
             return
         for file in _glob.iglob(os.path.join(path, glob)):
+            plugin_dir = os.path.dirname(file)
+            sys.path.insert(0, plugin_dir)
+
             _load_plugin(os.path.splitext(
-                os.path.basename(file))[0], path)
+                os.path.basename(file))[0], plugin_dir)
+
+            sys.path.pop(0)
 
 # load plugins when the Sublime API is available, just in case...
 def plugin_loaded():
