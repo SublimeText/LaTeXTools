@@ -280,7 +280,7 @@ def _latextools_module_hack():
                 print('An error occurred while trying to load white-listed module {}'.format(module))
                 traceback.print_exc()
 
-    sys.path.pop(__dir__)
+    sys.path.pop(0)
 
     yield
 
