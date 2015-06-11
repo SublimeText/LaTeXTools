@@ -245,6 +245,8 @@ def get_plugin(name):
 
         For example, 'biblatex' will get the plugin named 'BibLaTeX', etc.
     '''
+    if _REGISTRY is None:
+        raise NoSuchPluginException('Could not load plugin {} because the registry either hasn\'t been loaded or has just been unloaded.')
     return _REGISTRY[name]
 
 @contextmanager
@@ -338,3 +340,7 @@ def plugin_unloaded():
     for module in list(sys.modules.keys()):
         if module.startswith(_MODULE_PREFIX):
             del sys.modules[module]
+
+    global _REGISTRY
+    _REGISTRY = None
+
