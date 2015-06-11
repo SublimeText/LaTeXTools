@@ -95,6 +95,12 @@ else:
         loader.name = module_name
         return loader.load_module()
 
+
+if sublime.version() < '3000':
+    import latextools_plugin_internal as internal
+else:
+    from . import latextools_plugin_internal as internal
+
 __all__ = ['LaTeXToolsPlugin', 'get_plugin', 'add_plugin_path']
 
 _MODULE_PREFIX = '_latextools_'
@@ -150,12 +156,6 @@ class LaTeXToolsPluginRegistry(MutableMapping):
     def __str__(self):
         return str(self._registry)
 
-_REGISTRY = None
-# list of tuples consisting of a path and a glob to load in the plugin_loaded() method
-# to handle the case where `add_plugin_path` is called before this module has been fully
-# loaded.
-_REGISTERED_PATHS_TO_LOAD = []
-
 def _classname_to_internal_name(s):
     '''
     Converts a Python class name in to an internal name
@@ -206,7 +206,7 @@ class LaTeXToolsPluginMeta(type):
             return
 
         registered_name = _classname_to_internal_name(name)
-        _REGISTRY[registered_name] = cls()
+        internal._REGISTRY[registered_name] = cls()
 
 LaTeXToolsPlugin = LaTeXToolsPluginMeta('LaTeXToolsPlugin', (object,), {})
 LaTeXToolsPlugin.__doc__ = '''
@@ -259,9 +259,9 @@ def get_plugin(name):
 
         For example, 'biblatex' will get the plugin named 'BibLaTeX', etc.
     '''
-    if _REGISTRY is None:
+    if internal._REGISTRY is None:
         raise NoSuchPluginException('Could not load plugin {} because the registry either hasn\'t been loaded or has just been unloaded.')
-    return _REGISTRY[name]
+    return internal._REGISTRY[name]
 
 @contextmanager
 def _latextools_module_hack():
@@ -316,13 +316,13 @@ def add_plugin_path(path, glob='*.py'):
 
     `glob`, if specified should be a valid Python glob. See the `glob` module.
     '''
-    global _REGISTRY, _REGISTERED_PATHS_TO_LOAD
     # if we are called before `plugin_loaded`
-    if _REGISTRY is None:
-        _REGISTERED_PATHS_TO_LOAD.append((path, glob))
+    if internal._REGISTRY is None:
+        if (path, glob) not in internal._REGISTERED_PATHS_TO_LOAD:
+            internal._REGISTERED_PATHS_TO_LOAD.append((path, glob))
         return
 
-    previous_plugins = set(_REGISTRY.keys())
+    previous_plugins = set(internal._REGISTRY.keys())
 
     with _latextools_module_hack():
         if not os.path.exists(path):
@@ -336,19 +336,18 @@ def add_plugin_path(path, glob='*.py'):
 
             sys.path.pop(0)
 
-    print('Loaded plugins {} from path {}'.format(
-        list(set(_REGISTRY.keys()) - previous_plugins),
+    print('Loaded LaTeXTools plugins {} from path {}'.format(
+        list(set(internal._REGISTRY.keys()) - previous_plugins),
         path))
 
 # load plugins when the Sublime API is available, just in case...
 def plugin_loaded():
-    global _REGISTRY, _REGISTERED_PATHS_TO_LOAD
-    _REGISTRY = LaTeXToolsPluginRegistry()
+    internal._REGISTRY = LaTeXToolsPluginRegistry()
 
-    print('Loading plugins...')
+    print('Loading LaTeXTools plugins...')
     _load_plugins()
 
-    for path, glob in _REGISTERED_PATHS_TO_LOAD:
+    for path, glob in internal._REGISTERED_PATHS_TO_LOAD:
         add_plugin_path(path, glob)
 
 # when this plugin is unloaded, unload all custom plugins from sys.modules
@@ -357,6 +356,4 @@ def plugin_unloaded():
         if module.startswith(_MODULE_PREFIX):
             del sys.modules[module]
 
-    global _REGISTRY
-    _REGISTRY = None
-
+    internal._REGISTRY = None
