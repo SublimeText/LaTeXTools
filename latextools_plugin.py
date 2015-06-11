@@ -302,6 +302,7 @@ def add_plugin_path(path, glob='*.py'):
 
     `glob`, if specified should be a valid Python glob. See the `glob` module.
     '''
+    global _REGISTERED_PATHS_TO_LOAD
     # if we are called before `plugin_loaded`
     if _REGISTRY is None:
         _REGISTERED_PATHS_TO_LOAD.append((path, glob))
@@ -327,8 +328,9 @@ def add_plugin_path(path, glob='*.py'):
 
 # load plugins when the Sublime API is available, just in case...
 def plugin_loaded():
-    global _REGISTRY
+    global _REGISTRY, _REGISTERED_PATHS_TO_LOAD
     _REGISTRY = LaTeXToolsPluginRegistry()
+
     print('Loading plugins...')
     _load_plugins()
 
