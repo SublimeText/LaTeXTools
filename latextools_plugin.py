@@ -136,7 +136,11 @@ class LaTeXToolsPluginRegistry(MutableMapping):
     def __str__(self):
         return str(self._registry)
 
-_REGISTRY = LaTeXToolsPluginRegistry()
+_REGISTRY = None
+# list of tuples consisting of a path and a glob to load in the plugin_loaded() method
+# to handle the case where `add_plugin_path` is called before this module has been fully
+# loaded.
+_REGISTERED_PATHS_TO_LOAD = []
 
 def _classname_to_internal_name(s):
     '''
@@ -267,6 +271,11 @@ def add_plugin_path(path, glob='*.py'):
 
     `glob`, if specified should be a valid Python glob. See the `glob` module.
     '''
+    # if we are called before `plugin_loaded`
+    if _REGISTRY is None:
+        _REGISTERED_PATHS_TO_LOAD.append((path, glob))
+        return
+
     with _latextools_module_hack():
         if not os.path.exists(path):
             return
@@ -281,7 +290,11 @@ def add_plugin_path(path, glob='*.py'):
 
 # load plugins when the Sublime API is available, just in case...
 def plugin_loaded():
+    _REGISTRY = LaTeXToolsPluginRegistry()
     _load_plugins()
+
+    for path, glob in _REGISTERED_PATHS_TO_LOAD:
+        add_plugin_path(path, glob)
 
 # when this plugin is unloaded, unload all custom plugins from sys.modules
 def plugin_unloaded():
