@@ -11,6 +11,15 @@ Configuration options:
         User package will mask paths in the LaTeXTools package. This is intended to
         emulate the behaviour of ST.
 
+    `plugins_whitelist`: in the standard user configuration.
+        A list of modules from the LaTeXTools directory that will be exposed to
+        plugins. Defaults to ['getTeXRoot', 'kpsewhich'].
+
+        The intention of this option is to expose a minimal set of library-esque
+        functionality to plugin users that may be useful. These plugins are made
+        available by mangling sys.modules, though, where possible, we will point
+        at the already-loaded module rather than trying to reload it.
+
 NB Since this doesn't rely on any plugin naming conventions, this code *will* load any
 Python (.py) file found in any of the configured `plugin_paths`. It is advisable that
 users keep this setting restricted to a folder that only contains LaTeXTools-related
@@ -42,6 +51,11 @@ And example consuming code:
 Note that we make no assumption about how plugins are used, just how they are loaded.
 It is up to the consuming code to provide a protocol for interaction, i.e., methods
 that will be called, etc.
+
+The plugin environment will be setup so that the directory containing the plugin
+is the first entry on sys.path, enabling import of any local modules. In addition,
+a select number of modules, configured through the `plugins_whitelist` configuration
+option will be exposed.
 '''
 from __future__ import print_function
 
@@ -296,7 +310,7 @@ def add_plugin_path(path, glob='*.py'):
     '''
     This function adds plugins from a specified path.
 
-    It is primarily intended to be used by consumers to load plugins from a custom 
+    It is primarily intended to be used by consumers to load plugins from a custom
     path without needing to access the internals. For example, consuming code could
     use this to load any default plugins
 
