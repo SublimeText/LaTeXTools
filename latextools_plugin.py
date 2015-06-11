@@ -249,17 +249,46 @@ def get_plugin(name):
 
 @contextmanager
 def _latextools_module_hack():
-    # ugly, ugly hack to ensure plugin authors can import latextools_plugin
-    old_latextools_plugin = None
-    if 'latextools_plugin' in sys.modules:
-        old_latextools_plugin = sys.modules['latextools_plugin']
+    '''
+    Context manager to ensure sys.modules has certain white-listed modules, most
+    especially latextools_plugins. This exposes ssome of the modules in LaTeXTools
+    to plugins. It is intended primarily to expose library-esque functionality,
+    such as the getTeXRoot module, but can be configured by the user as-needed.
+    '''
+    # add any white-listed plugins to sys.modules under their own name
+    settings = sublime.load_settings('LaTeXTools.sublime-settings')
+    plugins_whitelist = settings.get('plugins_whitelist', ['getTeXRoot', 'kpsewhich'])
+    # always include latextools_pluing
+    plugins_whitelist.append('latextools_plugin')
+    overwritten_modules = {}
 
-    sys.modules['latextools_plugin'] = sys.modules[__name__]
+    # put the directory containing this file on the sys.path
+    __dir__ = os.path.dirname(__file__)
+    sys.path.insert(0, __dir__)
+    for module in plugins_whitelist:
+        if module in sys.modules:
+            overwritten_modules[module] = sys.modules[module]
+        # if the module has already been loaded by ST, we just use that
+        latextools_module_name = '{}.{}'.format(
+            os.path.basename(__dir__), module)
+        if latextools_module_name in sys.modules:
+            sys.modules[module] = sys.modules[latextools_module_name]
+        else:
+            try:
+                sys.modules[module] = _load_module(module, module, __dir__)
+            except ImportError:
+                print('An error occurred while trying to load white-listed module {}'.format(module))
+                traceback.print_exc()
+
+    sys.path.pop(__dir__)
+
     yield
-    del sys.modules['latextools_plugin']
 
-    if old_latextools_plugin:
-        sys.modules['latextools_plugin'] = old_latextools_plugin
+    # restore any temporarily overwritten modules and clear our loaded modules
+    for module in plugins_whitelist:
+        sys.modules[module] = None
+        if module in overwritten_modules:
+            sys.modules[module] = overwritten_modules[module]
 
 def add_plugin_path(path, glob='*.py'):
     '''
