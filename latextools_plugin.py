@@ -302,7 +302,7 @@ def add_plugin_path(path, glob='*.py'):
 
     `glob`, if specified should be a valid Python glob. See the `glob` module.
     '''
-    global _REGISTERED_PATHS_TO_LOAD
+    global _REGISTRY, _REGISTERED_PATHS_TO_LOAD
     # if we are called before `plugin_loaded`
     if _REGISTRY is None:
         _REGISTERED_PATHS_TO_LOAD.append((path, glob))
