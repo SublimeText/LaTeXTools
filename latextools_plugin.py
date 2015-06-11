@@ -52,6 +52,8 @@ import os
 import sys
 import re
 
+import traceback
+
 from contextlib import contextmanager
 
 from collections import MutableMapping
@@ -211,6 +213,7 @@ def _load_plugin(name, *paths):
         return _load_module(module_name, name, paths)
     except ImportError:
         print('Could not load module {} using path {}.'.format(name, paths))
+        traceback.print_exc()
 
     return None
 
