@@ -81,7 +81,7 @@ else:
 
 __all__ = ['LaTeXToolsPlugin', 'get_plugin', 'add_plugin_path']
 
-_MODULE_PREFIX = 'latextools'
+_MODULE_PREFIX = '_latextools_'
 
 class LaTeXToolsPluginException(Exception):
     '''
@@ -201,7 +201,7 @@ def _get_plugin_paths():
 
 def _load_plugin(name, *paths):
     # hopefully a unique-enough module name!
-    module_name = '_{}_{}_{}_'.format(__name__, _MODULE_PREFIX, name)
+    module_name = '{}{}'.format(_MODULE_PREFIX, name)
     try:
         return sys.modules[module_name]
     except KeyError:
@@ -274,3 +274,9 @@ def add_plugin_path(path, glob='*.py'):
 # load plugins when the Sublime API is available, just in case...
 def plugin_loaded():
     _load_plugins()
+
+# when this plugin is unloaded, unload all custom plugins from sys.modules
+def plugin_unloaded():
+    for module in sys.modules:
+        if module.startswith(_MODULE_PREFIX):
+            del sys.modules[module]
