@@ -305,6 +305,8 @@ def add_plugin_path(path, glob='*.py'):
         _REGISTERED_PATHS_TO_LOAD.append((path, glob))
         return
 
+    previous_plugins = set(_REGISTRY.keys())
+
     with _latextools_module_hack():
         if not os.path.exists(path):
             return
@@ -317,10 +319,15 @@ def add_plugin_path(path, glob='*.py'):
 
             sys.path.pop(0)
 
+    print('Loaded plugins {} from path {}'.format(
+        list(set(_REGISTRY.keys()) - previous_plugins),
+        path))
+
 # load plugins when the Sublime API is available, just in case...
 def plugin_loaded():
     global _REGISTRY
     _REGISTRY = LaTeXToolsPluginRegistry()
+    print('Loading plugins...')
     _load_plugins()
 
     for path, glob in _REGISTERED_PATHS_TO_LOAD:
