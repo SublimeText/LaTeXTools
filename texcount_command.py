@@ -6,8 +6,12 @@ import subprocess
 from subprocess import Popen, PIPE
 import os
 
-from getTeXRoot import get_tex_root
-from get_texpath import get_texpath
+if sublime.version() < '3000':
+    from getTeXRoot import get_tex_root
+    from get_texpath import get_texpath
+else:
+    from .getTeXRoot import get_tex_root
+    from .get_texpath import get_texpath
 
 class TexcountCommand(sublime_plugin.TextCommand):
     """
