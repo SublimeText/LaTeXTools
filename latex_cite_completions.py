@@ -50,6 +50,7 @@ def find_bib_files(rootdir, src, bibfiles):
             src_tex_file = ''.join((src, ext))
             if os.path.exists(os.path.join(rootdir, src_tex_file)):
                 src = src_tex_file
+                break
         if src != src_tex_file:
             print("Could not find file {0}".format(src))
             return
