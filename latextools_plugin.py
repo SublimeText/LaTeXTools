@@ -93,6 +93,11 @@ else:
     # internals seem to be on-going
     def _load_module(module_name, name, paths):
         loader = PathFinder.find_module(name, path=paths)
+        if loader is None:
+            loader = PathFinder.find_module(name)
+        if loader is None:
+            raise ImportError('Could not find module {} on path {} or sys.path'.format(
+                name, paths))
         loader.name = module_name
         return loader.load_module()
 
