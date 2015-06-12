@@ -100,13 +100,13 @@ else:
 if sublime.version() < '3000':
     import latextools_plugin_internal as internal
 
-    def _get_sublime_module_name(module):
+    def _get_sublime_module_name(_, module):
         return module
 else:
     from . import latextools_plugin_internal as internal
 
-    def _get_sublime_module_name(module):
-        return '{0}.{1}'.format(os.path.basename(__dir__), module)
+    def _get_sublime_module_name(directory, module):
+        return '{0}.{1}'.format(os.path.basename(directory), module)
 
 __all__ = ['LaTeXToolsPlugin', 'get_plugin', 'add_plugin_path']
 
@@ -291,13 +291,13 @@ def _latextools_module_hack():
     # handles ST2s relative directory
     if __dir__ == '.':
         __dir__ = os.path.join(sublime.packages_path(), 'LaTeXTools')
-    
+
     sys.path.insert(0, __dir__)
     for module in plugins_whitelist:
         if module in sys.modules:
             overwritten_modules[module] = sys.modules[module]
         # if the module has already been loaded by ST, we just use that
-        latextools_module_name = _get_sublime_module_name(module)
+        latextools_module_name = _get_sublime_module_name(__dir__, module)
         if latextools_module_name in sys.modules:
             sys.modules[module] = sys.modules[latextools_module_name]
         else:
@@ -313,7 +313,7 @@ def _latextools_module_hack():
 
     # restore any temporarily overwritten modules and clear our loaded modules
     for module in plugins_whitelist:
-        if _get_sublime_module_name(module) != module:
+        if _get_sublime_module_name(__dir__, module) != module:
             sys.modules[module] = None
         if module in overwritten_modules:
             sys.modules[module] = overwritten_modules[module]
