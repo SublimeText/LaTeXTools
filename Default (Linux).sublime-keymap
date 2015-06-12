@@ -291,10 +291,9 @@ LaTeX Package keymap for Linux
 
 	// Fill all command
 	// Similar to latexing's fill all command
-	{	"keys": ["ctrl+l", "ctrl+f"],
-		"context": [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-		],
-		"command": "latex_fill_all"
+	{	"keys": ["super+l", "super+f"], "command": "latex_fill_all", "context":
+		[
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+		]
 	}
 ]

@@ -292,10 +292,9 @@ LaTeX Package keymap for OS X
 
 	// Fill all command
 	// Similar to latexing's fill all command
-	{	"keys": ["super+l", "super+f"],
-		"context": [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-		],
-		"command": "latex_fill_all"
+	{	"keys": ["super+l", "super+f"], "command": "latex_fill_all", "context":
+		[
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+		]
 	}
 ]
