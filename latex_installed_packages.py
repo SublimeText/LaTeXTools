@@ -103,51 +103,49 @@ def _get_files_matching_extensions(paths, extensions=[]):
 
     return matched_files
 
-# generate package cache in its own thread
-class GenPkgThread(threading.Thread):
-    def run(self):
-        installed_tex_items = _get_files_matching_extensions(
-            _get_tex_searchpath('tex'),
-            ['sty', 'cls']
-        )
+def _generate_package_cache():
+    installed_tex_items = _get_files_matching_extensions(
+        _get_tex_searchpath('tex'),
+        ['sty', 'cls']
+    )
 
-        installed_bst = _get_files_matching_extensions(
-            _get_tex_searchpath('bst'),
-            ['bst']
-        )
+    installed_bst = _get_files_matching_extensions(
+        _get_tex_searchpath('bst'),
+        ['bst']
+    )
 
-        # create the cache object
-        pkg_cache = {
-            'pkg': installed_tex_items['sty'],
-            'bst': installed_bst['bst'],
-            'cls': installed_tex_items['cls']
-        }
+    # create the cache object
+    pkg_cache = {
+        'pkg': installed_tex_items['sty'],
+        'bst': installed_bst['bst'],
+        'cls': installed_tex_items['cls']
+    }
 
-        # For ST3, put the cache files in cache dir
-        # and for ST2, put it in package dir
-        if _ST3:
-            cache_path = os.path.normpath(
-                os.path.join(
-                    sublime.cache_path(),
-                    "LaTeXTools"
-                ))
-        else:
-            cache_path = os.path.normpath(
-                os.path.join(
-                    sublime.packages_path(),
-                    "LaTeXTools"
-                ))
+    # For ST3, put the cache files in cache dir
+    # and for ST2, put it in package dir
+    if _ST3:
+        cache_path = os.path.normpath(
+            os.path.join(
+                sublime.cache_path(),
+                "LaTeXTools"
+            ))
+    else:
+        cache_path = os.path.normpath(
+            os.path.join(
+                sublime.packages_path(),
+                "LaTeXTools"
+            ))
 
-        if not os.path.exists(cache_path):
-            os.makedirs(cache_path)
+    if not os.path.exists(cache_path):
+        os.makedirs(cache_path)
 
-        pkg_cache_file = os.path.normpath(
-            os.path.join(cache_path, 'pkg_cache.cache'))
+    pkg_cache_file = os.path.normpath(
+        os.path.join(cache_path, 'pkg_cache.cache'))
 
-        with open(pkg_cache_file, 'w+') as f:
-            json.dump(pkg_cache, f)
+    with open(pkg_cache_file, 'w+') as f:
+        json.dump(pkg_cache, f)
 
-        sublime.status_message('Finished generating LaTeX package cache')
+    sublime.status_message('Finished generating LaTeX package cache')
 
 # Generates a cache for installed latex packages, classes and bst.
 # Used for fill all command for \documentclass, \usepackage and
@@ -155,4 +153,11 @@ class GenPkgThread(threading.Thread):
 class LatexGenPkgCacheCommand(sublime_plugin.WindowCommand):
 
     def run(self):
-        GenPkgThread().start()
+        if _ST3:
+            # on ST3+, use a separate thread to generate the package cache
+            thread = threading.Thread(target=_generate_package_cache)
+            thread.daemon = True
+            thread.start()
+        else:
+            # on ST2, sublime API must be accessed from main thread so...
+            _generate_package_cache()
