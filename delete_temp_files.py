@@ -23,10 +23,13 @@ class DeleteTempFilesCommand(sublime_plugin.WindowCommand):
 		root_file = getTeXRoot.get_tex_root(view)
 		if root_file is None:
 			sublime.status_message('Could not find TEX root. Please ensure that either you have configured a TEX root in your project settings or have a LaTeX document open.')
+			print('Could not find TEX root. Please ensure that either you have configured a TEX root in your project settings or have a LaTeX document open.')
 			return
 
 		if not os.path.isfile(root_file):
-			sublime.status_message("Could not find TEX root {0}.".format(root_file))
+			message = "Could not find TEX root {0}.".format(root_file)
+			sublime.status_message(message)
+			print(message)
 			return
 
 		path = os.path.dirname(root_file)
