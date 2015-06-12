@@ -7,10 +7,12 @@ if sublime.version() < '3000':
     import getTeXRoot
     import kpsewhich
     from kpsewhich import kpsewhich
+    from latextools_utils.is_tex_file import is_tex_file, get_tex_extensions
 else:
     _ST3 = True
     from . import getTeXRoot
     from .kpsewhich import kpsewhich
+    from .latextools_utils.is_tex_file import is_tex_file, get_tex_extensions
 
 
 import sublime_plugin
@@ -42,8 +44,16 @@ def match(rex, str):
 # included bibliography tags in the document and extract
 # the absolute filepaths of the bib files
 def find_bib_files(rootdir, src, bibfiles):
-    if src[-4:].lower() != ".tex":
-        src = src + ".tex"
+    if not is_tex_file(src):
+        src_tex_file = None
+        for ext in get_tex_extensions():
+            src_tex_file = ''.join((src, ext))
+            if os.path.exists(os.path.join(rootdir, src_tex_file)):
+                src = src_tex_file
+                break
+        if src != src_tex_file:
+            print("Could not find file {0}".format(src))
+            return
 
     file_path = os.path.normpath(os.path.join(rootdir,src))
     print("Searching file: " + repr(file_path))
