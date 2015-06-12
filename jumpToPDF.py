@@ -5,9 +5,11 @@ if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
 	_ST3 = False
 	import getTeXRoot
+	from latextools_utils.is_tex_file import is_tex_file
 else:
 	_ST3 = True
 	from . import getTeXRoot
+	from .latextools_utils.is_tex_file import is_tex_file
 
 
 import sublime_plugin, os.path, subprocess, time
@@ -38,12 +40,11 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			forward_sync = True
 		print (from_keybinding, keep_focus, forward_sync)
 
-		texFile, texExt = os.path.splitext(self.view.file_name())
-		if texExt.upper() != ".TEX":
+		if not is_tex_file(self.view.file_name()):
 			sublime.error_message("%s is not a TeX source file: cannot jump." % (os.path.basename(view.fileName()),))
 			return
 		quotes = "\""
-		srcfile = texFile + u'.tex'
+		srcfile = os.path.basename(self.view.file_name())
 		root = getTeXRoot.get_tex_root(self.view)
 		print ("!TEX root = ", repr(root) ) # need something better here, but this works.
 		rootName, rootExt = os.path.splitext(root)

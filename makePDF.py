@@ -6,10 +6,12 @@ if sublime.version() < '3000':
 	_ST3 = False
 	import getTeXRoot
 	import parseTeXlog
+	from latextools_utils.is_tex_file import is_tex_file
 else:
 	_ST3 = True
 	from . import getTeXRoot
 	from . import parseTeXlog
+	from .latextools_utils.is_tex_file import is_tex_file
 
 import sublime_plugin
 import sys
@@ -243,7 +245,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			print ("saving...")
 			view.run_command('save') # call this on view, not self.window
 		
-		if self.tex_ext.upper() != ".TEX":
+		if not is_tex_file(self.file_name):
 			sublime.error_message("%s is not a TeX source file: cannot compile." % (os.path.basename(view.file_name()),))
 			return
 		

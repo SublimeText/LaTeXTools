@@ -27,6 +27,9 @@
 	// Sync PDF to current editor position after building (true) or not 
 	"forward_sync": true,
 
+	// valid texfile extensions
+	"tex_file_exts": [".tex"],
+
 
 // ------------------------------------------------------------------
 // Platform settings: adapt as needed for your machine
