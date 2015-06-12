@@ -471,6 +471,11 @@ def parse_tex_log(data):
 			else:
 				debug("Found loaded) but top file name doesn't have xy")
 
+		# mostly these are caused by hyperref and re-using internal identifiers
+		if "pdfTeX warning (ext4): destination with the same identifier" in line:
+			# ignore this warning as usually they aren't important
+			debug("Skipping pdfTeX warning: " + line)
+			continue
 
 		line = line.strip() # get rid of initial spaces
 		# note: in the next line, and also when we check for "!", we use the fact that "and" short-circuits
