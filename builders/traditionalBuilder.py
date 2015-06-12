@@ -20,7 +20,7 @@ DEFAULT_COMMAND_LATEXMK = ["latexmk", "-cd",
 				"-f", "-pdf"]
 
 DEFAULT_COMMAND_WINDOWS_MIKTEX = ["texify", 
-					"-b", "-p",
+					"-b", "-p", "--engine=%E",
 					"--tex-option=\"--synctex=1\""]
 
 
@@ -57,7 +57,7 @@ class TraditionalBuilder(PdfBuilder):
 		# Default tex engine (pdflatex if none specified)
 		self.engine = builder_settings.get("program", "pdflatex")
 		# Sanity check: if "strange" engine, default to pdflatex (silently...)
-		if not(self.engine in ['pdflatex', 'xelatex', 'lualatex']):
+		if not(self.engine in ['pdflatex', "pdftex", 'xelatex', 'xetex', 'lualatex', 'luatex']):
 			self.engine = 'pdflatex'
 
 
@@ -78,18 +78,24 @@ class TraditionalBuilder(PdfBuilder):
 				break
 			else:
 				# We have a comment match; check for a TS-program match
-				mroot = re.match(r"%\s*!TEX\s+(?:TS-)?program *= *(xelatex|lualatex|pdflatex)\s*$",line)
+				mroot = re.match(r"%\s*!TEX\s+(?:TS-)?program *= *(xe(la)?tex|lua(la)?tex|pdf(la)?tex)\s*$",line)
 				if mroot:
-					# Sanity checks
-					if "texify" == cmd[0]:
-						sublime.error_message("Sorry, cannot select engine using a %!TEX program directive on MikTeX.\n")
-						yield("", "Could not compile.")
-					if not re.match(r"\$pdflatex\s?=\s?'%E", cmd[3]): # fixup blanks (linux)
-						sublime.error_message("You are using a custom build command.\n"\
-							"Cannot select engine using a %!TEX program directive.\n")
-						yield("", "Could not compile.")
 					engine = mroot.group(1)
+					if cmd[0] == "texify":
+						if not re.match(r"--engine\s?=\s?%E", cmd[3]):
+							cmd.append("--engine=%E")
+					if cmd[0] == "latexmk":
+					  # Sanity checks
+					  if not re.match(r"\$pdflatex\s?=\s?'%E", cmd[3]): # fixup blanks (linux)
+						  sublime.error_message("You are using a custom build command.\n"\
+							  "Cannot select engine using a %!TEX program directive.\n")
+						  yield("", "Could not compile.")
+					
 					break
+
+		if cmd[0] == "texify":
+			engine = engine.replace("la","") # texify's --engine option takes pdftex/xetex/luatex as acceptable values
+
 		if engine != self.engine:
 			self.display("Engine: " + self.engine + " -> " + engine + ". ")
 			

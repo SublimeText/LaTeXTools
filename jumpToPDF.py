@@ -25,6 +25,7 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		forward_sync = self.view.settings().get("forward_sync",prefs_forward_sync)
 
 		prefs_lin = s.get("linux")
+		prefs_win = s.get("windows")
 
 		# If invoked from keybinding, we sync
 		# Rationale: if the user invokes the jump command, s/he wants to see the result of the compilation.
@@ -32,7 +33,7 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		# need to invoke the command. And if it is not visible, the natural way to just bring up the
 		# window without syncing is by using the system's window management shortcuts.
 		# As for focusing, we honor the toggles / prefs.
-		from_keybinding = args["from_keybinding"]
+		from_keybinding = args["from_keybinding"] if "from_keybinding" in args else False
 		if from_keybinding:
 			forward_sync = True
 		print (from_keybinding, keep_focus, forward_sync)
@@ -62,8 +63,13 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		if plat == 'darwin':
 			options = ["-r","-g"] if keep_focus else ["-r"]		
 			if forward_sync:
-				subprocess.Popen(["/Applications/Skim.app/Contents/SharedSupport/displayline"] + 
-								options + [str(line), pdffile, srcfile])
+				path_to_skim = '/Applications/Skim.app/'
+				if not os.path.exists(path_to_skim):
+					path_to_skim = subprocess.check_output(
+						['osascript', '-e', 'POSIX path of (path to app id "net.sourceforge.skim-app.skim")']
+					).decode("utf8")[:-1]
+				subprocess.Popen([os.path.join(path_to_skim, "Contents/SharedSupport/displayline")] + 
+								  options + [str(line), pdffile, srcfile])
 			else:
 				skim = os.path.join(sublime.packages_path(),
 								'LaTeXTools', 'skim', 'displayfile')
@@ -98,7 +104,10 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 				si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 				si.wShowWindow = 4 #constant for SHOWNOACTIVATE
 
-			startCommands = ["SumatraPDF.exe","-reuse-instance"]
+			# If the option doesn't exist, return "SumatraPDF.exe"; else return the option
+			# And, if the option is "", use "SumatraPDF.exe"
+			su_binary = prefs_win.get("sumatra", "SumatraPDF.exe") or 'SumatraPDF.exe'
+			startCommands = [su_binary,"-reuse-instance"]
 			if forward_sync:
 				startCommands.append("-forward-search")
 				startCommands.append(srcfile)

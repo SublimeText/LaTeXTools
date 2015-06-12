@@ -56,9 +56,19 @@ class CmdThread ( threading.Thread ):
 		print ("Welcome to thread " + self.getName())
 		self.caller.output("[Compiling " + self.caller.file_name + "]")
 
+		# Handle custom env variables
+		if self.caller.env:
+			old_env = os.environ;
+			if not _ST3:
+				os.environ.update(dict((k.encode(sys.getfilesystemencoding()), v) for (k, v) in self.caller.env.items()))
+			else:
+				os.environ.update(self.caller.env.items());
+
 		# Handle path; copied from exec.py
 		if self.caller.path:
-			old_path = os.environ["PATH"]
+			# if we had an env, the old path is already backuped in the env
+			if not self.caller.env:
+				old_path = os.environ["PATH"]
 			# The user decides in the build system  whether he wants to append $PATH
 			# or tuck it at the front: "$PATH;C:\\new\\path", "C:\\new\\path;$PATH"
 			# Handle differently in Python 2 and 3, to be safe:
@@ -91,7 +101,10 @@ class CmdThread ( threading.Thread ):
 			try:
 				if self.caller.plat == "windows":
 					proc = subprocess.Popen(cmd, startupinfo=startupinfo, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-				else:
+				elif self.caller.plat == "osx":
+					# Temporary (?) fix for Yosemite: pass environment
+					proc = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=os.environ)
+				else: # Must be linux
 					proc = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 			except:
 				self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
@@ -99,7 +112,9 @@ class CmdThread ( threading.Thread ):
 				self.caller.output(" ".join(cmd))
 				self.caller.output("\nBuild engine: " + self.caller.builder.name)
 				self.caller.proc = None
-				if self.caller.path:
+				if self.caller.env:
+					os.environ = old_env
+				elif self.caller.path:
 					os.environ["PATH"] = old_path
 				return
 			
@@ -128,8 +143,10 @@ class CmdThread ( threading.Thread ):
 		# Clean up
 		cmd_iterator.close()
 
-		# restore path if needed
-		if self.caller.path:
+		# restore env or path if needed
+		if self.caller.env:
+			os.environ = old_env
+		elif self.caller.path:
 			os.environ["PATH"] = old_path
 
 		# CHANGED 12-10-27. OK, here's the deal. We must open in binary mode on Windows
@@ -256,6 +273,13 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		builder_file_name   = builder_name + 'Builder.py'
 		builder_class_name  = builder_name.capitalize() + 'Builder'
 		builder_settings = s.get("builder_settings")
+
+		# Read the env option (platform specific)
+		builder_platform_settings = builder_settings.get(self.plat)
+		if builder_platform_settings:
+			self.env = builder_platform_settings.get("env")
+		else:
+			self.env = None
 
 		# Safety check: if we are using a built-in builder, disregard
 		# builder_path, even if it was specified in the pref file

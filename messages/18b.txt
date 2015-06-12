@@ -1,0 +1,20 @@
+LaTeXTools Plugin version 2015-04-12 changelog:
+
+
+New features:
+
+- Find bib files in TEXMF trees using kpsewhich (ig0774). This is the
+  "headline feature" of this update. Please test it on different platforms and
+  let me know if there are issues.
+- On OSX, find Skim.app if installed in a non-standard location (Sean Zhu)
+- Recursively delete temp files (Lucas Nanni)
+
+Bugs fixed:
+
+- Fixed incorrect handling when the "sumatra" option is not specified
+- Better center/table snippets (Maximilian Berger)
+- Crash in cite completion when an @ line cannot be processed
+- Added @preamble to ignored directives in bib file parsing
+- Fix $ auto-pairing and move-over with Vintage (Sergey Slipchenko)
+
+  
