@@ -136,7 +136,7 @@ class LaTeXToolsPluginRegistry(MutableMapping):
             return self._registry[key]
         except KeyError:
             raise NoSuchPluginException(
-                'Plugin {} does not exist. Please ensure that the plugin is configured as documented'.format(key))
+                'Plugin {0} does not exist. Please ensure that the plugin is configured as documented'.format(key))
 
     def __setitem__(self, key, value):
         if not isinstance(value, LaTeXToolsPlugin):
@@ -221,7 +221,7 @@ def _get_plugin_paths():
 
 def _load_plugin(name, *paths):
     # hopefully a unique-enough module name!
-    module_name = '{}{}'.format(_MODULE_PREFIX, name)
+    module_name = '{0}{1}'.format(_MODULE_PREFIX, name)
     try:
         return sys.modules[module_name]
     except KeyError:
@@ -230,7 +230,7 @@ def _load_plugin(name, *paths):
     try:
         return _load_module(module_name, name, paths)
     except ImportError:
-        print('Could not load module {} using path {}.'.format(name, paths))
+        print('Could not load module {0} using path {1}.'.format(name, paths))
         traceback.print_exc()
 
     return None
@@ -285,7 +285,7 @@ def _latextools_module_hack():
         if module in sys.modules:
             overwritten_modules[module] = sys.modules[module]
         # if the module has already been loaded by ST, we just use that
-        latextools_module_name = '{}.{}'.format(
+        latextools_module_name = '{0}.{1}'.format(
             os.path.basename(__dir__), module)
         if latextools_module_name in sys.modules:
             sys.modules[module] = sys.modules[latextools_module_name]
@@ -293,7 +293,7 @@ def _latextools_module_hack():
             try:
                 sys.modules[module] = _load_module(module, module, __dir__)
             except ImportError:
-                print('An error occurred while trying to load white-listed module {}'.format(module))
+                print('An error occurred while trying to load white-listed module {0}'.format(module))
                 traceback.print_exc()
 
     sys.path.pop(0)
@@ -336,7 +336,7 @@ def add_plugin_path(path, glob='*.py'):
 
             sys.path.pop(0)
 
-    print('Loaded LaTeXTools plugins {} from path {}'.format(
+    print('Loaded LaTeXTools plugins {0} from path {1}'.format(
         list(set(internal._REGISTRY.keys()) - previous_plugins),
         path))
 
