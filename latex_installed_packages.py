@@ -126,7 +126,8 @@ def _generate_package_cache():
     }
 
     # For ST3, put the cache files in cache dir
-    # and for ST2, put it in package dir
+    # and for ST2, put it in the user packages dir
+    # and change the name
     if _ST3:
         cache_path = os.path.normpath(
             os.path.join(
@@ -137,14 +138,14 @@ def _generate_package_cache():
         cache_path = os.path.normpath(
             os.path.join(
                 sublime.packages_path(),
-                "LaTeXTools"
+                "User"
             ))
 
     if not os.path.exists(cache_path):
         os.makedirs(cache_path)
 
     pkg_cache_file = os.path.normpath(
-        os.path.join(cache_path, 'pkg_cache.cache'))
+        os.path.join(cache_path, 'pkg_cache.cache' if _ST3 else 'latextools_pkg_cache.cache'))
 
     with open(pkg_cache_file, 'w+') as f:
         json.dump(pkg_cache, f)

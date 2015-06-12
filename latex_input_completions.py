@@ -119,11 +119,11 @@ def parse_completions(view, point):
             cache_path = os.path.normpath(
                 os.path.join(
                     sublime.packages_path(),
-                    "LaTeXTools"
+                    "User"
                 ))
 
         pkg_cache_file = os.path.normpath(
-            os.path.join(cache_path, 'pkg_cache.cache'))
+            os.path.join(cache_path, 'pkg_cache.cache' if _ST3 else 'latextools_pkg_cache.cache'))
 
         cache = None
         if not os.path.exists(pkg_cache_file):
