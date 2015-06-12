@@ -43,7 +43,7 @@ class TexcountCommand(sublime_plugin.TextCommand):
                 startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
                 shell = True
 
-            print('Running {}'.format(' '.join(command)))
+            print('Running {0}'.format(' '.join(command)))
             p = Popen(
                 command,
                 stdout=PIPE,
@@ -59,7 +59,7 @@ class TexcountCommand(sublime_plugin.TextCommand):
                 self.view.window().show_quick_panel(result.splitlines()[1:-4], None)
             else:
                 sublime.error_message(
-                    'Error while running TeXCount: {}'.format(
+                    'Error while running TeXCount: {0}'.format(
                         str(p.stderr)
                     )
                 )
