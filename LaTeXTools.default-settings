@@ -16,7 +16,7 @@
 // General settings
 // ------------------------------------------------------------------
 
-	// Cite/ref autocompletion by default is triggered after e.g. \ref{. If you don"t like this,
+	// Cite/ref autocompletion by default is triggered after e.g. \ref{. If you don't like this,
 	// set to false. You can also use toggles: C-l,t,a,c and C-l,t,a,r.
 	"cite_auto_trigger": true,
 	"ref_auto_trigger": true, 
@@ -77,7 +77,7 @@
 		// How long to wait after evince has launched before sending a sync message
 		// in seconds, floating point; choose 2.0 or 3.0 on a slower machine, 0.5 on a fast one
 		// Note: only tweak this if sync after launching the PDF viewer does not seem to work,
-		// or if the PDF viewer opens instantly and you don"t want to wait.
+		// or if the PDF viewer opens instantly and you don't want to wait.
 		// Default: 1.5 (works on my MBP4,1...)
 		"sync_wait": 1.5
 	},
@@ -98,7 +98,7 @@
 	//					intended mainly as a simple example for
 	//					peoeple writing their own build engines.
 	//
-	// "traditional"	replicates the "old" system based on
+	// "traditional"	replicates the 'old' system based on
 	//					latexmk (TeXLive) / texify (MiKTeX)
 	//
 	// "script"			external script: just invokes the script
