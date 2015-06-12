@@ -3,6 +3,7 @@ import sublime
 import sublime_plugin
 import os
 import re
+import codecs
 
 index = 0
 
@@ -102,17 +103,20 @@ def parse_cwl_file():
     # ST3 can use load_resource api, while ST2 do not has this api
     # so a little different with implementation of loading cwl files.
     if _ST3:
-        cwl_files = ['Packages/LaTeX-cwl/%s'%x for x in cwl_file_list]
+        cwl_files = ['Packages/LaTeX-cwl/%s' % x for x in cwl_file_list]
     else:
-        cwl_files = [os.path.normpath(sublime.packages_path() + "/LaTeX-cwl/%s"%x) for x in cwl_file_list]
+        cwl_files = [os.path.normpath(sublime.packages_path() + "/LaTeX-cwl/%s" % x) for x in cwl_file_list]
 
     completions = []
     for cwl in cwl_files:
         if _ST3:
             s = sublime.load_resource(cwl)
         else:
-            with open(cwl) as f:
-                s = ''.join(f.readlines())
+            f = codecs.open(cwl, 'r', 'utf-8')
+            try:
+                s = u''.join(f.readlines())
+            finally:
+                f.close()
 
         for line in s.split('\n'):
             if CLW_COMMENT.match(line.strip()):
@@ -120,7 +124,7 @@ def parse_cwl_file():
             else:
                 keyword = line.strip()
                 method = os.path.splitext(os.path.basename(cwl))[0]
-                item = ('%s\t%s'%(keyword, method), parse_keyword(keyword))
+                item = (u'%s\t%s' % (keyword, method), parse_keyword(keyword))
                 completions.append(item)
 
     return completions
@@ -133,10 +137,10 @@ def parse_keyword(keyword):
         index += 1
         if matchobj.group(1) != None:
             word = matchobj.group(1)
-            return '{${%d:%s}}'%(index,word)
+            return u'{${%d:%s}}' % (index, word)
         else:
             word = matchobj.group(2)
-            return '[${%d:%s}]'%(index,word)
+            return u'[${%d:%s}]' % (index, word)
 
     replace, n = re.subn(r'\{([^\{\}\[\]]*)\}|\[([^\{\}\[\]]*)\]', replace_braces, keyword[1:])
 
