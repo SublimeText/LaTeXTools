@@ -357,3 +357,8 @@ def plugin_unloaded():
             del sys.modules[module]
 
     internal._REGISTRY = None
+
+# ensure plugin_loaded() called on ST2
+if sublime.version() < '3000':
+    plugin_loaded()
+    unload_handler = plugin_unloaded
