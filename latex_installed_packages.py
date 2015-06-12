@@ -102,7 +102,7 @@ def _get_files_matching_extensions(paths, extensions=[]):
                 for f in files:
                     matched_files['*'].append(os.path.splitext(f)[0])
 
-    matched_files = dict([(key, sorted(set(value))) 
+    matched_files = dict([(key, sorted(set(value), key=lambda s: s.lower()))
         for key, value in matched_files.items()])
 
     return matched_files
