@@ -80,7 +80,8 @@ if sys.version_info < (3, 0):
         try:
             module = imp.load_module(module_name, f, path, description)
         finally:
-            f.close()
+            if f:
+                f.close()
         return module
 else:
     from importlib.machinery import PathFinder
@@ -98,8 +99,14 @@ else:
 
 if sublime.version() < '3000':
     import latextools_plugin_internal as internal
+
+    def _get_sublime_module_name(module):
+        return module
 else:
     from . import latextools_plugin_internal as internal
+
+    def _get_sublime_module_name(module):
+        return '{0}.{1}'.format(os.path.basename(__dir__), module)
 
 __all__ = ['LaTeXToolsPlugin', 'get_plugin', 'add_plugin_path']
 
@@ -280,13 +287,17 @@ def _latextools_module_hack():
 
     # put the directory containing this file on the sys.path
     __dir__ = os.path.dirname(__file__)
+
+    # handles ST2s relative directory
+    if __dir__ == '.':
+        __dir__ = os.path.join(sublime.packages_path(), 'LaTeXTools')
+    
     sys.path.insert(0, __dir__)
     for module in plugins_whitelist:
         if module in sys.modules:
             overwritten_modules[module] = sys.modules[module]
         # if the module has already been loaded by ST, we just use that
-        latextools_module_name = '{0}.{1}'.format(
-            os.path.basename(__dir__), module)
+        latextools_module_name = _get_sublime_module_name(module)
         if latextools_module_name in sys.modules:
             sys.modules[module] = sys.modules[latextools_module_name]
         else:
@@ -302,7 +313,8 @@ def _latextools_module_hack():
 
     # restore any temporarily overwritten modules and clear our loaded modules
     for module in plugins_whitelist:
-        sys.modules[module] = None
+        if _get_sublime_module_name(module) != module:
+            sys.modules[module] = None
         if module in overwritten_modules:
             sys.modules[module] = overwritten_modules[module]
 
@@ -316,10 +328,11 @@ def add_plugin_path(path, glob='*.py'):
 
     `glob`, if specified should be a valid Python glob. See the `glob` module.
     '''
+    if (path, glob) not in internal._REGISTERED_PATHS_TO_LOAD:
+        internal._REGISTERED_PATHS_TO_LOAD.append((path, glob))
+
     # if we are called before `plugin_loaded`
     if internal._REGISTRY is None:
-        if (path, glob) not in internal._REGISTERED_PATHS_TO_LOAD:
-            internal._REGISTERED_PATHS_TO_LOAD.append((path, glob))
         return
 
     previous_plugins = set(internal._REGISTRY.keys())
@@ -360,5 +373,7 @@ def plugin_unloaded():
 
 # ensure plugin_loaded() called on ST2
 if sublime.version() < '3000':
-    plugin_loaded()
     unload_handler = plugin_unloaded
+
+    if internal._REGISTRY is None:
+        plugin_loaded()
