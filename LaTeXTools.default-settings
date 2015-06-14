@@ -30,6 +30,9 @@
 	// valid texfile extensions
 	"tex_file_exts": [".tex"],
 
+	// whether or not to set the syntax for any buffer
+	"latextools_set_syntax": true,
+
 
 // ------------------------------------------------------------------
 // Platform settings: adapt as needed for your machine
