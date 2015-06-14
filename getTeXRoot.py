@@ -56,7 +56,7 @@ def get_tex_root(view):
 			break
 		else:
 			# We have a comment match; check for a TEX root match
-			tex_exts = '|'.join(get_tex_extensions())
+			tex_exts = '|'.join([re.escape(ext) for ext in get_tex_extensions())
 			mroot = re.match(r"(?i)%\s*!TEX\s+root *= *(.*({0}))\s*$".format(tex_exts), line)
 			if mroot:
 				# we have a TEX root match 
