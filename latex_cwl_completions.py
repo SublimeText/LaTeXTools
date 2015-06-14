@@ -90,15 +90,17 @@ def parse_cwl_file():
     # Get cwl file list
     # cwl_path = sublime.packages_path() + "/LaTeX-cwl"
     settings = sublime.load_settings("LaTeXTools.sublime-settings")
-    cwl_file_list = settings.get(
-        'cwl_list',
-        [
-            "tex.cwl",
-            "latex-209.cwl",
-            "latex-document.cwl",
-            "latex-l2tabu.cwl",
-            "latex-mathsymbols.cwl"
-        ])
+    view = sublime.active_window().active_view()
+    cwl_file_list = view.settings.get('cwl_list',
+        settings.get(
+            'cwl_list',
+            [
+                "tex.cwl",
+                "latex-209.cwl",
+                "latex-document.cwl",
+                "latex-l2tabu.cwl",
+                "latex-mathsymbols.cwl"
+            ]))
 
     # ST3 can use load_resource api, while ST2 do not has this api
     # so a little different with implementation of loading cwl files.
