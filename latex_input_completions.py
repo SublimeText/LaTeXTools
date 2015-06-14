@@ -142,10 +142,10 @@ def parse_completions(view, point):
             with open(pkg_cache_file) as f:
                 cache = json.load(f)   
 
-        if cache != None:
-            if cls_filter != None:
+        if cache is not None:
+            if cls_filter is not None:
                 installed_cls = cache.get("cls")
-            elif bst_filter != None:
+            elif bst_filter is not None:
                 installed_bst = cache.get("bst")
             else:
                 installed_pkg = cache.get("pkg")
