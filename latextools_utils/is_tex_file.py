@@ -12,7 +12,7 @@ def get_tex_extensions():
     tex_file_exts = view.settings().get('tex_file_exts',
         global_settings.get('tex_file_exts', ['.tex']))
 
-    return map(lambda s: s.lower(), set(tex_file_exts))
+    return [s.lower() for s in set(tex_file_exts)]
 
 def is_tex_file(file_name):
     if not isinstance(file_name, strbase):
