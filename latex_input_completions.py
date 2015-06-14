@@ -95,11 +95,14 @@ def parse_completions(view, point):
         prefix = image_filter[::-1]
         # Load image types from configurations
         # In order to user input, "image_types" must be set in 
-        # LaTeXTools.sublime-settings configure files.
+        # LaTeXTools.sublime-settings configuration file or the
+        # project settings for the current view.
+        view = sublime.active_window().active_view()
         settings = sublime.load_settings("LaTeXTools.sublime-settings")
-        input_file_types = settings.get('image_types', [
-            'pdf', 'png', 'jpeg', 'jpg', 'eps'
-        ])
+        input_file_types = view.settings().get('image_types',
+            settings.get('image_types', [
+                'pdf', 'png', 'jpeg', 'jpg', 'eps'
+            ]))
     elif addbib_filter is not None or bib_filter is not None:
         # For bibliography
         if addbib_filter is not None:
