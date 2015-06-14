@@ -86,7 +86,6 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
                 g_settings.set("auto_complete_triggers", acts)
 
 def parse_cwl_file():
-    CLW_COMMENT = re.compile(r'#[^#]*')
     # Get cwl file list
     # cwl_path = sublime.packages_path() + "/LaTeX-cwl"
     settings = sublime.load_settings("LaTeXTools.sublime-settings")
@@ -121,13 +120,13 @@ def parse_cwl_file():
                 f.close()
 
         for line in s.split('\n'):
-            if CLW_COMMENT.match(line.strip()):
-                pass
-            else:
-                keyword = line.strip()
-                method = os.path.splitext(os.path.basename(cwl))[0]
-                item = (u'%s\t%s' % (keyword, method), parse_keyword(keyword))
-                completions.append(item)
+            if line.lstrip()[0] == '#':
+                continue
+
+            keyword = line.strip()
+            method = os.path.splitext(os.path.basename(cwl))[0]
+            item = (u'%s\t%s' % (keyword, method), parse_keyword(keyword))
+            completions.append(item)
 
     return completions
 
