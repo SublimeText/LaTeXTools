@@ -1,5 +1,5 @@
 # ST2/ST3 compat
-from __future__ import print_function 
+from __future__ import print_function
 import sublime
 if sublime.version() < '3000':
 	# we are on ST2 and Python 2.X
@@ -20,28 +20,33 @@ import codecs
 # Contributed by Sam Finn
 
 def get_tex_root(view):
-
-	# Get TEXroot from project.
 	try:
-		projFile = view.window().project_file_name()
-		projData = view.window().project_data()
+		# Retrive TEX root from the project settings file.
+		root = view.settings().get('TEXroot', None)
 
-		# TEXroot is relative project file.
-		(projPath, _) = os.path.split(projFile)
-		root = os.path.join(projPath, projData.get('settings').get('TEXroot'))
+		# The TEX root must have an absolute path.
+		if os.path.isabs(root):
+			if os.path.isfile(root):
+				return root
+		else:
+			try:
+				# Make root relative to the current project's .sublime-project
+				# file. This will thrown an exception on ST2 and when no
+				# project is loaded on ST3.
+				projFile = view.window().project_file_name()
+				projDir = os.path.dirname(projFile)
 
-		if os.path.isfile(root):
-			print("Main file defined in project settings : " + root)
-			return root
-	except:
-		pass
+				rootPath = os.path.join(projDir, root)
+				if os.path.isfile(rootPath):
+					return rootPath
+			except:
+				pass
 
-	# Get TEXroot from global settings.
-	try:
-		root = os.path.abspath(view.settings().get('TEXroot'))
-		if os.path.isfile(root):
-			print("Main file defined in global settings : " + root)
-			return root
+			# Make root relative to the current working directory. This fails if
+			# multiple instances of ST are running (issue #152).
+			rootPath = os.path.abspath(root)
+			if os.path.isfile(rootPath):
+				return rootPath
 	except:
 		pass
 
@@ -72,7 +77,7 @@ def get_tex_root(view):
 			# We have a comment match; check for a TEX root match
 			mroot = re.match(r"%\s*!TEX\s+root *= *(.*(tex|TEX))\s*$",line)
 			if mroot:
-				# we have a TEX root match 
+				# we have a TEX root match
 				# Break the match into path, file and extension
 				# Create TEX root file name
 				# If there is a TEX root path, use it
