@@ -5,10 +5,12 @@ if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
     _ST3 = False
     import getTeXRoot
+    from latextools_utils import is_tex_buffer
     from latextools_utils.subfiles import walk_subfiles
 else:
     _ST3 = True
     from . import getTeXRoot
+    from .latextools_utils import is_tex_buffer
     from .latextools_utils.subfiles import walk_subfiles
 
 import sublime_plugin
@@ -155,8 +157,7 @@ class LatexRefCompletions(sublime_plugin.EventListener):
 
     def on_query_completions(self, view, prefix, locations):
         # Only trigger within LaTeX
-        if not view.match_selector(locations[0],
-                "text.tex.latex"):
+        if not is_tex_buffer(view):
             return []
 
         point = locations[0]
@@ -181,11 +182,8 @@ class LatexRefCommand(sublime_plugin.TextCommand):
         # get view and location of first selection, which we expect to be just the cursor position
         view = self.view
         point = view.sel()[0].b
-        print (point)
         # Only trigger within LaTeX
-        # Note using score_selector rather than match_selector
-        if not view.score_selector(point,
-                "text.tex.latex"):
+        if not is_tex_buffer(view, point):
             return
 
         try:

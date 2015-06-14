@@ -8,12 +8,13 @@ if sublime.version() < '3000':
     import getTeXRoot
     from latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX
     from latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
+    from latextools_utils import is_tex_buffer
 else:
     _ST3 = True
     from . import getTeXRoot
     from .latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX
     from .latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
-
+    from .latextools_utils import is_tex_buffer
 
 ## Match both refs and cites, then dispatch as needed
 
@@ -31,11 +32,8 @@ class LatexRefCiteCommand(sublime_plugin.TextCommand):
         # get view and location of first selection, which we expect to be just the cursor position
         view = self.view
         point = view.sel()[0].b
-        print (point)
         # Only trigger within LaTeX
-        # Note using score_selector rather than match_selector
-        if not view.score_selector(point,
-                "text.tex.latex"):
+        if not is_tex_buffer(view, point):
             return
 
 
