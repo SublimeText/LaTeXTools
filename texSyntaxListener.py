@@ -22,8 +22,8 @@ class TeXSyntaxListener(sublime_plugin.EventListener):
         if current_syntax == LATEX_SYNTAX:
             return
 
-        global_settings = view.load_settings('LaTeXTools.sublime-settings')
-        if not view.settings.get('latextools_set_syntax',
+        global_settings = sublime.load_settings('LaTeXTools.sublime-settings')
+        if not view.settings().get('latextools_set_syntax',
             global_settings.get('latextools_set_syntax', True)):
             return
 
