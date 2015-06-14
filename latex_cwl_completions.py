@@ -91,7 +91,7 @@ def parse_cwl_file():
     # cwl_path = sublime.packages_path() + "/LaTeX-cwl"
     settings = sublime.load_settings("LaTeXTools.sublime-settings")
     view = sublime.active_window().active_view()
-    cwl_file_list = view.settings.get('cwl_list',
+    cwl_file_list = view.settings().get('cwl_list',
         settings.get(
             'cwl_list',
             [
