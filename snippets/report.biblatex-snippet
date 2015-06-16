@@ -1,0 +1,15 @@
+<snippet>
+    <content><![CDATA[
+% Optional fields: subtitle, titleaddon, language, number, version, note, location, month, isrn, chapter, pages, pagetotal, addendum, pubstate, doi, eprint, eprintclass, eprinttype, url, urldate
+@report{${1:Key},
+    author = {${2:Author}},
+    title = {${3:Title}},
+    type = {${4:Type}},
+    institution = {${5:Institution}},
+    year = {${6:Year}}
+}
+]]></content>
+    <tabTrigger>report</tabTrigger>
+    <description>BibLaTeX Report</description>
+    <scope>text.biblatex</scope>
+</snippet>

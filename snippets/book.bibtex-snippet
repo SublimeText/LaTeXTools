@@ -1,0 +1,14 @@
+<snippet>
+	<content><![CDATA[
+% Optional fields: volume/number, series, address, edition, month, note
+@BOOK{${1:Key},
+	author = {${2:Author/Editor}},
+	title = {${3:Title}},
+	publisher = {${4:Publisher}},
+	year = {${5:Year}}
+}
+]]></content>
+	<tabTrigger>book</tabTrigger>
+	<description>BibTeX Book</description>
+	<scope>text.bibtex</scope>
+</snippet>

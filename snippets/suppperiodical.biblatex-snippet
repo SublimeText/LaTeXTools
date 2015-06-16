@@ -1,0 +1,14 @@
+<snippet>
+    <content><![CDATA[
+% Optional fields: translator, annotator, commentator, subtitle, titleaddon, editor, editora, editorb, editorc, journalsubtitle, issuetitle, issuesubtitle, language, origlanguage, series, volume, number, eid, issue, month, pages, version, note, issn, addendum, pubstate, doi, eprint, eprintclass, eprinttype, url, urldate
+@suppperiodical{${1:Key},
+    author = {${2:Author}},
+    title = {${3:Title}},
+    journal = {${4:Journal}},
+    year = {${5:Year}}
+}
+]]></content>
+    <tabTrigger>suppperiodical</tabTrigger>
+    <description>BibLaTeX Suppperiodical</description>
+    <scope>text.biblatex</scope>
+</snippet>

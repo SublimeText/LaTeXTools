@@ -1,0 +1,14 @@
+<snippet>
+	<content><![CDATA[
+% Optional fields: subtitle, titleaddon, language, version, note,
+organization, date, month, year, addendum, pubstate, urldate
+@online{${1:Key},
+	author = {${2:Author/Editor}},
+    title = {${3:Title}},
+    year = {${4:Year}}
+}
+]]></content>
+	<tabTrigger>online</tabTrigger>
+	<description>BibLaTeX Online</description>
+	<scope>text.biblatex</scope>
+</snippet>
