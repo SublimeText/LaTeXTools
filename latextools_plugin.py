@@ -227,7 +227,7 @@ class LaTeXToolsPluginMeta(type):
             return
 
         try:
-            if not LaTeXToolsPlugin in bases:
+            if LaTeXToolsPlugin not in bases:
                 return
         except NameError:
             return
