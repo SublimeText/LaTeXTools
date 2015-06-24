@@ -11,6 +11,14 @@ Configuration options:
         User package will mask paths in the LaTeXTools package. This is intended to
         emulate the behaviour of ST.
 
+        If the default glob of *.py is unexceptable, the path can instead be specified
+        as a tuple consisting of the path and the glob to use. The glob *must* be compatible
+        with the Python glob module. E.g.,
+        ```json
+            "plugin_paths": [['latextools_plugins', '*.py3']]
+        ```
+        will load all .py3 files in the `latextools_plugins` subdirectory of the User package.
+
     `plugins_whitelist`: in the standard user configuration.
         A list of modules from the LaTeXTools directory that will be exposed to
         plugins. Defaults to ['getTeXRoot', 'kpsewhich'].
@@ -83,6 +91,8 @@ if sys.version_info < (3, 0):
             if f:
                 f.close()
         return module
+
+    strbase = basestr
 else:
     from importlib.machinery import PathFinder
 
@@ -101,6 +111,7 @@ else:
         loader.name = module_name
         return loader.load_module()
 
+    strbase = str
 
 if sublime.version() < '3000':
     import latextools_plugin_internal as internal
@@ -248,14 +259,25 @@ def _load_plugin(name, *paths):
     return None
 
 def _load_plugins():
-    for path in _get_plugin_paths():
+    def _resolve_plugin_path(path):
         if not os.path.isabs(path):
-            path = os.path.normpath(
+            p = os.path.normpath(
                 os.path.join(sublime.packages_path(), 'User', path))
-            if not os.path.exists(path):
-                path = os.path.normpath(
+            if not os.path.exists(p):
+                p = os.path.normpath(
                     os.path.join(sublime.packages_path(), 'LaTeXTools', path))
-        add_plugin_path(path)
+        return p
+
+    for path in _get_plugin_paths():
+        if type(path) == strbase:
+            add_plugin_path(_resolve_plugin_path(path))
+        else:
+            try:
+                # assume path is a tuple of [<path>, <glob>]
+                add_plugin_path(_resolve_plugin_path(path[0]), path[1])
+            except:
+                print('An error occurred while trying to add the plugin path {0}'.format(path))
+                traceback.print_exc()
 
 def get_plugin(name):
     '''
