@@ -1,6 +1,10 @@
 '''
 Plugin auto-discovery system intended for use in LaTeXTools package.
 
+The easiest way to make this system aware of a plugin is to create a file with the
+.latextools-plugin extension containing the plugin code. However, alternative loading
+mechanisms are provided.
+
 Configuration options:
     `plugin_paths`: in the standard user configuration.
          A list of paths to search for plugins. Defaults to an empty list, in which
@@ -389,6 +393,9 @@ def plugin_loaded():
 
     for path, glob in internal._REGISTERED_PATHS_TO_LOAD:
         add_plugin_path(path, glob)
+
+    # by default load anything in the User package with a .latextools-plugin extension
+    add_plugin_path(os.path.join(sublime.packages_path(), 'User'), '*.latextools-plugin')
 
 # when this plugin is unloaded, unload all custom plugins from sys.modules
 def plugin_unloaded():
