@@ -7,8 +7,8 @@ mechanisms are provided.
 
 Configuration options:
     `plugin_paths`: in the standard user configuration.
-         A list of paths to search for plugins. Defaults to an empty list, in which
-         case nothing will be done.
+         A list of either directories to search for plugins or paths to plugins.
+         Defaults to an empty list, in which case nothing will be done.
 
         Paths can either be specified as absolute paths, paths relative to the
         LaTeXTools package or paths relative to the User package. Paths in the
@@ -372,14 +372,24 @@ def add_plugin_path(path, glob='*.py'):
     with _latextools_module_hack():
         if not os.path.exists(path):
             return
-        for file in _glob.iglob(os.path.join(path, glob)):
-            plugin_dir = os.path.dirname(file)
+
+        if os.path.isfile(path):
+            plugin_dir = os.path.dirname(path)
             sys.path.insert(0, plugin_dir)
 
             _load_plugin(os.path.splitext(
-                os.path.basename(file))[0], plugin_dir)
+                os.path.basename(path))[0], plugin_dir)
 
             sys.path.pop(0)
+        else:
+            for file in _glob.iglob(os.path.join(path, glob)):
+                plugin_dir = os.path.dirname(file)
+                sys.path.insert(0, plugin_dir)
+
+                _load_plugin(os.path.splitext(
+                    os.path.basename(file))[0], plugin_dir)
+
+                sys.path.pop(0)
 
     print('Loaded LaTeXTools plugins {0} from path {1}'.format(
         list(set(internal._REGISTRY.keys()) - previous_plugins),
