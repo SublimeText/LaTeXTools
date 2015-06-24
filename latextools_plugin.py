@@ -270,7 +270,8 @@ def _load_plugins():
             if not os.path.exists(p):
                 p = os.path.normpath(
                     os.path.join(sublime.packages_path(), 'LaTeXTools', path))
-        return p
+            return p
+        return path
 
     for path in _get_plugin_paths():
         if type(path) == strbase:
