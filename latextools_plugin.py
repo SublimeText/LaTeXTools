@@ -96,7 +96,7 @@ if sys.version_info < (3, 0):
                 f.close()
         return module
 
-    strbase = basestr
+    strbase = basestring
 else:
     from importlib.machinery import PathFinder
 
