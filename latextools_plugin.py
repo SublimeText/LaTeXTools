@@ -85,33 +85,67 @@ from contextlib import contextmanager
 from collections import MutableMapping
 
 if sys.version_info < (3, 0):
+    exec("""def reraise(tp, value, tb=None):
+    raise tp, value, tb
+""")
+
     import imp
 
-    def _load_module(module_name, name, paths):
-        f, path, description = imp.find_module(name, list(paths))
-        try:
-            module = imp.load_module(module_name, f, path, description)
-        finally:
-            if f:
-                f.close()
+    def _load_module(module_name, filename, *paths):
+        name, ext = os.path.splitext(filename)
+
+        if ext == '.py':
+            f, path, description = imp.find_module(name, list(paths))
+            try:
+                module = imp.load_module(module_name, f, path, description)
+            finally:
+                if f:
+                    f.close()
+        else:
+            module = None
+            exc_info = None
+
+            for path in paths:
+                p = os.path.normpath(os.path.join(path, filename))
+                if os.path.exists(p):
+                    try:
+                        module = imp.load_source(module_name, filename)
+                    except ImportError:
+                        exc_info = sys.exc_info()
+            if not module and exc_info:
+                reraise(*exc_info)
+
         return module
 
     strbase = basestring
 else:
-    from importlib.machinery import PathFinder
+    from importlib.machinery import PathFinder, SourceFileLoader
 
     # WARNING:
     # imp module is deprecated in 3.x, unfortunately, importlib does not seem
     # to have a stable API, as in 3.4, `find_module` is deprecated in favour of
     # `find_spec` and discussions of how best to provide access to the import
     # internals seem to be on-going
-    def _load_module(module_name, name, paths):
-        loader = PathFinder.find_module(name, path=paths)
-        if loader is None:
-            loader = PathFinder.find_module(name)
-        if loader is None:
-            raise ImportError('Could not find module {} on path {} or sys.path'.format(
-                name, paths))
+    def _load_module(module_name, filename, *paths):
+        name, ext = os.path.splitext(filename)
+
+        if ext == '.py':
+            loader = PathFinder.find_module(name, path=paths)
+            if loader is None:
+                loader = PathFinder.find_module(name)
+            if loader is None:
+                raise ImportError('Could not find module {} on path {} or sys.path'.format(
+                    name, paths))
+        else:
+            loader = None
+            for path in paths:
+                p = os.path.normpath(os.path.join(path, filename))
+                if os.path.exists(p):
+                    loader = SourceFileLoader(module_name, p)
+
+            if loader is None:
+                raise ImportError('Could not find module {} on path {}'.format(name, paths))
+
         loader.name = module_name
         return loader.load_module()
 
@@ -246,16 +280,22 @@ def _get_plugin_paths():
     plugin_paths = settings.get('plugin_paths', [])
     return plugin_paths
 
-def _load_plugin(name, *paths):
+def _load_plugin(filename, *paths):
+    name, ext = os.path.splitext(filename)
+
     # hopefully a unique-enough module name!
-    module_name = '{0}{1}'.format(_MODULE_PREFIX, name)
+    if not ext or ext == '.py':
+        module_name = '{0}{1}'.format(_MODULE_PREFIX, name)
+    else:
+        module_name = '{0}{1}_{2}'.format(_MODULE_PREFIX, name, ext[1:])
+
     try:
         return sys.modules[module_name]
     except KeyError:
         pass
 
     try:
-        return _load_module(module_name, name, paths)
+        return _load_module(module_name, filename, paths)
     except ImportError:
         print('Could not load module {0} using path {1}.'.format(name, paths))
         traceback.print_exc()
@@ -377,8 +417,7 @@ def add_plugin_path(path, glob='*.py'):
             plugin_dir = os.path.dirname(path)
             sys.path.insert(0, plugin_dir)
 
-            _load_plugin(os.path.splitext(
-                os.path.basename(path))[0], plugin_dir)
+            _load_plugin(os.path.basename(path), plugin_dir)
 
             sys.path.pop(0)
         else:
