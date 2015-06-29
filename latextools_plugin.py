@@ -94,7 +94,7 @@ if sys.version_info < (3, 0):
     def _load_module(module_name, filename, *paths):
         name, ext = os.path.splitext(filename)
 
-        if ext == '.py':
+        if ext in ('.py', ''):
             f, path, description = imp.find_module(name, list(paths))
             try:
                 module = imp.load_module(module_name, f, path, description)
@@ -129,7 +129,7 @@ else:
     def _load_module(module_name, filename, *paths):
         name, ext = os.path.splitext(filename)
 
-        if ext == '.py':
+        if ext in ('.py', ''):
             loader = PathFinder.find_module(name, path=paths)
             if loader is None:
                 loader = PathFinder.find_module(name)
