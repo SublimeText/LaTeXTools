@@ -51,7 +51,7 @@ def walk_subfiles(rootdir, src, preamble_only=False):
     document_start = None
     # search through input tex files recursively
     if preamble_only:
-        src_content, document_start = re.split(DOCUMENT_START, src_content, 1)[0]
+        src_content, document_start = re.split(DOCUMENT_START, src_content, 1)
 
     for input_file in re.findall(INPUT_FILE, src_content):
         for src_content in walk_subfiles(rootdir, input_file, preamble_only):
