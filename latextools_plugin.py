@@ -295,7 +295,7 @@ def _load_plugin(filename, *paths):
         pass
 
     try:
-        return _load_module(module_name, filename, paths)
+        return _load_module(module_name, filename, *paths)
     except ImportError:
         print('Could not load module {0} using path {1}.'.format(name, paths))
         traceback.print_exc()
