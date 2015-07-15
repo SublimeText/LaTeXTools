@@ -59,8 +59,9 @@
 	"osx": 	{
 		// Path used when invoking tex & friends; MUST include $PATH
 		"texpath" : "$PATH:/Library/TeX/texbin:/usr/texbin:/usr/local/bin:/opt/local/bin"
-		// Path to PDF viewer, if needed
+		// Path to PDF viewer
 		// TODO think about it. Also, maybe configure it here!
+		"viewercmd": ["open", "-a", "Skim"],
 	},
 
 
@@ -71,8 +72,9 @@
 		"texpath" : "",
 		// TeX distro: "miktex" or "texlive"
 		"distro" : "miktex",
-		// Command to invoke Sumatra. If blank, "SumatraPDF.exe" is used (it has to be on your PATH)
-		"sumatra": ""
+		// Path to PDF viewer
+		"viewercmd": ["SumatraPDF.exe", "-reuse-instance"],
+		"forwardsyncoptions": ["-forward-search", "${srcfile}", "${line}"],
 	},
 
 	"linux" : {
@@ -90,7 +92,16 @@
 		// Note: only tweak this if sync after launching the PDF viewer does not seem to work,
 		// or if the PDF viewer opens instantly and you don't want to wait.
 		// Default: 1.5 (works on my MBP4,1...)
-		"sync_wait": 1.5
+		"sync_wait": 1.5,
+		// Path to PDF viewer. Use evince if blank
+		"viewercmd": "",
+		// For okular:
+		// "viewercmd": ["okular", "--unique"],
+		// "keepfocusoptions": ["--noraise"],
+		// "forwardsyncoptions": ["${pdffile}#src:${line}${srcfile}"],
+		// For qpdfview
+		// "viewercmd": ["qpdfview", "--unique"],
+		// "forwardsyncoptions": ["${pdffile}#src:${srcfile}:${line}:${col}"],
 	},
 
 // ------------------------------------------------------------------
