@@ -473,8 +473,8 @@ def parse_tex_log(data):
 
 		# mostly these are caused by hyperref and re-using internal identifiers
 		if "pdfTeX warning (ext4): destination with the same identifier" in line:
-			# ignore this warning as usually they aren't important
-			debug("Skipping pdfTeX warning: " + line)
+			# add warning
+			handle_warning(line[line.find("destination with the same identifier"):])
 			continue
 
 		line = line.strip() # get rid of initial spaces
