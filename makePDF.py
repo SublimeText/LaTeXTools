@@ -21,7 +21,6 @@ import subprocess
 import types
 import re
 import codecs
-import time
 
 DEBUG = False
 
@@ -56,8 +55,6 @@ class CmdThread ( threading.Thread ):
 	def run ( self ):
 		print ("Welcome to thread " + self.getName())
 		self.caller.output("[Compiling " + self.caller.file_name + "]")
-
-		start_time = time.time()
 
 		# Handle custom env variables
 		if self.caller.env:
@@ -169,11 +166,6 @@ class CmdThread ( threading.Thread ):
 		except IOError:
 			self.handle_std_outputs(out, err)
 		else:
-			# if the log hasn't been updated since we started
-			if os.path.getmtime(self.caller.tex_base + ".log") <= start_time:
-				self.handle_std_outputs(out, err)
-				return
-
 			errors = []
 			warnings = []
 
