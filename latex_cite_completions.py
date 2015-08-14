@@ -55,7 +55,7 @@ def find_bib_files(rootdir, src, bibfiles):
         src_file = codecs.open(file_path, "r", 'UTF-8')
     except IOError:
         sublime.status_message("LaTeXTools WARNING: cannot open included file " + file_path)
-        print ("WARNING! I can't find it! Check your \\include's and \\input's.")
+        print ("WARNING! I can't find it! Check your \\include's, \\input's and \\subfile's.")
         return
 
     src_content = re.sub("%.*","",src_file.read())
@@ -92,7 +92,7 @@ def find_bib_files(rootdir, src, bibfiles):
                 bibfiles.append(candidate_file)
 
     # search through input tex files recursively
-    for f in re.findall(r'\\(?:input|include)\{[^\}]+\}',src_content):
+    for f in re.findall(r'\\(?:input|include|subfile)\{[^\}]+\}',src_content):
         input_f = re.search(r'\{([^\}]+)', f).group(1)
         find_bib_files(rootdir, input_f, bibfiles)
 

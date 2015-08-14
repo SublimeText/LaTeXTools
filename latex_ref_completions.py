@@ -54,7 +54,7 @@ def find_labels_in_files(rootdir, src, labels):
         src_file = codecs.open(file_path, "r", "UTF-8")
     except IOError:
         sublime.status_message("LaTeXTools WARNING: cannot find included file " + file_path)
-        print ("WARNING! I can't find it! Check your \\include's and \\input's." )
+        print ("WARNING! I can't find it! Check your \\include's, \\input's and \\subfile's." )
         return
 
     src_content = re.sub("%.*", "", src_file.read())
@@ -78,7 +78,7 @@ def find_labels_in_files(rootdir, src, labels):
     labels += re.findall(r'\\label\{([^{}]+)\}', src_content)
 
     # search through input tex files recursively
-    for f in re.findall(r'\\(?:input|include)\{([^\{\}]+)\}', src_content):
+    for f in re.findall(r'\\(?:input|include|subfile)\{([^\{\}]+)\}', src_content):
         find_labels_in_files(rootdir, f, labels)
 
 
