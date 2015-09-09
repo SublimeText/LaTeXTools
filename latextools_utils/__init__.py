@@ -63,6 +63,9 @@ class SettingsWrapper(Mapping):
 
 
 def get_setting(setting, default=None):
+    if global_settings is None:
+        plugin_loaded()
+
     try:
         result = sublime.active_window().active_view().settings().get(setting)
     except AttributeError:
