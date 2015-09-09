@@ -5,9 +5,11 @@ if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
 	_ST3 = False
 	import getTeXRoot
+	from latextools_utils import get_setting
 else:
 	_ST3 = True
 	from . import getTeXRoot
+	from .latextools_utils import get_setting
 
 
 import sublime_plugin, os.path, subprocess, time
@@ -18,14 +20,11 @@ import sublime_plugin, os.path, subprocess, time
 class jump_to_pdfCommand(sublime_plugin.TextCommand):
 	def run(self, edit, **args):
 		# Check prefs for PDF focus and sync
-		s = sublime.load_settings("LaTeXTools.sublime-settings")
-		prefs_keep_focus = s.get("keep_focus", True)
-		keep_focus = self.view.settings().get("keep focus",prefs_keep_focus)
-		prefs_forward_sync = s.get("forward_sync", True)
-		forward_sync = self.view.settings().get("forward_sync",prefs_forward_sync)
+		keep_focus = get_setting('keep_focus', True)
+		forward_sync = get_setting('forward_sync', True)
 
-		prefs_lin = s.get("linux")
-		prefs_win = s.get("windows")
+		prefs_lin = get_setting("linux")
+		prefs_win = get_setting("windows")
 
 		# If invoked from keybinding, we sync
 		# Rationale: if the user invokes the jump command, s/he wants to see the result of the compilation.

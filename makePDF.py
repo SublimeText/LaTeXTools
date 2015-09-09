@@ -6,10 +6,12 @@ if sublime.version() < '3000':
 	_ST3 = False
 	import getTeXRoot
 	import parseTeXlog
+	from latextools_utils import get_setting
 else:
 	_ST3 = True
 	from . import getTeXRoot
 	from . import parseTeXlog
+	from .latextools_utils import get_setting
 
 import sublime_plugin
 import sys
@@ -259,9 +261,8 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			return	
 		
 		# Get platform settings, builder, and builder settings
-		s = sublime.load_settings("LaTeXTools.sublime-settings")
-		platform_settings  = s.get(self.plat)
-		builder_name = s.get("builder")
+		platform_settings  = get_setting(self.plat, {})
+		builder_name = get_setting("builder")
 		# This *must* exist, so if it doesn't, the user didn't migrate
 		if builder_name is None:
 			sublime.error_message("LaTeXTools: you need to migrate your preferences. See the README file for instructions.")
@@ -269,10 +270,10 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# Default to 'traditional' builder
 		if builder_name in ['', 'default']:
 			builder_name = 'traditional'
-		builder_path = s.get("builder_path") # relative to ST packages dir!
+		builder_path = get_setting("builder_path") # relative to ST packages dir!
 		builder_file_name   = builder_name + 'Builder.py'
 		builder_class_name  = builder_name.capitalize() + 'Builder'
-		builder_settings = s.get("builder_settings")
+		builder_settings = get_setting("builder_settings")
 
 		# Read the env option (platform specific)
 		builder_platform_settings = builder_settings.get(self.plat)
