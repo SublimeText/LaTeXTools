@@ -59,6 +59,22 @@ LaTeX Package keymap for Linux
 				"operand": "\\\\cite([a-zX*]*?)(\\[.*?\\]){0,2}\\{(?:[^{},]*,)*[^{},]+$", "match_all": true}],
 		"command": "latex_ref_cite", "args": {"insert_char": ","}},
 
+	// Complete included files. tex files or images
+	{ "keys": ["{"],
+		"context":  [
+			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
+			{"key": "preceding_text", "operator": "regex_contains", "operand": "\\\\(input|include)$", "match_all": true}],
+		"command": "insert_file_name", "args": {"insert_before": "{", "file_extensions": ["tex", "tikz"]}},
+	{ "keys": ["{"],
+		"context":  [
+			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
+			{"key": "preceding_text", "operator": "regex_contains", "operand": "\\\\(includegraphics)(\\[.*\\])?$", "match_all": true}],
+		"command": "insert_file_name", "args": {"insert_before": "{", "file_extensions": ["eps", "jpg", "jpeg", "png", "pdf"]}},
+
 	// Toggle autocomplete
 	{ 	"keys": ["ctrl+l","t","a", "r"],
 		"context":  [
