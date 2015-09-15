@@ -32,8 +32,11 @@ def get_current_word(view, point):
     nc_current_word = ''
 
     # prefix is the characters before caret
-    prefix = re.match(r'([^{}]*)\{', line_prefix).group(1)
-    suffix = re.match(r'([^{}]*)\}', line_suffix).group(1)
+    match = re.match(r'([^{}]*)\{', line_prefix)
+    prefix = match.group(1) if match else ''
+
+    match = re.match(r'([^{}]*)\}', line_suffix)
+    suffix = match.group(1) if match else ''
 
     return prefix[::-1], suffix, nc_current_word
 
