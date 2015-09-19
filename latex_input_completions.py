@@ -22,7 +22,7 @@ TEX_INPUT_FILE_REGEX = re.compile(
       r'([^{}\[\]]*)\{edulcni\\'
     + r'|([^{}\[\]]*)\{tupni\\'
     + r'|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?scihpargedulcni\\'
-    + r'|([^{}\[\]]*)\{ecruoserbibdda\\'
+    + r'|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?ecruoserbibdda\\'
     + r'|([^{}\[\]]*)\{yhpargoilbib\\'
     + r'|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?ssalctnemucod\\'
     + r'|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?egakcapesu\\'
