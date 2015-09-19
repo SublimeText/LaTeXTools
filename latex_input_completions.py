@@ -161,7 +161,11 @@ def parse_completions(view, line):
         completions = installed_pkg
     elif input_file_types is not None:
         root = getTeXRoot.get_tex_root(view)
-        completions = get_file_list(root, input_file_types)
+        if root:
+            completions = get_file_list(root, input_file_types)
+        else:
+            # file is unsaved
+            completions = []
 
     return prefix, completions
 
