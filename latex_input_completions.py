@@ -57,9 +57,8 @@ def get_file_list(root, types):
     return completions
 
 
-def parse_completions(view, point):
+def parse_completions(view, line):
     # reverse line, copied from latex_cite_completions, very cool :)
-    line = view.substr(sublime.Region(view.line(point).a, point))
     line = line[::-1]
 
     # Do matches!
@@ -166,8 +165,14 @@ def parse_completions(view, point):
 
     return prefix, completions
 
+def add_closing_bracket(view, edit):
+    caret = view.sel()[0].b
+    view.insert(edit, caret, "}")
+    view.sel().subtract(view.sel()[0])
+    view.sel().add(sublime.Region(caret, caret))
+
 class LatexFillInputCommand(sublime_plugin.TextCommand):
-    def run(self, edit):
+    def run(self, edit, insert_char=""):
         view = self.view
         point = view.sel()[0].b
         # Only trigger within LaTeX
@@ -175,7 +180,22 @@ class LatexFillInputCommand(sublime_plugin.TextCommand):
         if not view.score_selector(point, "text.tex.latex"):
             return
 
-        prefix, completions = parse_completions(view, point)
+        if insert_char:
+            # append the insert_char to the end of the current line if it
+            # is given so this works when being triggered by pressing "{"
+            point += view.insert(edit, point, insert_char)
+
+            s = sublime.load_settings("LaTeXTools.sublime-settings")
+            do_completion = view.settings().get("input auto trigger",
+                s.get("input_auto_trigger", True))
+            
+            if not do_completion:
+                add_closing_bracket(view, edit)
+                return
+
+        prefix, completions = parse_completions(
+            view,
+            view.substr(sublime.Region(view.line(point).a, point)))
 
         if len(completions) > 0 and not type(completions[0]) is tuple:
             result = completions
@@ -196,10 +216,19 @@ class LatexFillInputCommand(sublime_plugin.TextCommand):
                 key = result[i][0]
             else:
                 key = result[i]
+
+            # close bracket
+            if insert_char:
+                key += "}"
+
             startpos = point - len(prefix)
             view.run_command("latex_tools_replace", {"a": startpos, "b": point, "replacement": key})
             caret = view.sel()[0].b
             view.sel().subtract(view.sel()[0])
             view.sel().add(sublime.Region(caret, caret))
 
-        view.window().show_quick_panel(result, on_done)
+        # autocomplete bracket if we aren't doing anything
+        if not result and insert_char:
+            add_closing_bracket(view, edit)
+        else:
+            view.window().show_quick_panel(result, on_done)
