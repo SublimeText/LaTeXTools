@@ -204,8 +204,12 @@ class LatexFillInputCommand(sublime_plugin.TextCommand):
         if len(completions) > 0 and not type(completions[0]) is tuple:
             result = completions
         else:
-            root_path = os.path.dirname(
-                getTeXRoot.get_tex_root(self.view))
+            tex_root = getTeXRoot.get_tex_root(self.view)
+            if tex_root:
+                root_path = os.path.dirname(tex_root)
+            else:
+                print("Can't find TeXroot. Assuming current directory is {0}".format(os.curdir))
+                root_path = os.curdir
 
             result = [[
                 os.path.normpath(os.path.join(relpath, filename)),
