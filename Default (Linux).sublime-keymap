@@ -59,6 +59,15 @@ LaTeX Package keymap for Linux
 				"operand": "\\\\cite([a-zX*]*?)(\\[.*?\\]){0,2}\\{(?:[^{},]*,)*[^{},]+$", "match_all": true}],
 		"command": "latex_ref_cite", "args": {"insert_char": ","}},
 
+	{	"keys": ["{"],
+		"context":  [
+			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
+			{"key": "preceding_text", "operator": "regex_contains",
+				"operand": "(?:\\\\include)|(?:\\\\input)|(?:\\\\includegraphics(?:\\[[^{}\\[\\]]\\])?)|(?:\\\\addbibresource(?:\\[[^{}\\[\\]]\\])?)|(?:\\\\bibliography)|(?:\\\\documentclass(?:\\[[^{}\\[\\]]\\])?)|(?:\\\\usepackage(?:\\[[^{}\\[\\]]\\])?)|(?:\\\\bibliographystyle)", "match_all": true}],
+		"command": "latex_fill_input", "args": {"insert_char": "{"}},
+
 	// Toggle autocomplete
 	{ 	"keys": ["ctrl+l","t","a", "r"],
 		"context":  [
@@ -68,7 +77,10 @@ LaTeX Package keymap for Linux
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "toggle_auto", "args": {"which": "cite"}},
-
+	{ 	"keys": ["ctrl+l","t","a", "i"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "toggle_auto", "args": {"which": "input"}},
 
 	// View PDF, jump to point, toggle editor/viewer focus and syncing behavior
 	{ 	"keys": ["ctrl+l","v"],
@@ -243,9 +255,9 @@ LaTeX Package keymap for Linux
 		]
 	},
 	// automatic addition of new \items when hitting Shift+Enter in a list environment
- 	{ "keys": ["shift+enter"], "command": "insert_snippet", "args": {"contents": "\n\\item $0"}, 
- 	"context":  
-	 	[
+	{ "keys": ["shift+enter"], "command": "insert_snippet", "args": {"contents": "\n\\item $0"}, 
+	"context":  
+		[
 			{"key": "selector", "operator": "equal", "operand": "meta.function.environment.list.latex"},
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
@@ -289,6 +301,14 @@ LaTeX Package keymap for Linux
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
 			{ "key": "following_text", "operator": "regex_match", "operand": "^$", "match_all": true }
+		]
+	},
+
+	// Fill all command
+	// Similar to latexing's fill all command
+	{	"keys": ["ctrl+l", "ctrl+f"], "command": "latex_fill_all", "context":
+		[
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
 		]
 	}
 ]
