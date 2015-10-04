@@ -77,10 +77,10 @@ LaTeX Package keymap for OS X
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "toggle_auto", "args": {"which": "cite"}},
-	{ 	"keys": ["super+l","t","a", "i"],
+	{ 	"keys": ["super+l","t","a", "f"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_auto", "args": {"which": "input"}},
+		"command": "toggle_auto", "args": {"which": "fill"}},
 
 	// View PDF, jump to point, toggle editor/viewer focus
 	{ 	"keys": ["super+l","v"],
@@ -304,8 +304,7 @@ LaTeX Package keymap for OS X
 		]
 	},
 
-	// Fill all command
-	// Similar to latexing's fill all command
+	// Fill helper command
 	{	"keys": ["super+l", "super+f"], "command": "latex_fill_all", "context":
 		[
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}

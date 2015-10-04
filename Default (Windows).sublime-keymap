@@ -77,10 +77,10 @@ LaTeX Package keymap for Windows
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "toggle_auto", "args": {"which": "cite"}},
-	{ 	"keys": ["ctrl+l","t","a", "i"],
+	{ 	"keys": ["ctrl+l","t","a", "f"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_auto", "args": {"which": "input"}},
+		"command": "toggle_auto", "args": {"which": "fill"}},
 
 	// View PDF, jump to point, toggle editor/viewer focus
 	{ 	"keys": ["ctrl+l","v"],
@@ -305,8 +305,7 @@ LaTeX Package keymap for Windows
 		]
 	},
 
-	// Fill all command
-	// Similar to latexing's fill all command
+	// Fill helper command
 	{	"keys": ["ctrl+l", "ctrl+f"], "command": "latex_fill_all", "context":
 		[
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}

@@ -241,7 +241,7 @@ Earlier versions of LaTeXTools used a different way to trigger ref/cite completi
 Another note: **for now**, completions are also injected into the standard ST autocompletion system. Thus, if you hit `Ctrl-space` immediately after typing, e.g., `\ref{}`, you get a drop-down menu at the current cursor position (not a quick-panel) showing all labels in your document. This also works with old-style citations. However, the width of this menu is OK for (most) labels, but not really for paper titles. In other words, it is workable for references, but not really for citations. Furthermore, there are other limitations dictated by the ST autocompletion system. So, this is **deprecated**, and I encourage you to use auto-trigger mode or the `C-l,x` keybinding instead.
 
 
-Autofill: filling in package and file names automatically
+Fill Helper: filling in package and file names automatically
 ---------------------------------------------------------
 
 **Keybinding:** *autotriggered* by default (see below). Otherwise, `C-l,C-f`.
@@ -252,7 +252,7 @@ Thanks to the amazing work by users btstream and Ian Bacher, LaTeXTools now offe
 
 * when you type any of the file-related input commands, a list of files in the current directory is displayed (suitably filtered, so graphics files are displayed for `\includegraphics`).
 
-To toggle autocompletion on or off, use the `input_auto_trigger` setting, or the `c-l,t,a,i` toggle.
+To toggle autocompletion on or off, use the `fill_auto_trigger` setting, or the `c-l,t,a,f` toggle.
 
 In order for package autocomplete to work, you need to create a cache first. You can do it using the Command Palette: select `LaTeXtools: Build cache for LaTeX packages`.
 
