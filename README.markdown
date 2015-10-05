@@ -4,15 +4,15 @@ LaTeX Plugin for Sublime Text 2 and 3
 by Marciano Siniscalchi
 [http://tekonomist.wordpress.com]
 
-Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, skuroda (Preferences menu), Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths), Jeremy Jay (basic biblatex support), Ray Fang (texttt snippet), Ulrich Gabor (tex engine selection and cleaning aux files), Wes Campaigne and 'jlegewie' (ref/cite completion 2.0!). **Huge** thanks to Daniel Shannon (aka phyllisstein) who first ported LaTeXTools to ST3. Also thanks for Charley Peng, who has been assisting users and generating great pull requests; I'll merge them as soon as possible. Also William Ledoux (various Windows fixes, env support), Sean Zhu (find Skim.app in non-standard locations), Maximilian Berger (new center/table snippet), Lucas Nanni (recursively delete temp files), Sergey Slipchenko (`$` auto-pairing with Vintage) ig0774 (use `kpsewhich` to find bib files in the `TEXMF` tree).
+Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, skuroda (Preferences menu), Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths), Jeremy Jay (basic biblatex support), Ray Fang (texttt snippet), Ulrich Gabor (tex engine selection and cleaning aux files), Wes Campaigne and 'jlegewie' (ref/cite completion 2.0!). **Huge** thanks to Daniel Shannon (aka phyllisstein) who first ported LaTeXTools to ST3. Also thanks for Charley Peng, who has been assisting users and generating great pull requests; I'll merge them as soon as possible. Also William Ledoux (various Windows fixes, env support), Sean Zhu (find Skim.app in non-standard locations), Maximilian Berger (new center/table snippet), Lucas Nanni (recursively delete temp files), Sergey Slipchenko (`$` auto-pairing with Vintage) Ian Bacher (use `kpsewhich` to find bib files in the `TEXMF` tree; reworked fill-all command), btstream (original fill-all command).
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* 2015-10-01. 
+*Latest revision:* 2015-10-04. 
 
-*Highlight*: New, fully customizable build system! See below for a complete description. Note that, for now, things work more or less as before, but the infrastructure is there to customize things beyond your wildest dreams!
+*Highlight*: Fill-helper command (thanks to contributors btstream and Ian Bacher)
 
-**NOTE**: due to the change in the build system, I had to overhaul the preferences settings. If you are already using LaTeXTools, please **read this** before proceeding any further:
+**NOTE**: A reminder on the settings file:
 
 * From now on, LaTeXTools will use a single settings file, called `LaTeXTools.sublime-settings`, which *must* exist in the `User` directory. By this I mean that LaTeXTools *will not work* until you have a proper `LaTeXTools.sublime-settings` file in the `User` directory.
 * Because of this, LaTeXtools provides an easy way to create it, and even *automagically* migrate your settings from any old `LaTeXTools Preferences.sublime-settings` file you may have. In Sublime Text, open the command palette from the Tools menu, search for "LaTeXTools: Reconfigure and migrate settings," and hit Return. That's it! See the Settings section for other ways to migrate or reconfigure settings.
@@ -241,6 +241,26 @@ Earlier versions of LaTeXTools used a different way to trigger ref/cite completi
 Another note: **for now**, completions are also injected into the standard ST autocompletion system. Thus, if you hit `Ctrl-space` immediately after typing, e.g., `\ref{}`, you get a drop-down menu at the current cursor position (not a quick-panel) showing all labels in your document. This also works with old-style citations. However, the width of this menu is OK for (most) labels, but not really for paper titles. In other words, it is workable for references, but not really for citations. Furthermore, there are other limitations dictated by the ST autocompletion system. So, this is **deprecated**, and I encourage you to use auto-trigger mode or the `C-l,x` keybinding instead.
 
 
+Fill Helper: filling in package and file names automatically
+---------------------------------------------------------
+
+**Keybinding:** *autotriggered* by default (see below). Otherwise, `C-l,C-f`.
+
+Thanks to the amazing work by users btstream and Ian Bacher, LaTeXTools now offers a list of available files and packages when using commands such as `\usepackage`, `\include`, `\includegraphics` and `\input`. Assuming autocompletion is toggled on (the default):
+
+* when you type `\usepackage{`, a list of available package is displayed in the ST drop-down menu. Pick the one you need, and it will be inserted in your file, with a closing brace.
+
+* when you type any of the file-related input commands, a list of files in the current directory is displayed (suitably filtered, so graphics files are displayed for `\includegraphics`).
+
+To toggle autocompletion on or off, use the `fill_auto_trigger` setting, or the `c-l,t,a,f` toggle.
+
+In order for package autocomplete to work, you need to create a cache first. You can do it using the Command Palette: select `LaTeXtools: Build cache for LaTeX packages`.
+
+The `C-l,C-f` keyboard shortcut also works for `\ref` and `\cite` completion. Basically, wherever you can use `C-l,x`, you can also use `C-l,C-f`. 
+
+
+
+
 Jumping to sections and labels
 ------------------------------
 
@@ -311,8 +331,9 @@ If you ever want to revert your settings to their default state, just invoke the
 The following options are currently available (defaults in parentheses):
 
 **General settings**:
-- `cite-auto-trigger` (`true`): if `true`, typing e.g. `\cite{` brings up the citation completion quick panel, without the need to type `C-l,x`. If `false`, you must explicitly type `C-l,x`.
-- `ref-auto-trigger` (`true`): ditto, but for `\ref{` and similar reference commands
+- `cite_auto_trigger` (`true`): if `true`, typing e.g. `\cite{` brings up the citation completion quick panel, without the need to type `C-l,x`. If `false`, you must explicitly type `C-l,x`.
+- `ref_auto_trigger` (`true`): ditto, but for `\ref{` and similar reference commands
+- `fill_auto_trigger` (`true`): ditto, but for package and file inclusion commands (see Fill Helper feature above)
 - `keep_focus` (`true`): if `true`, after compiling a tex file, ST retains the focus; if `false`, the PDF viewer gets the focus. Also note that you can *temporarily* toggle this behavior with `C-l,t,f`.
 - `forward_sync` (`true`): if `true`, after compiling a tex file, the PDF viewer is asked to sync to the position corresponding to the current cursor location in ST. You can also *temporarily* toggle this behavior with `C-l,t,s`.
 
