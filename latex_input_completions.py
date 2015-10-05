@@ -190,8 +190,8 @@ class LatexFillInputCommand(sublime_plugin.TextCommand):
             point += view.insert(edit, point, insert_char)
 
             s = sublime.load_settings("LaTeXTools.sublime-settings")
-            do_completion = view.settings().get("input auto trigger",
-                s.get("input_auto_trigger", True))
+            do_completion = view.settings().get("fill auto trigger",
+                s.get("fill_auto_trigger", True))
             
             if not do_completion:
                 add_closing_bracket(view, edit)
