@@ -235,7 +235,12 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# self.output_view.settings().set("result_line_regex", line_regex)
 		self.output_view.settings().set("result_base_dir", tex_dir)
 
-		self.window.run_command("show_panel", {"panel": "output.exec"})
+		# Get platform settings, builder, and builder settings
+		s = sublime.load_settings("LaTeXTools.sublime-settings")
+		
+		# Only show panel if activated (or by default if not specified otherwise)
+		if s.get("show_panel") in [None, True]:
+			self.window.run_command("show_panel", {"panel": "output.exec"})
 		
 		self.output_view.settings().set("result_file_regex", file_regex)
 
@@ -258,8 +263,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			sublime.error_message("Platform as yet unsupported. Sorry!")
 			return	
 		
-		# Get platform settings, builder, and builder settings
-		s = sublime.load_settings("LaTeXTools.sublime-settings")
+		
 		platform_settings  = s.get(self.plat)
 		builder_name = s.get("builder")
 		# This *must* exist, so if it doesn't, the user didn't migrate

@@ -31,6 +31,8 @@
 	// Sync PDF to current editor position after building (true) or not 
 	"forward_sync": true,
 
+	// Show the output panel on build (defaults to true, if not specified).
+	"show_panel": true,
 
 // ------------------------------------------------------------------
 // Platform settings: adapt as needed for your machine
