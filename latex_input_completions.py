@@ -107,6 +107,7 @@ def parse_completions(view, line):
         if addbib_filter is not None:
             prefix = addbib_filter[::-1]
         else:
+            prefix = ''
             bib_filter[::-1]
         input_file_types = ['bib']
     elif cls_filter is not None or pkg_filter is not None or bst_filter is not None:
