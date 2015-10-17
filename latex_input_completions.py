@@ -202,7 +202,9 @@ class LatexFillInputCommand(sublime_plugin.TextCommand):
             view,
             view.substr(sublime.Region(view.line(point).a, point)))
 
-        if len(completions) > 0 and not type(completions[0]) is tuple:
+        if len(completions) == 0:
+            result = []
+        elif not type(completions[0]) is tuple:
             result = completions
         else:
             tex_root = getTeXRoot.get_tex_root(self.view)
