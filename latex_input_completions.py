@@ -212,7 +212,9 @@ class LatexFillInputCommand(sublime_plugin.TextCommand):
                 root_path = os.curdir
 
             result = [[
-                os.path.normpath(os.path.join(relpath, filename)),
+                # Replace backslash with forward slash to fix Windows paths
+                # LaTeX does not support forward slashes in paths
+                os.path.normpath(os.path.join(relpath, filename)).replace('\\', '/'),
                 os.path.normpath(os.path.join(root_path, relpath, filename))
             ] for relpath, filename in completions]
 
