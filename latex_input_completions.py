@@ -30,7 +30,7 @@ TEX_INPUT_FILE_REGEX = re.compile(
 )
 
 # Get all file by types
-def get_file_list(root, types):
+def get_file_list(root, types, filter_exts=[]):
     path = os.path.dirname(root)
 
     def file_match(f):
@@ -52,6 +52,11 @@ def get_file_list(root, types):
             # only pdf format.
             if os.path.splitext(root)[0] == os.path.splitext(full_path)[0]:
                 continue
+
+            for ext in filter_exts:
+                if f.endswith(ext):
+                    f = f[:-len(ext)]
+
             completions.append((os.path.relpath(dir_name, path), f))
 
     return completions
@@ -81,14 +86,20 @@ def parse_completions(view, line):
     else:
         return '', []
 
+    # it isn't always correct to include the extension in the output filename
+    # esp. with \bibliography{}; here we provide a mechanism to permit this
+    filter_exts = []
+
     if include_filter is not None:
         # if is \include
         prefix = include_filter[::-1]
         input_file_types = ['tex']
+        filter_exts = ['.tex']
     elif input_filter is not None:
         # if is \input search type set to tex
         prefix = input_filter[::-1]
         input_file_types = ['tex']
+        filter_exts = ['.tex']
     elif image_filter is not None:
         # if is \includegraphics
         prefix = image_filter[::-1]
@@ -109,6 +120,7 @@ def parse_completions(view, line):
         else:
             prefix = ''
             bib_filter[::-1]
+            filter_exts = ['.bib']
         input_file_types = ['bib']
     elif cls_filter is not None or pkg_filter is not None or bst_filter is not None:
         # for packages, classes and bsts
@@ -163,7 +175,7 @@ def parse_completions(view, line):
     elif input_file_types is not None:
         root = getTeXRoot.get_tex_root(view)
         if root:
-            completions = get_file_list(root, input_file_types)
+            completions = get_file_list(root, input_file_types, filter_exts)
         else:
             # file is unsaved
             completions = []
