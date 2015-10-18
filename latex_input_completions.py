@@ -176,6 +176,50 @@ def add_closing_bracket(view, edit):
     view.sel().subtract(view.sel()[0])
     view.sel().add(sublime.Region(caret, caret))
 
+class LatexFillInputCompletions(sublime_plugin.EventListener):
+    def on_query_completions(self, view, prefix, locations):
+        if not view.match_selector(0, 'text.tex.latex'):
+            return []
+
+        results = []
+
+        for location in locations:
+            _, completions = parse_completions(
+                view,
+                view.substr(sublime.Region(view.line(location).a, location))
+            )
+
+            if len(completions) == 0:
+                continue
+            elif not type(completions[0]) is tuple:
+                pass
+            else:
+                completions = [
+                    # Replace backslash with forward slash to fix Windows paths
+                    # LaTeX does not support forward slashes in paths
+                    os.path.normpath(os.path.join(relpath, filename)).replace('\\', '/')
+                    for relpath, filename in completions
+                ]
+
+            line_remainder = view.substr(sublime.Region(location, view.line(location).b))
+            if not line_remainder.startswith('}'):
+                results.extend([(completion, completion + '}') 
+                    for completion in completions
+                ])
+            else:
+                results.extend([(completion, completion)
+                    for completion in completions
+                ])
+
+        if results:
+            return (
+                results, 
+                sublime.INHIBIT_WORD_COMPLETIONS |
+                sublime.INHIBIT_EXPLICIT_COMPLETIONS
+            )
+        else:
+            return []
+
 class LatexFillInputCommand(sublime_plugin.TextCommand):
     def run(self, edit, insert_char=""):
         view = self.view
