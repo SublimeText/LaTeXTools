@@ -1,45 +1,30 @@
 import re
 import os
+import traceback
 
 import sublime
 import sublime_plugin
 
-if sublime.version() < '3000':
-    _ST3 = False
-    # we are on ST2 and Python 2.X
-    from getTeXRoot import get_tex_root
-else:
-    _ST3 = True
+try:
     from .getTeXRoot import get_tex_root
+except ImportError:
+    from getTeXRoot import get_tex_root
+
+
+# TODO this might be moved to a generic util
+def run_after_loading(view, func):
+    """Run a function after the view has finished loading"""
+    def run():
+        if view.is_loading():
+            sublime.set_timeout(run, 10)
+        else:
+            # add an additional delay, because it might not be ready
+            # even if the loading function returns false
+            sublime.set_timeout(func, 10)
+    run()
 
 
 class JumptoTexFileUnderCaretCommand(sublime_plugin.TextCommand):
-
-    def _create_folders(self, base_path, new_file_name, test_only):
-        # create missing folders
-        create_path = base_path
-        # gain the path to the file, e.g. "a/b/c.tex" -> ["a", "b"]
-        path = new_file_name.split("/")[:-1]
-        for folder in path:
-            create_path += "/" + folder
-            if not os.path.exists(create_path):
-                if test_only:
-                    return False
-                os.mkdir(create_path)
-                print("Created folder: '%s'" % create_path)
-        return True
-
-    def _insert_root_to_file(self, root_name, new_file_name):
-        base_path, base_name = os.path.split(root_name)
-        new_file = base_path + "/" + new_file_name
-        if not os.path.exists(new_file):
-            # set the path to the root, from the path to the file, e.g.
-            # "a/b/new_file.tex" -> "../../root.tex"
-            path = re.sub(r"[\w]+/", "../", new_file_name)
-            path = re.sub(r"[^/]*$", "", path)
-            root_string = "%!TEX root = " + path + base_name
-            with open(new_file, "a", encoding="utf8") as f:
-                f.write(root_string)
 
     def run(self, edit, auto_create_missing_folders=True,
             auto_insert_root=True):
@@ -53,27 +38,80 @@ class JumptoTexFileUnderCaretCommand(sublime_plugin.TextCommand):
         base_path, base_name = os.path.split(tex_root)
 
         reg = re.compile(
-            r"\\in((clude)|(put))(\[.*\])?"
-            r"\{(?P<file>[\w/]+)(?P<end>\.((tex)|(tikz)))?\}"
+            r"\\(?:input|include|subfile)\{(?P<file>[^}]+)\}",
+            re.UNICODE
         )
         for sel in view.sel():
             line = view.substr(view.line(sel))
             g = re.search(reg, line)
             if g and g.group("file"):
-                # the file ending (tex or tikz)
-                end = g.group("end") if g.group("end") else ".tex"
-                new_file_name = "%s%s" % (g.group("file"), end)
+                new_file_name = g.group('file')
+
+                _, ext = os.path.splitext(new_file_name)
+                if not ext:
+                    new_file_name += '.tex'
+
+                # clean-up any directory manipulating components
+                new_file_name = os.path.normpath(new_file_name)
+
+                containing_folder, new_file_name = os.path.split(new_file_name)
+
+                # allow absolute paths on \include or \input
+                isabs = os.path.isabs(containing_folder)
+                if not isabs:
+                    containing_folder = os.path.normpath(
+                        os.path.join(base_path, containing_folder))
 
                 # create the missing folder / check if all path folders exists
-                valid = self._create_folders(base_path, new_file_name,
-                                             not auto_create_missing_folders)
-                if not valid:
+                if auto_create_missing_folders and not os.path.exists(containing_folder):
+                    try:
+                        os.makedirs(containing_folder, exist_ok=True)
+                    except OSError:
+                        # most likely a permissions error
+                        print('Error occurred while creating path "{0}"'
+                              .format(containing_folder))
+                        traceback.print_last()
+                    else:
+                        print('Created folder: "{0}"'
+                              .format(containing_folder))
+
+                if not os.path.exists(containing_folder):
                     sublime.status_message(
-                        "Cannot open tex file, folders are missing")
-                    return
+                        "Cannot open tex file as folders are missing")
+                    continue
 
-                if auto_insert_root:
-                    self._insert_root_to_file(tex_root, new_file_name)
+                is_root_inserted = False
+                full_new_path = os.path.join(containing_folder, new_file_name)
+                if auto_insert_root and not os.path.exists(full_new_path):
+                    if isabs:
+                        root_path = tex_root
+                    else:
+                        root_path = os.path.join(
+                            os.path.relpath(base_path, containing_folder),
+                            base_name)
 
-                full_new_file_name = base_path + "/" + new_file_name
-                self.view.window().open_file(full_new_file_name)
+                    # Use slashes consistent with TeX's usage
+                    if sublime.platform() == 'windows' and not isabs:
+                        root_path = root_path.replace('\\', '/')
+
+                    root_string = '%!TEX root = {0}\n'.format(root_path)
+                    try:
+                        with open(full_new_path, 'a', encoding='utf-8') as new_file:
+                            new_file.write(root_string)
+                        is_root_inserted = True
+                    except OSError:
+                        print('An error occurred while creating file "{0}"'
+                              .format(new_file_name))
+                        traceback.print_last()
+
+                # open the file
+                new_view = view.window().open_file(full_new_path)
+
+                # await opening and move cursor to end of the new view
+                if auto_insert_root and is_root_inserted:
+                    def set_caret_position():
+                        cursor_pos = len(root_string)
+                        new_view.sel().clear()
+                        new_view.sel().add(sublime.Region(cursor_pos,
+                                                          cursor_pos))
+                    run_after_loading(new_view, set_caret_position)
