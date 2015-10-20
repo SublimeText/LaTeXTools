@@ -1,5 +1,6 @@
 import re
 import os
+import subprocess
 import traceback
 
 import sublime
@@ -39,6 +40,11 @@ class JumptoTexFileUnderCaretCommand(sublime_plugin.TextCommand):
 
         reg = re.compile(
             r"\\(?:input|include|subfile)\{(?P<file>[^}]+)\}",
+            re.UNICODE
+        )
+        img_reg = re.compile(
+            r"\\includegraphics(\[.*\])?"
+            r"\{(?P<file>[^\}]+)\}",
             re.UNICODE
         )
         for sel in view.sel():
@@ -115,3 +121,72 @@ class JumptoTexFileUnderCaretCommand(sublime_plugin.TextCommand):
                         new_view.sel().add(sublime.Region(cursor_pos,
                                                           cursor_pos))
                     run_after_loading(new_view, set_caret_position)
+
+            g = re.search(img_reg, line)
+            if g:
+                file_name = g.group("file")
+                print(file_name)
+                file_path = os.path.normpath(
+                    os.path.join(base_path, file_name))
+                _, extension = os.path.splitext(file_path)
+                extension = extension[1:]  # strip the leading point
+                if not extension:
+                    # TODO might get this extensions from somewhere else
+                    for ext in ["eps", "png", "pdf", "jpg", "jpeg"]:
+                        test_path = file_path + "." + ext
+                        print(test_path)
+                        if os.path.exists(test_path):
+                            extension = ext
+                            file_path = test_path
+                            print("test_path: %s" % test_path)
+                            break
+                if not os.path.exists(file_path):
+                    sublime.status_message(
+                       "file does not exists: " + file_path)
+                    continue
+
+                def run_command(command):
+                    # os.popen(command + " " + file_path)
+                    command = command + " " + file_path
+                    print("RUN: " + command)
+                    subprocess.Popen(command)
+
+                psystem = sublime.platform()
+                # TODO whats the result on osx?
+                if psystem == "darwin":
+                    psystem = "osx"
+                settings = sublime.load_settings("LaTeXTools.sublime-settings")
+                settings = settings.get(psystem, {})
+                commands = settings.get("open_image_command", None)
+                print("commands: '%s'" % commands)
+                print("file_path: %s" % file_path)
+
+                if commands is None:
+                    self.view.window().open_file(file_path)
+                elif type(commands) is str:
+                    run_command(commands)
+                else:
+                    for d in commands:
+                        print(d)
+                        # validate the entry
+                        if "command" not in d:
+                            message = "Invalid entry {0}, missing: 'command'"\
+                                .format(str(d))
+                            sublime.status_message(message)
+                            print(message)
+                            continue
+                        # check whether the extension matches
+                        if "extension" in d:
+                            if extension == d["extension"] or\
+                                    extension in d["extension"]:
+                                run_command(d["command"])
+                                break
+                        # if no extension matches always run the command
+                        else:
+                            run_command(d["command"])
+                            break
+                    else:
+                        sublime.status_message(
+                            "No opening command for {0} defined"
+                            .format(extension))
+                        view.window().open_file(file_path)
