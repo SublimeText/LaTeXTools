@@ -476,6 +476,11 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
                     "replacement": completions[0][0] + post_brace
                 }
             )
+
+            # Unselect the replaced region and leave the caret at the end
+            caret = view.sel()[0].b
+            view.sel().subtract(view.sel()[0])
+            view.sel().add(sublime.Region(caret, caret))
         else:
             # show quick
             view.window().show_quick_panel([[str.format(keyword=keyword, title=title, author=author, year=year, author_short=author_short, title_short=title_short, journal=journal) for str in cite_panel_format] \
