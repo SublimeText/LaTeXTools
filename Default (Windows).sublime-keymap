@@ -106,7 +106,7 @@ LaTeX Package keymap for Windows
 
 	// Jump to a tex file (will create the file if it does not exists)
 	{ "keys": ["ctrl+l", "ctrl+o"],
-		"command": "jumpto_tex_file_under_caret", "args": {"auto_create_missing_folders": true, "auto_insert_root": true}},
+		"command": "jumpto_tex_file", "args": {"auto_create_missing_folders": true, "auto_insert_root": true}},
 
 	// Wrap selected text in command or environment
 	{ "keys": ["ctrl+l","ctrl+c"], 
