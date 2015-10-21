@@ -24,7 +24,7 @@ def run_after_loading(view, func):
     run()
 
 
-class JumptoTexFileUnderCaretCommand(sublime_plugin.TextCommand):
+class JumptoTexFileCommand(sublime_plugin.TextCommand):
 
     def run(self, edit, auto_create_missing_folders=True,
             auto_insert_root=True):
@@ -62,8 +62,9 @@ class JumptoTexFileUnderCaretCommand(sublime_plugin.TextCommand):
                     containing_folder = os.path.normpath(
                         os.path.join(base_path, containing_folder))
 
-                # create the missing folder / check if all path folders exists
-                if auto_create_missing_folders and not os.path.exists(containing_folder):
+                # create the missing folder
+                if auto_create_missing_folders and\
+                        not os.path.exists(containing_folder):
                     try:
                         os.makedirs(containing_folder, exist_ok=True)
                     except OSError:
