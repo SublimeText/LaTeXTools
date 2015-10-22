@@ -182,6 +182,15 @@ This causes the status message to list the default settings of the focus and syn
 
 This deletes all temporary files from a previous build (the PDF file is kept).
 
+### Automatically hide build panel after build finished ###
+
+To automatically hide the build panel set the option `hide_build_panel` in the settings file. Possible values are:
+
+- __always__: always hide the panel even if the build failed
+- __no_errors__: only hide the panel if the build was successful althrough warnings appear
+- __no_warnings__: only hide the build panel if neither errors nor warnings occur
+- __never__: never hide the build panel
+
 Forward and Inverse Search
 ---------------------------
 
