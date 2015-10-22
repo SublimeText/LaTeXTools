@@ -184,6 +184,24 @@ class CmdThread ( threading.Thread ):
 				content.extend(warnings)
 			else:
 				content.append("")
+
+			s = sublime.load_settings("LaTeXTools.sublime-settings")
+			hide_panel_level = s.get("hide_build_panel")
+			hide_panel = {
+				"always": True,
+				"no_errors": not errors,
+				"no_warnings": not errors and not warnings,
+				"never": False
+			}.get(hide_panel_level, False)
+			if hide_panel:
+				self.caller.window.run_command("hide_panel", {"panel": "output.exec"})
+				message = "build completed"
+				if errors:
+					message += " with errors"
+				if warnings:
+					message += " and" if errors else " with"
+					message += " warnings"
+				sublime.status_message(message)
 		except Exception as e:
 			content=["",""]
 			content.append("LaTeXtools could not parse the TeX log file")
