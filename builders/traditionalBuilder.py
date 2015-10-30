@@ -4,8 +4,10 @@ import sublime
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
 	_ST3 = False
+	strbase = basestring
 else:
 	_ST3 = True
+	strbase = str
 
 from pdfBuilder import PdfBuilder
 import sublime_plugin
@@ -60,8 +62,9 @@ class TraditionalBuilder(PdfBuilder):
 		# Sanity check: if "strange" engine, default to pdflatex (silently...)
 		if not(self.engine in ['pdflatex', "pdftex", 'xelatex', 'xetex', 'lualatex', 'luatex']):
 			self.engine = 'pdflatex'
-
-
+		self.options = builder_settings.get("options", [])
+		if isinstance(self.options, strbase):
+			self.options = [self.options]
 
 	#
 	# Very simple here: we yield a single command
@@ -134,6 +137,12 @@ class TraditionalBuilder(PdfBuilder):
 						cmd.append("--tex-option=\"" + m.group(1) + "\"")
 					else:
 						cmd.append("-latexoption=\"" + m.group(1) + "\"")
+
+			for option in self.options:
+				if texify:
+					cmd.append("--tex-option=\"" + option + "\"")
+				else:
+					cmd.append("-latexoption=\"" + option + "\"")
 
 		# texify wants the .tex extension; latexmk doesn't care either way
 		yield (cmd + [self.tex_name], "Invoking " + cmd[0] + "... ")
