@@ -142,6 +142,50 @@
 		}
 	},
 
+// ------------------------------------------------------------------
+// Opening files included into the tex source code
+// ------------------------------------------------------------------
+
+	// the commands to open image files. The extensions will be matched from top to bottom.
+	// If no extension is given, all extensions will be matched.
+	"open_image_command": {
+		"osx" : [
+			{
+				// open pdf documents with the default programm
+				"extension": "pdf",
+				"command": "open"
+			},
+			// uncomment these lines to open all other images with the default programm
+			// {
+			// 	"command": "open"
+			// }
+		],
+
+		// You might want to use "start" for the default programm used by Windows.
+		"windows": [
+			{
+				// open pdf and eps documents with sumatra (it has to be on your PATH)
+				"extension": ["pdf", "eps"],
+				"command": "SumatraPDF"
+			},
+			// uncomment these lines to open all other images with the default programm
+			// {
+			// 	"command": "start"
+			// }
+		],
+
+		"linux": [
+			{
+				// open pdf documents with evince
+				"extension": "pdf",
+				"command": "evince"
+			},
+			// uncomment these lines to open all other images with the default programm
+			// {
+			// 	"command": "xdg-open"
+			// }
+		]
+	},
 
 // ------------------------------------------------------------------
 // Formatting of bibliographic references in quick panel

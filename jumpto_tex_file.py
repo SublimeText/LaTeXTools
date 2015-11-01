@@ -157,8 +157,8 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
                 if psystem == "darwin":
                     psystem = "osx"
                 settings = sublime.load_settings("LaTeXTools.sublime-settings")
-                settings = settings.get(psystem, {})
-                commands = settings.get("open_image_command", None)
+                settings = settings.get("open_image_command", {})
+                commands = settings.get(psystem, None)
                 print("commands: '%s'" % commands)
                 print("file_path: %s" % file_path)
 
