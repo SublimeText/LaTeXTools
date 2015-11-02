@@ -122,6 +122,10 @@ class TraditionalBuilder(PdfBuilder):
 						"luatex": "lualatex"
 					}[engine]
 
+				# latexmk doesn't support -pdflatex
+				if engine == 'pdflatex':
+					engine = 'pdf'
+
 			if engine != self.engine:
 				self.display("Engine: " + self.engine + " -> " + engine + ". ")
 
