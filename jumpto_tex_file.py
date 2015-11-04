@@ -1,6 +1,7 @@
 import re
 import os
 import subprocess
+import shlex
 import traceback
 
 import sublime
@@ -147,15 +148,12 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
                     continue
 
                 def run_command(command):
-                    # os.popen(command + " " + file_path)
-                    command = command + " " + file_path
-                    print("RUN: " + command)
-                    subprocess.Popen(command)
+                        command = shlex.split(command)
+                        command.append(file_path)
+                        print("RUN: " + str(command))
+                        subprocess.Popen(command)
 
                 psystem = sublime.platform()
-                # TODO whats the result on osx?
-                if psystem == "darwin":
-                    psystem = "osx"
                 settings = sublime.load_settings("LaTeXTools.sublime-settings")
                 settings = settings.get("open_image_command", {})
                 commands = settings.get(psystem, None)
