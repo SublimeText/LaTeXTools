@@ -149,7 +149,13 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
 
                 def run_command(command):
                         command = shlex.split(command)
-                        command.append(file_path)
+                        # if $file is used, substitute it by the file path
+                        if "$file" in command:
+                            command = [file_path if c == "$file" else c
+                                       for c in command]
+                        # if $file is not used, append the file path
+                        else:
+                            command.append(file_path)
                         print("RUN: " + str(command))
                         subprocess.Popen(command)
 
