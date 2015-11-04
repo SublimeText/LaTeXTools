@@ -21,7 +21,8 @@ class SettingsWrapper(Mapping):
         if parent is None:
             self.values = values
         else:
-            settings = global_settings.get(parent.key).get(self.key)
+            settings = sublime.load_settings('LaTeXTools.sublime-settings').\
+                get(parent.key).get(self.key)
             if settings is not None and isinstance(settings, dict):
                 self.values = dict(settings)
                 self.values.update(values)
@@ -35,7 +36,8 @@ class SettingsWrapper(Mapping):
             result = None
 
         if result is None:
-            settings = global_settings.get(self.key)
+            settings = sublime.load_settings('LaTeXTools.sublime-settings').\
+                get(self.key)
             if settings:
                 result = settings.get(key)
 
