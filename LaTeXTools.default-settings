@@ -146,6 +146,11 @@
 // Opening files included into the tex source code
 // ------------------------------------------------------------------
 
+	// image types you use in latex
+	// these types will be used for autocompletion and 
+	// opening of included images, when no extension is written
+	"image_types": ["png", "pdf", "jpg", "jpeg", "eps"],
+
 	// the commands to open image files. The extensions will be matched from top to bottom.
 	// If no extension is given, all extensions will be matched.
 	"open_image_command": {

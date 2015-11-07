@@ -126,15 +126,20 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
 
             g = re.search(img_reg, line)
             if g:
+                settings = sublime.load_settings("LaTeXTools.sublime-settings")
+                image_types = view.settings().get(
+                    "image_types",
+                    settings.get("image_types", [
+                        "png", "pdf", "jpg", "jpeg", "eps"
+                    ]))
+
                 file_name = g.group("file")
-                print(file_name)
                 file_path = os.path.normpath(
                     os.path.join(base_path, file_name))
                 _, extension = os.path.splitext(file_path)
                 extension = extension[1:]  # strip the leading point
                 if not extension:
-                    # TODO might get this extensions from somewhere else
-                    for ext in ["eps", "png", "pdf", "jpg", "jpeg"]:
+                    for ext in image_types:
                         test_path = file_path + "." + ext
                         print(test_path)
                         if os.path.exists(test_path):
@@ -160,9 +165,8 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
                         subprocess.Popen(command)
 
                 psystem = sublime.platform()
-                settings = sublime.load_settings("LaTeXTools.sublime-settings")
-                settings = settings.get("open_image_command", {})
-                commands = settings.get(psystem, None)
+                commands = settings.get("open_image_command", {})\
+                                   .get(psystem, None)
                 print("commands: '%s'" % commands)
                 print("file_path: %s" % file_path)
 
