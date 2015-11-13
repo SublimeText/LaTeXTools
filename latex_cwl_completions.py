@@ -143,11 +143,11 @@ def parse_keyword(keyword):
             return u'[${%d:%s}]' % (replace_braces.index, word)
     replace_braces.index = 0
 
-    replace, n = re.subn(r'\{([^\{\}\[\]]*)\}|\[([^\{\}\[\]]*)\]', replace_braces, keyword[1:])
+    replace, n = re.subn(r'\{([^\{\}\[\]]*)\}|\[([^\{\}\[\]]*)\]', replace_braces, parse_keyword)
 
     # I do not understand why some of the input will eat the '\' charactor before it!
     # This code is to avoid these things.
     if n == 0 and re.search(r'^[a-zA-Z]+$', keyword[1:].strip()) != None:
-            return keyword
+        return keyword
     else:
         return replace
