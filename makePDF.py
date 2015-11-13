@@ -185,23 +185,29 @@ class CmdThread ( threading.Thread ):
 			else:
 				content.append("")
 
-			s = sublime.load_settings("LaTeXTools.sublime-settings")
-			hide_panel_level = s.get("hide_build_panel")
 			hide_panel = {
 				"always": True,
 				"no_errors": not errors,
 				"no_warnings": not errors and not warnings,
 				"never": False
-			}.get(hide_panel_level, False)
+			}.get(self.caller.hide_panel_level, False)
+
 			if hide_panel:
-				self.caller.window.run_command("hide_panel", {"panel": "output.exec"})
+				# hide the build panel (ST2 api is not thread save)
+				if _ST3:
+					self.caller.window.run_command("hide_panel", {"panel": "output.exec"})
+				else:
+					sublime.set_timeout(lambda: self.caller.window.run_command("hide_panel", {"panel": "output.exec"}), 10)
 				message = "build completed"
 				if errors:
 					message += " with errors"
 				if warnings:
 					message += " and" if errors else " with"
 					message += " warnings"
-				sublime.status_message(message)
+				if _ST3:
+					sublime.status_message(message)
+				else:
+					sublime.set_timeout(lambda: sublime.status_message(message), 10)
 		except Exception as e:
 			content=["",""]
 			content.append("LaTeXtools could not parse the TeX log file")
@@ -274,10 +280,11 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			self.encoding = "UTF-8"
 		else:
 			sublime.error_message("Platform as yet unsupported. Sorry!")
-			return	
-		
+			return
+
 		# Get platform settings, builder, and builder settings
 		s = sublime.load_settings("LaTeXTools.sublime-settings")
+		self.hide_panel_level = s.get("hide_build_panel")
 		platform_settings  = s.get(self.plat)
 		builder_name = s.get("builder")
 		# This *must* exist, so if it doesn't, the user didn't migrate
