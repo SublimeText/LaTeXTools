@@ -5,8 +5,6 @@ import os
 import re
 import codecs
 
-index = 0
-
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
     _ST3 = False
@@ -136,14 +134,14 @@ def parse_cwl_file():
 def parse_keyword(keyword):
     # Replace strings in [] and {} with snippet syntax
     def replace_braces(matchobj):
-        global index
-        index += 1
+        replace_braces.index += 1
         if matchobj.group(1) != None:
             word = matchobj.group(1)
-            return u'{${%d:%s}}' % (index, word)
+            return u'{${%d:%s}}' % (replace_braces.index, word)
         else:
             word = matchobj.group(2)
-            return u'[${%d:%s}]' % (index, word)
+            return u'[${%d:%s}]' % (replace_braces.index, word)
+    replace_braces.index = 0
 
     replace, n = re.subn(r'\{([^\{\}\[\]]*)\}|\[([^\{\}\[\]]*)\]', replace_braces, keyword[1:])
 
