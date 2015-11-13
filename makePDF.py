@@ -1,5 +1,5 @@
 # ST2/ST3 compat
-from __future__ import print_function
+from __future__ import print_function 
 import sublime
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
@@ -117,7 +117,7 @@ class CmdThread ( threading.Thread ):
 				elif self.caller.path:
 					os.environ["PATH"] = old_path
 				return
-
+			
 			# Now actually invoke the command, making sure we allow for killing
 			# First, save process handle into caller; then communicate (which blocks)
 			self.caller.proc = proc
@@ -158,10 +158,10 @@ class CmdThread ( threading.Thread ):
 		# byte array (? whatever read() returns), this does not happen---we only break at \n, etc.
 		# However, we must still decode the resulting lines using the relevant encoding.
 		# 121101 -- moved splitting and decoding logic to parseTeXlog, where it belongs.
-
+		
 		# Note to self: need to think whether we don't want to codecs.open this, too...
 		# Also, we may want to move part of this logic to the builder...
-		data = open(self.caller.tex_base + ".log", 'rb').read()
+		data = open(self.caller.tex_base + ".log", 'rb').read()		
 
 		errors = []
 		warnings = []
@@ -170,7 +170,7 @@ class CmdThread ( threading.Thread ):
 			(errors, warnings) = parseTeXlog.parse_tex_log(data)
 			content = [""]
 			if errors:
-				content.append("Errors:")
+				content.append("Errors:") 
 				content.append("")
 				content.extend(errors)
 			else:
@@ -179,35 +179,29 @@ class CmdThread ( threading.Thread ):
 				if errors:
 					content.extend(["", "Warnings:"])
 				else:
-					content[-1] = content[-1] + " Warnings:"
+					content[-1] = content[-1] + " Warnings:" 
 				content.append("")
 				content.extend(warnings)
 			else:
 				content.append("")
 
+			s = sublime.load_settings("LaTeXTools.sublime-settings")
+			hide_panel_level = s.get("hide_build_panel")
 			hide_panel = {
 				"always": True,
 				"no_errors": not errors,
 				"no_warnings": not errors and not warnings,
 				"never": False
-			}.get(self.caller.hide_panel_level, False)
-
+			}.get(hide_panel_level, False)
 			if hide_panel:
-				# hide the build panel (ST2 api is not thread save)
-				if _ST3:
-					self.caller.window.run_command("hide_panel", {"panel": "output.exec"})
-				else:
-					sublime.set_timeout(lambda: self.caller.window.run_command("hide_panel", {"panel": "output.exec"}), 10)
+				self.caller.window.run_command("hide_panel", {"panel": "output.exec"})
 				message = "build completed"
 				if errors:
 					message += " with errors"
 				if warnings:
 					message += " and" if errors else " with"
 					message += " warnings"
-				if _ST3:
-					sublime.status_message(message)
-				else:
-					sublime.set_timeout(lambda: sublime.status_message(message), 10)
+				sublime.status_message(message)
 		except Exception as e:
 			content=["",""]
 			content.append("LaTeXtools could not parse the TeX log file")
@@ -227,7 +221,7 @@ class CmdThread ( threading.Thread ):
 class make_pdfCommand(sublime_plugin.WindowCommand):
 
 	def run(self, cmd="", file_regex="", path=""):
-
+		
 		# Try to handle killing
 		if hasattr(self, 'proc') and self.proc: # if we are running, try to kill running process
 			self.output("\n\n### Got request to terminate compilation ###")
@@ -236,7 +230,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			return
 		else: # either it's the first time we run, or else we have no running processes
 			self.proc = None
-
+		
 		view = self.window.active_view()
 
 		self.file_name = getTeXRoot.get_tex_root(view)
@@ -246,7 +240,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 
 		self.tex_base, self.tex_ext = os.path.splitext(self.file_name)
 		tex_dir = os.path.dirname(self.file_name)
-
+		
 		# Output panel: from exec.py
 		if not hasattr(self, 'output_view'):
 			self.output_view = self.window.get_output_panel("exec")
@@ -260,17 +254,17 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		self.output_view.settings().set("result_base_dir", tex_dir)
 
 		self.window.run_command("show_panel", {"panel": "output.exec"})
-
+		
 		self.output_view.settings().set("result_file_regex", file_regex)
 
 		if view.is_dirty():
 			print ("saving...")
 			view.run_command('save') # call this on view, not self.window
-
+		
 		if self.tex_ext.upper() != ".TEX":
 			sublime.error_message("%s is not a TeX source file: cannot compile." % (os.path.basename(view.file_name()),))
 			return
-
+		
 		self.plat = sublime.platform()
 		if self.plat == "osx":
 			self.encoding = "UTF-8"
@@ -280,11 +274,10 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			self.encoding = "UTF-8"
 		else:
 			sublime.error_message("Platform as yet unsupported. Sorry!")
-			return
-
+			return	
+		
 		# Get platform settings, builder, and builder settings
 		s = sublime.load_settings("LaTeXTools.sublime-settings")
-		self.hide_panel_level = s.get("hide_build_panel")
 		platform_settings  = s.get(self.plat)
 		builder_name = s.get("builder")
 		# This *must* exist, so if it doesn't, the user didn't migrate
@@ -323,7 +316,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			sublime.error_message("Cannot find builder " + builder_name + ".\n" \
 							      "Check your LaTeXTools Preferences")
 			return
-
+		
 		# We save the system path and TEMPORARILY add the builders path to it,
 		# so we can simply "import pdfBuilder" in the builder module
 		# For custom builders, we need to add both the LaTeXTools builders
@@ -336,16 +329,16 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			sys.path.insert(0, bld_path)
 		builder_module = __import__(builder_name + 'Builder')
 		sys.path[:] = syspath_save
-
+		
 		print(repr(builder_module))
 		builder_class = getattr(builder_module, builder_class_name)
 		print(repr(builder_class))
 		# We should now be able to construct the builder object
 		self.builder = builder_class(self.file_name, self.output, builder_settings, platform_settings)
-
+		
 		# Restore Python system path
 		sys.path[:] = syspath_save
-
+		
 		# Now get the tex binary path from prefs, change directory to
 		# that of the tex root file, and run!
 		self.path = platform_settings['texpath']
@@ -398,7 +391,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# if selection_was_at_end:
 		#     self.output_view.show(self.output_view.size())
 		# self.output_view.end_edit(edit)
-		self.output_view.set_read_only(True)
+		self.output_view.set_read_only(True)	
 
 	# Also from exec.py
 	# Set the selection to the start of the output panel, so next_result works
