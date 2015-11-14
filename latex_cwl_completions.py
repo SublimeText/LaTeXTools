@@ -51,7 +51,22 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
                 return []
 
         completions = parse_cwl_file()
-        return (completions, sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS)
+        # autocompleting with slash already on line
+        # this is necessary to work around a short-coming in ST where having a keyed entry
+        # appears to interfere with it recognising that there is a \ already on the line
+        #
+        # NB this may not work if there are other punctuation marks in the completion
+        # since these are rare in TeX, this is probably ok
+        if len(line) > 0 and line[0] == '\\':
+            _completions = []
+            for completion in completions:
+                _completion = completion[1]
+                if  _completion[0] == '\\' and '${1:' in _completion:
+                    completion = (completion[0], _completion[1:])
+                _completions.append(completion)
+        else:
+            _completions = completions
+        return (_completions, sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS)
 
     # This functions is to determine whether LaTeX-cwl is installed,
     # if so, trigger auto-completion in latex buffers by '\'
