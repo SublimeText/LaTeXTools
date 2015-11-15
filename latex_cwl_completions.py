@@ -124,18 +124,28 @@ def parse_cwl_file():
     completions = []
     for cwl in cwl_files:
         if _ST3:
-            s = sublime.load_resource(cwl)
-        else:
-            f = codecs.open(cwl, 'r', 'utf-8')
             try:
-                s = u''.join(f.readlines())
-            finally:
-                f.close()
+                s = sublime.load_resource(cwl)
+            except IOError:
+                print(cwl + ' does not exist or could not be accessed')
+                continue
+        else:
+            try:
+                f = codecs.open(cwl, 'r', 'utf-8')
+            except IOError:
+                print(cwl + ' does not exist or could not be accessed')
+                continue
+            else:
+                try:
+                    s = u''.join(f.readlines())
+                finally:
+                    f.close()
 
         for line in s.split('\n'):
+            line = line.strip()
             if line == '':
                 continue
-            if line.lstrip()[0] == '#':
+            if line[0] == '#':
                 continue
 
             keyword = line.strip()
