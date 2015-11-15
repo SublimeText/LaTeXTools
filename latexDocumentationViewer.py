@@ -38,13 +38,6 @@ def using_miktex():
     except KeyError:
         return True  # assumed
 
-def is_latex_doc(view):
-    point = view.sel()[0].b
-    return (
-        view.score_selector(point, "text.tex.latex") > 0 or
-        view.score_selector(point, "text.bibtex") > 0
-    )
-
 def _view_texdoc(file):
     if file is None:
         raise Exception('File must be specified')
@@ -109,18 +102,9 @@ class LatexPkgDocCommand(sublime_plugin.WindowCommand):
             None
         )
 
-    def is_visible(self):
-        return is_latex_doc(self.window.active_view())
-
-    def is_enabled(self):
-        return is_latex_doc(self.window.active_view())
-
 class LatexViewDocCommand(sublime_plugin.WindowCommand):
     def run(self, file):
         _view_texdoc(file)
 
     def is_visible(self):
         return False  # hide this from menu
-
-    def is_enabled(self):
-        return is_latex_doc(self.window.active_view())
