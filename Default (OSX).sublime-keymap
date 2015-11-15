@@ -104,6 +104,10 @@ LaTeX Package keymap for OS X
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "toggle_show"},
 
+	// Jump to a tex file (will create the file if it does not exists)
+	{ "keys": ["super+l", "super+o"],
+		"command": "jumpto_tex_file", "args": {"auto_create_missing_folders": true, "auto_insert_root": true}},
+
 	// Wrap selected text in command or environment
 	{ "keys": ["super+l","super+c"], 
 		"context":  [

@@ -279,6 +279,16 @@ The LaTeXtools plugin integrates with the awesome ST "Goto Anything" facility. H
 Selecting any entry in the list will take you to the corresponding place in the text.
 
 
+Jumping to included files
+-----------------------------
+
+**Keybinding:** `C-l, C-o` (only works if the cursor is in the same line as the include command)
+
+To open a LaTeX file, which is included with `\input`, `\include` or `\subfile` just position the cursor in the same line as the include command and press `C-l, C-o`. This will open the included file in Sublime Text.
+
+If necessary missing folders and the file will be created. In this case the magic root entry will be written into the file. Hence this command can be used to comfortably create files and open files.
+
+
 LaTeX commands and environments
 -------------------------------
 
