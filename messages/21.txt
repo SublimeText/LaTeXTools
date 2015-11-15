@@ -11,5 +11,6 @@ Bugs fixed:
 
 - Fill Helper now handles backslashes correctly on Windows.
 - Other Fill Helper fixes
+- Fixed PDF forward search issues with long builds
 
   
