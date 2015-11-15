@@ -59,6 +59,15 @@ LaTeX Package keymap for Windows
 				"operand": "\\\\cite([a-zX*]*?)(\\[.*?\\]){0,2}\\{(?:[^{},]*,)*[^{},]+$", "match_all": true}],
 		"command": "latex_ref_cite", "args": {"insert_char": ","}},
 
+	{	"keys": ["{"],
+		"context":  [
+			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
+			{"key": "preceding_text", "operator": "regex_contains",
+				"operand": "(?:\\\\include)|(?:\\\\input)|(?:\\\\includegraphics(?:\\[[^{}\\[\\]]\\])?)|(?:\\\\addbibresource(?:\\[[^{}\\[\\]]\\])?)|(?:\\\\bibliography)|(?:\\\\documentclass(?:\\[[^{}\\[\\]]\\])?)|(?:\\\\usepackage(?:\\[[^{}\\[\\]]\\])?)|(?:\\\\bibliographystyle)", "match_all": true}],
+		"command": "latex_fill_input", "args": {"insert_char": "{"}},
+
 	// Toggle autocomplete
 	{ 	"keys": ["ctrl+l","t","a", "r"],
 		"context":  [
@@ -68,6 +77,10 @@ LaTeX Package keymap for Windows
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "toggle_auto", "args": {"which": "cite"}},
+	{ 	"keys": ["ctrl+l","t","a", "f"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "toggle_auto", "args": {"which": "fill"}},
 
 	// View PDF, jump to point, toggle editor/viewer focus
 	{ 	"keys": ["ctrl+l","v"],
@@ -90,6 +103,10 @@ LaTeX Package keymap for Windows
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "toggle_show"},
+
+	// Jump to a tex file (will create the file if it does not exists)
+	{ "keys": ["ctrl+l", "ctrl+o"],
+		"command": "jumpto_tex_file", "args": {"auto_create_missing_folders": true, "auto_insert_root": true}},
 
 	// Wrap selected text in command or environment
 	{ "keys": ["ctrl+l","ctrl+c"], 
@@ -289,6 +306,13 @@ LaTeX Package keymap for Windows
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
 			{ "key": "following_text", "operator": "regex_match", "operand": "^$", "match_all": true }
+		]
+	},
+
+	// Fill helper command
+	{	"keys": ["ctrl+l", "ctrl+f"], "command": "latex_fill_all", "context":
+		[
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
 		]
 	}
 ]
