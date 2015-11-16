@@ -20,7 +20,7 @@ from subprocess import Popen
 
 class View_pdfCommand(sublime_plugin.WindowCommand):
 	def run(self):
-		s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
+		s = sublime.load_settings("LaTeXTools.sublime-settings")
 		prefs_keep_focus = s.get("keep_focus", True)
 		prefs_lin = s.get("linux")
 

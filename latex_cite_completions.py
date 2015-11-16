@@ -5,9 +5,12 @@ if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
     _ST3 = False
     import getTeXRoot
+    import kpsewhich
+    from kpsewhich import kpsewhich
 else:
     _ST3 = True
     from . import getTeXRoot
+    from .kpsewhich import kpsewhich
 
 
 import sublime_plugin
@@ -71,6 +74,7 @@ def find_bib_files(rootdir, src, bibfiles):
                 f.close()
 
     bibtags =  re.findall(r'\\bibliography\{[^\}]+\}', src_content)
+    bibtags += re.findall(r'\\nobibliography\{[^\}]+\}', src_content)
     bibtags += re.findall(r'\\addbibresource\{[^\}]+.bib\}', src_content)
 
     # extract absolute filepath for each bib file
@@ -79,9 +83,14 @@ def find_bib_files(rootdir, src, bibfiles):
         for bf in bfiles:
             if bf[-4:].lower() != '.bib':
                 bf = bf + '.bib'
-            # We join with rootdir - everything is off the dir of the master file
-            bf = os.path.normpath(os.path.join(rootdir,bf))
-            bibfiles.append(bf)
+            # We join with rootdir, the dir of the master file
+            candidate_file = os.path.normpath(os.path.join(rootdir,bf))
+            # if the file doesn't exist, search the default tex paths
+            if not os.path.exists(candidate_file):
+                candidate_file = kpsewhich(bf, 'mlbib')
+
+            if candidate_file is not None and os.path.exists(candidate_file):
+                bibfiles.append(candidate_file)
 
     # search through input tex files recursively
     for f in re.findall(r'\\(?:input|include)\{[^\}]+\}',src_content):
@@ -261,6 +270,8 @@ def get_cite_completions(view, point, autocompleting=False):
                 continue
             if line.lower()[0:7] == "@string":
                 continue
+            if line.lower()[0:9] == "@preamble":
+                continue
             if line[0] == "@":
                 # First, see if we can add a record; the keyword must be non-empty, other fields not
                 if entry["keyword"]:
@@ -284,7 +295,7 @@ def get_cite_completions(view, point, autocompleting=False):
                     entry["keyword"] = kp_match.group(1) # No longer decode. Was: .decode('ascii','ignore')
                 else:
                     print ("Cannot process this @ line: " + line)
-                    print ("Previous record " + entry)
+                    print ("Previous keyword (if any): " + entry["keyword"])
                 continue
             # Now test for title, author, etc.
             # Note: we capture only the first line, but that's OK for our purposes
@@ -388,7 +399,7 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
             prefix += " "
 
         # get preferences for formating of autocomplete entries
-        s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
+        s = sublime.load_settings("LaTeXTools.sublime-settings")
         cite_autocomplete_format = s.get("cite_autocomplete_format", "{keyword}: {title}")
 
         r = [(prefix + cite_autocomplete_format.format(keyword=keyword, title=title, author=author, year=year, author_short=author_short, title_short=title_short, journal=journal),
@@ -451,7 +462,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             view.sel().add(sublime.Region(caret, caret))
 
         # get preferences for formating of quick panel
-        s = sublime.load_settings("LaTeXTools Preferences.sublime-settings")
+        s = sublime.load_settings("LaTeXTools.sublime-settings")
         cite_panel_format = s.get("cite_panel_format", ["{title} ({keyword})", "{author}"])
 
         # show quick

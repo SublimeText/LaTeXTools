@@ -23,13 +23,12 @@
                             { "caption": "-" },
                             {
                                 "command": "open_file",
-                                "args": {"file": "${packages}/LaTeXTools/LaTeXTools Preferences.sublime-settings"},
-                                "caption": "Settings – Default"
+                                "args": {"file": "${packages}/User/LaTeXTools.sublime-settings"},
+                                "caption": "Settings – User"
                             },
                             {
-                                "command": "open_file",
-                                "args": {"file": "${packages}/User/LaTeXTools Preferences.sublime-settings"},
-                                "caption": "Settings – User"
+                                "command": "latextools_migrate",
+                                "caption": "Reconfigure LaTeXTools and migrate settings"
                             },
                             { "caption": "-" },
                             {

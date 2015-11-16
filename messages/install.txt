@@ -1,15 +1,12 @@
-LaTeXTools Plugin version 2012-09-17 17:03:16
+LaTeXTools Plugin version 2015-11-14
 
 Thank you for installing the LaTeXTools plugin!
-
-If you have not updated your LaTeXTools plugin in a while, please note:
-THE KEYBOARD SHORTCUTS HAVE CHANGED!
 
 To learn about the features of this plugin, go to the Github page:
 
 https://github.com/SublimeText/LaTeXTools
 
-and scroll down to the README file. Actually, the Markdown source of that file is in the plugin directory, which you can open using "Browse Packages..." in Sublime Text 2.
+and scroll down to the README file. Actually, the Markdown source of that file is in the plugin directory, which you can open using "Browse Packages..." in Sublime Text.
 
 You can also check out my blog at
 
