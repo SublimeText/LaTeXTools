@@ -53,9 +53,9 @@ class TraditionalBuilder(PdfBuilder):
 			default_command = DEFAULT_COMMAND_WINDOWS_MIKTEX
 		else: # osx, linux, windows/texlive, everything else really!
 			default_command = DEFAULT_COMMAND_LATEXMK
-		self.cmd = builder_settings.get("command", default_command)
+		self.cmd = builder_settings.get(plat).get("command", default_command)
 		# Default tex engine (pdflatex if none specified)
-		self.engine = builder_settings.get("program", "pdflatex")
+		self.engine = builder_settings.get(plat).get("program", "pdflatex")
 		# Sanity check: if "strange" engine, default to pdflatex (silently...)
 		if not(self.engine in ['pdflatex', "pdftex", 'xelatex', 'xetex', 'lualatex', 'luatex']):
 			self.engine = 'pdflatex'
@@ -70,7 +70,7 @@ class TraditionalBuilder(PdfBuilder):
 		# Print greeting
 		self.display("\n\nTraditionalBuilder: ")
 
-		# See if the root file specifies a custom engine
+		# See if the root file specifies a custom engine and/or custom tex options
 		engine = self.engine
 		cmd = self.cmd[:] # Warning! If I omit the [:], cmd points to self.cmd!
 		for line in codecs.open(self.tex_root, "r", "UTF-8", "ignore").readlines():
@@ -91,7 +91,12 @@ class TraditionalBuilder(PdfBuilder):
 							  "Cannot select engine using a %!TEX program directive.\n")
 						  yield("", "Could not compile.")
 					
-					break
+				# Check for %!TEX option = <option>
+				mroot = []
+				mroot = re.match(r"%\s*!TEX\s+option *= *([-\w]+)\s*$",line)			
+				if mroot:
+					if cmd[0] == "texify":
+						cmd.append("--tex-option=\"" + mroot.group(1) + "\"")
 
 		if cmd[0] == "texify":
 			engine = engine.replace("la","") # texify's --engine option takes pdftex/xetex/luatex as acceptable values
@@ -102,7 +107,8 @@ class TraditionalBuilder(PdfBuilder):
 		cmd[3] = cmd[3].replace("%E", engine)
 
 		# texify wants the .tex extension; latexmk doesn't care either way
-		yield (cmd + [self.tex_name], "Invoking " + cmd[0] + "... ")
+		# Print the command used for building
+		yield (cmd + [self.tex_name], "Invoking \"" + " ".join(cmd) + "\"... ")
 
 		self.display("done.\n")
 		
