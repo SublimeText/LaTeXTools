@@ -26,12 +26,12 @@ class Delete_temp_filesCommand(sublime_plugin.WindowCommand):
 
 		# Delete the files.
 		temp_exts = set(['.blg','.bbl','.aux','.log','.brf','.nlo','.out','.dvi','.ps',
-			'.lof','.toc','.fls','.fdb_latexmk','.pdfsync','.synctex.gz','.ind','.ilg','.idx'])
-
+			'.lof','.toc','.fls','.fdb_latexmk','.pdfsync','.synctex.gz','.ind','.ilg','.idx',
+			'.glg','.glo','.gls','.ist','.lot','.run.xml','blx.bib'])
+			
 		for dir_path, dir_names, file_names in os.walk(self.path):
 			for file_name in file_names:
-				file_base, file_ext = os.path.splitext(file_name)
-				if file_ext in temp_exts:
+				if any([file_name.endswith(ext) for ext in temp_exts]):
 					file_name_to_del = os.path.join(dir_path, file_name)
 					if os.path.exists(file_name_to_del):
 						os.remove(file_name_to_del)
