@@ -1,5 +1,6 @@
 import os
 import pickle
+import shutil
 
 import sublime
 
@@ -10,6 +11,17 @@ else:
     _ST3 = True
 
 CACHE_FOLDER = ".st_ltt_cache"
+
+
+def delete_local_cache(tex_root):
+    """
+    Removes the local cache folder and the local cache files
+    """
+    cache_path = os.path.dirname(tex_root)
+    cache_path = os.path.join(cache_path, CACHE_FOLDER)
+    if not os.path.exists(cache_path):
+        return
+    shutil.rmtree(cache_path)
 
 
 def write(tex_root, name, obj):
@@ -56,7 +68,7 @@ def write_local(tex_root, name, obj):
     name -- the relative file name to write the object
     obj -- the object to write, must be compatible with pickle
     """
-    cache_path, _ = os.path.split(tex_root)
+    cache_path = os.path.dirname(tex_root)
     cache_path = os.path.join(cache_path, CACHE_FOLDER)
     if not os.path.isdir(cache_path):
         os.mkdir(cache_path)
@@ -80,7 +92,7 @@ def read_local(tex_root, name):
     The object at the location with the name,
     None - if the file does not exists
     """
-    cache_path, _ = os.path.split(tex_root)
+    cache_path = os.path.dirname(tex_root)
     cache_path = os.path.join(cache_path, CACHE_FOLDER)
     file_path = os.path.join(cache_path, name)
     if not os.path.isdir(cache_path) or not os.path.exists(file_path):
