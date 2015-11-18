@@ -5,9 +5,11 @@ if sublime.version() < '3000':
 	_ST3 = False
 	# we are on ST2 and Python 2.X
 	import getTeXRoot
+	from latextools_utils import cache
 else:
 	_ST3 = True
 	from . import getTeXRoot
+	from .latextools_utils import cache
 
 
 import sublime_plugin
@@ -23,6 +25,8 @@ class Delete_temp_filesCommand(sublime_plugin.WindowCommand):
 			return
 
 		self.path = os.path.dirname(self.file_name)
+
+		cache.delete_local_cache(self.file_name)
 
 		# Delete the files.
 		temp_exts = set(['.blg','.bbl','.aux','.log','.brf','.nlo','.out','.dvi','.ps',
