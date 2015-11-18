@@ -6,9 +6,11 @@ import sublime
 try:
     _ST3 = True
     from ..getTeXRoot import get_tex_root
+    from . import cache
 except:
     _ST3 = False
     from getTeXRoot import get_tex_root
+    from latextools_utils import cache
 
 # attributes of an entry (for documentation)
 """
@@ -149,7 +151,8 @@ class Analysis():
         """
         return _copy_entries(self._commands(flags))
 
-    def filter_commands(self, how, flags=NO_BEGIN_END_COMMANDS | ONLY_COMMANDS_WITH_ARGS):
+    def filter_commands(self, how,
+                        flags=NO_BEGIN_END_COMMANDS | ONLY_COMMANDS_WITH_ARGS):
         """
         Returns a filtered list with copies of each command entry
         in the document
@@ -201,6 +204,48 @@ class Analysis():
         if flags not in self._command_cache:
             self._build_cache(flags)
         return self._command_cache[flags]
+
+
+def get_analysis(tex_root):
+    """
+    Returns an analysis of the document using a cache
+
+    Use this method if you want a fast result and don't mind if there
+    are small changes between the analysis and the usage.
+    Don't use this method if you ware looking forward in using
+    the regions of the commands (it will most likely not yield proper result)
+    (and is currently not supported with st2)
+
+    Arguments:
+    tex_root -- the path to the tex root as a string
+                if you use the view instead, the tex root will be extracted
+                automatically
+
+    Returns:
+    An Analysis of the view, which contains all relevant information and
+    provides access methods to useful properties
+    """
+    view = tex_root  # store for the case, that the analysis have to be done
+    if type(tex_root) is str:
+        tex_root = tex_root
+    else:
+        tex_root = get_tex_root(tex_root)
+    result = cache.read(tex_root, "analysis")
+    if result is not None:
+        return result
+    result = analyze_document(view)
+    # TODO
+    # cannot pickle sublime.Region in st2 this is a hacky workaround
+    # to remove those regions if someone is interested in the regions
+    # this method is not recommended anyways
+    if not _ST3:
+        for c in result._all_commands:
+            c.region = None
+            for k in _RE_COMMAND.groupindex.keys():
+                region_name = k + "_region"
+                c.__dict__[region_name] = None
+    cache.write(tex_root, "analysis", result)
+    return result
 
 
 def analyze_document(view):
