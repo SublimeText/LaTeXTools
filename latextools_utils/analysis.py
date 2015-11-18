@@ -226,7 +226,7 @@ def get_analysis(tex_root):
     provides access methods to useful properties
     """
     view = tex_root  # store for the case, that the analysis have to be done
-    if type(tex_root) is str or type(tex_root) is unicode:
+    if type(tex_root) is str or not _ST3 and type(tex_root) is unicode:
         tex_root = tex_root
     else:
         tex_root = get_tex_root(tex_root)
@@ -262,7 +262,7 @@ def analyze_document(view):
     """
     if view is None:
         return
-    if type(view) is str or type(view) is unicode:
+    if type(view) is str or not _ST3 and type(view) is unicode:
         tex_root = view
     else:
         # if the view is dirty save it (only thread safe on st3)
