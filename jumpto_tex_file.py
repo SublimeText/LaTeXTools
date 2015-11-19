@@ -6,9 +6,9 @@ import sublime
 import sublime_plugin
 
 try:
-    from .getTeXRoot import get_tex_root
-except ImportError:
     from getTeXRoot import get_tex_root
+except ImportError:
+    from .getTeXRoot import get_tex_root
 
 
 # TODO this might be moved to a generic util
