@@ -21,11 +21,6 @@ class LatexChangeEnvironmentCommand(sublime_plugin.TextCommand):
         begins = [b for b in begins if not is_comment(b)]
         ends = [e for e in ends if not is_comment(e)]
 
-        if len(view.sel()) != 1:
-            message = "Only one cursor is supported for 'change_environment'!"
-            sublime.status_message(message)
-            return
-
         def extract_begin_region(region):
             """creates a sublime.Region: \\begin{|text|}"""
             s = view.substr(region)
@@ -40,35 +35,45 @@ class LatexChangeEnvironmentCommand(sublime_plugin.TextCommand):
             boffset = len("\\end{")
             return sublime.Region(region.begin() + boffset, region.end() - 1)
 
-        sel = view.sel()[0]
+        new_regions = []
+        one_sel = len(view.sel()) == 1
 
-        # partition the open and closed environments
-        begin_before, begin_after = _partition_begins(begins, sel)
-        end_before, end_after = _partition_ends(ends, sel)
+        for sel in view.sel():
+            # partition the open and closed environments
+            begin_before, begin_after = _partition_begins(begins, sel)
+            end_before, end_after = _partition_ends(ends, sel)
 
-        # get the nearest open environments
-        try:
-            begin = _get_closest_begin(begin_before, end_before)
-            end = _get_closest_end(end_after, begin_after)
-        except NoEnvError as e:
-            sublime.status_message(e.args[0])
+            # get the nearest open environments
+            try:
+                begin = _get_closest_begin(begin_before, end_before)
+                end = _get_closest_end(end_after, begin_after)
+            except NoEnvError as e:
+                if one_sel:
+                    sublime.status_message(e.args[0])
+                    return
+                else:
+                    continue
+
+            # extract the regions for the environments
+            begin_region = extract_begin_region(begin)
+            end_region = extract_end_region(end)
+
+            # validity check: matching env name
+            if view.substr(begin_region) == view.substr(end_region):
+                new_regions.append(begin_region)
+                new_regions.append(end_region)
+            elif one_sel:
+                message = "The environment begin and end does not match:"\
+                    "'{0}' and '{1}'"\
+                    .format(view.substr(begin_region), view.substr(end_region))
+                sublime.status_message(message)
+        if not new_regions:
+            sublime.status_message("Environment detection failed")
             return
 
-        # extract the regions for the environments
-        begin_region = extract_begin_region(begin)
-        end_region = extract_end_region(end)
-
-        # validity check: matching env name
-        if view.substr(begin_region) == view.substr(end_region):
-            view.sel().clear()
-            view.sel().add(begin_region)
-            view.sel().add(end_region)
-            return
-        else:
-            message = "The environment begin and end does not match:"\
-                "'{0}' and '{1}'"\
-                .format(view.substr(begin_region), view.substr(end_region))
-            sublime.status_message(message)
+        view.sel().clear()
+        for r in new_regions:
+            view.sel().add(r)
 
 
 def _partition_begins(begins, sel):
