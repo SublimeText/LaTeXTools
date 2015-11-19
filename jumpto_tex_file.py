@@ -1,3 +1,4 @@
+import codecs
 import re
 import os
 import traceback
@@ -6,9 +7,9 @@ import sublime
 import sublime_plugin
 
 try:
-    from .getTeXRoot import get_tex_root
-except ImportError:
     from getTeXRoot import get_tex_root
+except ImportError:
+    from .getTeXRoot import get_tex_root
 
 
 # TODO this might be moved to a generic util
@@ -66,14 +67,14 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
                 if auto_create_missing_folders and\
                         not os.path.exists(containing_folder):
                     try:
-                        os.makedirs(containing_folder, exist_ok=True)
+                        os.makedirs(containing_folder)
                     except OSError:
                         # most likely a permissions error
-                        print('Error occurred while creating path "{0}"'
+                        print(u'Error occurred while creating path "{0}"'
                               .format(containing_folder))
                         traceback.print_last()
                     else:
-                        print('Created folder: "{0}"'
+                        print(u'Created folder: "{0}"'
                               .format(containing_folder))
 
                 if not os.path.exists(containing_folder):
@@ -92,12 +93,12 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
                             base_name)
 
                     # Use slashes consistent with TeX's usage
-                    if sublime.platform() == 'windows' and not isabs:
-                        root_path = root_path.replace('\\', '/')
+                    if sublime.platform() == 'windows':
+                        root_path = root_path.replace(u'\\', u'/')
 
-                    root_string = '%!TEX root = {0}\n'.format(root_path)
+                    root_string = u'%!TEX root = {0}\n'.format(root_path)
                     try:
-                        with open(full_new_path, 'a', encoding='utf-8') as new_file:
+                        with codecs.open(full_new_path, 'a', encoding='utf-8') as new_file:
                             new_file.write(root_string)
                         is_root_inserted = True
                     except OSError:
