@@ -40,8 +40,10 @@ class LatexChangeEnvironmentCommand(sublime_plugin.TextCommand):
 
         for sel in view.sel():
             # partition the open and closed environments
-            begin_before, begin_after = _partition_begins(begins, sel)
-            end_before, end_after = _partition_ends(ends, sel)
+            begin_before, begin_after =\
+                _partition(begins, lambda b: b.begin() <= sel.begin())
+            end_before, end_after =\
+                _partition(ends, lambda e: e.end() < sel.begin())
 
             # get the nearest open environments
             try:
@@ -76,40 +78,22 @@ class LatexChangeEnvironmentCommand(sublime_plugin.TextCommand):
             view.sel().add(r)
 
 
-def _partition_begins(begins, sel):
-    """partition the begins in the begins befor and after the sel"""
-    begin_before, begin_after = [], []
-    begin_iter = iter(begins)
+def _partition(env_list, is_before):
+    """partition the list in the list items before and after the sel"""
+    before, after = [], []
+    iterator = iter(env_list)
     while True:
         try:
-            b = next(begin_iter)
+            item = next(iterator)
         except:
             break
-        if b.begin() <= sel.begin():
-            begin_before.append(b)
+        if is_before(item):
+            before.append(item)
         else:
-            begin_after.append(b)
-            begin_after.extend(begin_iter)
+            after.append(item)
+            after.extend(iterator)
             break
-    return begin_before, begin_after
-
-
-def _partition_ends(ends, sel):
-    """partition the ends in the ends befor and after the sel"""
-    end_before, end_after = [], []
-    end_iter = iter(ends)
-    while True:
-        try:
-            e = next(end_iter)
-        except:
-            break
-        if e.end() < sel.begin():
-            end_before.append(e)
-        else:
-            end_after.append(e)
-            end_after.extend(end_iter)
-            break
-    return end_before, end_after
+    return before, after
 
 
 class NoEnvError(Exception):
