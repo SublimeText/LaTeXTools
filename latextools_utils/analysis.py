@@ -59,20 +59,27 @@ _RE_COMMENT = re.compile(
 # i.e. the 'args' field of the command
 _input_commands = ["input", "include", "subfile"]
 
+
 # FLAGS
+def _flag():
+    """get the next free flag"""
+    current_flag = _flag.flag
+    _flag.flag <<= 1
+    return current_flag
+_flag.flag = 1
 
 # dummy for no flag
-ALL_COMMANDS = 0x0
+ALL_COMMANDS = 0
 # exclude \begin{} and \end{} commands
-NO_BEGIN_END_COMMANDS = 0x1
+NO_BEGIN_END_COMMANDS = _flag()
 # allows \com{args} and \com{} but not \com
-ONLY_COMMANDS_WITH_ARGS = 0x2
+ONLY_COMMANDS_WITH_ARGS = _flag()
 # only allow \com{args} not \com{} or \com
-ONLY_COMMANDS_WITH_ARG_CONTENT = 0x4
+ONLY_COMMANDS_WITH_ARG_CONTENT = _flag()
 
 # possible new flags:
 # only before \begin{document}
-ONLY_PREAMBLE = 0x8
+ONLY_PREAMBLE = _flag()
 
 
 _FLAG_FILTER = {
@@ -98,7 +105,6 @@ class Analysis():
         self._content = {}
         self._raw_content = {}
 
-        self._rowcol = {}
         self._all_commands = []
         self._command_cache = {}
 
@@ -112,31 +118,24 @@ class Analysis():
         """
         The content of the file without comments (a string)
         """
-        try:
-            return self._content[file_name]
-        except IndexError:
-            raise FileNotAnalyzed("File has not been analyzed:, ", file_name)
+        if file_name not in self._content:
+            raise FileNotAnalyzed(file_name)
+        return self._content[file_name]
 
     def raw_content(self, file_name):
         """
         The raw unprocessed content of the file (a string)
         """
-        try:
-            return self._raw_content[file_name]
-        except IndexError:
-            raise FileNotAnalyzed("File has not been analyzed:, ", file_name)
+        if file_name not in self._raw_content:
+            raise FileNotAnalyzed(file_name)
+        return self._raw_content[file_name]
 
     def rowcol(self, file_name):
         """
         Returns a rowcol function for the file with the same behavior as the
         view.rowcol function from the sublime api
         """
-        try:
-            rowcol = self._rowcol[file_name]
-        except IndexError:
-            rowcol = make_rowcol(self.raw_content(file_name))
-            self._rowcol[file_name] = rowcol
-        return rowcol
+        return make_rowcol(self.raw_content(file_name))
 
     def commands(self, flags=DEFAULT_FLAGS):
         """
@@ -199,9 +198,8 @@ class Analysis():
 
     def _build_cache(self, flags):
         com = self._all_commands
-        for i in range(0, len(_FLAG_FILTER)):
-            cflag = 0x1 << i
-            if flags & cflag and cflag in _FLAG_FILTER:
+        for cflag in sorted(_FLAG_FILTER.keys()):
+            if flags & cflag:
                 f = _FLAG_FILTER[cflag]
                 com = filter(f, com)
         self._command_cache[flags] = list(com)
