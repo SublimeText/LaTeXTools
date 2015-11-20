@@ -1,6 +1,7 @@
 import os
 import re
 import codecs
+import itertools
 
 import sublime
 
@@ -76,12 +77,11 @@ NO_BEGIN_END_COMMANDS = _flag()
 ONLY_COMMANDS_WITH_ARGS = _flag()
 # only allow \com{args} not \com{} or \com
 ONLY_COMMANDS_WITH_ARG_CONTENT = _flag()
-
-# possible new flags:
-# only before \begin{document}
+# only in the preamble, i.e. before \begin{document}
 ONLY_PREAMBLE = _flag()
 
-
+# all filter functions to filter out commands,
+# which do not need a special treatment
 _FLAG_FILTER = {
     NO_BEGIN_END_COMMANDS:
         lambda c: c.command != "begin" and c.command != "end",
@@ -89,7 +89,6 @@ _FLAG_FILTER = {
         lambda c: c.args is not None,
     ONLY_COMMANDS_WITH_ARG_CONTENT:
         lambda c: bool(c.args)
-
 }
 
 DEFAULT_FLAGS = NO_BEGIN_END_COMMANDS | ONLY_COMMANDS_WITH_ARGS
@@ -198,6 +197,10 @@ class Analysis():
 
     def _build_cache(self, flags):
         com = self._all_commands
+        if flags & ONLY_PREAMBLE:
+            def is_not_begin_document(c):
+                return not (c.command == "begin" and c.args == "document")
+            com = itertools.takewhile(is_not_begin_document, com)
         for cflag in sorted(_FLAG_FILTER.keys()):
             if flags & cflag:
                 f = _FLAG_FILTER[cflag]
