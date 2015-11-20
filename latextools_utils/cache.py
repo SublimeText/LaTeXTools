@@ -13,15 +13,18 @@ else:
 CACHE_FOLDER = ".st_ltt_cache"
 
 
+class CacheMiss(Exception):
+    """exception to indicate that the cache file is missing"""
+    pass
+
+
 def delete_local_cache(tex_root):
     """
     Removes the local cache folder and the local cache files
     """
-    cache_path = os.path.dirname(tex_root)
-    cache_path = os.path.join(cache_path, CACHE_FOLDER)
-    if not os.path.exists(cache_path):
-        return
-    shutil.rmtree(cache_path)
+    cache_path = _local_cache_path(tex_root)
+    if os.path.exists(cache_path):
+        shutil.rmtree(cache_path)
 
 
 def write(tex_root, name, obj):
@@ -68,14 +71,8 @@ def write_local(tex_root, name, obj):
     name -- the relative file name to write the object
     obj -- the object to write, must be compatible with pickle
     """
-    cache_path = os.path.dirname(tex_root)
-    cache_path = os.path.join(cache_path, CACHE_FOLDER)
-    if not os.path.isdir(cache_path):
-        os.mkdir(cache_path)
-
-    file_path = os.path.join(cache_path, name)
-    with open(file_path, "wb") as f:
-        pickle.dump(obj, f)
+    cache_path = _local_cache_path(tex_root)
+    _write(cache_path, name, obj)
 
 
 def read_local(tex_root, name):
@@ -92,14 +89,8 @@ def read_local(tex_root, name):
     The object at the location with the name,
     None - if the file does not exists
     """
-    cache_path = os.path.dirname(tex_root)
-    cache_path = os.path.join(cache_path, CACHE_FOLDER)
-    file_path = os.path.join(cache_path, name)
-    if not os.path.isdir(cache_path) or not os.path.exists(file_path):
-        return
-
-    with open(file_path, "rb") as f:
-        return pickle.load(f)
+    cache_path = _local_cache_path(tex_root)
+    return _read(cache_path, name)
 
 
 def write_global(name, obj):
@@ -110,13 +101,8 @@ def write_global(name, obj):
     name -- the relative file name to write the object
     obj -- the object to write, must be compatible with pickle
     """
-    # For ST3, put the cache files in cache dir
-    # and for ST2, put it in the user packages dir
-    # and change the name
     cache_path = _global_cache_path()
-    file_path = os.path.join(cache_path, name)
-    with open(file_path, "wb") as f:
-        pickle.dump(obj, f)
+    _write(cache_path, name, obj)
 
 
 def read_global(name):
@@ -131,16 +117,17 @@ def read_global(name):
     None - if the file does not exists
     """
     cache_path = _global_cache_path()
-    if not os.path.isdir(cache_path):
-        os.mkdir(cache_path)
-    file_path = os.path.join(cache_path, name)
-    if not os.path.exists(file_path):
-        return
-    with open(file_path, "rb") as f:
-        return pickle.load(f)
+    return _read(cache_path, name)
+
+
+def _local_cache_path(tex_root):
+    root_folder = os.path.dirname(tex_root)
+    return os.path.join(root_folder, CACHE_FOLDER)
 
 
 def _global_cache_path():
+    # For ST3, put the cache files in cache dir
+    # and for ST2, put it in the user packages dir
     if _ST3:
         cache_path = os.path.join(sublime.cache_path(), "LaTeXTools")
     else:
@@ -148,3 +135,24 @@ def _global_cache_path():
                                   "User",
                                   CACHE_FOLDER)
     return os.path.normpath(cache_path)
+
+
+def _write(cache_path, name, obj):
+    if _ST3:
+        os.makedirs(cache_path, exist_ok=True)
+    else:
+        if not os.path.isdir(cache_path):
+            os.makedirs(cache_path)
+
+    file_path = os.path.join(cache_path, name)
+    with open(file_path, "wb") as f:
+        pickle.dump(obj, f)
+
+
+def _read(cache_path, name):
+    file_path = os.path.join(cache_path, name)
+    if not os.path.exists(file_path):
+        raise CacheMiss()
+
+    with open(file_path, "rb") as f:
+        return pickle.load(f)

@@ -230,21 +230,22 @@ def get_analysis(tex_root):
         tex_root = tex_root
     else:
         tex_root = get_tex_root(tex_root)
-    result = cache.read(tex_root, "analysis")
-    if result is not None:
-        return result
-    result = analyze_document(view)
-    # TODO
-    # cannot pickle sublime.Region in st2 this is a hacky workaround
-    # to remove those regions if someone is interested in the regions
-    # this method is not recommended anyways
-    if not _ST3:
-        for c in result._all_commands:
-            c.region = None
-            for k in _RE_COMMAND.groupindex.keys():
-                region_name = k + "_region"
-                c.__dict__[region_name] = None
-    cache.write(tex_root, "analysis", result)
+
+    try:
+        result = cache.read(tex_root, "analysis")
+    except cache.CacheMiss:
+        result = analyze_document(view)
+        # TODO
+        # cannot pickle sublime.Region in st2 this is a hacky workaround
+        # to remove those regions if someone is interested in the regions
+        # this method is not recommended anyways
+        if not _ST3:
+            for c in result._all_commands:
+                c.region = None
+                for k in _RE_COMMAND.groupindex.keys():
+                    region_name = k + "_region"
+                    c.__dict__[region_name] = None
+        cache.write(tex_root, "analysis", result)
     return result
 
 
