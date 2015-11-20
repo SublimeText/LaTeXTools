@@ -1,5 +1,6 @@
 import os
 import re
+import codecs
 
 import sublime
 
@@ -59,17 +60,17 @@ _RE_COMMENT = re.compile(
 _input_commands = ["input", "include", "subfile"]
 
 # FLAGS
-_FLAG_COUNT = 2
+
 # dummy for no flag
 ALL_COMMANDS = 0x0
 # exclude \begin{} and \end{} commands
 NO_BEGIN_END_COMMANDS = 0x1
 # allows \com{args} and \com{} but not \com
 ONLY_COMMANDS_WITH_ARGS = 0x2
-
-# possible new flags:
 # only allow \com{args} not \com{} or \com
 ONLY_COMMANDS_WITH_ARG_CONTENT = 0x4
+
+# possible new flags:
 # only before \begin{document}
 ONLY_PREAMBLE = 0x8
 
@@ -78,8 +79,17 @@ _FLAG_FILTER = {
     NO_BEGIN_END_COMMANDS:
         lambda c: c.command != "begin" and c.command != "end",
     ONLY_COMMANDS_WITH_ARGS:
-        lambda c: c.args is not None
+        lambda c: c.args is not None,
+    ONLY_COMMANDS_WITH_ARG_CONTENT:
+        lambda c: bool(c.args)
+
 }
+
+DEFAULT_FLAGS = NO_BEGIN_END_COMMANDS | ONLY_COMMANDS_WITH_ARGS
+
+
+class FileNotAnalyzed(Exception):
+    pass
 
 
 class Analysis():
@@ -102,14 +112,10 @@ class Analysis():
         """
         The content of the file without comments (a string)
         """
-        if file_name in self._rowcol:
-            return self._rowcol[file_name]
         try:
-            rowcol = make_rowcol(self._raw_content[file_name])
-            self._rowcol[file_name] = rowcol
-            return rowcol
-        except:
-            raise Exception("File has not been analyzed:, ", file_name)
+            return self._content[file_name]
+        except IndexError:
+            raise FileNotAnalyzed("File has not been analyzed:, ", file_name)
 
     def raw_content(self, file_name):
         """
@@ -117,8 +123,8 @@ class Analysis():
         """
         try:
             return self._raw_content[file_name]
-        except:
-            raise Exception("File has not been analyzed:, ", file_name)
+        except IndexError:
+            raise FileNotAnalyzed("File has not been analyzed:, ", file_name)
 
     def rowcol(self, file_name):
         """
@@ -126,12 +132,13 @@ class Analysis():
         view.rowcol function from the sublime api
         """
         try:
-            rowcol = make_rowcol(self._raw_content[file_name])
-            return rowcol
+            rowcol = self._rowcol[file_name]
         except IndexError:
-            raise Exception("File has not been analyzed:, ", file_name)
+            rowcol = make_rowcol(self.raw_content(file_name))
+            self._rowcol[file_name] = rowcol
+        return rowcol
 
-    def commands(self, flags=NO_BEGIN_END_COMMANDS | ONLY_COMMANDS_WITH_ARGS):
+    def commands(self, flags=DEFAULT_FLAGS):
         """
         Returns a list with copies of each command entry in the document
 
@@ -151,8 +158,7 @@ class Analysis():
         """
         return _copy_entries(self._commands(flags))
 
-    def filter_commands(self, how,
-                        flags=NO_BEGIN_END_COMMANDS | ONLY_COMMANDS_WITH_ARGS):
+    def filter_commands(self, how, flags=DEFAULT_FLAGS):
         """
         Returns a filtered list with copies of each command entry
         in the document
@@ -193,9 +199,9 @@ class Analysis():
 
     def _build_cache(self, flags):
         com = self._all_commands
-        for i in range(0, _FLAG_COUNT):
+        for i in range(0, len(_FLAG_FILTER)):
             cflag = 0x1 << i
-            if flags & cflag:
+            if flags & cflag and cflag in _FLAG_FILTER:
                 f = _FLAG_FILTER[cflag]
                 com = filter(f, com)
         self._command_cache[flags] = list(com)
@@ -266,8 +272,8 @@ def analyze_document(view):
     if type(view) is str or not _ST3 and type(view) is unicode:
         tex_root = view
     else:
-        # if the view is dirty save it (only thread safe on st3)
-        if view.is_dirty() and _ST3:
+        # if the view is dirty save it (only thread-safe on st3)
+        if _ST3 and view.is_dirty():
             view.run_command("save")
         tex_root = get_tex_root(view)
     result = _analyze_tex_file(tex_root)
@@ -290,15 +296,15 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
     if file_name in process_file_stack:
         print("File appears cyclic: ", file_name)
         print(process_file_stack)
-        return
+        return ana
 
     base_path, _ = os.path.split(tex_root)
 
     # read the content from the file
-    fcontent = _read_file(file_name)
-    if not fcontent:
-        return
-    raw_content, content = fcontent
+    try:
+        raw_content, content = _read_file(file_name)
+    except:
+        return ana
 
     ana._content[file_name] = content
     ana._raw_content[file_name] = raw_content
@@ -345,24 +351,22 @@ def _read_file(file_name):
     reads and preprocesses a file, return the raw content
     and the content without comments
     """
-    if not os.path.exists(file_name):
-        print("File does not exists: ", file_name)
-        return
+
     try:
-        if _ST3:
-            with open(file_name, "r", encoding="utf8") as f:
-                raw_content = f.read()
-        else:
-            # TODO unicode support for st2
-            with open(file_name, "r") as f:
-                raw_content = f.read()
-    except UnicodeDecodeError:
-        print("UnicodeDecodeError in file: ", file_name)
-        return
+        with codecs.open(file_name, "r", "utf8") as f:
+            raw_content = f.read()
+    except IOError as e:
+        # file does not exists / permission exception
+        print(str(e))
+        raise
+    except UnicodeDecodeError as e:
+        print("UnicodeDecodeError in file {0}".format(file_name))
+        raise
     except:
-        # TODO
-        print("Unexpected Error: ", str(e))
-        return
+        print("Unexpected exception raised while reading file", file_name)
+        import traceback
+        traceback.print_exc()
+        raise
     # replace all comments with spaces to not change the position
     # of the rest
     comments = [c for c in _RE_COMMENT.finditer(raw_content)]
