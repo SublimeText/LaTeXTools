@@ -25,12 +25,18 @@
 	// files. You can also use toggle: C-l,t,a,f
 	"fill_auto_trigger": true,
 
-
 	// Keep focus on Sublime Text after building (true) or switch to PDF viewer (false)
 	"keep_focus": true,
 	// Sync PDF to current editor position after building (true) or not 
 	"forward_sync": true,
 
+	// level to hide the build panel after the build is finished
+	// Possible values are:
+	// "always" (hide the panel even if the build failed),
+	// "no_errors" (only hide the panel if the build was successful even with warnings),
+	// "no_warnings" (only hide the panel if no warnings occur) and
+	// "never" (never hide the build panel)
+	"hide_build_panel": "never",
 
 // ------------------------------------------------------------------
 // Platform settings: adapt as needed for your machine

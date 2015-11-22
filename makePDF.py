@@ -184,6 +184,30 @@ class CmdThread ( threading.Thread ):
 				content.extend(warnings)
 			else:
 				content.append("")
+
+			hide_panel = {
+				"always": True,
+				"no_errors": not errors,
+				"no_warnings": not errors and not warnings,
+				"never": False
+			}.get(self.caller.hide_panel_level, False)
+
+			if hide_panel:
+				# hide the build panel (ST2 api is not thread save)
+				if _ST3:
+					self.caller.window.run_command("hide_panel", {"panel": "output.exec"})
+				else:
+					sublime.set_timeout(lambda: self.caller.window.run_command("hide_panel", {"panel": "output.exec"}), 10)
+				message = "build completed"
+				if errors:
+					message += " with errors"
+				if warnings:
+					message += " and" if errors else " with"
+					message += " warnings"
+				if _ST3:
+					sublime.status_message(message)
+				else:
+					sublime.set_timeout(lambda: sublime.status_message(message), 10)
 		except Exception as e:
 			content=["",""]
 			content.append("LaTeXtools could not parse the TeX log file")
@@ -213,7 +237,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		else: # either it's the first time we run, or else we have no running processes
 			self.proc = None
 		
-		view = self.window.active_view()
+		view = self.view = self.window.active_view()
 
 		self.file_name = getTeXRoot.get_tex_root(view)
 		if not os.path.isfile(self.file_name):
@@ -256,10 +280,11 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			self.encoding = "UTF-8"
 		else:
 			sublime.error_message("Platform as yet unsupported. Sorry!")
-			return	
-		
+			return
+
 		# Get platform settings, builder, and builder settings
 		s = sublime.load_settings("LaTeXTools.sublime-settings")
+		self.hide_panel_level = s.get("hide_build_panel")
 		platform_settings  = s.get(self.plat)
 		builder_name = s.get("builder")
 		# This *must* exist, so if it doesn't, the user didn't migrate
@@ -392,7 +417,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# self.output_view.end_edit(edit)
 		self.output_view.run_command("do_finish_edit")
 		if can_switch_to_pdf:
-			self.window.active_view().run_command("jump_to_pdf", {"from_keybinding": False})
+			self.view.run_command("jump_to_pdf", {"from_keybinding": False})
 
 
 class DoOutputEditCommand(sublime_plugin.TextCommand):
