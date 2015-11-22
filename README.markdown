@@ -4,13 +4,12 @@ LaTeX Plugin for Sublime Text 2 and 3
 by Marciano Siniscalchi
 [http://tekonomist.wordpress.com]
 
-Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, skuroda (Preferences menu), Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths), Jeremy Jay (basic biblatex support), Ray Fang (texttt snippet), Ulrich Gabor (tex engine selection and cleaning aux files), Wes Campaigne and 'jlegewie' (ref/cite completion 2.0!). **Huge** thanks to Daniel Shannon (aka phyllisstein) who first ported LaTeXTools to ST3. Also thanks for Charley Peng, who has been assisting users and generating great pull requests; I'll merge them as soon as possible. Also William Ledoux (various Windows fixes, env support), Sean Zhu (find Skim.app in non-standard locations), Maximilian Berger (new center/table snippet), Lucas Nanni (recursively delete temp files), Sergey Slipchenko (`$` auto-pairing with Vintage) Ian Bacher (use `kpsewhich` to find bib files in the `TEXMF` tree; reworked fill-all command), btstream (original fill-all command).
+Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, skuroda (Preferences menu), Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths), Jeremy Jay (basic biblatex support), Ray Fang (texttt snippet), Ulrich Gabor (tex engine selection and cleaning aux files), Wes Campaigne and 'jlegewie' (ref/cite completion 2.0!). **Huge** thanks to Daniel Shannon (aka phyllisstein) who first ported LaTeXTools to ST3. Also thanks for Charley Peng, who has been assisting users and generating great pull requests; I'll merge them as soon as possible. Also William Ledoux (various Windows fixes, env support), Sean Zhu (find Skim.app in non-standard locations), Maximilian Berger (new center/table snippet), Lucas Nanni (recursively delete temp files), Sergey Slipchenko (`$` auto-pairing with Vintage) Ian Bacher (use `kpsewhich` to find bib files in the `TEXMF` tree; reworked fill-all command; jump to tex files improvements), btstream (original fill-all command), Richard Stein (auto-hide build panel, jump to included tex files), Dan Schrage (nobibliography command).
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* 2015-10-04. 
+*Latest revision:* 2015-11-14. 
 
-*Highlight*: Fill-helper command (thanks to contributors btstream and Ian Bacher)
 
 **NOTE**: A reminder on the settings file:
 
@@ -181,6 +180,15 @@ This causes the status message to list the default settings of the focus and syn
 **Keybinding:** `C-l,backspace`
 
 This deletes all temporary files from a previous build (the PDF file is kept).
+
+### Automatically hide build panel after build finished ###
+
+To automatically hide the build panel set the option `hide_build_panel` in the settings file. Possible values are:
+
+- __always__: always hide the panel even if the build failed
+- __no_errors__: only hide the panel if the build was successful althrough warnings appear
+- __no_warnings__: only hide the build panel if neither errors nor warnings occur
+- __never__: never hide the build panel
 
 Forward and Inverse Search
 ---------------------------
