@@ -1,5 +1,6 @@
 import re
 import os
+import codecs
 import subprocess
 import shlex
 import traceback
@@ -8,8 +9,10 @@ import sublime
 import sublime_plugin
 
 try:
+    _ST3 = True
     from .getTeXRoot import get_tex_root
-except ImportError:
+except:
+    _ST3 = False
     from getTeXRoot import get_tex_root
 
 
@@ -31,6 +34,7 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
     def run(self, edit, auto_create_missing_folders=True,
             auto_insert_root=True):
         view = self.view
+        window = view.window()
         tex_root = get_tex_root(view)
         if tex_root is None:
             sublime.status_message("Save your current file first")
@@ -73,7 +77,7 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
                 if auto_create_missing_folders and\
                         not os.path.exists(containing_folder):
                     try:
-                        os.makedirs(containing_folder, exist_ok=True)
+                        os.makedirs(containing_folder)
                     except OSError:
                         # most likely a permissions error
                         print('Error occurred while creating path "{0}"'
@@ -104,7 +108,7 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
 
                     root_string = '%!TEX root = {0}\n'.format(root_path)
                     try:
-                        with open(full_new_path, 'a', encoding='utf-8') as new_file:
+                        with codecs.open(full_new_path, "w", "utf8") as new_file:
                             new_file.write(root_string)
                         is_root_inserted = True
                     except OSError:
@@ -113,10 +117,11 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
                         traceback.print_last()
 
                 # open the file
-                new_view = view.window().open_file(full_new_path)
+                new_view = window.open_file(full_new_path)
 
                 # await opening and move cursor to end of the new view
-                if auto_insert_root and is_root_inserted:
+                # (does not work on st2)
+                if _ST3 and auto_insert_root and is_root_inserted:
                     def set_caret_position():
                         cursor_pos = len(root_string)
                         new_view.sel().clear()
