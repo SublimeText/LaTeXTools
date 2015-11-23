@@ -130,7 +130,7 @@ class TraditionalBuilder(PdfBuilder):
 				self.display("Engine: " + self.engine + " -> " + engine + ". ")
 
 			for i, c in enumerate(cmd):
-                cmd[i] = c.replace("%E", engine)
+				cmd[i] = c.replace("%E", engine)
 
 		# handle any options
 		if texify or latexmk:
