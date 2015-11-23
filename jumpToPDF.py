@@ -135,9 +135,7 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			# Run evince if either it's not running, or if focus PDF was toggled
 			# Sadly ST2 has Python <2.7, so no check_output:
 			running_apps = subprocess.Popen(['ps', 'xw'], stdout=subprocess.PIPE).communicate()[0]
-			# If there are non-ascii chars in the output just captured, we will fail.
-			# Thus, decode using the 'ignore' option to simply drop them---we don't need them
-			running_apps = running_apps.decode(sublime_plugin.sys.getdefaultencoding(), 'ignore')
+			running_apps = running_apps.decode(sublime_plugin.sys.getfilesystemencoding())
 			
 			# Run scripts through sh because the script files will lose their exec bit on github
 
@@ -155,6 +153,6 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 				if not evince_running: # Don't wait if we have already shown the PDF
 					time.sleep(sync_wait)
 			if forward_sync:
-				subprocess.Popen([py_binary, ev_fwd_exec, pdffile, str(line), srcfile])
+				subprocess.Popen([py_binary, ev_fwd_exec, pdffile, str(line), str(col), srcfile])
 		else: # ???
 			pass
