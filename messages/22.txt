@@ -9,6 +9,6 @@ New features (Ian Bacher):
 
 Bugs fixed:
 
-- 
+- Further jump-to-file fixes
 
   
