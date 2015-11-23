@@ -1,0 +1,13 @@
+LaTeXTools Plugin version 2015-11-22 changelog:
+
+This release 
+
+New features (Ian Bacher):
+
+- Reworked delete-temp-files feature, with customizable settings
+
+Bugs fixed:
+
+- 
+
+  
