@@ -5,6 +5,7 @@ This release
 New features (Ian Bacher):
 
 - Reworked delete-temp-files feature, with customizable settings
+- Ability to specify tex options using a %TEX line or a settings option
 
 Bugs fixed:
 
