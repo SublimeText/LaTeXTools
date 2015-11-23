@@ -267,7 +267,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			print ("saving...")
 			view.run_command('save') # call this on view, not self.window
 		
-		if self.tex_ext.upper() != ".TEX":
+		if self.tex_ext.upper() in ".TEX;.TIKZ" == False:
 			sublime.error_message("%s is not a TeX source file: cannot compile." % (os.path.basename(view.file_name()),))
 			return
 		
