@@ -1,0 +1,32 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+import dbus, sys, os
+
+def print_usage():
+    print('Usage: zathura_forward_search pdf_file line_number tex_file')
+    sys.exit(1)
+
+if len(sys.argv) != 4:
+    print_usage()
+try:
+    line_number = int(sys.argv[2])
+except ValueError:
+    print_usage()
+
+pdf_file = os.path.abspath(sys.argv[1])
+tex_file = os.path.abspath(sys.argv[3])
+
+bus = dbus.SessionBus()
+
+proxy = None
+
+for service in bus.list_names():
+    if service.startswith('org.pwmt.zathura.PID-'):
+        temp = bus.get_object(service, '/org/pwmt/zathura')
+
+        if temp.Get('org.pwmt.zathura', 'filename', dbus_interface=dbus.PROPERTIES_IFACE) == pdf_file:
+            proxy = temp
+
+if proxy:
+    proxy.SynctexView(tex_file, line_number, 1, dbus_interface="org.pwmt.zathura")

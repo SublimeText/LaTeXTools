@@ -125,13 +125,12 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		
 		elif 'linux' in plat: # for some reason, I get 'linux2' from sys.platform
 			print ("Linux!")
-			
-			# the required scripts are in the 'evince' subdir
-			ev_path = os.path.join(sublime.packages_path(), 'LaTeXTools', 'evince')
-			ev_fwd_exec = os.path.join(ev_path, 'evince_forward_search')
-			ev_sync_exec = os.path.join(ev_path, 'evince_sync') # for inverse search!
-			#print ev_fwd_exec, ev_sync_exec
-			
+
+			viewer = prefs_lin["viewer"] or 'evince'
+
+			# the required scripts are in the subdir of the viewer
+			viewer_path = os.path.join(sublime.packages_path(), 'LaTeXTools', viewer)
+
 			# Run evince if either it's not running, or if focus PDF was toggled
 			# Sadly ST2 has Python <2.7, so no check_output:
 			running_apps = subprocess.Popen(['ps', 'xw'], stdout=subprocess.PIPE).communicate()[0]
@@ -147,14 +146,24 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			# How long we should wait after launching sh before syncing
 			sync_wait = prefs_lin["sync_wait"] or 1.0
 
-			evince_running = ("evince " + pdffile in running_apps)
-			if (not keep_focus) or (not evince_running):
-				print ("(Re)launching evince")
-				subprocess.Popen(['sh', ev_sync_exec, py_binary, sb_binary, pdffile], cwd=ev_path)
-				print ("launched evince_sync")
-				if not evince_running: # Don't wait if we have already shown the PDF
+			if viewer == 'evince':
+				viewer_run_command = "evince " + pdffile
+				viewer_fwd_exec = os.path.join(viewer_path, 'evince_forward_search')
+				ev_sync_exec = os.path.join(viewer_path, 'evince_sync') # for inverse search!
+				viewer_exec = ['sh', ev_sync_exec, py_binary, sb_binary, pdffile]
+			elif viewer == 'zathura':
+				viewer_run_command = "zathura -x " + sb_binary + " %{input}:%{line} " + os.path.abspath(pdffile)
+				viewer_fwd_exec = os.path.join(viewer_path, 'zathura_forward_search')
+				viewer_exec = ['zathura', '-x', sb_binary + ' %{input}:%{line}', pdffile]
+
+			viewer_running = (viewer_run_command in running_apps)
+			if (not keep_focus) or (not viewer_running):
+				print ("(Re)launching viewer")
+				subprocess.Popen(viewer_exec, cwd=viewer_path)
+
+				if not viewer_running: # Don't wait if we have already shown the PDF
 					time.sleep(sync_wait)
 			if forward_sync:
-				subprocess.Popen([py_binary, ev_fwd_exec, pdffile, str(line), srcfile])
+				subprocess.Popen([py_binary, viewer_fwd_exec, pdffile, str(line), srcfile])
 		else: # ???
 			pass
