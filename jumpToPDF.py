@@ -160,7 +160,7 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		pdffile_in_params = False
 		for i, arg in enumerate(viewercmd):
 			# Replace template strings
-			if "${pdffile}" in arg:
+			if "${pdffile}" in arg or "$pdffile" in arg:
 				pdffile_in_params = True
 			t = string.Template(arg)
 			viewercmd[i] = t.substitute(pdffile=pdffile, line=str(line), col=str(col), srcfile=srcfile)
