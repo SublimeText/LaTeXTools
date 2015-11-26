@@ -132,7 +132,7 @@ def _jumpto_bib_file(view, window, tex_root, file_name,
     _, ext = os.path.splitext(file_name)
     if not ext:
         file_name += '.bib'
-    _jumpto_tex_file(view, tex_root, file_name,
+    _jumpto_tex_file(view, window, tex_root, file_name,
                      auto_create_missing_folders, False)
 
 
