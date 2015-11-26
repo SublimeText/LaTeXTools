@@ -289,9 +289,14 @@ Jumping to included files
 
 **Keybinding:** `C-l, C-o` (only works if the cursor is in the same line as the include command)
 
-To open a LaTeX file, which is included with `\input`, `\include` or `\subfile` just position the cursor in the same line as the include command and press `C-l, C-o`. This will open the included file in Sublime Text.
+__LaTeX files__
+To open a LaTeX file, which is included with `\input`, `\include` or `\subfile` just position the cursor inside the include command and press `C-l, C-o`. This will open the included file in Sublime Text.
 
 If necessary missing folders and the file will be created. In this case the magic root entry will be written into the file. Hence this command can be used to comfortably create files and open files.
+
+__Image files__
+To open an image, which is included with `\includegraphics` just position the cursor inside the command and press `C-l, C-o`. This will open the image.
+The program to open the image can be configured in the LaTeXTools settings in the `"open_image_command"` attribute. The commands are configurable for every OS and every extension.
 
 
 LaTeX commands and environments
