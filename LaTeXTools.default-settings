@@ -173,6 +173,7 @@
 
 	// the commands to open image files. The extensions will be matched from top to bottom.
 	// If no extension is given, all extensions will be matched.
+	// If there is no match the image will be opened with Sublime Text.
 	// the extension:
 	//		can either be a string for one extension
 	//		or an array of string to match more than one extensions.
