@@ -49,9 +49,8 @@ _IMAGE_REG = re.compile(
 )
 
 
-def _jumpto_tex_file(view, tex_root, file_name, auto_create_missing_folders,
-                     auto_insert_root):
-    window = view.window()
+def _jumpto_tex_file(view, window, tex_root, file_name,
+                     auto_create_missing_folders, auto_insert_root):
     base_path, base_name = os.path.split(tex_root)
 
     _, ext = os.path.splitext(file_name)
@@ -126,7 +125,8 @@ def _jumpto_tex_file(view, tex_root, file_name, auto_create_missing_folders,
         run_after_loading(new_view, set_caret_position)
 
 
-def _jumpto_bib_file(view, tex_root, file_name, auto_create_missing_folders):
+def _jumpto_bib_file(view, window, tex_root, file_name,
+                     auto_create_missing_folders):
     # just abuse the insights of _jumpto_tex_file and call it
     # disable all tex features and open the file
     _, ext = os.path.splitext(file_name)
@@ -136,7 +136,7 @@ def _jumpto_bib_file(view, tex_root, file_name, auto_create_missing_folders):
                      auto_create_missing_folders, False)
 
 
-def _jumpto_image_file(view, tex_root, file_name):
+def _jumpto_image_file(view, window, tex_root, file_name):
     base_path = os.path.dirname(tex_root)
 
     settings = sublime.load_settings("LaTeXTools.sublime-settings")
@@ -185,7 +185,7 @@ def _jumpto_image_file(view, tex_root, file_name):
     print("Open File: '{0}'".format(file_path))
 
     if commands is None:
-        view.window().open_file(file_path)
+        window.open_file(file_path)
     elif type(commands) is str:
         run_command(commands)
     else:
@@ -212,7 +212,7 @@ def _jumpto_image_file(view, tex_root, file_name):
             sublime.status_message(
                 "No opening command for {0} defined"
                 .format(extension))
-            view.window().open_file(file_path)
+            window.open_file(file_path)
 
 
 class JumptoTexFileCommand(sublime_plugin.TextCommand):
@@ -220,6 +220,7 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
     def run(self, edit, auto_create_missing_folders=True,
             auto_insert_root=True):
         view = self.view
+        window = view.window()
         tex_root = get_tex_root(view)
         if tex_root is None:
             sublime.status_message("Save your current file first")
@@ -241,7 +242,7 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
             for g in filter(is_inside, _INPUT_REG.finditer(line)):
                 file_name = g.group("file")
                 print("Jumpto tex file '{0}'".format(file_name))
-                _jumpto_tex_file(view, tex_root, file_name,
+                _jumpto_tex_file(view, window, tex_root, file_name,
                                  auto_create_missing_folders, auto_insert_root)
 
             for g in filter(is_inside, _BIB_REG.finditer(line)):
@@ -254,10 +255,10 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
                     file_names = [file_group]
                 for file_name in file_names:
                     print("Jumpto bib file '{0}'".format(file_name))
-                    _jumpto_bib_file(view, tex_root, file_name,
+                    _jumpto_bib_file(view, window, tex_root, file_name,
                                      auto_create_missing_folders)
 
             for g in filter(is_inside, _IMAGE_REG.finditer(line)):
                 file_name = g.group("file")
                 print("Jumpto image file '{0}'".format(file_name))
-                _jumpto_image_file(view, tex_root, file_name)
+                _jumpto_image_file(view, window, tex_root, file_name)
