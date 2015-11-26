@@ -35,13 +35,15 @@ _INPUT_REG = re.compile(
 )
 
 _BIB_REG = re.compile(
-    r"\\(?:bibliography|nobibliography|addbibresource)"
+    r"\\(?:bibliography|nobibliography|addbibresource|add(?:global|section)bib)"
+    r"(?:\[[^\]]*\])?"
     r"\{(?P<file>[^}]+)\}",
     re.UNICODE
 )
 
 _IMAGE_REG = re.compile(
-    r"\\includegraphics(\[.*\])?"
+    r"\\includegraphics"
+    r"(?:\[[^\]]*\])?"
     r"\{(?P<file>[^\}]+)\}",
     re.UNICODE
 )
@@ -246,10 +248,17 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
 
             g = _BIB_REG.search(line)
             if is_inside(g):
-                file_name = g.group("file")
-                print("Jumpto bib file '{0}'".format(file_name))
-                _jumpto_bib_file(view, tex_root, file_name,
-                                 auto_create_missing_folders)
+                file_group = g.group("file")
+                if "," in file_group:
+                    file_names = file_group.split(",")
+                    file_names = [f.strip() for f in file_names]
+                    print("Bib files: {0}".format(file_names))
+                else:
+                    file_names = [file_group]
+                for file_name in file_names:
+                    print("Jumpto bib file '{0}'".format(file_name))
+                    _jumpto_bib_file(view, tex_root, file_name,
+                                     auto_create_missing_folders)
                 continue
 
             g = _IMAGE_REG.search(line)
