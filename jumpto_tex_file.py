@@ -238,16 +238,13 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
                 reg = g.regs[0]
                 return reg[0] <= sel.begin() - b and sel.end() - b <= reg[1]
 
-            g = _INPUT_REG.search(line)
-            if is_inside(g):
+            for g in filter(is_inside, _INPUT_REG.finditer(line)):
                 file_name = g.group("file")
                 print("Jumpto tex file '{0}'".format(file_name))
                 _jumpto_tex_file(view, tex_root, file_name,
                                  auto_create_missing_folders, auto_insert_root)
-                continue
 
-            g = _BIB_REG.search(line)
-            if is_inside(g):
+            for g in filter(is_inside, _BIB_REG.finditer(line)):
                 file_group = g.group("file")
                 if "," in file_group:
                     file_names = file_group.split(",")
@@ -259,11 +256,8 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
                     print("Jumpto bib file '{0}'".format(file_name))
                     _jumpto_bib_file(view, tex_root, file_name,
                                      auto_create_missing_folders)
-                continue
 
-            g = _IMAGE_REG.search(line)
-            if is_inside(g):
+            for g in filter(is_inside, _IMAGE_REG.finditer(line)):
                 file_name = g.group("file")
                 print("Jumpto image file '{0}'".format(file_name))
                 _jumpto_image_file(view, tex_root, file_name)
-                continue
