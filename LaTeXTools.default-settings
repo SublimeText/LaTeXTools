@@ -30,6 +30,20 @@
 	// Sync PDF to current editor position after building (true) or not 
 	"forward_sync": true,
 
+// ------------------------------------------------------------------
+// Temporary file settings
+// ------------------------------------------------------------------
+	// Ends of the names of temporary files to be deleted
+	"temp_files_exts": [
+		".blg",".bbl",".aux",".log",".brf",".nlo",".out",".dvi",".ps",
+		".lof",".toc",".fls",".fdb_latexmk",".pdfsync",".synctex.gz",
+		".ind",".ilg",".idx"
+	],
+	// Folders that are not traversed when deleting temp files
+	"temp_files_ignored_folders": [
+		".git", ".svn", ".hg"
+	],
+
 	// level to hide the build panel after the build is finished
 	// Possible values are:
 	// "always" (hide the panel even if the build failed),
