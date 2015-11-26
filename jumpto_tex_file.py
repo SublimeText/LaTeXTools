@@ -34,6 +34,12 @@ _INPUT_REG = re.compile(
     re.UNICODE
 )
 
+_BIB_REG = re.compile(
+    r"\\(?:bibliography|nobibliography|addbibresource)"
+    r"\{(?P<file>[^}]+)\}",
+    re.UNICODE
+)
+
 _IMAGE_REG = re.compile(
     r"\\includegraphics(\[.*\])?"
     r"\{(?P<file>[^\}]+)\}",
@@ -116,6 +122,16 @@ def _jumpto_tex_file(view, tex_root, file_name, auto_create_missing_folders,
             new_view.sel().add(sublime.Region(cursor_pos,
                                               cursor_pos))
         run_after_loading(new_view, set_caret_position)
+
+
+def _jumpto_bib_file(view, tex_root, file_name, auto_create_missing_folders):
+    # just abuse the insights of _jumpto_tex_file and call it
+    # disable all tex features and open the file
+    _, ext = os.path.splitext(file_name)
+    if not ext:
+        file_name += '.bib'
+    _jumpto_tex_file(view, tex_root, file_name,
+                     auto_create_missing_folders, False)
 
 
 def _jumpto_image_file(view, tex_root, file_name):
@@ -224,6 +240,14 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
                 print("Jumpto tex file '{0}'".format(file_name))
                 _jumpto_tex_file(view, tex_root, file_name,
                                  auto_create_missing_folders, auto_insert_root)
+                continue
+
+            g = _BIB_REG.search(line)
+            if is_inside(g):
+                file_name = g.group("file")
+                print("Jumpto bib file '{0}'".format(file_name))
+                _jumpto_bib_file(view, tex_root, file_name,
+                                 auto_create_missing_folders)
                 continue
 
             g = _IMAGE_REG.search(line)
