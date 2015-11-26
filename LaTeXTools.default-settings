@@ -190,8 +190,9 @@
 				// open pdf documents with the default programm
 				"extension": "pdf",
 				"command": "open"
-			},
+			}
 			// uncomment these lines to open all other images with the default programm
+			// ,
 			// {
 			// 	"command": "open"
 			// }
@@ -203,8 +204,9 @@
 				// open pdf and eps documents with sumatra (it has to be on your PATH)
 				"extension": ["pdf", "eps"],
 				"command": "SumatraPDF"
-			},
+			}
 			// uncomment these lines to open all other images with the default programm
+			// ,
 			// {
 			// 	"command": "start"
 			// }
@@ -215,8 +217,9 @@
 				// open pdf documents with evince
 				"extension": "pdf",
 				"command": "evince"
-			},
+			}
 			// uncomment these lines to open all other images with the default programm
+			// ,
 			// {
 			// 	"command": "xdg-open"
 			// }

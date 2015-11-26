@@ -163,6 +163,8 @@ def _jumpto_image_file(view, tex_root, file_name):
         return
 
     def run_command(command):
+            if not _ST3:
+                command = str(command)
             command = shlex.split(command)
             # if $file is used, substitute it by the file path
             if "$file" in command:
@@ -172,7 +174,7 @@ def _jumpto_image_file(view, tex_root, file_name):
             else:
                 command.append(file_path)
             print("RUN: {0}".format(command))
-            subprocess.Popen(command)
+            subprocess.Popen(command, shell=True)
 
     psystem = sublime.platform()
     commands = settings.get("open_image_command", {})\
