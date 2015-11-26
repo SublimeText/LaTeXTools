@@ -173,6 +173,17 @@
 
 	// the commands to open image files. The extensions will be matched from top to bottom.
 	// If no extension is given, all extensions will be matched.
+	// the extension:
+	//		can either be a string for one extension
+	//		or an array of string to match more than one extensions.
+	// the command:
+	//		can be the name to start the programm. The image file will be passed
+	//			as the argument.
+	//		can be a string as a command with args:
+	//			e.g. "open -a PixelMator", in this case the file will be appended
+	//			if the position is relevant use "$file" in the string
+	//			e.g. "open -a PixelMator $file"
+	//			this will be substituted by the path to the file
 	"open_image_command": {
 		"osx" : [
 			{
