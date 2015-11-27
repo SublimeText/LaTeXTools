@@ -43,7 +43,7 @@ class DeleteTempFilesCommand(sublime_plugin.WindowCommand):
 			 '.synctex.gz', '.ind', '.ilg', '.idx'])
 
 		ignored_folders = get_setting('temp_files_ignored_folders',
-			['.git', '.svn', '.hg']))
+			['.git', '.svn', '.hg'])
 		ignored_folders = set(ignored_folders)
 
 		for dir_path, dir_names, file_names in os.walk(path):
