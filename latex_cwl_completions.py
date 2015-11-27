@@ -11,11 +11,13 @@ if sublime.version() < '3000':
     from latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX, match
     from latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
     from getRegion import get_Region
+    from latextools_settings import get_setting
 else:
     _ST3 = True
     from .latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX, match
     from .latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
     from .getRegion import get_Region
+    from .latextools_settings import get_setting
 
 # Do not do completions in these envrioments
 ENV_DONOT_AUTO_COM = [
@@ -101,10 +103,7 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
 def parse_cwl_file():
     # Get cwl file list
     # cwl_path = sublime.packages_path() + "/LaTeX-cwl"
-    settings = sublime.load_settings("LaTeXTools.sublime-settings")
-    view = sublime.active_window().active_view()
-    cwl_file_list = view.settings().get('cwl_list',
-        settings.get(
+    cwl_file_list = get_setting('cwl_list',
             'cwl_list',
             [
                 "tex.cwl",
@@ -112,7 +111,7 @@ def parse_cwl_file():
                 "latex-document.cwl",
                 "latex-l2tabu.cwl",
                 "latex-mathsymbols.cwl"
-            ]))
+            ])
 
     # ST3 can use load_resource api, while ST2 do not has this api
     # so a little different with implementation of loading cwl files.
