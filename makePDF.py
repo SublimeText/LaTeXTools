@@ -248,6 +248,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			else:
 				os.killpg(self.proc.pid, signal.SIGTERM)
 			self.proc = None
+			return
 		else: # either it's the first time we run, or else we have no running processes
 			self.proc = None
 		
