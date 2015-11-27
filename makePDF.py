@@ -244,7 +244,13 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		if hasattr(self, 'proc') and self.proc: # if we are running, try to kill running process
 			self.output("\n\n### Got request to terminate compilation ###")
 			if sublime.platform() == 'windows':
-				subprocess.call('taskkill /t /f /pid {pid}'.format(pid=self.proc.pid))
+				startupinfo = subprocess.STARTUPINFO()
+				startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+				subprocess.call(
+					'taskkill /t /f /pid {pid}'.format(pid=self.proc.pid),
+					startupinfo=startupinfo,
+					shell=True
+				)
 			else:
 				os.killpg(self.proc.pid, signal.SIGTERM)
 			self.proc = None
