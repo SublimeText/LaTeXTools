@@ -109,7 +109,7 @@ def parse_completions(view, line):
         # In order to user input, "image_types" must be set in
         # LaTeXTools.sublime-settings configuration file or the
         # project settings for the current view.
-        input_file_types = get_setting('image_types',
+        input_file_types = get_setting('image_types', [
                 'pdf', 'png', 'jpeg', 'jpg', 'eps'
             ])
     elif addbib_filter is not None or bib_filter is not None:
