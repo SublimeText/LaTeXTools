@@ -15,6 +15,7 @@ import sublime_plugin
 import sys
 import imp
 import os, os.path
+import signal
 import threading
 import functools
 import subprocess
@@ -103,9 +104,20 @@ class CmdThread ( threading.Thread ):
 					proc = subprocess.Popen(cmd, startupinfo=startupinfo, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 				elif self.caller.plat == "osx":
 					# Temporary (?) fix for Yosemite: pass environment
-					proc = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=os.environ)
+					proc = subprocess.Popen(
+						cmd,
+						stderr=subprocess.STDOUT,
+						stdout=subprocess.PIPE, 
+						env=os.environ,
+						preexec_fn=os.setsid
+					)
 				else: # Must be linux
-					proc = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+					proc = subprocess.Popen(
+						cmd,
+						stderr=subprocess.STDOUT,
+						stdout=subprocess.PIPE,
+						preexec_fn=os.setsid
+					)
 			except:
 				self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
 				self.caller.output("Attempted command:")
@@ -231,9 +243,11 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# Try to handle killing
 		if hasattr(self, 'proc') and self.proc: # if we are running, try to kill running process
 			self.output("\n\n### Got request to terminate compilation ###")
-			self.proc.kill()
+			if sublime.platform() == 'windows':
+				subprocess.call('taskkill /t /f /pid {pid}'.format(pid=self.proc.pid))
+			else:
+				os.killpg(self.proc.pid, signal.SIGTERM)
 			self.proc = None
-			return
 		else: # either it's the first time we run, or else we have no running processes
 			self.proc = None
 		
