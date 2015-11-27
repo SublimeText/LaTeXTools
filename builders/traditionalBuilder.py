@@ -4,8 +4,10 @@ import sublime
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
 	_ST3 = False
+	strbase = basestring
 else:
 	_ST3 = True
+	strbase = str
 
 from pdfBuilder import PdfBuilder
 import sublime_plugin
@@ -15,13 +17,14 @@ import codecs
 
 DEBUG = False
 
-DEFAULT_COMMAND_LATEXMK = ["latexmk", "-cd",
-				"-e", "$pdflatex = '%E -interaction=nonstopmode -synctex=1 %S %O'",
-				"-f", "-pdf"]
+DEFAULT_COMMAND_LATEXMK = ["latexmk", "-cd", "-e", "-f", "-%E",
+					"-latexoption=\"-interaction=nonstopmode\"",
+					"-latexoption=\"-synctex=1\""]
 
-DEFAULT_COMMAND_WINDOWS_MIKTEX = ["texify", 
-					"-b", "-p", "--engine=%E",
+DEFAULT_COMMAND_WINDOWS_MIKTEX = ["texify", "-b", "-p", "--engine=%E",
 					"--tex-option=\"--synctex=1\""]
+
+DOCUMENTCLASS_RE = re.compile(r'\\documentclass(?:\[[^\]]+\])?\{[^\}]+\}')
 
 
 #----------------------------------------------------------------
@@ -59,8 +62,9 @@ class TraditionalBuilder(PdfBuilder):
 		# Sanity check: if "strange" engine, default to pdflatex (silently...)
 		if not(self.engine in ['pdflatex', "pdftex", 'xelatex', 'xetex', 'lualatex', 'luatex']):
 			self.engine = 'pdflatex'
-
-
+		self.options = builder_settings.get("options", [])
+		if isinstance(self.options, strbase):
+			self.options = [self.options]
 
 	#
 	# Very simple here: we yield a single command
@@ -73,33 +77,76 @@ class TraditionalBuilder(PdfBuilder):
 		# See if the root file specifies a custom engine
 		engine = self.engine
 		cmd = self.cmd[:] # Warning! If I omit the [:], cmd points to self.cmd!
-		for line in codecs.open(self.tex_root, "r", "UTF-8", "ignore").readlines():
-			if not line.startswith('%'):
+
+		# check if the command even wants the engine selected
+		engine_used = False
+		for c in cmd:
+			if "%E" in c:
+				engine_used = True
 				break
-			else:
+
+		# load the header from the root file to check for engine or options
+		texroot_header = []
+		for line in codecs.open(self.tex_root, "r", "UTF-8", "ignore").readlines():
+			m = DOCUMENTCLASS_RE.search(line)
+			if m:
+				texroot_header.append(line[:m.start()])
+				break
+			elif not line.startswith('%'):
+				continue
+
+			texroot_header.append(line)
+
+		texify = cmd[0] == 'texify'
+		latexmk = cmd[0] == 'latexmk'
+
+		if not engine_used:
+			self.display("Your custom command does not allow the engine to be selected\n\n")
+		else:
+			for line in texroot_header:
 				# We have a comment match; check for a TS-program match
-				mroot = re.match(r"%\s*!TEX\s+(?:TS-)?program *= *(xe(la)?tex|lua(la)?tex|pdf(la)?tex)\s*$",line)
+				mroot = re.match(r"%+\s*!TEX\s+(?:TS-)?program *= *(xe(la)?tex|lua(la)?tex|pdf(la)?tex)\s*$",line)
 				if mroot:
 					engine = mroot.group(1)
-					if cmd[0] == "texify":
-						if not re.match(r"--engine\s?=\s?%E", cmd[3]):
-							cmd.append("--engine=%E")
-					if cmd[0] == "latexmk":
-					  # Sanity checks
-					  if not re.match(r"\$pdflatex\s?=\s?'%E", cmd[3]): # fixup blanks (linux)
-						  sublime.error_message("You are using a custom build command.\n"\
-							  "Cannot select engine using a %!TEX program directive.\n")
-						  yield("", "Could not compile.")
-					
 					break
 
-		if cmd[0] == "texify":
-			engine = engine.replace("la","") # texify's --engine option takes pdftex/xetex/luatex as acceptable values
+			if texify:
+				# texify's --engine option takes pdftex/xetex/luatex as acceptable values
+				engine = engine.replace("la","")
+			elif latexmk:
+				if "la" not in engine:
+					# latexmk options only supports latex-specific versions
+					engine = {
+						"pdftex": "pdflatex",
+						"xetex": "xelatex",
+						"luatex": "lualatex"
+					}[engine]
 
-		if engine != self.engine:
-			self.display("Engine: " + self.engine + " -> " + engine + ". ")
-			
-		cmd[3] = cmd[3].replace("%E", engine)
+				# latexmk doesn't support -pdflatex
+				if engine == 'pdflatex':
+					engine = 'pdf'
+
+			if engine != self.engine:
+				self.display("Engine: " + self.engine + " -> " + engine + ". ")
+
+			for i, c in enumerate(cmd):
+				cmd[i] = c.replace("%E", engine)
+
+		# handle any options
+		if texify or latexmk:
+			for line in texroot_header:
+				m = re.match(r'%+\s*!TEX\s+option *= *([-\w]+)\s*$', line)
+				if m:
+					if texify:
+						cmd.append("--tex-option=\"" + m.group(1) + "\"")
+					else:
+						cmd.append("-latexoption=\"" + m.group(1) + "\"")
+
+			for option in self.options:
+				if texify:
+					cmd.append("--tex-option=\"" + option + "\"")
+				else:
+					cmd.append("-latexoption=\"" + option + "\"")
 
 		# texify wants the .tex extension; latexmk doesn't care either way
 		yield (cmd + [self.tex_name], "Invoking " + cmd[0] + "... ")
