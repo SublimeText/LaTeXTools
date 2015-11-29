@@ -65,7 +65,6 @@ class ScriptBuilder(PdfBuilder):
 		if isinstance(self.cmd, strbase):
 			self.cmd = [self.cmd]
 
-		first_run = True
 		for c in self.cmd:
 			if isinstance(c, list):
 				cmd = " ".join([quote(s) for s in c])
@@ -92,15 +91,9 @@ class ScriptBuilder(PdfBuilder):
 				cmd = shlex.split(cmd)
 				cmd.append(self.base_name)
 
-			if first_run:
-				self.display("Invoking '{0}'... ".format(
-					" ".join([quote(s) for s in cmd]))
-				)
-				first_run = False
-			else:
-				self.display("\nInvoking '{0}'... ".format(
-					" ".join([quote(s) for s in cmd]))
-				)
+			self.display("Invoking '{0}'... ".format(
+				" ".join([quote(s) for s in cmd]))
+			)
 
 			startupinfo = None
 
@@ -122,7 +115,12 @@ class ScriptBuilder(PdfBuilder):
 
 			print(p.returncode)
 
-			self.display("done.\n")
+			if p.returncode != 0:
+				self.display("error.\n")
+				self.display_log = True
+				break
+			else:
+				self.display("done.\n")
 
 		# This is for debugging purposes 
 		if self.display_log:
