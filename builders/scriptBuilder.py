@@ -6,13 +6,18 @@ from subprocess import Popen, PIPE, STDOUT
 
 from copy import copy
 import os
+import re
 import shlex
 import sys
 
+from string import Template
+
 if sys.version_info < (3, 0):
 	strbase = basestring
+	from pipes import quote
 else:
 	strbase = str
+	from shlex import quote
 
 
 #----------------------------------------------------------------
@@ -22,6 +27,11 @@ else:
 #
 class ScriptBuilder(PdfBuilder):
 
+	CONTAINS_VARIABLE = re.compile(
+		r'\$(?:File|FileDir|FileName|FileExt|BaseName)',
+		re.IGNORECASE | re.UNICODE
+	)
+
 	def __init__(self, tex_root, output, builder_settings, platform_settings):
 		# Sets the file name parts, plus internal stuff
 		super(ScriptBuilder, self).__init__(tex_root, output, builder_settings, platform_settings) 
@@ -30,8 +40,8 @@ class ScriptBuilder(PdfBuilder):
 		# Display output?
 		self.display_log = builder_settings.get("display_log", False)
 		plat = sublime.platform()
-		self.cmd = builder_settings[plat].get("command", None)
-		self.env = builder_settings[plat].get("env", None)
+		self.cmd = builder_settings.get(plat, {}).get("command", None)
+		self.env = builder_settings.get(plat, {}).get("env", None)
 
 	# Very simple here: we yield a single command
 	# Also add environment variables
@@ -39,9 +49,12 @@ class ScriptBuilder(PdfBuilder):
 		# Print greeting
 		self.display("\n\nScriptBuilder: ")
 
-		# figure out safe way to pass self.env back
-		# OK, probably need to modify yield call throughout
-		# and pass via Popen. Wait for now
+		# create an environment to be used for all subprocesses
+		# adds any settings from the `env` dict to the current
+		# environment
+		env = copy(os.environ)
+		if self.env is not None and isinstance(self.env, dict):
+			env.update(self.env)
 
 		if self.cmd is None:
 			sublime.error_message(
@@ -50,39 +63,66 @@ class ScriptBuilder(PdfBuilder):
 			)
 
 		if isinstance(self.cmd, strbase):
-			cmd = shlex.split(self.cmd)
-		else:
-			cmd = self.cmd
+			self.cmd = [self.cmd]
 
-		cmd.append(self.tex_name)
+		first_run = True
+		for c in self.cmd:
+			if isinstance(c, list):
+				cmd = " ".join([quote(s) for s in c])
+			else:
+				cmd = c
 
-		# pass the base name, without extension
-		self.display("Invoking '{0}'... ".format(" ".join(cmd)))
-		startupinfo = None
+			if self.CONTAINS_VARIABLE.search(cmd):
+				template = Template(cmd)
+				cmd = template.safe_substitute(
+					File=self.tex_root,
+					file=self.tex_root,
+					FileDir=self.tex_dir,
+					filedir=self.tex_dir,
+					FileName=self.tex_name,
+					filename=self.tex_name,
+					FileExt=self.tex_ext,
+					fileext=self.tex_ext,
+					BaseName=self.base_name,
+					basename=self.base_name
+				)
 
-		if sublime.platform() == 'windows':
-			startupinfo = subprocess.STARTUPINFO()
-			startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+				cmd = shlex.split(cmd)
+			else:
+				cmd = shlex.split(cmd)
+				cmd.append(self.base_name)
 
-		env = copy(os.environ)
-		if self.env is not None and isinstance(self.env, dict):
-			env.update(self.env)
+			if first_run:
+				self.display("Invoking '{0}'... ".format(
+					" ".join([quote(s) for s in cmd]))
+				)
+				first_run = False
+			else:
+				self.display("\nInvoking '{0}'... ".format(
+					" ".join([quote(s) for s in cmd]))
+				)
 
-		p = Popen(
-			cmd,
-			stdout=PIPE,
-			stderr=STDOUT,
-			startupinfo=startupinfo,
-			shell=True,
-			env=env,
-			cwd=self.tex_dir
-		)
+			startupinfo = None
 
-		stdout, _ = p.communicate()
+			if sublime.platform() == 'windows':
+				startupinfo = subprocess.STARTUPINFO()
+				startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
-		print(p.returncode)
+			p = Popen(
+				cmd,
+				stdout=PIPE,
+				stderr=STDOUT,
+				startupinfo=startupinfo,
+				shell=True,
+				env=env,
+				cwd=self.tex_dir
+			)
 
-		self.display("done.\n")
+			stdout, _ = p.communicate()
+
+			print(p.returncode)
+
+			self.display("done.\n")
 
 		# This is for debugging purposes 
 		if self.display_log:
@@ -91,4 +131,3 @@ class ScriptBuilder(PdfBuilder):
 			self.display("\n\n")
 
 		yield("", "")
-
