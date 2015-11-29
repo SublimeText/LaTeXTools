@@ -406,12 +406,106 @@ For minor customizations of the default builder, as noted in the Settings sectio
 
 Some information on the new flexible builder system: to create and use a new builder, you place the code somewhere off the ST `Packages` directory (for instance, in `User`), then set the `builder` and `builder_path` options in your `LaTeXTools.sublime-settings` file accordingly. A builder can define its own options, also in `LaTeXTools.sublime-settings`, which will be passed whenever a build is invoked.
 
-Due to time constraints, I have not yet been able to document how to write a builder. The basic idea is that you subclass the `PdfBuilder` class in the file `LaTeXTools/builders/pdfBuilder.py`. The comments in that file describe how builders interact with the build command (hint: they use Pyton's `yield` command). I provide three builders (one is in progress and not usable yet). The code is in the `LaTeXTools/builders` directory. You can use them as examples:
+Due to time constraints, I have not yet been able to document how to write a builder. The basic idea is that you subclass the `PdfBuilder` class in the file `LaTeXTools/builders/pdfBuilder.py`. The comments in that file describe how builders interact with the build command (hint: they use Pyton's `yield` command). I provide three builders. The code is in the `LaTeXTools/builders` directory. You can use them as examples:
 - `traditional` is the traditional builder. 
 - `simple` does not use external tools, but invokes `pdflatex` and friends, each time checking the log file to figure out what to do next. It is a very, very simple "make" tool, but it demonstrates the back-and-forth interaction between LaTeXTools and a builder.
-- `script` (in progress!) will eventually allow the user to specify a list of compilation commands in the settings file, and just execute them in sequence. 
+- `script` (see below) allows the user to specify a list of compilation commands in the settings file, and just execute them in sequence. 
 
 Let me know if you are interested in writing a custom builder!
+
+Script Builder
+--------------
+
+LaTeXTools now supports the long-awaited script builder. It has two primary goals: first, to support customization of simple build workflows and second, to enable LaTeXTools to integrate with external build systems in some fashion.
+
+Note that the script builder should be considered an advanced feature. Unlike the "traditional" builder it is not designed to "just work," and is not recommend for those new to using TeX and friends. You are responsible for making sure your setup works. Please read this section carefully before using the script builder.
+
+For the most part, the script builder works as described in the [Compiling LaTeX files](#compiling-latex-files) section *except that* instead of invoking either `texify` or `latexmk`, it invokes a user-defined series of commands. Note that although the Script Builder supports **Multi-file documents**, it does not support either the engine selection or passing other options via the `%!TEX` macros.
+
+The script builder is controlled through two settings in the *platform-specific* part of the `builder_settings` section of `LaTeXTools.sublime-settings`:
+
+- `command` — the command or list of commands to run. This setting **must** have a value or you will get an error message.
+- `env` — a dictionary defining any environment variables to be set for the environment the command is run in.
+
+The `command` setting should be either a string or a list. If it is a string, it represents a single command to be executed. If it is a list, it should be either a list of strings representing single commands or a list of lists, though the two may be mixed. For example:
+
+```json
+"builder_settings": {
+	"osx": {
+		"command": "pdflatex -synctex=1"
+	}
+}
+```
+
+Will simply run `pdflatex` against the master document, as will:
+
+```json
+"builder_settings": {
+	"osx": {
+		"command": ["pdflatex -synctex=1"]
+	}
+}
+```
+
+Or:
+
+```json
+"builder_settings": {
+	"osx": {
+		"command": [["pdflatex", "-synctex=1"]]
+	}
+}
+```
+
+More interestingly, the main list can be used to supply a series of commands. For example, to use the simple pdflatex -> bibtex -> pdflatex -> pdflatex series, you can use the following settings:
+
+```json
+"builder_settings": {
+	"osx": {
+		"command": [
+			"pdflatex -synctex=1",
+			"bibtex",
+			"pdflatex -synctex=1",
+			"pdflatex -synctex=1"
+		]
+	}
+}
+```
+
+Note, however, that the script builder is quite unintelligent in handling such cases. It will not note any failures nor only execute the rest of the sequence if required. It will simply continue to execute commands until it hits the end of the chain of commands. This means, in the above example, it will run `bibtex` regardless of whether there are any citations.
+
+Each command can use the following variables which will be expanded before it is executed:
+
+|Variable|Description|
+|--------|--------|
+|`$file`   | The full path to the main file, e.g., _C:\Files\document.tex_|
+|`$file_name`| The name of the main file, e.g., _document.tex_|
+|`$file_extension`| The extension portion of the main file, e.g., _tex_|
+|`$file_base_name`| The name portion of the main file without the, e.g., _document_|
+|`$file_path`| The directory of the main file, e.g., _document_|
+
+For example:
+
+```json
+"builder_settings": {
+	"osx": {
+		"command": ["pdflatex -synctex=1 $file_base_name"]
+	}
+}
+```
+
+Note that if none of these variables occur in the command string, the `$file_base_name` will be appended to the end of the command. This may mean that a wrapper script is needed if, for example, using `make`.
+
+Commands are executed in the same path as `$file_path`, i.e. the folder containing the main document.
+
+### Caveats ###
+
+LaTeXTools makes some assumptions that should be adhered to or else things won't work as expected:
+- the final product is a PDF whose base name is the same as the base name of the main file
+- the LaTeX log will be written in the same directory as the main file and named `$file_base_name.log`
+- if you change the `PATH` in the environment (by using the `env` setting), you need to ensure that the `PATH` is still sane, e.g., that it contains the path for the TeX executables and other command line resources that may be necessary.
+
+In addition, to ensure that forward and backward sync work, you need to ensure that the `-synctex=1` flag is set for your latex command.
 
 Troubleshooting
 ---------------
