@@ -75,7 +75,7 @@ class ScriptBuilder(PdfBuilder):
 				template = Template(cmd)
 				cmd = template.safe_substitute(
 					file=self.tex_root,
-					file_dir=self.tex_dir,
+					file_path=self.tex_dir,
 					file_name=self.tex_name,
 					file_ext=self.tex_ext,
 					file_base_name=self.base_name
