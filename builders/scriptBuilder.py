@@ -118,5 +118,5 @@ class ScriptBuilder(PdfBuilder):
 		# This is for debugging purposes 
 		if self.display_log and p.stdout is not None:
 			self.display("\nCommand results:\n")
-			self.display(p.stdout.decode('utf-8'))
+			self.display(self.out)
 			self.display("\n\n")
