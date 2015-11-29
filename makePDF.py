@@ -6,10 +6,12 @@ if sublime.version() < '3000':
 	_ST3 = False
 	import getTeXRoot
 	import parseTeXlog
+	strbase = basestring
 else:
 	_ST3 = True
 	from . import getTeXRoot
 	from . import parseTeXlog
+	strbase = str
 
 import sublime_plugin
 import sys
@@ -21,6 +23,7 @@ import subprocess
 import types
 import re
 import codecs
+import traceback
 
 DEBUG = False
 
@@ -86,68 +89,80 @@ class CmdThread ( threading.Thread ):
 		# Now, iteratively call the builder iterator
 		#
 		cmd_iterator = self.caller.builder.commands()
-		for (cmd, msg) in cmd_iterator:
+		try:
+			for (cmd, msg) in cmd_iterator:
 
-			# If there is a message, display it
-			if msg:
-				self.caller.output(msg)
+				# If there is a message, display it
+				if msg:
+					self.caller.output(msg)
 
-			# If there is nothing to be done, exit loop
-			# (Avoids error with empty cmd_iterator)
-			if cmd == "":
-				break
-			print(cmd)
-			# Now create a Popen object
-			try:
-				if self.caller.plat == "windows":
-					proc = subprocess.Popen(cmd, startupinfo=startupinfo, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-				elif self.caller.plat == "osx":
-					# Temporary (?) fix for Yosemite: pass environment
-					proc = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=os.environ)
-				else: # Must be linux
-					proc = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-			except:
-				self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
-				self.caller.output("Attempted command:")
-				self.caller.output(" ".join(cmd))
-				self.caller.output("\nBuild engine: " + self.caller.builder.name)
+				# If there is nothing to be done, exit loop
+				# (Avoids error with empty cmd_iterator)
+				if cmd == "":
+					break
+
+				if isinstance(cmd, strbase) or isinstance(cmd, list):
+					print(cmd)
+					# Now create a Popen object
+					try:
+						if self.caller.plat == "windows":
+							proc = subprocess.Popen(cmd, startupinfo=startupinfo, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+						elif self.caller.plat == "osx":
+							# Temporary (?) fix for Yosemite: pass environment
+							proc = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=os.environ)
+						else: # Must be linux
+							proc = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+					except:
+						self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
+						self.caller.output("Attempted command:")
+						self.caller.output(" ".join(cmd))
+						self.caller.output("\nBuild engine: " + self.caller.builder.name)
+						self.caller.proc = None
+						print(traceback.format_exc())
+						return
+				elif isinstance(cmd, subprocess.Popen):
+					proc = cmd
+				else:
+					# don't know what the command is
+					continue
+				
+				# Now actually invoke the command, making sure we allow for killing
+				# First, save process handle into caller; then communicate (which blocks)
+				self.caller.proc = proc
+				out, err = proc.communicate()
+				self.caller.builder.set_output(out.decode(self.caller.encoding,"ignore"))
+
+				# Here the process terminated, but it may have been killed. If so, stop and don't read log
+				# Since we set self.caller.proc above, if it is None, the process must have been killed.
+				# TODO: clean up?
+				if not self.caller.proc:
+					print (proc.returncode)
+					self.caller.output("\n\n[User terminated compilation process]\n")
+					self.caller.finish(False)	# We kill, so won't switch to PDF anyway
+					return
+
+				# Here we are done cleanly:
 				self.caller.proc = None
-				if self.caller.env:
-					os.environ = old_env
-				elif self.caller.path:
-					os.environ["PATH"] = old_path
-				return
-			
-			# Now actually invoke the command, making sure we allow for killing
-			# First, save process handle into caller; then communicate (which blocks)
-			self.caller.proc = proc
-			out, err = proc.communicate()
-			self.caller.builder.set_output(out.decode(self.caller.encoding,"ignore"))
-
-			# Here the process terminated, but it may have been killed. If so, stop and don't read log
-			# Since we set self.caller.proc above, if it is None, the process must have been killed.
-			# TODO: clean up?
-			if not self.caller.proc:
+				print ("Finished normally")
 				print (proc.returncode)
-				self.caller.output("\n\n[User terminated compilation process]\n")
-				self.caller.finish(False)	# We kill, so won't switch to PDF anyway
-				return
-			# Here we are done cleanly:
-			self.caller.proc = None
-			print ("Finished normally")
-			print (proc.returncode)
 
-			# At this point, out contains the output from the current command;
-			# we pass it to the cmd_iterator and get the next command, until completion
+				# At this point, out contains the output from the current command;
+				# we pass it to the cmd_iterator and get the next command, until completion
+		except:
+			self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
+			self.caller.output("\nBuild engine: " + self.caller.builder.name)
+			self.caller.proc = None
+			print(traceback.format_exc())
+			return
+		finally:
+			# restore environment
+			if self.caller.env:
+				os.environ = old_env
+			elif self.caller.path:
+				os.environ['PATH'] = old_path
 
 		# Clean up
 		cmd_iterator.close()
-
-		# restore env or path if needed
-		if self.caller.env:
-			os.environ = old_env
-		elif self.caller.path:
-			os.environ["PATH"] = old_path
 
 		# CHANGED 12-10-27. OK, here's the deal. We must open in binary mode on Windows
 		# because silly MiKTeX inserts ASCII control characters in over/underfull warnings.

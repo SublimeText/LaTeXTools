@@ -111,21 +111,12 @@ class ScriptBuilder(PdfBuilder):
 				cwd=self.tex_dir
 			)
 
-			stdout, _ = p.communicate()
+			yield (p, "")
 
-			print(p.returncode)
-
-			if p.returncode != 0:
-				self.display("error.\n")
-				self.display_log = True
-				break
-			else:
-				self.display("done.\n")
+			self.display("done.\n")
 
 		# This is for debugging purposes 
-		if self.display_log:
+		if self.display_log and p.stdout is not None:
 			self.display("\nCommand results:\n")
-			self.display(stdout.decode('utf-8'))
+			self.display(p.stdout.decode('utf-8'))
 			self.display("\n\n")
-
-		yield("", "")
