@@ -74,16 +74,11 @@ class ScriptBuilder(PdfBuilder):
 			if self.CONTAINS_VARIABLE.search(cmd):
 				template = Template(cmd)
 				cmd = template.safe_substitute(
-					File=self.tex_root,
 					file=self.tex_root,
-					FileDir=self.tex_dir,
-					filedir=self.tex_dir,
-					FileName=self.tex_name,
-					filename=self.tex_name,
-					FileExt=self.tex_ext,
-					fileext=self.tex_ext,
-					BaseName=self.base_name,
-					basename=self.base_name
+					file_dir=self.tex_dir,
+					file_name=self.tex_name,
+					file_ext=self.tex_ext,
+					file_base_name=self.base_name
 				)
 
 				cmd = shlex.split(cmd)
