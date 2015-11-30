@@ -122,15 +122,13 @@ class TraditionalBuilder(PdfBuilder):
 						"luatex": "lualatex"
 					}[engine]
 
-				# latexmk doesn't support -pdflatex
-				if engine == 'pdflatex':
-					engine = 'pdf'
-
 			if engine != self.engine:
 				self.display("Engine: " + self.engine + " -> " + engine + ". ")
 
 			for i, c in enumerate(cmd):
-				cmd[i] = c.replace("%E", engine)
+				cmd[i] = c.replace(
+					"-%E", "-" + engine if texify or engine != 'pdflatex' else '-pdf'
+				).replace("%E", engine)
 
 		# handle any options
 		if texify or latexmk:
