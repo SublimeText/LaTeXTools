@@ -15,6 +15,7 @@ import sublime_plugin
 import sys
 import imp
 import os, os.path
+import signal
 import threading
 import functools
 import subprocess
@@ -103,9 +104,20 @@ class CmdThread ( threading.Thread ):
 					proc = subprocess.Popen(cmd, startupinfo=startupinfo, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 				elif self.caller.plat == "osx":
 					# Temporary (?) fix for Yosemite: pass environment
-					proc = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=os.environ)
+					proc = subprocess.Popen(
+						cmd,
+						stderr=subprocess.STDOUT,
+						stdout=subprocess.PIPE, 
+						env=os.environ,
+						preexec_fn=os.setsid
+					)
 				else: # Must be linux
-					proc = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+					proc = subprocess.Popen(
+						cmd,
+						stderr=subprocess.STDOUT,
+						stdout=subprocess.PIPE,
+						preexec_fn=os.setsid
+					)
 			except:
 				self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
 				self.caller.output("Attempted command:")
@@ -120,20 +132,23 @@ class CmdThread ( threading.Thread ):
 			
 			# Now actually invoke the command, making sure we allow for killing
 			# First, save process handle into caller; then communicate (which blocks)
-			self.caller.proc = proc
+			with self.caller.proc_lock:
+				self.caller.proc = proc
 			out, err = proc.communicate()
 			self.caller.builder.set_output(out.decode(self.caller.encoding,"ignore"))
 
 			# Here the process terminated, but it may have been killed. If so, stop and don't read log
 			# Since we set self.caller.proc above, if it is None, the process must have been killed.
 			# TODO: clean up?
-			if not self.caller.proc:
-				print (proc.returncode)
-				self.caller.output("\n\n[User terminated compilation process]\n")
-				self.caller.finish(False)	# We kill, so won't switch to PDF anyway
-				return
+			with self.caller.proc_lock:
+				if not self.caller.proc:
+					print (proc.returncode)
+					self.caller.output("\n\n[User terminated compilation process]\n")
+					self.caller.finish(False)	# We kill, so won't switch to PDF anyway
+					return
 			# Here we are done cleanly:
-			self.caller.proc = None
+			with self.caller.proc_lock:
+				self.caller.proc = None
 			print ("Finished normally")
 			print (proc.returncode)
 
@@ -226,16 +241,31 @@ class CmdThread ( threading.Thread ):
 
 class make_pdfCommand(sublime_plugin.WindowCommand):
 
+	def __init__(self, *args, **kwargs):
+		sublime_plugin.WindowCommand.__init__(self, *args, **kwargs)
+		self.proc = None
+		self.proc_lock = threading.Lock()
+
 	def run(self, cmd="", file_regex="", path=""):
 		
 		# Try to handle killing
-		if hasattr(self, 'proc') and self.proc: # if we are running, try to kill running process
-			self.output("\n\n### Got request to terminate compilation ###")
-			self.proc.kill()
-			self.proc = None
-			return
-		else: # either it's the first time we run, or else we have no running processes
-			self.proc = None
+		with self.proc_lock:
+			if self.proc: # if we are running, try to kill running process
+				self.output("\n\n### Got request to terminate compilation ###")
+				if sublime.platform() == 'windows':
+					startupinfo = subprocess.STARTUPINFO()
+					startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+					subprocess.call(
+						'taskkill /t /f /pid {pid}'.format(pid=self.proc.pid),
+						startupinfo=startupinfo,
+						shell=True
+					)
+				else:
+					os.killpg(self.proc.pid, signal.SIGTERM)
+				self.proc = None
+				return
+			else: # either it's the first time we run, or else we have no running processes
+				self.proc = None
 		
 		view = self.view = self.window.active_view()
 
