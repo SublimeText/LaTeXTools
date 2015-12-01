@@ -1,7 +1,6 @@
 # ST2/ST3 compat
 from __future__ import print_function 
 import sublime
-from functools import partial
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
 	_ST3 = False
@@ -79,18 +78,19 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 
 		if sublime_command is not None:
 			s = sublime.load_settings('LaTeXTools.sublime-settings')
-			plat_settings = s.get(sublime.platform(), {})
+			platform = sublime.platform()
+			plat_settings = s.get(platform, {})
 			wait_time =	plat_settings.get('keep_focus_delay', 500)
 
 			def keep_focus():
 				startupinfo = None
 				shell = False
-				if sublime.platform() == 'windows':
+				if platform == 'windows':
 					startupinfo = subprocess.STARTUPINFO()
 					startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 					shell = True
 
-				subprocess.call(
+				subprocess.Popen(
 					sublime_command,
 					startupinfo=startupinfo,
 					shell=shell,
