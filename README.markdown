@@ -401,6 +401,10 @@ NOTE: for the time being, you will need to refer to the `LaTeX.sublime-settings`
 
 - `cite-panel-format` and `cite_autocomplete_format`: see the section on ref/cite completion, and the comments in `LaTeXTools.sublime-settings`
 
+### Project-Specific Settings ###
+
+The above settings can be overridden on a project-specific basis if you are using Sublime Text's project system. To override these settings, simply create a [`"settings"` section in your project file](http://docs.sublimetext.info/en/latest/file_management/file_management.html#the-sublime-project-format). The structure and format is the same as for the `LaTeXTools.sublime-settings` file. Note that tweaking settings on a project-specific level can lead to even more subtle issues. If you notice a bug, in addition to resetting your `LaTeXTools.sublime-settings` file, you should remove at LaTeXTools settings from your project file.
+
 
 Customizing the Build System
 ----------------------------
