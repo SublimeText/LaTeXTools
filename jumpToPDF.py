@@ -39,23 +39,31 @@ def get_sublime_executable():
 		startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 		shell = True
 
-	if subprocess.call(
-			['subl', '-v'],
-			startupinfo=startupinfo,
-			shell=shell,
-			env=os.environ
-		) == 0:
-		get_sublime_executable.result = 'subl'
-		return get_sublime_executable.result
+	processes = ['subl', 'sublime_text']
+	for process in processes:
+		if subprocess.call(
+				[process, '-v'],
+				startupinfo=startupinfo,
+				shell=shell,
+				env=os.environ
+			) == 0:
+				get_sublime_executable.result = process
+				return get_sublime_executable.result
 
-	if subprocess.call(
-			['sublime_text', '-v'],
-			startupinfo=startupinfo,
-			shell=shell,
-			env=os.environ
-		) == 0:
-		get_sublime_executable.result = 'sublime_text'
-		return get_sublime_executable.result
+	# guess the default install location for ST2 on Windows
+	if sublime.platform() == 'windows':
+		st2_dir = os.path.expandvars("%PROGRAMFILES%\\Sublime Text 2")
+		if os.path.exists(st2_dir):
+			for process in processes:
+				process = os.path.join(st2_dir, process)
+				if subprocess.call(
+					[process, '-v'],
+					startupinfo=startupinfo,
+					shell=shell,
+					env=os.environ
+				) == 0:
+					get_sublime_executable.result = process
+					return get_sublime_executable.result
 
 	get_sublime_executable.result = None
 
