@@ -380,10 +380,14 @@ The following options are currently available (defaults in parentheses):
 - `windows`-specific settings:
   * `distro`: either `miktex` or `texlive`, depending on your TeX distribution
   * `sumatra`: leave blank or omit if the SumatraPDF executable is in your `PATH` and is called `SumatraPDF.exe`, as in a default installation; otherwise, specify the *full path and file name* of the SumatraPDF executable.
+  * `sublime_executable`: this is used if `keep_focus` is set to true, you are using Sublime Text 2, and neither subl.exe nor sublime_text.exe are on your `PATH`. It should point to the full path to your install of sublime_text.exe.
+  * `keep_focus_delay`: this is used if `keep_focus` is set to true. It controls how long (in ms) the delay is between the completion of the `jump_to_pdf` command and the attempt to refocus on Sublime Text. This may need to be adjusted depending on your machine or configuration.
 - `linux`-specific settings:
   * `python2` (`""`, i.e. empty string): name of the Python 2 executable. This is useful for systems that ship with both Python 2 and Python 3. The forward/backward search used with Evince require Python 2.
   * `sublime` (`sublime-text`): name of the ST executable. Ubuntu supports both `sublime-text` and `subl`; other distros may vary.
   * `sync_wait` (1.5): when you ask LaTeXTools to do a forward search, and the PDF file is not yet open (for example, right after compiling a tex file for the first time), LaTeXTools first launches evince, then waits a bit for it to come up, and then it performs the forward search. This parameter controls how long LaTeXTools should wait. If you notice that your machine opens the PDF, then sits there doing nothing, and finally performs the search, you can decrease this value to 1.0 or 0.5; if instead the PDF file comes up but the forward search does not seem to happen, increase it to 2.0.
+  * `sublime_executable`: this is used if `keep_focus` is set to true, you are using Sublime Text 2, and neither subl.exe nor sublime_text.exe are on your `PATH`. It should point to the full path to your install of sublime_text.exe.
+  * `keep_focus_delay`: this is used if `keep_focus` is set to true. It controls how long (in ms) the delay is between the completion of the `jump_to_pdf` command and the attempt to refocus on Sublime Text. This may need to be adjusted depending on your machine or configuration.
 
 **Build engine settings**:
 

@@ -17,11 +17,10 @@ import sublime_plugin, os.path, subprocess, time
 # is set.
 def get_sublime_executable():
 	s = sublime.load_settings('LaTeXTools.sublime-settings')
-	sublime_executable = sublime.active_window().active_view().\
-		settings().get('sublime_executable',
-			s.get('sublime_executable', None))
+	plat_settings = s.get(sublime.platform(), {})
+	sublime_executable = plat_settings.get('sublime_executable', None)
 
-	if sublime_executable is not None:
+	if sublime_executable:
 		return sublime_executable
 
 	# we cache the results of the other checks, if possible
@@ -80,8 +79,8 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 
 		if sublime_command is not None:
 			s = sublime.load_settings('LaTeXTools.sublime-settings')
-			wait_time = view.settings().get('keep_focus_delay',
-				s.get('keep_focus_delay', 500))
+			plat_settings = s.get(sublime.platform(), {})
+			wait_time =	plat_settings.get('keep_focus_delay', 500)
 
 			def keep_focus():
 				startupinfo = None
