@@ -80,7 +80,7 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			s = sublime.load_settings('LaTeXTools.sublime-settings')
 			platform = sublime.platform()
 			plat_settings = s.get(platform, {})
-			wait_time =	plat_settings.get('keep_focus_delay', 500)
+			wait_time = plat_settings.get('keep_focus_delay', 500)
 
 			def keep_focus():
 				startupinfo = None
