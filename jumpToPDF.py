@@ -165,9 +165,8 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			print ("Windows, Calling Sumatra")
 
 			si = subprocess.STARTUPINFO()
-			if setfocus == 0:
-				si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-				si.wShowWindow = 4 #constant for SHOWNOACTIVATE
+			si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+			si.wShowWindow = 4 #constant for SHOWNOACTIVATE
 
 			su_binary = prefs_win.get("sumatra", "SumatraPDF.exe") or 'SumatraPDF.exe'
 			startCommands = [su_binary, "-reuse-instance"]
