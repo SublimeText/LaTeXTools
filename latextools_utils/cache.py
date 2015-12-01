@@ -73,8 +73,7 @@ def read(tex_root, name):
     name -- the relative file name to read the object
 
     Returns:
-    The object at the location with the name,
-    None - if the file does not exists
+    The object at the location with the name
     """
     return read_local(tex_root, name)
 
@@ -128,8 +127,7 @@ def read_local(tex_root, name):
     name -- the relative file name to read the object
 
     Returns:
-    The object at the location with the name,
-    None - if the file does not exists
+    The object at the location with the name
     """
     cache_path = _local_cache_path(tex_root)
     return _read(cache_path, name)
@@ -176,8 +174,7 @@ def read_global(name):
     name -- the relative file name to read the object
 
     Returns:
-    The object at the location with the name,
-    None - if the file does not exists
+    The object at the location with the name
     """
     cache_path = _global_cache_path()
     return _read(cache_path, name)
