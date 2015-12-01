@@ -10,6 +10,7 @@ New and improved features:
 
 Bugfixes:
 
+- Terminating a build should no longer result in stray processes (Ian Bacher)
 - Engine selection improvements in the traditional builder (Ian Bacher)
 - Fix over/underfull parsing (Ian Bacher)
 - README improvements / fixes. 
