@@ -1,7 +1,7 @@
 LaTeXTools Plugin version 2015-11-30 changelog:
 
 
-New and improved features:
+New feature:
 
 - A setting to control activation of the LaTex-cwl completion facility
   (Richard Stein)
