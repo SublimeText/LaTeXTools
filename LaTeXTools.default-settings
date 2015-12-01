@@ -30,6 +30,21 @@
 	// Sync PDF to current editor position after building (true) or not 
 	"forward_sync": true,
 
+	// When to trigger cwl-command completion (requires the LaTeX-cwl package)
+	// possible values are:
+	// "always" (always show command completions)
+	// "prefixed" (default, show command completions if the current word is prefixed with '\')
+	// "never" (never show command completions)
+	"command_completion": "prefixed",
+
+	// level to hide the build panel after the build is finished
+	// Possible values are:
+	// "always" (hide the panel even if the build failed),
+	// "no_errors" (only hide the panel if the build was successful even with warnings),
+	// "no_warnings" (only hide the panel if no warnings occur) and
+	// "never" (default, never hide the build panel)
+	"hide_build_panel": "never",
+
 // ------------------------------------------------------------------
 // Temporary file settings
 // ------------------------------------------------------------------
@@ -43,14 +58,6 @@
 	"temp_files_ignored_folders": [
 		".git", ".svn", ".hg"
 	],
-
-	// level to hide the build panel after the build is finished
-	// Possible values are:
-	// "always" (hide the panel even if the build failed),
-	// "no_errors" (only hide the panel if the build was successful even with warnings),
-	// "no_warnings" (only hide the panel if no warnings occur) and
-	// "never" (never hide the build panel)
-	"hide_build_panel": "never",
 
 // ------------------------------------------------------------------
 // Platform settings: adapt as needed for your machine
