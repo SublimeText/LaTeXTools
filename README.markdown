@@ -4,7 +4,7 @@ LaTeX Plugin for Sublime Text 2 and 3
 by Marciano Siniscalchi
 [http://tekonomist.wordpress.com]
 
-Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, skuroda (Preferences menu), Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths), Jeremy Jay (basic biblatex support), Ray Fang (texttt snippet), Ulrich Gabor (tex engine selection and cleaning aux files), Wes Campaigne and 'jlegewie' (ref/cite completion 2.0!). **Huge** thanks to Daniel Shannon (aka phyllisstein) who first ported LaTeXTools to ST3. Also thanks for Charley Peng, who has been assisting users and generating great pull requests; I'll merge them as soon as possible. Also William Ledoux (various Windows fixes, env support), Sean Zhu (find Skim.app in non-standard locations), Maximilian Berger (new center/table snippet), Lucas Nanni (recursively delete temp files), Sergey Slipchenko (`$` auto-pairing with Vintage) Ian Bacher (use `kpsewhich` to find bib files in the `TEXMF` tree; reworked fill-all command; jump to tex files improvements; delete temp files improvements; builder options; improved LaTeX-cwl support), btstream (original fill-all command; LaTeX-cwl support), Richard Stein (auto-hide build panel, jump to included tex files), Dan Schrage (nobibliography command).
+Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, skuroda (Preferences menu), Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths), Jeremy Jay (basic biblatex support), Ray Fang (texttt snippet), Ulrich Gabor (tex engine selection and cleaning aux files), Wes Campaigne and 'jlegewie' (ref/cite completion 2.0!). **Huge** thanks to Daniel Shannon (aka phyllisstein) who first ported LaTeXTools to ST3. Also thanks for Charley Peng, who has been assisting users and generating great pull requests; I'll merge them as soon as possible. Also William Ledoux (various Windows fixes, env support), Sean Zhu (find Skim.app in non-standard locations), Maximilian Berger (new center/table snippet), Lucas Nanni (recursively delete temp files), Sergey Slipchenko (`$` auto-pairing with Vintage) Ian Bacher (use `kpsewhich` to find bib files in the `TEXMF` tree; reworked fill-all command; jump to tex files improvements; delete temp files improvements; builder options; improved LaTeX-cwl support), btstream (original fill-all command; LaTeX-cwl support), Richard Stein (auto-hide build panel, jump to included tex files, LaTeX-cwl support config), Dan Schrage (nobibliography command).
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
@@ -334,7 +334,15 @@ These commands also work if there is no selection. In this case, they try to do 
 LaTeX-clw support
 -----------------
 
-LaTeXTools automatically supports the `LaTeX-cwl` autocompletion package. If the package is installed, support is automatically enabled. There is also a setting, `cwl_list` to point LaTeXtools to the `cwl` files.
+LaTeXTools automatically supports the `LaTeX-cwl` autocompletion package. If the package is installed, support is automatically enabled. By default, as soon as one types, e.g., `\te`, a popup is shown displaying possible completions, including e.g. `\textit` and the like. I personally don't use it, but many find it useful.
+
+The following settings are provided:
+
+* `cwl_list`: a list of paths to the `cwl` files
+* `cwl_completion`: when to show that cwl completion popup. The possible values are:
+  - `prefixed` (default): show completions only if the current word is prefixed with `\`
+  - `always`: always show cwl completions
+  - `never`: never display the popup
 
 
 Command completion, snippets, etc.
@@ -364,6 +372,8 @@ The following options are currently available (defaults in parentheses):
 - `cite_auto_trigger` (`true`): if `true`, typing e.g. `\cite{` brings up the citation completion quick panel, without the need to type `C-l,x`. If `false`, you must explicitly type `C-l,x`.
 - `ref_auto_trigger` (`true`): ditto, but for `\ref{` and similar reference commands
 - `fill_auto_trigger` (`true`): ditto, but for package and file inclusion commands (see Fill Helper feature above)
+- `cwl_completion` (`prefixed`): when to activate the cwl completion poput (see LaTeX-cwl feature above)
+- `cwl_list` (empty): list of paths to cwl files
 - `keep_focus` (`true`): if `true`, after compiling a tex file, ST retains the focus; if `false`, the PDF viewer gets the focus. Also note that you can *temporarily* toggle this behavior with `C-l,t,f`.
 - `forward_sync` (`true`): if `true`, after compiling a tex file, the PDF viewer is asked to sync to the position corresponding to the current cursor location in ST. You can also *temporarily* toggle this behavior with `C-l,t,s`.
 - `temp_files_exts`: list of file extensions to be considered temporary, and hence deleted using the `C-l, backspace` command.
