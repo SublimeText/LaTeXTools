@@ -43,9 +43,6 @@ def _is_snippet(completion_entry):
 class LatexCwlCompletion(sublime_plugin.EventListener):
 
     def on_query_completions(self, view, prefix, locations):
-        # settings = sublime.load_settings("LaTeXTools.sublime-settings")
-        # cwl_completion = settings.get('cwl_completion')
-
         if not CWL_COMPLETION:
             return []
 
@@ -60,12 +57,9 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
         is_prefixed = char_before == "\\"
 
         completion_level = "prefixed"  # default completion level is "prefixed"
-        try:
-            settings = sublime.load_settings("LaTeXTools.sublime-settings")
-            completion_level = settings.get("command_completion",
-                                            completion_level)
-        except:  # LaTeXTools settings are missing
-            pass
+        completion_level = get_setting("command_completion",
+                                       completion_level)
+
         do_complete = {
             "never": False,
             "prefixed": is_prefixed,
