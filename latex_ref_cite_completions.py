@@ -49,8 +49,8 @@ class LatexRefCiteCommand(sublime_plugin.TextCommand):
             point += view.insert(edit, point, insert_char)
             # Get prefs and toggles to see if we are auto-triggering
             # This is only the case if we also must insert , or {, so we don't need a separate arg
-            do_ref = get_setting('ref_auto_trigger')
-            do_cite = get_setting('cite_auto_trigger')
+            do_ref = get_setting('ref_auto_trigger', True)
+            do_cite = get_setting('cite_auto_trigger', True)
         else: # if we didn't autotrigger, we must surely run
             do_ref = True
             do_cite = True

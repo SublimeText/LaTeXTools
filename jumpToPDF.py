@@ -23,8 +23,8 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		keep_focus = get_setting('keep_focus', True)
 		forward_sync = get_setting('forward_sync', True)
 
-		prefs_lin = get_setting("linux")
-		prefs_win = get_setting("windows")
+		prefs_lin = get_setting("linux", {})
+		prefs_win = get_setting("windows", {})
 
 		# If invoked from keybinding, we sync
 		# Rationale: if the user invokes the jump command, s/he wants to see the result of the compilation.

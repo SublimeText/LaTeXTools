@@ -316,7 +316,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 
 		# Get platform settings, builder, and builder settings
 		platform_settings  = get_setting(self.plat, {})
-		builder_name = get_setting("builder")
+		builder_name = get_setting("builder", "traditional")
 		self.hide_panel_level = get_setting("hide_build_panel", "never")
 		# This *must* exist, so if it doesn't, the user didn't migrate
 		if builder_name is None:
@@ -325,15 +325,16 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# Default to 'traditional' builder
 		if builder_name in ['', 'default']:
 			builder_name = 'traditional'
-		builder_path = get_setting("builder_path") # relative to ST packages dir!
+		# relative to ST packages dir!
+		builder_path = get_setting("builder_path", "")
 		builder_file_name   = builder_name + 'Builder.py'
 		builder_class_name  = builder_name.capitalize() + 'Builder'
-		builder_settings = get_setting("builder_settings")
+		builder_settings = get_setting("builder_settings", {})
 
 		# Read the env option (platform specific)
 		builder_platform_settings = builder_settings.get(self.plat)
 		if builder_platform_settings:
-			self.env = builder_platform_settings.get("env")
+			self.env = builder_platform_settings.get("env", None)
 		else:
 			self.env = None
 
