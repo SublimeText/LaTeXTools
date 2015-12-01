@@ -1,6 +1,7 @@
 # ST2/ST3 compat
 from __future__ import print_function 
 import sublime
+from functools import partial
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
 	_ST3 = False
@@ -12,10 +13,96 @@ else:
 
 import sublime_plugin, os.path, subprocess, time
 
+# attempts to locate the sublime executable to refocus on ST if keep_focus
+# is set.
+def get_sublime_executable():
+	s = sublime.load_settings('LaTeXTools.sublime-settings')
+	sublime_executable = sublime.active_window().active_view().\
+		settings().get('sublime_executable',
+			s.get('sublime_executable', None))
+
+	if sublime_executable is not None:
+		return sublime_executable
+
+	# we cache the results of the other checks, if possible
+	if hasattr(get_sublime_executable, 'result'):
+		return get_sublime_executable.result
+
+	# are we on ST3
+	if hasattr(sublime, 'executable_path'):
+		get_sublime_executable.result = sublime.executable_path()
+		return get_sublime_executable.result
+
+	# guess-work for ST2
+	startupinfo = None
+	shell = False
+	if sublime.platform() == 'windows':
+		startupinfo = subprocess.STARTUPINFO()
+		startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+		shell = True
+
+	if subprocess.call(
+			['subl', '-v'],
+			startupinfo=startupinfo,
+			shell=shell,
+			env=os.environ
+		) == 0:
+		get_sublime_executable.result = 'subl'
+		return get_sublime_executable.result
+
+	if subprocess.call(
+			['sublime_text', '-v'],
+			startupinfo=startupinfo,
+			shell=shell,
+			env=os.environ
+		) == 0:
+		get_sublime_executable.result = 'sublime_text'
+		return get_sublime_executable.result
+
+	get_sublime_executable.result = None
+
+	sublime.status_message(
+		'Cannot determine the path to your Sublime installation. Please ' +
+		'set the "sublime_executable" setting in your LaTeXTools.sublime-settings ' +
+		'file.'
+	)
+
+	return None
+
+
 # Jump to current line in PDF file
 # NOTE: must be called with {"from_keybinding": <boolean>} as arg
 
 class jump_to_pdfCommand(sublime_plugin.TextCommand):
+
+	def focus_st(self):
+		sublime_command = get_sublime_executable()
+
+		if sublime_command is not None:
+			s = sublime.load_settings('LaTeXTools.sublime-settings')
+			wait_time = view.settings().get('keep_focus_delay',
+				s.get('keep_focus_delay', 500))
+
+			def keep_focus():
+				startupinfo = None
+				shell = False
+				if sublime.platform() == 'windows':
+					startupinfo = subprocess.STARTUPINFO()
+					startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+					shell = True
+
+				subprocess.call(
+					sublime_command,
+					startupinfo=startupinfo,
+					shell=shell,
+					env=os.environ
+				)
+
+			if hasattr(sublime, 'set_async_timeout'):
+				sublime.set_async_timeout(keep_focus, wait_time)
+			else:
+				sublime.set_timeout(keep_focus, wait_time)
+
 	def run(self, edit, **args):
 		# Check prefs for PDF focus and sync
 		s = sublime.load_settings("LaTeXTools.sublime-settings")
@@ -77,37 +164,14 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		elif plat == 'win32':
 			# determine if Sumatra is running, launch it if not
 			print ("Windows, Calling Sumatra")
-			# hide console
-			# NO LONGER NEEDED with new Sumatra?
-			# startupinfo = subprocess.STARTUPINFO()
-			# startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-			# tasks = subprocess.Popen(["tasklist"], stdout=subprocess.PIPE,
-			# 		startupinfo=startupinfo).communicate()[0]
-			# # Popen returns a byte stream, i.e. a single line. So test simply:
-			# # Wait! ST3 is stricter. We MUST convert to str
-			# tasks_str = tasks.decode('UTF-8') #guess..
-			# if "SumatraPDF.exe" not in tasks_str:
-			# 	print ("Sumatra not running, launch it")
-			# 	self.view.window().run_command("view_pdf")
-			# 	time.sleep(0.5) # wait 1/2 seconds so Sumatra comes up
-			setfocus = 0 if keep_focus else 1
-			# First send an open command forcing reload, or ForwardSearch won't 
-			# reload if the file is on a network share
-			# command = u'[Open(\"%s\",0,%d,1)]' % (pdffile,setfocus)
-			# print (repr(command))
-			# self.view.run_command("send_dde",
-			# 		{ "service": "SUMATRA", "topic": "control", "command": command})
-			# Now send ForwardSearch command if needed
 
 			si = subprocess.STARTUPINFO()
 			if setfocus == 0:
 				si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 				si.wShowWindow = 4 #constant for SHOWNOACTIVATE
 
-			# If the option doesn't exist, return "SumatraPDF.exe"; else return the option
-			# And, if the option is "", use "SumatraPDF.exe"
 			su_binary = prefs_win.get("sumatra", "SumatraPDF.exe") or 'SumatraPDF.exe'
-			startCommands = [su_binary,"-reuse-instance"]
+			startCommands = [su_binary, "-reuse-instance"]
 			if forward_sync:
 				startCommands.append("-forward-search")
 				startCommands.append(srcfile)
@@ -116,13 +180,9 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			startCommands.append(pdffile)
 
 			subprocess.Popen(startCommands, startupinfo = si)
-				# command = "[ForwardSearch(\"%s\",\"%s\",%d,%d,0,%d)]" \
-				# 			% (pdffile, srcfile, line, col, setfocus)
-				# print (command)
-				# self.view.run_command("send_dde",
-				# 		{ "service": "SUMATRA", "topic": "control", "command": command})
 
-		
+			if keep_focus:
+				self.focus_st()
 		elif 'linux' in plat: # for some reason, I get 'linux2' from sys.platform
 			print ("Linux!")
 			
@@ -156,5 +216,7 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 					time.sleep(sync_wait)
 			if forward_sync:
 				subprocess.Popen([py_binary, ev_fwd_exec, pdffile, str(line), srcfile])
+			if keep_focus:
+				self.focus_st()
 		else: # ???
 			pass
