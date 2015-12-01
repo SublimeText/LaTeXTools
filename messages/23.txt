@@ -11,6 +11,7 @@ New and improved features:
 Bugfixes:
 
 - Engine selection improvements in the traditional builder (Ian Bacher)
+- Fix over/underfull parsing (Ian Bacher)
 - README improvements / fixes. 
 
   
