@@ -1,6 +1,9 @@
 import os
-import pickle
 import shutil
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 
 import sublime
 
