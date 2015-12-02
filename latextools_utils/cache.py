@@ -1,5 +1,6 @@
 import os
 import shutil
+import hashlib
 try:
     import cPickle as pickle
 except ImportError:
@@ -184,8 +185,23 @@ def read_global(name):
 
 
 def _local_cache_path(tex_root):
-    root_folder = os.path.dirname(tex_root)
-    return os.path.join(root_folder, CACHE_FOLDER)
+    hide_cache = True
+    try:
+        settings = sublime.load_settings("LaTeXTools.sublime-settings")
+        hide_cache = settings.get("hide_local_cache", hide_cache)
+    except:
+        pass
+
+    if not hide_cache:
+        root_folder = os.path.dirname(tex_root)
+        return os.path.join(root_folder, CACHE_FOLDER)
+    else:
+        global_path = _global_cache_path()
+        # convert the root to plain string and hash it
+        tex_root = tex_root.encode("utf8")
+        root_hash = hashlib.md5(tex_root)
+        root_hash = root_hash.hexdigest()
+        return os.path.join(global_path, CACHE_FOLDER, root_hash)
 
 
 def _global_cache_path():
