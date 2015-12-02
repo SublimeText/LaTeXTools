@@ -14,6 +14,16 @@ except:
     from getTeXRoot import get_tex_root
     from latextools_utils import cache
 
+# because we cannot natively pickle sublime.Region in ST2
+# we provide the ability to pickle
+if not _ST3:
+    import copy_reg
+
+    def pickle_region(region):
+        return (sublime.Region, (region.a, region.b))
+
+    copy_reg.pickle(sublime.Region, pickle_region)
+
 # attributes of an entry (for documentation)
 """
 Attributes of an entry:
@@ -238,21 +248,7 @@ def get_analysis(tex_root):
     else:
         tex_root = get_tex_root(tex_root)
 
-    try:
-        result = cache.read(tex_root, "analysis")
-    except cache.CacheMiss:
-        result = analyze_document(view)
-        # TODO
-        # cannot pickle sublime.Region in st2 this is a hacky workaround
-        # to remove those regions if someone is interested in the regions
-        # this method is not recommended anyways
-        if not _ST3:
-            for c in result._all_commands:
-                c.region = None
-                for k in _RE_COMMAND.groupindex.keys():
-                    region_name = k + "_region"
-                    c.__dict__[region_name] = None
-        cache.write(tex_root, "analysis", result)
+    result = cache.cache(tex_root, "analysis", lambda: analyze_document(view))
     return result
 
 
