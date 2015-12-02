@@ -6,7 +6,6 @@ if sublime.version() < '3000':
 	# we are on ST2 and Python 2.X
 	import getTeXRoot
 	from latextools_utils import cache
-	from latextools_utils import cache
 else:
 	_ST3 = True
 	from . import getTeXRoot
