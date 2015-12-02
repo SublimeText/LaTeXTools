@@ -165,7 +165,7 @@ class Analysis():
         how -- how it should be filtered, possible types are:
             string - only commands, which equals this string
             list of string - only commands which are in this list
-            function of string->bool - should return true iff the command
+            function of command->bool - should return true iff the command
                 should be in the result
         flags -- flags to filter the commands, which should for a be used over
             over filtering the commands on your own (optimization/caching).
@@ -186,7 +186,7 @@ class Analysis():
         elif type(how) is list:
             def command_filter(c): return c.command in how
         elif callable(how):
-            def command_filter(c): return how(c.command)
+            def command_filter(c): return how(c)
         else:
             raise Exception("Unsupported filter type: " + str(type(how)))
         com = self._commands(flags)
