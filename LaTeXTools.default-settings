@@ -195,9 +195,9 @@
 	"open_image_command": {
 		"osx" : [
 			{
-				// open pdf documents with the default programm
-				"extension": "pdf",
-				"command": "open"
+				// open pdf and eps documents with skim
+				"extension": ["pdf", "eps"],
+				"command": "open -a Skim.app"
 			}
 			// uncomment these lines to open all other images with the default programm
 			// ,
