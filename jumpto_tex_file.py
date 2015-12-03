@@ -203,6 +203,16 @@ def _jumpto_image_file(view, window, tex_root, file_name):
             window.open_file(file_path)
 
 
+def _split_bib_args(bib_args):
+    if "," in bib_args:
+        file_names = bib_args.split(",")
+        file_names = [f.strip() for f in file_names]
+        print("Bib files: {0}".format(file_names))
+    else:
+        file_names = [bib_args]
+    return file_names
+
+
 class JumptoTexFileCommand(sublime_plugin.TextCommand):
 
     def run(self, edit, auto_create_missing_folders=True,
@@ -235,12 +245,7 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
 
             for g in filter(is_inside, BIB_REG.finditer(line)):
                 file_group = g.group("file")
-                if "," in file_group:
-                    file_names = file_group.split(",")
-                    file_names = [f.strip() for f in file_names]
-                    print("Bib files: {0}".format(file_names))
-                else:
-                    file_names = [file_group]
+                file_names = _split_bib_args(file_group)
                 for file_name in file_names:
                     print("Jumpto bib file '{0}'".format(file_name))
                     _jumpto_bib_file(view, window, tex_root, file_name,
