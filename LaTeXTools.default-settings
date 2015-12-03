@@ -26,6 +26,8 @@
 	"fill_auto_trigger": true,
 
 	// Keep focus on Sublime Text after building (true) or switch to PDF viewer (false)
+	// If you are on Windows or Linux and using ST2, you may need to set the
+	// "sublime_executable" setting for this to work in your platform settings.
 	"keep_focus": true,
 	// Sync PDF to current editor position after building (true) or not 
 	"forward_sync": true,
