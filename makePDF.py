@@ -7,12 +7,16 @@ if sublime.version() < '3000':
 	_ST3 = False
 	import getTeXRoot
 	import parseTeXlog
-	from latextools_plugin import add_plugin_path, get_plugin, NoSuchPluginException
+	from latextools_plugin import (
+		add_plugin_path, add_whitelist_module, get_plugin, NoSuchPluginException
+	)
 else:
 	_ST3 = True
 	from . import getTeXRoot
 	from . import parseTeXlog
-	from latextools_plugin import add_plugin_path, get_plugin, NoSuchPluginException
+	from latextools_plugin import (
+		add_plugin_path, add_whitelist_module, get_plugin, NoSuchPluginException
+	)
 
 import sublime_plugin
 import sys
@@ -274,7 +278,6 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		if builder_name in ['', 'default']:
 			builder_name = 'traditional'
 
-		builder_class_name  = builder_name.capitalize() + 'Builder'
 		builder_settings = s.get("builder_settings")
 
 		# Read the env option (platform specific)
@@ -401,6 +404,10 @@ def plugin_loaded():
 	# load the plugins from the builders dir
 	ltt_path = os.path.join(sublime.packages_path(), 'LaTeXTools', 'builders')
 	add_plugin_path(ltt_path)
+
+	# hack to ensure that pdfBuilder is available to any future plugins
+	pdf_builder = get_plugin('pdf_builder')
+	add_whitelist_module('pdfBuilder', pdf_builder.__module__)
 
 	# load any .latextools_builder files from User directory
 	add_plugin_path(
