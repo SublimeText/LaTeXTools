@@ -204,7 +204,7 @@ class LaTeXToolsPluginRegistry(MutableMapping):
                 'Plugin {0} does not exist. Please ensure that the plugin is configured as documented'.format(key))
 
     def __setitem__(self, key, value):
-        if not isinstance(value, LaTeXToolsPlugin):
+        if not isinstance(value, LaTeXToolsPluginMeta):
             raise InvalidPluginException(type(value))
 
         self._registry[key] = value
