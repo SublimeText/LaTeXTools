@@ -261,17 +261,18 @@ class LaTeXToolsPluginMeta(type):
     '''
     def __init__(cls, name, bases, attrs):
         super(LaTeXToolsPluginMeta, cls).__init__(name, bases, attrs)
+
         if cls == LaTeXToolsPluginMeta:
             return
 
         try:
-            if LaTeXToolsPlugin not in bases:
+            if not any((True for base in bases if issubclass(base, LaTeXToolsPlugin))):
                 return
         except NameError:
             return
 
         registered_name = _classname_to_internal_name(name)
-        internal._REGISTRY[registered_name] = cls()
+        internal._REGISTRY[registered_name] = cls
 
 LaTeXToolsPlugin = LaTeXToolsPluginMeta('LaTeXToolsPlugin', (object,), {})
 LaTeXToolsPlugin.__doc__ = '''
