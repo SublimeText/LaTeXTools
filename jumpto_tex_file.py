@@ -11,37 +11,27 @@ import sublime_plugin
 try:
     _ST3 = True
     from .getTeXRoot import get_tex_root
+    from .latextools_utils import utils
 except:
     _ST3 = False
     from getTeXRoot import get_tex_root
+    from latextools_utils import utils
 
 
-# TODO this might be moved to a generic util
-def run_after_loading(view, func):
-    """Run a function after the view has finished loading"""
-    def run():
-        if view.is_loading():
-            sublime.set_timeout(run, 10)
-        else:
-            # add an additional delay, because it might not be ready
-            # even if the loading function returns false
-            sublime.set_timeout(func, 10)
-    run()
-
-_INPUT_REG = re.compile(
+INPUT_REG = re.compile(
     r"\\(?:input|include|subfile)"
     r"\{(?P<file>[^}]+)\}",
     re.UNICODE
 )
 
-_BIB_REG = re.compile(
+BIB_REG = re.compile(
     r"\\(?:bibliography|nobibliography|addbibresource|add(?:global|section)bib)"
     r"(?:\[[^\]]*\])?"
     r"\{(?P<file>[^}]+)\}",
     re.UNICODE
 )
 
-_IMAGE_REG = re.compile(
+IMAGE_REG = re.compile(
     r"\\includegraphics"
     r"(?:\[[^\]]*\])?"
     r"\{(?P<file>[^\}]+)\}",
@@ -112,17 +102,15 @@ def _jumpto_tex_file(view, window, tex_root, file_name,
 
     # open the file
     print("Open the file '{0}'".format(full_new_path))
-    new_view = window.open_file(full_new_path)
 
     # await opening and move cursor to end of the new view
     # (does not work on st2)
     if _ST3 and auto_insert_root and is_root_inserted:
-        def set_caret_position():
-            cursor_pos = len(root_string)
-            new_view.sel().clear()
-            new_view.sel().add(sublime.Region(cursor_pos,
-                                              cursor_pos))
-        run_after_loading(new_view, set_caret_position)
+        cursor_pos = len(root_string)
+        new_region = sublime.Region(cursor_pos, cursor_pos)
+        utils.open_and_select_region(view, full_new_path, new_region)
+    else:
+        window.open_file(full_new_path)
 
 
 def _jumpto_bib_file(view, window, tex_root, file_name,
@@ -239,13 +227,13 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
                 reg = g.regs[0]
                 return reg[0] <= sel.begin() - b and sel.end() - b <= reg[1]
 
-            for g in filter(is_inside, _INPUT_REG.finditer(line)):
+            for g in filter(is_inside, INPUT_REG.finditer(line)):
                 file_name = g.group("file")
                 print("Jumpto tex file '{0}'".format(file_name))
                 _jumpto_tex_file(view, window, tex_root, file_name,
                                  auto_create_missing_folders, auto_insert_root)
 
-            for g in filter(is_inside, _BIB_REG.finditer(line)):
+            for g in filter(is_inside, BIB_REG.finditer(line)):
                 file_group = g.group("file")
                 if "," in file_group:
                     file_names = file_group.split(",")
@@ -258,7 +246,7 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
                     _jumpto_bib_file(view, window, tex_root, file_name,
                                      auto_create_missing_folders)
 
-            for g in filter(is_inside, _IMAGE_REG.finditer(line)):
+            for g in filter(is_inside, IMAGE_REG.finditer(line)):
                 file_name = g.group("file")
                 print("Jumpto image file '{0}'".format(file_name))
                 _jumpto_image_file(view, window, tex_root, file_name)
