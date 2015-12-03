@@ -8,11 +8,11 @@ import sublime
 try:
     _ST3 = True
     from ..getTeXRoot import get_tex_root
-    from . import cache
+    from . import cache, utils
 except:
     _ST3 = False
     from getTeXRoot import get_tex_root
-    from latextools_utils import cache
+    from latextools_utils import cache, utils
 
 # because we cannot natively pickle sublime.Region in ST2
 # we provide the ability to pickle
@@ -350,8 +350,7 @@ def _read_file(file_name):
     """
 
     try:
-        with codecs.open(file_name, "r", "utf8") as f:
-            raw_content = f.read()
+        raw_content = utils.read_file_unix_endings(file_name)
     except IOError as e:
         # file does not exists / permission exception
         print(str(e))
