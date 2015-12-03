@@ -362,6 +362,9 @@ def _latextools_module_hack():
     plugins_whitelist.append('latextools_plugin')
     overwritten_modules = {}
 
+    whitelist = [(name, None) for name in plugins_whitelist]
+    whitelist.extend(internal._WHITELIST_ADDED)
+
     # put the directory containing this file on the sys.path
     __dir__ = os.path.dirname(__file__)
 
@@ -369,21 +372,28 @@ def _latextools_module_hack():
     if __dir__ == '.':
         __dir__ = os.path.join(sublime.packages_path(), 'LaTeXTools')
 
+    # insert the LaTeXTools directory on the path
     sys.path.insert(0, __dir__)
-    for module in plugins_whitelist:
-        if module in sys.modules:
-            overwritten_modules[module] = sys.modules[module]
-        # if the module has already been loaded by ST, we just use that
-        latextools_module_name = _get_sublime_module_name(__dir__, module)
-        if latextools_module_name in sys.modules:
-            sys.modules[module] = sys.modules[latextools_module_name]
-        else:
-            try:
-                sys.modules[module] = _load_module(module, module, __dir__)
-            except ImportError:
-                print('An error occurred while trying to load white-listed module {0}'.format(module))
-                traceback.print_exc()
+    for name, module in whitelist:
+        if name in sys.modules:
+            overwritten_modules[name] = sys.modules[name]
 
+        # attempting to autoload module
+        if module is None:
+            # if the module has already been loaded by ST, we just use that
+            latextools_module_name = _get_sublime_module_name(__dir__, name)
+            if latextools_module_name in sys.modules:
+                sys.modules[name] = sys.modules[latextools_module_name]
+            else:
+                try:
+                    sys.modules[name] = _load_module(name, name, __dir__)
+                except ImportError:
+                    print('An error occurred while trying to load white-listed module {0}'.format(module))
+                    traceback.print_exc()
+        else:
+            sys.modules[name] = module
+
+    # remove the LaTeXTools directory from the path
     sys.path.pop(0)
 
     yield
@@ -394,6 +404,28 @@ def _latextools_module_hack():
             sys.modules[module] = None
         if module in overwritten_modules:
             sys.modules[module] = overwritten_modules[module]
+
+def add_whitelist_module(name, module=None):
+    '''
+    API function to ensure that a certain module is made available to any plugins.
+    
+    `name` should be the name of the module as it will be imported in a plugin
+    `module`, if specified, should be the actual module object
+
+    The `module` mechanism is provided to allow for the import of modules that
+    might otherwise be unavailable or available in sys.modules only by a
+    different name. Standard LaTeXTools modules should provide a name only.
+
+    Note that this function *must* be called before add_plugin_path.
+    '''
+    for i, (_name, _module) in enumerate(internal._WHITELIST_ADDED):
+        if _name == name:
+            if _module == module:
+                return
+            internal._WHITELIST_ADDED[i] = (_name, module)
+            return
+
+    internal._WHITELIST_ADDED.append((name, module))
 
 def add_plugin_path(path, glob='*.py'):
     '''

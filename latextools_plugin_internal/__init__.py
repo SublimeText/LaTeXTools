@@ -9,3 +9,7 @@ _REGISTRY = None
 # to handle the case where `add_plugin_path` is called before this module has been fully
 # loaded.
 _REGISTERED_PATHS_TO_LOAD = []
+
+# a list of tuples consisting of a module name and a module object used in the
+# _latextools_modules_hack context manager to provide an API for adding modules
+_WHITELIST_ADDED = []
