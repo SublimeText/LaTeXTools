@@ -11,6 +11,9 @@ else:
 
 
 import sublime_plugin, os.path, subprocess, time
+import re
+
+SUBLIME_VERSION = re.compile(r'Build (\d{4})', re.UNICODE)
 
 # attempts to locate the sublime executable to refocus on ST if keep_focus
 # is set.
@@ -39,31 +42,53 @@ def get_sublime_executable():
 		startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 		shell = True
 
+	version = sublime.version()
+
 	processes = ['subl', 'sublime_text']
 	for process in processes:
-		if subprocess.call(
-				[process, '-v'],
-				startupinfo=startupinfo,
-				shell=shell,
-				env=os.environ
-			) == 0:
-				get_sublime_executable.result = process
-				return get_sublime_executable.result
+		try:
+			p = subprocess.Popen(
+					[process, '-v'],
+					stdout=subprocess.PIPE,
+					startupinfo=startupinfo,
+					shell=shell,
+					env=os.environ
+			)
+		except:
+			pass
+		else:
+			stdout, _ = p.communicate()
+
+			if p.returncode == 0:
+				m = SUBLIME_VERSION.search(stdout.decode('utf8'))
+				if m and m.group(1) == version:
+					get_sublime_executable.result = process
+					return get_sublime_executable.result
 
 	# guess the default install location for ST2 on Windows
 	if sublime.platform() == 'windows':
 		st2_dir = os.path.expandvars("%PROGRAMFILES%\\Sublime Text 2")
 		if os.path.exists(st2_dir):
 			for process in processes:
-				process = os.path.join(st2_dir, process)
-				if subprocess.call(
-					[process, '-v'],
-					startupinfo=startupinfo,
-					shell=shell,
-					env=os.environ
-				) == 0:
-					get_sublime_executable.result = process
-					return get_sublime_executable.result
+				try:
+					process = os.path.join(st2_dir, process)
+					p = subprocess.Popen(
+						[process, '-v'],
+						stdout=subprocess.PIPE,
+						startupinfo=startupinfo,
+						shell=shell,
+						env=os.environ
+					)
+				except:
+					pass
+				else:
+					stdout, _ = p.communicate()
+
+					if p.returncode == 0:
+						m = SUBLIME_VERSION.search(stdout.decode('utf8'))
+						if m and m.group(1) == version:
+							get_sublime_executable.result = process
+							return get_sublime_executable.result
 
 	get_sublime_executable.result = None
 
