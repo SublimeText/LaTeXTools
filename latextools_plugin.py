@@ -162,7 +162,11 @@ else:
     def _get_sublime_module_name(directory, module):
         return '{0}.{1}'.format(os.path.basename(directory), module)
 
-__all__ = ['LaTeXToolsPlugin', 'get_plugin', 'add_plugin_path']
+__all__ = [
+    'LaTeXToolsPlugin', 'get_plugin', 'add_plugin_path',
+    'LaTeXToolsPluginException', 'InvalidPluginException',
+    'NoSuchPluginException'
+]
 
 _MODULE_PREFIX = '_latextools_'
 
