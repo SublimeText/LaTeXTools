@@ -1,15 +1,18 @@
 # ST2/ST3 compat
-from __future__ import print_function 
+from __future__ import print_function
+
 import sublime
 if sublime.version() < '3000':
-    # we are on ST2 and Python 2.X
+	# we are on ST2 and Python 2.X
 	_ST3 = False
 	import getTeXRoot
 	import parseTeXlog
+	from latextools_plugin import add_plugin_path, get_plugin, NoSuchPluginException
 else:
 	_ST3 = True
 	from . import getTeXRoot
 	from . import parseTeXlog
+	from latextools_plugin import add_plugin_path, get_plugin, NoSuchPluginException
 
 import sublime_plugin
 import sys
@@ -266,11 +269,11 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		if builder_name is None:
 			sublime.error_message("LaTeXTools: you need to migrate your preferences. See the README file for instructions.")
 			return
+
 		# Default to 'traditional' builder
 		if builder_name in ['', 'default']:
 			builder_name = 'traditional'
-		builder_path = s.get("builder_path") # relative to ST packages dir!
-		builder_file_name   = builder_name + 'Builder.py'
+
 		builder_class_name  = builder_name.capitalize() + 'Builder'
 		builder_settings = s.get("builder_settings")
 
@@ -281,52 +284,38 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		else:
 			self.env = None
 
+		# Now actually get the builder
+		builder_path = s.get("builder_path")  # relative to ST packages dir!
+
 		# Safety check: if we are using a built-in builder, disregard
 		# builder_path, even if it was specified in the pref file
-		if builder_name in ['simple', 'traditional', 'script', 'default','']:
+		if builder_name in ['simple', 'traditional', 'script']:
 			builder_path = None
 
-		# Now actually get the builder
-		ltt_path = os.path.join(sublime.packages_path(),'LaTeXTools','builders')
 		if builder_path:
 			bld_path = os.path.join(sublime.packages_path(), builder_path)
-		else:
-			bld_path = ltt_path
-		bld_file = os.path.join(bld_path, builder_file_name)
+			add_plugin_path(bld_path)
 
-		if not os.path.isfile(bld_file):
+		try:
+			builder = get_plugin('{0}_builder'.format(builder_name))
+		except NoSuchPluginException:
 			sublime.error_message("Cannot find builder " + builder_name + ".\n" \
 							      "Check your LaTeXTools Preferences")
-			return
-		
-		# We save the system path and TEMPORARILY add the builders path to it,
-		# so we can simply "import pdfBuilder" in the builder module
-		# For custom builders, we need to add both the LaTeXTools builders
-		# path, as well as the custom path specified above.
-		# The mechanics are from http://effbot.org/zone/import-string.htm
 
-		syspath_save = list(sys.path)
-		sys.path.insert(0, ltt_path)
-		if builder_path:
-			sys.path.insert(0, bld_path)
-		builder_module = __import__(builder_name + 'Builder')
-		sys.path[:] = syspath_save
-		
-		print(repr(builder_module))
-		builder_class = getattr(builder_module, builder_class_name)
-		print(repr(builder_class))
-		# We should now be able to construct the builder object
-		self.builder = builder_class(self.file_name, self.output, builder_settings, platform_settings)
-		
-		# Restore Python system path
-		sys.path[:] = syspath_save
-		
+		print(repr(builder))
+		self.builder = builder(
+			self.file_name,
+			self.output,
+			builder_settings,
+			platform_settings
+		)
+
 		# Now get the tex binary path from prefs, change directory to
 		# that of the tex root file, and run!
 		self.path = platform_settings['texpath']
 		os.chdir(tex_dir)
 		CmdThread(self).start()
-		print (threading.active_count())
+		print(threading.active_count())
 
 
 	# Threading headaches :-)
@@ -407,3 +396,17 @@ class DoFinishEditCommand(sublime_plugin.TextCommand):
         reg = sublime.Region(0)
         self.view.sel().add(reg)
         self.view.show(reg)
+
+def plugin_loaded():
+	# load the plugins from the builders dir
+	ltt_path = os.path.join(sublime.packages_path(), 'LaTeXTools', 'builders')
+	add_plugin_path(ltt_path)
+
+	# load any .latextools_builder files from User directory
+	add_plugin_path(
+		os.path.join(sublime.packages_path(), 'User'),
+		'*.latextools_builder'
+	)
+
+if not _ST3:
+	plugin_loaded()

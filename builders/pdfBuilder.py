@@ -1,13 +1,16 @@
 # ST2/ST3 compat
-from __future__ import print_function 
+from __future__ import print_function
+
+from latextools_plugin import LaTeXToolsPlugin
+
 import sublime
+import os.path
+
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
 	_ST3 = False
 else:
 	_ST3 = True
-
-import os.path
 
 DEBUG = False
 
@@ -19,7 +22,7 @@ DEBUG = False
 # NOTE: this will have to be moved eventually.
 #
 
-class PdfBuilder(object):
+class PdfBuilder(LaTeXToolsPlugin):
 	"""Base class for build engines"""
 
 	# Configure parameters here
@@ -65,7 +68,7 @@ class PdfBuilder(object):
 	# If no command must be run, just yield ("","")
 	# Remember that we are now in the root file's directory
 	def commands(self):
-		pass
+		raise NotImplementedError()
 
 	# Clean up after ourselves
 	# Only the build system knows what to delete for sure, so give this option
@@ -74,5 +77,4 @@ class PdfBuilder(object):
 	# NOTE: problem. Either we make the builder class persistent, or we have to
 	# pass the tex root again. Need to think about this
 	def cleantemps(self):
-		return False
-
+		return NotImplementedError()
