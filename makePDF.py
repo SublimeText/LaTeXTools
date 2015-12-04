@@ -405,10 +405,6 @@ def plugin_loaded():
 	ltt_path = os.path.join(sublime.packages_path(), 'LaTeXTools', 'builders')
 	add_plugin_path(ltt_path)
 
-	# hack to ensure that pdfBuilder is available to any future plugins
-	pdf_builder = get_plugin('pdf_builder')
-	add_whitelist_module('pdfBuilder', pdf_builder.__module__)
-
 	# load any .latextools_builder files from User directory
 	add_plugin_path(
 		os.path.join(sublime.packages_path(), 'User'),

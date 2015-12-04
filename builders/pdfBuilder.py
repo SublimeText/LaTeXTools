@@ -1,10 +1,11 @@
 # ST2/ST3 compat
 from __future__ import print_function
 
-from latextools_plugin import LaTeXToolsPlugin
+import latextools_plugin
 
 import sublime
 import os.path
+import sys
 
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
@@ -22,7 +23,7 @@ DEBUG = False
 # NOTE: this will have to be moved eventually.
 #
 
-class PdfBuilder(LaTeXToolsPlugin):
+class PdfBuilder(latextools_plugin.LaTeXToolsPlugin):
 	"""Base class for build engines"""
 
 	# Configure parameters here
@@ -78,3 +79,5 @@ class PdfBuilder(LaTeXToolsPlugin):
 	# pass the tex root again. Need to think about this
 	def cleantemps(self):
 		return NotImplementedError()
+
+latextools_plugin.add_whitelist_module('pdfBuilder', sys.modules[PdfBuilder.__module__])
