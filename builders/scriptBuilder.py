@@ -19,6 +19,8 @@ else:
 	strbase = str
 	from shlex import quote
 
+_ST3 = sublime.version() >= '3000'
+
 
 #----------------------------------------------------------------
 # ScriptBuilder class
@@ -28,7 +30,7 @@ else:
 class ScriptBuilder(PdfBuilder):
 
 	CONTAINS_VARIABLE = re.compile(
-		r'\$(?:File|FileDir|FileName|FileExt|BaseName)',
+		r'\$(?:file|file_path|file_name|file_ext|file_base_name)',
 		re.IGNORECASE | re.UNICODE
 	)
 
@@ -65,25 +67,31 @@ class ScriptBuilder(PdfBuilder):
 		if isinstance(self.cmd, strbase):
 			self.cmd = [self.cmd]
 
-		for c in self.cmd:
-			if isinstance(c, list):
-				cmd = " ".join([quote(s) for s in c])
-			else:
-				cmd = c
-
-			if self.CONTAINS_VARIABLE.search(cmd):
-				template = Template(cmd)
-				cmd = template.safe_substitute(
-					file=self.tex_root,
-					file_path=self.tex_dir,
-					file_name=self.tex_name,
-					file_ext=self.tex_ext,
-					file_base_name=self.base_name
-				)
+		for cmd in self.cmd:
+			if isinstance(cmd, strbase):
+				if not _ST3:
+					cmd = str(cmd)
 
 				cmd = shlex.split(cmd)
-			else:
-				cmd = shlex.split(cmd)
+
+				if not _ST3:
+					cmd = [unicode(c) for c in cmd]
+
+			replaced_var = False
+			for i, component in enumerate(cmd):
+				if self.CONTAINS_VARIABLE.search(component):
+					template = Template(component)
+					component = template.safe_substitute(
+						file=self.tex_root,
+						file_path=self.tex_dir,
+						file_name=self.tex_name,
+						file_ext=self.tex_ext,
+						file_base_name=self.base_name
+					)
+					cmd[i] = component
+					replaced_var = True
+
+			if not replaced_var:
 				cmd.append(self.base_name)
 
 			self.display("Invoking '{0}'... ".format(
@@ -101,7 +109,7 @@ class ScriptBuilder(PdfBuilder):
 				stdout=PIPE,
 				stderr=STDOUT,
 				startupinfo=startupinfo,
-				shell=True,
+				shell=False,
 				env=env,
 				cwd=self.tex_dir
 			)
