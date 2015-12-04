@@ -80,4 +80,7 @@ class PdfBuilder(latextools_plugin.LaTeXToolsPlugin):
 	def cleantemps(self):
 		return NotImplementedError()
 
-latextools_plugin.add_whitelist_module('pdfBuilder', sys.modules[PdfBuilder.__module__])
+# ensure pdfBuilder is available to any custom builders
+latextools_plugin.add_whitelist_module('pdfBuilder',
+	sys.modules[PdfBuilder.__module__]
+)
