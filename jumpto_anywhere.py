@@ -73,11 +73,12 @@ def _jumpto_cite(view, com_reg):
             try:
                 file_content = utils.read_file_unix_endings(bib_file)
                 start = file_content.find(bib_key)
+                end = start + len(bib_key)
                 # check that we found the entry and we are not inside a word
                 if start == -1 or file_content[start-1:start].isalnum() or\
-                        file_content[start:start+1].isalnum():
+                        file_content[end:end+1].isalnum():
                     continue
-                region = sublime.Region(start, start + len(bib_key))
+                region = sublime.Region(start, end)
                 utils.open_and_select_region(view, bib_file, region)
                 return
             except Exception as e:
