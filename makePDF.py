@@ -14,7 +14,7 @@ else:
 	_ST3 = True
 	from . import getTeXRoot
 	from . import parseTeXlog
-	from latextools_plugin import (
+	from .latextools_plugin import (
 		add_plugin_path, add_whitelist_module, get_plugin, NoSuchPluginException
 	)
 
