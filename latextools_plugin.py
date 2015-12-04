@@ -260,7 +260,11 @@ class LaTeXToolsPluginMeta(type):
     plugin registry
     '''
     def __init__(cls, name, bases, attrs):
-        super(LaTeXToolsPluginMeta, cls).__init__(name, bases, attrs)
+        try:
+            super(LaTeXToolsPluginMeta, cls).__init__(name, bases, attrs)
+        except TypeError:
+            # occurs on reload
+            return
 
         if cls == LaTeXToolsPluginMeta:
             return
@@ -375,6 +379,9 @@ def _latextools_module_hack():
     # insert the LaTeXTools directory on the path
     sys.path.insert(0, __dir__)
     for name, module in whitelist:
+        if callable(module):
+            module = module()
+
         if name in sys.modules:
             overwritten_modules[name] = sys.modules[name]
 
@@ -388,7 +395,7 @@ def _latextools_module_hack():
                 try:
                     sys.modules[name] = _load_module(name, name, __dir__)
                 except ImportError:
-                    print('An error occurred while trying to load white-listed module {0}'.format(module))
+                    print('An error occurred while trying to load white-listed module {0}'.format(name))
                     traceback.print_exc()
         else:
             sys.modules[name] = module
@@ -410,7 +417,8 @@ def add_whitelist_module(name, module=None):
     API function to ensure that a certain module is made available to any plugins.
     
     `name` should be the name of the module as it will be imported in a plugin
-    `module`, if specified, should be the actual module object
+    `module`, if specified, should be either an actual module object or a callable
+    that returns the actual module object.
 
     The `module` mechanism is provided to allow for the import of modules that
     might otherwise be unavailable or available in sys.modules only by a
@@ -462,8 +470,7 @@ def add_plugin_path(path, glob='*.py'):
                 plugin_dir = os.path.dirname(file)
                 sys.path.insert(0, plugin_dir)
 
-                _load_plugin(os.path.splitext(
-                    os.path.basename(file))[0], plugin_dir)
+                _load_plugin(os.path.basename(file), plugin_dir)
 
                 sys.path.pop(0)
 
