@@ -8,14 +8,14 @@ if sublime.version() < '3000':
 	import getTeXRoot
 	import parseTeXlog
 	from latextools_plugin import (
-		add_plugin_path, add_whitelist_module, get_plugin, NoSuchPluginException
+		add_plugin_path, get_plugin, NoSuchPluginException
 	)
 else:
 	_ST3 = True
 	from . import getTeXRoot
 	from . import parseTeXlog
 	from .latextools_plugin import (
-		add_plugin_path, add_whitelist_module, get_plugin, NoSuchPluginException
+		add_plugin_path, get_plugin, NoSuchPluginException
 	)
 
 import sublime_plugin
