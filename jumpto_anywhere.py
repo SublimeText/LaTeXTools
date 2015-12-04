@@ -84,6 +84,29 @@ def _jumpto_cite(view, com_reg):
                 continue
 
 
+def _jumpto_pkg_doc(view, line_start, com_reg):
+    def view_doc(package):
+        view.window().run_command("latex_view_doc", {"file": package})
+    args = com_reg.group("args")
+    if "," not in args:
+        # only one arg => open the doc
+        view_doc(args)
+        return
+    args_region = com_reg.regs[COMMAND_REG.groupindex["args"]]
+    cursor = view.sel()[0].b - line_start - args_region[0]
+    if cursor < 0:
+        print("Package selection to vague")
+        return
+    # start from the cursor and select the surrounding word
+    a, b = cursor, cursor
+    while args[a-1:a].isalpha():
+        a -= 1
+    while args[b:b+1].isalpha():
+        b += 1
+    # splice the package from the args and view the doc
+    view_doc(args[a:b])
+
+
 class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
     def run(self, edit, fallback_command=""):
         view = self.view
@@ -132,3 +155,5 @@ class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
                 "auto_insert_root": False
             }
             view.run_command("jumpto_tex_file", args)
+        elif command in ["usepackage", "Requirepackage"]:
+            _jumpto_pkg_doc(view, line_r.begin(), com_reg)
