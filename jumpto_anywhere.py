@@ -109,6 +109,36 @@ def _jumpto_pkg_doc(view, line_start, com_reg):
     view_doc(args[a:b])
 
 
+def _opt_jumpto_self_def_command(view, com_reg):
+    tex_root = get_tex_root(view)
+    if tex_root is None:
+        return False
+
+    # check in the cache whether we should jump (is command self defined)
+    newcommand_keywords = ["newcommand", "renewcommand"]
+    command = "\\" + com_reg.group("command")
+    cana = analysis.get_analysis(tex_root)
+    new_commands = cana.filter_commands(newcommand_keywords)
+    if command not in [c.args for c in new_commands]:
+        print("Command not defined (cached) '{0}".format(command))
+        return False
+
+    # analyze the document to retrieve the correct position of the
+    # command definition
+    ana = analysis.analyze_document(view)
+    new_commands = ana.filter_commands(newcommand_keywords)
+    try:
+        new_com_def = next(ifilter(lambda c: c.args == command,
+                                   new_commands))
+    except:
+        print("Command not self defined '{0}".format(command))
+        return False
+    file_name = new_com_def.file_name
+    region = new_com_def.args_region
+    utils.open_and_select_region(view, file_name, region)
+    return True
+
+
 class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
     def run(self, edit, fallback_command=""):
         view = self.view
@@ -159,3 +189,10 @@ class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
             view.run_command("jumpto_tex_file", args)
         elif command in ["usepackage", "Requirepackage"]:
             _jumpto_pkg_doc(view, line_r.begin(), com_reg)
+        else:
+            b = line_r.begin()
+            command_region = com_reg.regs[COMMAND_REG.groupindex["command"]]
+            # if cursor is inside \command
+            if command_region[0] + b - 1 <= sel.begin() and\
+                    sel.end() <= command_region[1] + b:
+                _opt_jumpto_self_def_command(view, com_reg)
