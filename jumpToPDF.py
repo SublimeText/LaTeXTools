@@ -113,7 +113,7 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			s = sublime.load_settings('LaTeXTools.sublime-settings')
 			platform = sublime.platform()
 			plat_settings = s.get(platform, {})
-			wait_time = plat_settings.get('keep_focus_delay', 500)
+			wait_time = plat_settings.get('keep_focus_delay', 0.5)
 
 			def keep_focus():
 				startupinfo = None
@@ -131,9 +131,9 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 				)
 
 			if hasattr(sublime, 'set_async_timeout'):
-				sublime.set_async_timeout(keep_focus, wait_time)
+				sublime.set_async_timeout(keep_focus, int(wait_time * 1000))
 			else:
-				sublime.set_timeout(keep_focus, wait_time)
+				sublime.set_timeout(keep_focus, int(wait_time * 1000))
 
 	def run(self, edit, **args):
 		# Check prefs for PDF focus and sync

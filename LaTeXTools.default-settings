@@ -86,10 +86,10 @@
 		// If blank, "subl.exe" or "sublime_text.exe" will be used. Only 
 		// necessary if using ST2 and neither of those are on your path.
 		"sublime_executable": "",
-		// how long (in ms) to wait after the jump_to_pdf command completes before
-		// switching focus back to Sublime Text. This may need to be adjusted
-		// depending on your machine and configuration.
-		"keep_focus_delay": 500
+		// how long (in seconds) to wait after the jump_to_pdf command completes
+		// before switching focus back to Sublime Text. This may need to be
+		// adjusted depending on your machine and configuration.
+		"keep_focus_delay": 0.5
 	},
 
 	"linux" : {
@@ -112,10 +112,10 @@
 		// If blank, "subl" or "sublime_text" will be used. Only 
 		// necessary if using ST2 and neither of those are on your path.
 		"sublime_executable": "",
-		// how long (in ms) to wait after the jump_to_pdf command completes before
-		// switching focus back to Sublime Text. This may need to be adjusted
-		// depending on your machine and configuration.
-		"keep_focus_delay": 500
+		// how long (in ms) to wait after the jump_to_pdf command completes
+		// before switching focus back to Sublime Text. This may need to be
+		// adjusted depending on your machine and configuration.
+		"keep_focus_delay": 0.5
 	},
 
 // ------------------------------------------------------------------
