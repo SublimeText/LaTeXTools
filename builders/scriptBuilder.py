@@ -99,10 +99,13 @@ class ScriptBuilder(PdfBuilder):
 			)
 
 			startupinfo = None
+			preexec_fn = None
 
 			if sublime.platform() == 'windows':
 				startupinfo = subprocess.STARTUPINFO()
 				startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+			else:
+				preexec_fn = os.setsid
 
 			p = Popen(
 				cmd,
@@ -111,7 +114,8 @@ class ScriptBuilder(PdfBuilder):
 				startupinfo=startupinfo,
 				shell=False,
 				env=env,
-				cwd=self.tex_dir
+				cwd=self.tex_dir,
+				preexec_fn=preexec_fn
 			)
 
 			yield (p, "")
