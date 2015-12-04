@@ -60,7 +60,7 @@ class ScriptBuilder(PdfBuilder):
 
 		if self.cmd is None:
 			sublime.error_message(
-				"You MUST set an command in your LaTeXTools.sublime-settings " +
+				"You MUST set a command in your LaTeXTools.sublime-settings " +
 				"file before launching the script builder."
 			)
 
@@ -118,8 +118,8 @@ class ScriptBuilder(PdfBuilder):
 
 			self.display("done.\n")
 
-		# This is for debugging purposes 
-		if self.display_log and p.stdout is not None:
-			self.display("\nCommand results:\n")
-			self.display(self.out)
-			self.display("\n\n")
+			# This is for debugging purposes 
+			if self.display_log and p.stdout is not None:
+				self.display("\nCommand results:\n")
+				self.display(self.out)
+				self.display("\n\n")
