@@ -21,7 +21,7 @@ except:
     from jumpto_tex_file import INPUT_REG, BIB_REG, IMAGE_REG
     import jumpto_tex_file
 
-# we need an filter as iterator
+# we need a filter as iterator
 if not _ST3:
     from itertools import ifilter
 else:
@@ -38,10 +38,12 @@ COMMAND_REG = re.compile(
 
 
 def _jumpto_ref(view, com_reg):
+    label_id = com_reg.group("args")
+    sublime.status_message(
+        "Scanning document for label '{0}'...".format(label_id))
     ana = analysis.analyze_document(view)
     if ana is None:
         return
-    label_id = com_reg.group("args")
 
     def is_correct_label(c):
         return c.command == "label" and c.args == label_id
@@ -49,7 +51,9 @@ def _jumpto_ref(view, com_reg):
     try:
         label = labels[0]
     except:
-        print("No matching label for '{0}'".format(label_id))
+        message = "No matching label found for '{0}'.".format(label_id)
+        print(message)
+        sublime.status_message(message)
         return
     label_region = label.args_region
     utils.open_and_select_region(view, label.file_name, label_region)
@@ -60,6 +64,9 @@ def _jumpto_cite(view, com_reg):
     bib_key = com_reg.group("args")
     if tex_root is None or not bib_key:
         return
+    message = "Scanning bibliography files for key '{0}'...".format(bib_key)
+    print(message)
+    sublime.status_message(message)
     base_dir = os.path.dirname(tex_root)
     ana = analysis.get_analysis(tex_root)
 
@@ -85,10 +92,16 @@ def _jumpto_cite(view, com_reg):
                 print("Error occurred opening file {0}".format(bib_file))
                 print(e)
                 continue
+    message = "Entry '{0}' not found in bibliography.".format(bib_key)
+    print(message)
+    sublime.status_message(message)
 
 
 def _jumpto_pkg_doc(view, line_start, com_reg):
     def view_doc(package):
+        message = "Try opening documentation for package '{0}'".format(package)
+        print(message)
+        sublime.status_message(message)
         view.window().run_command("latex_view_doc", {"file": package})
     args = com_reg.group("args")
     if "," not in args:
@@ -98,7 +111,9 @@ def _jumpto_pkg_doc(view, line_start, com_reg):
     args_region = com_reg.regs[COMMAND_REG.groupindex["args"]]
     cursor = view.sel()[0].b - line_start - args_region[0]
     if cursor < 0:
-        print("Package selection to vague")
+        message = "Package selection to vague. Click on the package name."
+        print(message)
+        sublime.status_message(message)
         return
     # start from the cursor and select the surrounding word
     a, b = cursor, cursor
@@ -121,9 +136,14 @@ def _opt_jumpto_self_def_command(view, com_reg):
     cana = analysis.get_analysis(tex_root)
     new_commands = cana.filter_commands(newcommand_keywords)
     if command not in [c.args for c in new_commands]:
-        print("Command not defined (cached) '{0}".format(command))
+        message = "Command not defined (cached) '{0}'".format(command)
+        print(message)
         return False
 
+    message =\
+        "Scanning document for command definition of '{0}'".format(command)
+    print(message)
+    sublime.status_message(message)
     # analyze the document to retrieve the correct position of the
     # command definition
     ana = analysis.analyze_document(view)
@@ -132,7 +152,8 @@ def _opt_jumpto_self_def_command(view, com_reg):
         new_com_def = next(ifilter(lambda c: c.args == command,
                                    new_commands))
     except:
-        print("Command not self defined '{0}".format(command))
+        message = "Command not self defined '{0}'".format(command)
+        print(message)
         return False
     file_name = new_com_def.file_name
     region = new_com_def.args_region
@@ -191,6 +212,8 @@ class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
         elif command in ["usepackage", "Requirepackage"]:
             _jumpto_pkg_doc(view, line_r.begin(), com_reg)
         else:
+            # if the cursor is inside the \command part, try jump to
+            # self defined commands
             b = line_r.begin()
             command_region = com_reg.regs[COMMAND_REG.groupindex["command"]]
             # if cursor is inside \command
