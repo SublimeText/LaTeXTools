@@ -15,7 +15,7 @@ Configuration options:
         User package will mask paths in the LaTeXTools package. This is intended to
         emulate the behaviour of ST.
 
-        If the default glob of *.py is unexceptable, the path can instead be specified
+        If the default glob of *.py is unacceptable, the path can instead be specified
         as a tuple consisting of the path and the glob to use. The glob *must* be compatible
         with the Python glob module. E.g.,
         ```json
@@ -58,7 +58,8 @@ And example consuming code:
     from latextools_plugin import get_plugin
 
     plugin = get_plugin('plugin_sample')
-    plugin.do_something()
+    # instantiate and use the plugin
+    plugin().do_something()
 
 Note that we make no assumption about how plugins are used, just how they are loaded.
 It is up to the consuming code to provide a protocol for interaction, i.e., methods
