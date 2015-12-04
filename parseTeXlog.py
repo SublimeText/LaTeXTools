@@ -405,7 +405,7 @@ def parse_tex_log(data):
 				line_num += 1
 				debug("Over/underfull: skip " + line + " (%d) " % line_num)
 				# Sometimes it's " []" and sometimes it's "[]"...
-				if len(line)>0 and line in [" []", "[]"]:
+				if len(line)>0 and line[:3] == " []" or line[:2] == "[]":
 					ou_processing = False
 			if ou_processing:
 				warnings.append("Malformed LOG file: over/underfull")
