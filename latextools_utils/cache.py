@@ -9,12 +9,11 @@ except ImportError:
 import sublime
 
 if sublime.version() < '3000':
-    # we are on ST2 and Python 2.X
     _ST3 = False
 else:
     _ST3 = True
 
-CACHE_FOLDER = ".st_ltt_cache"
+CACHE_FOLDER = ".st_lt_cache"
 
 
 class CacheMiss(Exception):
@@ -134,27 +133,27 @@ def read_local(tex_root, name):
     The object at the location with the name
     """
     cache_path = _local_cache_path(tex_root)
+    _validate_life_span(cache_path)
     return _read(cache_path, name)
 
 
-def cache_global(tex_root, name, generate):
+def cache_global(name, generate):
     """
     Uses the global sublime cache retrieve the entry for the name.
     If the entry is not available, it will be calculated via the
     generate-function and cached using pickle.
 
     Arguments:
-    tex_root -- the root of the tex file (for the folder of the cache)
     name -- the relative file name to write the object
     generate -- a function pointer/closure to create the cached object
         for case it is not available in the cache,
         must be compatible with pickle
     """
     try:
-        result = read_global(tex_root, name)
+        result = read_global(name)
     except CacheMiss:
         result = generate()
-        write_global(tex_root, name, result)
+        write_global(name, result)
     return result
 
 
