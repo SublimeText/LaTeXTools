@@ -56,6 +56,9 @@ def _jumpto_ref(view, com_reg):
         sublime.status_message(message)
         return
     label_region = label.args_region
+    message = "Jumping to label '{0}'.".format(label_id)
+    print(message)
+    sublime.status_message(message)
     utils.open_and_select_region(view, label.file_name, label_region)
 
 
@@ -86,6 +89,9 @@ def _jumpto_cite(view, com_reg):
                         file_content[end:end+1].isalnum():
                     continue
                 region = sublime.Region(start, end)
+                message = "Jumping to bibliography key '{0}'.".format(bib_key)
+                print(message)
+                sublime.status_message(message)
                 utils.open_and_select_region(view, bib_file, region)
                 return
             except Exception as e:
@@ -158,8 +164,7 @@ def _opt_jumpto_self_def_command(view, com_reg):
     file_name = new_com_def.file_name
     region = new_com_def.args_region
 
-    message =\
-        "Jumping to definition of '{0}'".format(command)
+    message = "Jumping to definition of '{0}'".format(command)
     print(message)
     sublime.status_message(message)
     utils.open_and_select_region(view, file_name, region)
