@@ -157,6 +157,11 @@ def _opt_jumpto_self_def_command(view, com_reg):
         return False
     file_name = new_com_def.file_name
     region = new_com_def.args_region
+
+    message =\
+        "Jumping to definition of '{0}'".format(command)
+    print(message)
+    sublime.status_message(message)
     utils.open_and_select_region(view, file_name, region)
     return True
 
