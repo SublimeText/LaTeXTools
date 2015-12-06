@@ -25,8 +25,21 @@ def delete_local_cache(tex_root):
     """
     Removes the local cache folder and the local cache files
     """
-    cache_path = _local_cache_path(tex_root)
+    print("Deleting local cache for '{0}'.".format(tex_root))
+    local_cache_paths = [_hidden_local_cache_path(),
+                         _local_cache_path(tex_root)]
+    for cache_path in local_cache_paths:
+        if os.path.exists(cache_path):
+            print("Delete local cache folder '{0}'".format(cache_path))
+            shutil.rmtree(cache_path)
+
+
+def invalidate_local_cache(cache_path):
+    """
+    Invalidates the local cache by removing the cache folders
+    """
     if os.path.exists(cache_path):
+        print("Invalidate local cache '{0}'.".format(cache_path))
         shutil.rmtree(cache_path)
 
 
