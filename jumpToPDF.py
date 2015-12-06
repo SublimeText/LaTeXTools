@@ -18,6 +18,33 @@ SUBLIME_VERSION = re.compile(r'Build (\d{4})', re.UNICODE)
 # attempts to locate the sublime executable to refocus on ST if keep_focus
 # is set.
 def get_sublime_executable():
+	processes = ['subl', 'sublime_text']
+
+	def check_processes(st2_dir=None):
+		if st2_dir is None or os.path.exists(st2_dir):
+			for process in processes:
+				try:
+					if st2_dir is not None:
+						process = os.path.join(st2_dir, process)
+
+					p = subprocess.Popen(
+						[process, '-v'],
+						stdout=subprocess.PIPE,
+						startupinfo=startupinfo,
+						shell=shell,
+						env=os.environ
+					)
+				except:
+					pass
+				else:
+					stdout, _ = p.communicate()
+
+					if p.returncode == 0:
+						m = SUBLIME_VERSION.search(stdout.decode('utf8'))
+						if m and m.group(1) == version:
+							return process
+		return None
+
 	s = sublime.load_settings('LaTeXTools.sublime-settings')
 	plat_settings = s.get(sublime.platform(), {})
 	sublime_executable = plat_settings.get('sublime_executable', None)
@@ -44,51 +71,36 @@ def get_sublime_executable():
 
 	version = sublime.version()
 
-	processes = ['subl', 'sublime_text']
-	for process in processes:
-		try:
-			p = subprocess.Popen(
-					[process, '-v'],
-					stdout=subprocess.PIPE,
-					startupinfo=startupinfo,
-					shell=shell,
-					env=os.environ
-			)
-		except:
-			pass
-		else:
-			stdout, _ = p.communicate()
+	result = check_processes()
+	if result is not None:
+		get_sublime_executable.result = result
+		return result
 
-			if p.returncode == 0:
-				m = SUBLIME_VERSION.search(stdout.decode('utf8'))
-				if m and m.group(1) == version:
-					get_sublime_executable.result = process
-					return get_sublime_executable.result
+	platform = sublime.platform()
 
 	# guess the default install location for ST2 on Windows
-	if sublime.platform() == 'windows':
+	if platform == 'windows':
 		st2_dir = os.path.expandvars("%PROGRAMFILES%\\Sublime Text 2")
-		if os.path.exists(st2_dir):
-			for process in processes:
-				try:
-					process = os.path.join(st2_dir, process)
-					p = subprocess.Popen(
-						[process, '-v'],
-						stdout=subprocess.PIPE,
-						startupinfo=startupinfo,
-						shell=shell,
-						env=os.environ
-					)
-				except:
-					pass
-				else:
-					stdout, _ = p.communicate()
-
-					if p.returncode == 0:
-						m = SUBLIME_VERSION.search(stdout.decode('utf8'))
-						if m and m.group(1) == version:
-							get_sublime_executable.result = process
-							return get_sublime_executable.result
+		result = check_processes(st2_dir)
+		if result is not None:
+			get_sublime_executable.result = result
+			return result
+	# guess some locations for ST2 on Linux
+	elif platform == 'linux':
+		for path in [
+			'$HOME/bin',
+			'$HOME/sublime_text_2',
+			'$HOME/sublime_text',
+			'/opt/sublime_text_2',
+			'/opt/sublime_text',
+			'/usr/local/bin',
+			'/usr/bin'
+		]:
+			st2_dir = os.path.expandvars(path)
+			result = check_processes(st2_dir)
+			if result is not None:
+				get_sublime_executable.result = result
+				return result
 
 	get_sublime_executable.result = None
 
