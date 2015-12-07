@@ -1,6 +1,7 @@
 # ST2/ST3 compat
 from __future__ import print_function 
 import sublime
+import sys
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
 	_ST3 = False
@@ -59,6 +60,10 @@ def get_sublime_executable():
 	# are we on ST3
 	if hasattr(sublime, 'executable_path'):
 		get_sublime_executable.result = sublime.executable_path()
+		return get_sublime_executable.result
+	# in ST2 the Python executable is actually "sublime_text"
+	elif sys.executable != 'python' and os.path.isabs(sys.executable):
+		get_sublime_executable.result = sys.executable
 		return get_sublime_executable.result
 
 	# guess-work for ST2
