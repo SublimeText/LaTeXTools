@@ -83,8 +83,7 @@
 		// Command to invoke Sumatra. If blank, "SumatraPDF.exe" is used (it has to be on your PATH)
 		"sumatra": "",
 		// Command to invoke Sublime Text. Used if the keep_focus toggle is true.
-		// If blank, "subl.exe" or "sublime_text.exe" will be used. Only 
-		// necessary if using ST2 and neither of those are on your path.
+		// If blank, "subl.exe" or "sublime_text.exe" will be used.
 		"sublime_executable": "",
 		// how long (in seconds) to wait after the jump_to_pdf command completes
 		// before switching focus back to Sublime Text. This may need to be
@@ -109,8 +108,7 @@
 		// Default: 1.5 (works on my MBP4,1...)
 		"sync_wait": 1.5,
 		// Command to invoke Sublime Text. Used if the keep_focus toggle is true.
-		// If blank, "subl" or "sublime_text" will be used. Only 
-		// necessary if using ST2 and neither of those are on your path.
+		// If blank, "subl" or "sublime_text" will be used.
 		"sublime_executable": "",
 		// how long (in ms) to wait after the jump_to_pdf command completes
 		// before switching focus back to Sublime Text. This may need to be
