@@ -25,8 +25,21 @@ def delete_local_cache(tex_root):
     """
     Removes the local cache folder and the local cache files
     """
-    cache_path = _local_cache_path(tex_root)
+    print("Deleting local cache for '{0}'.".format(tex_root))
+    local_cache_paths = [_hidden_local_cache_path(),
+                         _local_cache_path(tex_root)]
+    for cache_path in local_cache_paths:
+        if os.path.exists(cache_path):
+            print("Delete local cache folder '{0}'".format(cache_path))
+            shutil.rmtree(cache_path)
+
+
+def invalidate_local_cache(cache_path):
+    """
+    Invalidates the local cache by removing the cache folders
+    """
     if os.path.exists(cache_path):
+        print("Invalidate local cache '{0}'.".format(cache_path))
         shutil.rmtree(cache_path)
 
 
@@ -133,7 +146,6 @@ def read_local(tex_root, name):
     The object at the location with the name
     """
     cache_path = _local_cache_path(tex_root)
-    _validate_life_span(cache_path)
     return _read(cache_path, name)
 
 
@@ -195,12 +207,17 @@ def _local_cache_path(tex_root):
         root_folder = os.path.dirname(tex_root)
         return os.path.join(root_folder, CACHE_FOLDER)
     else:
-        global_path = _global_cache_path()
+        cache_path = _hidden_local_cache_path()
         # convert the root to plain string and hash it
         tex_root = tex_root.encode("utf8")
         root_hash = hashlib.md5(tex_root)
         root_hash = root_hash.hexdigest()
-        return os.path.join(global_path, CACHE_FOLDER, root_hash)
+        return os.path.join(cache_path, root_hash)
+
+
+def _hidden_local_cache_path():
+    global_path = _global_cache_path()
+    return os.path.join(global_path, CACHE_FOLDER)
 
 
 def _global_cache_path():

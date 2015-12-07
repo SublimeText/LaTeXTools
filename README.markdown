@@ -8,7 +8,7 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* 2015-11-22. LaTeX-cwl support (Ian Bacher, btstream)
+*Latest revision:* 2015-11-30. LaTeX-cwl support, with options (Ian Bacher, btstream, Richard Stein)
 
 
 **NOTE**: A reminder on the settings file:
