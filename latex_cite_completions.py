@@ -253,6 +253,7 @@ def get_cite_completions(view, point, autocompleting=False):
         authors = []
         years = []
         journals = []
+        eprints = []
         #
         entry = {   "keyword": "", 
                     "title": "",
@@ -281,6 +282,9 @@ def get_cite_completions(view, point, autocompleting=False):
                     # For author, if there is an editor, that's good enough
                     authors.append(entry["author"] or entry["editor"] or "????")
                     journals.append(entry["journal"] or entry["eprint"] or "????")
+                    if entry["eprint"]:
+                        entry["eprint"] = "[" + entry["eprint"] + "]"
+                    eprints.append(entry["eprint"] or "")
                     # Now reset for the next iteration
                     entry["keyword"] = ""
                     entry["title"] = ""
@@ -312,6 +316,7 @@ def get_cite_completions(view, point, autocompleting=False):
         years.append(entry["year"])
         authors.append(entry["author"] or entry["editor"] or "????")
         journals.append(entry["journal"] or entry["eprint"] or "????")
+        eprints.append(entry["eprint"] or "")
 
         print ( "Found %d total bib entries" % (len(keywords),) )
 
@@ -344,7 +349,7 @@ def get_cite_completions(view, point, autocompleting=False):
         titles_short = [title[0:60] + '...' if len(title) > 60 else title for title in titles_short]
 
         # completions object
-        completions += zip(keywords, titles, authors, years, authors_short, titles_short, journals)
+        completions += zip(keywords, titles, authors, years, authors_short, titles_short, journals, eprints)
 
 
     #### END COMPLETIONS HERE ####
@@ -402,8 +407,8 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
         s = sublime.load_settings("LaTeXTools.sublime-settings")
         cite_autocomplete_format = s.get("cite_autocomplete_format", "{keyword}: {title}")
 
-        r = [(prefix + cite_autocomplete_format.format(keyword=keyword, title=title, author=author, year=year, author_short=author_short, title_short=title_short, journal=journal),
-                keyword + post_brace) for (keyword, title, author, year, author_short, title_short, journal) in completions]
+        r = [(prefix + cite_autocomplete_format.format(keyword=keyword, title=title, author=author, year=year, author_short=author_short, title_short=title_short, journal=journal, eprint=eprint),
+                keyword + post_brace) for (keyword, title, author, year, author_short, title_short, journal, eprint) in completions]
 
         # print "%d bib entries matching %s" % (len(r), prefix)
 
@@ -466,5 +471,5 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         cite_panel_format = s.get("cite_panel_format", ["{title} ({keyword})", "{author}"])
 
         # show quick
-        view.window().show_quick_panel([[str.format(keyword=keyword, title=title, author=author, year=year, author_short=author_short, title_short=title_short, journal=journal) for str in cite_panel_format] \
-                                        for (keyword, title, author, year, author_short, title_short,journal) in completions], on_done)
+        view.window().show_quick_panel([[str.format(keyword=keyword, title=title, author=author, year=year, author_short=author_short, title_short=title_short, journal=journal, eprint=eprint) for str in cite_panel_format] \
+                                        for (keyword, title, author, year, author_short, title_short, journal, eprint) in completions], on_done)
