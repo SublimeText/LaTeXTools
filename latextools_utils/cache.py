@@ -146,7 +146,6 @@ def read_local(tex_root, name):
     The object at the location with the name
     """
     cache_path = _local_cache_path(tex_root)
-    _validate_life_span(cache_path)
     return _read(cache_path, name)
 
 
