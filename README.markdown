@@ -402,6 +402,11 @@ NOTE: for the time being, you will need to refer to the `LaTeX.sublime-settings`
   * In addition, there can be platform-specific settings. An important one for Windows is `distro`, which must be set to either `miktex` or `texlive`.
   * A platform-specific setting that is common to all builders is `env`. This can be used to set environment variables *before* running the actual builder. Setting e.g. `TEXINPUTS` is a possible use case.
 
+**Included file settings**
+
+- `image_types`: a list of the image file types used in the `\includegraphics` command. This list is used in the fill-all autocompletion and to determine missing extensions to open images. When opening an image the `image_types`-list will be matched from left to right.
+- `open_image_command`: the command/program to open an image used in the `\includegraphics` command. This commands can be configured OS-specific. For each OS you can create a list, which will be searched top-down for the matching extension. Each entry in the list has a `command` and `extension` field. The command is a string and will be executed with the file path appended, if the extension matches the extension of the file. You can optionally use `$file` inside the string to insert the file path at an arbitrary position. The `extension` can either be a string or a list of string. If it is missing, the command will be executed for every file type.
+
 **Bibliographic references settings**:
 
 - `cite-panel-format` and `cite_autocomplete_format`: see the section on ref/cite completion, and the comments in `LaTeXTools.sublime-settings`
