@@ -5,9 +5,11 @@ if sublime.version() < '3000':
 	# we are on ST2 and Python 2.X
 	_ST3 = False
 	import getTeXRoot
+	from latextools_utils.is_tex_file import is_tex_file
 else:
 	_ST3 = True
 	from . import getTeXRoot
+	from .latextools_utils.is_tex_file import is_tex_file
 
 import sublime_plugin, os, os.path, platform
 from subprocess import Popen
@@ -25,8 +27,7 @@ class View_pdfCommand(sublime_plugin.WindowCommand):
 		prefs_lin = s.get("linux")
 
 		view = self.window.active_view()
-		texFile, texExt = os.path.splitext(view.file_name())
-		if texExt.upper() != ".TEX":
+		if not is_tex_file(view.file_name()):
 			sublime.error_message("%s is not a TeX source file: cannot view." % (os.path.basename(view.file_name()),))
 			return
 		quotes = ""# \"" MUST CHECK WHETHER WE NEED QUOTES ON WINDOWS!!!
