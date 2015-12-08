@@ -74,7 +74,7 @@ In case you are using an old version of Skim, you can always choose the Custom p
 
 If you have installed Skim in a non-standard location, there is not much you can do short of hacking the `jumpToPDF.py` file (**not supported!**). This will change in the near future. 
 
-Finally, edit the file `LaTeX.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution. Open the file and scroll down to the  section titled "Platform settings." Look at the block for your OS, namely `"osx"`. Within that block, verify that the `"texpath"` setting is correct. Note that `"texpath"` **must** include `$PATH` somewhere.
+Finally, edit the file `LaTeXTools.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution. Open the file and scroll down to the  section titled "Platform settings." Look at the block for your OS, namely `"osx"`. Within that block, verify that the `"texpath"` setting is correct. Note that `"texpath"` **must** include `$PATH` somewhere.
 
 <br>
 
@@ -90,7 +90,7 @@ As an alternative, you can open a command-line console (run `cmd.exe`), and issu
 
 Recent versions of MikTeX add themselves to your path automatically, but in case the build system does not work, that's the first thing to check. TeXlive can also add itself to your path.
 
-Finally, edit the file `LaTeX.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution. Open the file and scroll down to the  section titled "Platform settings." Look at the block for your OS, namely `windows`. Within that block, verify that the `texpath` setting is correct; for MiKTeX, you can leave this empty, i.e., `""`. If you do specify a path, note that it **must** include the system path variable, i.e., `$PATH` (this syntax seems to be OK). Also verify that the `distro` setting is correct: the possible values are `"miktex"` and `"texlive"`.
+Finally, edit the file `LaTeXTools.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution. Open the file and scroll down to the  section titled "Platform settings." Look at the block for your OS, namely `windows`. Within that block, verify that the `texpath` setting is correct; for MiKTeX, you can leave this empty, i.e., `""`. If you do specify a path, note that it **must** include the system path variable, i.e., `$PATH` (this syntax seems to be OK). Also verify that the `distro` setting is correct: the possible values are `"miktex"` and `"texlive"`.
 
 TeXlive has one main advantage over MikTeX: it supports file names and paths with spaces.
 
@@ -101,7 +101,7 @@ TeXlive has one main advantage over MikTeX: it supports file names and paths wit
 
 You need to install TeXlive; if you are on Ubuntu, note that `apt-get install texlive` will get you a working but incomplete setup. In particular, it will *not* bring in `latexmk`, which is essential to LaTeXTools. You need to install it via `apt-get install latexmk`. If on the other hand you choose to install the TeXlive distro from TUG, `latexmk` comes with it, so you don't need to do anything else. Also, to get inverse search working on ST3, make sure you set the `sublime` option in `LaTeXTools.sublime-settings` correctly; the Ubuntu package from the ST web page uses `subl`, but check from the command line first.
 
-You also need to edit the file `LaTeX.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution.  Open that file and scroll down to the  section titled "Platform settings." Look at the block for your OS, namely `"linux"`. Within that block, verify that the `"texpath"` setting is correct. Notice that this **must** include `$PATH` somewhere, or things will not work.
+You also need to edit the file `LaTeXTools.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution.  Open that file and scroll down to the  section titled "Platform settings." Look at the block for your OS, namely `"linux"`. Within that block, verify that the `"texpath"` setting is correct. Notice that this **must** include `$PATH` somewhere, or things will not work.
 
 You may also have to set the `command` option in `"builder_settings"`, which tells the builder how to invoke `latexmk`. By default (i.e., if `command` is empty or not given) it is `["latexmk", "-cd", "-e", "-f", "-pdf", "-interaction=nonstopmode", "-synctex=1"]`. Users have reported the following possible issues and fixes (thanks!), so if you get a "Cannot compile!" error, try the following.
 
@@ -152,7 +152,7 @@ The default ST Build command takes care of the following:
 
 There is also support for project files; this is to be documented.
 
-**TeX engine selection** is supported. If the first line of the current file consists of the text `%!TEX program = <program>`, where `program` is `pdflatex`, `lualatex` or `xelatex`, the corresponding engine is selected. If no such directive is specified, `pdflatex` is the default. Multi-file documents are supported: the directive must be in the *root* (i.e. master) file. Also, for compatibility with TeXshop, you can use `TS-program` instead of `program`. **Note**: for this to work, you must **not** customize the `"command"` option in `LaTeX.sublime-settings`. If you do, you will not get this functionality. 
+**TeX engine selection** is supported. If the first line of the current file consists of the text `%!TEX program = <program>`, where `program` is `pdflatex`, `lualatex` or `xelatex`, the corresponding engine is selected. If no such directive is specified, `pdflatex` is the default. Multi-file documents are supported: the directive must be in the *root* (i.e. master) file. Also, for compatibility with TeXshop, you can use `TS-program` instead of `program`. **Note**: for this to work, you must **not** customize the `"command"` option in `LaTeXTools.sublime-settings`. If you do, you will not get this functionality. 
 
 **TeX options**: you can pass TeX options to your engine in two ways (thanks Ian Bacher!). One is to use a `%!TEX options = ...` line at the top of your file. The other is to use the `options` builder setting in your settings file. This can be useful, for instance, if you need to allow shell escape.
 
@@ -402,7 +402,7 @@ The following options are currently available (defaults in parentheses):
 
 **Build engine settings**:
 
-NOTE: for the time being, you will need to refer to the `LaTeX.sublime-settings` file for detailed explanations. Also, since the new build system is meant to be fully customizable, if you use a third-party builder (which hopefully will become available!), you need to refer to its documentation.
+NOTE: for the time being, you will need to refer to the `LaTeXTools.sublime-settings` file for detailed explanations. Also, since the new build system is meant to be fully customizable, if you use a third-party builder (which hopefully will become available!), you need to refer to its documentation.
 - `builder`: the builder you want to use. Leave blank (`""`) or set to `"default"` or `"traditional"` for the traditional (`latexmk`/`texify`) behavior.
 - `builder_path`: builders can reside anywhere Sublime Text can access. Specify a path *relative to the Sublime text Packages directory*. In particular, `User` is a good choice. If you use a third-party builder, specify the builder-provided directory.
 - `builder-settings`: these are builder-specific settings. For the `default`/`traditional` builder, the following settings are useful:
