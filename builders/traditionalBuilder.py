@@ -18,8 +18,7 @@ import codecs
 DEBUG = False
 
 DEFAULT_COMMAND_LATEXMK = ["latexmk", "-cd", "-e", "-f", "-%E",
-					"-latexoption=\"-interaction=nonstopmode\"",
-					"-latexoption=\"-synctex=1\""]
+					"-interaction=nonstopmode", "-synctex=1"]
 
 DEFAULT_COMMAND_WINDOWS_MIKTEX = ["texify", "-b", "-p", "--engine=%E",
 					"--tex-option=\"--synctex=1\""]
