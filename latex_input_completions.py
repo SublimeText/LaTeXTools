@@ -99,14 +99,14 @@ def parse_completions(view, line):
         # if is \include
         prefix = include_filter[::-1]
         # filter the . from the start of the extention
-        input_file_types = [e[1:] for e in get_tex_extensions() if e[0] == '.' else e]
+        input_file_types = [e[1:] for e in get_tex_extensions()]
         # only cut off the .tex extension
         filter_exts = ['.tex']
     elif input_filter is not None:
         # if is \input search type set to tex
         prefix = input_filter[::-1]
         # filter the . from the start of the extension
-        input_file_types = [e[1:] for e in get_tex_extensions() if e[0] == '.' else e]
+        input_file_types = [e[1:] for e in get_tex_extensions()]
         # only cut off the .tex extension
         filter_exts = ['.tex']
     elif image_filter is not None:
