@@ -8,6 +8,11 @@ import os
 import re
 import json
 
+try:
+    from latextools_utils.is_tex_file import get_tex_extensions
+except ImportError:
+    from .latextools_utils.is_tex_file import get_tex_extensions
+
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
     _ST3 = False
@@ -93,13 +98,15 @@ def parse_completions(view, line):
     if include_filter is not None:
         # if is \include
         prefix = include_filter[::-1]
-        input_file_types = ['tex']
-        filter_exts = ['.tex']
+        # filter the . from the start of the extention
+        input_file_types = [e[1:] for e in get_tex_extensions() if e[0] == '.' else e]
+        filter_exts = get_tex_extensions()
     elif input_filter is not None:
         # if is \input search type set to tex
         prefix = input_filter[::-1]
-        input_file_types = ['tex']
-        filter_exts = ['.tex']
+        # filter the . from the start of the extension
+        input_file_types = [e[1:] for e in get_tex_extensions() if e[0] == '.' else e]
+        filter_exts = get_tex_extensions()
     elif image_filter is not None:
         # if is \includegraphics
         prefix = image_filter[::-1]
