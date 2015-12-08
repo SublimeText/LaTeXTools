@@ -121,7 +121,6 @@ def parse_cwl_file():
     # Get cwl file list
     # cwl_path = sublime.packages_path() + "/LaTeX-cwl"
     cwl_file_list = get_setting('cwl_list',
-            'cwl_list',
             [
                 "tex.cwl",
                 "latex-209.cwl",
