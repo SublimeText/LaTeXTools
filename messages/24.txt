@@ -1,0 +1,24 @@
+LaTeXTools Plugin version 3.5.2 (2015-12-07) changelog:
+
+Please welcome Ian Bacher (ig0774) who will help maintain and improve
+LaTeXTools! Ian has already contributed lots of cool code to the project,
+both fixing bugs and extending features. I am excited to see the LaTeXTools
+team grow from 1 to 2 :-)
+
+New feature:
+
+- Switched to a tags-based release system. There should be no user-visible change,
+  except that Package Control will report version numbers such as "v3.5.2"
+- Added support for changing the environment (R. Stein)
+- Automatic citation from a one-item bibliography
+- Added error handling in case no log file is produced
+- View package documentation
+
+Bugfixes:
+
+- Various README fixes
+- Autocomplete bugs
+- Log parsing fixes (duplicate identifiers)
+
+
+  

@@ -119,6 +119,11 @@ LaTeX Package keymap for Linux
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Wrap in environment.sublime-snippet"}},
+	// Change the surrounding environment
+	{ "keys": ["ctrl+l", "ctrl+shift+n"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "latex_change_environment"},
 
 	// Wrap selected text in emph, bold or underline
 	{ "keys": ["ctrl+l","ctrl+e"],  
@@ -199,7 +204,7 @@ LaTeX Package keymap for Linux
 			{"key": "selector", "operator": "not_equal", "operand": "string.other.math.block.tex"},
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
-			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\item|only|textbf|color|onslide|only|uncover|visible|invisible|alt|temporal$", "match_all": true }
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\(?:item|only|textbf|color|onslide|only|uncover|visible|invisible|alt|temporal)$", "match_all": true }
 		]
 	},
 	// wrap in <>
