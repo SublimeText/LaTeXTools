@@ -377,7 +377,7 @@ The following options are currently available (defaults in parentheses):
 - `cwl_list` (empty): list of paths to cwl files
 - `keep_focus` (`true`): if `true`, after compiling a tex file, ST retains the focus; if `false`, the PDF viewer gets the focus. Also note that you can *temporarily* toggle this behavior with `C-l,t,f`.
 - `forward_sync` (`true`): if `true`, after compiling a tex file, the PDF viewer is asked to sync to the position corresponding to the current cursor location in ST. You can also *temporarily* toggle this behavior with `C-l,t,s`.
-- `command_completion` (`prefixed`): When to trigger cwl-command completion (requires the LaTeX-cwl package) possible values are:
+- `command_completion` (`prefixed`): When to trigger cwl-command completion (requires LaTeX-cwl). Possible values are:
   * `always`: always show command completions
   * `prefixed`: show command completions if the current word is prefixed with `\`
   * `never`: never show command completions
