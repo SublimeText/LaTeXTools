@@ -465,6 +465,24 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         s = sublime.load_settings("LaTeXTools.sublime-settings")
         cite_panel_format = s.get("cite_panel_format", ["{title} ({keyword})", "{author}"])
 
-        # show quick
-        view.window().show_quick_panel([[str.format(keyword=keyword, title=title, author=author, year=year, author_short=author_short, title_short=title_short, journal=journal) for str in cite_panel_format] \
-                                        for (keyword, title, author, year, author_short, title_short,journal) in completions], on_done)
+        completions_length = len(completions)
+        if completions_length == 0:
+            return
+        elif completions_length == 1:
+            # only one entry, so insert entry
+            view.run_command("latex_tools_replace",
+                {
+                    "a": new_point_a,
+                    "b": new_point_b,
+                    "replacement": completions[0][0] + post_brace
+                }
+            )
+
+            # Unselect the replaced region and leave the caret at the end
+            caret = view.sel()[0].b
+            view.sel().subtract(view.sel()[0])
+            view.sel().add(sublime.Region(caret, caret))
+        else:
+            # show quick
+            view.window().show_quick_panel([[str.format(keyword=keyword, title=title, author=author, year=year, author_short=author_short, title_short=title_short, journal=journal) for str in cite_panel_format] \
+                                            for (keyword, title, author, year, author_short, title_short,journal) in completions], on_done)

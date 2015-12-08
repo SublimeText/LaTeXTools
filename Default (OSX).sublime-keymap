@@ -106,6 +106,8 @@ LaTeX Package keymap for OS X
 
 	// Jump to a tex file (will create the file if it does not exists)
 	{ "keys": ["super+l", "super+o"],
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "jumpto_tex_file", "args": {"auto_create_missing_folders": true, "auto_insert_root": true}},
 
 	// Wrap selected text in command or environment
@@ -117,6 +119,11 @@ LaTeX Package keymap for OS X
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Wrap in environment.sublime-snippet"}},
+	// Change the surrounding environment
+	{ "keys": ["super+l", "shift+super+n"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "latex_change_environment"},
 
 	// Wrap selected text in emph, bold or underline
 	{ "keys": ["super+l","super+e"],  
