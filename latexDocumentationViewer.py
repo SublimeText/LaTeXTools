@@ -7,6 +7,11 @@ import os
 import subprocess
 from subprocess import Popen, PIPE
 
+try:
+    from latextools_utils import get_setting
+except ImportError:
+    from .latextools_utils import get_setting
+
 if sublime.version() < '3000':
     _ST3 = False
     strbase = basestring
@@ -16,9 +21,8 @@ else:
     strbase = str
 
 def get_texpath():
-    settings = sublime.load_settings('LaTeXTools.sublime-settings')
-    platform_settings = settings.get(sublime.platform())
-    texpath = platform_settings['texpath']
+    platform_settings = get_setting(sublime.platform(), {})
+    texpath = platform_settings.get('texpath', '')
 
     if not _ST3:
         return os.path.expandvars(texpath).encode(sys.getfilesystemencoding())
@@ -29,11 +33,10 @@ def using_miktex():
     if sublime.platform() != 'windows':
         return False
 
-    settings = sublime.load_settings('LaTeXTools.sublime-settings')
-    platform_settings = settings.get(sublime.platform())
+    platform_settings = get_setting(sublime.platform(), {})
 
     try:
-        distro = platform_settings['distro']
+        distro = platform_settings.get('distro', 'miktex')
         return distro in ['miktex', '']
     except KeyError:
         return True  # assumed
