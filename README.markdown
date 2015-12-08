@@ -339,7 +339,7 @@ These commands also work if there is no selection. In this case, they try to do 
 You can also *change the current environment* using the `C-l,C-Shift-n` shortcut. Note well how this works. First, the cursor must be inside the environment you are interested in. Second, the command selects the environment name in the `\begin{env}` command and also in the `\end{env}` command (using ST's multiple-selection support). This way you can rename the environment as needed. *Remember to exit multiple-selection mode* when you are done by pressing the `ESC` key.
 
 
-LaTeX-clw support
+LaTeX-cwl support
 -----------------
 
 LaTeXTools automatically supports the `LaTeX-cwl` autocompletion package. If the package is installed, support is automatically enabled. By default, as soon as one types, e.g., `\te`, a popup is shown displaying possible completions, including e.g. `\textit` and the like. I personally don't use it, but many find it useful.
@@ -347,7 +347,7 @@ LaTeXTools automatically supports the `LaTeX-cwl` autocompletion package. If the
 The following settings are provided:
 
 * `cwl_list`: a list of paths to the `cwl` files
-* `cwl_completion`: when to show that cwl completion popup. The possible values are:
+* `command_completion`: when to show that cwl completion popup. The possible values are:
   - `prefixed` (default): show completions only if the current word is prefixed with `\`
   - `always`: always show cwl completions
   - `never`: never display the popup
