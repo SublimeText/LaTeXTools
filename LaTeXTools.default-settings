@@ -5,7 +5,7 @@
 // Preferences, Package Settings, LaTeXTools menu, or open the ST console and type
 // 			sublime.run_command("latextools_migrate")
 // This will migrate your old settings and create a file "LaTeXTools.sublime-settings" in your
-// User directory. You can also manually copy this file the User directory.
+// User directory. You can also manually copy this file to the User directory.
 //
 // Once the file is in the User directory, you can edit it at will.
 
@@ -19,7 +19,7 @@
 	// Cite/ref autocompletion by default is triggered after e.g. \ref{. If you don't like this,
 	// set to false. You can also use toggles: C-l,t,a,c and C-l,t,a,r.
 	"cite_auto_trigger": true,
-	"ref_auto_trigger": true, 
+	"ref_auto_trigger": true,
 
 	// Fill-helper autocompletion triggered for a wide range of references to external
 	// files. You can also use toggle: C-l,t,a,f
@@ -27,7 +27,7 @@
 
 	// Keep focus on Sublime Text after building (true) or switch to PDF viewer (false)
 	"keep_focus": true,
-	// Sync PDF to current editor position after building (true) or not 
+	// Sync PDF to current editor position after building (true) or not
 	"forward_sync": true,
 
 	// valid texfile extensions
@@ -92,10 +92,10 @@
 		// Path used when invoking tex & friends; MUST include $PATH
 		"texpath" : "$PATH:/usr/texbin",
 		// Command to invoke Python 2. Useful if you have both Python 2 and Python 3 on your system,
-		// and "python" by default is liked to Python 3. If blank, "python" is used
+		// and "python" by default is linked to Python 3. If blank, "python" is used
 		// Note: ST3 uses Python 3 internally, but the evince scripts need Python 2
 		"python2": "",
-		// The name of the ST2 or ST3 executable. On Ubuntu, both subl and sublime-text are 
+		// The name of the ST2 or ST3 executable. On Ubuntu, both subl and sublime-text are
 		// available for ST2; adjust as needed for other platforms, and for ST3
 		"sublime": "sublime-text",
 		// How long to wait after evince has launched before sending a sync message
@@ -109,7 +109,7 @@
 // ------------------------------------------------------------------
 // Build engine settings
 // ------------------------------------------------------------------
-	
+
 	// OPTION: "builder"
 	// Specifies a build engine
 	// Possible values:
@@ -120,7 +120,7 @@
 	// "simple"			invokes pdflatex 1x or 2x as needed, then
 	//					bibtex and pdflatex again if needed;
 	//					intended mainly as a simple example for
-	//					peoeple writing their own build engines.
+	//					people writing their own build engines.
 	//
 	// "traditional"	replicates the 'old' system based on
 	//					latexmk (TeXLive) / texify (MiKTeX)
@@ -140,9 +140,9 @@
 	// If non-empty, specifies a path to a custom builder, relative to the
 	// Sublime Text Packages directory.
 	// For instance, "User/builders" (on Windows: "User\builders") is a good
-	// choice if you roll your own. 
+	// choice if you roll your own.
 	// (Note: if you choose "User", you may get a Python import error in the
-	// console, but things will still work). 
+	// console, but things will still work).
 	// Leave empty ("") for a built-in builder.
 
 	"builder_path": "",
@@ -154,12 +154,12 @@
 	// Builder setting can be general or OS-dependent
 
 	"builder_settings" : {
-		
+
 		// General settings:
 		// See README or third-party documentation
 
 		// (built-ins): true shows the log of each command in the output panel
-		"display_log" : false,	
+		"display_log" : false,
 
 		// Platform-specific settings:
 		"osx" : {
@@ -181,9 +181,9 @@
 // ------------------------------------------------------------------
 
 	/* This preference sets the format of the quick panel to select citations using wildcards.
-	The setting is a list with one or two string using wildcards for author, title, keyword etc. 
-	
-	Default setting: the traditional display, `["{title} ({keyword})","{author}"]` 
+	The setting is a list with one or two string using wildcards for author, title, keyword etc.
+
+	Default setting: the traditional display, `["{title} ({keyword})","{author}"]`
 	Format:
 	Can quantum-mechanical description of physical reality be considered complete? This is an non-existing subtitle to illustrate (einstein1935quantum)
 	Albert Einstein and B Podolsky and N Rosen
