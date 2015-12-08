@@ -285,13 +285,23 @@ Selecting any entry in the list will take you to the corresponding place in the 
 
 
 Jumping to included files
------------------------------
+-------------------------
 
 **Keybinding:** `C-l, C-o` (only works if the cursor is in the same line as the include command)
 
-To open a LaTeX file, which is included with `\input`, `\include` or `\subfile` just position the cursor in the same line as the include command and press `C-l, C-o`. This will open the included file in Sublime Text.
+__LaTeX files__
+To open a LaTeX file, which is included with `\input`, `\include` or `\subfile` just position the cursor inside the include command and press `C-l, C-o`. This will open the included file in Sublime Text.
 
 If necessary missing folders and the file will be created. In this case the magic root entry will be written into the file. Hence this command can be used to comfortably create files and open files.
+
+__Image files__
+To open an image, which is included with `\includegraphics` just position the cursor inside the command and press `C-l, C-o`. This will open the image.
+The program to open the image can be configured in the LaTeXTools settings in the `open_image_command` attribute.
+
+The following settings are provided:
+
+- `image_types`: a list of the image file types used in the `\includegraphics` command. This list is also used in the Fill Helper and to determine missing extensions to open images. When opening an image the `image_types`-list will be matched from left to right.
+- `open_image_command`: the command/program to open an image used in the `\includegraphics` command. This commands can be configured OS-specific. For each OS you can create a list, which will be searched top-down for the matching extension. Each entry in the list has a `command` and `extension` field. The command is a string and will be executed with the file path appended, if the extension matches the extension of the file. You can optionally use `$file` inside the string to insert the file path at an arbitrary position. The `extension` can either be a string or a list of string. If it is missing, the command will be executed for every file type.
 
 
 LaTeX commands and environments
@@ -342,7 +352,7 @@ LaTeXTools automatically supports the `LaTeX-cwl` autocompletion package. If the
 The following settings are provided:
 
 * `cwl_list`: a list of paths to the `cwl` files
-* `cwl_completion`: when to show that cwl completion popup. The possible values are:
+* `command_completion`: when to show that cwl completion popup. The possible values are:
   - `prefixed` (default): show completions only if the current word is prefixed with `\`
   - `always`: always show cwl completions
   - `never`: never display the popup
