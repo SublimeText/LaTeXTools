@@ -369,6 +369,7 @@ If you ever want to revert your settings to their default state, just invoke the
 The following options are currently available (defaults in parentheses):
 
 **General settings**:
+
 - `cite_auto_trigger` (`true`): if `true`, typing e.g. `\cite{` brings up the citation completion quick panel, without the need to type `C-l,x`. If `false`, you must explicitly type `C-l,x`.
 - `ref_auto_trigger` (`true`): ditto, but for `\ref{` and similar reference commands
 - `fill_auto_trigger` (`true`): ditto, but for package and file inclusion commands (see Fill Helper feature above)
@@ -376,6 +377,15 @@ The following options are currently available (defaults in parentheses):
 - `cwl_list` (empty): list of paths to cwl files
 - `keep_focus` (`true`): if `true`, after compiling a tex file, ST retains the focus; if `false`, the PDF viewer gets the focus. Also note that you can *temporarily* toggle this behavior with `C-l,t,f`.
 - `forward_sync` (`true`): if `true`, after compiling a tex file, the PDF viewer is asked to sync to the position corresponding to the current cursor location in ST. You can also *temporarily* toggle this behavior with `C-l,t,s`.
+- `command_completion` (`prefixed`): When to trigger cwl-command completion (requires the LaTeX-cwl package) possible values are:
+  * `always`: always show command completions
+  * `prefixed`: show command completions if the current word is prefixed with `\`
+  * `never`: never show command completions
+- `hide_build_panel` (`never`): level to hide the build panel after the build is finished. Possible values are:
+  * `always` hide the panel even if the build failed
+  * `no_errors` only hide the panel if the build was successful even with warnings
+  * `no_warnings` only hide the panel if no warnings occur
+  * `never` never hide the build panel
 - `temp_files_exts`: list of file extensions to be considered temporary, and hence deleted using the `C-l, backspace` command.
 - `temp_files_ignored_folders`: subdirectories to skip when deleting temp files.
 
