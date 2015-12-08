@@ -285,7 +285,7 @@ Selecting any entry in the list will take you to the corresponding place in the 
 
 
 Jumping to included files
------------------------------
+-------------------------
 
 **Keybinding:** `C-l, C-o` (only works if the cursor is in the same line as the include command)
 
@@ -296,7 +296,12 @@ If necessary missing folders and the file will be created. In this case the magi
 
 __Image files__
 To open an image, which is included with `\includegraphics` just position the cursor inside the command and press `C-l, C-o`. This will open the image.
-The program to open the image can be configured in the LaTeXTools settings in the `"open_image_command"` attribute. The commands are configurable for every OS and every extension.
+The program to open the image can be configured in the LaTeXTools settings in the `open_image_command` attribute.
+
+The following settings are provided:
+
+- `image_types`: a list of the image file types used in the `\includegraphics` command. This list is also used in the Fill Helper and to determine missing extensions to open images. When opening an image the `image_types`-list will be matched from left to right.
+- `open_image_command`: the command/program to open an image used in the `\includegraphics` command. This commands can be configured OS-specific. For each OS you can create a list, which will be searched top-down for the matching extension. Each entry in the list has a `command` and `extension` field. The command is a string and will be executed with the file path appended, if the extension matches the extension of the file. You can optionally use `$file` inside the string to insert the file path at an arbitrary position. The `extension` can either be a string or a list of string. If it is missing, the command will be executed for every file type.
 
 
 LaTeX commands and environments
@@ -416,11 +421,6 @@ NOTE: for the time being, you will need to refer to the `LaTeX.sublime-settings`
   * `options`: allows you to specify a TeX option, such as `--shell-escape`. This must be a tuple: that is, use `options: ["--shell-escape"]`
   * In addition, there can be platform-specific settings. An important one for Windows is `distro`, which must be set to either `miktex` or `texlive`.
   * A platform-specific setting that is common to all builders is `env`. This can be used to set environment variables *before* running the actual builder. Setting e.g. `TEXINPUTS` is a possible use case.
-
-**Included file settings**
-
-- `image_types`: a list of the image file types used in the `\includegraphics` command. This list is used in the fill-all autocompletion and to determine missing extensions to open images. When opening an image the `image_types`-list will be matched from left to right.
-- `open_image_command`: the command/program to open an image used in the `\includegraphics` command. This commands can be configured OS-specific. For each OS you can create a list, which will be searched top-down for the matching extension. Each entry in the list has a `command` and `extension` field. The command is a string and will be executed with the file path appended, if the extension matches the extension of the file. You can optionally use `$file` inside the string to insert the file path at an arbitrary position. The `extension` can either be a string or a list of string. If it is missing, the command will be executed for every file type.
 
 **Bibliographic references settings**:
 
