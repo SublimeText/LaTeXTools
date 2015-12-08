@@ -51,6 +51,13 @@
 	// "never" (default, never hide the build panel)
 	"hide_build_panel": "never",
 
+	// valid texfile extensions
+	"tex_file_exts": [".tex"],
+
+	// controls whether or not syntax is automatically set to LaTeX for
+	// files that match one of the configured `tex_file_exts`
+	"latextools_set_syntax": true,
+
 // ------------------------------------------------------------------
 // Temporary file settings
 // ------------------------------------------------------------------
