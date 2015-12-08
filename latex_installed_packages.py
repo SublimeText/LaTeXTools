@@ -18,11 +18,11 @@ if sublime.version() < '3000':
     _ST3 = False
     strbase = basestring
     import sys
-    from latextools_settings import get_setting
+    from latextools_utils import get_setting
 else:
     _ST3 = True
     strbase = str
-    from .latextools_settings import get_setting
+    from .latextools_utils import get_setting
 
 __all__ = ['LatexGenPkgCacheCommand']
 

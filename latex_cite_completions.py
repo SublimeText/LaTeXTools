@@ -7,12 +7,12 @@ if sublime.version() < '3000':
     import getTeXRoot
     import kpsewhich
     from kpsewhich import kpsewhich
-    from latextools_settings import get_setting
+    from latextools_utils import get_setting
 else:
     _ST3 = True
     from . import getTeXRoot
     from .kpsewhich import kpsewhich
-    from .latextools_settings import get_setting
+    from .latextools_utils import get_setting
 
 
 import sublime_plugin

@@ -3,9 +3,9 @@ from __future__ import print_function
 import sublime
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
-	from latextools_settings import get_setting
+	from latextools_utils import get_setting
 else:
-	from .latextools_settings import get_setting
+	from .latextools_utils import get_setting
 
 
 import sublime_plugin

@@ -6,12 +6,12 @@ if sublime.version() < '3000':
 	_ST3 = False
 	import getTeXRoot
 	import parseTeXlog
-	from latextools_settings import get_setting
+	from latextools_utils import get_setting
 else:
 	_ST3 = True
 	from . import getTeXRoot
 	from . import parseTeXlog
-	from .latextools_settings import get_setting
+	from .latextools_utils import get_setting
 
 import sublime_plugin
 import sys

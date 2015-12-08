@@ -8,13 +8,13 @@ if sublime.version() < '3000':
     import getTeXRoot
     from latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX
     from latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
-    from latextools_settings import get_setting
+    from latextools_utils import get_setting
 else:
     _ST3 = True
     from . import getTeXRoot
     from .latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX
     from .latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
-    from .latextools_settings import get_setting
+    from .latextools_utils import get_setting
 
 
 ## Match both refs and cites, then dispatch as needed
