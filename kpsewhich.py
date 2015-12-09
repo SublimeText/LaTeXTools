@@ -7,15 +7,16 @@ import sys
 
 if sublime.version() < '3000':
     _ST3 = False
+    from latextools_utils import get_setting
 else:
     _ST3 = True
+    from .latextools_utils import get_setting
 
 __all__ = ['kpsewhich']
 
 def get_texpath():
-    settings = sublime.load_settings('LaTeXTools.sublime-settings')
-    platform_settings = settings.get(sublime.platform())
-    texpath = platform_settings['texpath']
+    platform_settings = get_setting(sublime.platform(), {})
+    texpath = platform_settings.get('texpath', '')
 
     if not _ST3:
         return os.path.expandvars(texpath).encode(sys.getfilesystemencoding())
@@ -43,7 +44,7 @@ def kpsewhich(filename, file_format=None):
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             shell = True
-            
+
         print('Running %s' % (' '.join(command)))
         p = Popen(
             command,

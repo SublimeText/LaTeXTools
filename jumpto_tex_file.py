@@ -11,9 +11,11 @@ import sublime_plugin
 try:
     _ST3 = True
     from .getTeXRoot import get_tex_root
+    from .latextools_utils import get_setting
 except:
     _ST3 = False
     from getTeXRoot import get_tex_root
+    from latextools_utils import get_setting
 
 
 # TODO this might be moved to a generic util
@@ -140,11 +142,10 @@ def _jumpto_image_file(view, window, tex_root, file_name):
     base_path = os.path.dirname(tex_root)
 
     settings = sublime.load_settings("LaTeXTools.sublime-settings")
-    image_types = view.settings().get(
-        "image_types",
-        settings.get("image_types", [
+    image_types = get_setting(
+        "image_types", [
             "png", "pdf", "jpg", "jpeg", "eps"
-        ]))
+        ])
 
     file_path = os.path.normpath(
         os.path.join(base_path, file_name))
