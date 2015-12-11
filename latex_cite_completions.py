@@ -7,10 +7,14 @@ if sublime.version() < '3000':
     import getTeXRoot
     import kpsewhich
     from kpsewhich import kpsewhich
+    from latextools_utils.is_tex_file import is_tex_file, get_tex_extensions
+    from latextools_utils import get_setting
 else:
     _ST3 = True
     from . import getTeXRoot
     from .kpsewhich import kpsewhich
+    from .latextools_utils.is_tex_file import is_tex_file, get_tex_extensions
+    from .latextools_utils import get_setting
 
 
 import sublime_plugin
@@ -42,8 +46,16 @@ def match(rex, str):
 # included bibliography tags in the document and extract
 # the absolute filepaths of the bib files
 def find_bib_files(rootdir, src, bibfiles):
-    if src[-4:].lower() != ".tex":
-        src = src + ".tex"
+    if not is_tex_file(src):
+        src_tex_file = None
+        for ext in get_tex_extensions():
+            src_tex_file = ''.join((src, ext))
+            if os.path.exists(os.path.join(rootdir, src_tex_file)):
+                src = src_tex_file
+                break
+        if src != src_tex_file:
+            print("Could not find file {0}".format(src))
+            return
 
     file_path = os.path.normpath(os.path.join(rootdir,src))
     print("Searching file: " + repr(file_path))
@@ -399,8 +411,8 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
             prefix += " "
 
         # get preferences for formating of autocomplete entries
-        s = sublime.load_settings("LaTeXTools.sublime-settings")
-        cite_autocomplete_format = s.get("cite_autocomplete_format", "{keyword}: {title}")
+        cite_autocomplete_format = get_setting('cite_autocomplete_format',
+            "{keyword}: {title}")
 
         r = [(prefix + cite_autocomplete_format.format(keyword=keyword, title=title, author=author, year=year, author_short=author_short, title_short=title_short, journal=journal),
                 keyword + post_brace) for (keyword, title, author, year, author_short, title_short, journal) in completions]
@@ -462,8 +474,8 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             view.sel().add(sublime.Region(caret, caret))
 
         # get preferences for formating of quick panel
-        s = sublime.load_settings("LaTeXTools.sublime-settings")
-        cite_panel_format = s.get("cite_panel_format", ["{title} ({keyword})", "{author}"])
+        cite_panel_format = get_setting('cite_panel_format',
+            ["{title} ({keyword})", "{author}"])
 
         completions_length = len(completions)
         if completions_length == 0:

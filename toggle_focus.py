@@ -3,9 +3,9 @@ from __future__ import print_function
 import sublime
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
-    _ST3 = False
+	from latextools_utils import get_setting
 else:
-    _ST3 = True
+	from .latextools_utils import get_setting
 
 
 import sublime_plugin
@@ -14,15 +14,13 @@ import sublime_plugin
 
 class toggle_focusCommand(sublime_plugin.TextCommand):
 	def run(self, edit, **args):
-		s = sublime.load_settings("LaTeXTools.sublime-settings")
-		prefs_keep_focus = s.get("keep_focus", True)
+		keep_focus = get_setting('keep_focus', True)
 
-		if self.view.settings().get("keep focus",prefs_keep_focus):
-			self.view.settings().set("keep focus", False)
+		if keep_focus:
+			self.view.settings().set("keep_focus", False)
 			sublime.status_message("Focus PDF")
 			print ("Focus PDF")
 		else:
-			self.view.settings().set("keep focus", True)
+			self.view.settings().set("keep_focus", True)
 			sublime.status_message("Focus editor")
-			print ("Focus ST2")
-
+			print ("Focus ST")

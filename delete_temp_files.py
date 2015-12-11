@@ -5,9 +5,11 @@ if sublime.version() < '3000':
 	_ST3 = False
 	# we are on ST2 and Python 2.X
 	import getTeXRoot
+	from latextools_utils import get_setting
 else:
 	_ST3 = True
 	from . import getTeXRoot
+	from .latextools_utils import get_setting
 
 
 import sublime_plugin
@@ -35,18 +37,13 @@ class DeleteTempFilesCommand(sublime_plugin.WindowCommand):
 		path = os.path.dirname(root_file)
 
 		# Load the files to delete from the settings
-		global_settings = sublime.load_settings('LaTeXTools.sublime-settings')
-
-		# check for any project-level settings, defaulting to the global settings
-		# or a hard-coded list in the worst-case
-		temp_files_exts = view.settings().get('temp_files_exts',
-			global_settings.get('temp_files_exts',
+		temp_files_exts = get_setting('temp_files_exts',
 			['.blg', '.bbl', '.aux', '.log', '.brf', '.nlo', '.out', '.dvi',
 			 '.ps', '.lof', '.toc', '.fls', '.fdb_latexmk', '.pdfsync',
-			 '.synctex.gz', '.ind', '.ilg', '.idx']))
+			 '.synctex.gz', '.ind', '.ilg', '.idx'])
 
-		ignored_folders = view.settings().get('temp_files_ignored_folders',
-			global_settings.get('temp_files_ignored_folders', ['.git', '.svn', '.hg']))
+		ignored_folders = get_setting('temp_files_ignored_folders',
+			['.git', '.svn', '.hg'])
 		ignored_folders = set(ignored_folders)
 
 		for dir_path, dir_names, file_names in os.walk(path):
