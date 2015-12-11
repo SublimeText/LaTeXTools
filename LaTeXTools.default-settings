@@ -119,8 +119,10 @@
 	// "traditional"	replicates the 'old' system based on
 	//					latexmk (TeXLive) / texify (MiKTeX)
 	//
-	// "script"			external script: just invokes the script
-	//					specified in "builder_settings"
+	// "script"			external script: invokes the set of commands
+	//					specified in the "script_commands" setting 
+	//                  in the platform-specific part of the 
+	//					"builder_settings"
 	//
 	// custom name		you can also use third-party build engines;
 	//					if so, set the "builder_path" option below

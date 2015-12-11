@@ -42,7 +42,7 @@ class ScriptBuilder(PdfBuilder):
 		# Display output?
 		self.display_log = builder_settings.get("display_log", False)
 		plat = sublime.platform()
-		self.cmd = builder_settings.get(plat, {}).get("command", None)
+		self.cmd = builder_settings.get(plat, {}).get("script_commands", None)
 		self.env = builder_settings.get(plat, {}).get("env", None)
 
 	# Very simple here: we yield a single command
