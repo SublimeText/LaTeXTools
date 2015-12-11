@@ -119,6 +119,11 @@ LaTeX Package keymap for Linux
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Wrap in environment.sublime-snippet"}},
+	// Change the surrounding environment
+	{ "keys": ["ctrl+l", "ctrl+shift+n"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "latex_change_environment"},
 
 	// Wrap selected text in emph, bold or underline
 	{ "keys": ["ctrl+l","ctrl+e"],  

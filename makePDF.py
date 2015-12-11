@@ -190,66 +190,78 @@ class CmdThread ( threading.Thread ):
 		
 		# Note to self: need to think whether we don't want to codecs.open this, too...
 		# Also, we may want to move part of this logic to the builder...
-		data = open(self.caller.tex_base + ".log", 'rb').read()		
-
-		errors = []
-		warnings = []
-
 		try:
-			(errors, warnings) = parseTeXlog.parse_tex_log(data)
-			content = [""]
-			if errors:
-				content.append("Errors:") 
-				content.append("")
-				content.extend(errors)
-			else:
-				content.append("No errors.")
-			if warnings:
-				if errors:
-					content.extend(["", "Warnings:"])
-				else:
-					content[-1] = content[-1] + " Warnings:" 
-				content.append("")
-				content.extend(warnings)
-			else:
-				content.append("")
+			data = open(self.caller.tex_base + ".log", 'rb').read()		
+		except IOError:
+			self.handle_std_outputs(out, err)
+		else:
+			errors = []
+			warnings = []
 
-			hide_panel = {
-				"always": True,
-				"no_errors": not errors,
-				"no_warnings": not errors and not warnings,
-				"never": False
-			}.get(self.caller.hide_panel_level, False)
-
-			if hide_panel:
-				# hide the build panel (ST2 api is not thread save)
-				if _ST3:
-					self.caller.window.run_command("hide_panel", {"panel": "output.exec"})
-				else:
-					sublime.set_timeout(lambda: self.caller.window.run_command("hide_panel", {"panel": "output.exec"}), 10)
-				message = "build completed"
+			try:
+				(errors, warnings) = parseTeXlog.parse_tex_log(data)
+				content = [""]
 				if errors:
-					message += " with errors"
+					content.append("Errors:") 
+					content.append("")
+					content.extend(errors)
+				else:
+					content.append("No errors.")
 				if warnings:
-					message += " and" if errors else " with"
-					message += " warnings"
-				if _ST3:
-					sublime.status_message(message)
+					if errors:
+						content.extend(["", "Warnings:"])
+					else:
+						content[-1] = content[-1] + " Warnings:" 
+					content.append("")
+					content.extend(warnings)
 				else:
-					sublime.set_timeout(lambda: sublime.status_message(message), 10)
-		except Exception as e:
-			content=["",""]
-			content.append("LaTeXtools could not parse the TeX log file")
-			content.append("(actually, we never should have gotten here)")
-			content.append("")
-			content.append("Python exception: " + repr(e))
-			content.append("")
-			content.append("Please let me know on GitHub. Thanks!")
+					content.append("")
 
+				hide_panel = {
+					"always": True,
+					"no_errors": not errors,
+					"no_warnings": not errors and not warnings,
+					"never": False
+				}.get(self.caller.hide_panel_level, False)
+
+				if hide_panel:
+					# hide the build panel (ST2 api is not thread save)
+					if _ST3:
+						self.caller.window.run_command("hide_panel", {"panel": "output.exec"})
+					else:
+						sublime.set_timeout(lambda: self.caller.window.run_command("hide_panel", {"panel": "output.exec"}), 10)
+					message = "build completed"
+					if errors:
+						message += " with errors"
+					if warnings:
+						message += " and" if errors else " with"
+						message += " warnings"
+					if _ST3:
+						sublime.status_message(message)
+					else:
+						sublime.set_timeout(lambda: sublime.status_message(message), 10)
+			except Exception as e:
+				content=["",""]
+				content.append("LaTeXtools could not parse the TeX log file")
+				content.append("(actually, we never should have gotten here)")
+				content.append("")
+				content.append("Python exception: " + repr(e))
+				content.append("")
+				content.append("Please let me know on GitHub. Thanks!")
+
+			self.caller.output(content)
+			self.caller.output("\n\n[Done!]\n")
+			self.caller.finish(len(errors) == 0)
+
+	def handle_std_outputs(self, out, err):
+		content = ['']
+		if out is not None:
+			content.extend(['Output from compilation:', '', out.decode('utf-8')])
+		if err is not None:
+			content.extend(['Errors from compilation:', '', err.decode('utf-8')])
 		self.caller.output(content)
-		self.caller.output("\n\n[Done!]\n")
-		self.caller.finish(len(errors) == 0)
-
+		# if we got here, there shouldn't be a PDF at all
+		self.caller.finish(False)
 
 # Actual Command
 

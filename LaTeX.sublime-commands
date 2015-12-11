@@ -4,5 +4,6 @@
 	{ "caption": "LaTeXTools: Jump to PDF", "command": "jump_to_pdf"},
 	{ "caption": "LaTeXTools: Toggle focus (PDF/editor)", "command": "toggle_focus"},
 	{ "caption": "LaTeXTools: Reconfigure and migrate settings", "command": "latextools_migrate"},
+	{ "caption": "LaTeXTools: View package documentation", "command": "latex_pkg_doc"},
 	{ "caption": "LaTeXTools: Build cache for LaTeX packages", "command": "latex_gen_pkg_cache"}
 ]
