@@ -32,9 +32,12 @@ CWL_COMPLETION = False
 
 # regex to detect that the cursor is predecended by a \begin{
 BEGIN_END_BEFORE_REGEX = re.compile(
-    r"\\(?:begin|end)"
+    r"^"
+    r"[^\}\{\\]*"
+    r"\{"
     r"(?:\[[^\]]*\])?"
-    r"\{$"
+    r"(?:dne|nigeb)"
+    r"\\"
 )
 # regex to parse a environment line from the cwl file
 # only search for \end to create a list without duplicates
@@ -69,7 +72,8 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
             char_before = char_before.encode("utf-8")
         is_prefixed = char_before == "\\"
 
-        line = view.substr(get_Region(view.line(point).begin(), point_before))
+        line = view.substr(get_Region(view.line(point).begin(), point))
+        line = line[::-1]
         is_env = bool(BEGIN_END_BEFORE_REGEX.match(line))
 
         completion_level = "prefixed"  # default completion level is "prefixed"
@@ -89,9 +93,6 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
         if is_env:
             completions = parse_cwl_file(parse_line_as_environment)
             return completions
-
-        line = view.substr(get_Region(view.line(point).a, point))
-        line = line[::-1]
 
         # Do not do completions in actions
         for rex in ENV_DONOT_AUTO_COM:
