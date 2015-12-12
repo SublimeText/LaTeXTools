@@ -1,4 +1,4 @@
-LaTeXTools Plugin version 3.6 (2015-12-12) changelog:
+LaTeXTools Plugin version 3.6.0 (2015-12-12) changelog:
 
 This is a pretty significant release, so we are going to bump up the "minor"
 version number. Most of the work is due to Ian Bacher and Richard Stein.

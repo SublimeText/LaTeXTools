@@ -11,7 +11,7 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* v3.6 (2015-12-12). 
+*Latest revision:* v3.6.0 (2015-12-12). 
 
 *Headline features*: [project-overridable settings](#project-specific-settings) and [user-configurable tex extensions](#support-for-non-tex-files). 
 
