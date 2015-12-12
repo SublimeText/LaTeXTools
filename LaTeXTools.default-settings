@@ -25,6 +25,11 @@
 	// files. You can also use toggle: C-l,t,a,f
 	"fill_auto_trigger": true,
 
+	// Fill-helper autocompletion trigger for environment names after \begin{ and \end{
+	// this requires the LaTeX-cwl package and might not have a complete list of all environments.
+	// You can also use toggle: C-l,t,a,e
+	"env_auto_trigger": false,
+
 	// Keep focus on Sublime Text after building (true) or switch to PDF viewer (false)
 	// If you are on Windows or Linux and using ST2, you may need to set the
 	// "sublime_executable" setting for this to work in your platform settings.

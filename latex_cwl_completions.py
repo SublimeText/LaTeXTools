@@ -30,6 +30,10 @@ ENV_DONOT_AUTO_COM = [
 
 CWL_COMPLETION = False
 
+
+def is_cwl_available():
+    return CWL_COMPLETION
+
 # regex to detect that the cursor is predecended by a \begin{
 BEGIN_END_BEFORE_REGEX = re.compile(
     r"^"
