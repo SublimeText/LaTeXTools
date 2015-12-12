@@ -6,13 +6,13 @@ try:
     _ST3 = True
     from .latextools_utils import get_setting
     from .latex_input_completions import add_closing_bracket
-    from .latex_cwl_completions import parse_cwl_file, parse_line_as_environment, is_cwl_available
+    from .latex_cwl_completions import get_cwl_completions, is_cwl_available
     from .latexFillAll import get_current_word
 except:
     _ST3 = False
     from latextools_utils import get_setting
     from latex_input_completions import add_closing_bracket
-    from latex_cwl_completions import parse_cwl_file, parse_line_as_environment, is_cwl_available
+    from latex_cwl_completions import get_cwl, is_cwl_available
     from latexFillAll import get_current_word
 
 
@@ -57,7 +57,7 @@ class LatexFillEnvCommand(sublime_plugin.TextCommand):
         else:
             prefix = ""
 
-        completions = parse_cwl_file(parse_line_as_environment)
+        completions = get_cwl_completions().get_completions(env=True)
         if prefix:
             completions = [c for c in completions if c[1].startswith(prefix)]
 
