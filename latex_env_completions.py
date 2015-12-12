@@ -42,7 +42,16 @@ class LatexFillEnvCommand(sublime_plugin.TextCommand):
                 add_closing_bracket(view, edit)
                 return
 
-        prefix = get_current_word(view, point)[0] if not insert_char else ""
+        if not insert_char:
+            # only use the prefix if all cursors have the same
+            prefix = get_current_word(view, point)[0]
+            for sel in view.sel():
+                other_prefix = get_current_word(view, sel.b)[0]
+                if other_prefix != prefix:
+                    prefix = ""
+                    break
+        else:
+            prefix = ""
 
         completions = parse_cwl_file(parse_line_as_environment)
         if prefix:
@@ -59,9 +68,11 @@ class LatexFillEnvCommand(sublime_plugin.TextCommand):
                 key += "}"
 
             if prefix:
-                startpoint = point - len(prefix)
-                endpoint = point
-                view.run_command('latex_tools_replace', {'a': startpoint, 'b': endpoint, 'replacement': key})
+                for sel in view.sel():
+                    point = sel.b
+                    startpoint = point - len(prefix)
+                    endpoint = point
+                    view.run_command('latex_tools_replace', {'a': startpoint, 'b': endpoint, 'replacement': key})
             else:
                 view.run_command("insert", {"characters": key})
 
