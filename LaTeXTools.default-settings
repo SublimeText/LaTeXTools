@@ -36,12 +36,6 @@
 	// Sync PDF to current editor position after building (true) or not
 	"forward_sync": true,
 
-	// valid texfile extensions
-	"tex_file_exts": [".tex"],
-
-	// whether or not to set the syntax for a buffer name with a tex extension
-	"latextools_set_syntax": true,
-
 	// When to trigger cwl-command completion (requires the LaTeX-cwl package)
 	// possible values are:
 	// "always" (always show command completions)
@@ -207,7 +201,7 @@
 // ------------------------------------------------------------------
 
 	// image types you use in latex
-	// these types will be used for autocompletion and 
+	// these types will be used for autocompletion and
 	// opening of included images, when no extension is written
 	"image_types": ["png", "pdf", "jpg", "jpeg", "eps"],
 
