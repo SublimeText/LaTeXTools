@@ -176,7 +176,7 @@ def _jumpto_image_file(view, window, tex_root, file_name):
             else:
                 command.append(file_path)
             print("RUN: {0}".format(command))
-            subprocess.Popen(command, shell=True)
+            subprocess.Popen(command)
 
     psystem = sublime.platform()
     commands = get_setting("open_image_command", {}).get(psystem, None)
