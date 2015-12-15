@@ -219,7 +219,8 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			# Issue #625: forward search with multifile docs
 			# Sumatra wants the tex source of the *root* file
 			# Credit: r_stein
-			srcfile = os.path.relpath(self.view.file_name(), rootName)
+			rootPath = os.path.split(rootName)
+			srcfile = os.path.relpath(self.view.file_name(), rootPath)
 
 			# determine if Sumatra is running, launch it if not
 			print ("Windows, Calling Sumatra")
