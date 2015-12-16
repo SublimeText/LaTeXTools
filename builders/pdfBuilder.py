@@ -4,7 +4,6 @@ from __future__ import print_function
 import latextools_plugin
 
 import sublime
-import os.path
 import sys
 
 if sublime.version() < '3000':
@@ -40,6 +39,12 @@ class PdfBuilder(latextools_plugin.LaTeXToolsPlugin):
 	# its base name, and extension, etc.
 
 	def __init__(self, tex_root, output, builder_settings, platform_settings):
+		# when this is imported at the head of the file, os.path can
+		# become None. I believe this is due to the Python unloading behaviour
+		# in pre-3.4, but it only appears to manifest itself on Linux
+		# in any case, re-importing is basically harmless
+		import os.path
+
 		self.tex_root = tex_root
 		self.tex_dir, self.tex_name = os.path.split(tex_root)
 		self.base_name, self.tex_ext = os.path.splitext(self.tex_name)
