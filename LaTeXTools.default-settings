@@ -20,15 +20,27 @@
 	// set to false. You can also use toggles: C-l,t,a,c and C-l,t,a,r.
 	"cite_auto_trigger": true,
 	"ref_auto_trigger": true,
+	// Sometimes a \ref is preceded by an open parenthesis.
+	// By default, we do not close the parenthesis after completion
+	// But, if you want us to, set this to true.
+	"ref_add_parenthesis": false,
 
 	// Fill-helper autocompletion triggered for a wide range of references to external
 	// files. You can also use toggle: C-l,t,a,f
 	"fill_auto_trigger": true,
 
 	// Keep focus on Sublime Text after building (true) or switch to PDF viewer (false)
+	// If you are on Windows or Linux and using ST2, you may need to set the
+	// "sublime_executable" setting for this to work in your platform settings.
 	"keep_focus": true,
 	// Sync PDF to current editor position after building (true) or not
 	"forward_sync": true,
+
+	// valid texfile extensions
+	"tex_file_exts": [".tex"],
+
+	// whether or not to set the syntax for a buffer name with a tex extension
+	"latextools_set_syntax": true,
 
 	// When to trigger cwl-command completion (requires the LaTeX-cwl package)
 	// possible values are:
@@ -86,7 +98,14 @@
 		// TeX distro: "miktex" or "texlive"
 		"distro" : "miktex",
 		// Command to invoke Sumatra. If blank, "SumatraPDF.exe" is used (it has to be on your PATH)
-		"sumatra": ""
+		"sumatra": "",
+		// Command to invoke Sublime Text. Used if the keep_focus toggle is true.
+		// If blank, "subl.exe" or "sublime_text.exe" will be used.
+		"sublime_executable": "",
+		// how long (in seconds) to wait after the jump_to_pdf command completes
+		// before switching focus back to Sublime Text. This may need to be
+		// adjusted depending on your machine and configuration.
+		"keep_focus_delay": 0.5
 	},
 
 	"linux" : {
@@ -104,7 +123,14 @@
 		// Note: only tweak this if sync after launching the PDF viewer does not seem to work,
 		// or if the PDF viewer opens instantly and you don't want to wait.
 		// Default: 1.5 (works on my MBP4,1...)
-		"sync_wait": 1.5
+		"sync_wait": 1.5,
+		// Command to invoke Sublime Text. Used if the keep_focus toggle is true.
+		// If blank, "subl" or "sublime_text" will be used.
+		"sublime_executable": "",
+		// how long (in ms) to wait after the jump_to_pdf command completes
+		// before switching focus back to Sublime Text. This may need to be
+		// adjusted depending on your machine and configuration.
+		"keep_focus_delay": 0.5
 	},
 
 // ------------------------------------------------------------------
@@ -176,6 +202,70 @@
 		}
 	},
 
+// ------------------------------------------------------------------
+// Opening files included into the tex source code
+// ------------------------------------------------------------------
+
+	// image types you use in latex
+	// these types will be used for autocompletion and 
+	// opening of included images, when no extension is written
+	"image_types": ["png", "pdf", "jpg", "jpeg", "eps"],
+
+	// the commands to open image files. The extensions will be matched from top to bottom.
+	// If no extension is given, all extensions will be matched.
+	// If there is no match the image will be opened with Sublime Text.
+	// the extension:
+	//		can either be a string for one extension
+	//		or an array of string to match more than one extensions.
+	// the command:
+	//		can be the name to start the programm. The image file will be passed
+	//			as the argument.
+	//		can be a string as a command with args:
+	//			e.g. "open -a PixelMator", in this case the file will be appended
+	//			if the position is relevant use "$file" in the string
+	//			e.g. "open -a PixelMator $file"
+	//			this will be substituted by the path to the file
+	"open_image_command": {
+		"osx" : [
+			{
+				// open pdf and eps documents with skim
+				"extension": ["pdf", "eps"],
+				"command": "open -a Skim.app"
+			}
+			// uncomment these lines to open all other images with the default programm
+			// ,
+			// {
+			// 	"command": "open"
+			// }
+		],
+
+		// You might want to use "start" for the default programm used by Windows.
+		"windows": [
+			{
+				// open pdf and eps documents with sumatra (it has to be on your PATH)
+				"extension": ["pdf", "eps"],
+				"command": "SumatraPDF"
+			}
+			// uncomment these lines to open all other images with the default programm
+			// ,
+			// {
+			// 	"command": "start"
+			// }
+		],
+
+		"linux": [
+			{
+				// open pdf documents with evince
+				"extension": "pdf",
+				"command": "evince"
+			}
+			// uncomment these lines to open all other images with the default programm
+			// ,
+			// {
+			// 	"command": "xdg-open"
+			// }
+		]
+	},
 
 // ------------------------------------------------------------------
 // Formatting of bibliographic references in quick panel
