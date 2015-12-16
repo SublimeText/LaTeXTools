@@ -12,8 +12,10 @@ import sublime
 
 if sublime.version() < '3000':
     _ST3 = False
+    from latextools_utils import get_setting
 else:
     _ST3 = True
+    from . import get_setting
     long = int
 
 CACHE_FOLDER = ".st_lt_cache"
@@ -209,12 +211,7 @@ def read_global(name):
 
 
 def _local_cache_path(tex_root):
-    hide_cache = True
-    try:
-        settings = sublime.load_settings("LaTeXTools.sublime-settings")
-        hide_cache = settings.get("hide_local_cache", hide_cache)
-    except:
-        pass
+    hide_cache = get_setting("hide_local_cache", True)
 
     if not hide_cache:
         root_folder = os.path.dirname(tex_root)
@@ -316,11 +313,12 @@ def _read_cache_timestamp(cache_path):
 
 def _read_life_span():
     try:
-        settings = sublime.load_settings("LaTeXTools.sublime-settings")
-        life_span_string = settings.get("local_cache_life_span")
+        life_span_string = get_setting("local_cache_life_span")
+        print("life_span_string: '{0}'".format(life_span_string))
+        if not life_span_string:
+            raise Exception("No lifespan defined")
         if life_span_string == "infinite":
             return None
-        print("life_span_string: '{0}'".format(life_span_string))
         life_span = _parse_life_span_string(life_span_string)
     except:
         life_span = 30 * 60  # default: 30 mins
