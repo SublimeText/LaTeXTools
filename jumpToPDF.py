@@ -177,7 +177,7 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			sublime.error_message("%s is not a TeX source file: cannot jump." % (os.path.basename(view.fileName()),))
 			return
 		quotes = "\""
-		srcfile = os.path.basename(self.view.file_name())
+		
 		root = getTeXRoot.get_tex_root(self.view)
 		print ("!TEX root = ", repr(root) ) # need something better here, but this works.
 		rootName, rootExt = os.path.splitext(root)
@@ -187,6 +187,13 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		# column is actually ignored up to 0.94
 		# HACK? It seems we get better results incrementing line
 		line += 1
+
+		# Issue #625: forward search with multifile docs
+		# Skim/OSX and Evince/Linux want the tex source of the
+		# **included** file, which is the one where the command was issued, i.e.,
+		# the current view.
+		srcfile = os.path.basename(self.view.file_name())
+		# We need to do something different for Windows below
 
 		# Query view settings to see if we need to keep focus or let the PDF viewer grab it
 		# By default, we respect settings in Preferences
@@ -209,6 +216,12 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 								'LaTeXTools', 'skim', 'displayfile')
 				subprocess.Popen(['sh', skim] + options + [pdffile])
 		elif plat == 'win32':
+			# Issue #625: forward search with multifile docs
+			# Sumatra wants the tex source of the *root* file
+			# Credit: r_stein
+			rootPath, _ = os.path.split(root)
+			srcfile = os.path.relpath(self.view.file_name(), rootPath)
+
 			# determine if Sumatra is running, launch it if not
 			print ("Windows, Calling Sumatra")
 
