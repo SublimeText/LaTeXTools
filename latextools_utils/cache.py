@@ -1,6 +1,8 @@
 import os
+import re
 import shutil
 import hashlib
+import time
 try:
     import cPickle as pickle
 except ImportError:
@@ -12,8 +14,17 @@ if sublime.version() < '3000':
     _ST3 = False
 else:
     _ST3 = True
+    long = int
 
 CACHE_FOLDER = ".st_lt_cache"
+
+
+TIME_RE = re.compile(
+    r"\s*(?:(?P<day>\d+)\s*d(?:ays?)?)?"
+    r"\s*(?:(?P<hour>\d+)\s*h(?:ours?)?)?"
+    r"\s*(?:(?P<minute>\d+)\s*m(?:in(?:utes?)?)?)?"
+    r"\s*(?:(?P<second>\d+)\s*s(?:ec(?:onds?)?)?)?\s*"
+)
 
 
 class CacheMiss(Exception):
@@ -130,6 +141,7 @@ def write_local(tex_root, name, obj):
     """
     cache_path = _local_cache_path(tex_root)
     _write(cache_path, name, obj)
+    _create_cache_timestamp(cache_path)
 
 
 def read_local(tex_root, name):
@@ -146,6 +158,7 @@ def read_local(tex_root, name):
     The object at the location with the name
     """
     cache_path = _local_cache_path(tex_root)
+    _validate_life_span(cache_path)
     return _read(cache_path, name)
 
 
@@ -251,3 +264,88 @@ def _read(cache_path, name):
 
     with open(file_path, "rb") as f:
         return pickle.load(f)
+
+
+_CACHE_TIMESTAMP_FILE = "created_time_stamp"
+
+
+def _create_cache_timestamp(cache_path):
+    """
+    Creates a life span with the current time (cache folder exist).
+    Does only create a timestamp if it does not already exists.
+    """
+    access_path = os.path.join(cache_path, _CACHE_TIMESTAMP_FILE)
+    if not os.path.exists(access_path):
+        print("Writing cache creation timestamp")
+        created = long(time.time())
+        try:
+            with open(access_path, "w") as f:
+                f.write(str(created))
+        except Exception as e:
+            print("Error occured writing cache creation timestamp")
+            print(e)
+
+
+def _validate_life_span(cache_path):
+    life_span = _read_life_span()
+    print("life_span: '{0}'".format(life_span))
+    # if life span is none: only manual deletion
+    if life_span is None:
+        return
+
+    created = _read_cache_timestamp(cache_path)
+
+    current_time = long(time.time())
+    if created + life_span < current_time:
+        print("Life span of local cache is over. Invalidate local cache.")
+        invalidate_local_cache(cache_path)
+        raise CacheMiss("Cache life span expired")
+
+
+def _read_cache_timestamp(cache_path):
+    access_path = os.path.join(cache_path, _CACHE_TIMESTAMP_FILE)
+    try:
+        with open(access_path, "r") as f:
+            created = long(f.read())
+    except:
+        print("No creation timestamp for local cache")
+        invalidate_local_cache(cache_path)
+        raise CacheMiss("Life span timestamp missing")
+    return created
+
+
+def _read_life_span():
+    try:
+        settings = sublime.load_settings("LaTeXTools.sublime-settings")
+        life_span_string = settings.get("local_cache_life_span")
+        if life_span_string == "infinite":
+            return None
+        print("life_span_string: '{0}'".format(life_span_string))
+        life_span = _parse_life_span_string(life_span_string)
+    except:
+        life_span = 30 * 60  # default: 30 mins
+    return life_span
+
+
+def _parse_life_span_string(life_span_string):
+    """Parses a life span string, raises an exception if it cannot parse"""
+    try:
+        life_span = int(life_span_string)
+    except:
+        life_span = _convert_life_span_string(life_span_string)
+    if life_span <= 0:
+        raise Exception("Life span must be greater than 0")
+    return life_span
+
+
+def _convert_life_span_string(life_span_string):
+    """Converts a TIME_RE compatible life span string,
+    raises an exception if it is not compatible"""
+    (d, h, m, s) = TIME_RE.match(life_span_string).groups()
+    print("User options: (days: {0}, hours: {1}, minutes: {2}, seconds: {3}):"
+          .format(d, h, m, s))
+    # time conversions in seconds
+    times = [(s, 1), (m, 60), (h, 3600), (d, 86400)]
+    # sum the converted times
+    # if not specified (None) use 0
+    return sum(int(t[0] or 0) * t[1] for t in times)
