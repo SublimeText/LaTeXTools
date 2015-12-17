@@ -1,0 +1,7 @@
+LaTeXTools Plugin version 2015-11-23 changelog:
+
+Emergency fix:
+
+- Options support broke building. 
+
+  

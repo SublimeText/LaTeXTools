@@ -5,9 +5,13 @@ if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
     _ST3 = False
     import getTeXRoot
+    from latextools_utils.is_tex_file import is_tex_file, get_tex_extensions
+    from latextools_utils import get_setting
 else:
     _ST3 = True
     from . import getTeXRoot
+    from .latextools_utils.is_tex_file import is_tex_file, get_tex_extensions
+    from .latextools_utils import get_setting
 
 import sublime_plugin
 import os, os.path
@@ -34,8 +38,16 @@ def match(rex, str):
 # recursively search all linked tex files to find all
 # included \label{} tags in the document and extract
 def find_labels_in_files(rootdir, src, labels):
-    if src[-4:].lower() != ".tex":
-        src = src + ".tex"
+    if not is_tex_file(src):
+        src_tex_file = None
+        for ext in get_tex_extensions():
+            src_tex_file = ''.join((src, ext))
+            if os.path.exists(os.path.join(rootdir, src_tex_file)):
+                src = src_tex_file
+                break
+        if src != src_tex_file:
+            print("Could not find file {0}".format(src))
+            return
 
     file_path = os.path.normpath(os.path.join(rootdir, src))
     print ("Searching file: " + repr(file_path))
@@ -134,9 +146,16 @@ def get_ref_completions(view, point, autocompleting=False):
     pre_snippet = "\\" + special_command[::-1] + "ref{"
     post_snippet = "}"
 
+    # If we captured a parenthesis, we need to put it back in
+    # However, if the user had paren automatching, we don't want to add
+    # another one. So by default we don't, unless the user tells us to
+    # in the settings.
+    # (HACKISH: I don't actually remember why we matched the initial paren!)
     if has_p:
         pre_snippet = "(" + pre_snippet
-        post_snippet = post_snippet + ")"
+        add_paren = get_setting("ref_add_parenthesis", False)
+        if add_paren:
+            post_snippet = post_snippet + ")"
 
     if not preformatted:
         # Replace ref_blah with \ref{blah

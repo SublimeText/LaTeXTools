@@ -5,9 +5,13 @@ if sublime.version() < '3000':
 	# we are on ST2 and Python 2.X
 	_ST3 = False
 	import getTeXRoot
+	from latextools_utils.is_tex_file import is_tex_file
+	from latextools_utils import get_setting
 else:
 	_ST3 = True
 	from . import getTeXRoot
+	from .latextools_utils.is_tex_file import is_tex_file
+	from .latextools_utils import get_setting
 
 import sublime_plugin, os, os.path, platform
 from subprocess import Popen
@@ -20,13 +24,10 @@ from subprocess import Popen
 
 class View_pdfCommand(sublime_plugin.WindowCommand):
 	def run(self):
-		s = sublime.load_settings("LaTeXTools.sublime-settings")
-		prefs_keep_focus = s.get("keep_focus", True)
-		prefs_lin = s.get("linux")
+		prefs_lin = get_setting('linux', {})
 
 		view = self.window.active_view()
-		texFile, texExt = os.path.splitext(view.file_name())
-		if texExt.upper() != ".TEX":
+		if not is_tex_file(view.file_name()):
 			sublime.error_message("%s is not a TeX source file: cannot view." % (os.path.basename(view.file_name()),))
 			return
 		quotes = ""# \"" MUST CHECK WHETHER WE NEED QUOTES ON WINDOWS!!!
@@ -47,7 +48,9 @@ class View_pdfCommand(sublime_plugin.WindowCommand):
 			# Search in the GUI: under Settings|Options...
 			# Under "Set inverse search command-line", set:
 			# sublime_text "%f":%l
-			viewercmd = ["SumatraPDF", "-reuse-instance"]		
+			prefs_win = get_setting("windows", {})
+			su_binary = prefs_win.get("sumatra", "SumatraPDF.exe")
+			viewercmd = [su_binary, "-reuse-instance"]		
 		elif s == "Linux":
 			# the required scripts are in the 'evince' subdir
 			script_path = os.path.join(sublime.packages_path(), 'LaTeXTools', 'evince')
@@ -64,5 +67,3 @@ class View_pdfCommand(sublime_plugin.WindowCommand):
 			Popen(viewercmd + [pdfFile], cwd=script_path)
 		except OSError:
 			sublime.error_message("Cannot launch Viewer. Make sure it is on your PATH.")
-
-			

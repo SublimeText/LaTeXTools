@@ -1,0 +1,18 @@
+LaTeXTools Plugin version 2015-11-30 changelog:
+
+
+New feature:
+
+- A setting to control activation of the LaTex-cwl completion facility
+  (Richard Stein)
+
+
+Bugfixes:
+
+- Terminating a build should no longer result in stray processes (Ian Bacher)
+- Engine selection improvements in the traditional builder (Ian Bacher)
+- Fix over/underfull parsing (Ian Bacher)
+- README improvements / fixes. 
+- C-l,C-o now properly scoped (R. Stein)
+
+  

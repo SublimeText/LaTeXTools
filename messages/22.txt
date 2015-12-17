@@ -1,0 +1,15 @@
+LaTeXTools Plugin version 2015-11-22 changelog:
+
+This release 
+
+New features (Ian Bacher, btstream):
+
+- Reworked delete-temp-files feature, with customizable settings
+- Ability to specify tex options using a %TEX line or a settings option
+- LaTeX-cwl support
+
+Bugs fixed:
+
+- Further jump-to-file fixes
+
+  
