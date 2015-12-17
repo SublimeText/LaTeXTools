@@ -206,7 +206,7 @@ class LaTeXToolsPluginRegistry(MutableMapping):
 
     def __setitem__(self, key, value):
         if not isinstance(value, LaTeXToolsPluginMeta):
-            raise InvalidPluginException(type(value))
+            raise InvalidPluginException(value)
 
         self._registry[key] = value
 
