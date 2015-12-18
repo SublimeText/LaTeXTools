@@ -42,9 +42,10 @@ class OpenLatextoolsUserSettingsCommand(sublime_plugin.WindowCommand):
         load_default = False
         if not os.path.exists(user_settings):
             migrate = sublime.ok_cancel_dialog(
-                'You do not currently have a LaTeXTools.sublime-settings '
-                'file.\n\nDo you want to run the migrate command to create a '
-                'copy of the default settings file in your User directory?'
+                'You do not currently have a personalized '
+                'LaTeXTools.sublime-settings file.\n\n'
+                'Create a copy of the default settings file in '
+                'your User directory?'
             )
 
             if migrate:
