@@ -141,7 +141,6 @@ def _jumpto_bib_file(view, window, tex_root, file_name,
 def _jumpto_image_file(view, window, tex_root, file_name):
     base_path = os.path.dirname(tex_root)
 
-    settings = sublime.load_settings("LaTeXTools.sublime-settings")
     image_types = get_setting(
         "image_types", [
             "png", "pdf", "jpg", "jpeg", "eps"
@@ -177,11 +176,10 @@ def _jumpto_image_file(view, window, tex_root, file_name):
             else:
                 command.append(file_path)
             print("RUN: {0}".format(command))
-            subprocess.Popen(command, shell=True)
+            subprocess.Popen(command)
 
     psystem = sublime.platform()
-    commands = settings.get("open_image_command", {})\
-                       .get(psystem, None)
+    commands = get_setting("open_image_command", {}).get(psystem, None)
     print("Commands: '{0}'".format(commands))
     print("Open File: '{0}'".format(file_path))
 

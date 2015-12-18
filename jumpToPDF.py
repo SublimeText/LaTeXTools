@@ -177,7 +177,7 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			sublime.error_message("%s is not a TeX source file: cannot jump." % (os.path.basename(view.fileName()),))
 			return
 		quotes = "\""
-		srcfile = os.path.basename(self.view.file_name())
+		
 		root = getTeXRoot.get_tex_root(self.view)
 		print ("!TEX root = ", repr(root) ) # need something better here, but this works.
 		rootName, rootExt = os.path.splitext(root)
@@ -187,6 +187,13 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		# column is actually ignored up to 0.94
 		# HACK? It seems we get better results incrementing line
 		line += 1
+
+		# issue #625: we need to pass the relative path to the viewer where
+		# there are files in subfolders of the main folder.
+		# Thanks rstein for this code!
+		rootPath, _ = os.path.split(root)
+		srcfile = os.path.relpath(self.view.file_name(), rootPath)
+		# We need to do something different for Windows below
 
 		# Query view settings to see if we need to keep focus or let the PDF viewer grab it
 		# By default, we respect settings in Preferences
