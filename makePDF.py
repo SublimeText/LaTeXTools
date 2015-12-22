@@ -470,6 +470,9 @@ class DoFinishEditCommand(sublime_plugin.TextCommand):
 def plugin_loaded():
 	# load the plugins from the builders dir
 	ltt_path = os.path.join(sublime.packages_path(), 'LaTeXTools', 'builders')
+	# ensure that pdfBuilder is loaded first as otherwise, the other builders
+	# will not be registered as plugins
+	add_plugin_path(os.path.join(ltt_path, 'pdfBuilder.py'))
 	add_plugin_path(ltt_path)
 
 	# load any .latextools_builder files from User directory
