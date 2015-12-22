@@ -1,6 +1,5 @@
 import os
 import re
-import codecs
 import itertools
 
 import sublime
@@ -269,9 +268,6 @@ def analyze_document(view):
     if type(view) is str or not _ST3 and type(view) is unicode:
         tex_root = view
     else:
-        # if the view is dirty save it (only thread-safe on st3)
-        if _ST3 and view.is_dirty():
-            view.run_command("save")
         tex_root = get_tex_root(view)
     result = _analyze_tex_file(tex_root)
     return result
@@ -342,6 +338,16 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
 
     return ana
 
+def _get_active_view_content(file_name):
+    for window in sublime.windows():
+        view = window.find_open_file(file_name)
+        if view is not None:
+            return view.substr(
+                sublime.Region(0, view.size())
+            )
+
+    return None
+
 
 def _read_file(file_name):
     """
@@ -349,20 +355,23 @@ def _read_file(file_name):
     and the content without comments
     """
 
-    try:
-        raw_content = utils.read_file_unix_endings(file_name)
-    except IOError as e:
-        # file does not exists / permission exception
-        print(str(e))
-        raise
-    except UnicodeDecodeError as e:
-        print("UnicodeDecodeError in file {0}".format(file_name))
-        raise
-    except:
-        print("Unexpected exception raised while reading file", file_name)
-        import traceback
-        traceback.print_exc()
-        raise
+    raw_content = _get_active_view_content(file_name)
+    if raw_content is None:
+        try:
+            raw_content = utils.read_file_unix_endings(file_name)
+        except IOError as e:
+            # file does not exists / permission exception
+            print(str(e))
+            raise
+        except UnicodeDecodeError as e:
+            print("UnicodeDecodeError in file {0}".format(file_name))
+            raise
+        except:
+            print("Unexpected exception raised while reading file", file_name)
+            import traceback
+            traceback.print_exc()
+            raise
+
     # replace all comments with spaces to not change the position
     # of the rest
     comments = [c for c in _RE_COMMENT.finditer(raw_content)]
