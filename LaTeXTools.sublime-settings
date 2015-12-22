@@ -148,7 +148,7 @@
 	//
 	// "script"			external script: invokes the set of commands
 	//					specified in the "script_commands" setting 
-	//                  in the platform-specific part of the 
+	//					in the platform-specific part of the 
 	//					"builder_settings"
 	//
 	// custom name		you can also use third-party build engines;
