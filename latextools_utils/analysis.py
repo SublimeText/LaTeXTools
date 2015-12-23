@@ -338,6 +338,7 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
 
     return ana
 
+
 def _get_active_view_content(file_name):
     for window in sublime.windows():
         view = window.find_open_file(file_name)
