@@ -479,6 +479,26 @@ This sets `main.tex` as the master tex file (assuming a multi-file project), and
 **Note:** tweaking settings on a project-specific level can lead to even more subtle issues. If you notice a bug, in addition to resetting your `LaTeXTools.sublime-settings` file, you should remove at LaTeXTools settings from your project file.
 
 
+### Platform-Specific Overrides ###
+
+All of the generally available settings can be overridden for a specific platform in either a project file or the main `LaTeXTools.sublime-settings` file. This allows you to, for example, keep many of the same settings across platforms, but customize any settings on a platform-specific basis. This is particularly useful with builder settings. Previously, some settings could be overridden on a platform-specific basis, but this required extra code to provide this option.
+
+For example, if you are using the traditional builder, you might change the program used so that it is `xelatex` on Windows or Linux but `lualatex` on OS X by doing something like this in your `LaTeXTools.sublime-settings` file:
+
+```
+{
+	...
+	"builder_settings":
+	{
+		"program": "xelatex",  // xelatex by default
+		"osx":
+		{
+			"program": "lualatex"  // osx override
+		}
+	}
+}
+```
+
 Customizing the Build System
 ----------------------------
 

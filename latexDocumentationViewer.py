@@ -21,8 +21,7 @@ else:
     strbase = str
 
 def get_texpath():
-    platform_settings = get_setting(sublime.platform(), {})
-    texpath = platform_settings.get('texpath', '')
+    texpath = get_setting('texpath', '')
 
     if not _ST3:
         return os.path.expandvars(texpath).encode(sys.getfilesystemencoding())
@@ -33,10 +32,8 @@ def using_miktex():
     if sublime.platform() != 'windows':
         return False
 
-    platform_settings = get_setting(sublime.platform(), {})
-
     try:
-        distro = platform_settings.get('distro', 'miktex')
+        distro = get_setting('distro', 'miktex')
         return distro in ['miktex', '']
     except KeyError:
         return True  # assumed

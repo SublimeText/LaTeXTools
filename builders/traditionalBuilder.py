@@ -34,33 +34,35 @@ DOCUMENTCLASS_RE = re.compile(r'\\documentclass(?:\[[^\]]+\])?\{[^\}]+\}')
 #
 class TraditionalBuilder(PdfBuilder):
 
-	def __init__(self, tex_root, output, builder_settings, platform_settings):
+	def __init__(self, tex_root, output, builder_settings):
 		# Sets the file name parts, plus internal stuff
-		super(TraditionalBuilder, self).__init__(tex_root, output, builder_settings, platform_settings) 
+		super(TraditionalBuilder, self).__init__(tex_root, output, builder_settings) 
 		# Now do our own initialization: set our name
 		self.name = "Traditional Builder"
 		# Display output?
 		self.display_log = builder_settings.get("display_log", False)
+		
 		# Build command, with reasonable defaults
 		plat = sublime.platform()
 		# Figure out which distro we are using
-		try:
-			distro = platform_settings["distro"]
-		except KeyError: # default to miktex on windows and texlive elsewhere
-			if plat == 'windows':
-				distro = "miktex"
-			else:
-				distro = "texlive"
-		if distro in ["miktex", ""]:
+		distro = builder_settings.get(
+			'distro',
+			'miktex' if plat == 'windows' else 'texlive'
+		)
+
+		if plat == 'windows' and distro in ['miktex', '']:
 			default_command = DEFAULT_COMMAND_WINDOWS_MIKTEX
-		else: # osx, linux, windows/texlive, everything else really!
+		else:  # osx, linux, windows/texlive, everything else really!
 			default_command = DEFAULT_COMMAND_LATEXMK
+
 		self.cmd = builder_settings.get("command", default_command)
+
 		# Default tex engine (pdflatex if none specified)
 		self.engine = builder_settings.get("program", "pdflatex")
 		# Sanity check: if "strange" engine, default to pdflatex (silently...)
 		if not(self.engine in ['pdflatex', "pdftex", 'xelatex', 'xetex', 'lualatex', 'luatex']):
 			self.engine = 'pdflatex'
+
 		self.options = builder_settings.get("options", [])
 		if isinstance(self.options, strbase):
 			self.options = [self.options]
