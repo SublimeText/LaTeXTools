@@ -339,6 +339,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# This *must* exist, so if it doesn't, the user didn't migrate
 		if builder_name is None:
 			sublime.error_message("LaTeXTools: you need to migrate your preferences. See the README file for instructions.")
+			self.window.run_command('hide_panel', {"panel": "output.exec"})
 			return
 
 		# Default to 'traditional' builder
@@ -371,6 +372,8 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		except NoSuchPluginException:
 			sublime.error_message("Cannot find builder " + builder_name + ".\n" \
 							      "Check your LaTeXTools Preferences")
+			self.window.run_command('hide_panel', {"panel": "output.exec"})
+			return
 
 		print(repr(builder))
 		self.builder = builder(
