@@ -30,7 +30,7 @@ _ST3 = sublime.version() >= '3000'
 class ScriptBuilder(PdfBuilder):
 
 	CONTAINS_VARIABLE = re.compile(
-		r'\$(?:file|file_path|file_name|file_ext|file_base_name)',
+		r'\$(?:file|file_path|file_name|file_ext|file_base_name)\b',
 		re.IGNORECASE | re.UNICODE
 	)
 
