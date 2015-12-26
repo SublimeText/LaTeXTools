@@ -1,0 +1,13 @@
+LaTeXTools Plugin version 2015-10-04 changelog:
+
+This release incorporates a cool user-contributed feature.
+
+New features (btstream, Ian Bacher):
+
+- Fill Helper feature: autocompletion of files and packages
+
+Bugs fixed:
+
+- README fixes
+
+  

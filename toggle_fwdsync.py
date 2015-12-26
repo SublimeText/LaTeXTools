@@ -3,9 +3,9 @@ from __future__ import print_function
 import sublime
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
-    _ST3 = False
+	from latextools_utils import get_setting
 else:
-    _ST3 = True
+	from .latextools_utils import get_setting
 
 
 import sublime, sublime_plugin
@@ -14,10 +14,9 @@ import sublime, sublime_plugin
 
 class toggle_fwdsyncCommand(sublime_plugin.TextCommand):
 	def run(self, edit, **args):
-		s = sublime.load_settings("LaTeXTools.sublime-settings")
-		prefs_forward_sync = s.get("forward_sync", True)
+		forward_sync = get_setting('forward_sync', True)
 
-		if self.view.settings().get("forward_sync",prefs_forward_sync):
+		if forward_sync:
 			self.view.settings().set("forward_sync", False)
 			sublime.status_message("Do not forward sync PDF (keep current position)")
 			print ("Do not forward sync PDF")
@@ -25,4 +24,3 @@ class toggle_fwdsyncCommand(sublime_plugin.TextCommand):
 			self.view.settings().set("forward_sync", True)
 			sublime.status_message("Forward sync PDF after compiling")
 			print ("Forward sync PDF")
-

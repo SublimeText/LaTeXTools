@@ -28,7 +28,7 @@ DEBUG = False
 # Copy settings from default file to user directory
 # Try to incorporate existing user settings
 
-DEFAULT_SETTINGS = "LaTeXTools.default-settings"
+DEFAULT_SETTINGS = "LaTeXTools.sublime-settings"
 USER_SETTINGS = "LaTeXTools.sublime-settings"
 OLD_SETTINGS = "LaTeXTools Preferences.sublime-settings"
 
