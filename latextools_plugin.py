@@ -85,6 +85,11 @@ from contextlib import contextmanager
 
 from collections import MutableMapping
 
+try:
+    from latextools_utils import get_setting
+except ImportError:
+    from .latextools_utils import get_setting
+
 if sys.version_info < (3, 0):
     exec("""def reraise(tp, value, tb=None):
     raise tp, value, tb
@@ -286,8 +291,7 @@ plugin is supposed to be loaded. See the documentation for details.
 '''
 
 def _get_plugin_paths():
-    settings = sublime.load_settings('LaTeXTools.sublime-settings')
-    plugin_paths = settings.get('plugin_paths', [])
+    plugin_paths = get_setting('plugin_paths', [])
     return plugin_paths
 
 def _load_plugin(filename, *paths):
@@ -356,13 +360,15 @@ def get_plugin(name):
 def _latextools_module_hack():
     '''
     Context manager to ensure sys.modules has certain white-listed modules, most
-    especially latextools_plugins. This exposes ssome of the modules in LaTeXTools
+    especially latextools_plugins. This exposes some of the modules in LaTeXTools
     to plugins. It is intended primarily to expose library-esque functionality,
     such as the getTeXRoot module, but can be configured by the user as-needed.
     '''
     # add any white-listed plugins to sys.modules under their own name
-    settings = sublime.load_settings('LaTeXTools.sublime-settings')
-    plugins_whitelist = settings.get('plugins_whitelist', ['getTeXRoot', 'kpsewhich'])
+    plugins_whitelist = get_setting('plugins_whitelist',
+        ['getTeXRoot', 'kpsewhich', 'latextools_utils']
+    )
+
     # always include latextools_pluing
     plugins_whitelist.append('latextools_plugin')
     overwritten_modules = {}
@@ -416,7 +422,7 @@ def _latextools_module_hack():
 def add_whitelist_module(name, module=None):
     '''
     API function to ensure that a certain module is made available to any plugins.
-    
+
     `name` should be the name of the module as it will be imported in a plugin
     `module`, if specified, should be either an actual module object or a callable
     that returns the actual module object.
