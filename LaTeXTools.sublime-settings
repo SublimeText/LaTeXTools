@@ -296,6 +296,28 @@
 	//"cite_panel_format": ["{author_short} {year} ({keyword})"],
 
 	// Similarly, the formatting for the autocomplete panel:
-	"cite_autocomplete_format": "{keyword}: {title}"
+	"cite_autocomplete_format": "{keyword}: {title}",
 
+
+
+// ------------------------------------------------------------------
+// Cache options
+// ------------------------------------------------------------------
+
+	// whether the local cache should be hidden in the sublime cache path (true)
+	// or in the same directory as the root file (false)
+	"hide_local_cache": true,
+	/* The life-span of the local cache.
+	After this life-span the local cache will automatically be invalidated and refreshed.
+	You can invalidate the cache manually by removing all temporary files `C-l,backspace`.
+	If the value is smaller then the functionalities are more up-to-date,
+	but more recalculations might decrease the performance.
+
+	The format is "X d X h X m X s", where X is a natural number
+	"s" stands for seconds, "m" for minutes, "h" for hours, and "d" for days.
+	Missing fields will be treated as 0 and white-spaces are optional.
+	Hence you can write "1 h 30 m" to refresh the cached data every one and a half hours.
+	If the string is invalid the default value (30 minutes) will be used.
+	*/
+	"local_cache_life_span": "30 m"
 }
