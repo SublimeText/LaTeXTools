@@ -3,6 +3,7 @@ from __future__ import print_function
 
 import latextools_plugin
 
+import os
 import sublime
 import sys
 
