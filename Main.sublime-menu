@@ -23,7 +23,7 @@
                             { "caption": "-" },
                             {
                                 "command": "open_latextools_default_settings",
-                                "caption": "Settings – Default"
+                                "caption": "Settings – Default (read-only)"
                             },
                             {
                                 "command": "open_latextools_user_settings",

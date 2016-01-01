@@ -11,21 +11,24 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* v3.6.0 (2015-12-12). 
+*Latest revision:* v3.6.1 (2016-01-01). 
 
-*Headline features*: [project-overridable settings](#project-specific-settings) and [user-configurable tex extensions](#support-for-non-tex-files). 
+*Headline features*: More standard Default / User settings files.
 
 
 **NEW!** Beginning December 2015, **Ian Bacher** has joined as maintainer / developer of the LaTeXTools plugin. Ian has contributed lots of incredible code, and I am delighted to have him on board. --- *Marciano*.
 
 
-**NOTE**: A reminder on the settings file:
+**NOTE**: LaTeXTools settings now follow Sublime Text conventions. In practice this means that *less* user intervention is needed when the plugin is installed, or when new features are added.
 
-* LaTeXTools uses a single settings file, called `LaTeXTools.sublime-settings`, which *must* exist in the `User` directory. By this I mean that LaTeXTools *will not work* until you have a proper `LaTeXTools.sublime-settings` file in the `User` directory.
-* Because of this, LaTeXtools provides an easy way to create it, and even *automagically* migrate your settings from any old `LaTeXTools Preferences.sublime-settings` file you may have. In Sublime Text, open the command palette from the Tools menu, search for "LaTeXTools: Reconfigure and migrate settings," and hit Return. That's it! See the Settings section for other ways to migrate or reconfigure settings.
-* The old settings file, `LaTeXTools Preferences.sublime-settings`, will no longer be honored. Also, do *not* modify the `LaTeX.sublime-build` file in the LaTeXTools package directory, and if you have a customized copy in `User`, delete it (but do *not* delete the original in the `LaTeXTools` directory). See the Settings section below for ways to *easily* customize the build command. 
-
-
+* LaTeXTools uses a single settings file, called `LaTeXTools.sublime-settings`.
+* A default version of this file exists in the plugin's directory. *Do not touch it!!!*
+* Default settings are designed so most things will work out of the box for most people. However, you may need to check paths to TeX and PDF viewer binaries.
+* LaTeXTools provides an easy way to create a copy of the settings file in your `User` directory. Open the `Preferences | Package Settings | LaTeXTools` menu and select the `Settings - User` option:
+  - If you **do not** currently have a `LaTeXTools.sublime-settings` settings file in your `User` directory (e.g., if you are installing LaTeXTools for the first time), you will be given the option to create one. The newly created settings file will be an exact copy of the default one, and will open in a tab for you to customize.
+  - If instead you **do** have am existing `LaTeXTools.sublime-settings` file in your `User` directory, it will be opened in a tab for you to customize.
+  - The `Settings - Default` menu option will open the default settings file **in read-only mode*. This may be useful if your existing settings file only contains a few options and you want to see what other options may be available without consulting this README file.
+* There is an alternative way to generate a user settings file. From the `Preferences | Package Settings | LaTeXTools` menu, or from the Command Palette, choose `Reconfigure and migrate settings`. This will **not** migrate settings from an existing `LaTeXTools.sublime-settings` file in `User`: it will merely create a copy of the default settings file, potentially clobbering your personalizations. This may be useful if you want to start customizing LaTeXTools from scratch. (This is no longer that relevant in 2016, but just for the record, if you have a pre-2014, old-style settings file, this option *will* import it).
 
 Introduction
 ------------
@@ -50,9 +53,7 @@ If you prefer a more hands-on approach, you can always clone the git repository,
 
 I encourage you to install Package Control anyway, because it's awesome, and it makes it easy to keep your installed packages up-to-date (see the aforelinked page for details). 
 
-Third, if you are installing LaTeXTools for the first time, you need to create a configuration file, `LaTeXTools.sublime-settings`, in your `User` directory (off the `Packages`) directory. To do so, open the command palette from the Tools menu, search for "LaTeXTools: Reconfigure and migrate settings," and hit Return. That's it! See the Settings section for details on configuration options.
-
-Fourth, follow the OS-specific instructions below.
+Third, follow the OS-specific instructions below.
 
 <br>
 
@@ -60,7 +61,9 @@ On **OSX**, you need to be running the MacTeX distribution (which is pretty much
 
 **El Capitan note**: sadly, with each OS X release, Apple deviates more and more from established Unix conventions. The latest "innovation" is that, beginning with El Capitan, apps can no longer write to `/usr`. MacTeX 2015 remedies this by creating a link to TeX binaries in `/Library/TeX`. The default LaTeXTools settings file now adds `/Library/TeX/texbin` to the `texpath`. In practice, this means the following.
 
-* If you are running MacTeX 2015, you can use the "LaTeXTools: Reconfigure and migrate settings" command (from the command palette) to generate a fresh settings file in your `User` directory; this will have the correct `texpath`. **However**, if you already have customizations in your settings file, **these will be lost** (I'm thinking about a better way to handle this going forward). So, the easiest fix might be to edit your own `LaTeXTools.sublime-settings` file (in your `User` directory) and modify `texpath` by adding `/Library/TeX/texbin` as the first entry.
+* If you are running MacTeX 2015 and have *not* customized the `texpath` option in your user settings file, you do not need to take further action.
+
+* If you are running MacTex 2015 and have customized `texpath`, open your user settings file (remember, you can do so from the `Preferences | Package Settings | LaTeXTools` submenu) and add `/Library/TeX/texbin` as the first entry in `texpath`.
 
 * If you are running earlier MacTeX versions, unfortunately you do *not* have the `/Library/TeX/texbin` link at all, so adding that path to `texpath` would not help. You have two options: create the link yourself, or edit the `texpath` option to point to the appropriate directory. Check Section 8 of [this document](https://tug.org/mactex/UpdatingForElCapitan.pdf) for details.
 
@@ -401,13 +404,10 @@ You can consult the documentation for any LaTeX package by invoking the `View Pa
 Settings
 --------
 
-LaTeXTools now supports user-defined settings. The *default* settings file is called `LaTeXTools.sublime-settings`. This **must** be in the `User` directory. As described above, when you first install LaTeXTools, the file `LaTeXTools.sublime-settings` does not exist anywhere. A migration / reconfiguration command is provided to create this settings file in `User`, and automatically migrate your existing settings from the old file (`LaTeXTools Preferences.sublime-settings`). . You can run it in three ways:
+LaTeXTools supports user-defined settings. The settings file is called `LaTeXTools.sublime-settings`. One copy resides in the LaTeXTools plugin directory and **must not be edited**. You can however create a copy in your `User` directory, either manually or using the `Settings - User` option in the `Preferences | Package Settings | LaTeXTools` submenu, as described at the top of this README. You can also use the "Reconfigure and migrate settings" command from the Command Palette or from the same submenu.
 
-* from the Command Palette (in the Tools) menu, search for "LaTeXTools: Reconfigure and migrate settings"
-* from the "Reconfigure LaTeXTools and migrate settings" item in the Preferences, Package Settings, LaTeXTools menu
-* from the Sublime Text console (`Ctrl+backtick` on all platforms), typing `sublime.run_command("latextools_migrate")`.
-
-If you ever want to revert your settings to their default state, just invoke the migration command again, as above.
+If you ever want to revert your settings to their default state, just invoke the 
+Reconfigure and migrate settings" command again, as above.
 
 *Warning*:  in general, tweaking options can cause breakage. For instance, if on Linux you change the default `python2` setting (empty by default) to a non-existent binary, forward and inverse search will stop working. With great power comes great responsibility! If you think you have found a bug, *delete your settings file in the `User` directory and rerun the `latextools_migrate` command before reporting it!* Thanks :-)
 

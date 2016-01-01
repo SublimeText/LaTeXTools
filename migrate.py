@@ -153,7 +153,7 @@ class latextoolsMigrateCommand(sublime_plugin.ApplicationCommand):
 		if killall:
 			msg_preserved = ""
 		else:
-			msg_preserved = "Your existing settings, if any, have been migrated."
+			msg_preserved = "Old-style, pre-2014 settings (if any) have been migrated."
 		sublime.status_message("Reconfiguration complete.")
 		sublime.message_dialog("LaTeXTools settings successfully reconfigured. " + msg_preserved)
 		return
