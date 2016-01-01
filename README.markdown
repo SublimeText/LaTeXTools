@@ -13,7 +13,7 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *Latest revision:* v3.6.1 (2016-01-01). 
 
-*Headline features*: More standard Default / User settings files. In practice this means that *less* user intervention is needed when the plugin is installed, or when new features are added. If you do not have a settings file in your `User` directory, select the `Settings - User` entry in the `Preferences | Package Settings| LaTeXTools` submenu, and a default one will be created for you to adapt as needed. (If you do have a settings file, the same menu entry will open it in a new tab.) See the [Settings section](settings) for details.
+*Headline features*: More standard Default / User settings files. In practice this means that *less* user intervention is needed when the plugin is installed, or when new features are added. If you do not have a settings file in your `User` directory, select the `Settings - User` entry in the `Preferences | Package Settings| LaTeXTools` submenu, and a default one will be created for you to adapt as needed. (If you do have a settings file, the same menu entry will open it in a new tab.) See the [Settings section][settings] for details.
 
 
 **NEW!** Beginning December 2015, **Ian Bacher** has joined as maintainer / developer of the LaTeXTools plugin. Ian has contributed lots of incredible code, and I am delighted to have him on board. --- *Marciano*.
