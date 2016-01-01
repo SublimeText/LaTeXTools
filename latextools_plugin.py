@@ -305,8 +305,14 @@ def _load_plugin(filename, *paths):
         module_name = '{0}{1}_{2}'.format(_MODULE_PREFIX, name, ext[1:])
 
     if module_name in sys.modules:
-        reload(sys.modules[module_name])
-        return sys.modules[module_name]
+        try:
+            reload(sys.modules[module_name])
+            return sys.modules[module_name]
+        except ImportError:
+            # On ST2, this appears to be triggered on the initial reload and 
+            # fails, so instead of reloading just continue to run the loading
+            # code
+            pass
 
     try:
         return _load_module(module_name, filename, *paths)
