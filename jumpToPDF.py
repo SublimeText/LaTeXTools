@@ -134,7 +134,7 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			def keep_focus():
 				startupinfo = None
 				shell = False
-				if platform == 'windows':
+				if sublime.platform() == 'windows':
 					startupinfo = subprocess.STARTUPINFO()
 					startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 					shell = _ST3
@@ -248,8 +248,8 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			# Run scripts through sh because the script files will lose their exec bit on github
 
 			# Get python binary if set:
-			py_binary = get_setting('python2', 'python')
-			sb_binary = get_setting('sublime', 'sublime_text')
+			py_binary = get_setting('python2') or 'python'
+			sb_binary = get_setting('sublime') or 'sublime_text'
 			# How long we should wait after launching sh before syncing
 			sync_wait = get_setting('sync_wait', 1.0)
 
