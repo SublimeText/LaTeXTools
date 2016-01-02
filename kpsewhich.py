@@ -15,8 +15,7 @@ else:
 __all__ = ['kpsewhich']
 
 def get_texpath():
-    platform_settings = get_setting(sublime.platform(), {})
-    texpath = platform_settings.get('texpath', '')
+    texpath = get_setting('texpath', '')
 
     if not _ST3:
         return os.path.expandvars(texpath).encode(sys.getfilesystemencoding())
