@@ -187,9 +187,10 @@ class CmdThread ( threading.Thread ):
 		else:
 			errors = []
 			warnings = []
+			badboxes = []
 
 			try:
-				(errors, warnings) = parseTeXlog.parse_tex_log(data)
+				(errors, warnings, badboxes) = parseTeXlog.parse_tex_log(data)
 				content = [""]
 				if errors:
 					content.append("Errors:") 
@@ -206,6 +207,16 @@ class CmdThread ( threading.Thread ):
 					content.extend(warnings)
 				else:
 					content.append("")
+
+				if badboxes:
+					if warnings or errors:
+						content.extend(["", "Bad Boxes:"])
+					else:
+						content[-2] = content[-2] + " Bad Boxes:"
+						content.extend(badboxes)
+				else:
+					if warnings:
+						content.append("")
 
 				hide_panel = {
 					"always": True,
