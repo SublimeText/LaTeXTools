@@ -46,65 +46,71 @@ def parse_tex_directives(view_or_path, multi_values=[], key_maps={},
     '''
     result = {}
 
+    is_file = False
     if isinstance(view_or_path, sublime.View):
         lines = view_or_path.substr(
             sublime.Region(0, view_or_path.size())).split('\n')
     elif isinstance(view_or_path, strbase):
         try:
-            with codecs.open(view_or_path, "r", "utf-8", "ignore") as f:
-                lines = f.readlines()
+            lines = codecs.open(view_or_path, "r", "utf-8", "ignore")
         except IOError:
             # fail (relatively) silently if view_or_path is not a valid path
             print('Caught IOError while handling {0} as file'.format(
                 view_or_path))
             traceback.print_exc()
             return result
+        else:
+            is_file = True
     else:
         print('{0} is not supported by parse_tex_directives()'.format(
             type(view_or_path)))
         return result
 
-    # precompute some conditions that do not vary while looping
+    try:
+        # precompute some conditions that do not vary while looping
 
-    # indicates that there is a list of only_for values
-    has_only_for = only_for is not None and len(only_for) > 0
+        # indicates that there is a list of only_for values
+        has_only_for = only_for is not None and len(only_for) > 0
 
-    # whether or not we should break on the first value encountered
-    # we do so if only a single directive is being searched for
-    # and it is not multi-valued
-    break_on_first = has_only_for and len(only_for) == 1 and \
-        (multi_values is None or only_for[0] not in multi_values)
+        # whether or not we should break on the first value encountered
+        # we do so if only a single directive is being searched for
+        # and it is not multi-valued
+        break_on_first = has_only_for and len(only_for) == 1 and \
+            (multi_values is None or only_for[0] not in multi_values)
 
-    for line in lines:
-        # read up until the first LaTeX command
-        m = LATEX_COMMAND.search(line)
-        if m:
-            break
-        elif not line.startswith('%'):
-            continue
+        for line in lines:
+            # read up until the first LaTeX command
+            m = LATEX_COMMAND.search(line)
+            if m:
+                break
+            elif not line.startswith('%'):
+                continue
 
-        m = TEX_DIRECTIVE.match(line)
-        if m:
-            key = m.group(1).lower()
-            value = m.group(2)
+            m = TEX_DIRECTIVE.match(line)
+            if m:
+                key = m.group(1).lower()
+                value = m.group(2)
 
-            if key in key_maps:
-                key = key_maps[key]
+                if key in key_maps:
+                    key = key_maps[key]
 
-            if has_only_for:
-                if key not in only_for:
-                    continue
+                if has_only_for:
+                    if key not in only_for:
+                        continue
 
-            if key in multi_values:
-                if key in result:
-                    result[key].append(value)
+                if key in multi_values:
+                    if key in result:
+                        result[key].append(value)
+                    else:
+                        result[key] = [value]
                 else:
-                    result[key] = [value]
-            else:
-                if key not in result:
-                    result[key] = value
+                    if key not in result:
+                        result[key] = value
 
-                    if break_on_first:
-                        break
+                        if break_on_first:
+                            break
 
-    return result
+        return result
+    finally:
+        if is_file:
+            line.close()
