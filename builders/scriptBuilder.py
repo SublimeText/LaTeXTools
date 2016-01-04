@@ -23,9 +23,9 @@ DEBUG = False
 #
 class ScriptBuilder(PdfBuilder):
 
-	def __init__(self, tex_root, output, builder_settings, platform_settings):
+	def __init__(self, tex_root, output, tex_directives, builder_settings, platform_settings):
 		# Sets the file name parts, plus internal stuff
-		super(TraditionalBuilder, self).__init__(tex_root, output, builder_settings, platform_settings) 
+		super(TraditionalBuilder, self).__init__(tex_root, output, tex_directives, builder_settings, platform_settings) 
 		# Now do our own initialization: set our name
 		self.name = "Script Builder"
 		# Display output?

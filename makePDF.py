@@ -7,13 +7,13 @@ if sublime.version() < '3000':
 	import getTeXRoot
 	import parseTeXlog
 	from latextools_utils.is_tex_file import is_tex_file
-	from latextools_utils import get_setting
+	from latextools_utils import get_setting, parse_tex_directives
 else:
 	_ST3 = True
 	from . import getTeXRoot
 	from . import parseTeXlog
 	from .latextools_utils.is_tex_file import is_tex_file
-	from .latextools_utils import get_setting
+	from .latextools_utils import get_setting, parse_tex_directives
 
 import sublime_plugin
 import sys
@@ -332,6 +332,13 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			sublime.error_message("Platform as yet unsupported. Sorry!")
 			return
 
+		# parse root for any %!TEX directives
+		tex_directives = parse_tex_directives(
+			self.file_name,
+			multi_values=['options'],
+			key_maps={'ts-program': 'program'}
+		)
+
 		# Get platform settings, builder, and builder settings
 		platform_settings  = get_setting(self.plat, {})
 		builder_name = get_setting("builder", "traditional")
@@ -391,7 +398,13 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		builder_class = getattr(builder_module, builder_class_name)
 		print(repr(builder_class))
 		# We should now be able to construct the builder object
-		self.builder = builder_class(self.file_name, self.output, builder_settings, platform_settings)
+		self.builder = builder_class(
+			self.file_name,
+			self.output,
+			tex_directives,
+			builder_settings,
+			platform_settings
+		)
 		
 		# Restore Python system path
 		sys.path[:] = syspath_save

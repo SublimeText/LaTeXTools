@@ -4,8 +4,10 @@ import sublime
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
 	_ST3 = False
+	strbase = basestring
 else:
 	_ST3 = True
+	strbase = str
 
 import os.path
 
@@ -35,7 +37,7 @@ class PdfBuilder(object):
 	# tex_root is properly split into the root tex file's directory,
 	# its base name, and extension, etc.
 
-	def __init__(self, tex_root, output, builder_settings, platform_settings):
+	def __init__(self, tex_root, output, tex_directives, builder_settings, platform_settings):
 		self.tex_root = tex_root
 		self.tex_dir, self.tex_name = os.path.split(tex_root)
 		self.base_name, self.tex_ext = os.path.splitext(self.tex_name)
@@ -43,6 +45,27 @@ class PdfBuilder(object):
 		self.out = ""
 		self.builder_settings = builder_settings
 		self.platform_settings = platform_settings
+
+		self.tex_directives = tex_directives
+
+		# Default tex engine (pdflatex if none specified)
+		self.engine = self.tex_directives.get('program',
+			builder_settings.get("program", "pdflatex"))
+
+		self.engine = self.engine.lower()
+
+		# Sanity check: if "strange" engine, default to pdflatex (silently...)
+		if not(self.engine in [
+			'pdflatex', "pdftex", 'xelatex', 'xetex', 'lualatex', 'luatex'
+		]):
+			self.engine = 'pdflatex'
+
+		self.options = builder_settings.get("options", [])
+		if isinstance(self.options, strbase):
+			self.options = [self.options]
+
+		if 'options' in self.tex_directives:
+			self.options.extend(self.tex_directives['options'])
 
 	# Send to callable object
 	# Usually no need to override
@@ -75,4 +98,3 @@ class PdfBuilder(object):
 	# pass the tex root again. Need to think about this
 	def cleantemps(self):
 		return False
-
