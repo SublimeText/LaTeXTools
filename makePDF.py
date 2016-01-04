@@ -8,12 +8,16 @@ if sublime.version() < '3000':
 	import parseTeXlog
 	from latextools_utils.is_tex_file import is_tex_file
 	from latextools_utils import get_setting, parse_tex_directives
+
+	strbase = basestring
 else:
 	_ST3 = True
 	from . import getTeXRoot
 	from . import parseTeXlog
 	from .latextools_utils.is_tex_file import is_tex_file
 	from .latextools_utils import get_setting, parse_tex_directives
+
+	strbase = str
 
 import sublime_plugin
 import sys
@@ -332,13 +336,6 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			sublime.error_message("Platform as yet unsupported. Sorry!")
 			return
 
-		# parse root for any %!TEX directives
-		tex_directives = parse_tex_directives(
-			self.file_name,
-			multi_values=['options'],
-			key_maps={'ts-program': 'program'}
-		)
-
 		# Get platform settings, builder, and builder settings
 		platform_settings  = get_setting(self.plat, {})
 		builder_name = get_setting("builder", "traditional")
@@ -355,6 +352,32 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		builder_file_name   = builder_name + 'Builder.py'
 		builder_class_name  = builder_name.capitalize() + 'Builder'
 		builder_settings = get_setting("builder_settings", {})
+
+		# parse root for any %!TEX directives
+		tex_directives = parse_tex_directives(
+			self.file_name,
+			multi_values=['options'],
+			key_maps={'ts-program': 'program'}
+		)
+
+		# determine the engine
+		engine = tex_directives.get('program',
+			builder_settings.get("program", "pdflatex"))
+
+		engine = engine.lower()
+
+		# Sanity check: if "strange" engine, default to pdflatex (silently...)
+		if engine not in [
+			'pdflatex', "pdftex", 'xelatex', 'xetex', 'lualatex', 'luatex'
+		]:
+			engine = 'pdflatex'
+
+		options = builder_settings.get("options", [])
+		if isinstance(options, strbase):
+			options = [options]
+
+		if 'options' in tex_directives:
+			options.extend(tex_directives['options'])
 
 		# Read the env option (platform specific)
 		builder_platform_settings = builder_settings.get(self.plat)
@@ -401,6 +424,8 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		self.builder = builder_class(
 			self.file_name,
 			self.output,
+			engine,
+			options,
 			tex_directives,
 			builder_settings,
 			platform_settings
