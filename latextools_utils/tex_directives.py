@@ -113,4 +113,4 @@ def parse_tex_directives(view_or_path, multi_values=[], key_maps={},
         return result
     finally:
         if is_file:
-            line.close()
+            lines.close()
