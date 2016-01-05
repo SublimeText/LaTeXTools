@@ -7,160 +7,112 @@ if sublime.version() < '3000':
 	_ST3 = False
 	import getTeXRoot
 	from latextools_utils.is_tex_file import is_tex_file
-	from latextools_utils import get_setting
+	from latextools_utils import get_setting, get_sublime_exe
+	from latextools_plugin import (
+		get_plugin, add_plugin_path, NoSuchPluginException,
+		add_whitelist_module
+	)
 else:
 	_ST3 = True
 	from . import getTeXRoot
 	from .latextools_utils.is_tex_file import is_tex_file
-	from .latextools_utils import get_setting
-
+	from .latextools_utils import get_setting, get_sublime_exe
+	from .latextools_plugin import (
+		get_plugin, add_plugin_path, NoSuchPluginException,
+		add_whitelist_module
+	)
 
 import sublime_plugin, os.path, subprocess, time
+import traceback
 import re
 
 SUBLIME_VERSION = re.compile(r'Build (\d{4})', re.UNICODE)
+DEFAULT_VIEWERS = {
+	'linux': 'evince',
+	'osx': 'skim',
+	'windows': 'sumatra'
+}
 
-# attempts to locate the sublime executable to refocus on ST if keep_focus
-# is set.
-def get_sublime_executable():
-	processes = ['subl', 'sublime_text']
 
-	def check_processes(st2_dir=None):
-		if st2_dir is None or os.path.exists(st2_dir):
-			for process in processes:
-				try:
-					if st2_dir is not None:
-						process = os.path.join(st2_dir, process)
+class NoViewerException(Exception):
+	pass
 
-					p = subprocess.Popen(
-						[process, '-v'],
-						stdout=subprocess.PIPE,
-						startupinfo=startupinfo,
-						shell=shell,
-						env=os.environ
-					)
-				except:
-					pass
-				else:
-					stdout, _ = p.communicate()
 
-					if p.returncode == 0:
-						m = SUBLIME_VERSION.search(stdout.decode('utf8'))
-						if m and m.group(1) == version:
-							return process
-		return None
+# common viewer logic
+def get_viewer():
+	default_viewer = DEFAULT_VIEWERS.get(sublime.platform(), None)
+	viewer_name = get_setting('viewer', default_viewer)
+	if viewer_name in ['', 'default']:
+		viewer_name = default_viewer
 
-	plat_settings = get_setting(sublime.platform(), {})
-	sublime_executable = plat_settings.get('sublime_executable', None)
+	if viewer_name is None:
+		sublime.error_message('No viewer could be found for your platform. '
+				'Please configure the "viewer" setting in your LaTeXTools '
+				'Preferences')
+		raise NoViewerException()
 
-	if sublime_executable:
-		return sublime_executable
+	try:
+		viewer = get_plugin(viewer_name + '_viewer')
+	except NoSuchPluginException:
+		sublime.error_message('Cannot find viewer ' + viewer_name + '.\n' +
+								'Please check your LaTeXTools Preferences.')
+		raise NoViewerException()
 
-	# we cache the results of the other checks, if possible
-	if hasattr(get_sublime_executable, 'result'):
-		return get_sublime_executable.result
+	print(repr(viewer))
+	
+	# assume no-args constructor
+	viewer = viewer()
 
-	# are we on ST3
-	if hasattr(sublime, 'executable_path'):
-		get_sublime_executable.result = sublime.executable_path()
-		return get_sublime_executable.result
-	# in ST2 the Python executable is actually "sublime_text"
-	elif sys.executable != 'python' and os.path.isabs(sys.executable):
-		get_sublime_executable.result = sys.executable
-		return get_sublime_executable.result
+	if not viewer.supports_platform(sublime.platform()):
+		sublime.error_message(viewer_name + ' does not support the ' +
+								'current platform. Please change the viewer in ' +
+								'your LaTeXTools Preferences.')
+		raise NoViewerException()
 
-	# guess-work for ST2
-	startupinfo = None
-	shell = False
-	if sublime.platform() == 'windows':
-		startupinfo = subprocess.STARTUPINFO()
-		startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-		shell = _ST3
+	return viewer
 
-	version = sublime.version()
 
-	result = check_processes()
-	if result is not None:
-		get_sublime_executable.result = result
-		return result
+def focus_st():
+	sublime_command = get_sublime_exe()
 
-	platform = sublime.platform()
+	if sublime_command is not None:
+		platform = sublime.platform()
+		# TODO: this does not work on OSX
+		# and I don't know why...
+		if platform == 'osx':
+			return
 
-	# guess the default install location for ST2 on Windows
-	if platform == 'windows':
-		st2_dir = os.path.expandvars("%PROGRAMFILES%\\Sublime Text 2")
-		result = check_processes(st2_dir)
-		if result is not None:
-			get_sublime_executable.result = result
-			return result
-	# guess some locations for ST2 on Linux
-	elif platform == 'linux':
-		for path in [
-			'$HOME/bin',
-			'$HOME/sublime_text_2',
-			'$HOME/sublime_text',
-			'/opt/sublime_text_2',
-			'/opt/sublime_text',
-			'/usr/local/bin',
-			'/usr/bin'
-		]:
-			st2_dir = os.path.expandvars(path)
-			result = check_processes(st2_dir)
-			if result is not None:
-				get_sublime_executable.result = result
-				return result
+		plat_settings = get_setting(platform, {})
+		wait_time = plat_settings.get('keep_focus_delay', 0.5)
 
-	get_sublime_executable.result = None
+		def keep_focus():
+			startupinfo = None
+			shell = False
+			if platform == 'windows':
+				startupinfo = subprocess.STARTUPINFO()
+				startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+				shell = _ST3
 
-	sublime.status_message(
-		'Cannot determine the path to your Sublime installation. Please ' +
-		'set the "sublime_executable" setting in your LaTeXTools.sublime-settings ' +
-		'file.'
-	)
+			subprocess.Popen(
+				sublime_command,
+				startupinfo=startupinfo,
+				shell=shell,
+				env=os.environ
+			)
 
-	return None
+		if hasattr(sublime, 'set_async_timeout'):
+			sublime.set_async_timeout(keep_focus, int(wait_time * 1000))
+		else:
+			sublime.set_timeout(keep_focus, int(wait_time * 1000))
 
 
 # Jump to current line in PDF file
 # NOTE: must be called with {"from_keybinding": <boolean>} as arg
-
-class jump_to_pdfCommand(sublime_plugin.TextCommand):
-
-	def focus_st(self):
-		sublime_command = get_sublime_executable()
-
-		if sublime_command is not None:
-			platform = sublime.platform()
-			plat_settings = get_setting(platform, {})
-			wait_time = plat_settings.get('keep_focus_delay', 0.5)
-
-			def keep_focus():
-				startupinfo = None
-				shell = False
-				if platform == 'windows':
-					startupinfo = subprocess.STARTUPINFO()
-					startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-					shell = _ST3
-
-				subprocess.Popen(
-					sublime_command,
-					startupinfo=startupinfo,
-					shell=shell,
-					env=os.environ
-				)
-
-			if hasattr(sublime, 'set_async_timeout'):
-				sublime.set_async_timeout(keep_focus, int(wait_time * 1000))
-			else:
-				sublime.set_timeout(keep_focus, int(wait_time * 1000))
-
+class JumpToPdf(sublime_plugin.TextCommand):
 	def run(self, edit, **args):
 		# Check prefs for PDF focus and sync
 		keep_focus = get_setting('keep_focus', True)
 		forward_sync = get_setting('forward_sync', True)
-
-		prefs_lin = get_setting("linux", {})
-		prefs_win = get_setting("windows", {})
 
 		# If invoked from keybinding, we sync
 		# Rationale: if the user invokes the jump command, s/he wants to see the result of the compilation.
@@ -168,7 +120,7 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		# need to invoke the command. And if it is not visible, the natural way to just bring up the
 		# window without syncing is by using the system's window management shortcuts.
 		# As for focusing, we honor the toggles / prefs.
-		from_keybinding = args["from_keybinding"] if "from_keybinding" in args else False
+		from_keybinding = args.pop("from_keybinding", False)
 		if from_keybinding:
 			forward_sync = True
 		print (from_keybinding, keep_focus, forward_sync)
@@ -176,7 +128,6 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		if not is_tex_file(self.view.file_name()):
 			sublime.error_message("%s is not a TeX source file: cannot jump." % (os.path.basename(view.fileName()),))
 			return
-		quotes = "\""
 		
 		root = getTeXRoot.get_tex_root(self.view)
 		print ("!TEX root = ", repr(root) ) # need something better here, but this works.
@@ -193,81 +144,101 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		# Thanks rstein and arahlin for this code!
 		srcfile = self.view.file_name()
 
-		# Query view settings to see if we need to keep focus or let the PDF viewer grab it
-		# By default, we respect settings in Preferences
+		try:
+			viewer = get_viewer()
+		except NoViewerException:
+			return
+
+		if forward_sync:
+			try:
+				viewer.forward_sync(pdffile, srcfile, line, col, keep_focus=keep_focus)
+			except (AttributeError, NotImplementedError):
+				try:
+					viewer.refresh_file(pdffile, keep_focus=keep_focus)
+				except (AttributeError, NotImplementedError):
+					try:
+						viewer.view_file(pdffile, keep_focus=keep_focus)
+					except (AttributeError, NotImplementedError):
+						traceback.print_exc()
+						sublime.error_message('Viewer ' + viewer_name + 
+							' does not appear to be a proper LaTeXTools viewer plugin.' +
+							' Please contact the plugin author.')
+						return
+		else:
+			try:
+				viewer.refresh_file(pdffile, keep_focus=keep_focus)
+			except (AttributeError, NotImplementedError):
+				try:
+					viewer.view_file(pdffile, keep_focus=keep_focus)
+				except (AttributeError, NotImplementedError):
+					traceback.print_exc()
+					sublime.error_message('Viewer ' + viewer_name + 
+						' does not appear to be a proper LaTeXTools viewer plugin.' +
+						' Please contact the plugin author.')
+					return
+
+		if keep_focus:
+			try:
+				if viewer.supports_keep_focus():
+					return
+			except (AttributeError, NotImplementedError):
+				pass
+
+			focus_st()
+
+
+class ViewPdf(sublime_plugin.WindowCommand):
+	def run(self, **args):
+		pdffile = None
+		if 'file' in args:
+			pdffile = args.pop('file', None)
+		else:
+			view = self.window.active_view()
+			root = getTeXRoot.get_tex_root(view)
+			print("!TEX root = ", repr(root))
+			pdffile = os.path.splitext(root)[0] + '.pdf'
+
+		# since we potentially accept an argument, add some extra
+		# safety checks
+		if pdffile is None:
+			print('No PDF file found.')
+			return
+		elif not os.path.exists(pdffile):
+			print('PDF file "' + pdffile + '" does not exist.')
+			sublime.error_message(
+				'PDF file "' + pdffile + '" does not exist.'
+			)
+			return
+
+		try:
+			viewer = get_viewer()
+		except NoViewerException:
+			return
+
+		try:
+			viewer.view_file(pdffile, keep_focus=False)
+		except (AttributeError, NotImplementedError):
+			traceback.print_exception()
+			sublime.error_message('Viewer ' + viewer_name + 
+					' does not appear to be a proper LaTeXTools viewer plugin.' +
+					' Please contact the plugin author.')
+			return
 		
 
-		# platform-specific code:
-		plat = sublime_plugin.sys.platform
-		if plat == 'darwin':
-			options = ["-r","-g"] if keep_focus else ["-r"]		
-			if forward_sync:
-				path_to_skim = '/Applications/Skim.app/'
-				if not os.path.exists(path_to_skim):
-					path_to_skim = subprocess.check_output(
-						['osascript', '-e', 'POSIX path of (path to app id "net.sourceforge.skim-app.skim")']
-					).decode("utf8")[:-1]
-				subprocess.Popen([os.path.join(path_to_skim, "Contents/SharedSupport/displayline")] + 
-								  options + [str(line), pdffile, srcfile])
-			else:
-				skim = os.path.join(sublime.packages_path(),
-								'LaTeXTools', 'skim', 'displayfile')
-				subprocess.Popen(['sh', skim] + options + [pdffile])
-		elif plat == 'win32':
-			# determine if Sumatra is running, launch it if not
-			print ("Windows, Calling Sumatra")
+def plugin_loaded():
+	add_whitelist_module('latextools_utils')
 
-			si = subprocess.STARTUPINFO()
-			si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-			si.wShowWindow = 4 #constant for SHOWNOACTIVATE
+	viewers_path = os.path.join(sublime.packages_path(), 'LaTeXTools', 'viewers')
+	# ensure that base_viewer is loaded first so that other viewers are registered
+	# as plugins
+	add_plugin_path(os.path.join(viewers_path, 'base_viewer.py'))
+	add_plugin_path(viewers_path)
 
-			su_binary = prefs_win.get("sumatra", "SumatraPDF.exe") or 'SumatraPDF.exe'
-			startCommands = [su_binary, "-reuse-instance"]
-			if forward_sync:
-				startCommands.append("-forward-search")
-				startCommands.append(srcfile)
-				startCommands.append(str(line))
+	# load any .latextools_viewer files from the Uer directory
+	add_plugin_path(
+		os.path.join(sublime.packages_path(), 'User'),
+		'*.latextools_viewer'
+	)
 
-			startCommands.append(pdffile)
-
-			subprocess.Popen(startCommands, startupinfo = si)
-
-			if keep_focus:
-				self.focus_st()
-		elif 'linux' in plat: # for some reason, I get 'linux2' from sys.platform
-			print ("Linux!")
-			
-			# the required scripts are in the 'evince' subdir
-			ev_path = os.path.join(sublime.packages_path(), 'LaTeXTools', 'evince')
-			ev_fwd_exec = os.path.join(ev_path, 'evince_forward_search')
-			ev_sync_exec = os.path.join(ev_path, 'evince_sync') # for inverse search!
-			#print ev_fwd_exec, ev_sync_exec
-			
-			# Run evince if either it's not running, or if focus PDF was toggled
-			# Sadly ST2 has Python <2.7, so no check_output:
-			running_apps = subprocess.Popen(['ps', 'xw'], stdout=subprocess.PIPE).communicate()[0]
-			# If there are non-ascii chars in the output just captured, we will fail.
-			# Thus, decode using the 'ignore' option to simply drop them---we don't need them
-			running_apps = running_apps.decode(sublime_plugin.sys.getdefaultencoding(), 'ignore')
-			
-			# Run scripts through sh because the script files will lose their exec bit on github
-
-			# Get python binary if set:
-			py_binary = prefs_lin["python2"] or 'python'
-			sb_binary = prefs_lin["sublime"] or 'sublime-text'
-			# How long we should wait after launching sh before syncing
-			sync_wait = prefs_lin["sync_wait"] or 1.0
-
-			evince_running = ("evince " + pdffile in running_apps)
-			if (not keep_focus) or (not evince_running):
-				print ("(Re)launching evince")
-				subprocess.Popen(['sh', ev_sync_exec, py_binary, sb_binary, pdffile], cwd=ev_path)
-				print ("launched evince_sync")
-				if not evince_running: # Don't wait if we have already shown the PDF
-					time.sleep(sync_wait)
-			if forward_sync:
-				subprocess.Popen([py_binary, ev_fwd_exec, pdffile, str(line), srcfile])
-			if keep_focus:
-				self.focus_st()
-		else: # ???
-			pass
+if not _ST3:
+	plugin_loaded()

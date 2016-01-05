@@ -1,0 +1,86 @@
+from base_viewer import BaseViewer
+
+from latextools_utils import get_setting, get_sublime_exe
+
+import os
+import subprocess
+import sys
+import time
+
+
+class EvinceViewer(BaseViewer):
+
+    def _get_evince_folder(self):
+        return os.path.normpath(
+            os.path.join(
+                os.path.dirname(__file__),
+                '..',
+                'evince'
+            )
+        )
+
+    def _is_evince_running(self, pdf_file):
+        stdout = subprocess.Popen(
+            ['ps', 'xw'], stdout=subprocess.PIPE
+        ).communicate()[0]
+
+        running_apps = stdout.decode(sys.getdefaultencoding(), 'ignore')
+        return ('evince %s' % (pdf_file)) in running_apps
+
+    def _get_settings(self):
+        '''
+        returns evince-related settings as a tuple
+        (python, sync_wait)
+        '''
+        linux_settings = get_setting('linux', {})
+        return (
+            linux_settings.get('python2') or 'python',
+            linux_settings.get('sync_wait') or 1.0
+        )
+
+    def _launch_evince(self, pdf_file):
+        ev_path = self._get_evince_folder()
+        py_binary, _ = self._get_settings()
+
+        st_binary = get_sublime_exe()
+        if st_binary is None:
+            linux_settings = get_setting('linux', {})
+            st_binary = linux_settings.get('sublime', 'sublime_text')
+
+        subprocess.Popen([
+                'sh',
+                os.path.join(ev_path, 'evince_sync'),
+                py_binary,
+                st_binary,
+                pdf_file
+            ],
+            cwd=ev_path
+        )
+
+    def forward_sync(self, pdf_file, tex_file, line, col, **kwargs):
+        ev_path = self._get_evince_folder()
+        py_binary, sync_wait = self._get_settings()
+
+        root_folder = os.path.dirname(pdf_file)
+        src_file = os.path.relpath(tex_file, root_folder)
+
+        evince_running = self._is_evince_running(pdf_file)
+        if not evince_running:
+            self._launch_evince(pdf_file)
+            time.sleep(sync_wait)
+
+        subprocess.Popen([
+            py_binary,
+            os.path.join(ev_path, 'evince_forward_search'),
+            pdf_file,
+            str(line),
+            src_file
+        ])
+
+    def view_file(self, pdf_file, **kwargs):
+        evince_running = self._is_evince_running(pdf_file)
+        if not evince_running:
+            self._launch_evince(pdf_file)
+
+    def supports_platform(self, platform):
+        return platform == 'linux'
