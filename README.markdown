@@ -415,11 +415,11 @@ Commands are executed in the `$pdf_file_path`, i.e., the folder containing the `
 Using this, you can, for example, support okular with the following settings:
 
 ```json
-"viewer": "command"
+"viewer": "command",
 
 "viewer_settings": {
 	"linux": {
-		"forward_sync_command": "okular --unique $pdf_file#src:$line$src_file"
+		"forward_sync_command": "okular --unique $pdf_file#src:$line$src_file",
 		"view_command": "okular --unique"
 	}
 }
