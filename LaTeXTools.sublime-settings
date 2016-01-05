@@ -49,7 +49,7 @@
 	// "no_errors" (only hide the panel if the build was successful even with warnings),
 	// "no_warnings" (only hide the panel if no warnings occur) and
 	// "never" (default, never hide the build panel)
-	"hide_build_panel": "never",
+	"hide_build_panel": "no_warnings",
 
 	// valid texfile extensions
 	"tex_file_exts": [".tex"],
