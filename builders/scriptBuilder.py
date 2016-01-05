@@ -63,6 +63,8 @@ class ScriptBuilder(PdfBuilder):
 				"You MUST set a command in your LaTeXTools.sublime-settings " +
 				"file before launching the script builder."
 			)
+			# I'm not sure this is the best way to handle things...
+			raise StopIteration()
 
 		if isinstance(self.cmd, strbase):
 			self.cmd = [self.cmd]
