@@ -8,7 +8,8 @@ if sublime.version() < '3000':
 	import getTeXRoot
 	import parseTeXlog
 	from latextools_plugin import (
-		add_plugin_path, get_plugin, NoSuchPluginException
+		add_plugin_path, get_plugin, NoSuchPluginException,
+		_classname_to_internal_name
 	)
 	from latextools_utils.is_tex_file import is_tex_file
 	from latextools_utils import get_setting
@@ -17,7 +18,8 @@ else:
 	from . import getTeXRoot
 	from . import parseTeXlog
 	from .latextools_plugin import (
-		add_plugin_path, get_plugin, NoSuchPluginException
+		add_plugin_path, get_plugin, NoSuchPluginException,
+		_classname_to_internal_name
 	)
 	from .latextools_utils.is_tex_file import is_tex_file
 	from .latextools_utils import get_setting
@@ -349,6 +351,10 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# Default to 'traditional' builder
 		if builder_name in ['', 'default']:
 			builder_name = 'traditional'
+
+		# this is to convert old-style names (e.g. AReallyLongName)
+		# to new style plugin names (a_really_long_name)
+		builder_name = _classname_to_internal_name(builder_name)
 
 		builder_settings = get_setting("builder_settings", {})
 
