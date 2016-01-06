@@ -124,6 +124,7 @@ if sys.version_info < (3, 0):
         return module
 
     strbase = basestring
+    FileNotFoundError = IOError
 else:
     from importlib.machinery import PathFinder, SourceFileLoader
     from imp import reload
@@ -312,6 +313,9 @@ def _load_plugin(filename, *paths):
             # On ST2, this appears to be triggered on the initial reload and 
             # fails, so instead of reloading just continue to run the loading
             # code
+            pass
+        except FileNotFoundError:
+            # A previous plugin has been moved or removed, so just reload it
             pass
 
     try:
