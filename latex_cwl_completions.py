@@ -19,14 +19,15 @@ else:
     from .getRegion import get_Region
     from .latextools_utils import get_setting
 
-# Do not do completions in these envrioments
+# Do not do completions in these environments
 ENV_DONOT_AUTO_COM = [
     OLD_STYLE_CITE_REGEX,
     NEW_STYLE_CITE_REGEX,
     OLD_STYLE_REF_REGEX,
-    NEW_STYLE_REF_REGEX,
-    re.compile(r'\\\\')
+    NEW_STYLE_REF_REGEX
 ]
+# whether the leading backslash is escaped
+ESCAPE_REGEX = re.compile(r"\w*(\\\\)+([^\\]|$)")
 
 CWL_COMPLETION = False
 
@@ -70,6 +71,16 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
 
         line = view.substr(get_Region(view.line(point).a, point))
         line = line[::-1]
+
+        # do not autocomplete if the leading backslash is escaped
+        if ESCAPE_REGEX.match(line):
+            # if there the autocompletion has been opened with the \ trigger
+            # (no prefix) and the user has not enabled auto completion for the
+            # scope, then hide the auto complete popup
+            selector = view.settings().get("auto_complete_selector")
+            if not prefix and not view.score_selector(point, selector):
+                view.run_command("hide_auto_complete")
+            return []
 
         # Do not do completions in actions
         for rex in ENV_DONOT_AUTO_COM:
