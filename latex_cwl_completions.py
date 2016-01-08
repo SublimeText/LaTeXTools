@@ -31,6 +31,26 @@ ENV_DONOT_AUTO_COM = [
 CWL_COMPLETION = False
 
 
+def is_cwl_available():
+    return CWL_COMPLETION
+
+# regex to detect that the cursor is predecended by a \begin{
+BEGIN_END_BEFORE_REGEX = re.compile(
+    r"^"
+    r"[^\}\{\\]*"
+    r"\{"
+    r"(?:\[[^\]]*\])?"
+    r"(?:dne|nigeb)"
+    r"\\"
+)
+# regex to parse a environment line from the cwl file
+# only search for \end to create a list without duplicates
+ENVIRONMENT_REGEX = re.compile(
+    r"\\end"
+    r"\{(?P<name>[^\}]+)\}"
+)
+
+
 def _is_snippet(completion_entry):
     """
     returns True if the second part of the completion tuple
@@ -56,27 +76,34 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
             char_before = char_before.encode("utf-8")
         is_prefixed = char_before == "\\"
 
+        line = view.substr(get_Region(view.line(point).begin(), point))
+        line = line[::-1]
+        is_env = bool(BEGIN_END_BEFORE_REGEX.match(line))
+
         completion_level = "prefixed"  # default completion level is "prefixed"
-        completion_level = get_setting("command_completion",
-                                       completion_level)
+        completion_level = get_setting("command_completion", completion_level)
 
         do_complete = {
             "never": False,
-            "prefixed": is_prefixed,
+            "prefixed": is_prefixed or is_env,
             "always": True
-        }.get(completion_level, is_prefixed)
+        }.get(completion_level, is_prefixed or is_env)
+
         if not do_complete:
             return []
 
-        line = view.substr(get_Region(view.line(point).a, point))
-        line = line[::-1]
+        # if it is inside the begin oder end of an env,
+        # create and return the available environments
+        if is_env:
+            completions = parse_cwl_file(parse_line_as_environment)
+            return completions
 
         # Do not do completions in actions
         for rex in ENV_DONOT_AUTO_COM:
             if match(rex, line) != None:
                 return []
 
-        completions = parse_cwl_file()
+        completions = parse_cwl_file(parse_line_as_command)
         # autocompleting with slash already on line
         # this is necessary to work around a short-coming in ST where having a keyed entry
         # appears to interfere with it recognising that there is a \ already on the line
@@ -117,7 +144,20 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
                 })
                 g_settings.set("auto_complete_triggers", acts)
 
-def parse_cwl_file():
+
+def parse_line_as_environment(line):
+    m = ENVIRONMENT_REGEX.match(line)
+    if not m:
+        return
+    env_name = m.group("name")
+    return env_name, env_name
+
+
+def parse_line_as_command(line):
+    return line, parse_keyword(line)
+
+
+def parse_cwl_file(parse_line):
     # Get cwl file list
     # cwl_path = sublime.packages_path() + "/LaTeX-cwl"
     cwl_file_list = get_setting('cwl_list',
@@ -156,6 +196,7 @@ def parse_cwl_file():
                 finally:
                     f.close()
 
+        method = os.path.splitext(os.path.basename(cwl))[0]
         for line in s.split('\n'):
             line = line.strip()
             if line == '':
@@ -163,9 +204,12 @@ def parse_cwl_file():
             if line[0] == '#':
                 continue
 
-            keyword = line.strip()
-            method = os.path.splitext(os.path.basename(cwl))[0]
-            item = (u'%s\t%s' % (keyword, method), parse_keyword(keyword))
+            result = parse_line(line)
+            if result is None:
+                continue
+            (keyword, insertion) = result
+            item = (u'%s\t%s' % (keyword, method), insertion)
+
             completions.append(item)
 
     return completions
