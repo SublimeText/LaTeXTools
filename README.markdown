@@ -11,20 +11,12 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* v3.6.0 (2015-12-12). 
+*Latest revision:* v3.6.1 (2016-01-01). 
 
-*Headline features*: [project-overridable settings](#project-specific-settings) and [user-configurable tex extensions](#support-for-non-tex-files). 
+*Headline features*: More standard Default / User settings files. In practice this means that *less* user intervention is needed when the plugin is installed, or when new features are added. If you do not have a settings file in your `User` directory, select the `Settings - User` entry in the `Preferences | Package Settings| LaTeXTools` submenu, and a default one will be created for you to adapt as needed. (If you do have a settings file, the same menu entry will open it in a new tab.) See the [Settings section](#settings) for details.
 
 
 **NEW!** Beginning December 2015, **Ian Bacher** has joined as maintainer / developer of the LaTeXTools plugin. Ian has contributed lots of incredible code, and I am delighted to have him on board. --- *Marciano*.
-
-
-**NOTE**: A reminder on the settings file:
-
-* LaTeXTools uses a single settings file, called `LaTeXTools.sublime-settings`, which *must* exist in the `User` directory. By this I mean that LaTeXTools *will not work* until you have a proper `LaTeXTools.sublime-settings` file in the `User` directory.
-* Because of this, LaTeXtools provides an easy way to create it, and even *automagically* migrate your settings from any old `LaTeXTools Preferences.sublime-settings` file you may have. In Sublime Text, open the command palette from the Tools menu, search for "LaTeXTools: Reconfigure and migrate settings," and hit Return. That's it! See the Settings section for other ways to migrate or reconfigure settings.
-* The old settings file, `LaTeXTools Preferences.sublime-settings`, will no longer be honored. Also, do *not* modify the `LaTeX.sublime-build` file in the LaTeXTools package directory, and if you have a customized copy in `User`, delete it (but do *not* delete the original in the `LaTeXTools` directory). See the Settings section below for ways to *easily* customize the build command. 
-
 
 
 Introduction
@@ -42,25 +34,25 @@ This plugin provides several features that simplify working with LaTeX files:
 Requirements and Setup
 ----------------------
 
-First, you need to be running Sublime Text 2 or 3 (ST2 and ST3 henceforth, or simply ST to refer to either ST2 or ST3). For ST3, I have only tested build 3047 and will of course test subsequent builds.
+First, you need to be running Sublime Text 2 or 3 (ST2 and ST3 henceforth, or simply ST to refer to either ST2 or ST3). For ST3, this has been tested against the latest beta builds.
 
 Second, get the LaTeXTools plugin. These days, the easiest way to do so is via Package Control: see [here](https://sublime.wbond.net) for details on how to set it up (it's very easy). Once you have Package Control up and running, invoke it (via the Command Palette from the Tools menu, or from Preferences), select the Install Package command, and look for LaTeXTools.
 
-If you prefer a more hands-on approach, you can always clone the git repository, or else just grab this plugin's .zip file from GitHub and extract it to your Packages directory (you can open it easily from ST, by clicking on Preferences|Browse Packages). Then, (re)launch ST.
+If you prefer a more hands-on approach, you can always clone the git repository, or else just grab this plugin's .zip file from GitHub and extract it to your Packages directory (you can open it easily from ST, by clicking on Preferences|Browse Packages). Then, (re)launch ST. Please note that if you do a manual installation, the Package **must** be named "LaTeXTools".
 
 I encourage you to install Package Control anyway, because it's awesome, and it makes it easy to keep your installed packages up-to-date (see the aforelinked page for details). 
 
-Third, if you are installing LaTeXTools for the first time, you need to create a configuration file, `LaTeXTools.sublime-settings`, in your `User` directory (off the `Packages`) directory. To do so, open the command palette from the Tools menu, search for "LaTeXTools: Reconfigure and migrate settings," and hit Return. That's it! See the Settings section for details on configuration options.
-
-Fourth, follow the OS-specific instructions below.
+Third, follow the OS-specific instructions below.
 
 <br>
 
-On **OSX**, you need to be running the MacTeX distribution (which is pretty much the only one available on the Mac anyway) and the Skim PDF previewer. Just download and install these in the usual way. I have tested MacTeX versions 2010--2014, both 32 and 64 bits; these work fine. MacTeX 2015 also works. On the other hand, MacTeX 2008 does *not* seem to work out of the box (compilation fails), so please upgrade. 
+On **OSX**, you need to be running the MacTeX distribution (which is pretty much the only one available on the Mac anyway) and the Skim PDF previewer. Just download and install these in the usual way. I have tested MacTeX versions 2010--2014, both 32 and 64 bits; these work fine. MacTeX 2015 also works. On the other hand, MacTeX 2008 does *not* seem to work out of the box (compilation fails), so please upgrade.
 
 **El Capitan note**: sadly, with each OS X release, Apple deviates more and more from established Unix conventions. The latest "innovation" is that, beginning with El Capitan, apps can no longer write to `/usr`. MacTeX 2015 remedies this by creating a link to TeX binaries in `/Library/TeX`. The default LaTeXTools settings file now adds `/Library/TeX/texbin` to the `texpath`. In practice, this means the following.
 
-* If you are running MacTeX 2015, you can use the "LaTeXTools: Reconfigure and migrate settings" command (from the command palette) to generate a fresh settings file in your `User` directory; this will have the correct `texpath`. **However**, if you already have customizations in your settings file, **these will be lost** (I'm thinking about a better way to handle this going forward). So, the easiest fix might be to edit your own `LaTeXTools.sublime-settings` file (in your `User` directory) and modify `texpath` by adding `/Library/TeX/texbin` as the first entry.
+* If you are running MacTeX 2015 and have *not* customized the `texpath` option in your user settings file, you do not need to take further action.
+
+* If you are running MacTex 2015 and have customized `texpath`, open your user settings file (remember, you can do so from the `Preferences | Package Settings | LaTeXTools` submenu) and add `/Library/TeX/texbin` as the first entry in `texpath`.
 
 * If you are running earlier MacTeX versions, unfortunately you do *not* have the `/Library/TeX/texbin` link at all, so adding that path to `texpath` would not help. You have two options: create the link yourself, or edit the `texpath` option to point to the appropriate directory. Check Section 8 of [this document](https://tug.org/mactex/UpdatingForElCapitan.pdf) for details.
 
@@ -74,8 +66,6 @@ To configure inverse search, open the Preferences dialog of the Skim app, select
 * choose the Sublime Text 2 or Sublme Text 3 preset (yes, Skim now supports both ST2 and ST3 by default!)
 
 In case you are using an old version of Skim, you can always choose the Custom preset and enter `/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl` (for ST3) in the Command field, and `"%file":%line` in the Arguments field. (This is correct as of 7/18/2013; you may want to double-check that ST3 is indeed in `/Applications/Sublime Text`; just go to the Applications folder in the Finder. Adapt as needed for ST2).
-
-If you have installed Skim in a non-standard location, there is not much you can do short of hacking the `jumpToPDF.py` file (**not supported!**). This will change in the near future. 
 
 Finally, edit the file `LaTeXTools.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution. Open the file and scroll down to the  section titled "Platform settings." Look at the block for your OS, namely `"osx"`. Within that block, verify that the `"texpath"` setting is correct. Note that `"texpath"` **must** include `$PATH` somewhere.
 
@@ -97,7 +87,6 @@ Finally, edit the file `LaTeXTools.sublime-settings` in the `User` directory to 
 
 TeXlive has one main advantage over MikTeX: it supports file names and paths with spaces.
 
-
 <br>
 
 **Linux** support is coming along nicely. However, as a general rule, you will need to do some customization before things work. This is due to differences across distributions (a.k.a. "fragmentation"). Do not expect things to work out of the box.
@@ -106,7 +95,9 @@ You need to install TeXlive; if you are on Ubuntu, note that `apt-get install te
 
 You also need to edit the file `LaTeXTools.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution.  Open that file and scroll down to the  section titled "Platform settings." Look at the block for your OS, namely `"linux"`. Within that block, verify that the `"texpath"` setting is correct. Notice that this **must** include `$PATH` somewhere, or things will not work.
 
-You may also have to set the `command` option in `"builder_settings"`, which tells the builder how to invoke `latexmk`. By default (i.e., if `command` is empty or not given) it is `["latexmk", "-cd", "-e", "-f", "-pdf", "-interaction=nonstopmode", "-synctex=1"]`. Users have reported the following possible issues and fixes (thanks!), so if you get a "Cannot compile!" error, try the following.
+You may also have to set the `command` option in `"builder_settings"`, which tells the builder how to invoke `latexmk`. By default (i.e., if `command` is empty or not given) it is `["latexmk", "-cd", "-e", "-f", "-pdf", "-interaction=nonstopmode", "-synctex=1"]`.
+
+If you customize the command to include a custom PDF command, isers have reported the following possible issues and fixes (thanks!), so if you get a "Cannot compile!" error, try the following:
 
 * some distros do *not* want a space before and after the `=` in `$pdflatex = %E`. But some *do* want the space there (sigh!)
 * sometimes `latexmk` is not on the `PATH`, or the path is not correctly picked up by ST. In this case, instead of `"latexmk"`, use `"/usr/bin/latexmk"` or wherever `latexmk` is in your system. 
@@ -401,15 +392,21 @@ You can consult the documentation for any LaTeX package by invoking the `View Pa
 Settings
 --------
 
-LaTeXTools now supports user-defined settings. The *default* settings file is called `LaTeXTools.sublime-settings`. This **must** be in the `User` directory. As described above, when you first install LaTeXTools, the file `LaTeXTools.sublime-settings` does not exist anywhere. A migration / reconfiguration command is provided to create this settings file in `User`, and automatically migrate your existing settings from the old file (`LaTeXTools Preferences.sublime-settings`). . You can run it in three ways:
+LaTeXTools supports user-defined settings. The settings file is called `LaTeXTools.sublime-settings`. A default version resides in the LaTeXTools plugin directory and **must not be edited**. This contains default settings that will work in many cases, for standard configurations of TeX distros and PDF viewers. You can however create another settings file in your `User` directory; again, the file must be named `LaTeXTools.sublime-settings`.
 
-* from the Command Palette (in the Tools) menu, search for "LaTeXTools: Reconfigure and migrate settings"
-* from the "Reconfigure LaTeXTools and migrate settings" item in the Preferences, Package Settings, LaTeXTools menu
-* from the Sublime Text console (`Ctrl+backtick` on all platforms), typing `sublime.run_command("latextools_migrate")`.
+You can create and edit such a file manually. It is a standard Sublime Text JSON file; the settings currently honored by LaTeXTools are listed below. However, the *simplest way to create a settings file* is to open the `Preferences | Package Settings | LaTeXTools` submenu and select the `Settings - User` option. If you do not currently have a `LaTeXTools.sublime-settings` settings file in your `User` directory (e.g., if you are installing LaTeXTools for the first time), you will be given the option to create one. The newly created settings file will be an exact copy of the default one, and will open in a tab for you to customize. 
 
-If you ever want to revert your settings to their default state, just invoke the migration command again, as above.
+If you *do* already have an existing `LaTeXTools.sublime-settings` file in your `User` directory, the `Settings - User` option will open that file in a tab for you to further customize. Similarly, the `Settings - Default` option will open the default settings file in a tab, in *read-only mode*. This may be useful for you to copy from, or if you want to see what other options may be available without consulting this README file.
 
-*Warning*:  in general, tweaking options can cause breakage. For instance, if on Linux you change the default `python2` setting (empty by default) to a non-existent binary, forward and inverse search will stop working. With great power comes great responsibility! If you think you have found a bug, *delete your settings file in the `User` directory and rerun the `latextools_migrate` command before reporting it!* Thanks :-)
+If at any time you wish to erase your customizations and start afresh, you can simply delete the `LaTeXTools.sublime-settings` file in your `User` directory. (Again, *warning*: do *not* touch the settings file in the LaTeXTools plugin directory!) Alternatively, from the `Preferences | Package Settings | LaTeXTools` submenu, or from the Command Palette, you can choose `Reset user settings to default`. This will delete any existing settings file in `User` and create a copy of the default one. This will  *remove all your customizations*. 
+
+(Historical note: This is no longer relevant in 2016, but just for the record, if you have a pre-2014, old-style settings file, this option will import it).
+
+<br>
+
+*Warning*:  in general, tweaking options can cause breakage. For instance, if on Linux you change the default `python2` setting (empty by default) to a non-existent binary, forward and inverse search will stop working. With great power comes great responsibility! If you think you have found a bug, *delete your settings file in the `User` directory, or use the `Reset user settings to default` command before reporting it!* Thanks :-)
+
+<br>
 
 The following options are currently available (defaults in parentheses):
 
@@ -488,12 +485,106 @@ For minor customizations of the default builder, as noted in the Build and Setti
 
 Some information on the new flexible builder system: to create and use a new builder, you place the code somewhere off the ST `Packages` directory (for instance, in `User`), then set the `builder` and `builder_path` options in your `LaTeXTools.sublime-settings` file accordingly. A builder can define its own options, also in `LaTeXTools.sublime-settings`, which will be passed whenever a build is invoked.
 
-Due to time constraints, I have not yet been able to document how to write a builder. The basic idea is that you subclass the `PdfBuilder` class in the file `LaTeXTools/builders/pdfBuilder.py`. The comments in that file describe how builders interact with the build command (hint: they use Pyton's `yield` command). I provide three builders (one is in progress and not usable yet). The code is in the `LaTeXTools/builders` directory. You can use them as examples:
+Due to time constraints, I have not yet been able to document how to write a builder. The basic idea is that you subclass the `PdfBuilder` class in the file `LaTeXTools/builders/pdfBuilder.py`. The comments in that file describe how builders interact with the build command (hint: they use Pyton's `yield` command). I provide three builders. The code is in the `LaTeXTools/builders` directory. You can use them as examples:
 - `traditional` is the traditional builder. 
 - `simple` does not use external tools, but invokes `pdflatex` and friends, each time checking the log file to figure out what to do next. It is a very, very simple "make" tool, but it demonstrates the back-and-forth interaction between LaTeXTools and a builder.
-- `script` (in progress!) will eventually allow the user to specify a list of compilation commands in the settings file, and just execute them in sequence. 
+- `script` (see below) allows the user to specify a list of compilation commands in the settings file, and just execute them in sequence. 
 
 Let me know if you are interested in writing a custom builder!
+
+Script Builder
+--------------
+
+LaTeXTools now supports the long-awaited script builder. It has two primary goals: first, to support customization of simple build workflows and second, to enable LaTeXTools to integrate with external build systems in some fashion.
+
+Note that the script builder should be considered an advanced feature. Unlike the "traditional" builder it is not designed to "just work," and is not recommend for those new to using TeX and friends. You are responsible for making sure your setup works. Please read this section carefully before using the script builder.
+
+For the most part, the script builder works as described in the [Compiling LaTeX files](#compiling-latex-files) section *except that* instead of invoking either `texify` or `latexmk`, it invokes a user-defined series of commands. Note that although the Script Builder supports **Multi-file documents**, it does not support either the engine selection or passing other options via the `%!TEX` macros.
+
+The script builder is controlled through two settings in the *platform-specific* part of the `builder_settings` section of `LaTeXTools.sublime-settings`:
+
+- `script_commands` — the command or list of commands to run. This setting **must** have a value or you will get an error message.
+- `env` — a dictionary defining any environment variables to be set for the environment the command is run in.
+
+The `script_commands` setting should be either a string or a list. If it is a string, it represents a single command to be executed. If it is a list, it should be either a list of strings representing single commands or a list of lists, though the two may be mixed. For example:
+
+```json
+"builder_settings": {
+	"osx": {
+		"script_commands": "pdflatex -synctex=1"
+	}
+}
+```
+
+Will simply run `pdflatex` against the master document, as will:
+
+```json
+"builder_settings": {
+	"osx": {
+		"script_commands": ["pdflatex -synctex=1"]
+	}
+}
+```
+
+Or:
+
+```json
+"builder_settings": {
+	"osx": {
+		"script_commands": [["pdflatex", "-synctex=1"]]
+	}
+}
+```
+
+More interestingly, the main list can be used to supply a series of commands. For example, to use the simple pdflatex -> bibtex -> pdflatex -> pdflatex series, you can use the following settings:
+
+```json
+"builder_settings": {
+	"osx": {
+		"script_commands": [
+			"pdflatex -synctex=1",
+			"bibtex",
+			"pdflatex -synctex=1",
+			"pdflatex -synctex=1"
+		]
+	}
+}
+```
+
+Note, however, that the script builder is quite unintelligent in handling such cases. It will not note any failures nor only execute the rest of the sequence if required. It will simply continue to execute commands until it hits the end of the chain of commands. This means, in the above example, it will run `bibtex` regardless of whether there are any citations.
+
+Each command can use the following variables which will be expanded before it is executed:
+
+|Variable|Description|
+|--------|--------|
+|`$file`   | The full path to the main file, e.g., _C:\Files\document.tex_|
+|`$file_name`| The name of the main file, e.g., _document.tex_|
+|`$file_ext`| The extension portion of the main file, e.g., _tex_|
+|`$file_base_name`| The name portion of the main file without the, e.g., _document_|
+|`$file_path`| The directory of the main file, e.g., _C:\Files_|
+
+For example:
+
+```json
+"builder_settings": {
+	"osx": {
+		"script_commands": ["pdflatex -synctex=1 $file_base_name"]
+	}
+}
+```
+
+Note that if none of these variables occur in the command string, the `$file_base_name` will be appended to the end of the command. This may mean that a wrapper script is needed if, for example, using `make`.
+
+Commands are executed in the same path as `$file_path`, i.e. the folder containing the main document.
+
+### Caveats ###
+
+LaTeXTools makes some assumptions that should be adhered to or else things won't work as expected:
+- the final product is a PDF which will be written in the same directory as the main file and named `$file_base_name.pdf`
+- the LaTeX log will be written in the same directory as the main file and named `$file_base_name.log`
+- if you change the `PATH` in the environment (by using the `env` setting), you need to ensure that the `PATH` is still sane, e.g., that it contains the path for the TeX executables and other command line resources that may be necessary.
+
+In addition, to ensure that forward and backward sync work, you need to ensure that the `-synctex=1` flag is set for your latex command.
 
 Troubleshooting
 ---------------

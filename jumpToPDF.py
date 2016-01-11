@@ -188,12 +188,10 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		# HACK? It seems we get better results incrementing line
 		line += 1
 
-		# issue #625: we need to pass the relative path to the viewer where
+		# issue #625: we need to pass the path to the file to the viewer when
 		# there are files in subfolders of the main folder.
-		# Thanks rstein for this code!
-		rootPath, _ = os.path.split(root)
-		srcfile = os.path.relpath(self.view.file_name(), rootPath)
-		# We need to do something different for Windows below
+		# Thanks rstein and arahlin for this code!
+		srcfile = self.view.file_name()
 
 		# Query view settings to see if we need to keep focus or let the PDF viewer grab it
 		# By default, we respect settings in Preferences
