@@ -17,9 +17,11 @@ if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
     _ST3 = False
     import getTeXRoot
+    from latextools_utils import get_setting
 else:
     _ST3 = True
     from . import getTeXRoot
+    from .latextools_utils import get_setting
 
 
 # Only work for \include{} and \input{} and \includegraphics
@@ -116,12 +118,9 @@ def parse_completions(view, line):
         # In order to user input, "image_types" must be set in
         # LaTeXTools.sublime-settings configuration file or the
         # project settings for the current view.
-        view = sublime.active_window().active_view()
-        settings = sublime.load_settings("LaTeXTools.sublime-settings")
-        input_file_types = view.settings().get('image_types',
-            settings.get('image_types', [
+        input_file_types = get_setting('image_types', [
                 'pdf', 'png', 'jpeg', 'jpg', 'eps'
-            ]))
+            ])
     elif addbib_filter is not None or bib_filter is not None:
         # For bibliography
         if addbib_filter is not None:
@@ -192,6 +191,9 @@ def parse_completions(view, line):
     return prefix, completions
 
 def add_closing_bracket(view, edit):
+    # only add the closing bracked if auto match is enabled
+    if not view.settings().get("auto_match_enabled", True):
+        return
     caret = view.sel()[0].b
     view.insert(edit, caret, "}")
     view.sel().subtract(view.sel()[0])
@@ -255,10 +257,8 @@ class LatexFillInputCommand(sublime_plugin.TextCommand):
             # is given so this works when being triggered by pressing "{"
             point += view.insert(edit, point, insert_char)
 
-            s = sublime.load_settings("LaTeXTools.sublime-settings")
-            do_completion = view.settings().get("fill auto trigger",
-                s.get("fill_auto_trigger", True))
-            
+            do_completion = get_setting("fill_auto_trigger", True)
+
             if not do_completion:
                 add_closing_bracket(view, edit)
                 return

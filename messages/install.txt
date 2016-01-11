@@ -1,4 +1,4 @@
-LaTeXTools Plugin version 3.5.2 (2015-12-07)
+LaTeXTools Plugin version 3.6.1 (2016-01-01)
 
 Thank you for installing the LaTeXTools plugin!
 

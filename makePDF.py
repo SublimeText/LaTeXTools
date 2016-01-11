@@ -6,12 +6,16 @@ if sublime.version() < '3000':
 	_ST3 = False
 	import getTeXRoot
 	import parseTeXlog
+	strbase = basestring
 	from latextools_utils.is_tex_file import is_tex_file
+	from latextools_utils import get_setting
 else:
 	_ST3 = True
 	from . import getTeXRoot
 	from . import parseTeXlog
+	strbase = str
 	from .latextools_utils.is_tex_file import is_tex_file
+	from .latextools_utils import get_setting
 
 import sublime_plugin
 import sys
@@ -24,6 +28,7 @@ import subprocess
 import types
 import re
 import codecs
+import traceback
 
 DEBUG = False
 
@@ -89,82 +94,93 @@ class CmdThread ( threading.Thread ):
 		# Now, iteratively call the builder iterator
 		#
 		cmd_iterator = self.caller.builder.commands()
-		for (cmd, msg) in cmd_iterator:
+		try:
+			for (cmd, msg) in cmd_iterator:
 
-			# If there is a message, display it
-			if msg:
-				self.caller.output(msg)
+				# If there is a message, display it
+				if msg:
+					self.caller.output(msg)
 
-			# If there is nothing to be done, exit loop
-			# (Avoids error with empty cmd_iterator)
-			if cmd == "":
-				break
-			print(cmd)
-			# Now create a Popen object
-			try:
-				if self.caller.plat == "windows":
-					proc = subprocess.Popen(cmd, startupinfo=startupinfo, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-				elif self.caller.plat == "osx":
-					# Temporary (?) fix for Yosemite: pass environment
-					proc = subprocess.Popen(
-						cmd,
-						stderr=subprocess.STDOUT,
-						stdout=subprocess.PIPE, 
-						env=os.environ,
-						preexec_fn=os.setsid
-					)
-				else: # Must be linux
-					proc = subprocess.Popen(
-						cmd,
-						stderr=subprocess.STDOUT,
-						stdout=subprocess.PIPE,
-						preexec_fn=os.setsid
-					)
-			except:
-				self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
-				self.caller.output("Attempted command:")
-				self.caller.output(" ".join(cmd))
-				self.caller.output("\nBuild engine: " + self.caller.builder.name)
-				self.caller.proc = None
-				if self.caller.env:
-					os.environ = old_env
-				elif self.caller.path:
-					os.environ["PATH"] = old_path
-				return
-			
-			# Now actually invoke the command, making sure we allow for killing
-			# First, save process handle into caller; then communicate (which blocks)
-			with self.caller.proc_lock:
-				self.caller.proc = proc
-			out, err = proc.communicate()
-			self.caller.builder.set_output(out.decode(self.caller.encoding,"ignore"))
+				# If there is nothing to be done, exit loop
+				# (Avoids error with empty cmd_iterator)
+				if cmd == "":
+					break
 
-			# Here the process terminated, but it may have been killed. If so, stop and don't read log
-			# Since we set self.caller.proc above, if it is None, the process must have been killed.
-			# TODO: clean up?
-			with self.caller.proc_lock:
-				if not self.caller.proc:
-					print (proc.returncode)
-					self.caller.output("\n\n[User terminated compilation process]\n")
-					self.caller.finish(False)	# We kill, so won't switch to PDF anyway
-					return
-			# Here we are done cleanly:
-			with self.caller.proc_lock:
-				self.caller.proc = None
-			print ("Finished normally")
-			print (proc.returncode)
+				if isinstance(cmd, strbase) or isinstance(cmd, list):
+					print(cmd)
+					# Now create a Popen object
+					try:
+						if self.caller.plat == "windows":
+							proc = subprocess.Popen(cmd, startupinfo=startupinfo, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+						elif self.caller.plat == "osx":
+							# Temporary (?) fix for Yosemite: pass environment
+							proc = subprocess.Popen(
+								cmd,
+								stderr=subprocess.STDOUT,
+								stdout=subprocess.PIPE, 
+								env=os.environ,
+								preexec_fn=os.setsid
+							)
+						else: # Must be linux
+							proc = subprocess.Popen(
+								cmd,
+								stderr=subprocess.STDOUT,
+								stdout=subprocess.PIPE,
+								preexec_fn=os.setsid
+							)
+					except:
+						self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
+						self.caller.output("Attempted command:")
+						self.caller.output(" ".join(cmd))
+						self.caller.output("\nBuild engine: " + self.caller.builder.name)
+						self.caller.proc = None
+						print(traceback.format_exc())
+						return
+				elif isinstance(cmd, subprocess.Popen):
+					proc = cmd
+				else:
+					# don't know what the command is
+					continue
+				
+				# Now actually invoke the command, making sure we allow for killing
+				# First, save process handle into caller; then communicate (which blocks)
+				with self.caller.proc_lock:
+					self.caller.proc = proc
+				out, err = proc.communicate()
+				self.caller.builder.set_output(out.decode(self.caller.encoding,"ignore"))
 
-			# At this point, out contains the output from the current command;
-			# we pass it to the cmd_iterator and get the next command, until completion
+				
+				# Here the process terminated, but it may have been killed. If so, stop and don't read log
+				# Since we set self.caller.proc above, if it is None, the process must have been killed.
+				# TODO: clean up?
+				with self.caller.proc_lock:
+					if not self.caller.proc:
+						print (proc.returncode)
+						self.caller.output("\n\n[User terminated compilation process]\n")
+						self.caller.finish(False)	# We kill, so won't switch to PDF anyway
+						return
+				# Here we are done cleanly:
+				with self.caller.proc_lock:
+					self.caller.proc = None
+				print ("Finished normally")
+				print (proc.returncode)
+				# At this point, out contains the output from the current command;
+				# we pass it to the cmd_iterator and get the next command, until completion
+		except:
+			self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
+			self.caller.output("\nBuild engine: " + self.caller.builder.name)
+			self.caller.proc = None
+			print(traceback.format_exc())
+			return
+		finally:
+			# restore environment
+			if self.caller.env:
+				os.environ = old_env
+			elif self.caller.path:
+				os.environ['PATH'] = old_path
 
 		# Clean up
 		cmd_iterator.close()
-
-		# restore env or path if needed
-		if self.caller.env:
-			os.environ = old_env
-		elif self.caller.path:
-			os.environ["PATH"] = old_path
 
 		# CHANGED 12-10-27. OK, here's the deal. We must open in binary mode on Windows
 		# because silly MiKTeX inserts ASCII control characters in over/underfull warnings.
@@ -280,8 +296,16 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 				return
 			else: # either it's the first time we run, or else we have no running processes
 				self.proc = None
-		
+
 		view = self.view = self.window.active_view()
+
+		if view.is_dirty():
+			print ("saving...")
+			view.run_command('save')  # call this on view, not self.window
+
+		if view.file_name() is None:
+			sublime.error_message('Please save your file before attempting to build.')
+			return
 
 		self.file_name = getTeXRoot.get_tex_root(view)
 		if not os.path.isfile(self.file_name):
@@ -290,7 +314,11 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 
 		self.tex_base, self.tex_ext = os.path.splitext(self.file_name)
 		tex_dir = os.path.dirname(self.file_name)
-		
+
+		if not is_tex_file(self.file_name):
+			sublime.error_message("%s is not a TeX source file: cannot compile." % (os.path.basename(view.file_name()),))
+			return
+
 		# Output panel: from exec.py
 		if not hasattr(self, 'output_view'):
 			self.output_view = self.window.get_output_panel("exec")
@@ -304,17 +332,9 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		self.output_view.settings().set("result_base_dir", tex_dir)
 
 		self.window.run_command("show_panel", {"panel": "output.exec"})
-		
+
 		self.output_view.settings().set("result_file_regex", file_regex)
 
-		if view.is_dirty():
-			print ("saving...")
-			view.run_command('save') # call this on view, not self.window
-		
-		if not is_tex_file(self.file_name):
-			sublime.error_message("%s is not a TeX source file: cannot compile." % (os.path.basename(view.file_name()),))
-			return
-		
 		self.plat = sublime.platform()
 		if self.plat == "osx":
 			self.encoding = "UTF-8"
@@ -327,10 +347,9 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			return
 
 		# Get platform settings, builder, and builder settings
-		s = sublime.load_settings("LaTeXTools.sublime-settings")
-		self.hide_panel_level = s.get("hide_build_panel")
-		platform_settings  = s.get(self.plat)
-		builder_name = s.get("builder")
+		platform_settings  = get_setting(self.plat, {})
+		builder_name = get_setting("builder", "traditional")
+		self.hide_panel_level = get_setting("hide_build_panel", "never")
 		# This *must* exist, so if it doesn't, the user didn't migrate
 		if builder_name is None:
 			sublime.error_message("LaTeXTools: you need to migrate your preferences. See the README file for instructions.")
@@ -338,15 +357,16 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# Default to 'traditional' builder
 		if builder_name in ['', 'default']:
 			builder_name = 'traditional'
-		builder_path = s.get("builder_path") # relative to ST packages dir!
+		# relative to ST packages dir!
+		builder_path = get_setting("builder_path", "")
 		builder_file_name   = builder_name + 'Builder.py'
 		builder_class_name  = builder_name.capitalize() + 'Builder'
-		builder_settings = s.get("builder_settings")
+		builder_settings = get_setting("builder_settings", {})
 
 		# Read the env option (platform specific)
 		builder_platform_settings = builder_settings.get(self.plat)
 		if builder_platform_settings:
-			self.env = builder_platform_settings.get("env")
+			self.env = builder_platform_settings.get("env", None)
 		else:
 			self.env = None
 

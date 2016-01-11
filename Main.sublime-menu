@@ -22,13 +22,16 @@
                             },
                             { "caption": "-" },
                             {
-                                "command": "open_file",
-                                "args": {"file": "${packages}/User/LaTeXTools.sublime-settings"},
+                                "command": "open_latextools_default_settings",
+                                "caption": "Settings – Default (read-only)"
+                            },
+                            {
+                                "command": "open_latextools_user_settings",
                                 "caption": "Settings – User"
                             },
                             {
                                 "command": "latextools_migrate",
-                                "caption": "Reconfigure LaTeXTools and migrate settings"
+                                "caption": "Reset user settings to default"
                             },
                             { "caption": "-" },
                             {

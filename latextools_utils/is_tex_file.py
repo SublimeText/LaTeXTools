@@ -1,6 +1,11 @@
 import sublime
 import sys
 
+try:
+    from latextools_utils import get_setting
+except:
+    from .settings import get_setting
+
 if sys.version_info < (3, 0):
     strbase = basestring
 else:
@@ -8,9 +13,7 @@ else:
 
 def get_tex_extensions():
     view = sublime.active_window().active_view()
-    global_settings = sublime.load_settings('LaTeXTools.sublime-settings')
-    tex_file_exts = view.settings().get('tex_file_exts',
-        global_settings.get('tex_file_exts', ['.tex']))
+    tex_file_exts = get_setting('tex_file_exts', ['.tex'])
 
     return [s.lower() for s in set(tex_file_exts)]
 
