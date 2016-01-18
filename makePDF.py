@@ -136,6 +136,7 @@ class CmdThread ( threading.Thread ):
 						self.caller.proc = None
 						print(traceback.format_exc())
 						return
+				# Abundance of caution / for possible future extensions:
 				elif isinstance(cmd, subprocess.Popen):
 					proc = cmd
 				else:

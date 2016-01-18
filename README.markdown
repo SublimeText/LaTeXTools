@@ -11,12 +11,12 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* v3.6.1 (2016-01-01). 
+*Latest revision:* v3.6.2 (2016-01-17). 
 
-*Headline features*: More standard Default / User settings files. In practice this means that *less* user intervention is needed when the plugin is installed, or when new features are added. If you do not have a settings file in your `User` directory, select the `Settings - User` entry in the `Preferences | Package Settings| LaTeXTools` submenu, and a default one will be created for you to adapt as needed. (If you do have a settings file, the same menu entry will open it in a new tab.) See the [Settings section](#settings) for details.
+*Headline features*: Finally, a functional [Script Builder](#script-builder)! Integrate your existing workflow in LaTeXTools, and/or customize every step of the build process.
 
+*Reminder*: See the [Settings section](#settings) for details on the Settings system, which was updated in v3.6.1 (2016-01-01).
 
-**NEW!** Beginning December 2015, **Ian Bacher** has joined as maintainer / developer of the LaTeXTools plugin. Ian has contributed lots of incredible code, and I am delighted to have him on board. --- *Marciano*.
 
 
 Introduction
@@ -359,6 +359,7 @@ The following settings are provided:
   - `prefixed` (default): show completions only if the current word is prefixed with `\`
   - `always`: always show cwl completions
   - `never`: never display the popup
+* `env_auto_trigger`: if `true`, autocomplete environment names upon typing `\begin{` or `\end{` (default: `false`)
 
 
 Command completion, snippets, etc.
@@ -501,7 +502,7 @@ Note that the script builder should be considered an advanced feature. Unlike th
 
 For the most part, the script builder works as described in the [Compiling LaTeX files](#compiling-latex-files) section *except that* instead of invoking either `texify` or `latexmk`, it invokes a user-defined series of commands. Note that although the Script Builder supports **Multi-file documents**, it does not support either the engine selection or passing other options via the `%!TEX` macros.
 
-The script builder is controlled through two settings in the *platform-specific* part of the `builder_settings` section of `LaTeXTools.sublime-settings`:
+The script builder is controlled through two settings in the *platform-specific* part of the `builder_settings` section of `LaTeXTools.sublime-settings`, or of the current project file (if any):
 
 - `script_commands` — the command or list of commands to run. This setting **must** have a value or you will get an error message.
 - `env` — a dictionary defining any environment variables to be set for the environment the command is run in.
@@ -511,7 +512,7 @@ The `script_commands` setting should be either a string or a list. If it is a st
 ```json
 "builder_settings": {
 	"osx": {
-		"script_commands": "pdflatex -synctex=1"
+		"script_commands": "pdflatex -synctex=1 -interaction=nonstopmode"
 	}
 }
 ```
@@ -521,7 +522,7 @@ Will simply run `pdflatex` against the master document, as will:
 ```json
 "builder_settings": {
 	"osx": {
-		"script_commands": ["pdflatex -synctex=1"]
+		"script_commands": ["pdflatex -synctex=1 -interaction=nonstopmode"]
 	}
 }
 ```
@@ -531,7 +532,7 @@ Or:
 ```json
 "builder_settings": {
 	"osx": {
-		"script_commands": [["pdflatex", "-synctex=1"]]
+		"script_commands": [["pdflatex", "-synctex=1 -interaction=nonstopmode"]]
 	}
 }
 ```
@@ -542,16 +543,18 @@ More interestingly, the main list can be used to supply a series of commands. Fo
 "builder_settings": {
 	"osx": {
 		"script_commands": [
-			"pdflatex -synctex=1",
+			"pdflatex -synctex=1 -interaction=nonstopmode",
 			"bibtex",
-			"pdflatex -synctex=1",
-			"pdflatex -synctex=1"
+			"pdflatex -synctex=1 -interaction=nonstopmode",
+			"pdflatex -synctex=1 -interaction=nonstopmode"
 		]
 	}
 }
 ```
 
 Note, however, that the script builder is quite unintelligent in handling such cases. It will not note any failures nor only execute the rest of the sequence if required. It will simply continue to execute commands until it hits the end of the chain of commands. This means, in the above example, it will run `bibtex` regardless of whether there are any citations.
+
+It is especially important to ensure that, in case of errors, TeX and friends do not stop for user input. For example, if you use `pdflatex` on either TeXLive or MikTeX, pass the `-interaction=nonstopmode` option. 
 
 Each command can use the following variables which will be expanded before it is executed:
 
@@ -568,7 +571,7 @@ For example:
 ```json
 "builder_settings": {
 	"osx": {
-		"script_commands": ["pdflatex -synctex=1 $file_base_name"]
+		"script_commands": ["pdflatex -synctex=1 -interaction=nonstopmode $file_base_name"]
 	}
 }
 ```
@@ -584,7 +587,7 @@ LaTeXTools makes some assumptions that should be adhered to or else things won't
 - the LaTeX log will be written in the same directory as the main file and named `$file_base_name.log`
 - if you change the `PATH` in the environment (by using the `env` setting), you need to ensure that the `PATH` is still sane, e.g., that it contains the path for the TeX executables and other command line resources that may be necessary.
 
-In addition, to ensure that forward and backward sync work, you need to ensure that the `-synctex=1` flag is set for your latex command.
+In addition, to ensure that forward and backward sync work, you need to ensure that the `-synctex=1` flag is set for your latex command. Again, don't forget the `-interaction=nonstopmode` flag (or whatever is needed for your tex programs not to expect user input in case of error).
 
 Troubleshooting
 ---------------
