@@ -11,7 +11,7 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* v3.6.2 (2016-01-17). 
+*Latest revision:* v3.6.2 (2016-01-18). 
 
 *Headline features*: Finally, a functional [Script Builder](#script-builder)! Integrate your existing workflow in LaTeXTools, and/or customize every step of the build process.
 
