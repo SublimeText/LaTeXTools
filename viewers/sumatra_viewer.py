@@ -91,6 +91,7 @@ class SumatraViewer(BaseViewer):
         src_file = os.path.relpath(tex_file, root_folder)
 
         self._run_with_sumatra_exe([
+            '-reuse-instance',
             '-forward-search',
             src_file,
             str(line),
