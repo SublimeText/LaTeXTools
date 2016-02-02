@@ -23,7 +23,7 @@ class DictMissing(Exception):
 
 
 def normalize_locale(loc):
-    """normalized the locale into the used format"""
+    """normalizes the locale into the used format"""
     return loc.lower().replace("_", "-")
 
 if _DICT_INSTALLED:
@@ -136,15 +136,15 @@ def _get_locale(view):
 
 def _get_locale_from_tex_root(view):
     tex_root = get_tex_root(view)
-    if not tex_root or tex_root == view.view.file_name():
+    if not tex_root or tex_root == view.file_name():
         return
     return _get_locale(tex_root)
 
 
-def update_language(view):
+def update_dict_language(view):
     loc = _get_locale(view) or _get_locale_from_tex_root(view)
     if not loc:
-        return  # No spellcheck directive found
+        return  # no spellcheck directive found
 
     try:
         user_sc = settings.get_setting("tex_spellcheck_paths", {})
@@ -164,15 +164,19 @@ class LatexAutoDetectSpellcheckListener(sublime_plugin.EventListener):
     def on_post_save(self, view):
         if not view.score_selector(0, "text.tex.latex"):
             return
-        update_language(view)
+        update_dict_language(view)
 
-    def on_load(self, view):
+    def on_load_event(self, view):
         if not view.score_selector(0, "text.tex.latex"):
             return
-        update_language(view)
+        update_dict_language(view)
+    if _ST3:  # update the dict asynchronous in ST3
+        on_load_async = on_load_event
+    else:
+        on_load = on_load_event
 
 
 class LatexDetectSpellcheckCommand(sublime_plugin.WindowCommand):
     def run(self):
         view = self.window.active_view()
-        update_language(view)
+        update_dict_language(view)
