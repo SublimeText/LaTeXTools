@@ -48,7 +48,7 @@ def get_tex_root(view):
 	else:
 		# This works on ST2 and ST3, but does not automatically convert line endings.
 		# We should be OK though.
-		lines = codecs.open(texFile, "r", "UTF-8")
+		lines = codecs.open(texFile, "r", "UTF-8", "ignore")
 		is_file = True
 
 	for line in lines:
