@@ -29,18 +29,17 @@
 	// files. You can also use toggle: C-l,t,a,f
 	"fill_auto_trigger": true,
 
+	// Fill-helper autocompletion trigger for environment names after \begin{ and \end{
+	// this requires the LaTeX-cwl package and might not have a complete list of all environments.
+	// You can also use toggle: C-l,t,a,e
+	"env_auto_trigger": false,
+
 	// Keep focus on Sublime Text after building (true) or switch to PDF viewer (false)
 	// If you are on Windows or Linux and using ST2, you may need to set the
 	// "sublime_executable" setting for this to work in your platform settings.
 	"keep_focus": true,
 	// Sync PDF to current editor position after building (true) or not
 	"forward_sync": true,
-
-	// valid texfile extensions
-	"tex_file_exts": [".tex"],
-
-	// whether or not to set the syntax for a buffer name with a tex extension
-	"latextools_set_syntax": true,
 
 	// When to trigger cwl-command completion (requires the LaTeX-cwl package)
 	// possible values are:
@@ -152,8 +151,10 @@
 	// "traditional"	replicates the 'old' system based on
 	//					latexmk (TeXLive) / texify (MiKTeX)
 	//
-	// "script"			external script: just invokes the script
-	//					specified in "builder_settings"
+	// "script"			external script: invokes the set of commands
+	//					specified in the "script_commands" setting 
+	//					in the platform-specific part of the 
+	//					"builder_settings"
 	//
 	// custom name		you can also use third-party build engines;
 	//					if so, set the "builder_path" option below
@@ -207,7 +208,7 @@
 // ------------------------------------------------------------------
 
 	// image types you use in latex
-	// these types will be used for autocompletion and 
+	// these types will be used for autocompletion and
 	// opening of included images, when no extension is written
 	"image_types": ["png", "pdf", "jpg", "jpeg", "eps"],
 
