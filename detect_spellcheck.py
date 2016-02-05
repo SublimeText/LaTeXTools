@@ -141,8 +141,9 @@ def _get_locale_from_tex_root(view):
     return _get_locale(tex_root)
 
 
-def update_dict_language(view):
-    loc = _get_locale(view) or _get_locale_from_tex_root(view)
+def update_dict_language(view, extract_from_root):
+    loc = (_get_locale(view) or
+           extract_from_root and _get_locale_from_tex_root(view))
     if not loc:
         return  # no spellcheck directive found
 
@@ -164,12 +165,12 @@ class LatexAutoDetectSpellcheckListener(sublime_plugin.EventListener):
     def on_post_save(self, view):
         if not view.score_selector(0, "text.tex.latex"):
             return
-        update_dict_language(view)
+        update_dict_language(view, False)
 
     def on_load_event(self, view):
         if not view.score_selector(0, "text.tex.latex"):
             return
-        update_dict_language(view)
+        update_dict_language(view, True)
     if _ST3:  # update the dict asynchronous in ST3
         on_load_async = on_load_event
     else:
