@@ -94,9 +94,8 @@ def parse_tex_directives(view_or_path, multi_values=[], key_maps={},
                 if key in key_maps:
                     key = key_maps[key]
 
-                if has_only_for:
-                    if key not in only_for:
-                        continue
+                if has_only_for and key not in only_for:
+                    continue
 
                 if key in multi_values:
                     if key in result:
