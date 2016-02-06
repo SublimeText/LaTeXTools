@@ -34,8 +34,8 @@ def parse_tex_directives(view_or_path, multi_values=[], key_maps={},
     parameters:
         view_or_path    -   either a ST view or a path to a file to parse
         multi_values    -   a list of directives to allow to have multiple
-                            values if not included in this list, only a single
-                            value(the first encountered) will be honored
+                            if not included in this list, only the first
+                            encountered value is retained
         key_maps        -   a dict mapping from a directive to the directive
                             to be returned. intended to allow directives to
                             be renamed (e.g. ts-program -> program)
