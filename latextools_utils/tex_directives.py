@@ -26,7 +26,7 @@ LATEX_COMMAND = re.compile(r'\\[a-zA-Z]+\*?(?:\[[^\]]+\])*\{[^\}]+\}')
 def parse_tex_directives(view_or_path, multi_values=[], key_maps={},
                          only_for=[]):
     '''
-    Parses a view or file for any %!TEX parse_tex_directives
+    Parses a view or file for any %!TEX directives
 
     Returns a dictionary of directives keyed from the directive name in
     lower-case
