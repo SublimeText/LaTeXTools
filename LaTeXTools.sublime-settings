@@ -58,6 +58,14 @@
 	// files that match one of the configured `tex_file_exts`
 	"latextools_set_syntax": true,
 
+	// the mapping from the locales to the dictionaries for the 
+	// `%!TEX spellcheck` directive, where the locales must be all lowercase
+	// and separated by a minus sign (-). The dictionaries must be valid path
+	// and compatible with the ST integrated spellcheck
+	// e.g.
+	// { "en-en": "Packages/Language - English/en_GB.dic" }
+	"tex_spellcheck_paths": {},
+
 // ------------------------------------------------------------------
 // Temporary file settings
 // ------------------------------------------------------------------
