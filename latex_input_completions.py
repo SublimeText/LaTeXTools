@@ -191,6 +191,9 @@ def parse_completions(view, line):
     return prefix, completions
 
 def add_closing_bracket(view, edit):
+    # only add the closing bracked if auto match is enabled
+    if not view.settings().get("auto_match_enabled", True):
+        return
     caret = view.sel()[0].b
     view.insert(edit, caret, "}")
     view.sel().subtract(view.sel()[0])
@@ -255,7 +258,7 @@ class LatexFillInputCommand(sublime_plugin.TextCommand):
             point += view.insert(edit, point, insert_char)
 
             do_completion = get_setting("fill_auto_trigger", True)
-            
+
             if not do_completion:
                 add_closing_bracket(view, edit)
                 return

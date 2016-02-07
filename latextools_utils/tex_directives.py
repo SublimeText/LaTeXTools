@@ -26,7 +26,7 @@ LATEX_COMMAND = re.compile(r'\\[a-zA-Z]+\*?(?:\[[^\]]+\])*\{[^\}]+\}')
 def parse_tex_directives(view_or_path, multi_values=[], key_maps={},
                          only_for=[]):
     '''
-    Parses a view or file for any %!TEX parse_tex_directives
+    Parses a view or file for any %!TEX directives
 
     Returns a dictionary of directives keyed from the directive name in
     lower-case
@@ -34,8 +34,8 @@ def parse_tex_directives(view_or_path, multi_values=[], key_maps={},
     parameters:
         view_or_path    -   either a ST view or a path to a file to parse
         multi_values    -   a list of directives to allow to have multiple
-                            values if not included in this list, only a single
-                            value(the first encountered) will be honored
+                            if not included in this list, only the first
+                            encountered value is retained
         key_maps        -   a dict mapping from a directive to the directive
                             to be returned. intended to allow directives to
                             be renamed (e.g. ts-program -> program)
@@ -94,9 +94,8 @@ def parse_tex_directives(view_or_path, multi_values=[], key_maps={},
                 if key in key_maps:
                     key = key_maps[key]
 
-                if has_only_for:
-                    if key not in only_for:
-                        continue
+                if has_only_for and key not in only_for:
+                    continue
 
                 if key in multi_values:
                     if key in result:
