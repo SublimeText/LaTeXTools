@@ -27,9 +27,12 @@ DEBUG = False
 
 class SimpleBuilder(PdfBuilder):
 
-	def __init__(self, tex_root, output, builder_settings, platform_settings):
+	def __init__(self, tex_root, output, engine, options,
+				 tex_directives, builder_settings, platform_settings):
 		# Sets the file name parts, plus internal stuff
-		super(SimpleBuilder, self).__init__(tex_root, output, builder_settings, platform_settings) 
+		super(SimpleBuilder, self).__init__(tex_root, output, engine, options,
+			tex_directives, builder_settings, platform_settings)
+
 		# Now do our own initialization: set our name, see if we want to display output
 		self.name = "Simple Builder"
 		self.display_log = builder_settings.get("display_log", False)

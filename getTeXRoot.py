@@ -1,19 +1,20 @@
 # ST2/ST3 compat
 from __future__ import print_function
 
+import os
 import sublime
 if sublime.version() < '3000':
 	# we are on ST2 and Python 2.X
 	_ST3 = False
-	from latextools_utils.is_tex_file import get_tex_extensions
+	from latextools_utils.is_tex_file import is_tex_file
 	from latextools_utils.sublime import get_project_file_name
+	from latextools_utils import parse_tex_directives
 else:
 	_ST3 = True
-	from .latextools_utils.is_tex_file import get_tex_extensions
+	from .latextools_utils.is_tex_file import is_tex_file
 	from .latextools_utils.sublime import get_project_file_name
+	from .latextools_utils import parse_tex_directives
 
-import os.path
-import re
 
 # Parse magic comments to retrieve TEX root
 # Stops searching for magic comments at first non-comment line of file
@@ -22,44 +23,26 @@ import re
 
 # Contributed by Sam Finn
 def get_tex_root(view):
-	texFile = view.file_name()
-	root = texFile
+	view_file = view.file_name()
+	root = view_file
+	directives = parse_tex_directives(view, only_for=['root'])
+	try:
+		root = directives['root']
+	except KeyError:
+		pass
+	else:
+		if not is_tex_file(root):
+			root = view_file
 
-	lines = view.substr(
-		sublime.Region(0, view.size())
-	).split('\n')
+		if not os.path.isabs(root) and view_file is not None:
+			file_path, _ = os.path.split(view_file)
+			root = os.path.normpath(os.path.join(file_path, root))
 
-	for line in lines:
-		# remove any leading spaces
-		line = line.lstrip()
-		if not line.startswith('%'):
-			break
-		else:
-			# We have a comment match; check for a TEX root match
-			tex_exts = '|'.join([re.escape(ext) for ext in get_tex_extensions()])
-			mroot = re.match(
-				r"(?iu)%+\s*!TEX\s+root *= *(.*({0}))\s*$".format(tex_exts),
-				line
-			)
-
-			if mroot:
-				# we have a TEX root match
-				# Break the match into path, file and extension
-				# Create TEX root file name
-				# If there is a TEX root path, use it
-				# If the path is not absolute and a src path exists, pre-pend it
-				root = mroot.group(1)
-				if not os.path.isabs(root) and texFile is not None:
-					(texPath, texName) = os.path.split(texFile)
-					root = os.path.join(texPath, root)
-				root = os.path.normpath(root)
-				break
-
-	if root == texFile:
+	if root == view_file:
 		root = get_tex_root_from_settings(view)
 		if root is not None:
 			return root
-		return texFile
+		return view_file
 
 	return root
 
