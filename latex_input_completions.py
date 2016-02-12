@@ -29,6 +29,7 @@ TEX_INPUT_FILE_REGEX = re.compile(
       r'([^{}\[\]]*)\{edulcni\\'
     + r'|([^{}\[\]]*)\{tupni\\'
     + r'|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?scihpargedulcni\\'
+    + r'|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?gvsedulcni\\'
     + r'|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?ecruoserbibdda\\'
     + r'|([^{}\[\]]*)\{yhpargoilbib\\'
     + r'|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?ssalctnemucod\\'
@@ -85,6 +86,7 @@ def parse_completions(view, line):
         (   include_filter,
             input_filter,
             image_filter,
+            svg_filter,
             addbib_filter,
             bib_filter,
             cls_filter,
@@ -121,6 +123,13 @@ def parse_completions(view, line):
         input_file_types = get_setting('image_types', [
                 'pdf', 'png', 'jpeg', 'jpg', 'eps'
             ])
+    elif svg_filter is not None:
+        # if is \includesvg
+        prefix = svg_filter[::-1]
+        # include only svg files
+        input_file_types = ['svg']
+        # cut off the svg extention
+        filter_exts = ['.svg']
     elif addbib_filter is not None or bib_filter is not None:
         # For bibliography
         if addbib_filter is not None:

@@ -8,14 +8,18 @@ if sublime.version() < '3000':
 	import parseTeXlog
 	strbase = basestring
 	from latextools_utils.is_tex_file import is_tex_file
-	from latextools_utils import get_setting
+	from latextools_utils import get_setting, parse_tex_directives
+
+	strbase = basestring
 else:
 	_ST3 = True
 	from . import getTeXRoot
 	from . import parseTeXlog
 	strbase = str
 	from .latextools_utils.is_tex_file import is_tex_file
-	from .latextools_utils import get_setting
+	from .latextools_utils import get_setting, parse_tex_directives
+
+	strbase = str
 
 import sublime_plugin
 import sys
@@ -136,6 +140,7 @@ class CmdThread ( threading.Thread ):
 						self.caller.proc = None
 						print(traceback.format_exc())
 						return
+				# Abundance of caution / for possible future extensions:
 				elif isinstance(cmd, subprocess.Popen):
 					proc = cmd
 				else:
@@ -363,6 +368,32 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		builder_class_name  = builder_name.capitalize() + 'Builder'
 		builder_settings = get_setting("builder_settings", {})
 
+		# parse root for any %!TEX directives
+		tex_directives = parse_tex_directives(
+			self.file_name,
+			multi_values=['options'],
+			key_maps={'ts-program': 'program'}
+		)
+
+		# determine the engine
+		engine = tex_directives.get('program',
+			builder_settings.get("program", "pdflatex"))
+
+		engine = engine.lower()
+
+		# Sanity check: if "strange" engine, default to pdflatex (silently...)
+		if engine not in [
+			'pdflatex', "pdftex", 'xelatex', 'xetex', 'lualatex', 'luatex'
+		]:
+			engine = 'pdflatex'
+
+		options = builder_settings.get("options", [])
+		if isinstance(options, strbase):
+			options = [options]
+
+		if 'options' in tex_directives:
+			options.extend(tex_directives['options'])
+
 		# Read the env option (platform specific)
 		builder_platform_settings = builder_settings.get(self.plat)
 		if builder_platform_settings:
@@ -405,7 +436,15 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		builder_class = getattr(builder_module, builder_class_name)
 		print(repr(builder_class))
 		# We should now be able to construct the builder object
-		self.builder = builder_class(self.file_name, self.output, builder_settings, platform_settings)
+		self.builder = builder_class(
+			self.file_name,
+			self.output,
+			engine,
+			options,
+			tex_directives,
+			builder_settings,
+			platform_settings
+		)
 		
 		# Restore Python system path
 		sys.path[:] = syspath_save

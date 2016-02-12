@@ -7,16 +7,16 @@ Marciano's blog:
 [http://tekonomist.wordpress.com]
 
 
-Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, skuroda (Preferences menu), Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths), Jeremy Jay (basic biblatex support), Ray Fang (texttt snippet), Ulrich Gabor (tex engine selection and cleaning aux files), Wes Campaigne and 'jlegewie' (ref/cite completion 2.0!). **Huge** thanks to Daniel Shannon (aka phyllisstein) who first ported LaTeXTools to ST3. Also thanks for Charley Peng, who has been assisting users and generating great pull requests; I'll merge them as soon as possible. Also William Ledoux (various Windows fixes, env support), Sean Zhu (find Skim.app in non-standard locations), Maximilian Berger (new center/table snippet), Lucas Nanni (recursively delete temp files), Sergey Slipchenko (`$` auto-pairing with Vintage) Ian Bacher (use `kpsewhich` to find bib files in the `TEXMF` tree; reworked fill-all command; jump to tex files improvements; delete temp files improvements; builder options; improved LaTeX-cwl support), btstream (original fill-all command; LaTeX-cwl support), Richard Stein (auto-hide build panel, jump to included tex files, LaTeX-cwl support config), Dan Schrage (nobibliography command).
+Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, skuroda (Preferences menu), Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths), Jeremy Jay (basic biblatex support), Ray Fang (texttt snippet), Ulrich Gabor (tex engine selection and cleaning aux files), Wes Campaigne and 'jlegewie' (ref/cite completion 2.0!). **Huge** thanks to Daniel Shannon (aka phyllisstein) who first ported LaTeXTools to ST3. Also thanks for Charley Peng, who has been assisting users and generating great pull requests; I'll merge them as soon as possible. Also William Ledoux (various Windows fixes, env support), Sean Zhu (find Skim.app in non-standard locations), Maximilian Berger (new center/table snippet), Lucas Nanni (recursively delete temp files), Sergey Slipchenko (`$` auto-pairing with Vintage) Ian Bacher (use `kpsewhich` to find bib files in the `TEXMF` tree; reworked fill-all command; jump to tex files improvements; delete temp files improvements; builder options; improved LaTeX-cwl support), btstream (original fill-all command; LaTeX-cwl support), Richard Stein (auto-hide build panel, jump to included tex files, LaTeX-cwl support config, TEX spellcheck support), Dan Schrage (nobibliography command).
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* v3.6.1 (2016-01-01). 
+*Latest revision:* v3.6.2 (2016-01-18). 
 
-*Headline features*: More standard Default / User settings files. In practice this means that *less* user intervention is needed when the plugin is installed, or when new features are added. If you do not have a settings file in your `User` directory, select the `Settings - User` entry in the `Preferences | Package Settings| LaTeXTools` submenu, and a default one will be created for you to adapt as needed. (If you do have a settings file, the same menu entry will open it in a new tab.) See the [Settings section](#settings) for details.
+*Headline features*: Finally, a functional [Script Builder](#script-builder)! Integrate your existing workflow in LaTeXTools, and/or customize every step of the build process.
 
+*Reminder*: See the [Settings section](#settings) for details on the Settings system, which was updated in v3.6.1 (2016-01-01).
 
-**NEW!** Beginning December 2015, **Ian Bacher** has joined as maintainer / developer of the LaTeXTools plugin. Ian has contributed lots of incredible code, and I am delighted to have him on board. --- *Marciano*.
 
 
 Introduction
@@ -97,7 +97,7 @@ You also need to edit the file `LaTeXTools.sublime-settings` in the `User` direc
 
 You may also have to set the `command` option in `"builder_settings"`, which tells the builder how to invoke `latexmk`. By default (i.e., if `command` is empty or not given) it is `["latexmk", "-cd", "-e", "-f", "-pdf", "-interaction=nonstopmode", "-synctex=1"]`.
 
-If you customize the command to include a custom PDF command, isers have reported the following possible issues and fixes (thanks!), so if you get a "Cannot compile!" error, try the following:
+If you customize the command to include a custom PDF command, users have reported the following possible issues and fixes (thanks!), so if you get a "Cannot compile!" error, try the following:
 
 * some distros do *not* want a space before and after the `=` in `$pdflatex = %E`. But some *do* want the space there (sigh!)
 * sometimes `latexmk` is not on the `PATH`, or the path is not correctly picked up by ST. In this case, instead of `"latexmk"`, use `"/usr/bin/latexmk"` or wherever `latexmk` is in your system. 
@@ -144,16 +144,21 @@ The default ST Build command takes care of the following:
 
 **Project files** are fully supported! Some of the options related to building `tex` files are described here. However, you should consult the [subsection on project-specific settings](#project-specific-settings) for further details. 
 
-**Multi-file documents** are supported as follows. If the first line in the current file consists of the text `%!TEX root = <master file name>`, then tex & friends are invoked on the specified master file, instead of the current one. Note: the only file that gets saved automatically is the current one. Also, the master file name **must** have a `.tex` extension, or it won't be recognized. As an alternative, if you use a project file, you can set the `TEXroot` option (under `settings`):
+**Multi-file documents** are supported as follows. If the first line in the current file consists of the text `%!TEX root = <master file name>`, then tex & friends are invoked on the specified master file, instead of the current one. Note: the only file that gets saved automatically is the current one. Also, the master file name **must** have a valid tex extension (i.e., one configured in the `tex_file_exts` settings), or it won't be recognized. 
+
+As an alternative, to using the `%!TEX root = <master file name>` syntax, if you use a Sublime project, you can set the `TEXroot` option (under `settings`):
 	
-	{
-		... <folder-related settings> ...
+```json
+{
+	... <folder-related settings> ...
 
-		"settings": {
-			"TEXroot": "yourfilename.tex"
-		}
+	"settings": {
+		"TEXroot": "yourfilename.tex"
 	}
+}
+```
 
+Note that if you specify a relative path as the `TEXroot` in the project file, the path is determined *relative to the location of the project file itself*. It may be less ambiguous to specify an absolute path to the `TEXroot` if possible.
 
 **TeX engine selection** is supported. If the first line of the current file consists of the text `%!TEX program = <program>`, where `program` is `pdflatex`, `lualatex` or `xelatex`, the corresponding engine is selected. If no such directive is specified, `pdflatex` is the default. Multi-file documents are supported: the directive must be in the *root* (i.e. master) file. Also, for compatibility with TeXshop, you can use `TS-program` instead of `program`. **Note**: for this to work, you must **not** customize the `command` option in `LaTeXTools.sublime-settings`. If you do, you will not get this functionality. Finally, if you use project files, the `program` builder setting can also be customized there, under `settings`.
 
@@ -230,7 +235,7 @@ The basic idea is to help you insert labels in `\ref{}` commands and bibtex keys
 
 Now for the details. (Many of these features were contributed by Wes Campaigne and jlewegie, whom I thank profusely.)
 
-By default, as soon as you type, for example, `\ref{` or `\cite`, a quick panel is shown (this is the fancy drop-down list ST displays at the top of the screen), listing, respectively, all the labels in your files, or all the entries in the bibliographies you reference your file(s) using the `\bibliography{}` command. This is the default *auto-trigger* behavior, and it can be a big time saver. You can, however, turn it off, either temporarily using a toggle, or permanently by way of preference settings: see below. Once the quick panel is shown, you can narrow down the entries shown by typing a few characters. As with any ST quick panel, what you type will be fuzzy-matched against the label names or, for citations, the content of the first displayed line in each entry (by default, the author names, year of publication, short title and citation key: see below). This is *wildly* convenient, and one of the best ST features: try it!
+By default, as soon as you type, for example, `\ref{` or `\cite{`, a quick panel is shown (this is the fancy drop-down list ST displays at the top of the screen), listing, respectively, all the labels in your files, or all the entries in the bibliographies you reference your file(s) using the `\bibliography{}` command. This is the default *auto-trigger* behavior, and it can be a big time saver. You can, however, turn it off, either temporarily using a toggle, or permanently by way of preference settings: see below. Once the quick panel is shown, you can narrow down the entries shown by typing a few characters. As with any ST quick panel, what you type will be fuzzy-matched against the label names or, for citations, the content of the first displayed line in each entry (by default, the author names, year of publication, short title and citation key: see below). This is *wildly* convenient, and one of the best ST features: try it!
 
 If auto-triggering is off, when you type e.g. `\ref{`, ST helpfully provides the closing brace, leaving your cursor between the two braces. Now, you need to type `C-l,x` to get the quick panel  showing all labels in the current file. You can also type e.g. `\ref{aa` [again, the closing brace is provided by ST], then `C-l, x`, and LaTeXTools will show a list of labels that fuzzy-match the string `aa`. 
 
@@ -262,7 +267,7 @@ Fill Helper: filling in package and file names automatically
 
 **Keybinding:** *autotriggered* by default (see below). Otherwise, `C-l,C-f`.
 
-Thanks to the amazing work by users btstream and Ian Bacher, LaTeXTools now offers a list of available files and packages when using commands such as `\usepackage`, `\include`, `\includegraphics` and `\input`. Assuming autocompletion is toggled on (the default):
+Thanks to the amazing work by users btstream and Ian Bacher, LaTeXTools now offers a list of available files and packages when using commands such as `\usepackage`, `\include`, `\includegraphics`, `\includesvg` and `\input`. Assuming autocompletion is toggled on (the default):
 
 * when you type `\usepackage{`, a list of available package is displayed in the ST drop-down menu. Pick the one you need, and it will be inserted in your file, with a closing brace.
 
@@ -359,6 +364,7 @@ The following settings are provided:
   - `prefixed` (default): show completions only if the current word is prefixed with `\`
   - `always`: always show cwl completions
   - `never`: never display the popup
+* `env_auto_trigger`: if `true`, autocomplete environment names upon typing `\begin{` or `\end{` (default: `false`)
 
 
 Command completion, snippets, etc.
@@ -380,6 +386,12 @@ This behaviour is controlled through two settings, `tex_file_exts` and `latextoo
 * `latextools_set_syntax` (`true`): if `true` LaTeXTools will automatically set the syntax to `LaTeX` when opening or saving any file with an extension in the `tex_file_exts` list.
 
 Note that while the extension detection is used by features of LaTeXTools, including, other features---especially the auto-completions---depend on the syntax of the file being set to `LaTeX` as well.
+
+
+Spell-checking
+--------------
+
+LaTeXTools parses the `%!TEX spellcheck` directive to set the language for the spell-checker integrated in Sublime Text. The [Dictionaries](https://github.com/titoBouzout/Dictionaries) package is recommended and supported. If you have additional dictionaries, you can add them using the `tex_spellcheck_paths` setting. This is a mapping from the locales to the dictionary paths. Each locale must be lowercase and minus (-) separated and the dictionary paths must be compatible with the Sublime Text spell-checker. For example `{"en-us": "Packages/Language - English/en_US.dic"}` would be a valid value.
 
 
 Miscellaneous
@@ -422,6 +434,7 @@ The following options are currently available (defaults in parentheses):
 - `temp_files_ignored_folders`: subdirectories to skip when deleting temp files.
 * `tex_file_exts` (`['.tex']`): a list of extensions that should be considered TeX documents. Any extensions in this list will be treated exactly the same as `.tex` files. See the section on [Support for non-`.tex` files](#support-for-non-tex-files).
 * `latextools_set_syntax` (`true`): if `true` LaTeXTools will automatically set the syntax to `LaTeX` when opening or saving any file with an extension in the `tex_file_exts` list.
+* `tex_spellcheck_paths` (`{}`): A mapping from the locales to the paths of the dictionaries. See the section [Spell-checking](#spell-checking)
 
 **Platform settings**:
 - all platforms:
@@ -501,7 +514,7 @@ Note that the script builder should be considered an advanced feature. Unlike th
 
 For the most part, the script builder works as described in the [Compiling LaTeX files](#compiling-latex-files) section *except that* instead of invoking either `texify` or `latexmk`, it invokes a user-defined series of commands. Note that although the Script Builder supports **Multi-file documents**, it does not support either the engine selection or passing other options via the `%!TEX` macros.
 
-The script builder is controlled through two settings in the *platform-specific* part of the `builder_settings` section of `LaTeXTools.sublime-settings`:
+The script builder is controlled through two settings in the *platform-specific* part of the `builder_settings` section of `LaTeXTools.sublime-settings`, or of the current project file (if any):
 
 - `script_commands` — the command or list of commands to run. This setting **must** have a value or you will get an error message.
 - `env` — a dictionary defining any environment variables to be set for the environment the command is run in.
@@ -511,7 +524,7 @@ The `script_commands` setting should be either a string or a list. If it is a st
 ```json
 "builder_settings": {
 	"osx": {
-		"script_commands": "pdflatex -synctex=1"
+		"script_commands": "pdflatex -synctex=1 -interaction=nonstopmode"
 	}
 }
 ```
@@ -521,7 +534,7 @@ Will simply run `pdflatex` against the master document, as will:
 ```json
 "builder_settings": {
 	"osx": {
-		"script_commands": ["pdflatex -synctex=1"]
+		"script_commands": ["pdflatex -synctex=1 -interaction=nonstopmode"]
 	}
 }
 ```
@@ -531,7 +544,7 @@ Or:
 ```json
 "builder_settings": {
 	"osx": {
-		"script_commands": [["pdflatex", "-synctex=1"]]
+		"script_commands": [["pdflatex", "-synctex=1 -interaction=nonstopmode"]]
 	}
 }
 ```
@@ -542,16 +555,18 @@ More interestingly, the main list can be used to supply a series of commands. Fo
 "builder_settings": {
 	"osx": {
 		"script_commands": [
-			"pdflatex -synctex=1",
+			"pdflatex -synctex=1 -interaction=nonstopmode",
 			"bibtex",
-			"pdflatex -synctex=1",
-			"pdflatex -synctex=1"
+			"pdflatex -synctex=1 -interaction=nonstopmode",
+			"pdflatex -synctex=1 -interaction=nonstopmode"
 		]
 	}
 }
 ```
 
 Note, however, that the script builder is quite unintelligent in handling such cases. It will not note any failures nor only execute the rest of the sequence if required. It will simply continue to execute commands until it hits the end of the chain of commands. This means, in the above example, it will run `bibtex` regardless of whether there are any citations.
+
+It is especially important to ensure that, in case of errors, TeX and friends do not stop for user input. For example, if you use `pdflatex` on either TeXLive or MikTeX, pass the `-interaction=nonstopmode` option. 
 
 Each command can use the following variables which will be expanded before it is executed:
 
@@ -568,7 +583,7 @@ For example:
 ```json
 "builder_settings": {
 	"osx": {
-		"script_commands": ["pdflatex -synctex=1 $file_base_name"]
+		"script_commands": ["pdflatex -synctex=1 -interaction=nonstopmode $file_base_name"]
 	}
 }
 ```
@@ -584,7 +599,7 @@ LaTeXTools makes some assumptions that should be adhered to or else things won't
 - the LaTeX log will be written in the same directory as the main file and named `$file_base_name.log`
 - if you change the `PATH` in the environment (by using the `env` setting), you need to ensure that the `PATH` is still sane, e.g., that it contains the path for the TeX executables and other command line resources that may be necessary.
 
-In addition, to ensure that forward and backward sync work, you need to ensure that the `-synctex=1` flag is set for your latex command.
+In addition, to ensure that forward and backward sync work, you need to ensure that the `-synctex=1` flag is set for your latex command. Again, don't forget the `-interaction=nonstopmode` flag (or whatever is needed for your tex programs not to expect user input in case of error).
 
 Troubleshooting
 ---------------
