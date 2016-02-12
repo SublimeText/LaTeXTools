@@ -243,7 +243,7 @@ class CmdThread ( threading.Thread ):
 					"no_errors": not errors,
 					"no_warnings": not errors and not warnings,
 					"no_badboxes": not errors and not warnings and \
-						self.caller.display_bad_boxes and not badboxes,
+						(not self.caller.display_bad_boxes or not badboxes),
 					"never": False
 				}.get(self.caller.hide_panel_level, False)
 
