@@ -183,6 +183,9 @@
 
 	"builder_path": "",
 
+	// controls whether or not to display any bad boxes in the build output
+	"display_bad_boxes": false,
+
 	// OPTION: "builder_settings"
 	// Specify builder-dependent settings and preferences
 	// Possible values: see README or documentation provided with
