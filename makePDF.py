@@ -232,7 +232,8 @@ class CmdThread ( threading.Thread ):
 						content.extend(["", "Bad Boxes:"])
 					else:
 						content[-2] = content[-2] + " Bad Boxes:"
-						content.extend(badboxes)
+					content.append("")
+					content.extend(badboxes)
 				else:
 					if warnings:
 						content.append("")
@@ -241,7 +242,8 @@ class CmdThread ( threading.Thread ):
 					"always": True,
 					"no_errors": not errors,
 					"no_warnings": not errors and not warnings,
-					"no_badboxes": not errors and not warnings and not badboxes,
+					"no_badboxes": not errors and not warnings and \
+						self.caller.display_bad_boxes and not badboxes,
 					"never": False
 				}.get(self.caller.hide_panel_level, False)
 
