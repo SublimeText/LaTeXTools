@@ -18,6 +18,16 @@ import os
 
 import traceback
 
+
+class ClearLocalLatexCacheCommand(sublime_plugin.WindowCommand):
+	def run(self):
+		view = self.window.active_view()
+
+		tex_root = getTeXRoot.get_tex_root(view)
+		if tex_root:
+			cache.delete_local_cache(tex_root)
+
+
 class DeleteTempFilesCommand(sublime_plugin.WindowCommand):
 	def run(self):
 		# Retrieve root file and dirname.
