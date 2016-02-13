@@ -292,18 +292,31 @@ The LaTeXtools plugin integrates with the awesome ST "Goto Anything" facility. H
 Selecting any entry in the list will take you to the corresponding place in the text.
 
 
-Jumping to included files
--------------------------
+Jump to Anywhere
+----------------
 
-**Keybinding:** `C-l, C-o` (only works if the cursor is in the same line as the include command)
+**Keybinding:** `C-l, C-j`
+**Mousebinding:** `alt-leftclick` (Windows, Linux) / `ctrl-leftclick` (OSX)
 
-__LaTeX files__
-To open a LaTeX file, which is included with `\input`, `\include` or `\subfile` just position the cursor inside the include command and press `C-l, C-o`. This will open the included file in Sublime Text.
+This is an IDE-like mouse navigation, which executes a jump depending on the context around the cursor. It is easy to use and intuitive. Just click with the mouse on a command while pressing the modifier key. The corresponding jump will be executed. Supported jump types are:
 
-If necessary missing folders and the file will be created. In this case the magic root entry will be written into the file. Hence this command can be used to comfortably create files and open files.
+- Jump to referenced labels (e.g. `\ref`)
+- Jump to citation entries in bibliography files (e.g. `\cite`)
+- Open included files (e.g. `\input` or `\include`)
+- Open included graphics with a specified program (e.g. `\includegraphics`)
+- Open the documentation of used packages (e.g. `\usepackage`)
+- Jump to self-defined command definition, i.e. jump to the `\newcommand` in which the command was defined
+
+__SublimeCodeIntel Integration__
+If you use [SublimeCodeIntel](https://github.com/SublimeCodeIntel/SublimeCodeIntel) you recognize the mouse-binding and it does not work out of the box. Just open the command palette and run the command `LaTeXTools: Create Mousemap in User folder`. This will create a mouse-map in the user folder or modify the existing one to add the mouse-binding. This mouse-binding has a `fallback_command` command as argument. This command will be executed if the command in called outside a LaTeX document.
+
+__Jumping to included files__
+There is an additional key-binding `C-l, C-o` to jump to included files.
+Difference when using the `C-l, C-o` key-binding:
+This does the same as Jump to Anywhere if the file already exists. However it is not only a navigation, but also a refactoring tool. This means, that it also creates missing folders and files, and the magic root entry will be written into the file. Hence this command can be used to comfortably create files and open files. In addition multiple-cursors are supported.
 
 __Image files__
-To open an image, which is included with `\includegraphics` just position the cursor inside the command and press `C-l, C-o`. This will open the image.
+To open an image, which is included with `\includegraphics` just click on the command while pressing the modifier key and press `C-l, C-j`. This will open the image.
 The program to open the image can be configured in the LaTeXTools settings in the `open_image_command` attribute.
 
 The following settings are provided:
