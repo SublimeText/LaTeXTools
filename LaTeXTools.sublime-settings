@@ -333,6 +333,7 @@
 	Missing fields will be treated as 0 and white-spaces are optional.
 	Hence you can write "1 h 30 m" to refresh the cached data every one and a half hours.
 	If the string is invalid the default value (30 minutes) will be used.
+	If you use `infinite` the cache will not invalidated automatically.
 	*/
 	"local_cache_life_span": "30 m"
 }
