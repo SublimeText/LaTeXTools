@@ -322,6 +322,11 @@ LaTeX Package keymap for Linux
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "delete_temp_files"},
+	// Delete/clear local Cache
+	{ 	"keys": ["ctrl+l","ctrl+d","ctrl+c"], 
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "clear_local_latex_cache"},
 
 
 	// Avoid weird brace-matching behavior with indented text

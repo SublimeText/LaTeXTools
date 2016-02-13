@@ -339,43 +339,12 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
     return ana
 
 
-def _get_view_content(file_name):
-    """If the file is open in a view, then this will return its content"""
-    for window in sublime.windows():
-        view = window.find_open_file(file_name)
-        if view is not None:
-            return view.substr(
-                sublime.Region(0, view.size())
-            )
-
-
-def _read_file_content(file_name):
-    """Returns the content of a file with unix file endings"""
-    try:
-        raw_content = utils.read_file_unix_endings(file_name)
-    except IOError as e:
-        # file does not exists / permission exception
-        print(str(e))
-        raise
-    except UnicodeDecodeError as e:
-        print("UnicodeDecodeError in file {0}".format(file_name))
-        raise
-    except:
-        print("Unexpected exception raised while reading file", file_name)
-        import traceback
-        traceback.print_exc()
-        raise
-    return raw_content
-
-
 def _preprocess_file(file_name):
     """
     reads and preprocesses a file, return the raw content
     and the content without comments
     """
-
-    raw_content = (_get_view_content(file_name) or
-                   _read_file_content(file_name))
+    raw_content = utils.get_file_content(file_name, force_lf_endings=True)
 
     # replace all comments with spaces to not change the position
     # of the rest
