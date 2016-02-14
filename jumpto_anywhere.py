@@ -181,7 +181,7 @@ class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
                 view.run_command(fallback_command)
             return
         if len(view.sel()) != 1:
-            print("Jump to smart command does not work with multiple cursors")
+            print("Jump to anywhere does not work with multiple cursors")
             return
         sel = view.sel()[0]
         line_r = view.line(sel)
@@ -227,6 +227,6 @@ class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
             b = line_r.begin()
             command_region = com_reg.regs[COMMAND_REG.groupindex["command"]]
             # if cursor is inside \command
-            if command_region[0] + b - 1 <= sel.begin() and\
-                    sel.end() <= command_region[1] + b:
+            if (command_region[0] + b - 1 <= sel.begin() and
+                    sel.end() <= command_region[1] + b):
                 _opt_jumpto_self_def_command(view, com_reg)
