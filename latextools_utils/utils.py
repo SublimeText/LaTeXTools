@@ -21,7 +21,8 @@ def read_file_unix_endings(file_name, encoding="utf8", ignore=True):
     is 1 and the length if CRLF line endings is 2.
     """
     if _ST3:
-        with open(file_name, "rt", encoding=encoding, ignore=ignore) as f:
+        errors = "ignore" if ignore else "strict"
+        with open(file_name, "rt", encoding=encoding, errors=errors) as f:
             file_content = f.read()
     else:
         file_content = _read_file_content(file_name, encoding, ignore)
