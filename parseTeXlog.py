@@ -27,7 +27,7 @@ extra_file_ext = []
 
 def debug(s):
 	if print_debug:
-		print ("parseTeXlog: " + s.encode('UTF-8')) # I think the ST2 console wants this
+		print ("parseTeXlog: " + s) #s.encode('UTF-8')) # I think the ST2 console wants this
 
 # The following function is only used when debugging interactively.
 #
@@ -95,6 +95,7 @@ def parse_tex_log(data):
 	debug("Parsing log file")
 	errors = []
 	warnings = []
+	badboxes = []
 	parsing = []
 
 	guessed_encoding = 'UTF-8' # for now
@@ -111,7 +112,7 @@ def parse_tex_log(data):
 		debug("log file not in UTF-8 encoding!")
 		errors.append("ERROR: your log file is not in UTF-8 encoding.")
 		errors.append("Sorry, I can't process this file")
-		return (errors, warnings)
+		return (errors, warnings, badboxes)
 
 	# loop over all log lines; construct error message as needed
 	# This will be useful for multi-file documents
@@ -144,8 +145,12 @@ def parse_tex_log(data):
 	file_useless2_rx = re.compile(r"<\"?(?:\.|\.\./)*[^\.]+\.[^>]*\"?>(.*)")
 	pagenum_begin_rx = re.compile(r"\s*\[\d*(.*)")
 	line_rx = re.compile(r"^l\.(\d+)\s(.*)")		# l.nn <text>
+
 	warning_rx = re.compile(r"^(.*?) Warning: (.+)") # Warnings, first line
-	line_rx_latex_warn = re.compile(r"input line (\d+)\.$") # Warnings, line number
+	line_rx_latex_warn = re.compile(r"input line (\d+)\..*") # Warnings, line number
+	
+	badbox_rx = re.compile(r"^(.*?)Overfull (.*)")  # Bad box warning
+	line_rx_latex_badbox = re.compile(r"lines (\d+)--(.*?)")   # Bad box lines
 	matched_parens_rx = re.compile(r"\([^()]*\)") # matched parentheses, to be deleted (note: not if nested)
 	assignment_rx = re.compile(r"\\[^=]*=")	# assignment, heuristics for line merging
 	# Special case: the xy package, which reports end of processing with "loaded)" or "not reloaded)"
@@ -159,7 +164,6 @@ def parse_tex_log(data):
 
 	# Support function to handle warnings
 	def handle_warning(l):
-
 		if files==[]:
 			location = "[no file]"
 			parsing.append("PERR [handle_warning no files] " + l)
@@ -167,12 +171,28 @@ def parse_tex_log(data):
 			location = files[-1]		
 
 		warn_match_line = line_rx_latex_warn.search(l)
+
 		if warn_match_line:
 			warn_line = warn_match_line.group(1)
 			warnings.append(location + ":" + warn_line + ": " + l)
 		else:
 			warnings.append(location + ": " + l)
 
+	# Support function to handle bad boxes
+	def handle_badbox(l):
+		if files==[]:
+			location = "[no file]"
+			parsing.append("PERR [handle_badbox no files] " + l)
+		else:
+			location = files[-1]		
+
+		badbox_match_line = line_rx_latex_badbox.search(l)
+
+		if badbox_match_line:
+			badbox_line = badbox_match_line.group(1)
+			badboxes.append(location + ":" + badbox_line + ": " + l)
+		else:
+			badboxes.append(location + ": " + l)
 	
 	# State definitions
 	STATE_NORMAL = 0
@@ -393,8 +413,12 @@ def parse_tex_log(data):
 		# skip everything for now
 		# Over/underfull messages end with [] so look for that
 		if line[0:8] == "Overfull" or line[0:9] == "Underfull":
+
+			current_badbox = line;
 			if line[-2:]=="[]": # one-line over/underfull message
+				handle_badbox(current_badbox)
 				continue
+
 			ou_processing = True
 			while ou_processing:
 				try:
@@ -407,11 +431,15 @@ def parse_tex_log(data):
 				# Sometimes it's " []" and sometimes it's "[]"...
 				if len(line)>0 and line[:3] == " []" or line[:2] == "[]":
 					ou_processing = False
+				else:
+					current_badbox += line
+
 			if ou_processing:
 				warnings.append("Malformed LOG file: over/underfull")
 				warnings.append("Please let me know via GitHub")
 				break
 			else:
+				handle_badbox(current_badbox)
 				continue
 
 		# Special case: the bibgerm package, which has comments starting and ending with
@@ -607,7 +635,6 @@ def parse_tex_log(data):
 			reprocess_extra = True
 			continue		
 
-
 		warning_match = warning_rx.match(line)
 		if warning_match:
 			# if last character is a dot, it's a single line
@@ -625,7 +652,7 @@ def parse_tex_log(data):
 		print_debug = True
 		for l in parsing:
 			debug(l)
-	return (errors, warnings)
+	return (errors, warnings, badboxes)
 
 
 # If invoked from the command line, parse provided log file
@@ -641,11 +668,15 @@ if __name__ == '__main__':
 		if len(sys.argv) == 3:
 			extra_file_ext = sys.argv[2].split(" ")
 		data = open(logfilename,'r').read()
-		(errors,warnings) = parse_tex_log(data)
+		(errors,warnings,badboxes) = parse_tex_log(data)
 		print ("")
 		print ("Warnings:")
 		for warn in warnings:
 			print (warn.encode('UTF-8'))
+		print ("")
+		print ("Bad boxes:")
+		for box in badboxes:
+			print (box.encode('UTF-8'))
 		print ("")
 		print ("Errors:")
 		for err in errors:

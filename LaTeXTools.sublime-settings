@@ -52,9 +52,15 @@
 	// Possible values are:
 	// "always" (hide the panel even if the build failed),
 	// "no_errors" (only hide the panel if the build was successful even with warnings),
-	// "no_warnings" (only hide the panel if no warnings occur) and
+	// "no_warnings" (only hide the panel if no warnings occur)
+	// "no_badboxes" (only hide the panel if no badbox messages occur when badboxes are enabled) and
 	// "never" (default, never hide the build panel)
 	"hide_build_panel": "never",
+
+	// controls whether or not to display any bad boxes in the build output
+	// if this is not set to true, "no_badboxes" for "hide_build_panel" is
+	// equivalent to "no_warnings"
+	"display_bad_boxes": false,
 
 	// valid texfile extensions
 	"tex_file_exts": [".tex"],
