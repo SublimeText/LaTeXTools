@@ -41,7 +41,8 @@ def _jumpto_ref(view, com_reg):
     label_id = com_reg.group("args")
     sublime.status_message(
         "Scanning document for label '{0}'...".format(label_id))
-    ana = analysis.analyze_document(view)
+    tex_root = get_tex_root(view)
+    ana = analysis.analyze_document(tex_root)
     if ana is None:
         return
 
@@ -152,7 +153,7 @@ def _opt_jumpto_self_def_command(view, com_reg):
     sublime.status_message(message)
     # analyze the document to retrieve the correct position of the
     # command definition
-    ana = analysis.analyze_document(view)
+    ana = analysis.analyze_document(tex_root)
     new_commands = ana.filter_commands(newcommand_keywords)
     try:
         new_com_def = next(ifilter(lambda c: c.args == command,
