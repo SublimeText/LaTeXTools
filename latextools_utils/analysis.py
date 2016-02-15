@@ -4,14 +4,17 @@ import itertools
 
 import sublime
 
-try:
-    _ST3 = True
-    from ..getTeXRoot import get_tex_root
-    from . import cache, utils
-except:
+if sublime.version() < '3000':
     _ST3 = False
-    from getTeXRoot import get_tex_root
     from latextools_utils import cache, utils
+else:
+    _ST3 = True
+    from . import cache, utils
+
+if _ST3:
+    strbase = str
+else:
+    strbase = basestring
 
 # because we cannot natively pickle sublime.Region in ST2
 # we provide the ability to pickle
@@ -234,41 +237,37 @@ def get_analysis(tex_root):
 
     Arguments:
     tex_root -- the path to the tex root as a string
-                if you use the view instead, the tex root will be extracted
-                automatically
 
     Returns:
     An Analysis of the view, which contains all relevant information and
     provides access methods to useful properties
     """
-    if type(tex_root) is str or not _ST3 and type(tex_root) is unicode:
-        tex_root = tex_root
-    else:
-        tex_root = get_tex_root(tex_root)
+    if not isinstance(tex_root, strbase):
+        # tex_root = get_tex_root(tex_root)
+        raise Exception("tex_root must be a string")
 
     result = cache.cache(tex_root, "analysis",
                          lambda: analyze_document(tex_root))
     return result
 
 
-def analyze_document(view):
+def analyze_document(tex_root):
     """
     Analyzes the document
 
     Arguments:
-    view -- the view, which should be analyzed
-            if it is a string, it will be treated as the path to the tex root
+    tex_root -- the path to the tex root as a string
 
     Returns:
     An Analysis of the view, which contains all relevant information and
     provides access methods to useful properties
     """
-    if view is None:
+    if tex_root is None:
         return
-    if type(view) is str or not _ST3 and type(view) is unicode:
-        tex_root = view
-    else:
-        tex_root = get_tex_root(view)
+    if not isinstance(tex_root, strbase):
+        # tex_root = get_tex_root(tex_root)
+        raise Exception("tex_root must be a string")
+
     result = _analyze_tex_file(tex_root)
     return result
 
