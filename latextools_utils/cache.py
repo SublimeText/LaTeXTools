@@ -18,7 +18,14 @@ else:
     from . import get_setting
     long = int
 
-CACHE_FOLDER = ".st_lt_cache"
+# the folder, if the local cache is not hidden, i.e. folder in the same
+# folder as the tex root
+LOCAL_CACHE_FOLDER = ".st_lt_cache"
+# folder to store all hidden local caches in the cache path
+HIDDEN_LOCAL_CACHE_FOLDER = "local_cache"
+# global cache folder for ST2, this folder will be created inside the User
+# folder to store the global and the local cache
+ST2_GLOBAL_CACHE_FOLDER = ".lt_cache"
 
 
 TIME_RE = re.compile(
@@ -215,7 +222,7 @@ def _local_cache_path(tex_root):
 
     if not hide_cache:
         root_folder = os.path.dirname(tex_root)
-        return os.path.join(root_folder, CACHE_FOLDER)
+        return os.path.join(root_folder, LOCAL_CACHE_FOLDER)
     else:
         cache_path = _hidden_local_cache_path()
         # convert the root to plain string and hash it
@@ -227,7 +234,7 @@ def _local_cache_path(tex_root):
 
 def _hidden_local_cache_path():
     global_path = _global_cache_path()
-    return os.path.join(global_path, CACHE_FOLDER)
+    return os.path.join(global_path, HIDDEN_LOCAL_CACHE_FOLDER)
 
 
 def _global_cache_path():
@@ -238,7 +245,7 @@ def _global_cache_path():
     else:
         cache_path = os.path.join(sublime.packages_path(),
                                   "User",
-                                  CACHE_FOLDER)
+                                  ST2_GLOBAL_CACHE_FOLDER)
     return os.path.normpath(cache_path)
 
 
