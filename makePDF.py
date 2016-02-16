@@ -12,7 +12,8 @@ if sublime.version() < '3000':
 		_classname_to_internal_name
 	)
 	from latextools_utils.is_tex_file import is_tex_file
-	from latextools_utils import get_setting
+	from latextools_utils import get_setting, parse_tex_directives
+
 	strbase = basestring
 else:
 	_ST3 = True
@@ -23,9 +24,9 @@ else:
 		_classname_to_internal_name
 	)
 	from .latextools_utils.is_tex_file import is_tex_file
-	from .latextools_utils import get_setting
-	strbase = str
+	from .latextools_utils import get_setting, parse_tex_directives
 
+	strbase = str
 
 import sublime_plugin
 import sys
@@ -209,9 +210,10 @@ class CmdThread ( threading.Thread ):
 		else:
 			errors = []
 			warnings = []
+			badboxes = []
 
 			try:
-				(errors, warnings) = parseTeXlog.parse_tex_log(data)
+				(errors, warnings, badboxes) = parseTeXlog.parse_tex_log(data)
 				content = [""]
 				if errors:
 					content.append("Errors:") 
@@ -229,10 +231,23 @@ class CmdThread ( threading.Thread ):
 				else:
 					content.append("")
 
+				if badboxes and self.caller.display_bad_boxes:
+					if warnings or errors:
+						content.extend(["", "Bad Boxes:"])
+					else:
+						content[-2] = content[-2] + " Bad Boxes:"
+					content.append("")
+					content.extend(badboxes)
+				else:
+					if warnings:
+						content.append("")
+
 				hide_panel = {
 					"always": True,
 					"no_errors": not errors,
 					"no_warnings": not errors and not warnings,
+					"no_badboxes": not errors and not warnings and \
+						(not self.caller.display_bad_boxes or not badboxes),
 					"never": False
 				}.get(self.caller.hide_panel_level, False)
 
@@ -246,8 +261,21 @@ class CmdThread ( threading.Thread ):
 					if errors:
 						message += " with errors"
 					if warnings:
-						message += " and" if errors else " with"
+						if errors:
+							if badboxes and self.caller.display_bad_boxes:
+								message += ","
+							else:
+								message += " and"
+						else:
+							message += " with"
 						message += " warnings"
+					if badboxes and self.caller.display_bad_boxes:
+						if errors or warnings:
+							message += " and"
+						else:
+							message += " with"
+						message += "bad boxes"
+
 					if _ST3:
 						sublime.status_message(message)
 					else:
@@ -358,6 +386,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		platform_settings  = get_setting(self.plat, {})
 		builder_name = get_setting("builder", "traditional")
 		self.hide_panel_level = get_setting("hide_build_panel", "never")
+		self.display_bad_boxes = get_setting("display_bad_boxes", False)
 		# This *must* exist, so if it doesn't, the user didn't migrate
 		if builder_name is None:
 			sublime.error_message("LaTeXTools: you need to migrate your preferences. See the README file for instructions.")
@@ -373,6 +402,32 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		builder_name = _classname_to_internal_name(builder_name)
 
 		builder_settings = get_setting("builder_settings", {})
+
+		# parse root for any %!TEX directives
+		tex_directives = parse_tex_directives(
+			self.file_name,
+			multi_values=['options'],
+			key_maps={'ts-program': 'program'}
+		)
+
+		# determine the engine
+		engine = tex_directives.get('program',
+			builder_settings.get("program", "pdflatex"))
+
+		engine = engine.lower()
+
+		# Sanity check: if "strange" engine, default to pdflatex (silently...)
+		if engine not in [
+			'pdflatex', "pdftex", 'xelatex', 'xetex', 'lualatex', 'luatex'
+		]:
+			engine = 'pdflatex'
+
+		options = builder_settings.get("options", [])
+		if isinstance(options, strbase):
+			options = [options]
+
+		if 'options' in tex_directives:
+			options.extend(tex_directives['options'])
 
 		# Read the env option (platform specific)
 		builder_platform_settings = builder_settings.get(self.plat)
@@ -405,6 +460,9 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		self.builder = builder(
 			self.file_name,
 			self.output,
+			engine,
+			options,
+			tex_directives,
 			builder_settings,
 			platform_settings
 		)
