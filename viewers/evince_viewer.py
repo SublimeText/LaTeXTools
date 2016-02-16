@@ -1,6 +1,7 @@
 from base_viewer import BaseViewer
 
-from latextools_utils import get_setting, get_sublime_exe
+from latextools_utils import get_setting
+from latextools_utils.sublime_utils import get_sublime_exe
 
 import os
 import subprocess

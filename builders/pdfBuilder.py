@@ -35,12 +35,16 @@ class PdfBuilder(object):
 	# tex_root is properly split into the root tex file's directory,
 	# its base name, and extension, etc.
 
-	def __init__(self, tex_root, output, builder_settings, platform_settings):
+	def __init__(self, tex_root, output, engine, options,
+				 tex_directives, builder_settings, platform_settings):
 		self.tex_root = tex_root
 		self.tex_dir, self.tex_name = os.path.split(tex_root)
 		self.base_name, self.tex_ext = os.path.splitext(self.tex_name)
 		self.output_callable = output
 		self.out = ""
+		self.engine = engine
+		self.options = options
+		self.tex_directives = tex_directives
 		self.builder_settings = builder_settings
 		self.platform_settings = platform_settings
 
@@ -75,4 +79,3 @@ class PdfBuilder(object):
 	# pass the tex root again. Need to think about this
 	def cleantemps(self):
 		return False
-

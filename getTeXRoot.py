@@ -1,17 +1,19 @@
 # ST2/ST3 compat
-from __future__ import print_function 
+from __future__ import print_function
+
+import os
 import sublime
 if sublime.version() < '3000':
 	# we are on ST2 and Python 2.X
 	_ST3 = False
-	from latextools_utils.is_tex_file import get_tex_extensions
+	from latextools_utils.is_tex_file import is_tex_file
+	from latextools_utils.sublime_utils import get_project_file_name
+	from latextools_utils import parse_tex_directives
 else:
 	_ST3 = True
-	from .latextools_utils.is_tex_file import get_tex_extensions
-
-
-import os.path, re
-import codecs
+	from .latextools_utils.is_tex_file import is_tex_file
+	from .latextools_utils.sublime_utils import get_project_file_name
+	from .latextools_utils import parse_tex_directives
 
 
 # Parse magic comments to retrieve TEX root
@@ -20,58 +22,45 @@ import codecs
 # and the current buffer is an unnamed unsaved file)
 
 # Contributed by Sam Finn
-
 def get_tex_root(view):
+	view_file = view.file_name()
+	root = view_file
+	directives = parse_tex_directives(view, only_for=['root'])
 	try:
-		root = os.path.abspath(view.settings().get('TEXroot'))
-		if os.path.isfile(root):
-			print("Main file defined in project settings : " + root)
-			return root
-	except:
+		root = directives['root']
+	except KeyError:
 		pass
-
-
-	texFile = view.file_name()
-	root = texFile
-	if texFile is None:
-		# We are in an unnamed, unsaved file.
-		# Read from the buffer instead.
-		if view.substr(0) != '%':
-			return None
-		reg = view.find(r"^%[^\n]*(\n%[^\n]*)*", 0)
-		if not reg:
-			return None
-		line_regs = view.lines(reg)
-		lines = map(view.substr, line_regs)
-		is_file = False
-
 	else:
-		# This works on ST2 and ST3, but does not automatically convert line endings.
-		# We should be OK though.
-		lines = codecs.open(texFile, "r", "UTF-8", "ignore")
-		is_file = True
+		if not is_tex_file(root):
+			root = view_file
 
-	for line in lines:
-		if not line.startswith('%'):
-			break
+		if not os.path.isabs(root) and view_file is not None:
+			file_path, _ = os.path.split(view_file)
+			root = os.path.normpath(os.path.join(file_path, root))
+
+	if root == view_file:
+		root = get_tex_root_from_settings(view)
+		if root is not None:
+			return root
+		return view_file
+
+	return root
+
+
+def get_tex_root_from_settings(view):
+	root = view.settings().get('TEXroot', None)
+
+	if root is not None:
+		if os.path.isabs(root):
+			if os.path.isfile(root):
+				return root
 		else:
-			# We have a comment match; check for a TEX root match
-			tex_exts = '|'.join([re.escape(ext) for ext in get_tex_extensions()])
-			mroot = re.match(r"(?i)%\s*!TEX\s+root *= *(.*({0}))\s*$".format(tex_exts), line)
-			if mroot:
-				# we have a TEX root match 
-				# Break the match into path, file and extension
-				# Create TEX root file name
-				# If there is a TEX root path, use it
-				# If the path is not absolute and a src path exists, pre-pend it
-				root = mroot.group(1)
-				if not os.path.isabs(root) and texFile is not None:
-					(texPath, texName) = os.path.split(texFile)
-					root = os.path.join(texPath,root)
-				root = os.path.normpath(root)
-				break
+			proj_file = get_project_file_name(view)
 
-	if is_file: # Not very Pythonic, but works...
-		lines.close()
+			if proj_file:
+				project_dir = os.path.dirname(proj_file)
+				root_path = os.path.normpath(os.path.join(project_dir, root))
+				if os.path.isfile(root_path):
+					return root_path
 
 	return root
