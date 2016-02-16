@@ -1,6 +1,7 @@
 import json
-import os.path
+import os
 import sublime
+import sys
 
 try:
 	from latextools_utils.settings import get_setting
