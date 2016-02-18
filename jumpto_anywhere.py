@@ -37,8 +37,46 @@ COMMAND_REG = re.compile(
 )
 
 
-def _jumpto_ref(view, com_reg):
-    label_id = com_reg.group("args")
+def _get_selected_arg(view, com_reg, pos):
+    """
+    Retrieves the selected argument in a comma separated list,
+    returns None if there are several entries and no entry is selected
+    directly
+    """
+    args = com_reg.group("args")
+    if "," not in args:
+        # only one arg => return it
+        return args
+    args_region = com_reg.regs[COMMAND_REG.groupindex["args"]]
+    cursor = pos - args_region[0]
+
+    if cursor < 0 or len(args) < cursor:
+        # need to explicit select the argument
+        message = (
+            "Selection to vague. Directly click on the name"
+            " inside the command."
+        )
+        print(message)
+        sublime.status_message(message)
+        return
+    before = args[:cursor]
+    after = args[cursor:]
+
+    start_before = before.rfind(",") + 1
+    end_after = after.find(",")
+    if end_after == -1:
+        end_after = len(after)
+
+    arg = before[start_before:] + after[:end_after]
+    arg = arg.strip()
+
+    return arg
+
+
+def _jumpto_ref(view, com_reg, pos):
+    label_id = _get_selected_arg(view, com_reg, pos)
+    if not label_id:
+        return
     sublime.status_message(
         "Scanning document for label '{0}'...".format(label_id))
     tex_root = get_tex_root(view)
@@ -63,9 +101,9 @@ def _jumpto_ref(view, com_reg):
     utils.open_and_select_region(view, label.file_name, label_region)
 
 
-def _jumpto_cite(view, com_reg):
+def _jumpto_cite(view, com_reg, pos):
     tex_root = get_tex_root(view)
-    bib_key = com_reg.group("args")
+    bib_key = _get_selected_arg(view, com_reg, pos)
     if tex_root is None or not bib_key:
         return
     message = "Scanning bibliography files for key '{0}'...".format(bib_key)
@@ -104,32 +142,16 @@ def _jumpto_cite(view, com_reg):
     sublime.status_message(message)
 
 
-def _jumpto_pkg_doc(view, line_start, com_reg):
+def _jumpto_pkg_doc(view, com_reg, pos):
     def view_doc(package):
         message = "Try opening documentation for package '{0}'".format(package)
         print(message)
         sublime.status_message(message)
         view.window().run_command("latex_view_doc", {"file": package})
-    args = com_reg.group("args")
-    if "," not in args:
-        # only one arg => open the doc
-        view_doc(args)
-        return
-    args_region = com_reg.regs[COMMAND_REG.groupindex["args"]]
-    cursor = view.sel()[0].b - line_start - args_region[0]
-    if cursor < 0:
-        message = "Package selection to vague. Click on the package name."
-        print(message)
-        sublime.status_message(message)
-        return
-    # start from the cursor and select the surrounding word
-    a, b = cursor, cursor
-    while args[a-1:a].isalpha():
-        a -= 1
-    while args[b:b+1].isalpha():
-        b += 1
-    # splice the package from the args and view the doc
-    view_doc(args[a:b])
+
+    package_name = _get_selected_arg(view, com_reg, pos)
+    if package_name:
+        view_doc(package_name)
 
 
 def _opt_jumpto_self_def_command(view, com_reg):
@@ -205,14 +227,16 @@ class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
         command = com_reg.group("command")
         args = com_reg.group("args")
         reversed_command = command[::-1]
+        # the cursor position inside the command
+        pos = view.sel()[0].b - line_r.begin() - com_reg.start()
         # check if its a ref
         if OLD_STYLE_REF_REGEX.match(reversed_command):
             sublime.status_message("Jump to reference '{0}'".format(args))
-            _jumpto_ref(view, com_reg)
+            _jumpto_ref(view, com_reg, pos)
         # check if it is a cite
         elif OLD_STYLE_CITE_REGEX.match(reversed_command):
             sublime.status_message("Jump to citation '{0}'".format(args))
-            _jumpto_cite(view, com_reg)
+            _jumpto_cite(view, com_reg, pos)
         # check if it is any kind of input command
         elif any(reg.match(com_reg.group(0)) for reg in INPUT_REG_EXPS):
             args = {
@@ -221,7 +245,7 @@ class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
             }
             view.run_command("jumpto_tex_file", args)
         elif command in ["usepackage", "Requirepackage"]:
-            _jumpto_pkg_doc(view, line_r.begin(), com_reg)
+            _jumpto_pkg_doc(view, com_reg, pos)
         else:
             # if the cursor is inside the \command part, try jump to
             # self defined commands
