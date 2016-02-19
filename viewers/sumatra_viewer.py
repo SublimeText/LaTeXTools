@@ -95,10 +95,7 @@ class SumatraViewer(BaseViewer):
         # it exists, otherwise, use the platform setting
         sumatra_binary = get_setting('viewer_settings', {}).\
             get('sumatra', get_setting('windows', {}).
-                get('sumatra', 'SumatraPDF.exe'))
-
-        if sumatra_binary == '':
-            sumatra_binary = 'SumatraPDF.exe'
+                get('sumatra', 'SumatraPDF.exe')) or 'SumatraPDF.exe'
 
         try:
             external_command(
