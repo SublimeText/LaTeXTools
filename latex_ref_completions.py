@@ -174,6 +174,9 @@ def get_ref_completions(view, point, autocompleting=False):
         if post_snippet == suffix:
             post_snippet = ""
 
+    if line[0] == ",":  # Continuing a previous reference
+        new_point_a = point  # We add the new reference after the ,
+
     completions = []
     # Check the file buffer first:
     #    1) in case there are unsaved changes
