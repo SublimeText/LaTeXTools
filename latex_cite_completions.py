@@ -239,7 +239,7 @@ def get_cite_completions(view, point, autocompleting=False):
 
     # This may speed things up
     # So far this captures: the tag, and the THREE possible groups
-    multip = re.compile(r'\b(author|title|year|editor|journal|eprint)\s*=\s*(?:\{|"|\b)(.+?)(?:\}+|"|\b)\s*,?\s*\Z',re.IGNORECASE)
+    multip = re.compile(r'\b(author|title|year|date|editor|journal|journaltitle|eprint)\s*=\s*(?:\{|"|\b)(.+?)(?:\}+|"|\b)\s*,?\s*\Z',re.IGNORECASE)
 
     for bibfname in bib_files:
         # # THIS IS NO LONGER NEEDED as find_bib_files() takes care of it
@@ -272,6 +272,7 @@ def get_cite_completions(view, point, autocompleting=False):
                     "year": "", 
                     "editor": "",
                     "journal": "",
+                    "journaltitle": "",
                     "eprint": "" }
         for line in bib:
             line = line.strip()
@@ -292,7 +293,7 @@ def get_cite_completions(view, point, autocompleting=False):
                     years.append(entry["year"])
                     # For author, if there is an editor, that's good enough
                     authors.append(entry["author"] or entry["editor"] or "????")
-                    journals.append(entry["journal"] or entry["eprint"] or "????")
+                    journals.append(entry["journal"] or entry["journaltitle"] or entry["eprint"] or "????")
                     # Now reset for the next iteration
                     entry["keyword"] = ""
                     entry["title"] = ""
@@ -300,6 +301,7 @@ def get_cite_completions(view, point, autocompleting=False):
                     entry["author"] = ""
                     entry["editor"] = ""
                     entry["journal"] = ""
+                    entry["journaltitle"] = ""
                     entry["eprint"] = ""
                 # Now see if we get a new keyword
                 kp_match = kp.search(line)
@@ -315,7 +317,14 @@ def get_cite_completions(view, point, autocompleting=False):
             if multip_match:
                 key = multip_match.group(1).lower()     # no longer decode. Was:    .decode('ascii','ignore')
                 value = multip_match.group(2)           #                           .decode('ascii','ignore')
-                entry[key] = value
+                if key == "date":
+                    # don't overwrite year if its already set
+                    if entry["year"] == "":
+                        year_search = re.search(r'^(\d{4})', value)
+                        if year_search:
+                            entry["year"] = year_search.group(1)
+                else:
+                    entry[key] = value
             continue
 
         # at the end, we are left with one bib entry
@@ -323,7 +332,7 @@ def get_cite_completions(view, point, autocompleting=False):
         titles.append(entry["title"])
         years.append(entry["year"])
         authors.append(entry["author"] or entry["editor"] or "????")
-        journals.append(entry["journal"] or entry["eprint"] or "????")
+        journals.append(entry["journal"] or entry["journaltitle"] or entry["eprint"] or "????")
 
         print ( "Found %d total bib entries" % (len(keywords),) )
 
