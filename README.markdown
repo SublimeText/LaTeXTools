@@ -394,7 +394,6 @@ Some support for other viewers is provided via the `command` viewer, which allow
 Using the command viewer requires that you configure the command(s) to be run in the platform-specific part of the `viewer_settings` block in your LaTeXTools preferences. There are three commands available:
 
  * `forward_sync_command`: the command to executing a forward search (`ctrl + l, j` or `cmd + l, j`).
- * `refresh_command`: a command to execute to tell the viewer to refresh the pdf if it is already opened or open it if it is not. This is called after building. 
  * `view_command`: the command to simply view the PDF document.
 
 Of these, on `view_command` needs to be specified, though you will not have forward search capabilities unless you specify a `forward_sync_command` as well.

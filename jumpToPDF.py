@@ -156,21 +156,6 @@ class JumpToPdf(sublime_plugin.TextCommand):
 				viewer.forward_sync(pdffile, srcfile, line, col, keep_focus=keep_focus)
 			except (AttributeError, NotImplementedError):
 				try:
-					viewer.refresh_file(pdffile, keep_focus=keep_focus)
-				except (AttributeError, NotImplementedError):
-					try:
-						viewer.view_file(pdffile, keep_focus=keep_focus)
-					except (AttributeError, NotImplementedError):
-						traceback.print_exc()
-						sublime.error_message('Viewer ' + viewer_name + 
-							' does not appear to be a proper LaTeXTools viewer plugin.' +
-							' Please contact the plugin author.')
-						return
-		else:
-			try:
-				viewer.refresh_file(pdffile, keep_focus=keep_focus)
-			except (AttributeError, NotImplementedError):
-				try:
 					viewer.view_file(pdffile, keep_focus=keep_focus)
 				except (AttributeError, NotImplementedError):
 					traceback.print_exc()
@@ -178,6 +163,15 @@ class JumpToPdf(sublime_plugin.TextCommand):
 						' does not appear to be a proper LaTeXTools viewer plugin.' +
 						' Please contact the plugin author.')
 					return
+		else:
+			try:
+				viewer.view_file(pdffile, keep_focus=keep_focus)
+			except (AttributeError, NotImplementedError):
+				traceback.print_exc()
+				sublime.error_message('Viewer ' + viewer_name + 
+					' does not appear to be a proper LaTeXTools viewer plugin.' +
+					' Please contact the plugin author.')
+				return
 
 		if keep_focus:
 			try:

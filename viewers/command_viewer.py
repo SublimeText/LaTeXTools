@@ -158,20 +158,10 @@ class CommandViewer(BaseViewer):
             get(sublime.platform(), {}).get('forward_sync_command')
 
         if command is None:
-            self.refresh_file(pdf_file)
-            return
-
-        self._run_command(command, pdf_file, tex_file, line, col)
-
-    def refresh_file(self, pdf_file, **kwargs):
-        command = get_setting('viewer_settings', {}).\
-            get(sublime.platform(), {}).get('refresh_command')
-
-        if command is None:
             self.view_file(pdf_file)
             return
 
-        self._run_command(command, pdf_file)
+        self._run_command(command, pdf_file, tex_file, line, col)
 
     def view_file(self, pdf_file, **kwargs):
         command = get_setting('viewer_settings', {}).\

@@ -39,7 +39,7 @@ class SkimViewer(BaseViewer):
 
         subprocess.Popen(command)
 
-    def refresh_file(self, pdf_file, **kwargs):
+    def view_file(self, pdf_file, **kwargs):
         keep_focus = kwargs.pop('keep_focus', True)
 
         command = [
@@ -60,11 +60,6 @@ class SkimViewer(BaseViewer):
         command.append(pdf_file)
 
         subprocess.Popen(command)
-
-    def view_file(self, pdf_file, **kwargs):
-        subprocess.Popen(
-            ['open', '-a', 'Skim', pdf_file]
-        )
 
     def supports_keep_focus(self):
         return True

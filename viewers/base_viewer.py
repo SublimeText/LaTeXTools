@@ -12,7 +12,7 @@ class BaseViewer(latextools_plugin.LaTeXToolsPlugin):
         command to jump to the file at a specified line and column
 
         if this raises a NotImplementedError, we will fallback to
-        invoking refresh_file
+        invoking view_file
 
         :params:
             pdf_file - full path to the generated pdf
@@ -21,18 +21,6 @@ class BaseViewer(latextools_plugin.LaTeXToolsPlugin):
             col - incidates the column number in the tex file (1-based)
             **kwargs:
                 keep_focus - if true, focus should return to ST
-        '''
-        raise NotImplementedError()
-
-    def refresh_file(self, pdf_file, **kwargs):
-        '''
-        command to refresh a file that is already open
-
-        if this raises a NotImplementedError, we will fallback to
-        invoking view_file
-
-        :params:
-            pdf_file - full path to the generated pdf
         '''
         raise NotImplementedError()
 
