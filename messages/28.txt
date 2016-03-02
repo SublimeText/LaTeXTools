@@ -1,0 +1,17 @@
+LaTeXTools Plugin version 3.6.3 (2016-02-25) changelog:
+
+
+New features:
+
+- Set spellchecking language via TEX directives (R. Stein)
+- Input completion for \includesvg
+- Project-relative TEXroot setting
+- Some internal improvements
+
+Bugfixes:
+
+- Internal bugfixes
+
+
+
+  
