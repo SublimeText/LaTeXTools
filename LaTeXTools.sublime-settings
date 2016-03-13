@@ -98,8 +98,9 @@
 	"osx": 	{
 		// Path used when invoking tex & friends; MUST include $PATH
 		"texpath" : "$PATH:/Library/TeX/texbin:/usr/texbin:/usr/local/bin:/opt/local/bin"
-		// Path to PDF viewer, if needed
-		// TODO think about it. Also, maybe configure it here!
+		// Name to PDF viewer, if needed
+		// Leave blank for Skim app
+		"pdfviewer" : "Preview"
 	},
 
 
