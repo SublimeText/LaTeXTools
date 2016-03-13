@@ -437,7 +437,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			self.env = None
 
 		# Now actually get the builder
-		builder_path = s.get("builder_path")  # relative to ST packages dir!
+		builder_path = get_setting("builder_path", "")  # relative to ST packages dir!
 
 		# Safety check: if we are using a built-in builder, disregard
 		# builder_path, even if it was specified in the pref file
