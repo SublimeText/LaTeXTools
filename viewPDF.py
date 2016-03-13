@@ -42,7 +42,9 @@ class View_pdfCommand(sublime_plugin.WindowCommand):
 			# "subl" as command and "%file:%line" as argument
 			# you also have to put a symlink to subl somewhere on your path
 			# Also check the box "check for file changes"
-			viewercmd = ["open", "-a", "Skim"]
+			prefs_osx = get_setting("osx", {})
+			pdfviewer = prefs_osx.get("pdfviewer", "Skim")
+			viewercmd = ["open", "-a", pdfviewer]
 		elif s == "Windows":
 			# with new version of SumatraPDF, can set up Inverse 
 			# Search in the GUI: under Settings|Options...
