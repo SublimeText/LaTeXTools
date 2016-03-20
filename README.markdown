@@ -442,7 +442,7 @@ The following options are currently available (defaults in parentheses):
   * `texpath`: the path to TeX & friends
 - `windows`-specific settings:
   * `distro`: either `miktex` or `texlive`, depending on your TeX distribution
-  * `sumatra`: leave blank or omit if the SumatraPDF executable is in your `PATH` and is called `SumatraPDF.exe`, as in a default installation; otherwise, specify the *full path and file name* of the SumatraPDF executable.
+  * `sumatra`: set it to `null` to let LaTeXtools guess the installation path; set it to the empty string `""` if the SumatraPDF executable is in your `PATH` and is called `SumatraPDF.exe`, as in a default installation; otherwise, specify the *full path and file name* of the SumatraPDF executable.
   * `sublime_executable`: this is used if `keep_focus` is set to true and the path to your sublime_text executable cannot be discovered automatically. It should point to the full path to your executable `sublime_text.exe`.
   * `keep_focus_delay`: this is used if `keep_focus` is set to true. It controls how long (in seconds) the delay is between the completion of the `jump_to_pdf` command and the attempt to refocus on Sublime Text. This may need to be adjusted depending on your machine or configuration.
 - `linux`-specific settings:
