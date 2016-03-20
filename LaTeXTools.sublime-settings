@@ -110,8 +110,10 @@
 		"texpath" : "",
 		// TeX distro: "miktex" or "texlive"
 		"distro" : "miktex",
-		// Command to invoke Sumatra. If blank, "SumatraPDF.exe" is used (it has to be on your PATH)
-		"sumatra": "",
+		// Command to invoke Sumatra:
+		// If null, LaTeXTools will try to detect the Sumatra installation
+		// If empty string (""), "SumatraPDF.exe" is used (it has to be on your PATH)
+		"sumatra": null,
 		// Command to invoke Sublime Text. Used if the keep_focus toggle is true.
 		// If blank, "subl.exe" or "sublime_text.exe" will be used.
 		"sublime_executable": "",
