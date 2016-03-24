@@ -385,7 +385,7 @@ By default, LaTeXTools supports the following viewers, depending on platform:
  * On Windows, Sumatra
  * On Linux, Evince
 
-However, there is now support for custom viewers, if not a lot of choice available at the moment (patches welcome). Currently the only non-default viewer supported is using Preview on OS X. This can be selected by changing the `viewer` setting in your LaTeXTools preferences to `"preview"`. Obviously, it only works on OS X.
+However, there is now support for custom viewers, if not a lot of choice available at the moment (patches welcome). Currently the only non-default viewers supported are Preview on OS X and Okular on Linux. Preview can be selected by changing the `viewer` setting in your LaTeXTools preferences to `"preview"`. Okular can be used by changing the `viewer` setting in your LaTeXTools preferences to `"okular"`.
 
 ### Command Viewer ###
 
@@ -421,7 +421,7 @@ If none of these variables occur in the command string, the `$pdf_file` will be 
 
 Commands are executed in the `$pdf_file_path`, i.e., the folder containing the `$pdf_file`.
 
-Using this, you can, for example, support okular with the following settings:
+For example, you can use the command viewer to support Okular with the following settings in your `LaTeXTools.sublime-settings` file:
 
 ```json
 "viewer": "command",
@@ -526,7 +526,7 @@ NOTE: for the time being, you will need to refer to the `LaTeXTools.sublime-sett
 
 **Viewer settings**:
 
- * `viewer`: the viewer you want to use. Leave blank (`""`) or set to `"default"`for the platform-specific viewer. Can also be set to `"preview"` if you want to use Preview on OS X or `"command"` to use an arbitrary command. For details on the `"command"` option, see the section of the viewer documentation above.
+ * `viewer`: the viewer you want to use. Leave blank (`""`) or set to `"default"`for the platform-specific viewer. Can also be set to `"preview"` if you want to use Preview on OS X, `"okular"` if you want to use Okular on Linux or `"command"` to run arbitrary commands. For details on the `"command"` option, see the section of the viewer documentation above.
  * `viewer_settings`: these are viewer-specific settings. Please see the viewers documentation above.
 
 **Bibliographic references settings**:

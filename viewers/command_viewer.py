@@ -32,7 +32,7 @@ else:
     def get_texpath():
         platform_settings = get_setting(sublime.platform(), {})
         texpath = platform_settings.get('texpath', '')
-        return os.path.expandvars(texpath)
+        return os.path.expandvars(texpath).encode(sys.getfilesystemencoding())
 
 
 # a viewer that runs a user-specified command

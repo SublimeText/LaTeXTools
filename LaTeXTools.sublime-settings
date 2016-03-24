@@ -234,7 +234,9 @@
 	//
 	// "evince"			uses Evince; this is the default on linux
 	//
-	// "preview"		uses Preview to open the pdf
+	// "okular"			uses Okular to open the pdf
+	//
+	// "preview"		uses Preview.app to open the pdf
 	//
 	// "skim"			uses Skim to open the pdf; this is the
 	//					default on OSX
