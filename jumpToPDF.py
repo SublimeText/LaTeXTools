@@ -120,6 +120,55 @@ def get_sublime_executable():
 
 	return None
 
+if sublime.platform() == "windows":
+	def get_sumatra_executable():
+		# we cache the result
+		if hasattr(get_sumatra_executable, "result"):
+			return get_sumatra_executable.result
+		try:
+			# the "where" command is available in vista and newer
+			# check whether it is successful (Sumatra in path) via &&
+			p = subprocess.Popen(
+				"where SumatraPDF >nul && echo added || echo not_added",
+				stdout=subprocess.PIPE,
+				shell=True
+			)
+		except:
+			pass
+		else:
+			stdout, _ = p.communicate()
+			out = stdout.decode("utf8").strip()
+			if out == "added":
+				get_sumatra_executable.result = "SumatraPDF"
+				return get_sumatra_executable.result
+		# check the possible standard Sumatra paths
+		if sublime.arch() == "x64":
+			# get the x64 and x86 program folders
+			program_folders = [
+				os.path.expandvars("%PROGRAMFILES%"),
+				os.path.expandvars("%PROGRAMFILES(x86)%")
+			]
+		else:  # x86
+			# also get the x64 and x86 program folders
+			# if we are on x86, %PROGRAMFILES% returns the x86 programs instead
+			# of the x64 programs. Hence manually try to navigate to that folder
+			program_folders = [
+				os.path.normpath(
+					os.path.expandvars("%PROGRAMFILES(x86)%\\..\\Program Files")
+				),
+				os.path.expandvars("%PROGRAMFILES(x86)%")
+			]
+		# expand the folders to guess the Sumatra installation
+		sumatra_paths = [
+			os.path.join(program_folder, "SumatraPDF", "SumatraPDF.exe")
+			for program_folder in program_folders
+		]
+		# check for every guess of the Sumatra path whether it exists
+		# if it exists we have found the Sumatra installation
+		for sumatra_path in sumatra_paths:
+			if os.path.exists(sumatra_path):
+				get_sumatra_executable.result = sumatra_path
+				return get_sumatra_executable.result
 
 # Jump to current line in PDF file
 # NOTE: must be called with {"from_keybinding": <boolean>} as arg
@@ -221,7 +270,23 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 			si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 			si.wShowWindow = 4 #constant for SHOWNOACTIVATE
 
-			su_binary = prefs_win.get("sumatra", "SumatraPDF.exe") or 'SumatraPDF.exe'
+			su_binary = prefs_win.get("sumatra", None)
+			# if the setting is None/null guess the Sumatra executable
+			if su_binary is None:
+				su_binary = get_sumatra_executable()
+				# if the extraction of the Sumatra path was not successful
+				# Show an error message and cancel the jump
+				if not su_binary:
+					sublime.error_message(
+						"Cannot detect executable for SumatraPDF. Please "
+						"ensure you have installed SumatraPDF and added "
+						"the installation path to the LaTeXTools settings."
+					)
+					return
+			# if the setting is en empty string the Sumatra executable is 
+			# assumed to be in the path
+			elif su_binary == "":
+				su_binary = "SumatraPDF"
 			startCommands = [su_binary, "-reuse-instance"]
 			if forward_sync:
 				startCommands.append("-forward-search")
