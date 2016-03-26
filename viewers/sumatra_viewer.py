@@ -48,7 +48,8 @@ class SumatraViewer(BaseViewer):
             message = (
                 'Could not find SumatraPDF.exe. '
                 'Please ensure the "sumatra" setting in your '
-                'LaTeXTools.sublime-settings is properly set.'
+                'LaTeXTools settings is set and points to the location '
+                'of Sumatra on your computer.'
             )
 
             def _error_msg():
