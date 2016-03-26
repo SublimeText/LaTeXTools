@@ -24,13 +24,15 @@ else:
 class SumatraViewer(BaseViewer):
     def __init__(self, *args, **kwargs):
         super(SumatraViewer, self).__init__(*args, **kwargs)
-        self._sumatra_exe = None
 
     def _find_sumatra_exe(self):
-        for path in [
-            os.path.expandvars("%PROGRAMFILES%\\SumatraPDF"),
-            os.path.expandvars("%PROGRAMFILES(x86)%\\SumatraPDF")
-        ]:
+        paths = [
+            os.path.expandvars("%ProgramW6432%\\SumatraPDF"),
+            os.path.expandvars("%PROGRAMFILES(x86)%\\SumatraPDF"),
+            os.path.expandvars("%PROGRAMFILES%\\SumatraPDF")
+        ]
+
+        for path in paths:
             if os.path.exists(path):
                 exe = os.path.join(path, 'SumatraPDF.exe')
                 if os.path.exists(exe):
@@ -64,6 +66,14 @@ class SumatraViewer(BaseViewer):
         sumatra_binary = get_setting('viewer_settings', {}).\
             get('sumatra', get_setting('windows', {}).
                 get('sumatra', 'SumatraPDF.exe'))
+
+        if sumatra_binary == '' or sumatra_binary is None:
+            sumatra_binary = self._find_sumatra_exe()
+
+        if sumatra_binary is None:
+            _no_binary()
+            return
+
         try:
             subprocess.Popen(
                 [sumatra_binary] + commands,
@@ -82,9 +92,11 @@ class SumatraViewer(BaseViewer):
                 except OSError:
                     traceback.print_exc()
                     _no_binary()
+                    return
             else:
                 traceback.print_exception(*exc_info)
                 _no_binary()
+                return
 
     def forward_sync(self, pdf_file, tex_file, line, col, **kwargs):
         root_folder = os.path.dirname(pdf_file)
