@@ -26,6 +26,9 @@ class SumatraViewer(BaseViewer):
         super(SumatraViewer, self).__init__(*args, **kwargs)
 
     def _find_sumatra_exe(self):
+        if hasattr(SumatraViewer, '_sumatra_exe'):
+            return SumatraViewer._sumatra_exe
+
         paths = [
             os.path.expandvars("%ProgramW6432%\\SumatraPDF"),
             os.path.expandvars("%PROGRAMFILES(x86)%\\SumatraPDF"),
@@ -36,6 +39,7 @@ class SumatraViewer(BaseViewer):
             if os.path.exists(path):
                 exe = os.path.join(path, 'SumatraPDF.exe')
                 if os.path.exists(exe):
+                    SumatraViewer._sumatra_exe = exe
                     return exe
         return None
 
@@ -82,11 +86,11 @@ class SumatraViewer(BaseViewer):
         except OSError:
             exc_info = sys.exc_info()
 
-            sumatra_binary = self._find_sumatra_exe()
-            if sumatra_binary is not None:
+            sumatra_exe = self._find_sumatra_exe()
+            if sumatra_exe is not None and sumatra_exe != sumatra_binary:
                 try:
                     subprocess.Popen(
-                        [sumatra_binary] + commands,
+                        [sumatra_exe] + commands,
                         startupinfo=startupinfo
                     )
                 except OSError:
