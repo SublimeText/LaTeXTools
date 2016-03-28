@@ -219,7 +219,7 @@ def get_cite_completions(view, point, autocompleting=False):
     print (repr(bib_files))
 
     completions = []
-    kp = re.compile(r'@[^\{]+\{(.+),')
+    kp = re.compile(r'@[^\{]+\{\s*(.+)\s*,')
     # new and improved regex
     # we must have "title" then "=", possibly with spaces
     # then either {, maybe repeated twice, or "
