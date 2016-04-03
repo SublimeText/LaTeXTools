@@ -12,7 +12,11 @@ if sublime.version() < '3000':
 		_classname_to_internal_name
 	)
 	from latextools_utils.is_tex_file import is_tex_file
-	from latextools_utils import get_setting, parse_tex_directives
+	from latextools_utils import get_setting
+	from latextools_utils.tex_directives import parse_tex_directives
+	from latextools_utils.output_directory import (
+		get_aux_directory, get_output_directory, get_jobname
+	)
 
 	strbase = basestring
 else:
@@ -24,7 +28,11 @@ else:
 		_classname_to_internal_name
 	)
 	from .latextools_utils.is_tex_file import is_tex_file
-	from .latextools_utils import get_setting, parse_tex_directives
+	from .latextools_utils import get_setting
+	from .latextools_utils.tex_directives import parse_tex_directives
+	from .latextools_utils.output_directory import (
+		get_aux_directory, get_output_directory, get_jobname
+	)
 
 	strbase = str
 
@@ -37,6 +45,7 @@ import functools
 import subprocess
 import types
 import traceback
+import shutil
 
 DEBUG = False
 
@@ -204,7 +213,30 @@ class CmdThread ( threading.Thread ):
 		# Note to self: need to think whether we don't want to codecs.open this, too...
 		# Also, we may want to move part of this logic to the builder...
 		try:
-			data = open(self.caller.tex_base + ".log", 'rb').read()		
+			log_file_base = self.caller.tex_base + ".log"
+			# NB aux_directory is never None if output_directory is set
+			if self.caller.aux_directory is None:
+				log_file = log_file_base
+			else:
+				log_file = os.path.join(
+					self.caller.aux_directory,
+					log_file_base
+				)
+
+				if not os.path.exists(log_file):
+					if self.caller.output_directory != self.caller.aux_directory:
+						log_file = os.path.join(
+							self.caller.aux_directory,
+							log_file_base
+						)
+
+						if not os.path.exists(log_file):
+							log_file = log_file_base
+					else:
+						log_file = log_file_base
+
+			with open(log_file, 'rb') as f:
+				data = f.read()
 		except IOError:
 			self.handle_std_outputs(out, err)
 		else:
@@ -348,7 +380,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			sublime.error_message(self.file_name + ": file not found.")
 			return
 
-		self.tex_base, self.tex_ext = os.path.splitext(self.file_name)
+		self.tex_base = get_jobname(view)
 		tex_dir = os.path.dirname(self.file_name)
 
 		if not is_tex_file(self.file_name):
@@ -429,6 +461,17 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		if 'options' in tex_directives:
 			options.extend(tex_directives['options'])
 
+		# filter out --aux-directory and --output-directory options which are
+		# handled separately
+		options = [opt for opt in options if (
+			not opt.startswith('--aux-directory') and
+			not opt.startswith('--output-directory') and
+			not opt.startswith('--jobname')
+		)]
+
+		self.aux_directory = get_aux_directory(self.file_name)
+		self.output_directory = get_output_directory(self.file_name)
+
 		# Read the env option (platform specific)
 		builder_platform_settings = builder_settings.get(self.plat)
 		if builder_platform_settings:
@@ -441,7 +484,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 
 		# Safety check: if we are using a built-in builder, disregard
 		# builder_path, even if it was specified in the pref file
-		if builder_name in ['simple', 'traditional', 'script']:
+		if builder_name in ['simple', 'traditional', 'script', 'basic']:
 			builder_path = None
 
 		if builder_path:
@@ -462,6 +505,9 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			self.output,
 			engine,
 			options,
+			self.aux_directory,
+			self.output_directory,
+			self.tex_base,
 			tex_directives,
 			builder_settings,
 			platform_settings
@@ -529,15 +575,31 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		sublime.set_timeout(functools.partial(self.do_finish, can_switch_to_pdf), 0)
 
 	def do_finish(self, can_switch_to_pdf):
-		# Move to TextCommand for compatibility with ST3
-		# edit = self.output_view.begin_edit()
-		# self.output_view.sel().clear()
-		# reg = sublime.Region(0)
-		# self.output_view.sel().add(reg)
-		# self.output_view.show(reg) # scroll to top
-		# self.output_view.end_edit(edit)
 		self.output_view.run_command("do_finish_edit")
+		# can_switch_to_pdf indicates a pdf should've been created
 		if can_switch_to_pdf:
+			# if using output_directory, follow the copy_output_on_build setting
+			# files are copied to the same directory as the main tex file
+			if self.output_directory is not None:
+				copy_on_build = get_setting('copy_output_on_build', True) or True
+				if copy_on_build is True:
+					shutil.copy2(
+						os.path.join(
+							self.output_directory,
+							self.tex_base + u'.pdf'
+						),
+						os.path.dirname(self.file_name)
+					)
+				elif isinstance(copy_on_build, list):
+					for ext in copy_on_build:
+						shutil.copy2(
+							os.path.join(
+								self.output_directory,
+								self.tex_base + ext
+							),
+							os.path.dirname(self.file_name)
+						)
+
 			self.view.run_command("jump_to_pdf", {"from_keybinding": False})
 
 

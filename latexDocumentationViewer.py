@@ -5,12 +5,14 @@ import sublime_plugin
 
 import os
 import subprocess
-from subprocess import Popen, PIPE
+from subprocess import Popen
 
 try:
     from latextools_utils import get_setting
+    from latextools_utils.distro_utils import using_miktex
 except ImportError:
     from .latextools_utils import get_setting
+    from .latextools_utils.distro_utils import using_miktex
 
 if sublime.version() < '3000':
     _ST3 = False
@@ -28,18 +30,6 @@ def get_texpath():
         return os.path.expandvars(texpath).encode(sys.getfilesystemencoding())
     else:
         return os.path.expandvars(texpath)
-
-def using_miktex():
-    if sublime.platform() != 'windows':
-        return False
-
-    platform_settings = get_setting(sublime.platform(), {})
-
-    try:
-        distro = platform_settings.get('distro', 'miktex')
-        return distro in ['miktex', '']
-    except KeyError:
-        return True  # assumed
 
 def _view_texdoc(file):
     if file is None:

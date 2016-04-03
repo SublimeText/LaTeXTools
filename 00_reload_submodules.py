@@ -26,12 +26,14 @@ LOAD_ORDER = [
     'latextools_utils.tex_directives',
 
     # depend on previous only
+    'latextools_utils.distro_utils',
     'latextools_utils.is_tex_file',
     'latextools_utils.sublime_utils',
     'latextools_utils.cache',
 
     # depend on any previous
     'latextools_utils.analysis',
+    'latextools_utils.output_directory',
 
     'latextools_plugin_internal',
 
