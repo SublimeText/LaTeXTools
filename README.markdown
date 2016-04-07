@@ -401,6 +401,7 @@ Of these, on `view_command` needs to be specified, though you will not have forw
 The following variables will be substitued with appropriate values inside your commands:
 
 |Variable|Description|
+|--------|-----------|
 |$pdf_file           | full path of PDF file, e.g. _C:\Files\document.pdf_|
 |$pdf_file_name      | name of the PDF file, e.g. _document.pdf_|
 |$pdf_file_ext       | extension of the PDF file, e.g. _pdf_|
@@ -409,6 +410,9 @@ The following variables will be substitued with appropriate values inside your c
 |$sublime_binary     | full path to the Sublime binary|
 
 In addition, the following variables are available for the `forward_sync_command` only:
+
+|Variable|Description|
+|--------|-----------|
 |$src_file           | full path of the tex file, e.g. _C:\Files\document.tex_|
 |$src_file_name      | name of the tex file, e.g., _document.tex_|
 |$src_file_ext       | extension of the tex file, e.g. _tex_|
