@@ -24,7 +24,9 @@ LOAD_ORDER = [
     'latextools_utils.sublime_utils',
     'latextools_utils.tex_directives',
 
-    'latextools_plugin_internal'
+    'latextools_plugin_internal',
+
+    'latex_chars'
 ]
 
 
