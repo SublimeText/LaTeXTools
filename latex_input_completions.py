@@ -55,6 +55,12 @@ def _filter_invalid_entries(entries):
             del entries[i]
 
 
+def _update_input_entries(entries):
+    for entry in entries:
+        entry["regex"] = r"([^{}\[\]]*)\{" + entry["regex"]
+        entry["type"] = "input"
+
+
 _fillall_entries = [
     {
         "regex": r'(?:edulcni|tupni)\\',
@@ -84,9 +90,7 @@ _filter_invalid_entries(_setting_entries)
 _fillall_entries.extend(_setting_entries)
 
 # update the fields of the entries
-for entry in _fillall_entries:
-    entry["regex"] = r"([^{}\[\]]*)\{" + entry["regex"]
-    entry["type"] = "input"
+_update_input_entries(_fillall_entries)
 
 _fillall_entries.append({
     "regex": r'([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?ssalctnemucod\\',
