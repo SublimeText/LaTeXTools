@@ -156,27 +156,56 @@ def get_file_list(root, types, filter_exts=[]):
     return completions
 
 
+def _get_dyn_entries():
+    dyn_entries = get_setting("dynamic_fillall_helper_entries", [])
+    if dyn_entries:
+        _filter_invalid_entries(dyn_entries)
+        _update_input_entries(dyn_entries)
+        dyn_regex = re.compile("(?:{0})".format(
+            "|".join(entry["regex"] for entry in dyn_entries)))
+        return dyn_entries, dyn_regex
+    else:
+        return [], None
+
+
 def parse_completions(view, line):
     # reverse line, copied from latex_cite_completions, very cool :)
     line = line[::-1]
 
-    # Do matches!
+    # search for completion regex
     search = TEX_INPUT_FILE_REGEX.match(line)
     if not search:
-        return
+        # if we did not found completion regex, then  try to search for
+        # matchings from the dynamic entries
+        dyn_entries, dyn_regex = _get_dyn_entries()
+        if not dyn_regex:
+            return "", []
 
-    try:
-        group = next(i + 1 for i, v in enumerate(search.groups())
-                     if v is not None)
-    except:
-        print("Error: Group missing")
-        return "", []
-    prefix = search.group(group)[::-1]
+        search = dyn_regex.match(line)
+        if not search:
+            return "", []
+        try:
+            group = next(i for i, v in enumerate(search.groups())
+                         if v is not None)
+        except:
+            print("Error: Group missing")
+            return "", []
+        entry = dyn_entries[group]
+        prefix = search.group(group + 1)[::-1]
+    else:
+        try:
+            group = next(i + 1 for i, v in enumerate(search.groups())
+                         if v is not None)
+        except:
+            print("Error: Group missing")
+            return "", []
+        entry = _TEX_INPUT_GROUP_MAPPING[group]
+        prefix = search.group(group)[::-1]
+
     if "," in prefix:
         prefix = prefix[prefix.rindex(",")+1:]
     completions = []
 
-    entry = _TEX_INPUT_GROUP_MAPPING[group]
     if entry["type"] == "input":
         root = getTeXRoot.get_tex_root(view)
         if root:
