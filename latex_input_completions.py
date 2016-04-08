@@ -24,18 +24,95 @@ else:
     from .latextools_utils import get_setting
 
 
-# Only work for \include{} and \input{} and \includegraphics
+def _filter_invalid_entries(entries):
+    """Remove entries without a regex or sufficient fields."""
+    remove_entries = []
+    for i, entry in enumerate(entries):
+        if "extensions" not in entry:
+            print("Missing field 'extensions' in entry {0}".format(entry))
+            remove_entries.append(i)
+            continue
+        if "regex" not in entry:
+            print("Missing field 'regex' in entry {0}".format(entry))
+            remove_entries.append(i)
+            continue
+
+        try:
+            reg = re.compile(entry["regex"])
+        except Exception as e:
+            print("Invalid regex: '{0}' ({1})".format(entry["regex"], e))
+            remove_entries.append(i)
+            continue
+        if reg.groups != 0:
+            print("The regex must not have a capturing group, invalidated in "
+                  "entry {0}. You might escape your group with (?:...)"
+                  .format(entry))
+            remove_entries.append(i)
+            continue
+        # remove all blacklisted entries in reversed order, so the remaining
+        # indexes stay the same
+        for i in reversed(remove_entries):
+            del entries[i]
+
+
+_fillall_entries = [
+    {
+        "regex": r'(?:edulcni|tupni)\\',
+        "extensions": [e[1:] for e in get_tex_extensions()],
+        "strip_extensions": [".tex"]
+    },
+    {
+        "regex": r'(?:\][^{}\[\]]*\[)?scihpargedulcni\\',
+        "extensions": get_setting("image_types", [
+            "pdf", "png", "jpeg", "jpg", "eps"
+        ])
+    },
+    {
+        "regex": r'(?:\][^{}\[\]]*\[)?ecruoserbibdda\\',
+        "extensions": ["bib"]
+    },
+    {
+        "regex": r'yhpargoilbib\\',
+        "extensions": ["bib"],
+        "strip_extensions": [".bib"]
+    }
+]
+
+# get additional entries from the settings
+_setting_entries = get_setting("fillall_helper_entries", [])
+_filter_invalid_entries(_setting_entries)
+_fillall_entries.extend(_setting_entries)
+
+# update the fields of the entries
+for entry in _fillall_entries:
+    entry["regex"] = r"([^{}\[\]]*)\{" + entry["regex"]
+    entry["type"] = "input"
+
+_fillall_entries.append({
+    "regex": r'([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?ssalctnemucod\\',
+    "type": "cached",
+    "cache_name": "cls"
+})
+_fillall_entries.append({
+    "regex": r'([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?egakcapesu\\',
+    "type": "cached",
+    "cache_name": "pkg"
+})
+_fillall_entries.append({
+    "regex": r'([^{}\[\]]*)\{elytsyhpargoilbib\\',
+    "type": "cached",
+    "cache_name": "bst"
+})
+
+TEX_INPUT_FILE_REGEX = "(?:{0})".format("|".join(
+    entry["regex"] for entry in _fillall_entries))
+
+_TEX_INPUT_GROUP_MAPPING = {i+1: v for i, v in enumerate(_fillall_entries)}
+
 TEX_INPUT_FILE_REGEX = re.compile(
-      r'([^{}\[\]]*)\{edulcni\\'
-    + r'|([^{}\[\]]*)\{tupni\\'
-    + r'|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?scihpargedulcni\\'
-    + r'|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?gvsedulcni\\'
-    + r'|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?ecruoserbibdda\\'
-    + r'|([^{}\[\]]*)\{yhpargoilbib\\'
-    + r'|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?ssalctnemucod\\'
-    + r'|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?egakcapesu\\'
-    + r'|([^{}\[\]]*)\{elytsyhpargoilbib\\'
+    "(?:{0})".format("|".join(entry["regex"] for entry in _fillall_entries))
 )
+
 
 # Get all file by types
 def get_file_list(root, types, filter_exts=[]):
@@ -76,128 +153,65 @@ def parse_completions(view, line):
 
     # Do matches!
     search = TEX_INPUT_FILE_REGEX.match(line)
+    if not search:
+        return
 
-    installed_cls = []
-    installed_bst = []
-    installed_pkg = []
-    input_file_types = None
+    try:
+        group = next(i + 1 for i, v in enumerate(search.groups())
+                     if v is not None)
+    except:
+        print("Error: Group missing")
+        return "", []
+    completions = []
+    prefix = search.group(group)[::-1]
 
-    if search is not None:
-        (   include_filter,
-            input_filter,
-            image_filter,
-            svg_filter,
-            addbib_filter,
-            bib_filter,
-            cls_filter,
-            pkg_filter,
-            bst_filter) = search.groups()
-    else:
-        return '', []
-
-    # it isn't always correct to include the extension in the output filename
-    # esp. with \bibliography{}; here we provide a mechanism to permit this
-    filter_exts = []
-
-    if include_filter is not None:
-        # if is \include
-        prefix = include_filter[::-1]
-        # filter the . from the start of the extention
-        input_file_types = [e[1:] for e in get_tex_extensions()]
-        # only cut off the .tex extension
-        filter_exts = ['.tex']
-    elif input_filter is not None:
-        # if is \input search type set to tex
-        prefix = input_filter[::-1]
-        # filter the . from the start of the extension
-        input_file_types = [e[1:] for e in get_tex_extensions()]
-        # only cut off the .tex extension
-        filter_exts = ['.tex']
-    elif image_filter is not None:
-        # if is \includegraphics
-        prefix = image_filter[::-1]
-        # Load image types from configurations
-        # In order to user input, "image_types" must be set in
-        # LaTeXTools.sublime-settings configuration file or the
-        # project settings for the current view.
-        input_file_types = get_setting('image_types', [
-                'pdf', 'png', 'jpeg', 'jpg', 'eps'
-            ])
-    elif svg_filter is not None:
-        # if is \includesvg
-        prefix = svg_filter[::-1]
-        # include only svg files
-        input_file_types = ['svg']
-        # cut off the svg extention
-        filter_exts = ['.svg']
-    elif addbib_filter is not None or bib_filter is not None:
-        # For bibliography
-        if addbib_filter is not None:
-            prefix = addbib_filter[::-1]
-        else:
-            prefix = ''
-            bib_filter[::-1]
-            filter_exts = ['.bib']
-        input_file_types = ['bib']
-    elif cls_filter is not None or pkg_filter is not None or bst_filter is not None:
-        # for packages, classes and bsts
-        if _ST3:
-            cache_path = os.path.normpath(
-                os.path.join(
-                    sublime.cache_path(),
-                    "LaTeXTools"
-                ))
-        else:
-            cache_path = os.path.normpath(
-                os.path.join(
-                    sublime.packages_path(),
-                    "User"
-                ))
-
-        pkg_cache_file = os.path.normpath(
-            os.path.join(cache_path, 'pkg_cache.cache' if _ST3 else 'latextools_pkg_cache.cache'))
-
-        cache = None
-        if not os.path.exists(pkg_cache_file):
-            gen_cache = sublime.ok_cancel_dialog("Cache files for installed packages, "
-                + "classes and bibliographystyles do not exists, "
-                + "would you like to generate it? After generating complete, please re-run this completion action!"
-            )
-
-            if gen_cache:
-                sublime.active_window().run_command("latex_gen_pkg_cache")
-                completions = []
-        else:
-            with open(pkg_cache_file) as f:
-                cache = json.load(f)
-
-        if cache is not None:
-            if cls_filter is not None:
-                installed_cls = cache.get("cls")
-            elif bst_filter is not None:
-                installed_bst = cache.get("bst")
-            else:
-                installed_pkg = cache.get("pkg")
-
-        prefix = ''
-    else:
-        prefix = ''
-
-    if len(installed_cls) > 0:
-        completions = installed_cls
-    elif len(installed_bst) > 0:
-        completions = installed_bst
-    elif len(installed_pkg) > 0:
-        completions = installed_pkg
-    elif input_file_types is not None:
+    entry = _TEX_INPUT_GROUP_MAPPING[group]
+    if entry["type"] == "input":
         root = getTeXRoot.get_tex_root(view)
         if root:
-            completions = get_file_list(root, input_file_types, filter_exts)
+            completions = get_file_list(root, entry["extensions"],
+                                        entry.get("strip_extensions", []))
         else:
             # file is unsaved
             completions = []
+    elif entry["type"] == "cached":
+        cache = _get_cache()
+        if cache is not None:
+            completions = cache.get(entry["cache_name"])
+    else:
+        print("Unknown entry type {0}.".format(entry["type"]))
 
     return prefix, completions
+
+
+def _get_cache():
+    if _ST3:
+        cache_path = os.path.normpath(
+            os.path.join(sublime.cache_path(), "LaTeXTools"))
+    else:
+        cache_path = os.path.normpath(
+            os.path.join(sublime.packages_path(), "User"))
+
+    pkg_cache_file = os.path.normpath(
+        os.path.join(cache_path, 'pkg_cache.cache'
+                     if _ST3 else 'latextools_pkg_cache.cache'))
+
+    cache = None
+    if not os.path.exists(pkg_cache_file):
+        gen_cache = sublime.ok_cancel_dialog(
+            "Cache files for installed packages, "
+            "classes and bibliographystyles do not exists, "
+            "would you like to generate it? After generating complete, "
+            "please re-run this completion action!"
+        )
+
+        if gen_cache:
+            sublime.active_window().run_command("latex_gen_pkg_cache")
+    else:
+        with open(pkg_cache_file) as f:
+            cache = json.load(f)
+    return cache
+
 
 def add_closing_bracket(view, edit):
     # only add the closing bracked if auto match is enabled
@@ -235,7 +249,7 @@ class LatexFillInputCompletions(sublime_plugin.EventListener):
 
             line_remainder = view.substr(sublime.Region(location, view.line(location).b))
             if not line_remainder.startswith('}'):
-                results.extend([(completion, completion + '}') 
+                results.extend([(completion, completion + '}')
                     for completion in completions
                 ])
             else:
@@ -245,7 +259,7 @@ class LatexFillInputCompletions(sublime_plugin.EventListener):
 
         if results:
             return (
-                results, 
+                results,
                 sublime.INHIBIT_WORD_COMPLETIONS |
                 sublime.INHIBIT_EXPLICIT_COMPLETIONS
             )
