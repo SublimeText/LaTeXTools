@@ -57,7 +57,11 @@ def _filter_invalid_entries(entries):
 
 def _update_input_entries(entries):
     for entry in entries:
-        entry["regex"] = r"([^{}\[\]]*)\{" + entry["regex"]
+        comma = entry.get("comma_separated", False)
+        if comma:
+            entry["regex"] = r"([^{}\[\]]*)\{" + entry["regex"]
+        else:
+            entry["regex"] = r"([^,{}\[\]]*)\{" + entry["regex"]
         entry["type"] = "input"
 
 
@@ -80,7 +84,8 @@ _fillall_entries = [
     {
         "regex": r'yhpargoilbib\\',
         "extensions": ["bib"],
-        "strip_extensions": [".bib"]
+        "strip_extensions": [".bib"],
+        "comma_separated": True
     }
 ]
 
@@ -166,8 +171,10 @@ def parse_completions(view, line):
     except:
         print("Error: Group missing")
         return "", []
-    completions = []
     prefix = search.group(group)[::-1]
+    if "," in prefix:
+        prefix = prefix[prefix.rindex(",")+1:]
+    completions = []
 
     entry = _TEX_INPUT_GROUP_MAPPING[group]
     if entry["type"] == "input":
@@ -286,7 +293,7 @@ class LatexFillInputCommand(sublime_plugin.TextCommand):
 
             do_completion = get_setting("fill_auto_trigger", True)
 
-            if not do_completion:
+            if not do_completion and insert_char == "{":
                 add_closing_bracket(view, edit)
                 return
 
@@ -323,7 +330,7 @@ class LatexFillInputCommand(sublime_plugin.TextCommand):
                 key = result[i]
 
             # close bracket
-            if insert_char:
+            if insert_char == "{":
                 key += "}"
 
             startpos = point - len(prefix)
@@ -333,7 +340,7 @@ class LatexFillInputCommand(sublime_plugin.TextCommand):
             view.sel().add(sublime.Region(caret, caret))
 
         # autocomplete bracket if we aren't doing anything
-        if not result and insert_char:
+        if not result and insert_char == "{":
             add_closing_bracket(view, edit)
         else:
             view.window().show_quick_panel(result, on_done)
