@@ -272,7 +272,8 @@ class LatexFillInputCompletions(sublime_plugin.EventListener):
             line_reg = view.line(sel)
             before = sublime.Region(line_reg.begin(), sel.b)
             line = fill_char + view.substr(before)[::-1]
-            search = TEX_INPUT_FILE_REGEX.match(line) or dyn_regex.match(line)
+            search = (TEX_INPUT_FILE_REGEX.match(line) or
+                      dyn_regex and dyn_regex.match(line))
             if match_all and not search:
                 result = False
                 break
