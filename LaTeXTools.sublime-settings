@@ -297,7 +297,17 @@
 		{
 			// lstinput
 			"regex": "(?:\\][^{}\\[\\]]*\\[)?tupnitsl\\\\",
-			"extensions": ["c", "cpp", "hs", "html", "pl", "py", "sh", "xml"]
+			"extensions": ["c", "cpp", "hs", "html", "php", "pl", "py", "sh", "xml"]
+		},
+		{
+			// inputminted for python files
+			"regex": "\\}yp\\{detnimtupni\\\\",
+			"extensions": ["py"]
+		},
+		{
+			// inputminted for general files
+			"regex": "\\}\\w+\\{detnimtupni\\\\",
+			"extensions": ["c", "cpp", "hs", "html", "php", "pl", "py", "sh", "xml"]
 		}
 	],
 
