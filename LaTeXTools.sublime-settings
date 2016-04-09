@@ -282,6 +282,30 @@
 		]
 	},
 
+
+// ------------------------------------------------------------------
+// Additional fill all helper settings (for experts)
+// ------------------------------------------------------------------
+	// entries for the fill all helper
+	"fillall_helper_entries": [
+		{
+			// includesvg
+			"regex": "(?:\\][^{}\\[\\]]*\\[)?gvsedulcni\\\\",
+			"extensions": ["svg"],
+			"strip_extensions": [".svg"]
+		},
+		{
+			// lstinput
+			"regex": "(?:\\][^{}\\[\\]]*\\[)?tupnitsl\\\\",
+			"extensions": ["c", "cpp", "hs", "html", "pl", "py", "sh", "xml"]
+		}
+	],
+
+	// these entries should only be used for project settings or 
+	// while you want to test new entries
+	"dynamic_fillall_helper_entries": [
+	],
+
 // ------------------------------------------------------------------
 // Formatting of bibliographic references in quick panel
 // ------------------------------------------------------------------
