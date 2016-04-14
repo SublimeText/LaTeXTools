@@ -262,11 +262,12 @@ def add_closing_bracket(view, edit):
     view.sel().subtract(view.sel()[0])
     view.sel().add(sublime.Region(caret, caret))
 
+
 class LatexFillInputCompletions(sublime_plugin.EventListener):
     def on_query_context(self, view, key, operator, operand, match_all):
-        if key not in ["lt_fill_all_open", "lt_fill_all_inside"]:
+        if key not in ["lt_fill_input.open", "lt_fill_input.inside"]:
             return False
-        fill_char = "{" if key == "lt_fill_all_open" else ","
+        fill_char = "{" if key == "lt_fill_input.open" else ","
         _, dyn_regex = _get_dyn_entries()
         for sel in view.sel():
             line_reg = view.line(sel)
