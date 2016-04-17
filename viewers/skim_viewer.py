@@ -43,6 +43,7 @@ class SkimViewer(BaseViewer):
         keep_focus = kwargs.pop('keep_focus', True)
 
         command = [
+            '/bin/sh',
             os.path.normpath(
                 os.path.join(
                     os.path.dirname(__file__),
