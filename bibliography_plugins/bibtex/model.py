@@ -49,9 +49,8 @@ class Database(MutableMapping):
             raise TypeError(type(entry))
 
         if entry.cite_key in self._entries:
-            raise KeyError('entry with key {0} already exists'.format(
-                entry.cite_key
-            ))
+            # TODO report error
+            return
 
         self._entries[entry.cite_key] = entry
         entry.database = self
