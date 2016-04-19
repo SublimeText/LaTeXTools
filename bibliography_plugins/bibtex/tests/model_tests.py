@@ -216,16 +216,15 @@ class TestDatabase(unittest.TestCase):
             entry
         )
 
-    def test_add_entry_raises_error_on_duplicate_key(self):
+    def test_add_entry_ignores_entry_with_duplicate_key(self):
         entry1 = Entry('book', 'key')
         entry2 = Entry('article', 'key')
 
         self.database._entries['key'] = entry1
 
-        self.assertRaises(
-            KeyError,
-            self.database.add_entry,
-            entry2
+        self.assertEqual(
+            self.database._entries['key'],
+            entry1
         )
 
     def test_add_entry_succeeds_if_duplicate_deleted(self):

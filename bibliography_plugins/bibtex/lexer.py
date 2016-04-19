@@ -331,7 +331,7 @@ ENTRY_START         = re.compile(r'@(?=[^\W\d_][^,\s]*\s*\{)', re.UNICODE)
 ENTRY_TYPE          = re.compile(r'([^\W\d_][^,\s]*)\s*\{', re.UNICODE)
 IDENTIFIER          = re.compile(r'[^\W\d_][^,\s}#]*(?=\s*[,]|\s*#\s*|\s*\}?(?:\n|$))', re.UNICODE)
 NUMBER              = re.compile(r'\d+', re.UNICODE)
-KEY                 = re.compile(r'([^\W\d_][^,\s]*)\s*=\s*', re.UNICODE)
+KEY                 = re.compile(r'([^\W\d][^,\s]*)\s*=\s*', re.UNICODE)
 
 # These are used internally by the more complex "tokens"
 NEXT_QUOTE_BREAK    = re.compile(r'(?:\\")|\n|"')
