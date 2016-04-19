@@ -812,7 +812,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
                 {
                     "a": new_point_a,
                     "b": new_point_b,
-                    "replacement": completions[0][0] + post_brace
+                    "replacement": completions[0]['keyword'] + post_brace
                 }
             )
 
