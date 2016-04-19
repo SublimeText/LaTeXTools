@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-# ensure the utility modules are available
 try:
     from latextools_utils.settings import get_setting
     from latextools_utils.tex_directives import parse_tex_directives

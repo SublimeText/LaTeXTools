@@ -218,6 +218,54 @@
 	},
 
 // ------------------------------------------------------------------
+// Viewer settings
+// ------------------------------------------------------------------
+	// OPTION: "viewer"
+	// Specifies which viewer to use
+	// Possible values:
+	//
+	// "default" or ""	the default viewer for your platform, which 
+	//					is sumatra on Windows, skim on OS X and
+	//					evince on linux
+	//
+	// "command"		invokes a viewer based on commands configured
+	//					in viewer settings below; see the README
+	//					for details
+	//
+	// "evince"			uses Evince; this is the default on linux
+	//
+	// "okular"			uses Okular to open the pdf
+	//
+	// "preview"		uses Preview.app to open the pdf
+	//
+	// "skim"			uses Skim to open the pdf; this is the
+	//					default on OSX
+	//
+	// "sumatra"		uses SumatraPDF; this is the default on
+	//					Windows
+	"viewer": "",
+
+	// OPTION: "viewer_settings"
+	// Specify viewer-dependent settings and preferences
+	// Possible values: see README or documentation provided with
+	// third-party viewer.
+	// Viewer settings can be general or OS-dependent
+	"viewer_settings": {
+		// Platform-specific settings:
+		"osx" : {
+			// See README or third-party documentation
+		},
+
+		"windows" : {
+			// See README or third-party documentation
+		},
+
+		"linux" : {
+			// See README or third-party documentation
+		}
+	},
+
+// ------------------------------------------------------------------
 // Opening files included into the tex source code
 // ------------------------------------------------------------------
 
