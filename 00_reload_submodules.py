@@ -19,10 +19,19 @@ if sublime.version() > '3000':
 # these modules must be specified in the order they depend on one another
 LOAD_ORDER = [
     'latextools_utils',
+
+    # no internal dependencies
     'latextools_utils.settings',
+    'latextools_utils.utils',
+    'latextools_utils.tex_directives',
+
+    # depend on previous only
     'latextools_utils.is_tex_file',
     'latextools_utils.sublime_utils',
-    'latextools_utils.tex_directives',
+    'latextools_utils.cache',
+
+    # depend on any previous
+    'latextools_utils.analysis'
 
     'latextools_plugin_internal',
 
