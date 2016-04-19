@@ -13,8 +13,8 @@ else:
 _OVERWRITE, _CHANGE, _CANCEL = 0, 1, 2
 if _ST3:
     def _user_permission_dialog():
-        message = "Mousemap already exists. " +\
-            "Do you want to overwrite or change it?"
+        message = ("Mousemap already exists. "
+                   "Do you want to overwrite or change it?")
         answer = sublime.yes_no_cancel_dialog(message, "Overwrite",
                                               "Change existing mousemap")
         if answer == sublime.DIALOG_YES:
