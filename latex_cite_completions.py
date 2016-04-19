@@ -298,9 +298,14 @@ def find_bib_files(rootdir, src, bibfiles):
 
     # extract absolute filepath for each bib file
     for res in resources:
-        # We join with rootdir - everything is off the dir of the master file
-        bibfile = os.path.normpath(os.path.join(rootdir, res))
-        bibfiles.append(bibfile)
+        # We join with rootdir, the dir of the master file
+        candidate_file = os.path.normpath(os.path.join(rootdir, res))
+        # if the file doesn't exist, search the default tex paths
+        if not os.path.exists(candidate_file):
+            candidate_file = kpsewhich(res, 'mlbib')
+
+        if candidate_file is not None and os.path.exists(candidate_file):
+            bibfiles.append(candidate_file)
 
     # search through input tex files recursively
     for f in re.findall(r'\\(?:input|include)\{[^\}]+\}',src_content):
