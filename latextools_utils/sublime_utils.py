@@ -29,7 +29,12 @@ def get_project_file_name(view):
 
 # long, complex hack for ST2 to load the project file from the current session
 def _get_project_file_name(view):
-	window_id = view.window().id()
+	try:
+		window_id = view.window().id()
+	except AttributeError:
+		print('Could not determine project file as view does not seem to have an associated window.')
+		return None
+
 	if window_id is None:
 		return None
 
