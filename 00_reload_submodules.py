@@ -31,7 +31,7 @@ LOAD_ORDER = [
     'latextools_utils.cache',
 
     # depend on any previous
-    'latextools_utils.analysis'
+    'latextools_utils.analysis',
 
     'latextools_plugin_internal',
 
