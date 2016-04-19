@@ -116,7 +116,7 @@ _fillall_entries.append({
 TEX_INPUT_FILE_REGEX = "(?:{0})".format("|".join(
     entry["regex"] for entry in _fillall_entries))
 
-_TEX_INPUT_GROUP_MAPPING = {i+1: v for i, v in enumerate(_fillall_entries)}
+_TEX_INPUT_GROUP_MAPPING = {i: v for i, v in enumerate(_fillall_entries)}
 
 TEX_INPUT_FILE_REGEX = re.compile(
     "(?:{0})".format("|".join(entry["regex"] for entry in _fillall_entries))
@@ -172,36 +172,33 @@ def parse_completions(view, line):
     # reverse line, copied from latex_cite_completions, very cool :)
     line = line[::-1]
 
-    # search for completion regex
-    search = TEX_INPUT_FILE_REGEX.match(line)
-    if not search:
-        # if we did not found completion regex, then  try to search for
-        # matchings from the dynamic entries
-        dyn_entries, dyn_regex = _get_dyn_entries()
-        if not dyn_regex:
-            return "", []
-
+    search = None
+    # search dynamic entries
+    dyn_entries, dyn_regex = _get_dyn_entries()
+    if dyn_regex:
         search = dyn_regex.match(line)
-        if not search:
-            return "", []
-        try:
-            group = next(i for i, v in enumerate(search.groups())
-                         if v is not None)
-        except:
-            print("Error: Group missing")
-            return "", []
-        entry = dyn_entries[group]
-        prefix = search.group(group + 1)[::-1]
-    else:
-        try:
-            group = next(i + 1 for i, v in enumerate(search.groups())
-                         if v is not None)
-        except:
-            print("Error: Group missing")
-            return "", []
-        entry = _TEX_INPUT_GROUP_MAPPING[group]
-        prefix = search.group(group)[::-1]
+        entries = dyn_entries
 
+    # search static entries if no dynamic matches found
+    if not search:
+        search = TEX_INPUT_FILE_REGEX.match(line)
+        entries = _fillall_entries
+
+    # if no regex matched, cancel completions
+    if not search:
+        return "", []
+
+    try:
+        # extract the first group and the prefix from the maching regex
+        group, prefix = next((i, v) for i, v in enumerate(search.groups())
+                             if v is not None)
+        entry = entries[group]
+    except Exception as e:
+        print("Error occurred while extracting entry from matching group.")
+        print(e)
+        return "", []
+
+    # adjust the prefix (don't include commas)
     if "," in prefix:
         prefix = prefix[prefix.rindex(",")+1:]
     completions = []
