@@ -288,6 +288,7 @@ def find_bib_files(rootdir, src, bibfiles):
     # ... these can have a comma-separated list of resources as their argument.
     multi_resources = re.findall(r'\\begin\{refsection\}\[([^\]]+)\]', src_content)
     multi_resources += re.findall(r'\\bibliography\{([^\}]+)\}', src_content)
+    multi_resources += re.findall(r'\\nobibliography\{([^\}]+)\}', src_content)
 
     for multi_resource in multi_resources:
         for res in multi_resource.split(','):
