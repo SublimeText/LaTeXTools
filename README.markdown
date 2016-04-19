@@ -11,7 +11,7 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* v3.7.1 (2016-04-19). 
+*Latest revision:* v3.7.2 (2016-04-19). 
 
 *Headline features*:
   * New viewers for Preview.app and Okular

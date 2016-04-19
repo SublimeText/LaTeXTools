@@ -1,0 +1,5 @@
+LaTeXTools Plugin version 3.7.2 (2016-04-19) changelog:
+
+Bugfix:
+
+- Fix issue #686
