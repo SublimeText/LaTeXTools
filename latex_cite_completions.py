@@ -282,7 +282,7 @@ def find_bib_files(rootdir, src, bibfiles):
 
     bibtags =  re.findall(r'\\bibliography\{[^\}]+\}', src_content)
     bibtags += re.findall(r'\\nobibliography\{[^\}]+\}', src_content)
-    bibtags += re.findall(r'\\addbibresource\{[^\}]+.bib\}', src_content)
+    bibtags += re.findall(r'\\addbibresource(?:\[[^\]]*\])?\{[^\}]+\.bib\}', src_content)
 
     # extract absolute filepath for each bib file
     for tag in bibtags:
