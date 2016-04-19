@@ -103,8 +103,6 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                 continue
             else:
                 bib_data = parser.parse(bibf.read())
-            finally:
-                bibf.close()
 
                 print ('Loaded %d bibitems' % (len(bib_data)))
 
@@ -113,6 +111,11 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                     if entry.entry_type in ('xdata', 'comment', 'string'):
                         continue
                     entries.append(EntryWrapper(entry))
+            finally:
+                try:
+                    bibf.close()
+                except:
+                    pass
 
             print("Found %d total bib entries" % (len(entries),))
         return entries
