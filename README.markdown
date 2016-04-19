@@ -499,6 +499,8 @@ The following options are currently available (defaults in parentheses):
 * `tex_file_exts` (`['.tex']`): a list of extensions that should be considered TeX documents. Any extensions in this list will be treated exactly the same as `.tex` files. See the section on [Support for non-`.tex` files](#support-for-non-tex-files).
 * `latextools_set_syntax` (`true`): if `true` LaTeXTools will automatically set the syntax to `LaTeX` when opening or saving any file with an extension in the `tex_file_exts` list.
 * `tex_spellcheck_paths` (`{}`): A mapping from the locales to the paths of the dictionaries. See the section [Spell-checking](#spell-checking)
+* `hide_local_cache` (`true`): Whether the local cache should be hidden in the sublime cache path (`true`) or in the same directory as the root file (`false`). See the section [Caching](#caching).
+* `local_cache_life_span` (`30 m`): The lifespan of the local cache. See the section [Caching](#caching).
 
 **Platform settings**:
 - all platforms:
@@ -670,6 +672,15 @@ LaTeXTools makes some assumptions that should be adhered to or else things won't
 - if you change the `PATH` in the environment (by using the `env` setting), you need to ensure that the `PATH` is still sane, e.g., that it contains the path for the TeX executables and other command line resources that may be necessary.
 
 In addition, to ensure that forward and backward sync work, you need to ensure that the `-synctex=1` flag is set for your latex command. Again, don't forget the `-interaction=nonstopmode` flag (or whatever is needed for your tex programs not to expect user input in case of error).
+
+
+Caching
+-------
+
+LaTeXTools uses a cache to store relevant information about your document and improve the performance of commands. However the content of the cache might be outdated. Hence you can just clear the local cache by deleting the temp files `C-backspace` or only the cache `C-l,C-d,C-c`.
+The local cache also has a lifespan, after which it will be invalidated. The lifespan starts when the first entry is inserted in the cache and the whole cache will be deleted after the lifespan. This can be set in the `local_cache_life_span` setting. The format is `"X d X h X m X s"`, where `X` is a natural number `s` stands for seconds, `m` for minutes, `h` for hours, and `d` for days. Missing fields will be treated as 0 and white-spaces are optional. Hence you can write `"1 h 30 m"` to refresh the cached data every one and a half hours. If you use `"infinite"` the cache will not be invalidated automatically. A lower lifespan will produce results, which are more up to date. However it requires more recalculations and might decrease the performance.
+The cache uses files to store the entries. These files can either be stored in the same folder as the tex root file or stored "hidden" in the sublime cache path. The setting for this is `hide_local_cache` and can either be `true` or `false`.
+
 
 Troubleshooting
 ---------------
