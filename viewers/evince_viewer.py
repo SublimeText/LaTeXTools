@@ -59,6 +59,8 @@ class EvinceViewer(BaseViewer):
         )
 
     def forward_sync(self, pdf_file, tex_file, line, col, **kwargs):
+        keep_focus = kwargs.pop('keep_focus', True)
+
         ev_path = self._get_evince_folder()
         py_binary, sync_wait = self._get_settings()
 
@@ -66,7 +68,7 @@ class EvinceViewer(BaseViewer):
         src_file = os.path.relpath(tex_file, root_folder)
 
         evince_running = self._is_evince_running(pdf_file)
-        if not evince_running:
+        if not keep_focus or not evince_running:
             self._launch_evince(pdf_file)
             time.sleep(sync_wait)
 
@@ -79,8 +81,9 @@ class EvinceViewer(BaseViewer):
         ])
 
     def view_file(self, pdf_file, **kwargs):
-        evince_running = self._is_evince_running(pdf_file)
-        if not evince_running:
+        keep_focus = kwargs.pop('keep_focus', True)
+
+        if not keep_focus or not self._is_evince_running(pdf_file):
             self._launch_evince(pdf_file)
 
     def supports_platform(self, platform):
