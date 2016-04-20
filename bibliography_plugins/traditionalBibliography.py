@@ -10,6 +10,7 @@ import codecs
 from collections import Mapping
 
 import sublime
+import traceback
 
 # LaTeX -> Unicode decoder
 latex_chars.register()
@@ -73,7 +74,19 @@ class EntryWrapper(Mapping):
             return self.entry.cite_key
 
         if key in Name.NAME_FIELDS:
-            people = [Name(x) for x in tokenize_list(self.entry[key])]
+            people = []
+            for x in tokenize_list(self.entry[key]):
+                try:
+                    people.append(Name(x))
+                except:
+                    print(u'Error handling field "{0}" with value "{1}"'.format(
+                        key, x
+                    ))
+                    traceback.print_exc()
+
+            if len(people) == 0:
+                return u''
+
             if short:
                 result = _get_people_short(people)
             else:
