@@ -5,10 +5,12 @@ from bibtex.names import Name
 from bibtex.tex import tokenize_list
 
 import latex_chars
+from latextools_utils import cache
 
 import codecs
 from collections import Mapping
-
+import hashlib
+import os
 import sublime
 import traceback
 
@@ -108,6 +110,16 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
         entries = []
         parser = Parser()
         for bibfname in bib_files:
+            cache_name = "bib_" + hashlib.md5(bibfname.encode("utf8")).hexdigest()
+            modified_time = os.path.getmtime(bibfname)
+            try:
+                (cached_time, cached_entries) = cache.read_global(cache_name)
+                if modified_time < cached_time:
+                    entries.extend(cached_entries)
+                    continue
+            except:
+                pass
+
             try:
                 bibf = codecs.open(bibfname, 'r', 'UTF-8', 'ignore')  # 'ignore' to be safe
             except IOError:
@@ -124,6 +136,14 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                     if entry.entry_type in ('xdata', 'comment', 'string'):
                         continue
                     entries.append(EntryWrapper(entry))
+
+                try:
+                    cache.write_global(cache_name, (modified_time, entries))
+                except:
+                    print('Error occurred while trying to write to cache {0}'.format(
+                        cache_name
+                    ))
+                    traceback.print_exc()
             finally:
                 try:
                     bibf.close()

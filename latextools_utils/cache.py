@@ -251,7 +251,10 @@ def _global_cache_path():
 
 def _write(cache_path, name, obj):
     if _ST3:
-        os.makedirs(cache_path, exist_ok=True)
+        try:
+            os.makedirs(cache_path, exist_ok=True)
+        except FileExistsError:
+            pass
     else:
         if not os.path.isdir(cache_path):
             os.makedirs(cache_path)
