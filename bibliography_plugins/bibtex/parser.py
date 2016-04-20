@@ -207,7 +207,7 @@ class Parser(object):
         except IndexError:
             self.unexpected_token('identifier')
 
-        if self.token_type == 'IDENTIFIER':
+        if self.token_type in ('IDENTIFIER', 'NUMBER'):
             node = EntryKeyNode()
             node.value = self.token_value
             return node

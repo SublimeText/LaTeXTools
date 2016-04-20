@@ -532,6 +532,23 @@ class TestEntryKey(ParserTest):
             'id'
         )
 
+    def test_entry_key_with_number(self):
+        self.parser.tokens = [('NUMBER', '123456', {})]
+        self.parser._current_token = 0
+        self.parser._tokens_len = 1
+
+        node = self.parser.entry_key()
+
+        self.assertIsInstance(
+            node,
+            EntryKeyNode
+        )
+
+        self.assertEqual(
+            node.value,
+            '123456'
+        )
+
     def test_entry_key_with_invalid_token(self):
         self.parser.tokens = [('EOF', 'EOF', {})]
         self.parser._current_token = 0
@@ -952,6 +969,26 @@ class TestParse(unittest.TestCase):
 
         self.assertIsNotNone(
             result.get_entries('id')
+        )
+
+    def test_parse_entry_with_number_for_key(self):
+        parser = Parser(self.DummyLexer([
+            ('ENTRY_START', '@', {}),
+            ('ENTRY_TYPE', 'book', {}),
+            ('NUMBER', '123456', {}),
+            ('ENTRY_END', '}', {}),
+            ('EOF', '', {})
+        ]))
+
+        result = parser.parse(None)
+
+        self.assertIsInstance(
+            result,
+            Database
+        )
+
+        self.assertIsNotNone(
+            result.get_entries('123456')
         )
 
     def test_parse_entry_with_field(self):
