@@ -45,12 +45,12 @@ def delete_local_cache(tex_root):
     """
     Removes the local cache folder and the local cache files
     """
-    print("Deleting local cache for '{0}'.".format(tex_root))
+    print(u"Deleting local cache for '{0}'.".format(repr(tex_root)))
     local_cache_paths = [_hidden_local_cache_path(),
                          _local_cache_path(tex_root)]
     for cache_path in local_cache_paths:
         if os.path.exists(cache_path):
-            print("Delete local cache folder '{0}'".format(cache_path))
+            print(u"Delete local cache folder '{0}'".format(repr(cache_path)))
             shutil.rmtree(cache_path)
 
 
@@ -59,7 +59,7 @@ def invalidate_local_cache(cache_path):
     Invalidates the local cache by removing the cache folders
     """
     if os.path.exists(cache_path):
-        print("Invalidate local cache '{0}'.".format(cache_path))
+        print(u"Invalidate local cache '{0}'.".format(repr(cache_path)))
         shutil.rmtree(cache_path)
 
 
@@ -283,19 +283,19 @@ def _create_cache_timestamp(cache_path):
     """
     access_path = os.path.join(cache_path, _CACHE_TIMESTAMP_FILE)
     if not os.path.exists(access_path):
-        print("Writing cache creation timestamp")
+        print(u"Writing cache creation timestamp")
         created = long(time.time())
         try:
             with open(access_path, "w") as f:
                 f.write(str(created))
         except Exception as e:
-            print("Error occured writing cache creation timestamp")
+            print(u"Error occured writing cache creation timestamp")
             print(e)
 
 
 def _validate_life_span(cache_path):
     life_span = _read_life_span()
-    print("life_span: '{0}'".format(life_span))
+    print(u"life_span: '{0}'".format(life_span))
     # if life span is none: only manual deletion
     if life_span is None:
         return
@@ -304,9 +304,9 @@ def _validate_life_span(cache_path):
 
     current_time = long(time.time())
     if created + life_span < current_time:
-        print("Life span of local cache is over. Invalidate local cache.")
+        print(u"Life span of local cache is over. Invalidate local cache.")
         invalidate_local_cache(cache_path)
-        raise CacheMiss("Cache life span expired")
+        raise CacheMiss(u"Cache life span expired")
 
 
 def _read_cache_timestamp(cache_path):
@@ -315,18 +315,18 @@ def _read_cache_timestamp(cache_path):
         with open(access_path, "r") as f:
             created = long(f.read())
     except:
-        print("No creation timestamp for local cache")
+        print(u"No creation timestamp for local cache")
         invalidate_local_cache(cache_path)
-        raise CacheMiss("Life span timestamp missing")
+        raise CacheMiss(u"Life span timestamp missing")
     return created
 
 
 def _read_life_span():
     try:
         life_span_string = get_setting("local_cache_life_span")
-        print("life_span_string: '{0}'".format(life_span_string))
+        print(u"life_span_string: '{0}'".format(repr(life_span_string)))
         if not life_span_string:
-            raise Exception("No lifespan defined")
+            raise Exception(u"No lifespan defined")
         if life_span_string == "infinite":
             return None
         life_span = _parse_life_span_string(life_span_string)
@@ -350,8 +350,8 @@ def _convert_life_span_string(life_span_string):
     """Converts a TIME_RE compatible life span string,
     raises an exception if it is not compatible"""
     (d, h, m, s) = TIME_RE.match(life_span_string).groups()
-    print("User options: (days: {0}, hours: {1}, minutes: {2}, seconds: {3}):"
-          .format(d, h, m, s))
+    print(u"User options: (days: {0}, hours: {1}, minutes: {2}, seconds: {3}):"
+          .format(repr(d), repr(h), repr(m), repr(s)))
     # time conversions in seconds
     times = [(s, 1), (m, 60), (h, 3600), (d, 86400)]
     # sum the converted times

@@ -26,7 +26,7 @@ class ClearLocalLatexCacheCommand(sublime_plugin.WindowCommand):
 		tex_root = getTeXRoot.get_tex_root(view)
 		if tex_root:
 			try:
-				cache.delete_local_cache(root_file)
+				cache.delete_local_cache(tex_root)
 			except:
 				print('Error while trying to delete local cache')
 				traceback.print_exc()
