@@ -79,8 +79,8 @@ class Lexer(object):
                         self.whitespace_token()     or
                         self.comma_token()          or
                         self.key_token()            or
-                        self.number_token()         or
                         self.identifier_token()     or
+                        self.number_token()         or
                         self.value_token()          or
                         self.quoted_string_token()  or
                         self.hash_token()           or

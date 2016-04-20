@@ -78,6 +78,9 @@ class EntryWrapper(Mapping):
         if key in Name.NAME_FIELDS:
             people = []
             for x in tokenize_list(self.entry[key]):
+                if x.strip() == '':
+                    continue
+
                 try:
                     people.append(Name(x))
                 except:
