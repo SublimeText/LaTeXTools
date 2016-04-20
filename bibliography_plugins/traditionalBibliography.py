@@ -111,8 +111,9 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
         parser = Parser()
         for bibfname in bib_files:
             cache_name = "bib_" + hashlib.md5(bibfname.encode("utf8")).hexdigest()
-            modified_time = os.path.getmtime(bibfname)
             try:
+                modified_time = os.path.getmtime(bibfname)
+
                 (cached_time, cached_entries) = cache.read_global(cache_name)
                 if modified_time < cached_time:
                     entries.extend(cached_entries)
