@@ -27,14 +27,18 @@ class LatexFillEnvCommand(sublime_plugin.TextCommand):
 
         if not is_cwl_available():
             if insert_char:
-                view.insert(edit, point, insert_char)
+                for sel in view.sel():
+                    view.insert(edit, sel.b, insert_char)
                 add_closing_bracket(view, edit)
             return
 
         if insert_char:
             # append the insert_char to the end of the current line if it
             # is given so this works when being triggered by pressing "{"
-            point += view.insert(edit, point, insert_char)
+            point += len(insert_char)
+            # insert the char to every selection
+            for sel in view.sel():
+                view.insert(edit, sel.b, insert_char)
 
             do_completion = get_setting("env_auto_trigger", False)
 
