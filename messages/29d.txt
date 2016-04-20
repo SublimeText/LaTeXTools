@@ -1,0 +1,6 @@
+LaTeXTools Plugin version 3.7.4 (2016-04-20) changelog:
+
+Bugfix:
+
+- Fix additional issues with bib parsing reported in #694
+- Fix Evince view function reported in #689
