@@ -1,0 +1,5 @@
+LaTeXTools Plugin version 3.7.8 (2016-04-21) changelog:
+
+Bugfixes:
+
+- ST2 will now accept bibliography with just a string
