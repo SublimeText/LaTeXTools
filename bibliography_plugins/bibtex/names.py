@@ -85,7 +85,7 @@ def tokenize_name(name_str):
         forenames = extract_middle_names(first)
         lastnames = extract_name_prefix(last)
         return NameResult(
-            forenames[0],
+            forenames[0] if len(forenames) > 0 else '',
             forenames[1] if len(forenames) > 1 else '',
             lastnames[0] if len(lastnames) > 1 else '',
             lastnames[1] if len(lastnames) > 1 else lastnames[0],
@@ -111,7 +111,7 @@ def tokenize_name(name_str):
                     break
 
         return NameResult(
-            forenames[0],
+            forenames[0] if len(forenames) > 0 else '',
             forenames[1] if len(forenames) > 1 else '',
             u' '.join(lastnames[:name_index]) if len(lastnames) > 1 else '',
             u' '.join(lastnames[name_index:]) if len(lastnames) > 1 else lastnames[0],
@@ -123,7 +123,7 @@ def tokenize_name(name_str):
         forenames = extract_middle_names(first)
         lastnames = extract_name_prefix(last)
         return NameResult(
-            forenames[0],
+            forenames[0] if len(forenames) > 0 else '',
             forenames[1] if len(forenames) > 1 else '',
             lastnames[0] if len(lastnames) > 1 else '',
             lastnames[1] if len(lastnames) > 1 else lastnames[0],

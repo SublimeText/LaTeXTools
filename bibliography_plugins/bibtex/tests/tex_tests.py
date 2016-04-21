@@ -45,3 +45,9 @@ class TestTokenizeList(unittest.TestCase):
             tokenize_list(u'Chemikalien und Eingeweide', _and='und'),
             [u'Chemikalien', u'Eingeweide']
         )
+
+    def test_multiple_separators_no_entry(self):
+        self.assertEqual(
+            tokenize_list(u'Chemicals and and Entrails'),
+            [u'Chemicals', u'Entrails']
+        )

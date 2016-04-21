@@ -52,4 +52,4 @@ def split_tex_string(string, maxsplit=-1, sep=None):
 
 
 def tokenize_list(list_str, _and='and'):
-    return split_tex_string(list_str, sep=r'(?iu)[\s~]+' + _and + r'(?:[\s~]+|$)')
+    return split_tex_string(list_str, sep=r'(?iu)(?:|([\s~])+)' + _and + r'(?:[\s~]+|$)')
