@@ -31,7 +31,9 @@ class TexcountCommand(sublime_plugin.TextCommand):
         env = dict(os.environ)
         env['PATH'] = texpath
 
-        command = ['texcount', '-total', '-merge', '-utf8']
+        sub_level = args.get('sub_level', 'chapter')
+
+        command = ['texcount', '-merge', '-sub='+sub_level, '-utf8']
         cwd = os.path.dirname(tex_root)
         command.append(os.path.basename(tex_root))
 
@@ -55,8 +57,13 @@ class TexcountCommand(sublime_plugin.TextCommand):
             )
 
             result = p.communicate()[0].decode('utf-8').strip()
+            # result = p.communicate()[1].decode('utf-8').strip()
             if p.returncode == 0:
-                self.view.window().show_quick_panel(result.splitlines()[1:-4], None)
+                res_split = result.splitlines()
+                try:
+                    self.view.window().show_quick_panel(res_split[1:4] + res_split[9:], None)
+                except TypeError:
+                    self.view.window().show_quick_panel(res_split[1:4], None)
             else:
                 sublime.error_message(
                     'Error while running TeXCount: {0}'.format(
