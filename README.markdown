@@ -11,14 +11,17 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* v3.7.6 (2016-04-20). 
+*Latest revision:* v3.7.7 (2016-04-21). 
 
 *Headline features*:
+
   * New viewers for Preview.app and Okular
-  * Improved bibliography parsing
+  * New bibliography parser available (see the settings file)
   * Support for most citation commands, especially using BibLaTeX
 
 *Reminder*: See the [Settings section](#settings) for details on the Settings system, which was updated in v3.6.1 (2016-01-01).
+
+**Note**: If you've been following along with the v3.7.x release, v3.7.7 is a major change. I've restored the previous bibliography parsing from v3.6 and earlier as default. If you want to use the new parsing, you need to change the `bibliography` setting to `"new_bibliography"`. Thanks to everyone who has filed bug reports. At present, all the reported bugs should be resolved, but I'm not certain that some don't remain (BibTeX is a wild world) and the older parsing seems to be substantially faster for those with extremely large bibliographies.
 
 
 
