@@ -540,6 +540,7 @@ NOTE: for the time being, you will need to refer to the `LaTeXTools.sublime-sett
 
 **Bibliographic references settings**:
 
+- `bibliography` (`"traditional_bibliography"`): specifies the bibliography plugin to use to handle extracting entries from a bibliography.
 - `cite-panel-format` and `cite_autocomplete_format`: see the section on ref/cite completion, and the comments in `LaTeXTools.sublime-settings`
 
 ### Project-Specific Settings ###
