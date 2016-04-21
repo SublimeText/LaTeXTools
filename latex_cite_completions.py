@@ -406,7 +406,7 @@ def run_plugin_command(command, *args, **kwargs):
         plugins = 'traditional_bibliography'
 
     result = None
-    if type(plugins) == strbase:
+    if isinstance(plugins, strbase):
         result = _run_command(plugins)
     else:
         for plugin_name in plugins:

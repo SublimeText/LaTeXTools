@@ -120,3 +120,6 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
 
             print("Found %d total bib entries" % (len(entries),))
         return entries
+
+    def on_insert_citation(self, keyword):
+        print('Inserted {0}'.format(keyword))
