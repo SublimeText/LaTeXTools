@@ -113,8 +113,8 @@ def focus_st():
 class JumpToPdf(sublime_plugin.TextCommand):
 	def run(self, edit, **args):
 		# Check prefs for PDF focus and sync
-		keep_focus = get_setting('keep_focus', True)
-		forward_sync = get_setting('forward_sync', True)
+		keep_focus = args.get('keep_focus', get_setting('keep_focus', True))
+		forward_sync = args.get('forward_sync', get_setting('forward_sync', True))
 
 		# If invoked from keybinding, we sync
 		# Rationale: if the user invokes the jump command, s/he wants to see the result of the compilation.
@@ -153,8 +153,7 @@ class JumpToPdf(sublime_plugin.TextCommand):
 
 		if forward_sync:
 			try:
-				viewer.forward_sync(pdffile, srcfile, line, col, keep_focus=args.get('keep_focus',
-				 	get_setting('keep_focus', True)))
+				viewer.forward_sync(pdffile, srcfile, line, col, keep_focus=keep_focus)
 			except (AttributeError, NotImplementedError):
 				try:
 					viewer.view_file(pdffile, keep_focus=keep_focus)
