@@ -153,7 +153,8 @@ class JumpToPdf(sublime_plugin.TextCommand):
 
 		if forward_sync:
 			try:
-				viewer.forward_sync(pdffile, srcfile, line, col, keep_focus=args.get('keep_focus', get_setting('keep_focus', True)))
+				viewer.forward_sync(pdffile, srcfile, line, col, keep_focus=args.get('keep_focus',
+				 	get_setting('keep_focus', True)))
 			except (AttributeError, NotImplementedError):
 				try:
 					viewer.view_file(pdffile, keep_focus=keep_focus)
