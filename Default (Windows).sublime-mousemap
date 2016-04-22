@@ -2,7 +2,7 @@
     {
         "button": "button1", 
         "modifiers": ["alt"], 
-        "command": "jumpto_tex_anywhere", 
+        "command": "jumpto_tex_anywhere_by_mouse", 
         "press_command": "drag_select", 
         // change this to the command to the command,
         // that will be executed

@@ -195,14 +195,8 @@ def _opt_jumpto_self_def_command(view, com_reg):
 
 
 class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
-    def run(self, edit, fallback_command=""):
+    def run(self, edit):
         view = self.view
-
-        if not view.score_selector(view.sel()[0].b, "text.tex.latex"):
-            if fallback_command:
-                print("Run command '{0}'".format(fallback_command))
-                view.run_command(fallback_command)
-            return
         if len(view.sel()) != 1:
             print("Jump to anywhere does not work with multiple cursors")
             return
@@ -255,3 +249,19 @@ class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
             if (command_region[0] + b - 1 <= sel.begin() and
                     sel.end() <= command_region[1] + b):
                 _opt_jumpto_self_def_command(view, com_reg)
+
+
+class JumptoTexAnywhereByMouseCommand(sublime_plugin.WindowCommand):
+    def run(self, fallback_command=""):
+        view = self.window.active_view()
+
+        def score_selector(selector):
+            point = view.sel()[0].b if len(view.sel()) else 0
+            return view.score_selector(point, selector)
+
+        if score_selector("text.tex.latex"):
+            print("Jump in tex file.")
+            view.run_command("jumpto_tex_anywhere")
+        elif fallback_command:
+            print("Run command '{0}'".format(fallback_command))
+            view.run_command(fallback_command)
