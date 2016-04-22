@@ -7,9 +7,11 @@ from subprocess import Popen, PIPE
 import os
 
 if sublime.version() < '3000':
+    from latextools_utils import get_setting
     from getTeXRoot import get_tex_root
     from get_texpath import get_texpath
 else:
+    from .latextools_utils import get_setting
     from .getTeXRoot import get_tex_root
     from .get_texpath import get_texpath
 
@@ -31,9 +33,21 @@ class TexcountCommand(sublime_plugin.TextCommand):
         env = dict(os.environ)
         env['PATH'] = texpath
 
-        sub_level = args.get('sub_level', 'chapter')
+        sub_level = args.get(
+            'sub_level',
+            get_setting(
+                'word_count_sub_level',
+                'none'
+            )
+        )
 
-        command = ['texcount', '-merge', '-sub='+sub_level, '-utf8']
+        if sub_level not in ['none', 'part', 'chapter', 'section']:
+            sub_level = 'none'
+
+        if sub_level == 'none':
+            command = ['texcount', '-total', '-merge', '-utf8']
+        else:
+            command = ['texcount', '-merge', '-sub=' + sub_level, '-utf8']
         cwd = os.path.dirname(tex_root)
         command.append(os.path.basename(tex_root))
 
@@ -57,13 +71,11 @@ class TexcountCommand(sublime_plugin.TextCommand):
             )
 
             result = p.communicate()[0].decode('utf-8').strip()
-            # result = p.communicate()[1].decode('utf-8').strip()
             if p.returncode == 0:
                 res_split = result.splitlines()
-                try:
-                    self.view.window().show_quick_panel(res_split[1:4] + res_split[9:], None)
-                except TypeError:
-                    self.view.window().show_quick_panel(res_split[1:4], None)
+                self.view.window().show_quick_panel(
+                    res_split[1:4] + res_split[9:], None
+                )
             else:
                 sublime.error_message(
                     'Error while running TeXCount: {0}'.format(
