@@ -60,10 +60,8 @@ class TexcountCommand(sublime_plugin.TextCommand):
             # result = p.communicate()[1].decode('utf-8').strip()
             if p.returncode == 0:
                 res_split = result.splitlines()
-                try:
-                    self.view.window().show_quick_panel(res_split[1:4] + res_split[9:], None)
-                except TypeError:
-                    self.view.window().show_quick_panel(res_split[1:4], None)
+                self.view.window().show_quick_panel(res_split[1:4] + res_split[9:], None)
+
             else:
                 sublime.error_message(
                     'Error while running TeXCount: {0}'.format(
