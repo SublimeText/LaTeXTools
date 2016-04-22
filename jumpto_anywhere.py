@@ -113,7 +113,7 @@ def _jumpto_cite(view, com_reg, pos):
     ana = analysis.get_analysis(tex_root)
 
     bib_commands = ana.filter_commands(
-       ["bibliography", "nobibliography", "addbibresource"])
+        ["bibliography", "nobibliography", "addbibresource"])
     for bib_command in bib_commands:
         for bib_file in jumpto_tex_file._split_bib_args(bib_command.args):
             if not os.path.splitext(bib_file)[1]:
@@ -124,8 +124,8 @@ def _jumpto_cite(view, com_reg, pos):
                 start = file_content.find(bib_key)
                 end = start + len(bib_key)
                 # check that we found the entry and we are not inside a word
-                if start == -1 or file_content[start-1:start].isalnum() or\
-                        file_content[end:end+1].isalnum():
+                if (start == -1 or file_content[start - 1:start].isalnum() or
+                        file_content[end:end + 1].isalnum()):
                     continue
                 region = sublime.Region(start, end)
                 message = "Jumping to bibliography key '{0}'.".format(bib_key)
