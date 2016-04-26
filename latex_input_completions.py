@@ -89,38 +89,45 @@ _fillall_entries = [
     }
 ]
 
-# get additional entries from the settings
-_setting_entries = get_setting("fillall_helper_entries", [])
-_filter_invalid_entries(_setting_entries)
-_fillall_entries.extend(_setting_entries)
+_TEX_INPUT_GROUP_MAPPING = None
+TEX_INPUT_FILE_REGEX = None
 
-# update the fields of the entries
-_update_input_entries(_fillall_entries)
 
-_fillall_entries.append({
-    "regex": r'([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?ssalctnemucod\\',
-    "type": "cached",
-    "cache_name": "cls"
-})
-_fillall_entries.append({
-    "regex": r'([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?egakcapesu\\',
-    "type": "cached",
-    "cache_name": "pkg"
-})
-_fillall_entries.append({
-    "regex": r'([^{}\[\]]*)\{elytsyhpargoilbib\\',
-    "type": "cached",
-    "cache_name": "bst"
-})
+def plugin_loaded():
+    # get additional entries from the settings
+    _setting_entries = get_setting("fillall_helper_entries", [])
+    _filter_invalid_entries(_setting_entries)
+    _fillall_entries.extend(_setting_entries)
 
-TEX_INPUT_FILE_REGEX = "(?:{0})".format("|".join(
-    entry["regex"] for entry in _fillall_entries))
+    # update the fields of the entries
+    _update_input_entries(_fillall_entries)
 
-_TEX_INPUT_GROUP_MAPPING = {i+1: v for i, v in enumerate(_fillall_entries)}
+    _fillall_entries.extend([
+        {
+            "regex": r'([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?ssalctnemucod\\',
+            "type": "cached",
+            "cache_name": "cls"
+        },
+        {
+            "regex": r'([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?egakcapesu\\',
+            "type": "cached",
+            "cache_name": "pkg"
+        },
+        {
+            "regex": r'([^{}\[\]]*)\{elytsyhpargoilbib\\',
+            "type": "cached",
+            "cache_name": "bst"
+        }
+    ])
 
-TEX_INPUT_FILE_REGEX = re.compile(
-    "(?:{0})".format("|".join(entry["regex"] for entry in _fillall_entries))
-)
+    global _TEX_INPUT_GROUP_MAPPING, TEX_INPUT_FILE_REGEX
+    _TEX_INPUT_GROUP_MAPPING = {i + 1: v for i, v in enumerate(_fillall_entries)}
+    TEX_INPUT_FILE_REGEX = re.compile(
+        "(?:{0})".format("|".join(entry["regex"] for entry in _fillall_entries))
+    )
+
+if not _ST3:
+    plugin_loaded()
 
 
 # Get all file by types
