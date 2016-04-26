@@ -26,6 +26,13 @@
                                 "caption": "Settings – Default (read-only)"
                             },
                             {
+                                "command": "open_latextools_default_settings",
+                                "args": {
+                                    "file": "LaTeXTools (Advanced).sublime-settings"
+                                },
+                                "caption": "Settings – Advanced (read-only)"
+                            },
+                            {
                                 "command": "open_latextools_user_settings",
                                 "caption": "Settings – User"
                             },

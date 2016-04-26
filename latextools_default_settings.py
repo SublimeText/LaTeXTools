@@ -8,12 +8,14 @@ class OpenLatextoolsDefaultSettingsCommand(sublime_plugin.WindowCommand):
         super(OpenLatextoolsDefaultSettingsCommand, self).__init__(*args, **kwargs)
         self.view = None
 
-    def run(self):
+    def run(self, **args):
+        file = args.get('file', 'LaTeXTools.sublime-settings')
+
         self.view = sublime.active_window().open_file(
             os.path.join(
                 sublime.packages_path(),
                 "LaTeXTools",
-                "LaTeXTools.sublime-settings"
+                file
             )
         )
 
