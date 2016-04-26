@@ -15,37 +15,42 @@ class SettingsWrapper(Mapping):
     all settings that might be globally set (e.g., changing the texpath
     setting for a project without changing viewer-specific settings)
     '''
-    def __init__(self, key, values, parent=None):
+    def __init__(self, key, values, view_settings=None, parent=None):
         self.key = key
 
-        if parent is None:
-            self.values = values
+        if parent is not None:
+            self._values = parent._values
+            self._values.update(values)
         else:
-            settings = sublime.load_settings('LaTeXTools.sublime-settings').\
-                get(parent.key).get(self.key)
-            if settings is not None and isinstance(settings, dict):
-                self.values = dict(settings)
-                self.values.update(values)
-            else:
-                self.values = values
+            values = {}
+            if view_settings is None:
+                view_settings = {}
+
+            advanced_settings = sublime.load_settings('LaTeXTools (Advanced).sublime-settings')
+            global_settings = sublime.load_settings('LaTeXTools.sublime-settings')
+
+            for s in (
+                advanced_settings.get(self.key, {}),
+                global_settings.get(self.key, {}),
+                view_settings.get(self.key, {}),
+                values
+            ):
+                if isinstance(s, dict) or isinstance(s, sublime.Settings):
+                    for key in s:
+                        values[key] = s[key]
+            self._values = values
 
     def get(self, key, default=None):
         try:
-            result = self.values.get(key)
+            result = self._values.get(key)
         except KeyError:
             result = None
-
-        if result is None:
-            settings = sublime.load_settings('LaTeXTools.sublime-settings').\
-                get(self.key)
-            if settings:
-                result = settings.get(key)
 
         if result is None:
             result = default
 
         if isinstance(result, sublime.Settings) or isinstance(result, dict):
-            result = SettingsWrapper(key, result, self)
+            result = SettingsWrapper(key, result, parent=self)
 
         return result
 
@@ -56,28 +61,38 @@ class SettingsWrapper(Mapping):
         return result
 
     def __iter__(self):
-        return iter(self.values)
+        return iter(self._values)
 
     def __len__(self):
-        return len(self.values)
+        return len(self._values)
 
 
-def get_setting(setting, default=None):
+def get_setting(setting, default=None, view=None):
+    advanced_settings = sublime.load_settings('LaTeXTools (Advanced).sublime-settings')
     global_settings = sublime.load_settings('LaTeXTools.sublime-settings')
-
     try:
-        result = sublime.active_window().active_view().settings().get(setting)
-    except AttributeError:
-        # no view defined
-        result = None
+        if view is None:
+            view_settings = sublime.active_window().active_view().settings()
+        elif isinstance(view, sublime.View):
+            view_settings = view.settings()
+        else:
+            view_settings = {}
+    except:
+        # no view defined or view invalid
+        view_settings = {}
+
+    result = view_settings.get(setting)
 
     if result is None:
-        result = global_settings.get(setting, default)
+        result = global_settings.get(setting)
 
     if result is None:
+        result = advanced_settings.get(setting, default)
+
+    if result is None or '':
         result = default
-    
+
     if isinstance(result, sublime.Settings) or isinstance(result, dict):
-        result = SettingsWrapper(setting, result)
+        result = SettingsWrapper(setting, result, view_settings)
 
     return result
