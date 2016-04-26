@@ -65,29 +65,7 @@ def _update_input_entries(entries):
         entry["type"] = "input"
 
 
-_fillall_entries = [
-    {
-        "regex": r'(?:edulcni|tupni)\\',
-        "extensions": [e[1:] for e in get_tex_extensions()],
-        "strip_extensions": [".tex"]
-    },
-    {
-        "regex": r'(?:\][^{}\[\]]*\[)?scihpargedulcni\\',
-        "extensions": get_setting("image_types", [
-            "pdf", "png", "jpeg", "jpg", "eps"
-        ])
-    },
-    {
-        "regex": r'(?:\][^{}\[\]]*\[)?ecruoserbibdda\\',
-        "extensions": ["bib"]
-    },
-    {
-        "regex": r'yhpargoilbib\\',
-        "extensions": ["bib"],
-        "strip_extensions": [".bib"],
-        "comma_separated": True
-    }
-]
+_fillall_entries = []
 
 _TEX_INPUT_GROUP_MAPPING = None
 TEX_INPUT_FILE_REGEX = None
@@ -98,6 +76,30 @@ def plugin_loaded():
     _setting_entries = get_setting("fillall_helper_entries", [])
     _filter_invalid_entries(_setting_entries)
     _fillall_entries.extend(_setting_entries)
+
+    _fillall_entries.extend([
+        {
+            "regex": r'(?:edulcni|tupni)\\',
+            "extensions": [e[1:] for e in get_tex_extensions()],
+            "strip_extensions": [".tex"]
+        },
+        {
+            "regex": r'(?:\][^{}\[\]]*\[)?scihpargedulcni\\',
+            "extensions": get_setting("image_types", [
+                "pdf", "png", "jpeg", "jpg", "eps"
+            ])
+        },
+        {
+            "regex": r'(?:\][^{}\[\]]*\[)?ecruoserbibdda\\',
+            "extensions": ["bib"]
+        },
+        {
+            "regex": r'yhpargoilbib\\',
+            "extensions": ["bib"],
+            "strip_extensions": [".bib"],
+            "comma_separated": True
+        }
+    ])
 
     # update the fields of the entries
     _update_input_entries(_fillall_entries)
