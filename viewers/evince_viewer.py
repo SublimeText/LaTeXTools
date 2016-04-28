@@ -64,9 +64,6 @@ class EvinceViewer(BaseViewer):
         ev_path = self._get_evince_folder()
         py_binary, sync_wait = self._get_settings()
 
-        root_folder = os.path.dirname(pdf_file)
-        src_file = os.path.relpath(tex_file, root_folder)
-
         evince_running = self._is_evince_running(pdf_file)
         if not keep_focus or not evince_running:
             self._launch_evince(pdf_file)
@@ -77,7 +74,7 @@ class EvinceViewer(BaseViewer):
             os.path.join(ev_path, 'evince_forward_search'),
             pdf_file,
             str(line),
-            src_file
+            tex_file
         ])
 
     def view_file(self, pdf_file, **kwargs):
