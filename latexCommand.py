@@ -30,6 +30,12 @@ class latexcmdCommand(sublime_plugin.TextCommand):
 		expr = re.match(rex, line)
 		if expr:
 			command = expr.group(1)[::-1]
+			if not len(command):
+				view.run_command("insert_snippet", {'contents': '\\cite{$1} $0'})
+				do_cite = self.view.settings().get("cite auto trigger",self.view.settings().get("cite_auto_trigger", True))
+				if do_cite:
+					view.run_command("latex_cite")
+				return
 			command_region = sublime.Region(point-len(command),point)
 			view.erase(edit, command_region)
 			# Be forgiving and skip \ if the user provided one (by mistake...)
