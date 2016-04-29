@@ -104,8 +104,7 @@ class SumatraViewer(BaseViewer):
                 return
 
     def forward_sync(self, pdf_file, tex_file, line, col, **kwargs):
-        root_folder = os.path.dirname(pdf_file)
-        src_file = os.path.relpath(tex_file, root_folder)
+        src_file = tex_file
 
         self._run_with_sumatra_exe([
             '-reuse-instance',

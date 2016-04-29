@@ -10,9 +10,6 @@ class SkimViewer(BaseViewer):
         keep_focus = kwargs.pop('keep_focus', True)
         path_to_skim = '/Applications/Skim.app'
 
-        root_folder = os.path.dirname(pdf_file)
-        src_file = os.path.relpath(tex_file, root_folder)
-
         if not os.path.exists(path_to_skim):
             path_to_skim = subprocess.check_output([
                 'osascript',
@@ -34,7 +31,7 @@ class SkimViewer(BaseViewer):
             command.append('-g')
 
         command += [
-            str(line), pdf_file, src_file
+            str(line), pdf_file, tex_file
         ]
 
         subprocess.Popen(command)

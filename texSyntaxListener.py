@@ -8,7 +8,13 @@ except ImportError:
     from .latextools_utils import get_setting
     from .latextools_utils.is_tex_file import is_tex_file
 
-LATEX_SYNTAX = 'Packages/LaTeX/LaTeX.tmLanguage'
+# the new syntax format has been added in build 3084
+_HAS_NEW_SYNTAX = sublime.version() >= "3084"
+if _HAS_NEW_SYNTAX:
+    LATEX_SYNTAX = 'Packages/LaTeX/LaTeX.sublime-syntax'
+else:
+    LATEX_SYNTAX = 'Packages/LaTeX/LaTeX.tmLanguage'
+
 
 class TeXSyntaxListener(sublime_plugin.EventListener):
     def on_load(self, view):
@@ -21,8 +27,7 @@ class TeXSyntaxListener(sublime_plugin.EventListener):
         if view.is_scratch() or not view.file_name():
             return
 
-        current_syntax = view.settings().get('syntax')
-        if current_syntax == LATEX_SYNTAX:
+        if view.score_selector(0, "text.tex"):
             return
 
         if not get_setting('latextools_set_syntax', True):
