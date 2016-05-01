@@ -16,8 +16,7 @@
                         "children":
                         [
                             {
-                                "command": "open_file",
-                                "args": {"file": "${packages}/LaTeXTools/README.markdown"},
+                                "command": "open_latextools_readme_file",
                                 "caption": "README"
                             },
                             { "caption": "-" },
