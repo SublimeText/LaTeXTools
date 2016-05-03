@@ -10,12 +10,14 @@ if sublime.version() < '3000':
     _ST3 = False
     from latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX, match
     from latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
+    from latex_own_command_completions import get_own_command_completion
     from getRegion import get_Region
     from latextools_utils import get_setting
 else:
     _ST3 = True
     from .latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX, match
     from .latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
+    from .latex_own_command_completions import get_own_command_completion
     from .getRegion import get_Region
     from .latextools_utils import get_setting
 
@@ -58,7 +60,7 @@ def _is_snippet(completion_entry):
     is a sublime snippet
     """
     completion_result = completion_entry[1]
-    return completion_result[0] == '\\' and '${1:' in completion_result
+    return completion_result[0] == '\\' and '{' in completion_result
 
 
 class LatexCwlCompletion(sublime_plugin.EventListener):
@@ -114,7 +116,8 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
             if match(rex, line) != None:
                 return []
 
-        completions = parse_cwl_file(parse_line_as_command)
+        completions = (parse_cwl_file(parse_line_as_command) +
+                       get_own_command_completion(view))
         # autocompleting with slash already on line
         # this is necessary to work around a short-coming in ST where having a keyed entry
         # appears to interfere with it recognising that there is a \ already on the line
