@@ -30,11 +30,22 @@ def get_own_command_completion(view):
     if not tex_root:
         return []
 
+    # use special handling (additional completions) for math mode
+    math_selector = (
+        "string.other.math.tex, "
+        "string.other.math.latex, "
+        "string.other.math.block.environment.latex"
+    )
+    is_math = bool(view.score_selector(view.sel()[0].b, math_selector))
+
     def make_completions():
         ana = analysis.get_analysis(tex_root)
-        return _make_own_command_completion(ana)
+        return _make_own_command_completion(ana, is_math)
 
-    return cache.cache(tex_root, "own_command_completion", make_completions)
+    cache_name = "own_command_completion"
+    if is_math:
+        cache_name += "_math"
+    return cache.cache(tex_root, cache_name, make_completions)
 
 
 def _make_own_env_completion(ana):
@@ -42,9 +53,14 @@ def _make_own_env_completion(ana):
     return [(c.args + "\tself-defined", c.args) for c in commands]
 
 
-def _make_own_command_completion(ana):
+def _make_own_command_completion(ana, is_math):
     com = ana.filter_commands(["newcommand", "renewcommand"])
     res = [_parse_command(c) for c in com]
+
+    if is_math:
+        dop = ana.filter_commands(["DeclareMathOperator"])
+        res.extend((s.args + "\tself-declared operator", s.args) for s in dop)
+
     return res
 
 
