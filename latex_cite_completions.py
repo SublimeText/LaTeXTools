@@ -439,7 +439,9 @@ def get_author_short(authors):
     # split authors using ' and ' and get last name for 'last, first' format
     authors = [a.split(", ")[0].strip(' ') for a in authors.split(" and ")]
     # get last name for 'first last' format (preserve {...} text)
-    authors = [a.split(" ")[-1] if a[-1] != '}' or a.find('{') == -1 else re.sub(r'{|}', '', a[len(a) - a[::-1].index('{'):-1]) for a in authors]
+    authors = [a.split(" ")[-1] if a[-1] != '}' or '{' not in a
+               else re.sub(r'{|}', '', a[a.rindex('{') + 1:-1])
+               for a in authors if len(a) > 0]
 
     # truncate and add 'et al.'
     if len(authors) > 2:
