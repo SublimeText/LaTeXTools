@@ -124,10 +124,11 @@
 	"linux" : {
 		// Path used when invoking tex & friends; MUST include $PATH
 		"texpath" : "$PATH:/usr/texbin",
-		// Command to invoke Python 2. Useful if you have both Python 2 and Python 3 on your system,
-		// and "python" by default is linked to Python 3. If blank, "python" is used
-		// Note: ST3 uses Python 3 internally, but the evince scripts need Python 2
-		"python2": "",
+		// Command to invoke Python. Useful if you have Python installed in a
+		// non-standard location or want to use a particular version of python.
+		// Both Python2 and Python3 are supported, but must have the DBus bindings
+		// installed.
+		"python": "",
 		// The name of the ST2 or ST3 executable. On Ubuntu, both subl and sublime-text are
 		// available for ST2; adjust as needed for other platforms, and for ST3
 		"sublime": "sublime-text",
