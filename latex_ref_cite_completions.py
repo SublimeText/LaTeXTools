@@ -40,13 +40,11 @@ class LatexRefCiteCommand(sublime_plugin.TextCommand):
                 "text.tex.latex"):
             return
 
-
         if insert_char:
-#            ed = view.begin_edit()
-#            point += view.insert(ed, point, insert_char)
-#            view.end_edit(ed)
-            # The above was roundabout and did not work on ST3!
-            point += view.insert(edit, point, insert_char)
+            point += len(insert_char)
+            # insert the char to every selection
+            for sel in view.sel():
+                view.insert(edit, sel.b, insert_char)
             # Get prefs and toggles to see if we are auto-triggering
             # This is only the case if we also must insert , or {, so we don't need a separate arg
             do_ref = get_setting('ref_auto_trigger', True)

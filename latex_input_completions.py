@@ -203,10 +203,18 @@ def add_closing_bracket(view, edit):
     # only add the closing bracked if auto match is enabled
     if not view.settings().get("auto_match_enabled", True):
         return
-    caret = view.sel()[0].b
-    view.insert(edit, caret, "}")
-    view.sel().subtract(view.sel()[0])
-    view.sel().add(sublime.Region(caret, caret))
+    new_sel = []
+    for sel in view.sel():
+        caret = sel.b
+        view.insert(edit, caret, "}")
+        new_sel.append(sublime.Region(caret, caret))
+    if new_sel:
+        view.sel().clear()
+        if _ST3:
+            view.sel().add_all(new_sel)
+        else:
+            for sel in new_sel:
+                view.sel().add(sel)
 
 class LatexFillInputCompletions(sublime_plugin.EventListener):
     def on_query_completions(self, view, prefix, locations):
@@ -264,7 +272,10 @@ class LatexFillInputCommand(sublime_plugin.TextCommand):
         if insert_char:
             # append the insert_char to the end of the current line if it
             # is given so this works when being triggered by pressing "{"
-            point += view.insert(edit, point, insert_char)
+            point += len(insert_char)
+            # insert the char to every selection
+            for sel in view.sel():
+                view.insert(edit, sel.b, insert_char)
 
             do_completion = get_setting("fill_auto_trigger", True)
 
@@ -308,11 +319,14 @@ class LatexFillInputCommand(sublime_plugin.TextCommand):
             if insert_char:
                 key += "}"
 
-            startpos = point - len(prefix)
-            view.run_command("latex_tools_replace", {"a": startpos, "b": point, "replacement": key})
-            caret = view.sel()[0].b
-            view.sel().subtract(view.sel()[0])
-            view.sel().add(sublime.Region(caret, caret))
+            if prefix:
+                for sel in view.sel():
+                    point = sel.b
+                    startpoint = point - len(prefix)
+                    endpoint = point
+                    view.run_command('latex_tools_replace', {'a': startpoint, 'b': endpoint, 'replacement': key})
+            else:
+                view.run_command("insert", {"characters": key})
 
         # autocomplete bracket if we aren't doing anything
         if not result and insert_char:
