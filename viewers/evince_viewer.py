@@ -4,12 +4,15 @@ from latextools_utils import get_setting
 from latextools_utils.sublime_utils import get_sublime_exe
 
 import os
+import sublime
 import subprocess
 import sys
 import time
 
 
 class EvinceViewer(BaseViewer):
+
+    PYTHON = None
 
     def _get_evince_folder(self):
         return os.path.normpath(
@@ -34,8 +37,33 @@ class EvinceViewer(BaseViewer):
         (python, sync_wait)
         '''
         linux_settings = get_setting('linux', {})
+        # TODO python2 should eventually be deprecated
+        python = linux_settings.get('python')
+        if python is None:
+            python = linux_settings.get('python2')
+
+        if python is None or python == '':
+            if self.PYTHON is not None:
+                python = self.PYTHON
+            else:
+                try:
+                    subprocess.check_call(['python', '-c', 'import dbus'])
+                    python = 'python'
+                except subprocess.CalledProcessError:
+                    try:
+                        subprocess.check_call(['python3', '-c', 'import dbus'])
+                        python = 'python3'
+                    except subprocess.CalledProcessError:
+                        sublime.error_message(
+                            '''Cannot find a valid Python interpreter.
+                            Please set the python setting in your LaTeXTools settings.
+                            '''.strip()
+                        )
+                        # exit the viewer process
+                        raise Exception('Cannot find a valid interpreter')
+                self.PYTHON = python
         return (
-            linux_settings.get('python2') or 'python',
+            python,
             linux_settings.get('sync_wait') or 1.0
         )
 
