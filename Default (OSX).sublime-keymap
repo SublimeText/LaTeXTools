@@ -329,6 +329,11 @@ LaTeX Package keymap for OS X
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "clear_local_latex_cache"},
 
+	// super+l,w to display word count
+	{	"keys": ["super+l", "w"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "texcount" },
 
 	// Avoid weird brace-matching behavior with indented text
 	{ "keys": ["{"], "command": "insert_snippet", "args": {"contents": "{$0}"}, "context":
