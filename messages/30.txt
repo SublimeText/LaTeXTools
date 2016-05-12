@@ -1,4 +1,4 @@
-LaTeXTools Plugin version 3.7.8 (2016-04-28) changelog:
+LaTeXTools Plugin version 3.7.9 (2016-04-28) changelog:
 
 Bugfixes:
 
