@@ -93,6 +93,9 @@ def find_labels_in_files(rootdir, src, labels):
     for f in re.findall(r'\\(?:input|include)\{([^\{\}]+)\}', src_content):
         find_labels_in_files(rootdir, f, labels)
 
+    for f in re.findall(r'\\(?:import)\{([^\{\}]+)\}\{([^\{\}]+)\}', src_content):
+        find_labels_in_files(rootdir+'\\'+f[0], f[1], labels)
+
 
 # get_ref_completions forms the guts of the parsing shared by both the
 # autocomplete plugin and the quick panel command
