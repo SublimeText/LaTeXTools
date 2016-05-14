@@ -39,7 +39,7 @@ class EvinceViewer(BaseViewer):
         linux_settings = get_setting('linux', {})
         # TODO python2 should eventually be deprecated
         python = linux_settings.get('python')
-        if python is None:
+        if python is None or python == '':
             python = linux_settings.get('python2')
 
         if python is None or python == '':
