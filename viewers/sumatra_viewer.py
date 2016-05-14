@@ -72,12 +72,8 @@ class SumatraViewer(BaseViewer):
             get('sumatra', get_setting('windows', {}).
                 get('sumatra', 'SumatraPDF.exe'))
 
-        if sumatra_binary == '' or sumatra_binary is None:
-            sumatra_binary = self._find_sumatra_exe()
-
-        if sumatra_binary is None:
-            _no_binary()
-            return
+        if sumatra_binary == '':
+            sumatra_binary = 'SumatraPDF.exe'
 
         try:
             subprocess.Popen(
