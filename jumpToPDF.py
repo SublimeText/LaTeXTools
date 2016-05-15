@@ -81,7 +81,7 @@ def focus_st():
 		platform = sublime.platform()
 		# TODO: this does not work on OSX
 		# and I don't know why...
-		if platform == 'osx':
+		if platform == 'osx' or platform == 'linux':
 			return
 
 		plat_settings = get_setting(platform, {})
