@@ -330,13 +330,17 @@
 	// "no_warnings" (only hide the panel if no warnings occur)
 	// "no_badboxes" (only hide the panel if no badbox messages occur when badboxes are enabled) and
 	// "never" (default, never hide the build panel)
-	"hide_build_panel": "never",
+	"hide_build_panel": "no_badboxes",
 
 	// OPTION: "display_bad_boxes"
 	// controls whether or not to display any bad boxes in the build output
 	// if this is not set to true, the setting "no_badboxes" for
 	// "hide_build_panel" is equivalent to "no_warnings"
 	"display_bad_boxes": false,
+
+	// number of seconds to display the "build succeeded" or "build failed"
+	// message
+	"build_finished_message_length": 2.0,
 
 // ------------------------------------------------------------------
 // Viewer settings

@@ -325,6 +325,12 @@ Two settings allow you to fine-tune the behavior of this command. `temp_files_ex
 
 This clears the [LaTeXTools cache](#latextools-cache). It is useful if the LaTeXTools cache information gets too out of date, but you want to maintain the LaTeX build files, such as `.aux`.
 
+### Show the build panel
+
+**Keybinding:** `shift+escape`
+
+This will show the LaTeXTools build panel, including any messages from the previous build.
+
 ### Forward and Inverse Search
 
 **Keybinding:** `C-l,j` (for forward search; inverse search depends on the previewer)
@@ -599,7 +605,7 @@ NOTE: for the time being, you will need to refer to the `LaTeXTools.sublime-sett
 
 ### Build Panel Settings
 - `highlight_build_panel` (`true`): if `true` the build panel will have a syntax applied to highlight any errors and warnings. Otherwise, the standard output panel configuration will be used.
-- `hide_build_panel` (`"never"`): controls whether or not to hide the build panel after a build is finished. Possible values:
+- `hide_build_panel` (`"no_badboxes"`): controls whether or not the build panel is show after a build. Possible values:
 	* `"always"` - hide the panel even if the build failed
 	* `"no_errors"` - only hide the panel if the build was successful even with warnings
 	* `"no_warnings"` - only hide the panel if no warnings occur
@@ -607,6 +613,7 @@ NOTE: for the time being, you will need to refer to the `LaTeXTools.sublime-sett
 	* `"never"` - never hide the build panel
 Any other value will be interpretted as the default.
 - `display_bad_boxes` (`false`): if `true` LaTeXTools will display any bad boxes encountered after a build. Note that this is disabled by default.
+- `build_finished_message_length` (`2.0`): the number of seconds to display the notification about the completion of the build in the status bar.
 
 ### Viewer settings
 

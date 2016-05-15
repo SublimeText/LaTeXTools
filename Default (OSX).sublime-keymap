@@ -223,9 +223,12 @@ LaTeX Package keymap for OS X
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text monospace.sublime-snippet"}},
 
-
-
-
+	// Show panel
+	{ "keys": ["shift+escape"],
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "panel_visible", "operator": "equal", "operand": false }],
+		"command": "show_panel", "args": {"panel": "output.latextools"}},
 
 		// Auto-pair ``$''
 		// Lifted from default file
