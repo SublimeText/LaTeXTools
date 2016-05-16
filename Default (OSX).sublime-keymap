@@ -2,6 +2,17 @@
 LaTeX Package keymap for OS X
 */
 [
+	// these also override ST3 commands, but we simply run the same commands
+	// it is necessary so on ST2 we can implement our build selector
+	{	"keys": ["super+b"],
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "latextools_build_selector"},
+	{	"keys": ["super+shift+b"],
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "latextools_build_selector",
+			"args": {"select": true}},
 
 	// New-style keybindings use "cmd+l" as a prefix
 	// This overrides "extend selection to line", which is remapped to
