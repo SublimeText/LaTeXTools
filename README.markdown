@@ -11,12 +11,12 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* v3.7.11 (2016-05-14).
+*Latest revision:* v3.7.12 (2016-05-17).
 
 *Headline features*:
 
-  * Updated Evince scripts to run on Python3 and attempt to autodetect correct python install
-  * Support for multiple cursors with \input, \include and environment completions
+ * Support for \subref
+ * Improve Okular support
 
 *Reminder*: See the [Settings section](#settings) for details on the Settings system, which was updated in v3.6.1 (2016-01-01).
 
