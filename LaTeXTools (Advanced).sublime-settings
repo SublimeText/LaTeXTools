@@ -63,6 +63,16 @@
 // Additional fill all helper settings (for experts)
 // ------------------------------------------------------------------
 	// entries for the fill all helper
+	// each entry can have the following keys:
+	// regex: the regex before the opening bracket in reversed order,
+	//		i.e. `tupni\\` instead of `\input`
+	// extensions: a list of the possible file extensions,
+	//		the completion will search for files with this extension
+	// strip_extensions (optional, []): a list of the part of extensions, which
+	//		should be stripped of.
+	// comma_separated (optional, false): whether the command can contain several
+	//		comma separated entries. If it is true, it will be triggered and complete
+	//		after commas (,)
 	"fillall_helper_entries": [
 		{
 			// includesvg
@@ -89,6 +99,5 @@
 
 	// these entries should only be used for project settings or 
 	// while you want to test new entries
-	"dynamic_fillall_helper_entries": [
-	],
+	"dynamic_fillall_helper_entries": [],
 }
