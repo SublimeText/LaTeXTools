@@ -26,12 +26,12 @@ _ref_special_commands = "|".join([
 ])[::-1]
 
 OLD_STYLE_REF_REGEX = re.compile(
-    r"([^_]*_)?(p)?(?:\*?(?=ferbus)fer(" +
+    r"([^_]*_)?(p)?(?:(?:\*(?=ferbus))?fer(" +
     _ref_special_commands +
     r")?)(?:\\|\b)"
 )
 NEW_STYLE_REF_REGEX = re.compile(
-    r"([^{}]*)\{(?:\*?(?=ferbus)fer(" +
+    r"([^{}]*)\{(?:(?:\*(?=ferbus))?fer(" +
     _ref_special_commands +
     r")?|)\\(\()?")
 

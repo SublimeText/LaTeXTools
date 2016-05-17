@@ -1,0 +1,5 @@
+LaTeXTools Plugin version 3.7.13 (2016-05-17) changelog:
+
+Bugfix:
+
+- Fix for \ref broken in last update (#733)
