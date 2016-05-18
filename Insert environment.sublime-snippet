@@ -1,0 +1,11 @@
+<snippet>
+	<description>Insert a LaTeX environment</description>
+	<content><![CDATA[
+\\begin{${1:env}}
+$0
+\\end{$1}
+]]></content>
+	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+	<!-- <tabTrigger>env</tabTrigger> -->
+	<scope>text.tex.latex</scope>
+</snippet>

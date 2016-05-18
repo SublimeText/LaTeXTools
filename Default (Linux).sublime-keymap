@@ -140,6 +140,11 @@ LaTeX Package keymap for Linux
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Wrap in environment.sublime-snippet"}},
+	{ "keys": ["ctrl+l","ctrl+n"],  
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true}],
+		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Insert environment.sublime-snippet"}},
 	// Change the surrounding environment
 	{ "keys": ["ctrl+l", "ctrl+shift+n"],
 		"context":  [
