@@ -28,8 +28,8 @@
                 { "trigger": "bml", "contents": "\\begin{multiline*}\n$0\n\\end{multiline*}\n"},                
                 { "trigger": "bmln", "contents": "\\begin{multiline}\n$0\n\\end{multiline}\n"},
 
-                { "trigger": "bit", "contents": "\\begin{itemize}\n\t\\item $1 \n\\end{itemize}\n"},
-                { "trigger": "ben", "contents": "\\begin{enumerate}\n\t\\item $1 \n\\end{enumerate}\n"},
+                { "trigger": "bit", "contents": "\\begin{itemize}\n\t\\item $0\n\\end{itemize}\n"},
+                { "trigger": "ben", "contents": "\\begin{enumerate}\n\t\\item $0\n\\end{enumerate}\n"},
                 { "trigger": "i", "contents": "\\item "}
 
         ]
