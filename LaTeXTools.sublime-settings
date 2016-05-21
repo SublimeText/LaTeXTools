@@ -244,6 +244,8 @@
 	//
 	// "sumatra"		uses SumatraPDF; this is the default on
 	//					Windows
+	//
+	// "zathura"		uses Zathura to open the pdf
 	"viewer": "",
 
 	// OPTION: "viewer_settings"

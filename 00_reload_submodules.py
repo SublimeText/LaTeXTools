@@ -24,6 +24,7 @@ LOAD_ORDER = [
     'latextools_utils.settings',
     'latextools_utils.utils',
     'latextools_utils.tex_directives',
+    'latextools_utils.system',
 
     # depend on previous only
     'latextools_utils.is_tex_file',
