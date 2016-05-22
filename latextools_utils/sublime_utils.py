@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import json
 import os
 import re
@@ -80,7 +82,7 @@ def get_sublime_exe():
         get_sublime_exe.result = sublime.executable_path()
 
         # on osx, the executable does not function the same as subl
-        if platform== 'osx':
+        if platform == 'osx':
             get_sublime_exe.result = os.path.normpath(
                 os.path.join(
                     os.path.dirname(get_sublime_exe.result),
@@ -90,6 +92,8 @@ def get_sublime_exe():
                     'subl'
                 )
             )
+
+        return get_sublime_exe.result
     # in ST2 on Windows the Python executable is actually "sublime_text"
     elif platform == 'windows' and sys.executable != 'python' and \
             os.path.isabs(sys.executable):
