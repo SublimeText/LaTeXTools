@@ -1,12 +1,5 @@
 # ST2/ST3 compat
 from __future__ import print_function 
-import sublime
-if sublime.version() < '3000':
-    # we are on ST2 and Python 2.X
-    _ST3 = False
-else:
-    _ST3 = True
-
 
 import re
 import sys
@@ -14,12 +7,12 @@ import os.path
 
 
 # To accommodate both Python 2 and 3
-def advance_iterator(it):
-	if not _ST3:
+if sys.version_info >= (3,):
+	advance_iterator = next
+else:
+	def _advance_iterator(it):
 		return it.next()
-	else:
-		return next(it)
-
+	advance_iterator = _advance_iterator
 
 print_debug = False
 interactive = False
@@ -662,26 +655,22 @@ if __name__ == '__main__':
 	interactive = True
 	try:
 		logfilename = sys.argv[1]
-		# logfile = open(logfilename, 'r') \
-		# 		.read().decode(enc, 'ignore') \
-		# 		.encode(enc, 'ignore').splitlines()
 		if len(sys.argv) == 3:
 			extra_file_ext = sys.argv[2].split(" ")
-		data = open(logfilename,'r').read()
-		(errors,warnings,badboxes) = parse_tex_log(data)
-		print ("")
+		data = open(logfilename, 'rb').read()
+		errors, warnings, badboxes = parse_tex_log(data)
+		print("")
+		print("Errors:")
+		for err in errors:
+			print(err)
+		print("")
 		print ("Warnings:")
 		for warn in warnings:
-			print (warn.encode('UTF-8'))
-		print ("")
-		print ("Bad boxes:")
+			print(warn)
+		print("")
+		print("Bad boxes:")
 		for box in badboxes:
-			print (box.encode('UTF-8'))
-		print ("")
-		print ("Errors:")
-		for err in errors:
-			print (err.encode('UTF-8'))
-
+			print(box)
 	except Exception as e:
 		import traceback
 		traceback.print_exc()
