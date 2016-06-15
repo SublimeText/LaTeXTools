@@ -387,7 +387,11 @@ By default, LaTeXTools supports the following viewers, depending on platform:
  * On Windows, Sumatra
  * On Linux, Evince
 
-However, there is now support for custom viewers, if not a lot of choice available at the moment (patches welcome). Currently the only non-default viewers supported are Preview on OS X and Okular on Linux. Preview can be selected by changing the `viewer` setting in your LaTeXTools preferences to `"preview"`. Okular can be used by changing the `viewer` setting in your LaTeXTools preferences to `"okular"`.
+However, there is now support for custom viewers, if not a lot of choice available at the moment (patches welcome). Currently the only non-default viewers supported are Preview on OS X and Okular and Zathura on Linux. Preview can be selected by changing the `viewer` setting in your LaTeXTools preferences to `"preview"`. Okular can be used by changing the `viewer` setting in your LaTeXTools preferences to `"okular"`. Zathura can be used by changing the `viewer setting to `"zathura"`.
+
+### Zathura
+
+Zathura should mostly work out-of-the-box, but under some circumstances, Zathura will not gain focus as might be expected. If you want to ensure that the focus ends up on Zathura, you will have to install either `wmctrl` or `xdotool` so that LaTeXTools ensure focus is set on Zathura.
 
 ### Command Viewer ###
 
