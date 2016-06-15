@@ -97,7 +97,7 @@
 		}
 	],
 
-	// these entries should only be used for project settings or 
+	// these entries should only be used for project settings or
 	// while you want to test new entries
-	"dynamic_fillall_helper_entries": [],
+	"dynamic_fillall_helper_entries": []
 }

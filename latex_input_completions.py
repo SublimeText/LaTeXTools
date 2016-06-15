@@ -123,7 +123,7 @@ def plugin_loaded():
     ])
 
     global _TEX_INPUT_GROUP_MAPPING, TEX_INPUT_FILE_REGEX
-    _TEX_INPUT_GROUP_MAPPING = {i: v for i, v in enumerate(_fillall_entries)}
+    _TEX_INPUT_GROUP_MAPPING = dict((i, v) for i, v in enumerate(_fillall_entries))
     TEX_INPUT_FILE_REGEX = re.compile(
         "(?:{0})".format("|".join(entry["regex"] for entry in _fillall_entries))
     )
