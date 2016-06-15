@@ -538,6 +538,8 @@ def _latextools_module_hack():
 
     # insert the LaTeXTools directory on the path
     sys.path.insert(0, __dir__)
+    # insert the path to external files on the path
+    sys.path.insert(1, os.path.join(__dir__, 'external'))
     for name, module in whitelist:
         if callable(module):
             module = module()

@@ -689,8 +689,7 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
 
     def on_query_completions(self, view, prefix, locations):
         # Only trigger within LaTeX
-        if not view.match_selector(locations[0],
-                "text.tex.latex"):
+        if view.score_selector(locations[0], "text.tex.latex") == 0:
             return []
 
         point = locations[0]
@@ -830,6 +829,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
 
 def plugin_loaded():
     latextools_plugin.add_whitelist_module('latex_chars')
+    latextools_plugin.add_whitelist_module('bibtex')
     # load plugins from the bibliography_plugins dir of LaTeXTools if it exists
     # this allows us to have pre-packaged plugins that won't require any user
     # setup

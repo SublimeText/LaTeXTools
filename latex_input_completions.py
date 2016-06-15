@@ -320,7 +320,7 @@ class LatexFillInputCompletions(sublime_plugin.EventListener):
         return result
 
     def on_query_completions(self, view, prefix, locations):
-        if not view.match_selector(0, 'text.tex.latex'):
+        if view.score_selector(0, 'text.tex.latex') == 0:
             return []
 
         results = []

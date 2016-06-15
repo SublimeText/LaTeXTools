@@ -222,8 +222,7 @@ class LatexRefCompletions(sublime_plugin.EventListener):
 
     def on_query_completions(self, view, prefix, locations):
         # Only trigger within LaTeX
-        if not view.match_selector(locations[0],
-                "text.tex.latex"):
+        if view.score_selector(locations[0], "text.tex.latex") == 0:
             return []
 
         point = locations[0]

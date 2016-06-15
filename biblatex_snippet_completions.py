@@ -18,6 +18,20 @@ try:
 except ImportError:
     from .latextools_utils import is_bib_buffer, is_biblatex_buffer
 
+_ST3 = sublime.version() >= '3000'
+
+# ElementTree is broken on Linux ST2
+if not _ST3 and sublime.platform() == 'linux':
+    import sys
+    sys.path.insert(0, os.path.join(
+        sublime.packages_path(), 'LaTeXTools', 'external')
+    )
+
+    from elementtree import SimpleXMLTreeBuilder
+    ElementTree.XMLTreeBuilder = SimpleXMLTreeBuilder.TreeBuilder
+
+    sys.path.pop(0)
+
 __dir__ = os.path.dirname(__file__)
 if __dir__ == '.':
     __dir__ = os.path.join(sublime.packages_path(), 'LaTeXTools')
@@ -32,14 +46,15 @@ def _get_completions(ext):
         for f in files:
             doc = ElementTree.parse(os.path.join(root, f))
             try:
+                # completions must be tuples on ST2
                 completions.append(
-                    [
+                    (
                         "{0}\t{1}".format(
                             doc.find('tabTrigger').text.strip(),
                             doc.find('description').text.strip()
                         ),
                         doc.find('content').text.strip()
-                    ]
+                    )
                 )
             except:
                 print('Error occurred when trying to load snippet from {0}'.format(
@@ -62,7 +77,7 @@ class SnippetCompletions(sublime_plugin.EventListener):
             return []
 
         # do not return completions if the cursor is inside an entry
-        if view.match_selector(view.sel()[0].b, 'meta.entry.braces.bibtex'):
+        if view.score_selector(view.sel()[0].b, 'meta.entry.braces.bibtex') > 0:
             return []
 
         if is_biblatex_buffer(view):
