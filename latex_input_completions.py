@@ -10,8 +10,14 @@ import json
 
 try:
     from latextools_utils.is_tex_file import get_tex_extensions
+    from latextools_utils.output_directory import (
+        get_aux_directory, get_output_directory
+    )
 except ImportError:
     from .latextools_utils.is_tex_file import get_tex_extensions
+    from .latextools_utils.output_directory import (
+        get_aux_directory, get_output_directory
+    )
 
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
@@ -133,7 +139,8 @@ if not _ST3:
 
 
 # Get all file by types
-def get_file_list(root, types, filter_exts=[]):
+def get_file_list(root, types, filter_exts=[], output_directory=None,
+                  aux_directory=None):
     path = os.path.dirname(root)
 
     def file_match(f):
@@ -147,7 +154,9 @@ def get_file_list(root, types, filter_exts=[]):
     completions = []
     for dir_name, dirs, files in os.walk(path):
         files = [f for f in files if f[0] != '.' and file_match(f)]
-        dirs[:] = [d for d in dirs if d[0] != '.']
+        dirs[:] = [d for d in dirs if d[0] != '.' and
+                   os.path.join(dir_name, d) != output_directory and
+                   os.path.join(dir_name, d) != aux_directory]
         for f in files:
             full_path = os.path.join(dir_name, f)
             # Exclude image file have the same name of root file,
@@ -215,8 +224,13 @@ def parse_completions(view, line):
     if entry["type"] == "input":
         root = getTeXRoot.get_tex_root(view)
         if root:
-            completions = get_file_list(root, entry["extensions"],
-                                        entry.get("strip_extensions", []))
+            output_directory = get_output_directory(root)
+            aux_directory = get_aux_directory(root)
+            completions = get_file_list(
+                root, entry["extensions"],
+                entry.get("strip_extensions", []),
+                output_directory, aux_directory
+            )
         else:
             # file is unsaved
             completions = []

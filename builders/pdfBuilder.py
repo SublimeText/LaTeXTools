@@ -38,8 +38,9 @@ class PdfBuilder(latextools_plugin.LaTeXToolsPlugin):
 	# Your __init__ method *must* call this (via super) to ensure that
 	# tex_root is properly split into the root tex file's directory,
 	# its base name, and extension, etc.
-	def __init__(self, tex_root, output, engine, options,
-				 tex_directives, builder_settings, platform_settings):
+	def __init__(self, tex_root, output, engine, options, aux_directory,
+				 output_directory, job_name, tex_directives,
+				 builder_settings, platform_settings):
 		self.tex_root = tex_root
 		self.tex_dir, self.tex_name = os.path.split(tex_root)
 		self.base_name, self.tex_ext = os.path.splitext(self.tex_name)
@@ -47,6 +48,9 @@ class PdfBuilder(latextools_plugin.LaTeXToolsPlugin):
 		self.out = ""
 		self.engine = engine
 		self.options = options
+		self.output_directory = output_directory
+		self.aux_directory = aux_directory
+		self.job_name = job_name
 		self.tex_directives = tex_directives
 		self.builder_settings = builder_settings
 		self.platform_settings = platform_settings

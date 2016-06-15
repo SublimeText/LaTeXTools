@@ -152,6 +152,96 @@
 	},
 
 // ------------------------------------------------------------------
+// Output Directory settings settings
+// ------------------------------------------------------------------
+
+	// OPTION: "aux_directory"
+	// Specifies the auxiliary directory
+	// Possible values:
+	//
+	// ""				the default; does not use any auxiliary directory
+	//
+	// path				the path to the auxiliary directory; if this is
+	//					not an absolute path it is interpreted as a
+	//					path relative to the main tex file
+	//
+	// "<<temp>>"		the auxiliary directory will be a temporary
+	//					directory generated in as secure a manner as
+	//					possible; note that this temporary directory
+	//					is only valid until ST is restarted and will
+	//					be deleted on the next start-up
+	//
+	// "<<project>>"	this creates an auxiliary directory in the same
+	//					folder as the main tex file; the name is the
+	//					MD5 hash of the absolute path of the main file;
+	//					unlike <<temp>> this directory will persist
+	//
+	// "<<cache>>"		this creates an auxiliary directory in the ST
+	//					cache directory on ST3 or a suitable directory
+	//					on ST2; unlike <<temp>> this directory will
+	//					persist; unlike <<project>>, it will not be
+	//					in the same directory as the main tex file
+	//
+	// NOTE: This setting will be overridden by the corresponding
+	// %!TEX directive if any; also, while it is possible to define
+	// a global value here, it may make more sense to define this
+	// value in your project settings if you use STs project feature
+	// if you do so, however, note that the path will be interpreted
+	// relative to the location of your project file
+
+	"aux_directory": "",
+
+	// OPTION: "output_directory"
+	// Specifies the output directory
+	// Possible values:
+	//
+	// ""				the default; does not use any output directory
+	//
+	// path				the path to the output directory; if this is
+	//					not an absolute path it is interpreted as a
+	//					path relative to the main tex file
+	//
+	// "<<temp>>"		the output directory will be a temporary
+	//					directory generated in as secure a manner as
+	//					possible; note that this temporary directory
+	//					is only valid until ST is restarted and will
+	//					be deleted on the next start-up
+	//
+	// "<<project>>"	this creates an output directory in the same
+	//					folder as the main tex file; the name is the
+	//					MD5 hash of the absolute path of the main file;
+	//					unlike <<temp>> this directory will persist
+	//
+	// "<<cache>>"		this creates an output directory in the ST
+	//					cache directory on ST3 or a suitable directory
+	//					on ST2; unlike <<temp>> this directory will
+	//					persist; unlike <<project>>, it will not be
+	//					in the same directory as the main tex file
+	//
+	// NOTE: This setting will be overridden by the corresponding
+	// %!TEX directive if any; also, while it is possible to define
+	// a global value here, it may make more sense to define this
+	// value in your project settings if you use STs project feature
+	// if you do so, however, note that the path will be interpreted
+	// relative to the location of your project file
+
+	"output_directory": "",
+
+	// OPTION: "jobname"
+	// Specifies the jobname to use when building the document
+
+	"jobname": "",
+
+	// OPTION: "copy_output_on_build"
+	// Specifies whether to copy the final PDF file to the same folder
+	// as the main tex file; if it is neither true nor false it must be
+	// as list of extensions of the files to copy into the same folder as
+	// the main tex file; this  only applies if an output directory is
+	// set via a setting or a `%!TEX` directive
+
+	"copy_output_on_build": true,
+
+// ------------------------------------------------------------------
 // Build engine settings
 // ------------------------------------------------------------------
 
