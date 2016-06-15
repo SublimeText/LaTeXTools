@@ -460,6 +460,13 @@ Spell-checking
 LaTeXTools parses the `%!TEX spellcheck` directive to set the language for the spell-checker integrated in Sublime Text. The [Dictionaries](https://github.com/titoBouzout/Dictionaries) package is recommended and supported. If you have additional dictionaries, you can add them using the `tex_spellcheck_paths` setting. This is a mapping from the locales to the dictionary paths. Each locale must be lowercase and minus (-) separated and the dictionary paths must be compatible with the Sublime Text spell-checker. For example `{"en-us": "Packages/Language - English/en_US.dic"}` would be a valid value.
 
 
+Support for Editing Bibliographies
+----------------------------------
+LaTeXTools has some enhanced support for editing either BibTeX or BibLaTeX `.bib` files. Snippet completions are provided for every entry type supported by either BibTeX or BibLaTeX, as are completions for field names. In addition, LaTeXTools provides smart completions for name fields (such as `author`, `editor`, etc.) and crossrefs. When auto-completions are triggered in a name field, a list of all entered names in the current file is presented. Similarly, when auto-completions are triggered in a crossref field, a list of all current entry keys will be provided.
+
+This behaviour is controlled by a single setting, `use_biblatex` (default: `false`), which indicates whether LaTeXTools should use the BibTeX versions of the auto-completions (this is the default behavior) or the BibLaTeX versions of the auto-completions (if `use_biblatex` is set to `true`).
+
+
 Miscellaneous
 -------------
 
@@ -500,6 +507,7 @@ The following options are currently available (defaults in parentheses):
 - `temp_files_ignored_folders`: subdirectories to skip when deleting temp files.
 * `tex_file_exts` (`['.tex']`): a list of extensions that should be considered TeX documents. Any extensions in this list will be treated exactly the same as `.tex` files. See the section on [Support for non-`.tex` files](#support-for-non-tex-files).
 * `latextools_set_syntax` (`true`): if `true` LaTeXTools will automatically set the syntax to `LaTeX` when opening or saving any file with an extension in the `tex_file_exts` list.
+* `use_biblatex`: (`false`): if `true` LaTeXTools will use BibLaTeX defaults for editing `.bib` files. If `false`, LaTeXTools will use BibTeX defaults. See the section on [Support for Editing Bibliographies](#support-for-editing-bibliographies) for details.
 * `tex_spellcheck_paths` (`{}`): A mapping from the locales to the paths of the dictionaries. See the section [Spell-checking](#spell-checking)
 * `hide_local_cache` (`true`): Whether the local cache should be hidden in the sublime cache path (`true`) or in the same directory as the root file (`false`). See the section [Caching](#caching).
 * `local_cache_life_span` (`30 m`): The lifespan of the local cache. See the section [Caching](#caching).

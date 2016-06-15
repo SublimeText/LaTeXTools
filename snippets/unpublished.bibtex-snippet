@@ -1,0 +1,13 @@
+<snippet>
+	<content><![CDATA[
+% Optional fields: month, year
+@UNPUBLISHED{${1:Key},
+	author = {${2:Author/Editor}},
+	title = {${3:Title}},
+	note = {${4:Note}}
+}
+]]></content>
+	<tabTrigger>unpublished</tabTrigger>
+	<description>BibTeX Unpublished</description>
+	<scope>text.bibtex</scope>
+</snippet>

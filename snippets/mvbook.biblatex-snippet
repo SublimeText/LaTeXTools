@@ -1,0 +1,13 @@
+<snippet>
+	<content><![CDATA[
+% Optional fields: volumeditor, editora, editorb, editorc, translator, annotator, commentator, introduction, foreword, afterword, subtitle, titleaddon, maintitle, mainsubtitle, maintitleaddon, language, origlanguage, volume, part, edition, volumes, series, number, note, publisher, location, isbn, chapter, pages, pagetotal, addendum, pubstate, doi, eprint, eprintclass, eprinttype, url, urldate
+@mvbook{${1:Key},
+	author = {${2:Author/Editor}},
+	title = {${3:Title}},
+	year = {${4:Year}}
+}
+]]></content>
+	<tabTrigger>mvbook</tabTrigger>
+	<description>BibLaTeX Multi-Volume Book</description>
+	<scope>text.biblatex</scope>
+</snippet>

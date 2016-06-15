@@ -1,0 +1,14 @@
+<snippet>
+	<content><![CDATA[
+% Optional fields: holder, subtitle, titleaddon, type, version, location, note, date, month, year, addendum, pubstate, doi, eprint, eprintclass, eprinttype, url, urldate
+@patent{${1:Key},
+	author = {${2:Author/Editor}},
+    title = {${3:Title}},
+    number = {${4:Number}}
+    year = {${5:Year}}
+}
+]]></content>
+	<tabTrigger>patent</tabTrigger>
+	<description>BibLaTeX Patent</description>
+	<scope>text.biblatex</scope>
+</snippet>
