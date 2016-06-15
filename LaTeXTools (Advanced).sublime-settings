@@ -1,0 +1,103 @@
+{
+// ------------------------------------------------------------------
+// Opening files included into the tex source code
+// ------------------------------------------------------------------
+// the commands to open image files. The extensions will be matched from top to bottom.
+	// If no extension is given, all extensions will be matched.
+	// If there is no match the image will be opened with Sublime Text.
+	// the extension:
+	//		can either be a string for one extension
+	//		or an array of string to match more than one extensions.
+	// the command:
+	//		can be the name to start the programm. The image file will be passed
+	//			as the argument.
+	//		can be a string as a command with args:
+	//			e.g. "open -a PixelMator", in this case the file will be appended
+	//			if the position is relevant use "$file" in the string
+	//			e.g. "open -a PixelMator $file"
+	//			this will be substituted by the path to the file
+	"open_image_command": {
+		"osx" : [
+			{
+				// open pdf and eps documents with skim
+				"extension": ["pdf", "eps"],
+				"command": "open -a Skim.app"
+			}
+			// uncomment these lines to open all other images with the default programm
+			// ,
+			// {
+			// 	"command": "open"
+			// }
+		],
+
+		// You might want to use "start" for the default programm used by Windows.
+		"windows": [
+			{
+				// open pdf and eps documents with sumatra (it has to be on your PATH)
+				"extension": ["pdf", "eps"],
+				"command": "SumatraPDF"
+			}
+			// uncomment these lines to open all other images with the default programm
+			// ,
+			// {
+			// 	"command": "start"
+			// }
+		],
+
+		"linux": [
+			{
+				// open pdf documents with evince
+				"extension": "pdf",
+				"command": "evince"
+			}
+			// uncomment these lines to open all other images with the default programm
+			// ,
+			// {
+			// 	"command": "xdg-open"
+			// }
+		]
+	},
+
+
+// ------------------------------------------------------------------
+// Additional fill all helper settings (for experts)
+// ------------------------------------------------------------------
+	// entries for the fill all helper
+	// each entry can have the following keys:
+	// regex: the regex before the opening bracket in reversed order,
+	//		i.e. `tupni\\` instead of `\input`
+	// extensions: a list of the possible file extensions,
+	//		the completion will search for files with this extension
+	// strip_extensions (optional, []): a list of the part of extensions, which
+	//		should be stripped of.
+	// comma_separated (optional, false): whether the command can contain several
+	//		comma separated entries. If it is true, it will be triggered and complete
+	//		after commas (,)
+	"fillall_helper_entries": [
+		{
+			// includesvg
+			"regex": "(?:\\][^{}\\[\\]]*\\[)?gvsedulcni\\\\",
+			"extensions": ["svg"],
+			"strip_extensions": [".svg"]
+		},
+		{
+			// lstinput
+			"regex": "(?:\\][^{}\\[\\]]*\\[)?tupnitsl\\\\",
+			"extensions": ["c", "cpp", "hs", "html", "php", "pl", "py", "sh", "xml"]
+		},
+		{
+			// inputminted for python files
+			"regex": "\\}yp\\{detnimtupni\\\\",
+			"extensions": ["py"]
+		},
+		{
+			// inputminted for general files
+			"regex": "\\}\\w+\\{detnimtupni\\\\",
+			"extensions": ["c", "cpp", "hs", "html", "php", "pl", "py", "sh", "xml"]
+		}
+	],
+
+	// these entries should only be used for project settings or
+	// while you want to test new entries
+	"dynamic_fillall_helper_entries": []
+}

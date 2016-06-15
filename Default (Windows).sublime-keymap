@@ -72,9 +72,15 @@ LaTeX Package keymap for Windows
 			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
-			{"key": "preceding_text", "operator": "regex_contains",
-				"operand": "(?:\\\\include)|(?:\\\\input)|(?:\\\\includegraphics(?:\\[[^{}\\[\\]]\\])?)|(?:\\\\addbibresource(?:\\[[^{}\\[\\]]\\])?)|(?:\\\\bibliography)|(?:\\\\documentclass(?:\\[[^{}\\[\\]]\\])?)|(?:\\\\usepackage(?:\\[[^{}\\[\\]]\\])?)|(?:\\\\bibliographystyle)", "match_all": true}],
+			{"key": "lt_fill_input.open", "operator": "equal", "operand": true, "match_all": true}],
 		"command": "latex_fill_input", "args": {"insert_char": "{"}},
+	{	"keys": [","],
+		"context":  [
+			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
+			{"key": "lt_fill_input.inside", "operator": "equal", "operand": true, "match_all": true}],
+		"command": "latex_fill_input", "args": {"insert_char": ","}},
 
 	{	"keys": ["{"],
 		"context":  [

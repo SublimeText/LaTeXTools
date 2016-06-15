@@ -24,18 +24,113 @@ else:
     from .latextools_utils import get_setting
 
 
-# Only work for \include{} and \input{} and \includegraphics
-TEX_INPUT_FILE_REGEX = re.compile(
-      r'([^{}\[\]]*)\{edulcni\\'
-    + r'|([^{}\[\]]*)\{tupni\\'
-    + r'|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?scihpargedulcni\\'
-    + r'|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?gvsedulcni\\'
-    + r'|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?ecruoserbibdda\\'
-    + r'|([^{}\[\]]*)\{yhpargoilbib\\'
-    + r'|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?ssalctnemucod\\'
-    + r'|([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?egakcapesu\\'
-    + r'|([^{}\[\]]*)\{elytsyhpargoilbib\\'
-)
+def _filter_invalid_entries(entries):
+    """Remove entries without a regex or sufficient fields."""
+    remove_entries = []
+    for i, entry in enumerate(entries):
+        if "extensions" not in entry:
+            print("Missing field 'extensions' in entry {0}".format(entry))
+            remove_entries.append(i)
+            continue
+        if "regex" not in entry:
+            print("Missing field 'regex' in entry {0}".format(entry))
+            remove_entries.append(i)
+            continue
+
+        try:
+            reg = re.compile(entry["regex"])
+        except Exception as e:
+            print("Invalid regex: '{0}' ({1})".format(entry["regex"], e))
+            remove_entries.append(i)
+            continue
+        if reg.groups != 0:
+            print("The regex must not have a capturing group, invalidated in "
+                  "entry {0}. You might escape your group with (?:...)"
+                  .format(entry))
+            remove_entries.append(i)
+            continue
+        # remove all blacklisted entries in reversed order, so the remaining
+        # indexes stay the same
+        for i in reversed(remove_entries):
+            del entries[i]
+
+
+def _update_input_entries(entries):
+    for entry in entries:
+        comma = entry.get("comma_separated", False)
+        if comma:
+            entry["regex"] = r"([^{}\[\]]*)\{" + entry["regex"]
+        else:
+            entry["regex"] = r"([^,{}\[\]]*)\{" + entry["regex"]
+        entry["type"] = "input"
+
+
+_fillall_entries = []
+
+_TEX_INPUT_GROUP_MAPPING = None
+TEX_INPUT_FILE_REGEX = None
+
+
+def plugin_loaded():
+    # get additional entries from the settings
+    _setting_entries = get_setting("fillall_helper_entries", [])
+    _filter_invalid_entries(_setting_entries)
+    _fillall_entries.extend(_setting_entries)
+
+    _fillall_entries.extend([
+        {
+            "regex": r'(?:edulcni|tupni)\\',
+            "extensions": [e[1:] for e in get_tex_extensions()],
+            "strip_extensions": [".tex"]
+        },
+        {
+            "regex": r'(?:\][^{}\[\]]*\[)?scihpargedulcni\\',
+            "extensions": get_setting("image_types", [
+                "pdf", "png", "jpeg", "jpg", "eps"
+            ])
+        },
+        {
+            "regex": r'(?:\][^{}\[\]]*\[)?ecruoserbibdda\\',
+            "extensions": ["bib"]
+        },
+        {
+            "regex": r'yhpargoilbib\\',
+            "extensions": ["bib"],
+            "strip_extensions": [".bib"],
+            "comma_separated": True
+        }
+    ])
+
+    # update the fields of the entries
+    _update_input_entries(_fillall_entries)
+
+    _fillall_entries.extend([
+        {
+            "regex": r'([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?ssalctnemucod\\',
+            "type": "cached",
+            "cache_name": "cls"
+        },
+        {
+            "regex": r'([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?egakcapesu\\',
+            "type": "cached",
+            "cache_name": "pkg"
+        },
+        {
+            "regex": r'([^{}\[\]]*)\{elytsyhpargoilbib\\',
+            "type": "cached",
+            "cache_name": "bst"
+        }
+    ])
+
+    global _TEX_INPUT_GROUP_MAPPING, TEX_INPUT_FILE_REGEX
+    _TEX_INPUT_GROUP_MAPPING = dict((i, v) for i, v in enumerate(_fillall_entries))
+    TEX_INPUT_FILE_REGEX = re.compile(
+        "(?:{0})".format("|".join(entry["regex"] for entry in _fillall_entries))
+    )
+
+if not _ST3:
+    plugin_loaded()
+
 
 # Get all file by types
 def get_file_list(root, types, filter_exts=[]):
@@ -70,134 +165,99 @@ def get_file_list(root, types, filter_exts=[]):
     return completions
 
 
+def _get_dyn_entries():
+    dyn_entries = get_setting("dynamic_fillall_helper_entries", [])
+    if dyn_entries:
+        _filter_invalid_entries(dyn_entries)
+        _update_input_entries(dyn_entries)
+        dyn_regex = re.compile("(?:{0})".format(
+            "|".join(entry["regex"] for entry in dyn_entries)))
+        return dyn_entries, dyn_regex
+    else:
+        return [], None
+
+
 def parse_completions(view, line):
     # reverse line, copied from latex_cite_completions, very cool :)
     line = line[::-1]
 
-    # Do matches!
-    search = TEX_INPUT_FILE_REGEX.match(line)
+    search = None
+    # search dynamic entries
+    dyn_entries, dyn_regex = _get_dyn_entries()
+    if dyn_regex:
+        search = dyn_regex.match(line)
+        entries = dyn_entries
 
-    installed_cls = []
-    installed_bst = []
-    installed_pkg = []
-    input_file_types = None
+    # search static entries if no dynamic matches found
+    if not search:
+        search = TEX_INPUT_FILE_REGEX.match(line)
+        entries = _fillall_entries
 
-    if search is not None:
-        (   include_filter,
-            input_filter,
-            image_filter,
-            svg_filter,
-            addbib_filter,
-            bib_filter,
-            cls_filter,
-            pkg_filter,
-            bst_filter) = search.groups()
-    else:
-        return '', []
+    # if no regex matched, cancel completions
+    if not search:
+        return "", []
 
-    # it isn't always correct to include the extension in the output filename
-    # esp. with \bibliography{}; here we provide a mechanism to permit this
-    filter_exts = []
+    try:
+        # extract the first group and the prefix from the maching regex
+        group, prefix = next((i, v) for i, v in enumerate(search.groups())
+                             if v is not None)
+        entry = entries[group]
+    except Exception as e:
+        print("Error occurred while extracting entry from matching group.")
+        print(e)
+        return "", []
 
-    if include_filter is not None:
-        # if is \include
-        prefix = include_filter[::-1]
-        # filter the . from the start of the extention
-        input_file_types = [e[1:] for e in get_tex_extensions()]
-        # only cut off the .tex extension
-        filter_exts = ['.tex']
-    elif input_filter is not None:
-        # if is \input search type set to tex
-        prefix = input_filter[::-1]
-        # filter the . from the start of the extension
-        input_file_types = [e[1:] for e in get_tex_extensions()]
-        # only cut off the .tex extension
-        filter_exts = ['.tex']
-    elif image_filter is not None:
-        # if is \includegraphics
-        prefix = image_filter[::-1]
-        # Load image types from configurations
-        # In order to user input, "image_types" must be set in
-        # LaTeXTools.sublime-settings configuration file or the
-        # project settings for the current view.
-        input_file_types = get_setting('image_types', [
-                'pdf', 'png', 'jpeg', 'jpg', 'eps'
-            ])
-    elif svg_filter is not None:
-        # if is \includesvg
-        prefix = svg_filter[::-1]
-        # include only svg files
-        input_file_types = ['svg']
-        # cut off the svg extention
-        filter_exts = ['.svg']
-    elif addbib_filter is not None or bib_filter is not None:
-        # For bibliography
-        if addbib_filter is not None:
-            prefix = addbib_filter[::-1]
-        else:
-            prefix = ''
-            bib_filter[::-1]
-            filter_exts = ['.bib']
-        input_file_types = ['bib']
-    elif cls_filter is not None or pkg_filter is not None or bst_filter is not None:
-        # for packages, classes and bsts
-        if _ST3:
-            cache_path = os.path.normpath(
-                os.path.join(
-                    sublime.cache_path(),
-                    "LaTeXTools"
-                ))
-        else:
-            cache_path = os.path.normpath(
-                os.path.join(
-                    sublime.packages_path(),
-                    "User"
-                ))
+    # adjust the prefix (don't include commas)
+    if "," in prefix:
+        prefix = prefix[prefix.rindex(",") + 1:]
+    completions = []
 
-        pkg_cache_file = os.path.normpath(
-            os.path.join(cache_path, 'pkg_cache.cache' if _ST3 else 'latextools_pkg_cache.cache'))
-
-        cache = None
-        if not os.path.exists(pkg_cache_file):
-            gen_cache = sublime.ok_cancel_dialog("Cache files for installed packages, "
-                + "classes and bibliographystyles do not exists, "
-                + "would you like to generate it? After generating complete, please re-run this completion action!"
-            )
-
-            if gen_cache:
-                sublime.active_window().run_command("latex_gen_pkg_cache")
-                completions = []
-        else:
-            with open(pkg_cache_file) as f:
-                cache = json.load(f)
-
-        if cache is not None:
-            if cls_filter is not None:
-                installed_cls = cache.get("cls")
-            elif bst_filter is not None:
-                installed_bst = cache.get("bst")
-            else:
-                installed_pkg = cache.get("pkg")
-
-        prefix = ''
-    else:
-        prefix = ''
-
-    if len(installed_cls) > 0:
-        completions = installed_cls
-    elif len(installed_bst) > 0:
-        completions = installed_bst
-    elif len(installed_pkg) > 0:
-        completions = installed_pkg
-    elif input_file_types is not None:
+    if entry["type"] == "input":
         root = getTeXRoot.get_tex_root(view)
         if root:
-            completions = get_file_list(root, input_file_types, filter_exts)
+            completions = get_file_list(root, entry["extensions"],
+                                        entry.get("strip_extensions", []))
         else:
             # file is unsaved
             completions = []
+    elif entry["type"] == "cached":
+        cache = _get_cache()
+        if cache is not None:
+            completions = cache.get(entry["cache_name"])
+    else:
+        print("Unknown entry type {0}.".format(entry["type"]))
 
     return prefix, completions
+
+
+def _get_cache():
+    if _ST3:
+        cache_path = os.path.normpath(
+            os.path.join(sublime.cache_path(), "LaTeXTools"))
+    else:
+        cache_path = os.path.normpath(
+            os.path.join(sublime.packages_path(), "User"))
+
+    pkg_cache_file = os.path.normpath(
+        os.path.join(cache_path, 'pkg_cache.cache'
+                     if _ST3 else 'latextools_pkg_cache.cache'))
+
+    cache = None
+    if not os.path.exists(pkg_cache_file):
+        gen_cache = sublime.ok_cancel_dialog(
+            "Cache files for installed packages, "
+            "classes and bibliographystyles do not exists, "
+            "would you like to generate it? After generating complete, "
+            "please re-run this completion action!"
+        )
+
+        if gen_cache:
+            sublime.active_window().run_command("latex_gen_pkg_cache")
+    else:
+        with open(pkg_cache_file) as f:
+            cache = json.load(f)
+    return cache
+
 
 def add_closing_bracket(view, edit):
     # only add the closing bracked if auto match is enabled
@@ -216,7 +276,35 @@ def add_closing_bracket(view, edit):
             for sel in new_sel:
                 view.sel().add(sel)
 
+
 class LatexFillInputCompletions(sublime_plugin.EventListener):
+    def on_query_context(self, view, key, operator, operand, match_all):
+        if key not in ["lt_fill_input.open", "lt_fill_input.inside"]:
+            return False
+        fill_char = "{" if key == "lt_fill_input.open" else ","
+        _, dyn_regex = _get_dyn_entries()
+        for sel in view.sel():
+            line_reg = view.line(sel)
+            before = sublime.Region(line_reg.begin(), sel.b)
+            line = fill_char + view.substr(before)[::-1]
+            search = (TEX_INPUT_FILE_REGEX.match(line) or
+                      dyn_regex and dyn_regex.match(line))
+            if match_all and not search:
+                result = False
+                break
+            elif not match_all and search:
+                result = True
+                break
+        else:
+            result = match_all
+
+        if operator == sublime.OP_EQUAL:
+            result = result == operand
+        elif operator == sublime.OP_NOT_EQUAL:
+            result = result != operand
+
+        return result
+
     def on_query_completions(self, view, prefix, locations):
         if not view.match_selector(0, 'text.tex.latex'):
             return []
@@ -243,7 +331,7 @@ class LatexFillInputCompletions(sublime_plugin.EventListener):
 
             line_remainder = view.substr(sublime.Region(location, view.line(location).b))
             if not line_remainder.startswith('}'):
-                results.extend([(completion, completion + '}') 
+                results.extend([(completion, completion + '}')
                     for completion in completions
                 ])
             else:
@@ -253,7 +341,7 @@ class LatexFillInputCompletions(sublime_plugin.EventListener):
 
         if results:
             return (
-                results, 
+                results,
                 sublime.INHIBIT_WORD_COMPLETIONS |
                 sublime.INHIBIT_EXPLICIT_COMPLETIONS
             )
@@ -279,7 +367,7 @@ class LatexFillInputCommand(sublime_plugin.TextCommand):
 
             do_completion = get_setting("fill_auto_trigger", True)
 
-            if not do_completion:
+            if not do_completion and insert_char == "{":
                 add_closing_bracket(view, edit)
                 return
 
@@ -316,7 +404,7 @@ class LatexFillInputCommand(sublime_plugin.TextCommand):
                 key = result[i]
 
             # close bracket
-            if insert_char:
+            if insert_char == "{":
                 key += "}"
 
             if prefix:
@@ -329,7 +417,7 @@ class LatexFillInputCommand(sublime_plugin.TextCommand):
                 view.run_command("insert", {"characters": key})
 
         # autocomplete bracket if we aren't doing anything
-        if not result and insert_char:
+        if not result and insert_char == "{":
             add_closing_bracket(view, edit)
         else:
             view.window().show_quick_panel(result, on_done)

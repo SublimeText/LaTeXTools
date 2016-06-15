@@ -12,7 +12,6 @@ else:
     strbase = str
 
 def get_tex_extensions():
-    view = sublime.active_window().active_view()
     tex_file_exts = get_setting('tex_file_exts', ['.tex'])
 
     return [s.lower() for s in set(tex_file_exts)]
