@@ -1,9 +1,9 @@
 [
     {
-        "button": "button1", 
-        "modifiers": ["alt"], 
-        "command": "jumpto_tex_anywhere_by_mouse", 
-        "press_command": "drag_select", 
+        "button": "button1",
+        "modifiers": ["super"],
+        "command": "jumpto_tex_anywhere_by_mouse",
+        "press_command": "drag_select",
         // change this to the command to the command,
         // that will be executed
         // if your mouse click is not inside a tex-file

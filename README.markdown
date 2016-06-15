@@ -302,7 +302,7 @@ Jump to Anywhere
 ----------------
 
 **Keybinding:** `C-l, C-j`
-**Mousebinding:** `alt-leftclick` (Windows, Linux) / `ctrl-leftclick` (OSX)
+**Mousebinding:** `alt-leftclick` (Windows) / `super-leftclick` Linux) / `ctrl-leftclick` (OSX)
 
 This is an IDE-like mouse navigation, which executes a jump depending on the context around the cursor. It is easy to use and intuitive. Just click with the mouse on a command while pressing the modifier key. The corresponding jump will be executed. Supported jump types are:
 
