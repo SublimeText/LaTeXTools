@@ -137,7 +137,9 @@ class JumpToPdf(sublime_plugin.TextCommand):
 			sublime.error_message("%s is not a TeX source file: cannot jump." % (os.path.basename(view.fileName()),))
 			return
 
-		file_name = get_jobname(self.view)
+		root = getTeXRoot.get_tex_root(self.view)
+		file_name = get_jobname(root)
+
 
 		output_directory = get_output_directory(self.view)
 		if output_directory is None:
@@ -214,11 +216,11 @@ class ViewPdf(sublime_plugin.WindowCommand):
 		else:
 			view = self.window.active_view()
 
-			file_name = get_jobname(view)
+			root = getTeXRoot.get_tex_root(view)
+			file_name = get_jobname(root)
 
 			output_directory = get_output_directory(view)
 			if output_directory is None:
-				root = getTeXRoot.get_tex_root(view)
 				pdffile = os.path.join(
 					os.path.dirname(root),
 					file_name + u'.pdf'
