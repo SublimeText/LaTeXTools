@@ -22,15 +22,8 @@ _ST3 = sublime.version() >= '3000'
 
 # ElementTree is broken on Linux ST2
 if not _ST3 and sublime.platform() == 'linux':
-    import sys
-    sys.path.insert(0, os.path.join(
-        sublime.packages_path(), 'LaTeXTools', 'external')
-    )
-
     from elementtree import SimpleXMLTreeBuilder
     ElementTree.XMLTreeBuilder = SimpleXMLTreeBuilder.TreeBuilder
-
-    sys.path.pop(0)
 
 __dir__ = os.path.dirname(__file__)
 if __dir__ == '.':

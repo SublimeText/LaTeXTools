@@ -5,16 +5,11 @@ from __future__ import print_function
 import sublime
 import sublime_plugin
 
-import os
 import re
 import sys
 
-sys.path.insert(
-    0, os.path.join(sublime.packages_path(), 'LaTeXTools', 'external')
-)
-from bibtex.names import NAME_FIELDS, Name
+from bibtex.names import Name
 from bibtex.tex import tokenize_list
-sys.path.pop(0)
 
 try:
     from latextools_utils import is_bib_buffer
@@ -26,6 +21,8 @@ if sys.version_info > (3, 0):
     unicode = str
 else:
     strbase = basestring
+
+NAME_FIELDS = Name.NAME_FIELDS
 
 # Regex to recognise if we are in a name field
 #

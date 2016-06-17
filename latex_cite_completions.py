@@ -785,8 +785,6 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
                                         for completion in completions], on_done)
 
 def plugin_loaded():
-    latextools_plugin.add_whitelist_module('latex_chars')
-    latextools_plugin.add_whitelist_module('bibtex')
     # load plugins from the bibliography_plugins dir of LaTeXTools if it exists
     # this allows us to have pre-packaged plugins that won't require any user
     # setup
