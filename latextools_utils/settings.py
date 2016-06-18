@@ -32,8 +32,7 @@ class SettingsWrapper(Mapping):
             for s in (
                 advanced_settings.get(self.key, {}),
                 global_settings.get(self.key, {}),
-                view_settings.get(self.key, {}),
-                values
+                view_settings.get(self.key, {})
             ):
                 if isinstance(s, dict) or isinstance(s, sublime.Settings):
                     for key in s:

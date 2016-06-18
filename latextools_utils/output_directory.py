@@ -42,7 +42,7 @@ class UnsavedFileException(Exception):
 # as well as the auxiliary directory
 def get_aux_directory(view_or_root, return_setting=False):
     # not supported using texify or the simple builder
-    if using_texify_or_simple():
+    if not using_miktex() or using_texify_or_simple():
         if return_setting:
             return (None, None)
         else:

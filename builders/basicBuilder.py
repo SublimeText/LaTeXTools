@@ -86,7 +86,7 @@ class BasicBuilder(PdfBuilder):
             self.output_directory is not None and
             self.output_directory != self.aux_directory
         ):
-            self.make_directory(self.aux_directory)
+            self.make_directory(self.output_directory)
             latex.append(u'--output-directory=' + self.output_directory)
 
         if self.job_name != self.base_name:

@@ -200,23 +200,20 @@ class CmdThread ( threading.Thread ):
 		# Clean up
 		cmd_iterator.close()
 
-		# CHANGED 12-10-27. OK, here's the deal. We must open in binary mode on Windows
-		# because silly MiKTeX inserts ASCII control characters in over/underfull warnings.
-		# In particular it inserts EOFs, which stop reading altogether; reading in binary
-		# prevents that. However, that's not the whole story: if a FS character is encountered,
-		# AND if we invoke splitlines on a STRING, it sadly breaks the line in two. This messes up
-		# line numbers in error reports. If, on the other hand, we invoke splitlines on a
-		# byte array (? whatever read() returns), this does not happen---we only break at \n, etc.
-		# However, we must still decode the resulting lines using the relevant encoding.
-		# 121101 -- moved splitting and decoding logic to parseTeXlog, where it belongs.
-		
-		# Note to self: need to think whether we don't want to codecs.open this, too...
-		# Also, we may want to move part of this logic to the builder...
 		try:
+			# Here we try to find the log file...
+			# 1. Check the aux_directory if there is one
+			# 2. Check the output_directory if there is one
+			# 3. Assume the log file is in the same folder as the main file
 			log_file_base = self.caller.tex_base + ".log"
-			# NB aux_directory is never None if output_directory is set
 			if self.caller.aux_directory is None:
-				log_file = log_file_base
+				if self.caller.output_directory is None:
+					log_file = log_file_base
+				else:
+					log_file = os.path.join(
+						self.caller.output_directory,
+						log_file_base
+					)
 			else:
 				log_file = os.path.join(
 					self.caller.aux_directory,
@@ -224,21 +221,44 @@ class CmdThread ( threading.Thread ):
 				)
 
 				if not os.path.exists(log_file):
-					if self.caller.output_directory != self.caller.aux_directory:
+					if (self.caller.output_directory is not None and
+						self.caller.output_directory != self.caller.aux_directory
+					):
 						log_file = os.path.join(
-							self.caller.aux_directory,
+							self.caller.output_directory,
 							log_file_base
 						)
 
-						if not os.path.exists(log_file):
-							log_file = log_file_base
-					else:
+					if not os.path.exists(log_file):
 						log_file = log_file_base
 
+			# CHANGED 12-10-27. OK, here's the deal. We must open in binary mode
+			# on Windows because silly MiKTeX inserts ASCII control characters in
+			# over/underfull warnings. In particular it inserts EOFs, which
+			# stop reading altogether; reading in binary prevents that. However,
+			# that's not the whole story: if a FS character is encountered,
+			# AND if we invoke splitlines on a STRING, it sadly breaks the line
+			# in two. This messes up line numbers in error reports. If, on the
+			# other hand, we invoke splitlines on a byte array (? whatever read()
+			# returns), this does not happen---we only break at \n, etc.
+			# However, we must still decode the resulting lines using the relevant
+			# encoding.
+
+			# Note to self: need to think whether we don't want to codecs.open
+			# this, too... Also, we may want to move part of this logic to the
+			# builder...
 			with open(log_file, 'rb') as f:
 				data = f.read()
 		except IOError:
-			self.handle_std_outputs(out, err)
+			self.caller.output([
+				"", ""
+				"Could not find log file {0}!".format(log_file_base),
+			])
+			try:
+				self.handle_std_outputs(out, err)
+			except:
+				# if out or err don't yet exist
+				self.caller.finish(False)
 		else:
 			errors = []
 			warnings = []

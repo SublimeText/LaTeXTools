@@ -98,7 +98,6 @@ class TraditionalBuilder(PdfBuilder):
 			# we can only handle aux_directory, output_directory, or jobname
 			# with latexmk
 			if latexmk:
-				print(self.aux_directory, self.output_directory)
 				if (
 					self.aux_directory is not None and
 					self.aux_directory != self.output_directory
