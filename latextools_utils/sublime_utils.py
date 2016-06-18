@@ -1,16 +1,20 @@
+# This module provides some functions that handle differences between ST2 and
+# ST3. For the most part, they provide ST2-compatible functionality that is
+# already available in ST3.
 from __future__ import print_function
 
 import json
 import os
 import re
 import sublime
-import subprocess
 import sys
 
 try:
+	from latextools_utils.external_command import check_output
 	from latextools_utils.settings import get_setting
 	from latextools_utils.system import which
 except ImportError:
+	from .external_command import check_output
 	from .settings import get_setting
 	from .system import which
 
@@ -20,11 +24,12 @@ __all__ = ['normalize_path', 'get_project_file_name']
 # used by get_sublime_exe()
 SUBLIME_VERSION = re.compile(r'Build (\d{4})', re.UNICODE)
 
+
 # normalizes the paths stored in sublime session files on Windows
 # from:
-#     /c/path/to/file.ext
+# 	/c/path/to/file.ext
 # to:
-#     c:\path\to\file.ext
+# 	c:\path\to\file.ext
 def normalize_path(path):
 	if sublime.platform() == 'windows':
 		return os.path.normpath(
@@ -49,22 +54,15 @@ def get_sublime_exe():
                     if st2_dir is not None:
                         process = os.path.join(st2_dir, process)
 
-                    p = subprocess.Popen(
+                    m = SUBLIME_VERSION.search(check_output(
                         [process, '-v'],
-                        stdout=subprocess.PIPE,
-                        startupinfo=startupinfo,
-                        shell=shell,
-                        env=os.environ
-                    )
+                        use_texpath=False
+                    ))
+                    if m and m.group(1) == version:
+                        return process
                 except:
                     pass
-                else:
-                    stdout, _ = p.communicate()
 
-                    if p.returncode == 0:
-                        m = SUBLIME_VERSION.search(stdout.decode('utf8'))
-                        if m and m.group(1) == version:
-                            return process
         return None
 
     platform = sublime.platform()
@@ -102,20 +100,15 @@ def get_sublime_exe():
             subl = which('subl')
             if subl is not None:
                 try:
-                    p = subprocess.Popen(
+                    m = SUBLIME_VERSION.search(check_output(
                         [subl, '-v'],
-                        stdout=subprocess.PIPE,
-                        env=os.environ
-                    )
+                        use_texpath=False
+                    ))
+
+                    if m and m.group(1) == sublime.version():
+                        get_sublime_exe.result = subl
                 except:
                     pass
-                else:
-                    stdout, _ = p.communicate()
-
-                    if p.returncode == 0:
-                        m = SUBLIME_VERSION.search(stdout.decode('utf8'))
-                        if m and m.group(1) == sublime.version():
-                            get_sublime_exe.result = subl
 
         return get_sublime_exe.result
     # in ST2 on Windows the Python executable is actually "sublime_text"
@@ -126,13 +119,6 @@ def get_sublime_exe():
 
     # guess-work for ST2
     version = sublime.version()
-
-    startupinfo = None
-    shell = False
-    if platform == 'windows':
-        startupinfo = subprocess.STARTUPINFO()
-        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        shell = sublime.version() >= '3000'
 
     # hope its on the path
     result = check_processes()
@@ -169,26 +155,18 @@ def get_sublime_exe():
             get_sublime_exe.result = result
             return result
         try:
-            p = subprocess.Popen(
+            folder = check_output(
                 ['mdfind', '"kMDItemCFBundleIdentifier == com.sublimetext.2"'],
-                stdout=subprocess.PIPE,
-                env=os.environ
+                use_texpath=False
             )
-        except:
-            pass
-        else:
-            stdout, _ = p.communicate()
-            if p.returncode == 0:
-                st2_dir = os.path.join(
-                    stdout.decode('utf8'),
-                    'Contents',
-                    'SharedSupport',
-                    'bin'
-                )
-                result = check_processes(st2_dir)
-                if result is not None:
+
+            st2_dir = os.path.join(folder, 'Contents', 'SharedSupport', 'bin')
+            result = check_processes(st2_dir)
+            if result is not None:
                     get_sublime_exe.result = result
                     return result
+        except:
+            pass
 
     print(
         'Cannot determine the path to your Sublime installation. Please '
