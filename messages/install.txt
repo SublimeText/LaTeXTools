@@ -1,4 +1,4 @@
-LaTeXTools Plugin version 3.7.13 (2016-05-17)
+LaTeXTools Plugin version 3.8.0 (2016-06-18)
 
 Thank you for installing the LaTeXTools plugin!
 
@@ -13,4 +13,4 @@ You can also check out Marciano's blog at
 tekonomist.wordpress.com
 
 Happy TeXing!
-Ian Bacher and Marciano Siniscalchi
+Ian Bacher, Marciano Siniscalchi and Richard Stein
