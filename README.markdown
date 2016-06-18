@@ -10,7 +10,7 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* v3.8.0 (2016-06-18).
+*Latest revision:* v3.8.1 (2016-06-18).
 
 *Headline features*:
 
@@ -496,7 +496,7 @@ If at any time you wish to erase your customizations and start afresh, you can s
 
 (Historical note: This is no longer relevant in 2016, but just for the record, if you have a pre-2014, old-style settings file, this option will import it).
 
-**Warning**:  in general, tweaking options can cause breakage. For instance, if on Linux you change the default `python2` setting (empty by default) to a non-existent binary, forward and inverse search will stop working. With great power comes great responsibility! If you think you have found a bug, *delete your settings file in the `User` directory, or use the **Reset user settings to default** command before reporting it!* Thanks :-)
+**Warning**:  in general, tweaking options can cause breakage. For instance, if on Linux you change the default `python` setting (empty by default) to a non-existent binary, forward and inverse search will stop working. With great power comes great responsibility! If you think you have found a bug, *delete your settings file in the `User` directory, or use the **Reset user settings to default** command before reporting it!* Thanks :-)
 
 The following options are currently available (defaults in parentheses):
 
@@ -599,6 +599,12 @@ This sets `main.tex` as the master tex file (assuming a multi-file project), and
 **Note:** tweaking settings on a project-specific level can lead to even more subtle issues. If you notice a bug, in addition to resetting your `LaTeXTools.sublime-settings` file, you should remove at LaTeXTools settings from your project file.
 
 ## Alternative Builders
+
+### Basic Builder
+
+The basic builder is a simple, straight-forward build system. that simply runs the configured build engine (pdflatex, xelatex, or lualatex) and bibtex or biber if necessary. It can also be configured to support bibtex8 through the `bibtex` builder setting. In addition, it supports the [TeX Options](#tex-options) feature, the [output and auxiliary directory](#output-directory-and-auxiliary-directory) features and the [Jobname](#jobname) feature. It has been included because the default builder on MiKTeX, `texify` cannot be easily coerced to support biber or any of the other features supported by the basic builder. Note, however, that unlike `texify`, the basic builder does **not** support `makeindex` and friends (patches are welcome!).
+
+You can use the basic builder by changing the `builder` setting to `"basic"`. It will read the same settings as the traditional builder.
 
 ### Script Builder
 
