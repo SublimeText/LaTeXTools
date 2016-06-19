@@ -6,11 +6,11 @@ Marciano's blog:
 <http://tekonomist.wordpress.com>
 
 
-Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, skuroda (Preferences menu), Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths), Jeremy Jay (basic biblatex support), Ray Fang (texttt snippet), Ulrich Gabor (tex engine selection and cleaning aux files), Wes Campaigne and 'jlegewie' (ref/cite completion 2.0!). **Huge** thanks to Daniel Shannon (aka phyllisstein) who first ported LaTeXTools to ST3. Also thanks for Charley Peng, who has been assisting users and generating great pull requests; I'll merge them as soon as possible. Also William Ledoux (various Windows fixes, env support), Sean Zhu (find Skim.app in non-standard locations), Maximilian Berger (new center/table snippet), Lucas Nanni (recursively delete temp files), Sergey Slipchenko (`$` auto-pairing with Vintage), btstream (original fill-all command; LaTeX-cwl support), Richard Stein (auto-hide build panel, jump to included tex files, LaTeX-cwl support config, TEX spellcheck support, functions to analyze LaTeX documents, cache functionality, multiple cursor editing), Dan Schrage (nobibliography command), PoByBolek (more biblatex command), Rafael Lerm (support for multiple lines in `\bibliography` commands), Jeff Spencer (override keep_focus and forward_sync via key-binding), Jonas Malaco Filho (improvements to the Evince scripts).
+Additional contributors (*thank you thank you thank you*): first of all, Wallace Wu and Juerg Rast, who contributed code for multifile support in ref and cite completions, "new-style" ref/cite completion, and project file support. Also, skuroda (Preferences menu), Sam Finn (initial multifile support for the build command); Daniel Fleischhacker (Linux build fixes), Mads Mobaek (universal newline support), Stefan Ollinger (initial Linux support), RoyalTS (aka Tobias Schidt?) (help with bibtex regexes and citation code, various fixes), Juan Falgueras (latexmk option to handle non-ASCII paths), Jeremy Jay (basic biblatex support), Ray Fang (texttt snippet), Ulrich Gabor (tex engine selection and cleaning aux files), Wes Campaigne and 'jlegewie' (ref/cite completion 2.0!). **Huge** thanks to Daniel Shannon (aka phyllisstein) who first ported LaTeXTools to ST3. Also thanks for Charley Peng, who has been assisting users and generating great pull requests; I'll merge them as soon as possible. Also William Ledoux (various Windows fixes, env support), Sean Zhu (find Skim.app in non-standard locations), Maximilian Berger (new center/table snippet), Lucas Nanni (recursively delete temp files), Sergey Slipchenko (`$` auto-pairing with Vintage), btstream (original fill-all command; LaTeX-cwl support), Richard Stein (auto-hide build panel, jump to included tex files, LaTeX-cwl support config, TEX spellcheck support, functions to analyze LaTeX documents, cache functionality, multiple cursor editing), Dan Schrage (nobibliography command), PoByBolek (more biblatex command), Rafael Lerm (support for multiple lines in `\bibliography` commands), Jeff Spencer (override keep_focus and forward_sync via key-binding), Jonas Malaco Filho (improvements to the Evince scripts), Michael Bar-Sinai (bibtex snippets).
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* v3.8.1 (2016-06-18).
+*Latest revision:* v3.8.2 (2016-06-19).
 
 *Headline features*:
 
@@ -150,7 +150,7 @@ Also, to get inverse search working on ST3, make sure you set the `sublime` opti
 
 By default LaTeXTools assumes you are using Evince (Document Viewer) as your PDF viewer. Support is also available for Okular and other viewers that can be run via the command line. See the section on [Viewers](#viewers) below for details on how to setup other viewers. 
 
-If you opt to use Evince, which is installed by default on Ubuntu and any distro that provides the Gnome desktop, you don't need to configure anything. Backward and forward search Work For Me (TM). Hopefully they will work for you, too, but let me know if this is not the case.
+If you opt to use Evince, which is installed by default on Ubuntu and any distro that provides the Gnome desktop. Please note that you will also need to have the Python `dbus` bindings installed for your system version of Python. If you use a Gnome desktop, this is likely already installed, but if not, you will need to install it using your distro's package manager. In particular, it's been reported not to be installed by Arch Linux by default. Backward and forward search Work For Me (TM). Hopefully they will work for you, too, but let me know if this is not the case.
 
 ## General Features
 
@@ -256,7 +256,7 @@ By default, LaTeXTools supports the following viewers, depending on platform:
  * On Windows, Sumatra
  * On Linux, Evince
 
-However, it is possible to use other programs to view PDF files. Currently the only non-default viewers supported are Preview.appp on OS X and Okular on Linux (patches welcome!). Preview can be selected by changing the `viewer` setting in your LaTeXTools preferences to `"preview"`. Okular can be used by changing the `viewer` setting in your LaTeXTools preferences to `"okular"`. See the [Viewer Settings](#viewer-settings) section for more details. For a manner of supporting other viewers, please see the section on [Alternate Viewers](#alternate-viewers) below.
+However, it is possible to use other programs to view PDF files. Currently, there are viewers available for Preview.app, Okular and Zathura. These viewers can be chosen by changing the `"viewer"` setting. See the [Viewer Settings](#viewer-settings) section for details. If you are using an alternate viewer, please see the relevant section under [Alternate Viewers](#alternate-viewers) for any caveats or other instructions. In addition, there is a viewer, called the Command Viewer which can be used to launch a PDF document using the command line.
 
 ## Keybindings
 
@@ -562,7 +562,7 @@ NOTE: for the time being, you will need to refer to the `LaTeXTools.sublime-sett
 
 ### Viewer settings
 
- * `viewer` (`""`): the viewer you want to use. Leave blank (`""`) or set to `"default"`for the platform-specific viewer. Can also be set to `"preview"` if you want to use Preview on OS X, `"okular"` if you want to use Okular on Linux or `"command"` to run arbitrary commands. For details on the `"command"` option, see the section of the viewer documentation above.
+ * `viewer` (`""`): the viewer you want to use. Leave blank (`""`) or set to `"default"`for the platform-specific viewer. Can also be set to `"preview"` if you want to use Preview on OS X, `"okular"` if you want to use Okular on Linux, `"zathura"` is you want to use Zathura on Linux, or `"command"` to run arbitrary commands. For details on the `"command"` option, see the section on the [Command Viewer](#command-viewer).
  * `viewer_settings`: these are viewer-specific settings. Please see the section on [Viewers](#viewers) or the documentation on [Alternate Viewers](#alternate-viewers) for details of what should be set here.
 
 ### Bibliographic references settings
@@ -713,7 +713,7 @@ Note that if none of these variables occur in the command string, the `$file_bas
 
 Commands are executed in the same path as `$file_path`, i.e. the folder containing the main document. Note, however, on Windows, since commands are launched using `cmd.exe`, you need to be careful if your root document is opened via a UNC path (this doesn't apply if you are simply using a mapped drive). `cmd.exe` doesn't support having the current working directory set to a UNC path and will change the path to `%SYSTEMROOT%`. In such a case, just ensure all the paths you specify are absolute paths and use `pushd` in place of `cd`, as this will create a (temporary) drive mapping.
 
-### Supporting output and auxiliary directories ###
+#### Supporting output and auxiliary directories
 
 If you are using LaTeXTools output and auxiliary directory behavior there are some caveats to be aware of. First, it is, of course, your responsibility to ensure that the approrpiate variables are passed to the appropriate commands in your script. Second, `pdflatex` and friends do not create output directories as needed. Therefore, at the very least, your script must start with either `"mkdir $output_directory"` (Windows) or `"mkdir -p $output_directory"` and a corresponding command if using a separate `$aux_directory`. Note that if you `\include` (or otherwise attempt anything that will `\@openout` a file in a subfolder), you will need to ensure the subfolder exists. Otherwise, your run of `pdflatex` will fail.
 
@@ -733,7 +733,7 @@ And on OS X or Linux, use this:
 
 In either case, these run bibtex *inside* the output / auxiliary directory while making the directory containing your main file available to the `BIBINPUTS` environment variable. Note if you use a custom style file in the same directory, you will need to apply a similar work-around for the `BSTINPUTS` environment variable.
 
-### Support jobname ###
+#### Supporting jobname
 
 If you are using LaTeXTools jobname behaviour, you should be aware that you are responsible for ensure jobname is set in the appropriate context. In particular, a standard build cycle might look something like this:
 
@@ -759,6 +759,8 @@ LaTeXTools makes some assumptions that should be adhered to or else things won't
 
 In addition, to ensure that forward and backward sync work, you need to ensure that the `-synctex=1` flag is set for your latex command. Again, don't forget the `-interaction=nonstopmode` flag (or whatever is needed for your tex programs not to expect user input in case of error).
 
+Finally, please remember that script commands on Windows are run using `cmd.exe` which means that if your script uses any UNC paths will have to use `pushd` and `popd` to properly map and unmap a network drive.
+
 ### Customizing the Build System
 
 Since the release on March 13, 2014 ([v3.1.0](https://github.com/SublimeText/LaTeXTools/tree/v3.1.0)), LaTeXTools has had support for custom build systems, in addition to the default build system, called the "traditional" builder. Details on how to customize the traditional builder are documented above. If neither the traditional builder nor the script builder meet your needs you can also create a completely custom builder which should be able to support just about anything you can imagine. Let me know if you are interested in writing a custom builder!
@@ -769,7 +771,19 @@ LaTeXTools comes packaged with a small sample builder to demonstrate the basics 
 
 If you are interested in developing your own builder, please see [our page on the wiki](https://github.com/SublimeText/LaTeXTools/wiki/Custom-Builders) with documentation and code samples!
 
-## Alternative Viewers
+## Alternate Viewers
+
+### Preview.app
+
+The Preview.app viewer is very straight-forward. It simply launches Preview.app with the relevant PDF file. Please note that Preview.app *does not* support forward or reverse sync, so you will not have that functionality available. Nevertheless, if you want to avoid installing another PDF viewer, this may be an acceptable option.
+
+### Okular
+
+The Okular viewer is quite similar to the Evince viewer and should work out of the box. However, for forward sync (i.e. from Sublime to Okular) to work properly, the PDF document *must* be opened in Okular's unique session. If it is not, each forward sync command will open a new copy of the PDF. This also means that you can only have a single PDF document opened by LaTeXTools at a time. If, when the Okular viewer is run, you get a message which reads `There's already a unique Okular instance running. This instance won't be the unique one.`, you will need to adjust your `sync_wait` settings, increasing the value until the error stops. See the [Linux](#linux2) platform settings.
+
+### Zathura
+
+Zathura will mostly work out of the box. However, under some circumstances, Zathura may not properly gain focus if you have set `keep_focus` to `false` or set the toggle to `Focus PDF`. To ensure that the focus ends up on Zathura, you will have to install either [`wmctrl`](https://sites.google.com/site/tstyblo/wmctrl) or [`xodotool`](http://www.semicomplete.com/projects/xdotool/), which should be available through your package manager. You can, of course, install both.
 
 ### Command Viewer
 
