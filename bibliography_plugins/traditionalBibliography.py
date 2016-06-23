@@ -41,7 +41,7 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                 modified_time = os.path.getmtime(bibfname)
 
                 (cached_time, cached_entries) = cache.read_global(cache_name)
-                if modified_time < cached_time:
+                if modified_time <= cached_time:
                     entries.extend(cached_entries)
                     continue
             except:
