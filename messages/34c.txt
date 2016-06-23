@@ -1,0 +1,6 @@
+LaTeXTools Plugin version 3.8.3 (2016-06-23) changelog:
+
+Bugfixes:
+
+- Fix bug, which results in bibliography files not being cached for cite commands (#752)
+- Fix argument deletion in comma separated input lists (#753)
