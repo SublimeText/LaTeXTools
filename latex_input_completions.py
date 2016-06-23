@@ -211,6 +211,7 @@ def parse_completions(view, line):
         group, prefix = next((i, v) for i, v in enumerate(search.groups())
                              if v is not None)
         entry = entries[group]
+        prefix = prefix[::-1]
     except Exception as e:
         print("Error occurred while extracting entry from matching group.")
         print(e)
