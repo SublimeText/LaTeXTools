@@ -333,13 +333,23 @@ class CmdThread ( threading.Thread ):
 					else:
 						sublime.set_timeout(lambda: sublime.status_message(message), 10)
 			except Exception as e:
-				content=["",""]
-				content.append("LaTeXtools could not parse the TeX log file")
+				# dumpt exception to console
+				traceback.print_exc()
+
+				content = ["", ""]
+				content.append(
+					"LaTeXTools could not parse the TeX log file {0}".format(
+						log_file
+					)
+				)
 				content.append("(actually, we never should have gotten here)")
 				content.append("")
-				content.append("Python exception: " + repr(e))
+				content.append("Python exception: {0!r}".format(e))
 				content.append("")
-				content.append("Please let me know on GitHub. Thanks!")
+				content.append(
+					"The full error description can be found on the console."
+				)
+				content.append("Please let us know on GitHub. Thanks!")
 
 			self.caller.output(content)
 			self.caller.output("\n\n[Done!]\n")
