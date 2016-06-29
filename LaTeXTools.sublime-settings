@@ -381,13 +381,13 @@
 	//
 	// Possible values:
 	//
-	// "traditional_bibliography" 		the default, regex-based bibliography
-	//									parsing
+	// "traditional" 		the default, regex-based bibliography 
+	//						parsing
 	//
-	// "new_bibliography"				a newer parser which supports UTF-8 and
-	//									additional fields, but may be slower and
-	//									less well tested.
-	"bibliography": "traditional_bibliography",
+	// "new"				a newer parser which supports UTF-8 and
+	//						additional fields, but may be slower and
+	//						less well tested.
+	"bibliography": "traditional",
 
 	/* This preference sets the format of the quick panel to select citations using wildcards.
 	The setting is a list with one or two string using wildcards for author, title, keyword etc.

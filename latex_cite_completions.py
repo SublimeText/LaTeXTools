@@ -357,16 +357,20 @@ def run_plugin_command(command, *args, **kwargs):
 
         return result
 
-    plugins = get_setting('bibliography', ['traditional_bibliography'])
+    plugins = get_setting('bibliography', ['traditional'])
     if not plugins:
         print('bibliography setting is blank. Loading traditional plugin.')
-        plugins = 'traditional_bibliography'
+        plugins = 'traditional'
 
     result = None
     if isinstance(plugins, strbase):
+        if not plugins.endswith('_bibliography'):
+            plugins = '{0}_bibliography'.format(plugins)
         result = _run_command(plugins)
     else:
         for plugin_name in plugins:
+            if not plugin_name.endswith('_bibliography'):
+                plugins = '{0}_bibliography'.format(plugins)
             try:
                 result = _run_command(plugin_name)
             except BibPluginError:
