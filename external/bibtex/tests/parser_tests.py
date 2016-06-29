@@ -455,64 +455,6 @@ class TestKeyValue(ParserTest):
             []
         )
 
-
-class TestStringValue(ParserTest):
-
-    def test_string_value_with_value(self):
-        self.parser.tokens = [('VALUE', 'value', {})]
-        self.parser._current_token = 0
-        self.parser._tokens_len = 1
-
-        node = self.parser.string_value()
-
-        self.assertIsInstance(
-            node,
-            QuotedLiteralNode
-        )
-
-        self.assertEqual(
-            node.value,
-            'value'
-        )
-
-    def test_string_value_with_quoted_string(self):
-        self.parser.tokens = [('QUOTED_STRING', 'value', {})]
-        self.parser._current_token = 0
-        self.parser._tokens_len = 1
-
-        node = self.parser.string_value()
-
-        self.assertIsInstance(
-            node,
-            QuotedLiteralNode
-        )
-
-        self.assertEqual(
-            node.value,
-            'value'
-        )
-
-    def test_string_value_with_invalid_token(self):
-        self.parser.tokens = [('EOF', 'EOF', {})]
-        self.parser._current_token = 0
-        self.parser._tokens_len = 1
-
-        self.assertRaises(
-            SyntaxError,
-            self.parser.string_value
-        )
-
-    def test_string_value_with_no_tokens(self):
-        self.parser.tokens = []
-        self.parser._current_token = 0
-        self.parser._tokens_len = 0
-
-        self.assertRaises(
-            SyntaxError,
-            self.parser.string_value
-        )
-
-
 class TestEntryKey(ParserTest):
 
     def test_entry_key(self):

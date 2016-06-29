@@ -199,6 +199,7 @@ class Lexer(object):
                     bracket_depth += 1
                     value.append(matched)
                 else:
+                    self.current_line += 1
                     # consume space after new line replacing with 1 space
                     match = SPACE.match(self.code, i - 1)
                     if match:
@@ -234,9 +235,15 @@ class Lexer(object):
 
                 if matched == '"':
                     break
-                elif matched == '\\"':
-                    value.append('"')
+                elif matched == '{':
+                    self.current_index = match.start()
+                    consumed = self.value_token()
+                    if consumed > 0:
+                        i += consumed - 1
+                        last_token = self.tokens.pop(-1)
+                        value.extend(['{', last_token[1], '}'])
                 else:
+                    self.current_line += 1
                     # consume space after new line replacing with 1 space
                     match = SPACE.match(self.code, i - 1)
                     if match:
@@ -334,6 +341,6 @@ NUMBER              = re.compile(r'\d+', re.UNICODE)
 KEY                 = re.compile(r'([^\W\d][^,\s=]*)\s*=\s*', re.UNICODE)
 
 # These are used internally by the more complex "tokens"
-NEXT_QUOTE_BREAK    = re.compile(r'(?:\\")|\n|"')
+NEXT_QUOTE_BREAK    = re.compile(r'\n|"|\{')
 NEXT_BRACKET_BREAK  = re.compile(r'\{|}|\n')
 SPACE               = re.compile(r'\s+', re.UNICODE)

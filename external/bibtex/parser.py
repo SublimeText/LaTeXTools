@@ -165,7 +165,7 @@ class Parser(object):
             self.unexpected_token('key')
 
         node.key = self.token_value
-        node.value = self.string_value()
+        node.value = self.field_value()
 
         try:
             self._advance()
@@ -213,23 +213,6 @@ class Parser(object):
             return node
         else:
             self.unexpected_token('identifier')
-
-    def string_value(self):
-        try:
-            self._advance()
-        except IndexError:
-            self.unexpected_token('quoted_string or value')
-
-        token_type = self.token_type
-        if token_type == 'QUOTED_STRING':
-            node = QuotedLiteralNode()
-        elif token_type == 'VALUE':
-            node = QuotedLiteralNode()
-        else:
-            self.unexpected_token('quoted_string or value')
-
-        node.value = self.token_value
-        return node
 
     def key_values(self):
         values = []
