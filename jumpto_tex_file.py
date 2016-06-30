@@ -12,10 +12,12 @@ try:
     _ST3 = True
     from .getTeXRoot import get_tex_root
     from .latextools_utils import get_setting
+    from .latextools_utils.tex_directives import TEX_DIRECTIVE as _TEX_DIRECTIVE
 except:
     _ST3 = False
     from getTeXRoot import get_tex_root
     from latextools_utils import get_setting
+    from latextools_utils.tex_directives import TEX_DIRECTIVE as _TEX_DIRECTIVE
 
 
 # TODO this might be moved to a generic util
@@ -261,3 +263,12 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
                 file_name = g.group("file")
                 print("Jumpto image file '{0}'".format(file_name))
                 _jumpto_image_file(view, window, tex_root, file_name)
+
+            for g in filter(is_inside, _TEX_DIRECTIVE.finditer(line)):
+                if g.group(1) != 'root':
+                    continue
+                file_name = g.group(2)
+                print("Jumpto root file '{0}'".format(file_name))
+                _jumpto_tex_file(view, window, tex_root, file_name,
+                                 auto_create_missing_folders, False)
+
