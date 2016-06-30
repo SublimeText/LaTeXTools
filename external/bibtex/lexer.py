@@ -171,14 +171,9 @@ class Lexer(object):
 
         return len(match.group(0))
 
-    def value_token(self):
-        i = self.current_index
-        if self.code[i] != '{':
-            return 0
-
+    def match_brackets(self, i):
         value = []
 
-        i += 1
         code_len = self.code_len
         bracket_depth = 1
 
@@ -210,13 +205,24 @@ class Lexer(object):
                 i = code_len
 
         if bracket_depth != 0:
+            return (i, None)
+
+        return (i, ''.join(value))
+
+    def value_token(self):
+        i = self.current_index
+        if self.code[i] != '{':
+            return 0
+
+        i, value = self.match_brackets(i + 1)
+        if value is None:
             return 0
 
         self.add_token('VALUE', ''.join(value).strip())
         return i - self.current_index
 
     def quoted_string_token(self):
-        i = self.current_index
+        i = initial_index =  self.current_index
         if self.code[i] != '"':
             return 0
 
@@ -236,12 +242,12 @@ class Lexer(object):
                 if matched == '"':
                     break
                 elif matched == '{':
-                    self.current_index = match.start()
-                    consumed = self.value_token()
-                    if consumed > 0:
-                        i += consumed - 1
-                        last_token = self.tokens.pop(-1)
-                        value.extend(['{', last_token[1], '}'])
+                    new_i, bracket_value = self.match_brackets(i)
+                    if bracket_value is None:
+                        value.append('{')
+                    else:
+                        value.extend(['{', bracket_value, '}'])
+                        i = new_i
                 else:
                     self.current_line += 1
                     # consume space after new line replacing with 1 space
@@ -258,7 +264,7 @@ class Lexer(object):
             return 0
 
         self.add_token('QUOTED_STRING', ''.join(value))
-        return i - self.current_index
+        return i - initial_index
 
     def entry_end_token(self):
         if self.code[self.current_index] != '}':
