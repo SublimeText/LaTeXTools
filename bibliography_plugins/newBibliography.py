@@ -9,9 +9,7 @@ from latextools_utils import bibcache
 
 import codecs
 from collections import Mapping
-import hashlib
 import sublime
-import time
 import traceback
 
 # LaTeX -> Unicode decoder
@@ -114,7 +112,6 @@ class NewBibliographyPlugin(LaTeXToolsPlugin):
         entries = []
         parser = Parser()
         for bibfname in bib_files:
-            cache_name = "bib_" + hashlib.md5(bibfname.encode("utf8")).hexdigest()
             try:
                 cached_entries = bibcache.read("new", bibfname)
                 entries.extend(cached_entries)
