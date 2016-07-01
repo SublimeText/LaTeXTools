@@ -56,8 +56,8 @@ def read(bib_name, bib_file):
 
 def _cache_name(bib_name, bib_file):
     file_hash = cache.hash_digest(bib_file)
-    cache_name = "{0}_{1}".format(bib_name, file_hash)
-    formatted_cache_name = "{0}_fmt_{1}".format(bib_name, file_hash)
+    cache_name = "bib_{0}_{1}".format(bib_name, file_hash)
+    formatted_cache_name = "bib_{0}_fmt_{1}".format(bib_name, file_hash)
     return cache_name, formatted_cache_name
 
 
