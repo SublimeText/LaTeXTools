@@ -1,0 +1,7 @@
+LaTeXTools Plugin version 3.8.4 (2016-07-03) changelog:
+
+Bugfixes:
+
+- On Linux, prefer subl to actual executable where possible (#710)
+- Fix Zathura viewer so reverse sync works when launched from forward sync (#762)
+- Improve "new" bibliography parsing (#757)
