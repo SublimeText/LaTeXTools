@@ -171,14 +171,9 @@ class Lexer(object):
 
         return len(match.group(0))
 
-    def value_token(self):
-        i = self.current_index
-        if self.code[i] != '{':
-            return 0
-
+    def match_brackets(self, i):
         value = []
 
-        i += 1
         code_len = self.code_len
         bracket_depth = 1
 
@@ -199,6 +194,7 @@ class Lexer(object):
                     bracket_depth += 1
                     value.append(matched)
                 else:
+                    self.current_line += 1
                     # consume space after new line replacing with 1 space
                     match = SPACE.match(self.code, i - 1)
                     if match:
@@ -209,13 +205,24 @@ class Lexer(object):
                 i = code_len
 
         if bracket_depth != 0:
+            return (i, None)
+
+        return (i, ''.join(value))
+
+    def value_token(self):
+        i = self.current_index
+        if self.code[i] != '{':
+            return 0
+
+        i, value = self.match_brackets(i + 1)
+        if value is None:
             return 0
 
         self.add_token('VALUE', ''.join(value).strip())
         return i - self.current_index
 
     def quoted_string_token(self):
-        i = self.current_index
+        i = initial_index =  self.current_index
         if self.code[i] != '"':
             return 0
 
@@ -234,9 +241,15 @@ class Lexer(object):
 
                 if matched == '"':
                     break
-                elif matched == '\\"':
-                    value.append('"')
+                elif matched == '{':
+                    new_i, bracket_value = self.match_brackets(i)
+                    if bracket_value is None:
+                        value.append('{')
+                    else:
+                        value.extend(['{', bracket_value, '}'])
+                        i = new_i
                 else:
+                    self.current_line += 1
                     # consume space after new line replacing with 1 space
                     match = SPACE.match(self.code, i - 1)
                     if match:
@@ -251,7 +264,7 @@ class Lexer(object):
             return 0
 
         self.add_token('QUOTED_STRING', ''.join(value))
-        return i - self.current_index
+        return i - initial_index
 
     def entry_end_token(self):
         if self.code[self.current_index] != '}':
@@ -334,6 +347,6 @@ NUMBER              = re.compile(r'\d+', re.UNICODE)
 KEY                 = re.compile(r'([^\W\d][^,\s=]*)\s*=\s*', re.UNICODE)
 
 # These are used internally by the more complex "tokens"
-NEXT_QUOTE_BREAK    = re.compile(r'(?:\\")|\n|"')
+NEXT_QUOTE_BREAK    = re.compile(r'\n|"|\{')
 NEXT_BRACKET_BREAK  = re.compile(r'\{|}|\n')
 SPACE               = re.compile(r'\s+', re.UNICODE)

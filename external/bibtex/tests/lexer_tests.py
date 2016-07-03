@@ -999,19 +999,6 @@ class TestQuotedStringToken(LexerTest):
             )
         )
 
-    def test_quoted_string_token_with_escaped_quotes(self):
-        self.lexer.code = '"value \\\"other value\\\""'
-        self.lexer.code_len = len(self.lexer.code)
-        self.lexer.quoted_string_token()
-
-        self.assertEqual(
-            self.lexer.tokens[0][1],
-            'value "other value"',
-            'expected token value to be "value \"other value\"", was "{0}"'.format(
-                self.lexer.tokens[0][1]
-            )
-        )
-
     def test_quoted_string_token_with_newline(self):
         self.lexer.code = '"value\nother value"'
         self.lexer.code_len = len(self.lexer.code)
@@ -1071,6 +1058,90 @@ class TestQuotedStringToken(LexerTest):
             self.lexer.tokens[0][1],
             'value other value',
             'expected token value to be "value other value", was "{0}"'.format(
+                self.lexer.tokens[0][1]
+            )
+        )
+
+    def test_quoted_string_ends_with_slash(self):
+        self.lexer.code = '"value other value\\\\"'
+        self.lexer.code_len = len(self.lexer.code)
+        result = self.lexer.quoted_string_token()
+
+        self.assertEqual(
+            result,
+            21,
+            'expected 21 characters to be consumed, found {0}'.format(
+                result
+            )
+        )
+
+        self.assertEqual(
+            self.lexer.tokens[0][1],
+            'value other value\\\\',
+            'expected token value to be "value other value\\\\", was "{0}"'.format(
+                self.lexer.tokens[0][1]
+            )
+        )
+
+    def test_quoted_string_containing_brackets(self):
+        self.lexer.code = '"text {WITH} brackets"'
+        self.lexer.code_len = len(self.lexer.code)
+        result = self.lexer.quoted_string_token()
+
+        self.assertEqual(
+            result,
+            22,
+            'expected 22 characters to be consumed, found {0}'.format(
+                result
+            )
+        )
+
+        self.assertEqual(
+            self.lexer.tokens[0][1],
+            'text {WITH} brackets',
+            'expected token value to be "text {{WITH}} brackets", was "{0}"'.format(
+                self.lexer.tokens[0][1]
+            )
+        )
+
+    def test_quoted_string_containing_brackets_with_quotes(self):
+        self.lexer.code = '"test {"}bracket{ escaping"}"'
+        self.lexer.code_len = len(self.lexer.code)
+        result = self.lexer.quoted_string_token()
+
+        self.assertEqual(
+            result,
+            29,
+            'expected 29 characters to be consumed, found {0}'.format(
+                result
+            )
+        )
+
+        self.assertEqual(
+            self.lexer.tokens[0][1],
+            'test {"}bracket{ escaping"}',
+            'expected token value to be "test {{"}}bracket{{ escaping"}}", was "{0}"'.format(
+                self.lexer.tokens[0][1]
+            )
+        )
+
+    def test_quoted_string_with_unmatched_brackets(self):
+        self.lexer.code = '"test { unmatched"'
+        self.lexer.code_len = len(self.lexer.code)
+        result = self.lexer.quoted_string_token()
+
+        self.assertEqual(
+            result,
+            18,
+            'expected 18 characters to be consumed, found {0}'.format(
+                result
+            )
+        )
+
+        self.assertEqual(
+            self.lexer.tokens[0][1],
+            'test { unmatched',
+            'expected token value to be "test {{ unmatched", was "{0}"'.format(
                 self.lexer.tokens[0][1]
             )
         )
