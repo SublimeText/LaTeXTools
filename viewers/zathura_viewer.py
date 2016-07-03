@@ -10,16 +10,14 @@ import sys
 
 class ZathuraViewer(BaseViewer):
 
-    def _run_zathura(self, pdf_file, **kwargs):
+    def _get_synctex_editor(self):
         st_binary = get_sublime_exe()
         if st_binary is None:
             st_binary = get_setting('linux', {}).get('sublime', 'sublime_text')
 
-        return subprocess.Popen([
-            'zathura', '-x',
-            '{0} %{{input}}:%{{line}}'.format(st_binary),
-            pdf_file
-        ]).pid
+        return '--synctex-editor-command={0} %{{input}}:%{{line}}'.format(
+            st_binary
+        )
 
     def _get_zathura_pid(self, pdf_file):
         stdout = subprocess.Popen(
@@ -79,11 +77,22 @@ class ZathuraViewer(BaseViewer):
         # we aren't otherwise creating the window
         pid = self._get_zathura_pid(pdf_file)
 
-        subprocess.Popen([
+        if pid is None:
+            pid = self._run_zathura(pdf_file)
+
+        command = [
             'zathura', '--synctex-forward',
             '{line}:{col}:{tex_file}'.format(**locals()),
-            pdf_file
-        ])
+        ]
+
+        if pid is None:
+            command.append(self._get_synctex_editor())
+        else:
+            command.append('--synctex-pid={pid}'.format(pid=pid))
+
+        command.append(pdf_file)
+
+        subprocess.Popen(command)
 
         if pid is not None and not keep_focus:
             self._focus_zathura(pid)
@@ -93,7 +102,11 @@ class ZathuraViewer(BaseViewer):
 
         pid = self._get_zathura_pid(pdf_file)
         if pid is None:
-            pid = self._run_zathura(pdf_file)
+            pid = subprocess.Popen([
+                'zathura',
+                self._get_synctex_editor(),
+                pdf_file
+            ]).pid
         elif not keep_focus:
             self._focus_zathura(pid)
 
