@@ -11,7 +11,7 @@ else:
     from . import bibformat, cache, get_setting
 
 
-def write(bib_name, bib_file, bib_entries):
+def write_fmt(bib_name, bib_file, bib_entries):
     cache_name, formatted_cache_name = _cache_name(bib_name, bib_file)
 
     current_time = time.time()
@@ -27,7 +27,7 @@ def write(bib_name, bib_file, bib_entries):
     return formatted_entries
 
 
-def read(bib_name, bib_file):
+def read_fmt(bib_name, bib_file):
     cache_name, formatted_cache_name = _cache_name(bib_name, bib_file)
 
     try:

@@ -113,7 +113,7 @@ class NewBibliographyPlugin(LaTeXToolsPlugin):
         parser = Parser()
         for bibfname in bib_files:
             try:
-                cached_entries = bibcache.read("new", bibfname)
+                cached_entries = bibcache.read_fmt("new", bibfname)
                 entries.extend(cached_entries)
                 continue
             except:
@@ -138,7 +138,7 @@ class NewBibliographyPlugin(LaTeXToolsPlugin):
                     bib_entries.append(EntryWrapper(entry))
 
                 try:
-                    fmt_entries = bibcache.write("new", bibfname, bib_entries)
+                    fmt_entries = bibcache.write_fmt("new", bibfname, bib_entries)
                     entries.extend(fmt_entries)
                 except:
                     entries.extend(bib_entries)

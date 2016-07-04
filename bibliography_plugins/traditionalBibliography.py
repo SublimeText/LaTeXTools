@@ -35,7 +35,7 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
         entries = []
         for bibfname in bib_files:
             try:
-                cached_entries = bibcache.read("trad", bibfname)
+                cached_entries = bibcache.read_fmt("trad", bibfname)
                 entries.extend(cached_entries)
                 continue
             except:
@@ -100,7 +100,7 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                 print ('Loaded %d bibitems' % (len(bib_entries)))
 
                 try:
-                    fmt_entries = bibcache.write("trad", bibfname, bib_entries)
+                    fmt_entries = bibcache.write_fmt("trad", bibfname, bib_entries)
                     entries.extend(fmt_entries)
                 except:
                     entries.extend(bib_entries)
