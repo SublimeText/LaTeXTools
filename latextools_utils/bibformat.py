@@ -4,17 +4,30 @@ import re
 
 
 TITLE_SEP = re.compile(':|\.|\?')
+PREFIX_MATCH_KEYS = set(["keyword", "title", "author"])
 
 formatter = Formatter()
 
 
+def _wrap(entry):
+    if not isinstance(entry, CompletionWrapper):
+        entry = CompletionWrapper(entry)
+    return entry
+
+
 def format_entry(format_string, entry):
-    return formatter.vformat(format_string, (), CompletionWrapper(entry))
+    return formatter.vformat(format_string, (), _wrap(entry))
 
 
 def format_entries(format_string, entries):
-    return [formatter.vformat(format_string, (), CompletionWrapper(entry))
+    return [formatter.vformat(format_string, (), _wrap(entry))
             for entry in entries]
+
+
+def create_prefix_match_str(entry):
+    prefix_str = " ".join(entry.get(key, "") for key in PREFIX_MATCH_KEYS)
+    prefix_str = prefix_str.lower()
+    return prefix_str
 
 
 def get_title_short(title):

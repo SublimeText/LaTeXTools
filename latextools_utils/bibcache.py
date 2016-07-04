@@ -75,6 +75,7 @@ def _create_formatted_entries(formatted_cache_name, bib_entries, cache_time):
     formatted_entries = [
         {
             "keyword": entry["keyword"],
+            "<prefix_match>": bibformat.create_prefix_match_str(entry),
             "<panel_formatted>": [
                 bibformat.format_entry(s, entry) for s in panel_format
             ],
