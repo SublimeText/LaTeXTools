@@ -561,9 +561,9 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
             "{keyword}: {title}")
 
         def formatted_entry(entry):
-            if "<autocomplete_formatted>" in entry:
+            try:
                 return entry["<autocomplete_formatted>"]
-            else:
+            except:
                 return bibformat.format_entry(cite_autocomplete_format, entry)
 
         completion_entries = [
@@ -585,8 +585,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         print (point)
         # Only trigger within LaTeX
         # Note using score_selector rather than match_selector
-        if not view.score_selector(point,
-                "text.tex.latex"):
+        if not view.score_selector(point, "text.tex.latex"):
             return
 
         try:
@@ -647,10 +646,6 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             view.sel().subtract(view.sel()[0])
             view.sel().add(sublime.Region(caret, caret))
 
-        # get preferences for formating of quick panel
-        cite_panel_format = get_setting('cite_panel_format',
-            ["{title} ({keyword})", "{author}"])
-
         completions_length = len(completions)
         if completions_length == 0:
             return
@@ -669,11 +664,14 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             view.sel().subtract(view.sel()[0])
             view.sel().add(sublime.Region(caret, caret))
         else:
+            # get preferences for formating of quick panel
+            cite_panel_format = get_setting('cite_panel_format',
+                ["{title} ({keyword})", "{author}"])
             # show quick
             def formatted_entry(entry):
-                if "<panel_formatted>" in entry:
+                try:
                     return entry["<panel_formatted>"]
-                else:
+                except:
                     return [formatted_entry(s, entry) for s in cite_panel_format]
             panel_entries = [
                 formatted_entry(completion)
