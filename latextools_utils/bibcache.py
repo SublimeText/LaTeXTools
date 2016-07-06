@@ -10,6 +10,8 @@ else:
     _ST3 = True
     from . import bibformat, cache, get_setting
 
+_VERSION = 1
+
 
 def write_fmt(bib_name, bib_file, bib_entries):
     cache_name, formatted_cache_name = _cache_name(bib_name, bib_file)
@@ -40,9 +42,10 @@ def read_fmt(bib_name, bib_file):
     if modified_time > meta_data["cache_time"]:
         raise cache.CacheMiss()
 
-    # validate the format string are still valid
-    if any(meta_data[s] != get_setting("cite_" + s)
-           for s in ["panel_format", "autocomplete_format"]):
+    # validate the version and format strings are still valid
+    if (meta_data["version"] != _VERSION or
+            any(meta_data[s] != get_setting("cite_" + s)
+                for s in ["panel_format", "autocomplete_format"])):
         print("Formatting string has changed, updating cache...")
         # read the base information from the unformatted cache
         current_time, bib_entries = cache.read_global(cache_name)
@@ -68,10 +71,10 @@ def _create_formatted_entries(formatted_cache_name, bib_entries, cache_time):
 
     meta_data = {
         "cache_time": cache_time,
+        "version": _VERSION,
         "autocomplete_format": autocomplete_format,
         "panel_format": panel_format
     }
-    # TODO we might need to keep keys like "author"
     formatted_entries = [
         {
             "keyword": entry["keyword"],
