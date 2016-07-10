@@ -370,7 +370,7 @@ def run_plugin_command(command, *args, **kwargs):
     else:
         for plugin_name in plugins:
             if not plugin_name.endswith('_bibliography'):
-                plugins = '{0}_bibliography'.format(plugins)
+                plugin_name = '{0}_bibliography'.format(plugin_name)
             try:
                 result = _run_command(plugin_name)
             except BibPluginError:
