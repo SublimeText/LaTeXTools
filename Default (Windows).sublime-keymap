@@ -235,6 +235,7 @@ LaTeX Package keymap for Windows
 			{"key": "selector", "operator": "not_equal", "operand": "string.other.math.tex"},
 			{"key": "selector", "operator": "not_equal", "operand": "string.other.math.latex"},
 			{"key": "selector", "operator": "not_equal", "operand": "string.other.math.block.tex"},
+			{"key": "selector", "operator": "not_equal", "operand": "meta.function.environment.math.latex"},
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\(?:item|only|textbf|color|onslide|only|uncover|visible|invisible|alt|temporal)$", "match_all": true }
