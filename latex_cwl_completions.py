@@ -10,13 +10,13 @@ if sublime.version() < '3000':
     _ST3 = False
     from latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX, match
     from latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
-    from getRegion import get_Region
+    from getRegion import getRegion
     from latextools_utils import get_setting
 else:
     _ST3 = True
     from .latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX, match
     from .latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
-    from .getRegion import get_Region
+    from .getRegion import getRegion
     from .latextools_utils import get_setting
 
 # Do not do completions in these environments
@@ -72,12 +72,10 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
             return []
 
         point_before = point - len(prefix)
-        char_before = view.substr(get_Region(point_before - 1, point_before))
-        if not _ST3:  # convert from unicode (might not be necessary)
-            char_before = char_before.encode("utf-8")
+        char_before = view.substr(getRegion(point_before - 1, point_before))
         is_prefixed = char_before == "\\"
 
-        line = view.substr(get_Region(view.line(point).begin(), point))
+        line = view.substr(getRegion(view.line(point).begin(), point))
         line = line[::-1]
         is_env = bool(BEGIN_END_BEFORE_REGEX.match(line))
 
@@ -111,19 +109,24 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
 
         # Do not do completions in actions
         for rex in ENV_DONOT_AUTO_COM:
-            if match(rex, line) != None:
+            if match(rex, line) is not None:
                 return []
 
         completions = parse_cwl_file(parse_line_as_command)
         # autocompleting with slash already on line
-        # this is necessary to work around a short-coming in ST where having a keyed entry
-        # appears to interfere with it recognising that there is a \ already on the line
+        # this is necessary to work around a short-coming in ST where having a
+        # keyed entry appears to interfere with it recognising that there is a
+        # \ already on the line
         #
-        # NB this may not work if there are other punctuation marks in the completion
+        # NB this may not work if there are other punctuation marks in the
+        # completion
         if is_prefixed:
             completions = [(c[0], c[1][1:]) if _is_snippet(c) else c
                            for c in completions]
-        return (completions, sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS)
+        return (
+            completions,
+            sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS
+        )
 
     # This functions is to determine whether LaTeX-cwl is installed,
     # if so, trigger auto-completion in latex buffers by '\'
@@ -230,7 +233,7 @@ def parse_keyword(keyword):
     # Replace strings in [] and {} with snippet syntax
     def replace_braces(matchobj):
         replace_braces.index += 1
-        if matchobj.group(1) != None:
+        if matchobj.group(1) is not None:
             word = matchobj.group(1)
             return u'{${%d:%s}}' % (replace_braces.index, word)
         else:
@@ -238,11 +241,13 @@ def parse_keyword(keyword):
             return u'[${%d:%s}]' % (replace_braces.index, word)
     replace_braces.index = 0
 
-    replace, n = re.subn(r'\{([^\{\}\[\]]*)\}|\[([^\{\}\[\]]*)\]', replace_braces, keyword)
+    replace, n = re.subn(
+        r'\{([^\{\}\[\]]*)\}|\[([^\{\}\[\]]*)\]', replace_braces, keyword
+    )
 
-    # I do not understand why some of the input will eat the '\' charactor before it!
-    # This code is to avoid these things.
-    if n == 0 and re.search(r'^[a-zA-Z]+$', keyword[1:].strip()) != None:
+    # I do not understand why some of the input will eat the '\' character
+    # before it! This code is to avoid these things.
+    if n == 0 and re.search(r'^[a-zA-Z]+$', keyword[1:].strip()) is not None:
         return keyword
     else:
         return replace

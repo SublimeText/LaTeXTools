@@ -14,7 +14,9 @@ _toggle_settings = [
     "open_pdf_on_build",
     "ref_auto_trigger",
     "cite_auto_trigger",
-    "fill_auto_trigger"
+    "fill_auto_trigger",
+    "env_auto_trigger",
+    "smart_bracket_auto_trigger"
 ]
 
 

@@ -6,6 +6,7 @@
 
 import sublime
 import sys
+import traceback
 
 if sys.version_info >= (3,):
     from imp import reload
@@ -18,6 +19,9 @@ if sublime.version() > '3000':
 
 # these modules must be specified in the order they depend on one another
 LOAD_ORDER = [
+    'latextools_plugin_internal',
+    'latextools_plugin',
+
     'latextools_utils',
 
     # no internal dependencies
@@ -26,6 +30,7 @@ LOAD_ORDER = [
     'latextools_utils.utils',
     'latextools_utils.tex_directives',
     'latextools_utils.system',
+    'latextools_utils.internal_types',
 
     # depend on previous only
     'latextools_utils.distro_utils',
@@ -37,15 +42,29 @@ LOAD_ORDER = [
     # depend on any previous
     'latextools_utils.analysis',
     'latextools_utils.bibcache',
-    'latextools_utils.output_directory',
+    'latextools_utils.output_directory'
+]
 
-    'latextools_plugin_internal',
-
+EXTERNAL_LOAD_ORDER = [
     'latex_chars'
 ]
 
 
 for suffix in LOAD_ORDER:
     mod = MOD_PREFIX + suffix
-    if mod in sys.modules and sys.modules[mod] is not None:
-        reload(sys.modules[mod])
+    try:
+        if mod in sys.modules and sys.modules[mod] is not None:
+            reload(sys.modules[mod])
+        else:
+            __import__(mod)
+    except:
+        traceback.print_exc()
+
+for mod in EXTERNAL_LOAD_ORDER:
+    try:
+        if mod in sys.modules and sys.modules[mod] is not None:
+            reload(sys.modules[mod])
+        else:
+            __import__(mod)
+    except:
+        traceback.print_exc()
