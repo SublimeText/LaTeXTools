@@ -75,6 +75,12 @@
 	//		after commas (,)
 	"fillall_helper_entries": [
 		{
+			// subfile
+			"regex": "elifbus\\\\",
+			"extensions": ["tex"],
+			"strip_extensions": [".tex"]
+		},
+		{
 			// includesvg
 			"regex": "(?:\\][^{}\\[\\]]*\\[)?gvsedulcni\\\\",
 			"extensions": ["svg"],
