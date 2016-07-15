@@ -646,7 +646,8 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 							os.path.dirname(self.file_name)
 						)
 
-			self.view.run_command("jump_to_pdf", {"from_keybinding": False})
+			if get_setting('open_pdf_on_build', True):
+				self.view.run_command("jump_to_pdf", {"from_keybinding": False})
 
 
 class DoOutputEditCommand(sublime_plugin.TextCommand):
