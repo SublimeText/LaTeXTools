@@ -126,6 +126,10 @@ LaTeX Package keymap for OS X
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "toggle_fwdsync"},
+	{ 	"keys": ["super+l","t","v"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "toggle_view_on_build"},
 	{ 	"keys": ["super+l","t","?"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],

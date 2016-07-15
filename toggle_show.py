@@ -11,6 +11,7 @@ else:
 _toggle_settings = [
     "keep_focus",
     "forward_sync",
+    "open_pdf_on_build",
     "ref_auto_trigger",
     "cite_auto_trigger",
     "fill_auto_trigger"
@@ -22,6 +23,7 @@ def _make_panel_entry(t):
 
 
 class ToggleShowCommand(sublime_plugin.TextCommand):
+
     def run(self, edit, **args):
         view = self.view
         window = view.window()
