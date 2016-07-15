@@ -10,7 +10,7 @@ import sublime
 import time
 import traceback
 
-kp = re.compile(r'@[^\{]+\{(.+),')
+kp = re.compile(r'@[^\{]+\{\s*(.+)\s*,')
 # new and improved regex
 # we must have "title" then "=", possibly with spaces
 # then either {, maybe repeated twice, or "
