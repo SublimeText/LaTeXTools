@@ -1,5 +1,6 @@
 from latextools_plugin import LaTeXToolsPlugin
 
+import latex_chars
 from latextools_utils import cache
 
 import codecs
@@ -10,7 +11,7 @@ import sublime
 import time
 import traceback
 
-kp = re.compile(r'@[^\{]+\{\s*(.+)\s*,')
+kp = re.compile(r'@[^\{]+\{\s*(.+)\s*,', re.UNICODE)
 # new and improved regex
 # we must have "title" then "=", possibly with spaces
 # then either {, maybe repeated twice, or "
@@ -30,8 +31,13 @@ kp = re.compile(r'@[^\{]+\{\s*(.+)\s*,')
 
 # This may speed things up
 # So far this captures: the tag, and the THREE possible groups
-multip = re.compile(r'\b(author|title|year|editor|journal|eprint)\s*=\s*(?:\{|"|\b)(.+?)(?:\}+|"|\b)\s*,?\s*\Z',re.IGNORECASE)
+multip = re.compile(
+    r'\b(author|title|year|editor|journal|eprint)\s*=\s*'
+    r'(?:\{|"|\b)(.+?)(?:\}+|"|\b)\s*,?\s*\Z',
+    re.IGNORECASE | re.UNICODE
+)
 
+latex_chars.register()
 
 class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
     def get_entries(self, *bib_files):
@@ -78,9 +84,9 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                         if kp_match:
                             entry['keyword'] = kp_match.group(1)
                         else:
-                            print("Cannot process this @ line: " + line)
+                            print(u"Cannot process this @ line: " + line)
                             print(
-                                "Previous keyword (if any): " +
+                                u"Previous keyword (if any): " +
                                 entry.get('keyword', '')
                             )
                         continue
@@ -90,7 +96,7 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                     multip_match = multip.search(line)
                     if multip_match:
                         key = multip_match.group(1).lower()
-                        value = multip_match.group(2)
+                        value = codecs.decode(multip_match.group(2), 'latex')
 
                         if key == 'title':
                             value = value.replace(
