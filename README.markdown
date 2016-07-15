@@ -437,6 +437,9 @@ The following sub-settings are provided:
 - `image_types`: a list of the image file types used in the `\includegraphics` command. This list is also used in the Fill Helper and to determine missing extensions to open images. When opening an image the `image_types`-list will be matched from left to right.
 - `open_image_command`: the command/program to open an image used in the `\includegraphics` command. This commands can be configured OS-specific. For each OS you can create a list, which will be searched top-down for the matching extension. Each entry in the list has a `command` and `extension` field. The command is a string and will be executed with the file path appended, if the extension matches the extension of the file. You can optionally use `$file` inside the string to insert the file path at an arbitrary position. The `extension` can either be a string or a list of string. If it is missing, the command will be executed for every file type.
 
+#### Packages
+If you use the command while the cursor is inside a `\usepackage` command, the documentation for the corresponding package will be opened in your default PDF viewer.
+
 ### LaTeX commands and environments
 
 **Keybindings:** `C-l,c` for commands and `C-l,e` for environments
