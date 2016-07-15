@@ -281,18 +281,22 @@ class CmdThread ( threading.Thread ):
 					content.append("")
 					content.extend(warnings)
 				else:
-					content.append("")
+					if errors:
+						content.append("")
+					content.append("No warnings.")
 
 				if badboxes and self.caller.display_bad_boxes:
 					if warnings or errors:
 						content.extend(["", "Bad Boxes:"])
 					else:
-						content[-2] = content[-2] + " Bad Boxes:"
+						content[-1] = content[-1] + " Bad Boxes:"
 					content.append("")
 					content.extend(badboxes)
 				else:
-					if warnings:
-						content.append("")
+					if self.caller.display_bad_boxes:
+						if errors or warnings:
+							content.append("")
+						content.append("No bad boxes.")
 
 				hide_panel = {
 					"always": True,
@@ -306,9 +310,9 @@ class CmdThread ( threading.Thread ):
 				if hide_panel:
 					# hide the build panel (ST2 api is not thread save)
 					if _ST3:
-						self.caller.window.run_command("hide_panel", {"panel": "output.exec"})
+						self.caller.window.run_command("hide_panel", {"panel": "output.latextools"})
 					else:
-						sublime.set_timeout(lambda: self.caller.window.run_command("hide_panel", {"panel": "output.exec"}), 10)
+						sublime.set_timeout(lambda: self.caller.window.run_command("hide_panel", {"panel": "output.latextools"}), 10)
 					message = "build completed"
 					if errors:
 						message += " with errors"
@@ -326,7 +330,7 @@ class CmdThread ( threading.Thread ):
 							message += " and"
 						else:
 							message += " with"
-						message += "bad boxes"
+						message += " bad boxes"
 
 					if _ST3:
 						sublime.status_message(message)
@@ -419,19 +423,32 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 
 		# Output panel: from exec.py
 		if not hasattr(self, 'output_view'):
-			self.output_view = self.window.get_output_panel("exec")
+			self.output_view = self.window.get_output_panel("latextools")
+
+		output_view_settings = self.output_view.settings()
+		output_view_settings.set("result_file_regex", file_regex)
+		output_view_settings.set("result_base_dir", tex_dir)
+		output_view_settings.set("line_numbers", False)
+		output_view_settings.set("gutter", False)
+		output_view_settings.set("scroll_past_end", False)
+		output_view_settings.set(
+			"syntax",
+			"Packages/LaTeXTools/LaTeXTools Console.hidden-tmLanguage"
+		)
+		output_view_settings.set(
+			"color_scheme",
+			sublime.load_settings('Preferences.sublime-settings').
+				get('color_scheme')
+		)
+		self.output_view.set_read_only(True)
 
 		# Dumb, but required for the moment for the output panel to be picked
         # up as the result buffer
-		self.window.get_output_panel("exec")
+		self.window.get_output_panel("latextools")
 
-		self.output_view.settings().set("result_file_regex", "^([^:\n\r]*):([0-9]+):?([0-9]+)?:? (.*)$")
-		# self.output_view.settings().set("result_line_regex", line_regex)
-		self.output_view.settings().set("result_base_dir", tex_dir)
-
-		self.window.run_command("show_panel", {"panel": "output.exec"})
-
-		self.output_view.settings().set("result_file_regex", file_regex)
+		self.hide_panel_level = get_setting("hide_build_panel", "never")
+		if self.hide_panel_level != "always":
+			self.window.run_command("show_panel", {"panel": "output.latextools"})
 
 		self.plat = sublime.platform()
 		if self.plat == "osx":
@@ -447,12 +464,11 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# Get platform settings, builder, and builder settings
 		platform_settings  = get_setting(self.plat, {})
 		builder_name = get_setting("builder", "traditional")
-		self.hide_panel_level = get_setting("hide_build_panel", "never")
 		self.display_bad_boxes = get_setting("display_bad_boxes", False)
 		# This *must* exist, so if it doesn't, the user didn't migrate
 		if builder_name is None:
 			sublime.error_message("LaTeXTools: you need to migrate your preferences. See the README file for instructions.")
-			self.window.run_command('hide_panel', {"panel": "output.exec"})
+			self.window.run_command('hide_panel', {"panel": "output.latextools"})
 			return
 
 		# Default to 'traditional' builder
@@ -526,7 +542,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		except NoSuchPluginException:
 			sublime.error_message("Cannot find builder " + builder_name + ".\n" \
 							      "Check your LaTeXTools Preferences")
-			self.window.run_command('hide_panel', {"panel": "output.exec"})
+			self.window.run_command('hide_panel', {"panel": "output.latextools"})
 			return
 
 		print(repr(builder))
