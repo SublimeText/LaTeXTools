@@ -10,16 +10,14 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* v3.8.5 (2016-07-07).
+*Latest revision:* v3.9.0 (2016-07-15).
 
 *Headline features*:
 
- * *Welcome to Richard Stein* who joined the team several weeks ago!
- * Support for output directory and aux directory
- * Support for editing BibTeX and BibLaTeX files
- * Improved environment and command completions
- * Viewer for Zathura
- * New, Improved README format
+ * Jump to Anywhere - IDE-like navigation by mouse and keyboard
+ * New toggle quick panel that displays toggles and allows them to be changed
+ * Highlighting of errors, warnings and bad boxes in the console
+ * New toggable option to control whether or not the PDF is opened at the end of compilation
 
 ## Introduction
 
