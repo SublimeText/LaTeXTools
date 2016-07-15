@@ -99,7 +99,7 @@ def find_labels_in_files(rootdir, src, labels):
     labels += re.findall(r'\\label\{([^{}]+)\}', src_content)
 
     # search through input tex files recursively
-    for f in re.findall(r'\\(?:input|include)\{([^\{\}]+)\}', src_content):
+    for f in re.findall(r'\\(?:input|include|subfile)\{([^\{\}]+)\}', src_content):
         find_labels_in_files(rootdir, f, labels)
 
 
