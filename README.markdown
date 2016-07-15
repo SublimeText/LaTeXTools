@@ -309,7 +309,7 @@ You can also change the default sync behavior via the `forward_sync` option: see
 
 **Keybinding:** `C-l,t,?`
 
-This causes the status message to list the default settings of the focus and sync options, and their current toggle values. It also display the status of the ref/cite auto trigger toggles (see below).
+This opens a quick panel displaying the current toggle values and their corresponding default settings. Selecting an entry in the quick panel will toggle the value (turning the feature on or off).
 
 ### Removing temporary files from build
 
