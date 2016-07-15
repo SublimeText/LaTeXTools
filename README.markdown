@@ -406,24 +406,38 @@ The LaTeXtools plugin integrates with the awesome ST "Goto Anything" facility. H
 Selecting any entry in the list will take you to the corresponding place in the text.
 
 
-### Jumping to included files
+### Jump to Anywhere
 
-**Keybinding:** `C-l, C-o` (only works if the cursor is in the same line as the include command)
+**Keybinding:** `C-l, C-j` or `C-l, C-o` (see [below](#jumping-to-included-files))
+**Mousebinding:** `alt-leftclick` (Windows) / `super-leftclick` Linux) / `ctrl-leftclick` (OSX)
 
-#### LaTeX files
-To open a LaTeX file, which is included with `\input`, `\include` or `\subfile` just position the cursor inside the include command and press `C-l, C-o`. This will open the included file in Sublime Text.
+This is an IDE-like mouse navigation, which executes a jump depending on the context around the cursor. It is easy to use and intuitive. Just click with the mouse on a command while pressing the modifier key. The corresponding jump will be executed. Supported jump types are:
 
-If necessary missing folders and the file will be created. In this case the magic root entry will be written into the file. Hence this command can be used to comfortably create files and open files.
+- Jump to referenced labels (e.g. `\ref`)
+- Jump to citation entries in bibliography files (e.g. `\cite`)
+- Open included files (e.g. `\input` or `\include`)
+- Open bibliographies (e.g. `\bibliography` or `\addbibresource`)
+- Open included graphics with a specified program (e.g. `\includegraphics`)
+- Open the documentation of used packages (e.g. `\usepackage`)
+- Jump to self-defined command definition, i.e. jump to the `\newcommand` in which the command was defined
+
+#### SublimeCodeIntel Integration
+If you use [SublimeCodeIntel](https://github.com/SublimeCodeIntel/SublimeCodeIntel) you recognize the mouse-binding and it does not work out of the box. Just open the command palette and run the command `LaTeXTools: Create Mousemap in User folder`. This will create a mouse-map in the user folder or modify the existing one to add the mouse-binding. This mouse-binding has a `fallback_command` command as argument. This command will be executed if the command in called outside a LaTeX document.
+
+#### Jumping to included files
+To open a file included using, e.g., `\input` or `\include` or a bibliography, simply click while holding down the modifier key or press `C-l, C-j`. Sublime will open the included file.
+
+There is an additional keybinding `C-l, C-o` to jump to included files. If the file already exists, this behaves just like `C-l, C-j`. However, if the file does not exist, it will also create the missing file and, if a `tex` file, will add the magic root entry (`%!TEX root=`) to the new file. This can be used to easily create files or to open already existing files.
 
 #### Image files
-To open an image, which is included with `\includegraphics` just position the cursor inside the command and press `C-l, C-o`. This will open the image.
-The program to open the image can be configured in the LaTeXTools settings in the `open_image_command` attribute.
+To open an image, which is included with `\includegraphics` just click on the command while pressing the modifier key or press `C-l, C-j`.
 
-The following settings are provided:
+The program to open the image can be configured in the LaTeXTools settings in the `open_image_command` setting.
+
+The following sub-settings are provided:
 
 - `image_types`: a list of the image file types used in the `\includegraphics` command. This list is also used in the Fill Helper and to determine missing extensions to open images. When opening an image the `image_types`-list will be matched from left to right.
 - `open_image_command`: the command/program to open an image used in the `\includegraphics` command. This commands can be configured OS-specific. For each OS you can create a list, which will be searched top-down for the matching extension. Each entry in the list has a `command` and `extension` field. The command is a string and will be executed with the file path appended, if the extension matches the extension of the file. You can optionally use `$file` inside the string to insert the file path at an arbitrary position. The `extension` can either be a string or a list of string. If it is missing, the command will be executed for every file type.
-
 
 ### LaTeX commands and environments
 

@@ -136,6 +136,13 @@ LaTeX Package keymap for Linux
 		"context": [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "jumpto_tex_file", "args": {"auto_create_missing_folders": true, "auto_insert_root": true}},
+	// Jump to anywhere
+	// This will select the executed jump according to the context,
+	// e.g. if the cursor is inside a ref command it will jump to the corresponding label
+	{ "keys": ["ctrl+l", "ctrl+j"],
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "jumpto_tex_anywhere"},
 
 	// Wrap selected text in command or environment
 	{ "keys": ["ctrl+l","ctrl+c"], 
