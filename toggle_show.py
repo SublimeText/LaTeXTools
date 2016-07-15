@@ -1,21 +1,51 @@
-import sublime, sublime_plugin
+import sublime
+import sublime_plugin
 
-# Show current toggles and prefs
+if sublime.version() < '3000':
+    _ST3 = False
+    from latextools_utils import get_setting
+else:
+    _ST3 = True
+    from .latextools_utils import get_setting
 
-class toggle_showCommand(sublime_plugin.TextCommand):
-	def run(self, edit, **args):
-		s = sublime.load_settings("LaTeXTools.sublime-settings")
-		prefs_keep_focus = s.get("keep_focus", "(default)")
-		prefs_forward_sync = s.get("forward_sync", "(default)")
-		prefs_auto_ref = s.get("ref_auto_trigger", "(default)")
-		prefs_auto_cite = s.get("cite_auto_trigger", "(default)")
-		prefs_auto_fill = s.get("fill_auto_trigger", "(default)")
-		keep_focus = self.view.settings().get("keep focus","undefined")
-		forward_sync = self.view.settings().get("forward_sync","undefined")
-		auto_ref = self.view.settings().get("ref auto trigger", "undefined")
-		auto_cite = self.view.settings().get("cite auto trigger", "undefined")
-		auto_fill = self.view.settings().get("fill auto trigger", "undefined")
+_toggle_settings = [
+    "keep_focus",
+    "forward_sync",
+    "ref_auto_trigger",
+    "cite_auto_trigger",
+    "fill_auto_trigger"
+]
 
 
-		sublime.status_message("Keep focus: pref %s toggle %s         Forward sync: pref %s toggle %s         Auto ref: pref %s toggle %s         Auto cite: pref %s toggle %s         Auto fill: pref %s toggle %s" 
-			% (prefs_keep_focus, keep_focus, prefs_forward_sync, forward_sync, prefs_auto_ref, auto_ref, prefs_auto_cite, auto_cite, prefs_auto_fill, auto_fill))
+def _make_panel_entry(t):
+    return [t[0].replace("_", " "), "{0}  (default: {1})".format(t[1], t[2])]
+
+
+class ToggleShowCommand(sublime_plugin.TextCommand):
+    def run(self, edit, **args):
+        view = self.view
+        window = view.window()
+        default_settings = sublime.load_settings("LaTeXTools.sublime-settings")
+
+        _current_settings = [[s, get_setting(s), default_settings.get(s)]
+                             for s in _toggle_settings]
+
+        _panel_entries = [_make_panel_entry(t) for t in _current_settings]
+
+        def toggle_setting(index):
+            if index == -1:
+                return
+            name, value = _current_settings[index][0:2]
+            new_value = not value
+            message = "Set '{0}' to {1}".format(name, new_value)
+            print(message)
+            sublime.status_message(message)
+            _current_settings[index][1] = new_value
+            view.settings().set(name, new_value)
+            _panel_entries[index] = _make_panel_entry(_current_settings[index])
+
+            # keep the index (only possible with ST3)
+            flags = {"selected_index": index} if _ST3 else {}
+            window.show_quick_panel(_panel_entries, toggle_setting, **flags)
+
+        window.show_quick_panel(_panel_entries, toggle_setting)
