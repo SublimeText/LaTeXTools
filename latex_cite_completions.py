@@ -672,7 +672,8 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
                 try:
                     return entry["<panel_formatted>"]
                 except:
-                    return [formatted_entry(s, entry) for s in cite_panel_format]
+                    return [bibformat.format_entry(s, entry) 
+                            for s in cite_panel_format]
             panel_entries = [
                 formatted_entry(completion)
                 for completion in completions
