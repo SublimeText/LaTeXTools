@@ -140,12 +140,15 @@ class EntriesQuickpanel():
         if change_handler:
             self.change_handler[name] = change_handler
 
-    def show_quickpanel(self):
+    def show_quickpanel(self, selected_index=0):
         """
         Opens a quickpanel based on the initialized data
         """
         if _ST3:
-            flags = {"on_highlight": self._on_changed}
+            flags = {
+                "selected_index": selected_index,
+                "on_highlight": self._on_changed
+            }
         else:
             flags = {}
         self.window.show_quick_panel(self.captions, self._on_done, **flags)
