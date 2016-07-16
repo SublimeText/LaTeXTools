@@ -220,7 +220,7 @@ class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
             return
         command = com_reg.group("command")
         args = com_reg.group("args")
-        reversed_command = command[::-1]
+        reversed_command = "{" + command[::-1] + "\\"
         # the cursor position inside the command
         pos = view.sel()[0].b - line_r.begin() - com_reg.start()
         # check if its a ref
