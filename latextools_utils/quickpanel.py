@@ -35,6 +35,45 @@ else:
 AT_START, AT_END = -1, -2
 
 
+def show_quickpanel(captions, entries):
+    """
+    Creates a panel to navigate between the entries.
+    Each entry can either be a class or a dict, but must have the
+    properties:
+    - file_name the absolute path to the file, which contain the entry
+    - region the region inside the file as sublime.Region
+
+    Arguments:
+    captions -- The captions to display for each entry
+    entries -- A list of the entries inside the quickpanel
+    """
+    EntriesQuickpanel(captions, _convert_entries(entries)).show_quickpanel()
+
+
+def show_cancel_quickpanel(captions, entries):
+    """
+    Creates a panel to navigate between the entries with a cancel
+    entry.
+    Each entry can either be a class or a dict, but must have the
+    properties:
+    - file_name the absolute path to the file, which contain the entry
+    - region the region inside the file as sublime.Region
+
+    Arguments:
+    captions -- The captions to display for each entry
+    entries -- A list of the entries inside the quickpanel
+    """
+    entries = _convert_entries(entries)
+    CancelEntriesQuickpanel(captions, entries).show_quickpanel()
+
+
+def _convert_entries(entries):
+    if any(isinstance(entry, dict) for entry in entries):
+        entries = [Entry(**entry) if isinstance(entry, dict) else entry
+                   for entry in entries]
+    return entries
+
+
 class Entry():
     """
     Duck type to show entries in a quickpanel, consists of
