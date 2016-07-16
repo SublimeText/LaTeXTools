@@ -252,6 +252,17 @@
 	// "default" or ""	the default built-in build engine; currently
 	//					this is the same as "traditional"
 	//
+	// "basic"			invokes pdflatex / xelatex / lualates as 
+	//					needed, then biber / bibtex and pdflatex /
+	//					xelatex / lualatex again if needed. Unlike
+	//					the "simple" builder this supports most of
+	//					LaTeXTools builder features.
+	//
+	// "script"			external script: invokes the set of commands
+	//					specified in the "script_commands" setting 
+	//					in the platform-specific part of the 
+	//					"builder_settings"
+	//
 	// "simple"			invokes pdflatex 1x or 2x as needed, then
 	//					bibtex and pdflatex again if needed;
 	//					intended mainly as a simple example for
@@ -259,11 +270,6 @@
 	//
 	// "traditional"	replicates the 'old' system based on
 	//					latexmk (TeXLive) / texify (MiKTeX)
-	//
-	// "script"			external script: invokes the set of commands
-	//					specified in the "script_commands" setting 
-	//					in the platform-specific part of the 
-	//					"builder_settings"
 	//
 	// custom name		you can also use third-party build engines;
 	//					if so, set the "builder_path" option below
@@ -361,6 +367,12 @@
 			// See README or third-party documentation
 		}
 	},
+
+	// OPTION: "open_pdf_on_build"
+	// specifies whether LaTeXTools should open the PDF file on a
+	// successful build. If set to false, the PDF file won't be opened
+	// unless explicitly launched using C-l,v or C-l,j
+	"open_pdf_on_build": true,
 
 // ------------------------------------------------------------------
 // Opening files included into the tex source code

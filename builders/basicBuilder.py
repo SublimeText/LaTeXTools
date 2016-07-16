@@ -79,8 +79,8 @@ class BasicBuilder(PdfBuilder):
                 latex.append(u'--output-directory=' + self.aux_directory)
             else:
                 latex.append(u'--aux-directory=' + self.aux_directory)
-
-            biber.append(u'--output-directory=' + self.aux_directory)
+        elif self.output_directory is not None:
+            biber.append(u'--output-directory=' + self.output_directory)
 
         if (
             self.output_directory is not None and
@@ -104,7 +104,8 @@ class BasicBuilder(PdfBuilder):
         # Check if any subfolders need to be created
         # this adds a number of potential runs as LaTeX treats being unable
         # to open output files as fatal errors
-        if self.aux_directory is not None:
+        output_directory = self.aux_directory or self.output_directory
+        if output_directory is not None:
             while True:
                 start = 0
                 added_directory = False
@@ -114,7 +115,7 @@ class BasicBuilder(PdfBuilder):
                         self.make_directory(
                             os.path.normpath(
                                 os.path.join(
-                                    self.aux_directory,
+                                    output_directory,
                                     match.group(1)
                                 )
                             )
@@ -200,7 +201,8 @@ class BasicBuilder(PdfBuilder):
         env = dict(os.environ)
         cwd = self.tex_dir
 
-        if self.aux_directory is not None:
+        output_directory = self.aux_directory or self.output_directory
+        if output_directory is not None:
             # cwd is, at the point, the path to the main tex file
             if _ST3:
                 env['BIBINPUTS'] = cwd + os.pathsep + env.get('BIBINPUTS', '')
@@ -214,7 +216,7 @@ class BasicBuilder(PdfBuilder):
                         sys.getfilesystemencoding())
             # now we modify cwd to be the output directory
             # NOTE this cwd is not reused by any of the other command
-            cwd = self.aux_directory
+            cwd = output_directory
 
         startupinfo = None
         preexec_fn = None

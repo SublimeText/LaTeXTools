@@ -266,7 +266,7 @@ def find_bib_files(rootdir, src, bibfiles):
             bibfiles.append(candidate_file)
 
     # search through input tex files recursively
-    for f in re.findall(r'\\(?:input|include)\{[^\}]+\}',src_content):
+    for f in re.findall(r'\\(?:input|include|subfile)\{[^\}]+\}',src_content):
         input_f = re.search(r'\{([^\}]+)', f).group(1)
         find_bib_files(rootdir, input_f, bibfiles)
 
@@ -370,7 +370,7 @@ def run_plugin_command(command, *args, **kwargs):
     else:
         for plugin_name in plugins:
             if not plugin_name.endswith('_bibliography'):
-                plugins = '{0}_bibliography'.format(plugins)
+                plugin_name = '{0}_bibliography'.format(plugin_name)
             try:
                 result = _run_command(plugin_name)
             except BibPluginError:

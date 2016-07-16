@@ -314,14 +314,15 @@ def parse_tex_log(data):
 					# HEURISTIC: if extra line begins with "Package:" "File:" "Document Class:",
 					# or other "well-known markers",
 					# we just had a long file name, so do not add
-					if (extralen > 0 and (
+					if extralen > 0 and (
 						extra[0:5] == "File:" or
 						extra[0:8] == "Package:" or
 						extra[0:11] == "Dictionary:" or
-						extra[0:15 ] == "Document Class:" or
+						extra[0:15] == "Document Class:"
+					) or (
 						extra[0:9] == "LaTeX2e <" or
 						assignment_rx.match(extra)
-					)):
+					):
 						extend_line = False
 						# no need to recycle extra, as it's nothing we are interested in
 					# HEURISTIC: when TeX reports an error, it prints some surrounding text
@@ -405,8 +406,9 @@ def parse_tex_log(data):
 			line[0:5] == "File:" or
 			line[0:8] == "Package:" or
 			line[0:11] == "Dictionary:" or
-			line[0:15 ] == "Document Class:" or
-			line[0:9] == "LaTeX2e <"
+			line[0:15 ] == "Document Class:"
+		) or (
+			line[0:9] == "LaTeX2e <" or assignment_rx.match(line)
 		):
 			continue
 

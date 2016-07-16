@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>name</key>
+	<string>LaTeXTools Console</string>
+	<key>patterns</key>
+	<array>
+		<dict>
+			<key>match</key>
+			<string>No errors.</string>
+			<key>name</key>
+			<string>latextools.console.heading.no.error</string>
+		</dict>
+		<dict>
+			<key>begin</key>
+			<string>(Errors:)$\n*</string>
+			<key>beginCaptures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>latextools.console.heading.error</string>
+				</dict>
+			</dict>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>match</key>
+					<string>.+</string>
+					<key>name</key>
+					<string>latextools.console.message.error markup.deleted</string>
+				</dict>
+			</array>
+			<key>end</key>
+			<string>(?=Warnings:|No warnings.|\[Done!\])</string>
+			<key>endCaptures</key>
+			<dict>
+				<key>0</key>
+				<dict>
+					<key>name</key>
+					<string>latextools.console.end.error</string>
+				</dict>
+			</dict>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>No warnings.</string>
+			<key>name</key>
+			<string>latextools.console.heading.no.warning</string>
+		</dict>
+		<dict>
+			<key>begin</key>
+			<string>(Warnings:)$\n*</string>
+			<key>beginCaptures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>latextools.console.heading.warning</string>
+				</dict>
+			</dict>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>match</key>
+					<string>.+</string>
+					<key>name</key>
+					<string>latextools.console.message.warning markup.changed</string>
+				</dict>
+			</array>
+			<key>end</key>
+			<string>^(?=Bad Boxes:|No bad boxes.|\[Done!\])</string>
+			<key>endCaptures</key>
+			<dict>
+				<key>0</key>
+				<dict>
+					<key>name</key>
+					<string>latextools.console.end.warning</string>
+				</dict>
+			</dict>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>No bad boxes.</string>
+			<key>name</key>
+			<string>latextools.console.heading.no.badbox</string>
+		</dict>
+		<dict>
+			<key>begin</key>
+			<string>(Bad Boxes:)$\n*</string>
+			<key>beginCaptures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>latextools.console.heading.badbox</string>
+				</dict>
+			</dict>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>match</key>
+					<string>.+</string>
+					<key>name</key>
+					<string>latextools.console.message.badbox constant.numeric</string>
+				</dict>
+			</array>
+			<key>end</key>
+			<string>^(?=\[Done!\])</string>
+			<key>endCaptures</key>
+			<dict>
+				<key>0</key>
+				<dict>
+					<key>name</key>
+					<string>latextools.console.end.badbox</string>
+				</dict>
+			</dict>
+		</dict>
+	</array>
+	<key>scopeName</key>
+	<string>latextools.console</string>
+</dict>
+</plist>

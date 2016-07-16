@@ -126,6 +126,10 @@ LaTeX Package keymap for OS X
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "toggle_fwdsync"},
+	{ 	"keys": ["super+l","t","v"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "toggle_view_on_build"},
 	{ 	"keys": ["super+l","t","?"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
@@ -136,6 +140,13 @@ LaTeX Package keymap for OS X
 		"context": [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "jumpto_tex_file", "args": {"auto_create_missing_folders": true, "auto_insert_root": true}},
+	// Jump to anywhere
+	// This will select the executed jump according to the context,
+	// e.g. if the cursor is inside a ref command it will jump to the corresponding label
+	{ "keys": ["super+l", "super+j"],
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "jumpto_tex_anywhere"},
 
 	// Wrap selected text in command or environment
 	{ "keys": ["super+l","super+c"], 
@@ -230,10 +241,7 @@ LaTeX Package keymap for OS X
 	{ "keys": ["<"], "command": "insert_snippet", "args": {"contents": "<${1:+-}>$0"}, 
 	"context":  
 		[
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{"key": "selector", "operator": "not_equal", "operand": "string.other.math.tex"},
-			{"key": "selector", "operator": "not_equal", "operand": "string.other.math.latex"},
-			{"key": "selector", "operator": "not_equal", "operand": "string.other.math.block.tex"},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - (string.other.math, meta.environment.math)"},
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\(?:item|only|textbf|color|onslide|only|uncover|visible|invisible|alt|temporal)$", "match_all": true }
