@@ -8,6 +8,7 @@ try:
     _ST3 = True
     from .getTeXRoot import get_tex_root
     from .latextools_utils import analysis, utils
+    from .latextools_utils.tex_directives import TEX_DIRECTIVE
     from .latex_cite_completions import NEW_STYLE_CITE_REGEX
     from .latex_ref_completions import NEW_STYLE_REF_REGEX
     from .jumpto_tex_file import INPUT_REG, BIB_REG, IMAGE_REG
@@ -16,6 +17,7 @@ except:
     _ST3 = False
     from getTeXRoot import get_tex_root
     from latextools_utils import analysis, utils
+    from latextools_utils.tex_directives import TEX_DIRECTIVE
     from latex_cite_completions import NEW_STYLE_CITE_REGEX
     from latex_ref_completions import NEW_STYLE_REF_REGEX
     from jumpto_tex_file import INPUT_REG, BIB_REG, IMAGE_REG
@@ -154,6 +156,20 @@ def _jumpto_pkg_doc(view, com_reg, pos):
         view_doc(package_name)
 
 
+def _jumpto_tex_root(view, root):
+    if os.path.isabs(root):
+        path = root
+    else:
+        path = os.path.normpath(
+            os.path.join(
+                os.path.dirname(view.file_name()),
+                root
+            )
+        )
+
+    sublime.active_window().open_file(path)
+
+
 def _opt_jumpto_self_def_command(view, com_reg):
     tex_root = get_tex_root(view)
     if tex_root is None:
@@ -216,8 +232,21 @@ class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
         try:
             com_reg = next(ifilter(is_inside, COMMAND_REG.finditer(line)))
         except:
+            # since the magic comment will not match the command, do this here
+            if view.file_name():
+                m = TEX_DIRECTIVE.search(line)
+                if (
+                    m and
+                    m.group(1) == 'root' and
+                    m.start() <= sel.begin() - line_r.begin() and
+                    sel.end() - line_r.begin() <= m.end()
+                ):
+                    _jumpto_tex_root(view, m.group(2))
+                    return
+
             print("Cursor is not inside a command")
             return
+
         command = com_reg.group("command")
         args = com_reg.group("args")
         reversed_command = "{" + command[::-1] + "\\"
