@@ -28,7 +28,8 @@ LaTeX Package keymap for Windows
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "latex_env_closer"},
-
+	{	"keys": ["ctrl+l","r"],
+		"command": "latex_ref_cite", "args": {"insert_char": "\\ref{"}},
 	// Complete reference or citation
 	// ctrl+l,ctrl+space suggests ST2's standard autocompletion keybinding, but for LaTeX;
 	// ctrl+l,x suggests "cross" references, which both cites and refs are 
