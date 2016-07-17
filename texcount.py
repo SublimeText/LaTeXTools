@@ -5,15 +5,27 @@ import sublime_plugin
 import subprocess
 from subprocess import Popen, PIPE
 import os
+import sys
 
 if sublime.version() < '3000':
+    _ST3 = False
     from latextools_utils import get_setting
     from getTeXRoot import get_tex_root
-    from get_texpath import get_texpath
 else:
+    _ST3 = True
     from .latextools_utils import get_setting
     from .getTeXRoot import get_tex_root
-    from .get_texpath import get_texpath
+
+
+def get_texpath():
+    platform_settings = get_setting(sublime.platform(), {})
+    texpath = platform_settings.get('texpath', '')
+
+    if not _ST3:
+        return os.path.expandvars(texpath).encode(sys.getfilesystemencoding())
+    else:
+        return os.path.expandvars(texpath)
+
 
 class TexcountCommand(sublime_plugin.TextCommand):
     """
@@ -25,7 +37,8 @@ class TexcountCommand(sublime_plugin.TextCommand):
 
         if not os.path.exists(tex_root):
             sublime.error_message(
-                'Tried to run TeXCount on non-existent file. Please ensure all files are saved before invoking TeXCount.'
+                'Tried to run TeXCount on non-existent file. Please ensure '
+                'all files are saved before invoking TeXCount.'
             )
             return
 
@@ -84,5 +97,6 @@ class TexcountCommand(sublime_plugin.TextCommand):
                 )
         except OSError:
             sublime.error_message(
-                'Could not run texcount. Please ensure that your texpath setting is configured correctly in the LaTeXTools settings.'
+                'Could not run texcount. Please ensure that your texpath '
+                'setting is configured correctly in the LaTeXTools settings.'
             )
