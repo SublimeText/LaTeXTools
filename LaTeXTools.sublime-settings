@@ -41,6 +41,10 @@
 	// Sync PDF to current editor position after building (true) or not
 	"forward_sync": true,
 
+	// Set this to false to disable the overwriting of the goto overlay for the hotkey `C-r`
+	// You can still access the "table of content quickpanel" via `C-l, C-r`
+	"overwrite_goto_overlay": true,
+
 	// When to trigger cwl-command completion (requires the LaTeX-cwl package)
 	// possible values are:
 	// "always" (always show command completions)
@@ -73,7 +77,7 @@
 	// can also be set on a per-project basis
 	"use_biblatex": false,
 
-	// the mapping from the locales to the dictionaries for the 
+	// the mapping from the locales to the dictionaries for the
 	// `%!TEX spellcheck` directive, where the locales must be all lowercase
 	// and separated by a minus sign (-). The dictionaries must be valid path
 	// and compatible with the ST integrated spellcheck
@@ -252,15 +256,15 @@
 	// "default" or ""	the default built-in build engine; currently
 	//					this is the same as "traditional"
 	//
-	// "basic"			invokes pdflatex / xelatex / lualates as 
+	// "basic"			invokes pdflatex / xelatex / lualates as
 	//					needed, then biber / bibtex and pdflatex /
 	//					xelatex / lualatex again if needed. Unlike
 	//					the "simple" builder this supports most of
 	//					LaTeXTools builder features.
 	//
 	// "script"			external script: invokes the set of commands
-	//					specified in the "script_commands" setting 
-	//					in the platform-specific part of the 
+	//					specified in the "script_commands" setting
+	//					in the platform-specific part of the
 	//					"builder_settings"
 	//
 	// "simple"			invokes pdflatex 1x or 2x as needed, then
@@ -325,7 +329,7 @@
 	// Specifies which viewer to use
 	// Possible values:
 	//
-	// "default" or ""	the default viewer for your platform, which 
+	// "default" or ""	the default viewer for your platform, which
 	//					is sumatra on Windows, skim on OS X and
 	//					evince on linux
 	//
@@ -387,13 +391,13 @@
 // Bibliographic references
 // ------------------------------------------------------------------
 	// OPTION: "bibliography"
-	// Either a single  bibliography plugin to use or a list of plugins 
+	// Either a single  bibliography plugin to use or a list of plugins
 	// which will be executed in order, stopping after the first result
 	// found
 	//
 	// Possible values:
 	//
-	// "traditional" 		the default, regex-based bibliography 
+	// "traditional" 		the default, regex-based bibliography
 	//						parsing
 	//
 	// "new"				a newer parser which supports UTF-8 and
