@@ -44,5 +44,4 @@ class LatexSearchCommandInputCommand(sublime_plugin.WindowCommand):
         def do_nothing(text):
             pass
         caption = "Search for commands in a comma (,) separated list"
-        window.show_input_panel(caption, "", on_done=on_done,
-                                on_change=do_nothing, on_cancel=do_nothing)
+        window.show_input_panel(caption, "", on_done, do_nothing, do_nothing)
