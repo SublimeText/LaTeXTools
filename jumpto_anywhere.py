@@ -7,7 +7,7 @@ import sublime_plugin
 try:
     _ST3 = True
     from .getTeXRoot import get_tex_root
-    from .latextools_utils import analysis, utils
+    from .latextools_utils import analysis, ana_utils, quickpanel, utils
     from .latex_cite_completions import NEW_STYLE_CITE_REGEX
     from .latex_ref_completions import NEW_STYLE_REF_REGEX
     from .jumpto_tex_file import INPUT_REG, BIB_REG, IMAGE_REG
@@ -15,7 +15,7 @@ try:
 except:
     _ST3 = False
     from getTeXRoot import get_tex_root
-    from latextools_utils import analysis, utils
+    from latextools_utils import analysis, ana_utils, quickpanel, utils
     from latex_cite_completions import NEW_STYLE_CITE_REGEX
     from latex_ref_completions import NEW_STYLE_REF_REGEX
     from jumpto_tex_file import INPUT_REG, BIB_REG, IMAGE_REG
@@ -71,6 +71,29 @@ def _get_selected_arg(view, com_reg, pos):
     arg = arg.strip()
 
     return arg
+
+
+def _show_usage_label(view, args):
+    tex_root = get_tex_root(view)
+    if tex_root is None:
+        return False
+    ana = analysis.analyze_document(tex_root)
+    # TODO add all reference commands
+    refs = ana.filter_commands(["ref"])
+
+    refs = [r for r in refs if r.args == args]
+
+    if len(refs) == 0:
+        sublime.error_message("No references for '{0}' found.".format(args))
+        return
+    elif len(refs) == 1:
+        ref = refs[0]
+        utils.open_and_select_region(view, ref.file_name, ref.region)
+        return
+
+    captions = [ana_utils.create_rel_file_str(ana, r) for r in refs]
+
+    quickpanel.show_quickpanel(captions, refs)
 
 
 def _jumpto_ref(view, com_reg, pos):
@@ -231,6 +254,8 @@ class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
         elif NEW_STYLE_CITE_REGEX.match(reversed_command):
             sublime.status_message("Jump to citation '{0}'".format(args))
             _jumpto_cite(view, com_reg, pos)
+        elif command == "label":
+            _show_usage_label(view, args)
         # check if it is any kind of input command
         elif any(reg.match(com_reg.group(0)) for reg in INPUT_REG_EXPS):
             args = {
