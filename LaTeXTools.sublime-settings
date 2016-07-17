@@ -55,7 +55,7 @@
 	// "no_warnings" (only hide the panel if no warnings occur)
 	// "no_badboxes" (only hide the panel if no badbox messages occur when badboxes are enabled) and
 	// "never" (default, never hide the build panel)
-	"hide_build_panel": "never",
+	"hide_build_panel": "no_warnings",
 
 	// controls whether or not to display any bad boxes in the build output
 	// if this is not set to true, "no_badboxes" for "hide_build_panel" is
