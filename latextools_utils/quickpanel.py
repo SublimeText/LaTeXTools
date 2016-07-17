@@ -35,7 +35,7 @@ else:
 AT_START, AT_END = -1, -2
 
 
-def show_quickpanel(captions, entries):
+def show_quickpanel(captions, entries, show_cancel=False):
     """
     Creates a panel to navigate between the entries.
     Each entry can either be a class or a dict, but must have the
@@ -46,25 +46,13 @@ def show_quickpanel(captions, entries):
     Arguments:
     captions -- The captions to display for each entry
     entries -- A list of the entries inside the quickpanel
+    show_cancel -- Whether a cancel option should be added
     """
-    EntriesQuickpanel(captions, _convert_entries(entries)).show_quickpanel()
-
-
-def show_cancel_quickpanel(captions, entries):
-    """
-    Creates a panel to navigate between the entries with a cancel
-    entry.
-    Each entry can either be a class or a dict, but must have the
-    properties:
-    - file_name the absolute path to the file, which contain the entry
-    - region the region inside the file as sublime.Region
-
-    Arguments:
-    captions -- The captions to display for each entry
-    entries -- A list of the entries inside the quickpanel
-    """
-    entries = _convert_entries(entries)
-    CancelEntriesQuickpanel(captions, entries).show_quickpanel()
+    if show_cancel:
+        Quickpanel = CancelEntriesQuickpanel
+    else:
+        Quickpanel = EntriesQuickpanel
+    Quickpanel(captions, entries).show_quickpanel()
 
 
 def _convert_entries(entries):
