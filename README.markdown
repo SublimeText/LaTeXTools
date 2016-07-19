@@ -414,6 +414,7 @@ This is an IDE-like mouse navigation, which executes a jump depending on the con
 - Jump to referenced labels (e.g. `\ref`)
 - Jump to citation entries in bibliography files (e.g. `\cite`)
 - Open included files (e.g. `\input` or `\include`)
+- Open root file from `%!TEX root =...` magic comment
 - Open bibliographies (e.g. `\bibliography` or `\addbibresource`)
 - Open included graphics with a specified program (e.g. `\includegraphics`)
 - Open the documentation of used packages (e.g. `\usepackage`)
