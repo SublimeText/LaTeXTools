@@ -349,7 +349,7 @@ class CmdThread ( threading.Thread ):
 				}.get(self.caller.hide_panel_level, bool(errors or warnings))
 
 				if show_panel:
-					self.caller.progress_indicator.success_message = "build completed"
+					self.caller.progress_indicator.success_message = "Build completed"
 					# show the build panel (ST2 api is not thread save)
 					if _ST3:
 						self.caller.window.run_command(
@@ -362,7 +362,7 @@ class CmdThread ( threading.Thread ):
 								{"panel": "output.latextools"}
 							), 0)
 				else:
-					message = "build completed"
+					message = "Build completed"
 					if errors:
 						message += " with errors"
 					if warnings:
@@ -618,7 +618,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		)
 		# NB CmdThread will change the success message
 		self.progress_indicator = ProgressIndicator(
-			thread, 'building', 'build failed',
+			thread, 'Building', 'Build failed',
 			display_message_length=display_message_length
 		)
 
