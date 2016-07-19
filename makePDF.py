@@ -1,4 +1,4 @@
-# ST2/ST3 compat
+	# ST2/ST3 compat
 from __future__ import print_function
 
 import sublime
@@ -431,15 +431,17 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		output_view_settings.set("line_numbers", False)
 		output_view_settings.set("gutter", False)
 		output_view_settings.set("scroll_past_end", False)
-		output_view_settings.set(
-			"syntax",
-			"Packages/LaTeXTools/LaTeXTools Console.hidden-tmLanguage"
-		)
-		output_view_settings.set(
-			"color_scheme",
-			sublime.load_settings('Preferences.sublime-settings').
+
+		if get_setting("highlight_build_panel", True):
+			self.output_view.set_syntax_file(
+				"Packages/LaTeXTools/LaTeXTools Console.hidden-tmLanguage"
+			)
+			output_view_settings.set(
+				"color_scheme",
+				sublime.load_settings('Preferences.sublime-settings').
 				get('color_scheme')
-		)
+			)
+
 		self.output_view.set_read_only(True)
 
 		# Dumb, but required for the moment for the output panel to be picked
