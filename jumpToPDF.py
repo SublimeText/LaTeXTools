@@ -117,6 +117,10 @@ def focus_st():
 # Jump to current line in PDF file
 # NOTE: must be called with {"from_keybinding": <boolean>} as arg
 class JumpToPdf(sublime_plugin.TextCommand):
+	def is_visible(self, *args):
+		view = sublime.active_window().active_view()
+		return bool(view.score_selector(0, "text.tex"))
+
 	def run(self, edit, **args):
 		# Check prefs for PDF focus and sync
 		keep_focus = args.get('keep_focus', get_setting('keep_focus', True))
@@ -209,6 +213,10 @@ class JumpToPdf(sublime_plugin.TextCommand):
 
 
 class ViewPdf(sublime_plugin.WindowCommand):
+	def is_visible(self, *args):
+		view = self.window.active_view()
+		return bool(view.score_selector(0, "text.tex"))
+
 	def run(self, **args):
 		pdffile = None
 		if 'file' in args:

@@ -23,6 +23,9 @@ def _make_panel_entry(t):
 
 
 class ToggleShowCommand(sublime_plugin.TextCommand):
+    def is_visible(self, *args):
+        view = sublime.active_window().active_view()
+        return bool(view.score_selector(0, "text.tex"))
 
     def run(self, edit, **args):
         view = self.view
