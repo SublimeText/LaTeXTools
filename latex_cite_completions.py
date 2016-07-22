@@ -31,7 +31,7 @@ if sublime.version() < '3000':
     import getTeXRoot
     from kpsewhich import kpsewhich
     from latextools_utils.is_tex_file import is_tex_file, get_tex_extensions
-    from latextools_utils import get_setting
+    from latextools_utils import bibformat, get_setting
     import latextools_plugin
 
     # reraise implementation from 6
@@ -45,7 +45,7 @@ else:
     from . import getTeXRoot
     from .kpsewhich import kpsewhich
     from .latextools_utils.is_tex_file import is_tex_file, get_tex_extensions
-    from .latextools_utils import get_setting
+    from .latextools_utils import bibformat, get_setting
     from . import latextools_plugin
 
     # reraise implementation from 6
@@ -383,119 +383,6 @@ def run_plugin_command(command, *args, **kwargs):
 
     return result
 
-TITLE_SEP = re.compile(':|\.|\?')
-def get_title_short(title):
-    title = TITLE_SEP.split(title)[0]
-    if len(title) > 60:
-        title = title[:60] + '...'
-    return title
-
-
-# default implementation that convers the author field into a short version of itself
-# assumes we get a basically raw LaTeX string, e.g. "Lastname, Firstnamd and Otherlastname, Otherfirstname"
-def get_author_short(authors):
-    if authors == '':
-        return ''
-
-    # split authors using ' and ' and get last name for 'last, first' format
-    authors = [a.split(", ")[0].strip(' ') for a in authors.split(" and ")]
-    # get last name for 'first last' format (preserve {...} text)
-    authors = [a.split(" ")[-1] if not('{' in a and a.endswith('}'))
-               else re.sub(r'{|}', '', a[a.rindex('{') + 1:-1])
-               for a in authors if len(a) > 0]
-
-    # truncate and add 'et al.'
-    if len(authors) > 2:
-        authors = authors[0] + " et al."
-    else:
-        authors = ' & '.join(authors)
-
-    # return formated string
-    return authors
-
-class CompletionWrapper(collections.Mapping):
-    '''
-    Wraps the returned completions so that we can properly handle any KeyErrors that
-    occur
-    '''
-    def __init__(self, entry):
-        self._entry = entry
-
-    def __getitem__(self, key):
-        try:
-            # emulating previous behaviour of latex_cite_completions
-            if key not in ('author', 'journal'):
-                return self._entry[key]
-            else:
-                value = self._entry[key]
-                return value or u'????'
-        except KeyError:
-            if key == 'author':
-                try:
-                    return self._entry['editor']
-                except KeyError:
-                    pass
-            elif key == 'author_short':
-                try:
-                    return get_author_short(self._entry['author'])
-                except KeyError:
-                    pass
-
-                return self['editor_short']
-            elif key == 'editor_short':
-                try:
-                    return get_author_short(self._entry['editor'])
-                except KeyError:
-                    pass
-            elif key == 'title_short':
-                try:
-                    return self._entry['shorttitle']
-                except KeyError:
-                    pass
-
-                try:
-                    return get_title_short(self._entry['title'])
-                except KeyError:
-                    pass
-            elif key == 'journal':
-                try:
-                    return self._entry['journaltitle']
-                except KeyError:
-                    pass
-
-                try:
-                    return self._entry['eprint']
-                except KeyError:
-                    pass
-            elif key == 'keyword':
-                try:
-                    return self._entry['citekey']
-                except KeyError:
-                    pass
-            elif key == 'year':
-                try:
-                    date = self._entry['date']
-                    date_matcher = re.match(r'(\d{4})', date)
-                    if date_matcher:
-                        return date_matcher.group(1)
-                except KeyError:
-                    pass
-            elif key == 'month':
-                try:
-                    date = self._entry['date']
-                    date_matcher = re.match(r'\d{4}-(\d{2})', date)
-                    if date_matcher:
-                        return date_matcher.group(1)
-                except KeyError:
-                    pass
-
-            return u'????'
-
-    def __iter__(self):
-        return iter(self._entry)
-
-    def __len__(self):
-        return len(self._entry)
 
 def get_cite_completions(view, point, autocompleting=False):
     line = view.substr(sublime.Region(view.line(point).a, point))
@@ -618,10 +505,6 @@ def get_cite_completions(view, point, autocompleting=False):
 
     completions = run_plugin_command('get_entries', *bib_files)
 
-    #### END COMPLETIONS HERE ####
-
-    completions = [CompletionWrapper(completion) for completion in completions]
-
     return completions, prefix, post_brace, new_point_a, new_point_b
 
 
@@ -668,23 +551,28 @@ class LatexCiteCompletions(sublime_plugin.EventListener):
 
         # filter against keyword or title
         if prefix:
-            completions = [comp for comp in completions if prefix.lower() in "%s %s" %
-                                                    (
-                                                        comp['keyword'].lower(),
-                                                        comp['title'].lower())]
+            lprefix = prefix.lower()
+            completions = [comp for comp in completions
+                           if _is_prefix(lprefix, comp)]
             prefix += " "
 
         # get preferences for formating of autocomplete entries
         cite_autocomplete_format = get_setting('cite_autocomplete_format',
             "{keyword}: {title}")
 
-        formatter = Formatter()
-        r = [(prefix + formatter.vformat(cite_autocomplete_format, (), completion),
-              completion['keyword'] + post_brace) for completion in completions]
+        def formatted_entry(entry):
+            try:
+                return entry["<autocomplete_formatted>"]
+            except:
+                return bibformat.format_entry(cite_autocomplete_format, entry)
 
-        # print "%d bib entries matching %s" % (len(r), prefix)
+        completion_entries = [
+            (prefix + formatted_entry(completion),
+             completion['keyword'] + post_brace)
+            for completion in completions
+        ]
 
-        return r
+        return completion_entries
 
 
 class LatexCiteCommand(sublime_plugin.TextCommand):
@@ -697,8 +585,7 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
         print (point)
         # Only trigger within LaTeX
         # Note using score_selector rather than match_selector
-        if not view.score_selector(point,
-                "text.tex.latex"):
+        if not view.score_selector(point, "text.tex.latex"):
             return
 
         try:
@@ -718,11 +605,9 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
 
         # filter against keyword, title, or author
         if prefix:
-            completions = [comp for comp in completions if prefix.lower() in "%s %s %s" % 
-                                                    (
-                                                        comp['keyword'].lower(),
-                                                        comp['title'].lower(),
-                                                        comp['author'].lower())]
+            lprefix = prefix.lower()
+            completions = [comp for comp in completions
+                           if _is_prefix(lprefix, comp)]
 
         # Note we now generate citation on the fly. Less copying of vectors! Win!
         def on_done(i):
@@ -761,10 +646,6 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             view.sel().subtract(view.sel()[0])
             view.sel().add(sublime.Region(caret, caret))
 
-        # get preferences for formating of quick panel
-        cite_panel_format = get_setting('cite_panel_format',
-            ["{title} ({keyword})", "{author}"])
-
         completions_length = len(completions)
         if completions_length == 0:
             return
@@ -783,10 +664,29 @@ class LatexCiteCommand(sublime_plugin.TextCommand):
             view.sel().subtract(view.sel()[0])
             view.sel().add(sublime.Region(caret, caret))
         else:
+            # get preferences for formating of quick panel
+            cite_panel_format = get_setting('cite_panel_format',
+                ["{title} ({keyword})", "{author}"])
             # show quick
-            formatter = Formatter()
-            view.window().show_quick_panel([[formatter.vformat(s, (), completion) for s in cite_panel_format] \
-                                        for completion in completions], on_done)
+            def formatted_entry(entry):
+                try:
+                    return entry["<panel_formatted>"]
+                except:
+                    return [bibformat.format_entry(s, entry) 
+                            for s in cite_panel_format]
+            panel_entries = [
+                formatted_entry(completion)
+                for completion in completions
+            ]
+            view.window().show_quick_panel(panel_entries, on_done)
+
+
+def _is_prefix(lower_prefix, entry):
+    try:
+        return lower_prefix in entry["<prefix_match>"]
+    except:
+        return lower_prefix in bibformat.create_prefix_match_str(entry)
+
 
 def plugin_loaded():
     # load plugins from the bibliography_plugins dir of LaTeXTools if it exists

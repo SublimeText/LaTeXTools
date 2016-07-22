@@ -21,6 +21,7 @@ LOAD_ORDER = [
     'latextools_utils',
 
     # no internal dependencies
+    'latextools_utils.bibformat',
     'latextools_utils.settings',
     'latextools_utils.utils',
     'latextools_utils.tex_directives',
@@ -35,6 +36,7 @@ LOAD_ORDER = [
 
     # depend on any previous
     'latextools_utils.analysis',
+    'latextools_utils.bibcache',
     'latextools_utils.output_directory',
 
     'latextools_plugin_internal',
