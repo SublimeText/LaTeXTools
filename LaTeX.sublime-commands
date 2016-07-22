@@ -5,6 +5,6 @@
 	{ "caption": "LaTeXTools: Show toggles", "command": "toggle_show"},
 	{ "caption": "LaTeXTools: Reset user settings to default", "command": "latextools_migrate"},
 	{ "caption": "LaTeXTools: Create mousemap in user folder", "command": "latextools_create_mousemap"},
-	{ "caption": "LaTeXTools: View package documentation", "command": "latex_pkg_doc"},
+	{ "caption": "LaTeXTools: View TeX package documentation", "command": "latex_pkg_doc"},
 	{ "caption": "LaTeXTools: Build cache of LaTeX packages", "command": "latex_gen_pkg_cache"}
 ]
