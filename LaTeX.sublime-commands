@@ -2,6 +2,7 @@
 	{ "caption": "LaTeXTools: Delete temporary files", "command": "delete_temp_files"},
 	{ "caption": "LaTeXTools: View PDF", "command": "view_pdf"},
 	{ "caption": "LaTeXTools: Jump to PDF", "command": "jump_to_pdf"},
+	{ "caption": "LaTeXTools: Show Word Count", "command": "texcount"},
 	{ "caption": "LaTeXTools: Show toggles", "command": "toggle_show"},
 	{ "caption": "LaTeXTools: Reset user settings to default", "command": "latextools_migrate"},
 	{ "caption": "LaTeXTools: Create mousemap in user folder", "command": "latextools_create_mousemap"},

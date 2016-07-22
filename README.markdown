@@ -394,7 +394,6 @@ In order for package autocomplete to work, you need to create a cache first. You
 
 The `C-l,C-f` keyboard shortcut also works for `\ref` and `\cite` completion. Basically, wherever you can use `C-l,x`, you can also use `C-l,C-f`. 
 
-
 ### Jumping to sections and labels
 
 **Keybinding:** `C-r` (standard ST keybinding)
@@ -402,7 +401,6 @@ The `C-l,C-f` keyboard shortcut also works for `\ref` and `\cite` completion. Ba
 The LaTeXtools plugin integrates with the awesome ST "Goto Anything" facility. Hit `C-r`to get a list of all section headings, and all labels. You can filter by typing a few initial letters. Note that section headings are preceded by the letter "S", and labels by "L"; so, if you only want section headings, type "S" when the drop-down list appears.
 
 Selecting any entry in the list will take you to the corresponding place in the text.
-
 
 ### Jump to Anywhere
 
@@ -456,7 +454,6 @@ and the cursor is placed inside the environment thus created. Again, Tab exits t
 
 Note that all these commands are undoable: thus, if e.g. you accidentally hit `C-l,c` but you really meant `C-l,e`, a quick `C-z`, followed by `C-l,e`, will fix things.
 
-
 ### Wrapping existing text in commands and environments
 
 **Keybindings:** `C-l,C-c`, `C-l, C-n`, etc.
@@ -477,6 +474,13 @@ These commands also work if there is no selection. In this case, they try to do 
 
 You can also *change the current environment* using the `C-l,C-Shift-n` shortcut. Note well how this works. First, the cursor must be inside the environment you are interested in. Second, the command selects the environment name in the `\begin{env}` command and also in the `\end{env}` command (using ST's multiple-selection support). This way you can rename the environment as needed. *Remember to exit multiple-selection mode* when you are done by pressing the `ESC` key.
 
+### Word Count
+
+**Keybinding:** `C-l,w`
+
+This uses [TeXcount](http://ctan.org/pkg/texcount) to generate a word count for the current document which is displayed in a quick panel. If you don't have the `TeXcount`, you will simply get an error message. Word counts in LaTeX documents can be quite finicky, and its worth reviewing the TeXcount documentation to ensure your document is setup to generate as accurate a word-count as possible. The counts returned are those reported by: `texcount -total -merge <main_file.tex>`.
+
+The `word_count_sub_level` setting can be tweaked to display subcounts by chapter, section, etc. See the [Settings](#settings) below.
 
 ## Completions
 
@@ -530,6 +534,7 @@ The following options are currently available (defaults in parentheses):
 * `latextools_set_syntax` (`true`): if `true` LaTeXTools will automatically set the syntax to `LaTeX` when opening or saving any file with an extension in the `tex_file_exts` list.
 * `use_biblatex`: (`false`): if `true` LaTeXTools will use BibLaTeX defaults for editing `.bib` files. If `false`, LaTeXTools will use BibTeX defaults. See the section on [Support for Editing Bibliographies](#support-for-editing-bibliographies) for details.
 * `tex_spellcheck_paths` (`{}`): A mapping from the locales to the paths of the dictionaries. See the section [Spell-checking](#spell-checking).
+* `word_count_sub_level` (`"none"`): controls the level at which subcounts of words can be generated. Valid values are: `"none"`, `"part"`, `"chapter"`, and `"section"`.
 
 ### Platform-Specific Settings
 

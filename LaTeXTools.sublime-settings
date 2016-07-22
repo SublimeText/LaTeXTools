@@ -67,6 +67,11 @@
 	// { "en-en": "Packages/Language - English/en_GB.dic" }
 	"tex_spellcheck_paths": {},
 
+	// sublevel to show counts for
+	// passed to texcount via the -sub= paramater
+	// valid values: "none", "part", "chapter", "section"
+	"word_count_sub_level": "none",
+
 // ------------------------------------------------------------------
 // Temporary file settings
 // ------------------------------------------------------------------
