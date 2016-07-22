@@ -10,7 +10,7 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* v3.9.1 (2016-07-16).
+*Latest revision:* v3.9.2 (2016-07-22).
 
 *Headline features*:
 
@@ -18,6 +18,7 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
  * New toggle quick panel that displays toggles and allows them to be changed
  * Highlighting of errors, warnings and bad boxes in the console
  * New toggable option to control whether or not the PDF is opened at the end of compilation
+ * Word count
 
 ## Introduction
 
