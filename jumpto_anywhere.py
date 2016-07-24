@@ -289,7 +289,7 @@ class JumptoTexAnywhereByMouseCommand(sublime_plugin.WindowCommand):
     def want_event(self):
         return True
 
-    def run(self, event, fallback_command="", set_caret=False):
+    def run(self, event=None, fallback_command="", set_caret=False):
         window = self.window
         view = window.active_view()
 
@@ -299,7 +299,10 @@ class JumptoTexAnywhereByMouseCommand(sublime_plugin.WindowCommand):
 
         if score_selector("text.tex.latex"):
             print("Jump in tex file.")
-            pos = view.window_to_text((event["x"], event["y"]))
+            if _ST3:
+                pos = view.window_to_text((event["x"], event["y"]))
+            else:
+                pos = view.sel()[0].b
             view.run_command("jumpto_tex_anywhere", {"position": pos})
         elif fallback_command:
             if set_caret:
@@ -308,6 +311,9 @@ class JumptoTexAnywhereByMouseCommand(sublime_plugin.WindowCommand):
             window.run_command(fallback_command)
 
     def _set_caret(self, view, event):
+        # this is not supported for ST2
+        if not _ST3:
+            return
         pos = view.window_to_text((event["x"], event["y"]))
         view.sel().clear()
         view.sel().add(sublime.Region(pos, pos))
