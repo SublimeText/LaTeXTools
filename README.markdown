@@ -406,7 +406,10 @@ Selecting any entry in the list will take you to the corresponding place in the 
 ### Jump to Anywhere
 
 **Keybinding:** `C-l, C-j` or `C-l, C-o` (see [below](#jumping-to-included-files))
-**Mousebinding:** `alt-leftclick` (Windows) / `super-leftclick` Linux) / `ctrl-leftclick` (OSX)
+
+**Mousebinding:** `ctrl-alt-leftclick` (Windows) / `super-leftclick` Linux) / `ctrl-super-leftclick` (OSX)
+
+**Mousebinding (With SublimeCodeIntel):** `alt-leftclick` (Windows) / `super-leftclick` Linux) / `ctrl-leftclick` (OSX)
 
 This is an IDE-like mouse navigation, which executes a jump depending on the context around the cursor. It is easy to use and intuitive. Just click with the mouse on a command while pressing the modifier key. The corresponding jump will be executed. Supported jump types are:
 
@@ -420,7 +423,7 @@ This is an IDE-like mouse navigation, which executes a jump depending on the con
 - Jump to self-defined command definition, i.e. jump to the `\newcommand` in which the command was defined
 
 #### SublimeCodeIntel Integration
-If you use [SublimeCodeIntel](https://github.com/SublimeCodeIntel/SublimeCodeIntel) you recognize the mouse-binding and it does not work out of the box. Just open the command palette and run the command `LaTeXTools: Create Mousemap in User folder`. This will create a mouse-map in the user folder or modify the existing one to add the mouse-binding. This mouse-binding has a `fallback_command` command as argument. This command will be executed if the command in called outside a LaTeX document.
+If you use [SublimeCodeIntel](https://github.com/SublimeCodeIntel/SublimeCodeIntel) you recognize the alternative mouse-bindings and it does not work out of the box. Just open the command palette and run the command `LaTeXTools: Create Mousemap in User folder`. This will create a mouse-map in the user folder or modify the existing one to add the mouse-binding with the same modifiers as SublimeCodeIntel. This mouse-binding has a `fallback_command` command as argument. This command will be executed if the command in called outside a LaTeX document.
 
 #### Jumping to included files
 To open a file included using, e.g., `\input` or `\include` or a bibliography, simply click while holding down the modifier key or press `C-l, C-j`. Sublime will open the included file.
