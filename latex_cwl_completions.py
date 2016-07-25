@@ -456,7 +456,12 @@ def cwl_parsing_handler(callback):
 # whether it is in a .sublime-package file or an expanded directory
 if _ST3:
     def get_cwl_package_files():
-        results = sublime.find_resources('*.cwl')
+        results = [
+            r for r in
+            sublime.find_resources('*.cwl')
+            if (r.startswith('Packages/User/cwl/') or
+                r.startswith('Packages.LaTeX-cwl/'))
+        ]
         return(results, True) if results else ([], False)
 else:
     def get_cwl_package_files():
@@ -466,7 +471,10 @@ else:
 
         if os.path.exists(package_path):
             results = glob.glob(os.path.join(
-                packages_path, '*', '*.cwl'
+                packages_path, 'LaTeX-cwl', '*.cwl'
+            ))
+            results += glob.glob(os.path.join(
+                packages_path, 'User', 'cwl', '*.cwl'
             ))
             return (results, False)
 
