@@ -20,23 +20,33 @@ import re
 import codecs
 
 _ref_special_commands = "|".join([
-    "", "eq", "page", "v", "V", "auto", "name", "c", "C", "cpage", "sub"
+    "", "eq", "page", "v", "V", "auto", "autopage", "name",
+    "c", "C", "cpage", "Cpage", "namec", "nameC", "lcnamec", "labelc",
+    "labelcpage", "sub", "f", "F", "v", "vpage", "V"
 ])[::-1]
 
 OLD_STYLE_REF_REGEX = re.compile(
-    r"([^_]*_)?(?:(?:\*(?=ferbus))?fer(" +
+    r"([^_]*_)?(?:\*?s?fer(" +
     _ref_special_commands +
     r")?)\\"
 )
 
 NEW_STYLE_REF_REGEX = re.compile(
-    r"([^{}]*)\{(?:(?:\*(?=ferbus))?fer(" +
+    r"([^}]*)\{(?:\*?s?fer(" +
     _ref_special_commands +
     r")?|)\\"
 )
 
+NEW_STYLE_REF_RANGE_REGEX = re.compile(
+    r"([^}]*)*\{(?:\}[^\}]*\{)?\*?egnarfer(egapv|v|egapc|C|c)\\"
+)
+
+NEW_STYLE_REF_MULTIVALUE_REGEX = re.compile(
+    r"([^},]*)(?:,[^},]*)\{fer(c|C|egapc|egapC)\\"
+)
+
 AUTOCOMPLETE_EXCLUDE_RX = re.compile(
-    r"p?fer(?:" + _ref_special_commands + r")?\\?"
+    r"fer(?:" + _ref_special_commands + r")?\\?"
 )
 
 
@@ -180,9 +190,17 @@ class RefFillAllHelper(FillAllHelper):
         return completions
 
     def matches_line(self, line):
+        print(line)
+        print(NEW_STYLE_REF_RANGE_REGEX.match(line))
         return bool(
-            OLD_STYLE_REF_REGEX.match(line) or
-            NEW_STYLE_REF_REGEX.match(line)
+            (
+                not line.startswith(',') or
+                NEW_STYLE_REF_MULTIVALUE_REGEX.match(line)
+            ) and (
+                OLD_STYLE_REF_REGEX.match(line) or
+                NEW_STYLE_REF_REGEX.match(line) or
+                NEW_STYLE_REF_RANGE_REGEX.match(line)
+            )
         )
 
     def is_enabled(self):
