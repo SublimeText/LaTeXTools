@@ -161,9 +161,10 @@ class CwlCompletions(object):
     # loads the list of currently specified cwl files
     def get_packages(self):
         packages = get_setting('cwl_list', [
-            "tex.cwl",
-            "latex-209.cwl",
             "latex-document.cwl",
+            "tex.cwl",
+            "latex-dev.cwl",
+            "latex-209.cwl",
             "latex-l2tabu.cwl",
             "latex-mathsymbols.cwl"
         ])
@@ -362,6 +363,9 @@ def _check_if_cwl_enabled():
                 sublime.installed_packages_path(),
                 "LaTeX-cwl.sublime-package"
             )
+        ) or
+        os.path.exists(
+            os.path.join(sublime.packages_path(), "User", "cwl")
         )
     ):
         CWL_COMPLETION_ENABLED = True
@@ -460,7 +464,7 @@ if _ST3:
             r for r in
             sublime.find_resources('*.cwl')
             if (r.startswith('Packages/User/cwl/') or
-                r.startswith('Packages.LaTeX-cwl/'))
+                r.startswith('Packages/LaTeX-cwl/'))
         ]
         return(results, True) if results else ([], False)
 else:
