@@ -67,15 +67,27 @@ class LatextoolsCreateMousemapCommand(sublime_plugin.WindowCommand):
             with open(ltt_mouse_file, "r") as f:
                 content = f.read()
             if sci_installed:
+                # add the fallback command
                 replace_from = '"fallback_command": ""'
                 replace_to = '"fallback_command": "goto_python_definition"'
                 content = content.replace(replace_from, replace_to)
+                # change the keybindings to the one used by SCI
+                if plat == "OSX":
+                    replace_from = '["ctrl", "super"]'
+                    replace_to = '["ctrl"]'
+                    content = content.replace(replace_from, replace_to)
+                elif plat == "Windows":
+                    replace_from = '["ctrl", "alt"]'
+                    replace_to = '["alt"]'
+                    content = content.replace(replace_from, replace_to)
             return content
 
         def replace_old_mousemap():
             content = read_ltt_content()
             with open(user_mouse_file, "w") as f:
                 f.write(content)
+            # open the mouse map, such that the user can change the modifier
+            self.window.open_file(user_mouse_file)
 
         def append_to_old_mousemap():
             with open(user_mouse_file, "r") as f:
