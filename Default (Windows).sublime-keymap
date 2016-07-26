@@ -43,7 +43,7 @@ LaTeX Package keymap for Windows
 		"command": "latex_fill_all", "args": {"completion_type": ["cite", "ref"]}},
 
 	// Fill helper command
-	{	"keys": ["ctrl+l" "ctrl+f"], 
+	{	"keys": ["ctrl+l","ctrl+f"], 
 		"context": [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "latex_fill_all"},

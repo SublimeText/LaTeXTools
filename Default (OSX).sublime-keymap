@@ -84,6 +84,14 @@ LaTeX Package keymap for OS X
 			{"key": "lt_fill_all_cite.comma", "operator": "equal", "match_all": true, "operand": true}],
 		"command": "latex_fill_all", "args": {"completion_type": "cite", "insert_char": ","}},
 
+	{	"keys": [","],
+		"context":  [
+			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
+			{"key": "lt_fill_all_ref.comma", "operator": "equal", "match_all": true, "operand": true}],
+		"command": "latex_fill_all", "args": {"completion_type": "ref", "insert_char": ","}},
+
 	{	"keys": ["["],
 		"context":  [
 			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
@@ -107,14 +115,6 @@ LaTeX Package keymap for OS X
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "lt_fill_all_input.comma", "operator": "equal", "operand": true, "match_all": true}],
 		"command": "latex_fill_all", "args": {"completion_type": "input", "insert_char": ","}},
-
-	{	"keys": [","],
-		"context":  [
-			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
-			{"key": "lt_fill_all_ref.comma", "operator": "equal", "match_all": true, "operand": true}],
-		"command": "latex_fill_all", "args": {"completion_type": "ref", "insert_char": ","}},
 
 	{	"keys": ["{"],
 		"context":  [
