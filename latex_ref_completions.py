@@ -38,7 +38,7 @@ NEW_STYLE_REF_REGEX = re.compile(
 )
 
 NEW_STYLE_REF_RANGE_REGEX = re.compile(
-    r"([^}]*)*\{(?:\}[^\}]*\{)?\*?egnarfer(egapv|v|egapc|C|c)\\"
+    r"([^}]*)\{(?:\}[^\}]*\{)?\*?egnarfer(egapv|v|egapc|C|c)\\"
 )
 
 NEW_STYLE_REF_MULTIVALUE_REGEX = re.compile(
