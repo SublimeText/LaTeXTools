@@ -288,7 +288,7 @@ class LatexFillHelper(object):
         with a fresh view of the current buffer
         '''
         try:
-            del self.completions
+            del self.candidates
         except:
             pass
 
@@ -745,9 +745,11 @@ class LatexFillAllEventListener(
                 break
 
         if completion_type is None:
+            self.clear_bracket_cache()
             return []
         # completions could be unpredictable if we've changed the prefix
         elif orig_prefix and not prefix:
+            self.clear_bracket_cache()
             return []
 
         try:
@@ -756,13 +758,16 @@ class LatexFillAllEventListener(
             )
         except:
             traceback.print_exc()
+            self.clear_bracket_cache()
             return []
 
         if len(completions) == 0:
+            self.clear_bracket_cache()
             return []
         elif type(completions) is tuple and len(completions) == 2:
             completions, insert_char = completions
             if len(completions) == 0:
+                self.clear_bracket_cache()
                 return []
         else:
             # this assumes that all regions have a similar current word
@@ -772,6 +777,8 @@ class LatexFillAllEventListener(
                 self.get_current_word(view, locations[0])
             )
 
+        # we found a _<prefix> entry, so clear it and remove the prefix
+        # and close the brackets
         if remove_regions:
             view.run_command(
                 'latex_tools_fill_all_complete_bracket',
@@ -785,6 +792,26 @@ class LatexFillAllEventListener(
             show, completions = zip(*completions)
         else:
             show = completions[:]
+
+        # we did not find a fancy prefix, so append the closing bracket,
+        # if needed, to the completions
+        if not remove_regions:
+            closing_bracket = None
+            for sel in view.sel():
+                new_bracket = self.get_closing_bracket(view, sel)
+                if closing_bracket is None:
+                    closing_bracket = new_bracket
+                elif new_bracket != closing_bracket:
+                    closing_bracket = None
+                    break
+
+            if closing_bracket:
+                completions = [
+                    c + closing_bracket
+                    for c in completions
+                ]
+
+        self.clear_bracket_cache()
 
         return (
             zip(show, completions),
