@@ -42,7 +42,7 @@ NEW_STYLE_REF_RANGE_REGEX = re.compile(
 )
 
 NEW_STYLE_REF_MULTIVALUE_REGEX = re.compile(
-    r"([^},]*)(?:,[^},]*)\{fer(c|C|egapc|egapC)\\"
+    r"([^},]*)(?:,[^},]*)*\{fer(c|C|egapc|egapC)\\"
 )
 
 AUTOCOMPLETE_EXCLUDE_RX = re.compile(
