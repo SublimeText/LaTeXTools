@@ -11,8 +11,10 @@ else:
     from latextools_utils import analysis, get_setting, quickpanel
 
 
-def _make_caption(toc_indentations, com):
+def _make_caption(toc_indentations, com, indent_offset):
     indent = toc_indentations.get(com.command, 0)
+    # lower the indent with the offset
+    indent = max(0, indent - indent_offset)
     short = {
         "subsubsection": "sss",
         "minisec": "msec",
@@ -43,8 +45,14 @@ class show_toc_quickpanel(quickpanel.CancelEntriesQuickpanel):
         secs = [c for c in labels if c.command in toc_section_commands]
 
         # create the user readably captions
-        caption_secs = [_make_caption(toc_indentations, s) for s in secs]
-        caption_labels = [_make_caption(toc_indentations, l) for l in labels]
+        # get the minimal indent (to lower the minimal section indent to 0)
+        max_indent_value = max(toc_indentations.values())
+        indent_offset = min(toc_indentations.get(com.command, max_indent_value)
+                            for com in secs)
+        caption_secs = [_make_caption(toc_indentations, s, indent_offset)
+                        for s in secs]
+        caption_labels = [_make_caption(toc_indentations, l, indent_offset)
+                          for l in labels]
 
         self.__only_sec = True
         # init the superclass with a copy of the section elements
