@@ -128,22 +128,29 @@ class CmdThread ( threading.Thread ):
 					# Now create a Popen object
 					try:
 						if self.caller.plat == "windows":
-							proc = subprocess.Popen(cmd, startupinfo=startupinfo, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-						elif self.caller.plat == "osx":
-							# Temporary (?) fix for Yosemite: pass environment
 							proc = subprocess.Popen(
 								cmd,
+								startupinfo=startupinfo,
 								stderr=subprocess.STDOUT,
-								stdout=subprocess.PIPE, 
-								env=os.environ,
-								preexec_fn=os.setsid
+								stdout=subprocess.PIPE,
+								cwd=self.caller.tex_dir
 							)
-						else: # Must be linux
+						elif self.caller.plat == "osx":
 							proc = subprocess.Popen(
 								cmd,
 								stderr=subprocess.STDOUT,
 								stdout=subprocess.PIPE,
-								preexec_fn=os.setsid
+								env=os.environ,
+								preexec_fn=os.setsid,
+								cwd=self.caller.tex_dir
+							)
+						else:  # Must be linux
+							proc = subprocess.Popen(
+								cmd,
+								stderr=subprocess.STDOUT,
+								stdout=subprocess.PIPE,
+								preexec_fn=os.setsid,
+								cwd=self.caller.tex_dir
 							)
 					except:
 						self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
@@ -208,12 +215,21 @@ class CmdThread ( threading.Thread ):
 			log_file_base = self.caller.tex_base + ".log"
 			if self.caller.aux_directory is None:
 				if self.caller.output_directory is None:
-					log_file = log_file_base
+					log_file = os.path.join(
+						self.caller.tex_dir,
+						log_file_base
+					)
 				else:
 					log_file = os.path.join(
 						self.caller.output_directory,
 						log_file_base
 					)
+
+					if not os.path.exists(log_file):
+						log_file = os.path.join(
+							self.caller.tex_dir,
+							log_file_base
+						)
 			else:
 				log_file = os.path.join(
 					self.caller.aux_directory,
@@ -221,7 +237,8 @@ class CmdThread ( threading.Thread ):
 				)
 
 				if not os.path.exists(log_file):
-					if (self.caller.output_directory is not None and
+					if (
+						self.caller.output_directory is not None and
 						self.caller.output_directory != self.caller.aux_directory
 					):
 						log_file = os.path.join(
@@ -230,7 +247,10 @@ class CmdThread ( threading.Thread ):
 						)
 
 					if not os.path.exists(log_file):
-						log_file = log_file_base
+						log_file = os.path.join(
+							self.caller.tex_dir,
+							log_file_base
+						)
 
 			# CHANGED 12-10-27. OK, here's the deal. We must open in binary mode
 			# on Windows because silly MiKTeX inserts ASCII control characters in
@@ -415,7 +435,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			return
 
 		self.tex_base = get_jobname(view)
-		tex_dir = os.path.dirname(self.file_name)
+		self.tex_dir = os.path.dirname(self.file_name)
 
 		if not is_tex_file(self.file_name):
 			sublime.error_message("%s is not a TeX source file: cannot compile." % (os.path.basename(view.file_name()),))
@@ -427,7 +447,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 
 		output_view_settings = self.output_view.settings()
 		output_view_settings.set("result_file_regex", file_regex)
-		output_view_settings.set("result_base_dir", tex_dir)
+		output_view_settings.set("result_base_dir", self.tex_dir)
 		output_view_settings.set("line_numbers", False)
 		output_view_settings.set("gutter", False)
 		output_view_settings.set("scroll_past_end", False)
@@ -564,7 +584,6 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# Now get the tex binary path from prefs, change directory to
 		# that of the tex root file, and run!
 		self.path = platform_settings['texpath']
-		os.chdir(tex_dir)
 		CmdThread(self).start()
 		print(threading.active_count())
 
