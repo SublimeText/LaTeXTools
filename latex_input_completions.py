@@ -151,12 +151,23 @@ def get_file_list(root, types, filter_exts=[], output_directory=None,
 
         return True
 
+    def dir_match(d):
+        _d = os.path.realpath(os.path.join(dir_name, d))
+        if (
+            _d in handled_directories or
+            _d == output_directory or
+            _d == aux_directory
+        ):
+            return False
+
+        return True
+
     completions = []
-    for dir_name, dirs, files in os.walk(path):
+    handled_directories = set([])
+    for dir_name, dirs, files in os.walk(path, followlinks=True):
+        handled_directories.add(os.path.realpath(dir_name))
         files = [f for f in files if f[0] != '.' and file_match(f)]
-        dirs[:] = [d for d in dirs if d[0] != '.' and
-                   os.path.join(dir_name, d) != output_directory and
-                   os.path.join(dir_name, d) != aux_directory]
+        dirs[:] = [d for d in dirs if d[0] != '.' and dir_match(d)]
         for f in files:
             full_path = os.path.join(dir_name, f)
             # Exclude image file have the same name of root file,
