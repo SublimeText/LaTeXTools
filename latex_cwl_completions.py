@@ -473,11 +473,11 @@ if _ST3:
         return(results, True) if results else ([], False)
 else:
     def get_cwl_package_files():
-        package_path = os.path.join(
+        packages_path = os.path.join(
             sublime.packages_path(),
         )
 
-        if os.path.exists(package_path):
+        if os.path.exists(packages_path):
             results = glob.glob(os.path.join(
                 packages_path, 'LaTeX-cwl', '*.cwl'
             ))
