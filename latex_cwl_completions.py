@@ -116,26 +116,26 @@ class CwlCompletions(object):
             if self._completed:
                 self._triggered = False
 
-                cwl_files = set([])
+                cwl_files = []
                 packages = self.get_packages()
                 if len(packages) == 0:
                     return []
 
-                for package in sorted(set(packages)):
+                for package in packages:
                     if package.endswith('.cwl'):
                         cwl_file = package
-                        package = package[:-4]
                     else:
                         cwl_file = '{0}.cwl'.format(package)
 
                     # some hacks for particular packages that do not match
                     # the standard pattern
                     if package == 'polyglossia':
-                        cwl_files.add('babel.cwl')
+                        cwl_file = 'babel.cwl'
                     elif package in KOMA_SCRIPT_CLASSES:
-                        cwl_files.add('class-scrartcl,scrreprt,scrbook.cwl')
-                    else:
-                        cwl_files.add(cwl_file)
+                        cwl_file = 'class-scrartcl,scrreprt,scrbook.cwl'
+
+                    if cwl_file not in cwl_files:
+                        cwl_files.append(cwl_file)
 
                 completions = []
                 if env:
@@ -143,7 +143,6 @@ class CwlCompletions(object):
                 else:
                     completion_dict = self._completions
 
-                cwl_files = sorted(cwl_files)
                 for cwl_file in cwl_files:
                     try:
                         completions.extend(completion_dict[cwl_file])
