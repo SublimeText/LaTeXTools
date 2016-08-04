@@ -20,10 +20,6 @@
 	// set to false. You can also use toggles: C-l,t,a,c and C-l,t,a,r.
 	"cite_auto_trigger": true,
 	"ref_auto_trigger": true,
-	// Sometimes a \ref is preceded by an open parenthesis.
-	// By default, we do not close the parenthesis after completion
-	// But, if you want us to, set this to true.
-	"ref_add_parenthesis": false,
 
 	// Fill-helper autocompletion triggered for a wide range of references to external
 	// files. You can also use toggle: C-l,t,a,f
