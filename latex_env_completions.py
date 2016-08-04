@@ -23,7 +23,7 @@ class EnvFillAllHelper(FillAllHelper):
             return
 
         completions = get_cwl_completions().get_completions(env=True) + \
-            get_own_env_completion(self.view)
+            get_own_env_completion(view)
 
         if prefix:
             completions = [c for c in completions if c[1].startswith(prefix)]
