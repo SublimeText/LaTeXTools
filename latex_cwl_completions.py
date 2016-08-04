@@ -21,7 +21,7 @@ if sublime.version() < '3000':
     from latex_own_command_completions import (
         get_own_command_completion, get_own_env_completion
     )
-    from getRegion import get_Region
+    from getRegion import getRegion
     from getTeXRoot import get_tex_root
     from latextools_utils import get_setting, analysis, utils
     from latextools_utils.parser_utils import command_to_snippet
@@ -37,7 +37,7 @@ else:
     from .latex_own_command_completions import (
         get_own_command_completion, get_own_env_completion
     )
-    from .getRegion import get_Region
+    from .getRegion import getRegion
     from .getTeXRoot import get_tex_root
     from .latextools_utils import get_setting, analysis, utils
     from .latextools_utils.parser_utils import command_to_snippet
@@ -252,10 +252,10 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
             return []
 
         point_before = point - len(prefix)
-        char_before = view.substr(get_Region(point_before - 1, point_before))
+        char_before = view.substr(getRegion(point_before - 1, point_before))
         is_prefixed = char_before == "\\"
 
-        line = view.substr(get_Region(view.line(point).begin(), point_before))
+        line = view.substr(getRegion(view.line(point).begin(), point))
         line = line[::-1]
         is_env = bool(BEGIN_END_BEFORE_REGEX.match(line))
 
@@ -305,9 +305,9 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
                 get_own_command_completion(view)
 
         # autocompleting with slash already on line
-        # this is necessary to work around a short-coming in ST where having
-        # a keyed entry appears to interfere with it recognising that there
-        # is a \ already on the line
+        # this is necessary to work around a short-coming in ST where having a
+        # keyed entry appears to interfere with it recognising that there is a
+        # \ already on the line
         #
         # NB this may not work if there are other punctuation marks in the
         # completion

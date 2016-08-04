@@ -34,6 +34,14 @@
 	// You can also use toggle: C-l,t,a,e
 	"env_auto_trigger": false,
 
+	// Controls whether the various fill-helpers should try to insert a
+	// completing }, ], or ) when inserted and either the C-l,C-f or C-l,x
+	// keybindings were used to trigger the completion. This attempts to be smart
+	// about where to place the bracket, but may not work for all cases, particularly
+	// when a command is spread across mutliple lines.
+	// You can also use the toggle C-l,t,a,b
+	"smart_bracket_auto_trigger": true,
+
 	// Keep focus on Sublime Text after building (true) or switch to PDF viewer (false)
 	// If you are on Windows or Linux and using ST2, you may need to set the
 	// "sublime_executable" setting for this to work in your platform settings.

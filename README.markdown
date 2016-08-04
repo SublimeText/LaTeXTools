@@ -340,7 +340,7 @@ For support of forward and inverse search in other viewers, see the viewer secti
 
 ### References and Citations
 
-**Keybinding:** *autotriggered* by default (see below). Otherwise, `C-l,x` for 'cross-reference,' or `C-l,C-f` (via the Fill Helper facility: see below). These are fully equivalent ways of invoking ref/cite completions.
+**Keybinding:** *autotriggered* by default (see below). Otherwise, `C-l,x` for 'cross-reference,' `C-l,C-f`, or `C-l,C-alt-f` (via the Fill Helper facility: see below). These are fully equivalent ways of invoking ref/cite completions.
 
 The basic idea is to help you insert labels in `\ref{}` commands and bibtex keys in `\cite{}` commands. The appropriate key combination shows a list of available labels or keys, and you can easily select the appropriate one. Full filtering facilities are provided. 
 
@@ -372,28 +372,35 @@ LaTeXTools now also looks `\addbibresource{}` commands, which provides basic com
 
 **For now**, completions are also injected into the standard ST autocompletion system. Thus, if you hit `Ctrl-space` immediately after typing, e.g., `\ref{}`, you get a drop-down menu at the current cursor position (not a quick-panel) showing all labels in your document. However, the width of this menu is OK for (most) labels, but not really for paper titles. In other words, it is workable for references, but not really for citations. Furthermore, there are other limitations dictated by the ST autocompletion system. So, this is **deprecated**, and I encourage you to use auto-trigger mode or the `C-l,x` or `C-l,C-f` keybindings instead.
 
+### Forcing Citations and References
+
+**Keybinding**: `C-l,alt-x,c` (citations) or `C-l,alt-x,r` (refs)
+
+In some cases, it may be desirable to forcibly insert a citation key or label, i.e., if LaTeXTools does not automatically understand the command you are using. In such circumstances, you can use these keybindings to forcibly insert either a citation or reference at the cursor position. Note that the current word won't be overridden and any open brackets will not be completed if either of these options are used.
+
 ### Toggle auto trigger mode on/off
 
-**Keybinding:** `C-l,t,a,r` for references; `C-l,t,a,c` for citations
+**Keybinding:** `C-l,t,a,r` for references; `C-l,t,a,c` for citations; `C-l,t,a,f` for input files; `C-l,t,a,e` for environments; `C-l,t,a,b` for smart brackets
 
 These toggles work just like the sync and focus toggles above. Indeed, `C-l,t,?` will now also display the status of the auto trigger toggles. Check the status bar for feedback (i.e. to see what the current state of the toggle is), but remember the message stays on for only a few seconds. `C-l,t,?` is your friend.
 
-
 ### Fill Helper: filling in package and file names automatically
 
-**Keybinding:** *autotriggered* by default (see below). Otherwise, `C-l,C-f`.
+**Keybinding:** *autotriggered* by default (see below). Otherwise, `C-l,C-f` or `C-l,C-alt-f` (see below).
 
 Thanks to the amazing work by users btstream and Ian Bacher, LaTeXTools now offers a list of available files and packages when using commands such as `\usepackage`, `\include`, `\includegraphics`, `\includesvg` and `\input`. Assuming autocompletion is toggled on (the default):
 
-* when you type `\usepackage{`, a list of available package is displayed in the ST drop-down menu. Pick the one you need, and it will be inserted in your file, with a closing brace.
+ * when you type `\usepackage{`, a list of available package is displayed in the ST drop-down menu. Pick the one you need, and it will be inserted in your file, with a closing brace.
 
-* when you type any of the file-related input commands, a list of files in the current directory is displayed (suitably filtered, so graphics files are displayed for `\includegraphics`).
+ * when you type any of the file-related input commands, a list of files in the current directory is displayed (suitably filtered, so graphics files are displayed for `\includegraphics`).
 
-To toggle autocompletion on or off, use the `fill_auto_trigger` setting, or the `c-l,t,a,f` toggle.
+To toggle autocompletion on or off, use the `fill_auto_trigger` setting, or the `C-l,t,a,f` toggle.
 
-In order for package autocomplete to work, you need to create a cache first. You can do it using the Command Palette: select `LaTeXtools: Build cache for LaTeX packages`.
+In order for package autocomplete to work, you need to create a cache first. You can do it using the Command Palette: select `LaTeXTools: Build cache for LaTeX packages`.
 
 The `C-l,C-f` keyboard shortcut also works for `\ref` and `\cite` completion. Basically, wherever you can use `C-l,x`, you can also use `C-l,C-f`. 
+
+The `C-l,C-alt-f` keyboard shortcut is identical to the `C-l,C-f` shortcut, except that it ensures that the current word that the cursor is within is replaced. This is useful for, e.g., switching one citation for another or one label for another.
 
 ### Jumping to sections and labels
 
@@ -532,6 +539,7 @@ The following options are currently available (defaults in parentheses):
 - `cite_auto_trigger` (`true`): if `true`, typing e.g. `\cite{` brings up the citation completion quick panel, without the need to type `C-l,x`. If `false`, you must explicitly type `C-l,x`.
 - `ref_auto_trigger` (`true`): ditto, but for `\ref{` and similar reference commands
 - `fill_auto_trigger` (`true`): ditto, but for package and file inclusion commands (see Fill Helper feature above)
+- `env_auto_trigger` (`true`): ditto, but for environment completions
 - `cwl_autoload` (`true`): whether to load cwl completions based on packages (see the LaTeX-cwl feature) 
 - `cwl_completion` (`prefixed`): when to activate the cwl completion poput (see LaTeX-cwl feature above)
 - `cwl_list` (`["latex-document.cwl", "tex.cwl", "latex-dev", "latex-209.cwl", "latex-l2tabu.cwl", "latex-mathsymbols.cwl"]`): list of cwl files to load
