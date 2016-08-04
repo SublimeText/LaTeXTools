@@ -10,15 +10,14 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* v3.9.3 (2016-07-25).
+*Latest revision:* v3.10.0 (2016-08-04).
 
 *Headline features*:
 
- * Jump to Anywhere - IDE-like navigation by mouse and keyboard
- * New toggle quick panel that displays toggles and allows them to be changed
- * Highlighting of errors, warnings and bad boxes in the console
- * New toggable option to control whether or not the PDF is opened at the end of compilation
- * Word count
+* Better curly-brace completion algorithm
+* Support for more ref commands
+* CWL files can now be used based on loaded packages
+* Support for input completions following symlinks
 
 ## Introduction
 
