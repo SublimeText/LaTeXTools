@@ -402,3 +402,4 @@ LaTeX Package keymap for Windows
 			{ "key": "following_text", "operator": "regex_match", "operand": "^$", "match_all": true }
 		]
 	}
+]
