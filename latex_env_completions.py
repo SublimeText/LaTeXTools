@@ -60,7 +60,7 @@ class LatexFillEnvCommand(sublime_plugin.TextCommand):
             prefix = ""
 
         completions = get_cwl_completions().get_completions(env=True) + \
-            get_own_env_completion()
+            get_own_env_completion(self.view)
         if prefix:
             completions = [c for c in completions if c[1].startswith(prefix)]
 
