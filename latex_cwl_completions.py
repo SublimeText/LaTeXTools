@@ -23,9 +23,8 @@ if sublime.version() < '3000':
     )
     from getRegion import get_Region
     from getTeXRoot import get_tex_root
-    from latextools_utils import get_setting
-    from latextools_utils import analysis
-    from latextools_utils import utils
+    from latextools_utils import get_setting, analysis, utils
+    from latextools_utils.parser_utils import command_to_snippet
 else:
     _ST3 = True
     from .latex_cite_completions import (
@@ -40,9 +39,8 @@ else:
     )
     from .getRegion import get_Region
     from .getTeXRoot import get_tex_root
-    from .latextools_utils import get_setting
-    from .latextools_utils import analysis
-    from .latextools_utils import utils
+    from .latextools_utils import get_setting, analysis, utils
+    from .latextools_utils.parser_utils import command_to_snippet
 
 __all__ = ['get_cwl_completions', 'is_cwl_available']
 
@@ -56,11 +54,6 @@ ENV_DONOT_AUTO_COM = [
 
 # whether the leading backslash is escaped
 ESCAPE_REGEX = re.compile(r"\w*(\\\\)+([^\\]|$)")
-
-# used to convert arguments and optional arguments into fields
-BRACES_MATCH_REGEX = re.compile(r'\{([^\{\}\[\]]*)\}|\[([^\{\}\[\]]*)\]')
-
-ALPHAS_REGEX = re.compile(r'^[a-zA-Z]+$')
 
 # regex to detect that the cursor is predecended by a \begin{
 BEGIN_END_BEFORE_REGEX = re.compile(
@@ -507,7 +500,7 @@ def parse_line_as_environment(line):
 
 
 def parse_line_as_command(line):
-    return line, parse_keyword(line)
+    return line, command_to_snippet(line)
 
 
 # actually does the parsing of the cwl files
@@ -548,30 +541,6 @@ def parse_cwl_file(cwl, s, parse_line=parse_line_as_command):
         completions.append(item)
 
     return completions
-
-
-def parse_keyword(keyword):
-    # Replace strings in [] and {} with snippet syntax
-    def replace_braces(matchobj):
-        replace_braces.index += 1
-        if matchobj.group(1) is not None:
-            word = matchobj.group(1)
-            return u'{${%d:%s}}' % (replace_braces.index, word)
-        else:
-            word = matchobj.group(2)
-            return u'[${%d:%s}]' % (replace_braces.index, word)
-    replace_braces.index = 0
-
-    replace, n = BRACES_MATCH_REGEX.subn(
-        replace_braces, keyword
-    )
-
-    # I do not understand why sometimes the input will eat the '\' charactor
-    # before it! This code is to avoid these things.
-    if n == 0 and ALPHAS_REGEX.search(keyword[1:].strip()) is not None:
-        return keyword
-    else:
-        return replace
 
 
 # ensure that CWL_COMPLETIONS has a value
