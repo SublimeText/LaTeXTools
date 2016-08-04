@@ -1,25 +1,50 @@
 # -*- coding:utf-8 -*-
+from __future__ import unicode_literals, print_function
+
 import sublime
 import sublime_plugin
+import glob
 import os
 import re
-import codecs
+import threading
 
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
     _ST3 = False
-    from latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX, match
-    from latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
-    from latex_own_command_completions import get_own_command_completion, get_own_env_completion
+    from latex_cite_completions import (
+        OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX, match
+    )
+    from latex_ref_completions import (
+        OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
+    )
+    import latex_input_completions
+    from latex_own_command_completions import (
+        get_own_command_completion, get_own_env_completion
+    )
     from getRegion import get_Region
+    from getTeXRoot import get_tex_root
     from latextools_utils import get_setting
+    from latextools_utils import analysis
+    from latextools_utils import utils
 else:
     _ST3 = True
-    from .latex_cite_completions import OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX, match
-    from .latex_ref_completions import OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
-    from .latex_own_command_completions import get_own_command_completion, get_own_env_completion
+    from .latex_cite_completions import (
+        OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX, match
+    )
+    from .latex_ref_completions import (
+        OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
+    )
+    from . import latex_input_completions
+    from .latex_own_command_completions import (
+        get_own_command_completion, get_own_env_completion
+    )
     from .getRegion import get_Region
+    from .getTeXRoot import get_tex_root
     from .latextools_utils import get_setting
+    from .latextools_utils import analysis
+    from .latextools_utils import utils
+
+__all__ = ['get_cwl_completions', 'is_cwl_available']
 
 # Do not do completions in these environments
 ENV_DONOT_AUTO_COM = [
@@ -28,24 +53,22 @@ ENV_DONOT_AUTO_COM = [
     OLD_STYLE_REF_REGEX,
     NEW_STYLE_REF_REGEX
 ]
+
 # whether the leading backslash is escaped
 ESCAPE_REGEX = re.compile(r"\w*(\\\\)+([^\\]|$)")
 
-CWL_COMPLETION = False
+# used to convert arguments and optional arguments into fields
+BRACES_MATCH_REGEX = re.compile(r'\{([^\{\}\[\]]*)\}|\[([^\{\}\[\]]*)\]')
 
-
-def is_cwl_available():
-    return CWL_COMPLETION
+ALPHAS_REGEX = re.compile(r'^[a-zA-Z]+$')
 
 # regex to detect that the cursor is predecended by a \begin{
 BEGIN_END_BEFORE_REGEX = re.compile(
-    r"^"
-    r"[^\}\{\\]*"
-    r"\{"
-    r"(?:\[[^\]]*\])?"
-    r"(?:dne|nigeb)"
-    r"\\"
+    r"([^{}\[\]]*)\{"
+    r"(?:\][^{}\[\]]*\[)?"
+    r"(?:nigeb|dne)\\"
 )
+
 # regex to parse a environment line from the cwl file
 # only search for \end to create a list without duplicates
 ENVIRONMENT_REGEX = re.compile(
@@ -53,21 +76,184 @@ ENVIRONMENT_REGEX = re.compile(
     r"\{(?P<name>[^\}]+)\}"
 )
 
+# global setting to check whether the LaTeX-cwl package is available or not
+CWL_COMPLETION_ENABLED = None
 
-def _is_snippet(completion_entry):
-    """
-    returns True if the second part of the completion tuple
-    is a sublime snippet
-    """
-    completion_result = completion_entry[1]
-    return completion_result[0] == '\\' and '{' in completion_result
+# global instance of CwlCompletions class
+CWL_COMPLETIONS = None
+
+# KOMA-Script classes are all in one cwl file
+KOMA_SCRIPT_CLASSES = set(('class-scrartcl', 'class-scrreprt', 'class-book'))
+
+
+# -- Public Methods --
+def is_cwl_available():
+    if CWL_COMPLETION_ENABLED is None:
+        _check_if_cwl_enabled()
+    return CWL_COMPLETION_ENABLED
+
+
+# returns the cwl completions instances
+def get_cwl_completions():
+    plugin_loaded()
+    return CWL_COMPLETIONS
+
+
+class CwlCompletions(object):
+    '''
+    Completion manager that coordinates between between the event listener and
+    the thread that does the actual parsing. It also stores the completions
+    once they have been parsed.
+
+    N.B. This class should not be instantiated directly. It is intended to
+    be used a single object stored in the CWL_COMPLETION value of this module
+    '''
+
+    def __init__(self):
+        self._started = False
+        self._completed = False
+        self._triggered = False
+        self._completions = None
+        self._environment_completions = None
+        self._WLOCK = threading.RLock()
+
+    # get the completions
+    def get_completions(self, env=False):
+        with self._WLOCK:
+            if self._completed:
+                self._triggered = False
+
+                cwl_files = set([])
+                packages = self.get_packages()
+                if len(packages) == 0:
+                    return []
+
+                for package in sorted(set(packages)):
+                    if package.endswith('.cwl'):
+                        cwl_file = package
+                        package = package[:-4]
+                    else:
+                        cwl_file = '{0}.cwl'.format(package)
+
+                    # some hacks for particular packages that do not match
+                    # the standard pattern
+                    if package == 'polyglossia':
+                        cwl_files.add('babel.cwl')
+                    elif package in KOMA_SCRIPT_CLASSES:
+                        cwl_files.add('class-scrartcl,scrreprt,scrbook.cwl')
+                    else:
+                        cwl_files.add(cwl_file)
+
+                completions = []
+                if env:
+                    completion_dict = self._environment_completions
+                else:
+                    completion_dict = self._completions
+
+                cwl_files = sorted(cwl_files)
+                for cwl_file in cwl_files:
+                    try:
+                        completions.extend(completion_dict[cwl_file])
+                    except KeyError:
+                        # TODO - should we attempt to load the package?
+                        pass
+                return completions
+            else:
+                self._triggered = True
+                if not self._started:
+                    self.load_completions()
+                return []
+
+    # loads the list of currently specified cwl files
+    def get_packages(self):
+        packages = get_setting('cwl_list', [
+            "latex-document.cwl",
+            "tex.cwl",
+            "latex-dev.cwl",
+            "latex-209.cwl",
+            "latex-l2tabu.cwl",
+            "latex-mathsymbols.cwl"
+        ])
+
+        # autoload packages by scanning the document
+        if get_setting('cwl_autoload', True):
+            root = get_tex_root(sublime.active_window().active_view())
+            if root is not None:
+                doc = analysis.get_analysis(root)
+
+                # really, there should only be one documentclass
+                packages.extend([
+                    'class-{0}'.format(documentclass.args)
+                    for documentclass in doc.filter_commands(
+                        'documentclass',
+                        analysis.ONLY_PREAMBLE |
+                        analysis.ONLY_COMMANDS_WITH_ARGS
+                    )
+                ])
+
+                packages.extend([
+                    package.args for package in doc.filter_commands(
+                        'usepackage',
+                        analysis.ONLY_PREAMBLE |
+                        analysis.ONLY_COMMANDS_WITH_ARGS
+                    )
+                ])
+            # TODO - Attempt to read current buffer
+
+        return packages
+
+    # loads all available completions on a new background thread
+    # set force to True to force completions to load regardless
+    # of whether they have already been loaded
+    def load_completions(self, force=False):
+        with self._WLOCK:
+            if self._started or self._completed or force:
+                return
+
+            self._started = True
+            t = threading.Thread(
+                target=cwl_parsing_handler,
+                args=(
+                    self._on_completions,
+                )
+            )
+            t.daemon = True
+            t.start()
+
+    # hack to display the autocompletions once they are available
+    def _hack(self):
+        sublime.active_window().run_command("hide_auto_complete")
+        def hack2():
+            sublime.active_window().active_view().run_command("auto_complete")
+        sublime.set_timeout(hack2, 1)
+
+    # callback when completions are loaded
+    def _on_completions(self, completions, environment_completions):
+        with self._WLOCK:
+            self._completions = completions
+            self._environment_completions = environment_completions
+            self._started = False
+            self._completed = True
+
+            # if the user has tried to summon autocompletions, reload
+            # now that we have some
+            if self._triggered and len(self._completions) != 0:
+                sublime.set_timeout(self._hack, 0)
 
 
 class LatexCwlCompletion(sublime_plugin.EventListener):
+    '''
+    Event listener to supply cwl completions at appropriate points
+    '''
 
     def on_query_completions(self, view, prefix, locations):
-        if not CWL_COMPLETION:
-            return []
+        if not CWL_COMPLETION_ENABLED:
+            if CWL_COMPLETION_ENABLED is None:
+                _check_if_cwl_enabled()
+                if not CWL_COMPLETION_ENABLED:
+                    return []
+            else:
+                return []
 
         point = locations[0]
         if not view.score_selector(point, "text.tex.latex"):
@@ -75,16 +261,16 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
 
         point_before = point - len(prefix)
         char_before = view.substr(get_Region(point_before - 1, point_before))
-        if not _ST3:  # convert from unicode (might not be necessary)
-            char_before = char_before.encode("utf-8")
         is_prefixed = char_before == "\\"
 
-        line = view.substr(get_Region(view.line(point).begin(), point))
+        line = view.substr(get_Region(view.line(point).begin(), point_before))
         line = line[::-1]
         is_env = bool(BEGIN_END_BEFORE_REGEX.match(line))
 
-        completion_level = "prefixed"  # default completion level is "prefixed"
-        completion_level = get_setting("command_completion", completion_level)
+        # default completion level is "prefixed"
+        completion_level = get_setting(
+            "command_completion", "prefixed"
+        )
 
         do_complete = {
             "never": False,
@@ -94,13 +280,6 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
 
         if not do_complete:
             return []
-
-        # if it is inside the begin oder end of an env,
-        # create and return the available environments
-        if is_env:
-            completions = (parse_cwl_file(parse_line_as_environment) +
-                           get_own_env_completion(view))
-            return completions
 
         # do not autocomplete if the leading backslash is escaped
         if ESCAPE_REGEX.match(line):
@@ -113,51 +292,210 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
             return []
 
         # Do not do completions in actions
+        if (
+            latex_input_completions.TEX_INPUT_FILE_REGEX not in
+            ENV_DONOT_AUTO_COM
+        ):
+            ENV_DONOT_AUTO_COM.append(
+                latex_input_completions.TEX_INPUT_FILE_REGEX
+            )
+
         for rex in ENV_DONOT_AUTO_COM:
-            if match(rex, line) != None:
+            if match(rex, line) is not None:
                 return []
 
-        completions = (parse_cwl_file(parse_line_as_command) +
-                       get_own_command_completion(view))
+        # load the completions for the document
+        if is_env:
+            completions = CWL_COMPLETIONS.get_completions(env=True) + \
+                get_own_env_completion()
+        else:
+            completions = CWL_COMPLETIONS.get_completions() + \
+                get_own_command_completion()
+
         # autocompleting with slash already on line
-        # this is necessary to work around a short-coming in ST where having a keyed entry
-        # appears to interfere with it recognising that there is a \ already on the line
+        # this is necessary to work around a short-coming in ST where having
+        # a keyed entry appears to interfere with it recognising that there
+        # is a \ already on the line
         #
-        # NB this may not work if there are other punctuation marks in the completion
+        # NB this may not work if there are other punctuation marks in the
+        # completion
         if is_prefixed:
-            completions = [(c[0], c[1][1:]) if _is_snippet(c) else c
-                           for c in completions]
-        return (completions, sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS)
+            completions = [
+                (c[0], c[1][1:]) if _is_snippet(c) else c
+                for c in completions
+            ]
+
+        return (
+            completions,
+            sublime.INHIBIT_WORD_COMPLETIONS |
+            sublime.INHIBIT_EXPLICIT_COMPLETIONS
+        )
 
     # This functions is to determine whether LaTeX-cwl is installed,
     # if so, trigger auto-completion in latex buffers by '\'
-    def on_activated(self, view):
-        point = view.sel()[0].b
+    def on_activated_async(self, view):
+        _check_if_cwl_enabled()
+
+    # used to ensure that completions are loaded whenever a LaTeX document
+    # is loaded
+    def on_load_async(self, view):
+        point = view.sel()[0].end()
         if not view.score_selector(point, "text.tex.latex"):
             return
 
-        # Checking whether LaTeX-cwl is installed
-        global CWL_COMPLETION
-        if os.path.exists(sublime.packages_path() + "/LaTeX-cwl") or \
-            os.path.exists(sublime.installed_packages_path() + "/LaTeX-cwl.sublime-package"):
-            CWL_COMPLETION = True
+        CWL_COMPLETIONS.load_completions()
 
-        if CWL_COMPLETION:
-            g_settings = sublime.load_settings("Preferences.sublime-settings")
-            acts = g_settings.get("auto_complete_triggers", [])
+    if not _ST3:
+        on_activated = on_activated_async
+        on_load = on_load_async
 
-            # Whether auto trigger is already set in Preferences.sublime-settings
-            TEX_AUTO_COM = False
-            for i in acts:
-                if i.get("selector") == "text.tex.latex" and i.get("characters") == "\\":
-                    TEX_AUTO_COM = True
 
-            if not TEX_AUTO_COM:
-                acts.append({
-                    "characters": "\\",
-                    "selector": "text.tex.latex"
-                })
-                g_settings.set("auto_complete_triggers", acts)
+# -- Internal API --
+# run to see if cwl completions should be enabled
+def _check_if_cwl_enabled():
+    try:
+        view = sublime.active_window().active_view()
+    except AttributeError:
+        return
+
+    if view is None or not view.score_selector(0, "text.tex.latex"):
+        return
+
+    if get_setting('command_completion', 'prefixed', view=view) == 'never':
+        return
+
+    # Checking whether LaTeX-cwl is installed
+    global CWL_COMPLETION_ENABLED
+    if (
+        os.path.exists(
+            os.path.join(sublime.packages_path(), "LaTeX-cwl")
+        ) or
+        os.path.exists(
+            os.path.join(
+                sublime.installed_packages_path(),
+                "LaTeX-cwl.sublime-package"
+            )
+        ) or
+        os.path.exists(
+            os.path.join(sublime.packages_path(), "User", "cwl")
+        )
+    ):
+        CWL_COMPLETION_ENABLED = True
+    else:
+        CWL_COMPLETION_ENABLED = False
+        return
+
+    # add `\` as an autocomplete trigger
+    g_settings = sublime.load_settings("Preferences.sublime-settings")
+    acts = g_settings.get("auto_complete_triggers", [])
+
+    # Whether auto trigger is already set in
+    # Preferences.sublime-settings
+    TEX_AUTO_COM = False
+    for i in acts:
+        if (
+            i.get("selector") == "text.tex.latex" and
+            i.get("characters") == "\\"
+        ):
+            TEX_AUTO_COM = True
+
+    if not TEX_AUTO_COM:
+        acts.append({
+            "characters": "\\",
+            "selector": "text.tex.latex"
+        })
+        g_settings.set("auto_complete_triggers", acts)
+
+    # pre-load the completions
+    get_cwl_completions().load_completions()
+
+
+def _is_snippet(completion_entry):
+    """
+    returns True if the second part of the completion tuple
+    is a sublime snippet
+    """
+    completion_result = completion_entry[1]
+    return completion_result[0] == '\\' and '{' in completion_result
+
+
+# -- Internal Parsing API --
+
+# this is the function called by the CwlCompletions class to handle parsing
+# it loads every cwl in turn and returns a dictionary mapping from the
+# cwl file name to the set of parsed completions
+def cwl_parsing_handler(callback):
+    completion_results = {}
+    environment_results = {}
+    cwl_files, use_package = get_cwl_package_files()
+
+    for cwl_file in cwl_files:
+        base_name = os.path.basename(cwl_file)
+        if use_package:
+            try:
+                s = sublime.load_resource(cwl_file)
+            except IOError:
+                print(
+                    u'{0} does not exist or could not be accessed'.format(
+                        cwl_fil
+                    )
+                )
+                continue
+        else:
+            if not os.path.isabs(cwl_file) and cwl_file.startswith('Package'):
+                cwl_file = os.path.normpath(
+                    cwl_file.replace('Package', sublime.packages_path())
+                )
+
+            try:
+                s = utils.read_file_unix_endings(cwl_file)
+            except IOError:
+                print(
+                    u'{0} does not exist or could not be accessed'.format(
+                        cwl_fil
+                    )
+                )
+                continue
+
+        completions = parse_cwl_file(base_name, s)
+        completion_results[base_name] = completions
+
+        environments = parse_cwl_file(base_name, s, parse_line_as_environment)
+        environment_results[base_name] = environments
+
+    callback(completion_results, environment_results)
+
+
+# gets a list of all cwl package files available, whether in the
+# sublime-package file or an exploded directory; returns a tuple
+# consisting of the list of cwl files and a boolean indicating
+# whether it is in a .sublime-package file or an expanded directory
+if _ST3:
+    def get_cwl_package_files():
+        results = [
+            r for r in
+            sublime.find_resources('*.cwl')
+            if (r.startswith('Packages/User/cwl/') or
+                r.startswith('Packages/LaTeX-cwl/'))
+        ]
+        return(results, True) if results else ([], False)
+else:
+    def get_cwl_package_files():
+        packages_path = os.path.join(
+            sublime.packages_path(),
+        )
+
+        if os.path.exists(packages_path):
+            results = glob.glob(os.path.join(
+                packages_path, 'LaTeX-cwl', '*.cwl'
+            ))
+            results += glob.glob(os.path.join(
+                packages_path, 'User', 'cwl', '*.cwl'
+            ))
+            return (results, False)
+
+        # somehow this function got called without a cwl package existing
+        return ([], False)
 
 
 def parse_line_as_environment(line):
@@ -172,60 +510,42 @@ def parse_line_as_command(line):
     return line, parse_keyword(line)
 
 
-def parse_cwl_file(parse_line):
-    # Get cwl file list
-    # cwl_path = sublime.packages_path() + "/LaTeX-cwl"
-    cwl_file_list = get_setting('cwl_list',
-            [
-                "tex.cwl",
-                "latex-209.cwl",
-                "latex-document.cwl",
-                "latex-l2tabu.cwl",
-                "latex-mathsymbols.cwl"
-            ])
-
-    # ST3 can use load_resource api, while ST2 do not has this api
-    # so a little different with implementation of loading cwl files.
-    if _ST3:
-        cwl_files = ['Packages/LaTeX-cwl/%s' % x for x in cwl_file_list]
-    else:
-        cwl_files = [os.path.normpath(sublime.packages_path() + "/LaTeX-cwl/%s" % x) for x in cwl_file_list]
-
+# actually does the parsing of the cwl files
+def parse_cwl_file(cwl, s, parse_line=parse_line_as_command):
     completions = []
-    for cwl in cwl_files:
-        if _ST3:
-            try:
-                s = sublime.load_resource(cwl)
-            except IOError:
-                print(cwl + ' does not exist or could not be accessed')
-                continue
-        else:
-            try:
-                f = codecs.open(cwl, 'r', 'utf-8')
-            except IOError:
-                print(cwl + ' does not exist or could not be accessed')
-                continue
-            else:
-                try:
-                    s = u''.join(f.readlines())
-                finally:
-                    f.close()
+    method = os.path.splitext(cwl)[0]
 
-        method = os.path.splitext(os.path.basename(cwl))[0]
-        for line in s.split('\n'):
-            line = line.strip()
-            if line == '':
-                continue
-            if line[0] == '#':
-                continue
+    # we need some state tracking to ignore keyval data
+    # it could be useful at a later date
+    KEYVAL = False
+    for line in s.split('\n'):
+        line = line.lstrip()
+        if line == '':
+            continue
 
-            result = parse_line(line)
-            if result is None:
-                continue
-            (keyword, insertion) = result
-            item = (u'%s\t%s' % (keyword, method), insertion)
+        if line[0] == '#':
+            if line.startswith('#keyvals') or line.startswith('#ifOption'):
+                KEYVAL = True
+            if line.startswith('#endkeyvals') or line.startswith('#endif'):
+                KEYVAL = False
 
-            completions.append(item)
+            continue
+
+        # ignore TeXStudio's keyval structures
+        if KEYVAL:
+            continue
+
+        # remove everything after the comment hash
+        # again TeXStudio uses this for interesting
+        # tracking purposes, but we can ignore it
+        line = line.split('#', 1)[0]
+
+        result = parse_line(line)
+        if result is None:
+            continue
+        (keyword, insertion) = result
+        item = (u'%s\t%s' % (keyword, method), insertion)
+        completions.append(item)
 
     return completions
 
@@ -234,7 +554,7 @@ def parse_keyword(keyword):
     # Replace strings in [] and {} with snippet syntax
     def replace_braces(matchobj):
         replace_braces.index += 1
-        if matchobj.group(1) != None:
+        if matchobj.group(1) is not None:
             word = matchobj.group(1)
             return u'{${%d:%s}}' % (replace_braces.index, word)
         else:
@@ -242,11 +562,24 @@ def parse_keyword(keyword):
             return u'[${%d:%s}]' % (replace_braces.index, word)
     replace_braces.index = 0
 
-    replace, n = re.subn(r'\{([^\{\}\[\]]*)\}|\[([^\{\}\[\]]*)\]', replace_braces, keyword)
+    replace, n = BRACES_MATCH_REGEX.subn(
+        replace_braces, keyword
+    )
 
-    # I do not understand why some of the input will eat the '\' charactor before it!
-    # This code is to avoid these things.
-    if n == 0 and re.search(r'^[a-zA-Z]+$', keyword[1:].strip()) != None:
+    # I do not understand why sometimes the input will eat the '\' charactor
+    # before it! This code is to avoid these things.
+    if n == 0 and ALPHAS_REGEX.search(keyword[1:].strip()) is not None:
         return keyword
     else:
         return replace
+
+
+# ensure that CWL_COMPLETIONS has a value
+# its better to do it here because its more stable across reloads
+def plugin_loaded():
+    global CWL_COMPLETIONS
+    if CWL_COMPLETIONS is None:
+        CWL_COMPLETIONS = CwlCompletions()
+
+if not _ST3:
+    plugin_loaded()

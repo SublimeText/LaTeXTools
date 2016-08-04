@@ -193,12 +193,15 @@ class Analysis():
         A list of all commands, which are preprocessed with the flags
         """
         # convert the filter into a function
-        if type(how) is str:
-            def command_filter(c): return c.command == how
+        if isinstance(how, strbase):
+            def command_filter(c):
+                return c.command == how
         elif type(how) is list:
-            def command_filter(c): return c.command in how
+            def command_filter(c):
+                return c.command in how
         elif callable(how):
-            def command_filter(c): return how(c)
+            def command_filter(c):
+                return how(c)
         else:
             raise Exception("Unsupported filter type: " + str(type(how)))
         com = self._commands(flags)
