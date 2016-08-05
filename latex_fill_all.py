@@ -438,7 +438,7 @@ class LatexFillHelper(object):
         # inverse prefix so we search from the right-hand side
         line_prefix = view.substr(getRegion(start_line.begin(), start))[::-1]
 
-        m = self.FANCY_PREFIX_RX.search(line_prefix)
+        m = self.FANCY_PREFIX_RX.match(line_prefix)
         if not m:
             return getRegion(start, start)
 
@@ -1053,6 +1053,7 @@ class LatexFillAllCommand(
                     self.replace_word(view, edit, completions[0])
 
                 self.complete_auto_match(view, edit, insert_char)
+                self.remove_regions(view, edit, remove_regions)
             self.clear_bracket_cache()
         else:
             def on_done(i):
