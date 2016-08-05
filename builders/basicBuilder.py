@@ -28,7 +28,7 @@ import sys
 # builders directory in sys.path
 from pdfBuilder import PdfBuilder
 
-from latextools_utils.external_command import external_command
+from latextools_utils.external_command import external_command, get_texpath
 
 # Standard LaTeX warning
 CITATIONS_REGEX = re.compile(r"Warning: Citation `.+' on page \d+ undefined")
@@ -227,6 +227,7 @@ class BasicBuilder(PdfBuilder):
             # now we modify cwd to be the output directory
             # NOTE this cwd is not reused by any of the other command
             cwd = output_directory
+        env['PATH'] = get_texpath()
 
         command.append(self.job_name)
         return external_command(
