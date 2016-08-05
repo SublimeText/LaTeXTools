@@ -12,9 +12,9 @@ import sublime_plugin
 
 _ST3 = sublime.version() >= "3000"
 if _ST3:
-    from .latextools_utils import cache
+    from .latextools_utils import cache, get_setting
 else:
-    from latextools_utils import cache
+    from latextools_utils import cache, get_setting
 
 
 startupinfo = None
@@ -180,64 +180,6 @@ def _run_image_jobs():
                          args=(thread_id,)).start()
 
 
-def _create_document(view, scope):
-    """
-    Create the document content for the scope content and calculate
-    the location, where it should be showed.
-    """
-    content = view.substr(scope)
-    env = None
-
-    # calculate the leading and remaining characters to strip off
-    # if not present it is surrounded by an environment
-    if content[0:2] in ["\\[", "\\(", "$$"]:
-        offset = 2
-    elif content[0] == "$":
-        offset = 1
-    else:
-        offset = 0
-        # if there is no offset it must be surrounded by an environment
-        # get the name of the environment
-        scope_end = scope.end()
-        line_reg = view.line(scope_end)
-        after_reg = sublime.Region(scope_end, line_reg.end())
-        after_str = view.substr(line_reg)
-        m = re.match(r"\\end\{([^\}]+?)\*?\}", after_str)
-        if m:
-            env = m.group(1)
-
-    # strip the content
-    if offset:
-        content = content[offset:-offset]
-    content = content.strip()
-
-    # create the wrap string
-    open_str = "\\("
-    close_str = "\\)"
-    if env:
-        # add a * to the env to avoid numbers in the resulting image
-        # TODO blacklist of envs, which does not support a *
-        open_str = "\\begin{{{env}*}}".format(env=env)
-        close_str = "\\end{{{env}*}}".format(env=env)
-    document_content = "{open_str}\n{content}\n{close_str}".format(**locals())
-
-    packages = "\n".join([
-        "\\usepackage{amsmath}",
-        "\\usepackage{amssymb}",
-        "\\usepackage{latexsym}",
-        "\\usepackage{mathtools}"
-    ])
-    preamble = ""
-    latex_document = (
-        latex_template
-        .replace("<<content>>", document_content, 1)
-        .replace("<<packages>>", packages, 1)
-        .replace("<<preamble>>", preamble, 1)
-    )
-
-    return latex_document
-
-
 def _generate_html(image_path):
     with open(image_path, "rb") as f:
         image_raw_data = f.read()
@@ -256,12 +198,33 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
         self._modifications = 0
         self._selection_modifications = 0
 
-        self.visible_mode = _lt_settings.get("math_live_preview", "single")
+        # read and cache settings as fields
+        self.visible_mode = get_setting("preview_math_mode", view=view)
+        packages = get_setting("preview_math_template_packages", view=view)
+        self.packages_str = "\n".join(packages)
+        self.preamble_str = get_setting(
+            "preview_math_template_preamble", view=view)
 
-        def on_change():
-            self.visible_mode = _lt_settings.get("math_live_preview")
+        # listen to setting change events
+        def on_visible_change():
+            self.visible_mode = get_setting("preview_math_mode", view=view)
             self.update_phantoms()
-        _lt_settings.add_on_change("math_live_preview", on_change)
+
+        def on_preamble_change():
+            packages = get_setting("preview_math_template_packages", view=view)
+            if packages is not None:
+                self.packages_str = "\n".join(packages)
+            self.preamble_str = get_setting(
+                "preview_math_template_preamble", view=view)
+            self.reset_phantoms()
+
+        def add_on_change(settings_name, on_change):
+            _lt_settings.add_on_change(settings_name, on_change)
+            view.settings().add_on_change(settings_name, on_change)
+
+        add_on_change("preview_math_mode", on_visible_change)
+        add_on_change("preview_math_template_packages", on_preamble_change)
+        add_on_change("preview_math_template_preamble", on_preamble_change)
 
         view.erase_phantoms(self.key)
         # start with updating the phantoms
@@ -348,7 +311,8 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
                 return
             scopes = []
         else:
-            print("invalid mode", self.visible_mode)
+            print("Invalid mode reseted to \"none\".", self.visible_mode)
+            self.visible_mode = "none"
             scopes = []
 
         for scope in scopes:
@@ -379,7 +343,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
                 )
 
             # generate the latex template
-            latex_document = _create_document(view, scope)
+            latex_document = self._create_document(scope)
 
             # create a string, which uniquely identifies the compiled document
             id_str = "\n".join([
@@ -426,6 +390,56 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
         if job_args:
             _extend_image_jobs(view.id(), job_args)
             _run_image_jobs()
+
+    def _create_document(self, scope):
+        view = self.view
+        content = view.substr(scope)
+        env = None
+
+        # calculate the leading and remaining characters to strip off
+        # if not present it is surrounded by an environment
+        if content[0:2] in ["\\[", "\\(", "$$"]:
+            offset = 2
+        elif content[0] == "$":
+            offset = 1
+        else:
+            offset = 0
+            # if there is no offset it must be surrounded by an environment
+            # get the name of the environment
+            scope_end = scope.end()
+            line_reg = view.line(scope_end)
+            after_reg = sublime.Region(scope_end, line_reg.end())
+            after_str = view.substr(line_reg)
+            m = re.match(r"\\end\{([^\}]+?)\*?\}", after_str)
+            if m:
+                env = m.group(1)
+
+        # strip the content
+        if offset:
+            content = content[offset:-offset]
+        content = content.strip()
+
+        # create the wrap string
+        open_str = "\\("
+        close_str = "\\)"
+        if env:
+            # add a * to the env to avoid numbers in the resulting image
+            # TODO blacklist of envs, which does not support a *
+            open_str = "\\begin{{{env}*}}".format(env=env)
+            close_str = "\\end{{{env}*}}".format(env=env)
+        document_content = (
+            "{open_str}\n{content}\n{close_str}"
+            .format(**locals())
+        )
+
+        latex_document = (
+            latex_template
+            .replace("<<content>>", document_content, 1)
+            .replace("<<packages>>", self.packages_str, 1)
+            .replace("<<preamble>>", self.preamble_str, 1)
+        )
+
+        return latex_document
 
     def _make_cont(self, p, image_path, update_time):
         def cont():

@@ -77,6 +77,29 @@
 	"word_count_sub_level": "none",
 
 // ------------------------------------------------------------------
+// Live preview settings
+// ------------------------------------------------------------------
+
+	// The preview mode for math math live preview, possible values are:
+	// "all"	to show a phantom for each math environment
+	// "single"	to show a phantom only for the currently edited math environment
+	// "none"	to disable math live preview
+	"preview_math_mode": "single",
+
+	// An array of the used packages, from which the file for the live preview
+	// will be generated.
+	"preview_math_template_packages": [
+		"\\usepackage{amsmath}",
+		"\\usepackage{amssymb}",
+		"\\usepackage{latexsym}",
+		"\\usepackage{mathtools}"
+	],
+
+	// An string of the remaining preamble (not packages) for the file,
+	// which generates the math live preview.
+	"preview_math_template_preamble": "",
+
+// ------------------------------------------------------------------
 // Temporary file settings
 // ------------------------------------------------------------------
 	// Ends of the names of temporary files to be deleted
