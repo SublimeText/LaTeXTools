@@ -14,7 +14,7 @@ else:
 		return it.next()
 	advance_iterator = _advance_iterator
 
-print_debug = False
+print_debug = True
 interactive = False
 extra_file_ext = []
 
@@ -34,7 +34,8 @@ def debug(s):
 #	False means NO, DO NOT SKIP IT, IT IS A FILE
 def debug_skip_file(f):
 	# If we are not debugging, then it's not a file for sure, so skip it
-	if not (print_debug or interactive):
+	# if not (print_debug or interactive):
+	if not interactive:
 		return True
 	debug("debug_skip_file: " + f)
 	f_ext = os.path.splitext(f)[1].lower()[1:]
@@ -110,7 +111,7 @@ def debug_skip_file(f):
 # Input: tex log file, read in **binary** form, unprocessed
 # Output: content to be displayed in output panel, split into lines
 
-def parse_tex_log(data):
+def parse_tex_log(data, root_dir):
 	debug("Parsing log file")
 	errors = []
 	warnings = []
@@ -279,6 +280,9 @@ def parse_tex_log(data):
 			if file_match:
 				debug("MATCHED (long line)")
 				file_name = file_match.group(1)
+				if not os.path.isabs(file_name):
+					file_name = os.path.normpath(os.path.join(root_dir, file_name))
+
 				file_extra = file_match.group(2) + file_match.group(3) # don't call it "extra"
 				# remove quotes if necessary, but first save the count for a later check
 				quotecount = file_name.count("\"")
@@ -618,6 +622,9 @@ def parse_tex_log(data):
 		if file_match:
 			debug("MATCHED")
 			file_name = file_match.group(1)
+			if not os.path.isabs(file_name):
+				file_name = os.path.normpath(os.path.join(root_dir, file_name))
+
 			extra = file_match.group(2) + file_match.group(3)
 			# remove quotes if necessary
 			file_name = file_name.replace("\"", "")
@@ -723,7 +730,8 @@ if __name__ == '__main__':
 		if len(sys.argv) == 3:
 			extra_file_ext = sys.argv[2].split(" ")
 		data = open(logfilename, 'rb').read()
-		errors, warnings, badboxes = parse_tex_log(data)
+		root_dir = os.path.dirname(logfilename)
+		errors, warnings, badboxes = parse_tex_log(data, logfilename)
 		print("")
 		print("Errors:")
 		for err in errors:

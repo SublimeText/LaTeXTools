@@ -285,7 +285,9 @@ class CmdThread ( threading.Thread ):
 			badboxes = []
 
 			try:
-				(errors, warnings, badboxes) = parseTeXlog.parse_tex_log(data)
+				(errors, warnings, badboxes) = parseTeXlog.parse_tex_log(
+					data, self.caller.tex_dir
+				)
 				content = [""]
 				if errors:
 					content.append("Errors:") 
