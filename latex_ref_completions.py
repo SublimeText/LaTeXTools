@@ -190,8 +190,6 @@ class RefFillAllHelper(FillAllHelper):
         return completions
 
     def matches_line(self, line):
-        print(line)
-        print(NEW_STYLE_REF_RANGE_REGEX.match(line))
         return bool(
             (
                 not line.startswith(',') or
