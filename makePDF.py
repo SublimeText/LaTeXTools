@@ -789,7 +789,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 				"Cannot find builder {0}.\n"
 				"Check your LaTeXTools Preferences".format(builder_name)
 			)
-			self.window.run_command('hide_panel', {"panel": "output.exec"})
+			self.window.run_command('hide_panel', {"panel": "output.latextools"})
 			return
 
 		print(repr(builder))
