@@ -104,7 +104,7 @@ def _convert_image_thread(thread_id):
         except IndexError:
             break
         except Exception as e:
-            print("e:", e)
+            print("Exception:", e)
             break
         if thread_id >= _max_threads:
             break
@@ -200,35 +200,60 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
 
         # read and cache settings as fields
         self.visible_mode = get_setting("preview_math_mode", view=view)
-        packages = get_setting("preview_math_template_packages", view=view)
-        self.packages_str = "\n".join(packages)
+        self.packages = get_setting(
+            "preview_math_template_packages", view=view)
+        self.packages_str = "\n".join(self.packages)
         self.preamble_str = get_setting(
             "preview_math_template_preamble", view=view)
-
-        # listen to setting change events
-        def on_visible_change():
-            self.visible_mode = get_setting("preview_math_mode", view=view)
-            self.update_phantoms()
-
-        def on_preamble_change():
-            packages = get_setting("preview_math_template_packages", view=view)
-            if packages is not None:
-                self.packages_str = "\n".join(packages)
-            self.preamble_str = get_setting(
-                "preview_math_template_preamble", view=view)
-            self.reset_phantoms()
-
-        def add_on_change(settings_name, on_change):
-            _lt_settings.add_on_change(settings_name, on_change)
-            view.settings().add_on_change(settings_name, on_change)
-
-        add_on_change("preview_math_mode", on_visible_change)
-        add_on_change("preview_math_template_packages", on_preamble_change)
-        add_on_change("preview_math_template_preamble", on_preamble_change)
 
         view.erase_phantoms(self.key)
         # start with updating the phantoms
         sublime.set_timeout_async(self.update_phantoms)
+
+        # listen to setting changes to update the phantoms
+        def update_packages_str():
+            self.packages_str = "\n".join(self.packages)
+            self.reset_phantoms()
+
+        self.attr_updates = {
+            "visible_mode": {
+                "setting": "preview_math_mode",
+                "call_after": self.update_phantoms
+            },
+            "packages": {
+                "setting": "preview_math_template_packages",
+                "call_after": update_packages_str
+            },
+            "preamble_str": {
+                "setting": "preview_math_template_preamble",
+                "call_after": self.reset_phantoms
+            }
+        }
+
+        _lt_settings.add_on_change(
+            "lt_preview_math", lambda: self._on_setting_change(False))
+        view.settings().add_on_change(
+            "lt_preview_math", lambda: self._on_setting_change(True))
+
+    def _on_setting_change(self, for_view):
+        settings = self.view.settings() if for_view else _lt_settings
+        for attr_name in self.attr_updates.keys():
+            attr = self.attr_updates[attr_name]
+            settings_name = attr["setting"]
+            value = settings.get(settings_name)
+            if self.__dict__[attr_name] == value:
+                continue
+            if value is None:
+                continue
+            if not for_view:
+                if value is None:
+                    continue
+            else:
+                if self.view.settings().has(settings_name):
+                    continue
+            self.__dict__[attr_name] = value
+            attr["call_after"]()
+            break
 
     @classmethod
     def is_applicable(cls, settings):
