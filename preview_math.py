@@ -73,7 +73,7 @@ def _create_image(latex_document, base_name):
     # compile the latex document to a pdf
     _call_shell_command(
         "cd \"{temp_path}\" && "
-        "pdflatex -shell-escape -interaction=nonstopmode "
+        "pdflatex -interaction=nonstopmode "
         "{rel_source_path}"
         .format(temp_path=temp_path, **locals())
     )
