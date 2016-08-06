@@ -1,6 +1,7 @@
 import base64
 import os
 import re
+import struct
 import subprocess
 import threading
 import time
@@ -39,6 +40,7 @@ temp_path = os.path.join(cache._global_cache_path(), "preview_math")
 # we use png files for the html popup
 _IMAGE_EXTENSION = ".png"
 
+_scale_quotient = 1
 _density = 150
 _lt_settings = {}
 
@@ -184,8 +186,21 @@ def _generate_html(image_path):
     with open(image_path, "rb") as f:
         image_raw_data = f.read()
     img_data = base64.b64encode(image_raw_data).decode()
-    content = '<img src="data:image/png;base64,{0}" />'.format(img_data)
-    return content
+
+    # create the image tag
+    if _scale_quotient == 1 or len(image_raw_data) < 24:
+        img_tag = '<img src="data:image/png;base64,{0}">'.format(img_data)
+    else:
+        # read the image dimensions out of the binary string
+        width, height = struct.unpack(">ii", image_raw_data[16:24])
+        width /= _scale_quotient
+        height /= _scale_quotient
+        img_tag = (
+            '<img src="data:image/png;base64,{img_data}" width="{width}" '
+            'height="{height}">'
+            .format(**locals())
+        )
+    return img_tag
 
 
 class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
@@ -372,7 +387,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
 
             # create a string, which uniquely identifies the compiled document
             id_str = "\n".join([
-                # str(_density),
+                str(_density),
                 latex_document
             ])
             base_name = cache.hash_digest(id_str)
