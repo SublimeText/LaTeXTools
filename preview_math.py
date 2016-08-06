@@ -256,16 +256,13 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
             attr = self.attr_updates[attr_name]
             settings_name = attr["setting"]
             value = settings.get(settings_name)
-            if self.__dict__[attr_name] == value:
-                continue
             if value is None:
                 continue
-            if not for_view:
-                if value is None:
-                    continue
-            else:
-                if self.view.settings().has(settings_name):
-                    continue
+            if self.__dict__[attr_name] == value:
+                continue
+            if not for_view and self.view.settings().has(settings_name):
+                continue
+            # update the value and call the after function
             self.__dict__[attr_name] = value
             attr["call_after"]()
             break
@@ -322,6 +319,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
         self.update_phantoms()
 
     def update_phantoms(self):
+        print("Update phantoms")
         if not self.view.is_primary():
             return
         view = self.view
