@@ -35,7 +35,7 @@ def debug(s):
 def debug_skip_file(f):
 	# If we are not debugging, then it's not a file for sure, so skip it
 	# if not (print_debug or interactive):
-	if not interactive:
+	if not (interactive or print_debug):
 		return True
 	debug("debug_skip_file: " + f)
 	f_ext = os.path.splitext(f)[1].lower()[1:]
@@ -45,7 +45,7 @@ def debug_skip_file(f):
 						'ldf', 'bdf', 'bbx','cbx','lbx','dict']
 	if (f_ext in known_file_exts) and \
 	   (("/usr/local/texlive/" in f) or ("/usr/share/texlive/" in f) or ("Program Files\\MiKTeX" in f) \
-	   	or re.search(r"\\MiKTeX\\\d\.\d+\\tex",f)) or ("\\MiKTeX\\tex\\" in f):
+	   	or re.search(r"\\MiKTeX(?:\\| )\d\.\d+\\tex",f)) or ("\\MiKTeX\\tex\\" in f):
 		print ("TeXlive / MiKTeX FILE! Don't skip it!")
 		return False
 	if (f_ext in known_file_exts and re.search(r'(\\|/)texmf\1', f, re.I)):
@@ -280,6 +280,8 @@ def parse_tex_log(data, root_dir):
 			if file_match:
 				debug("MATCHED (long line)")
 				file_name = file_match.group(1)
+				file_name = os.path.normpath(file_name.strip('"'))
+
 				if not os.path.isabs(file_name):
 					file_name = os.path.normpath(os.path.join(root_dir, file_name))
 
@@ -622,6 +624,8 @@ def parse_tex_log(data, root_dir):
 		if file_match:
 			debug("MATCHED")
 			file_name = file_match.group(1)
+			file_name = os.path.normpath(file_name.strip('"'))
+
 			if not os.path.isabs(file_name):
 				file_name = os.path.normpath(os.path.join(root_dir, file_name))
 
