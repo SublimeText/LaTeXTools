@@ -45,6 +45,13 @@ _density = 150
 _lt_settings = {}
 
 
+def _on_setting_change():
+    global _density, _scale_quotient
+    _scale_quotient = _lt_settings.get(
+        "math_preview_scale_quotient", _scale_quotient)
+    _density = _lt_settings.get("math_preview_density", _density)
+
+
 def plugin_loaded():
     global _lt_settings
     _lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
@@ -52,6 +59,11 @@ def plugin_loaded():
     # validate the temporary file directory is available
     if not os.path.exists(temp_path):
         os.makedirs(temp_path)
+
+    # init all variables
+    _on_setting_change()
+    # add a callback to setting changes
+    _lt_settings.add_on_change("lt_math_preview_main", _on_setting_change)
 
 
 def _call_shell_command(command):
@@ -221,9 +233,14 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
         self.preamble_str = get_setting(
             "preview_math_template_preamble", view=view)
 
+        self._init_watch_settings()
+
         view.erase_phantoms(self.key)
         # start with updating the phantoms
         sublime.set_timeout_async(self.update_phantoms)
+
+    def _init_watch_settings(self):
+        view = self.view
 
         # listen to setting changes to update the phantoms
         def update_packages_str():
@@ -244,6 +261,23 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
                 "call_after": self.reset_phantoms
             }
         }
+        self.lt_attr_updates = self.attr_updates.copy()
+        # watch this attributes for setting changes to reset the phantoms
+        watch_attr = {
+            "_watch_scale_quotient": {
+                "setting": "math_preview_scale_quotient",
+                "call_after": self.reset_phantoms
+            },
+            "_watch_density": {
+                "setting": "math_preview_density",
+                "call_after": self.reset_phantoms
+            }
+        }
+        for attr_name, d in watch_attr.items():
+            settings_name = d["setting"]
+            self.__dict__[attr_name] = _lt_settings.get(settings_name)
+
+        self.lt_attr_updates.update(watch_attr)
 
         _lt_settings.add_on_change(
             "lt_preview_math", lambda: self._on_setting_change(False))
@@ -252,8 +286,9 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
 
     def _on_setting_change(self, for_view):
         settings = self.view.settings() if for_view else _lt_settings
-        for attr_name in self.attr_updates.keys():
-            attr = self.attr_updates[attr_name]
+        attr_updates = self.attr_updates if for_view else self.lt_attr_updates
+        for attr_name in attr_updates.keys():
+            attr = attr_updates[attr_name]
             settings_name = attr["setting"]
             value = settings.get(settings_name)
             if value is None:
@@ -319,7 +354,6 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
         self.update_phantoms()
 
     def update_phantoms(self):
-        print("Update phantoms")
         if not self.view.is_primary():
             return
         view = self.view
