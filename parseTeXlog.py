@@ -14,7 +14,7 @@ else:
 		return it.next()
 	advance_iterator = _advance_iterator
 
-print_debug = True
+print_debug = False
 interactive = False
 extra_file_ext = []
 
