@@ -86,6 +86,11 @@
 	// "none"	to disable math live preview
 	"preview_math_mode": "single",
 
+	// The program to compile the latex template files, possible values are
+	// pdflatex, xelatex, lualatex, latex
+	// DON'T(!) use tex engines like pdftex
+	"preview_math_latex_compile_program": "pdflatex",
+
 	// The density of the preview image. The higher the density the bigger the phantom.
 	"math_preview_density": 150,
 	// Only change this setting for high dpi displays!

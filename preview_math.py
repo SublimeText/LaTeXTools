@@ -74,7 +74,7 @@ def _call_shell_command(command):
                      startupinfo=startupinfo).wait()
 
 
-def _create_image(latex_document, base_name):
+def _create_image(latex_program, latex_document, base_name):
     """Create an image for a latex document."""
     rel_source_path = base_name + ".tex"
     pdf_path = os.path.join(temp_path, base_name + ".pdf")
@@ -88,22 +88,29 @@ def _create_image(latex_document, base_name):
     # compile the latex document to a pdf
     _call_shell_command(
         "cd \"{temp_path}\" && "
-        "pdflatex -interaction=nonstopmode "
+        "{latex_program} -interaction=nonstopmode "
         "{rel_source_path}"
         .format(temp_path=temp_path, **locals())
     )
 
-    # convert the pdf to a png image
-    # TODO read this from the settings
-    density = _density
-    _call_shell_command(
-        "convert -density {density}x{density} -trim "
-        '"{pdf_path}" "{image_path}"'
-        .format(**locals())
-    )
+    pdf_exists = os.path.exists(pdf_path)
+    if not pdf_exists:
+        dvi_path = os.path.join(temp_path, base_name + ".dvi")
+        if os.path.exists(dvi_path):
+            pdf_path = dvi_path
+            pdf_exists = True
+
+    if pdf_exists:
+        # convert the pdf to a png image
+        density = _density
+        _call_shell_command(
+            "convert -density {density}x{density} -trim "
+            '"{pdf_path}" "{image_path}"'
+            .format(**locals())
+        )
 
     # cleanup created files
-    for ext in ["tex", "aux", "log", "pdf"]:
+    for ext in ["tex", "aux", "log", "pdf", "dvi"]:
         delete_path = os.path.join(temp_path, base_name + "." + ext)
         if os.path.exists(delete_path):
             os.remove(delete_path)
@@ -157,25 +164,20 @@ def _cancel_image_jobs(vid, p=None):
             _job_list = [job for job in _job_list if not is_target_job(job)]
 
 
-def _wrap_create_image(latex_document, base_name, cont):
+def _wrap_create_image(latex_program, latex_document, base_name, cont):
     def do():
-        _create_image(latex_document, base_name)
+        _create_image(latex_program, latex_document, base_name)
         cont()
     return do
 
 
-def _append_image_job(latex_document, base_name, vid, pid, cont):
-    wrap = _wrap_create_image(latex_document, base_name, cont)
-    with _job_list_lock:
-        _job_list.append((wrap, vid, pid))
-
-
-def _extend_image_jobs(vid, jobs):
+def _extend_image_jobs(vid, latex_program, jobs):
     global _job_list
     prepared_jobs = []
     for job in jobs:
         wrap = _wrap_create_image(
-            job["latex_document"], job["base_name"], job["cont"])
+            latex_program, job["latex_document"], job["base_name"],
+            job["cont"])
         prepared_jobs.append((wrap, vid, job["p"]))
 
     with _job_list_lock:
@@ -240,6 +242,8 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
         self.packages_str = "\n".join(self.packages)
         self.preamble_str = get_setting(
             "preview_math_template_preamble", view=view)
+        self.latex_program = get_setting(
+            "preview_math_latex_compile_program", view=view)
 
         self._init_watch_settings()
 
@@ -259,6 +263,10 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
             "visible_mode": {
                 "setting": "preview_math_mode",
                 "call_after": self.update_phantoms
+            },
+            "latex_program": {
+                "setting": "preview_math_latex_compile_program",
+                "call_after": self.reset_phantoms
             },
             "packages": {
                 "setting": "preview_math_template_packages",
@@ -432,6 +440,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
 
             # create a string, which uniquely identifies the compiled document
             id_str = "\n".join([
+                self.latex_program,
                 str(_density),
                 latex_document
             ])
@@ -475,7 +484,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
 
         # run the jobs to create the remaining images
         if job_args:
-            _extend_image_jobs(view.id(), job_args)
+            _extend_image_jobs(view.id(), self.latex_program, job_args)
             _run_image_jobs()
 
     def _create_document(self, scope):
