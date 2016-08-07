@@ -48,8 +48,8 @@ _lt_settings = {}
 def _on_setting_change():
     global _density, _scale_quotient
     _scale_quotient = _lt_settings.get(
-        "math_preview_scale_quotient", _scale_quotient)
-    _density = _lt_settings.get("math_preview_density", _density)
+        "preview_math_scale_quotient", _scale_quotient)
+    _density = _lt_settings.get("preview_math_density", _density)
 
 
 def plugin_loaded():
@@ -64,7 +64,7 @@ def plugin_loaded():
     # init all variables
     _on_setting_change()
     # add a callback to setting changes
-    _lt_settings.add_on_change("lt_math_preview_main", _on_setting_change)
+    _lt_settings.add_on_change("lt_preview_math_main", _on_setting_change)
 
 
 def _call_shell_command(command):
@@ -224,7 +224,7 @@ def _generate_html(image_path):
 
 
 class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
-    key = "math_preview"
+    key = "preview_math"
 
     def __init__(self, view):
         self.view = view
@@ -281,11 +281,11 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
         # watch this attributes for setting changes to reset the phantoms
         watch_attr = {
             "_watch_scale_quotient": {
-                "setting": "math_preview_scale_quotient",
+                "setting": "preview_math_scale_quotient",
                 "call_after": self.reset_phantoms
             },
             "_watch_density": {
-                "setting": "math_preview_density",
+                "setting": "preview_math_density",
                 "call_after": self.reset_phantoms
             }
         }

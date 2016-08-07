@@ -92,11 +92,11 @@
 	"preview_math_latex_compile_program": "pdflatex",
 
 	// The density of the preview image. The higher the density the bigger the phantom.
-	"math_preview_density": 150,
+	"preview_math_density": 150,
 	// Only change this setting for high dpi displays!
 	// If the image is not sharp enough increase this scale to get a better resolution.
 	// However also change the density by the same factor to keep the size.
-	"math_preview_scale_quotient": 1,
+	"preview_math_scale_quotient": 1,
 
 	// An array of the used packages, from which the file for the live preview
 	// will be generated.
