@@ -34,8 +34,8 @@ latex_template = """
 \\end{document}
 """
 
-# the path to the temp files
-temp_path = os.path.join(cache._global_cache_path(), "preview_math")
+# the path to the temp files (set on loading)
+temp_path = None
 
 # we use png files for the html popup
 _IMAGE_EXTENSION = ".png"
@@ -53,9 +53,10 @@ def _on_setting_change():
 
 
 def plugin_loaded():
-    global _lt_settings
+    global _lt_settings, temp_path
     _lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
 
+    temp_path = os.path.join(cache._global_cache_path(), "preview_math")
     # validate the temporary file directory is available
     if not os.path.exists(temp_path):
         os.makedirs(temp_path)
@@ -137,11 +138,20 @@ _thread_num_lock = threading.Lock()
 _thread_num = 0
 
 
-def _cancel_image_jobs(vid, pid):
+def _cancel_image_jobs(vid, p=None):
     global _job_list
 
-    def is_target_job(job):
-        return job[1] == vid and job[2] == pid
+    if p is None:
+        def is_target_job(job):
+            return job[1] == vid
+    elif isinstance(p, list):
+        pset = set(p)
+
+        def is_target_job(job):
+            return job[1] == vid and job[2] in pset
+    else:
+        def is_target_job(job):
+            return job[1] == vid and job[2] == p
     with _job_list_lock:
         if any(is_target_job(job) for job in _job_list):
             _job_list = [job for job in _job_list if not is_target_job(job)]
@@ -163,16 +173,12 @@ def _append_image_job(latex_document, base_name, vid, pid, cont):
 def _extend_image_jobs(vid, jobs):
     global _job_list
     prepared_jobs = []
-    filter_pids = set([j["pid"] for j in jobs])
-
     for job in jobs:
         wrap = _wrap_create_image(
             job["latex_document"], job["base_name"], job["cont"])
-        prepared_jobs.append((wrap, vid, job["pid"]))
+        prepared_jobs.append((wrap, vid, job["p"]))
 
     with _job_list_lock:
-        _job_list = [job for job in _job_list
-                     if job[1] == vid and job[2] not in filter_pids]
         _job_list.extend(prepared_jobs[::-1])
 
 
@@ -221,6 +227,8 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
     def __init__(self, view):
         self.view = view
         self.phantoms = []
+
+        self._phantom_lock = threading.Lock()
 
         self._modifications = 0
         self._selection_modifications = 0
@@ -299,7 +307,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
                 continue
             # update the value and call the after function
             self.__dict__[attr_name] = value
-            attr["call_after"]()
+            sublime.set_timeout_async(attr["call_after"])
             break
 
     @classmethod
@@ -348,12 +356,18 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
 
     def reset_phantoms(self):
         view = self.view
-        for p in self.phantoms:
-            view.erase_phantom_by_id(p.id)
-        self.phantoms = []
+        _cancel_image_jobs(view.id())
+        with self._phantom_lock:
+            for p in self.phantoms:
+                view.erase_phantom_by_id(p.id)
+            self.phantoms = []
         self.update_phantoms()
 
     def update_phantoms(self):
+        with self._phantom_lock:
+            self._update_phantoms()
+
+    def _update_phantoms(self):
         if not self.view.is_primary():
             return
         view = self.view
@@ -369,7 +383,6 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
 
         new_phantoms = []
         job_args = []
-        # view.erase_phantoms("preview_image")
         if self.visible_mode == "all":
             scopes = view.find_by_selector(
                 "text.tex.latex meta.environment.math")
@@ -429,7 +442,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
             if os.path.exists(image_path):
                 if p.id is not None:
                     view.erase_phantom_by_id(p.id)
-                    _cancel_image_jobs(view.id(), p.id)
+                    _cancel_image_jobs(view.id(), p)
                 html_content = _generate_html(image_path)
                 p.id = view.add_phantom(
                     self.key, region, html_content, layout, on_navigate=None)
@@ -444,16 +457,18 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
             job_args.append({
                 "latex_document": latex_document,
                 "base_name": base_name,
-                "pid": p.id,
+                "p": p,
                 "cont": self._make_cont(p, image_path, time.time())
             })
 
             new_phantoms.append(p)
 
         # delete deprecated phantoms
-        for p in self.phantoms:
-            if p not in new_phantoms and p.region != sublime.Region(-1):
+        delete_phantoms = [x for x in self.phantoms if x not in new_phantoms]
+        for p in delete_phantoms:
+            if p.region != sublime.Region(-1):
                 view.erase_phantom_by_id(p.id)
+        _cancel_image_jobs(view.id(), delete_phantoms)
 
         # set the new phantoms
         self.phantoms = new_phantoms
