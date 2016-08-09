@@ -425,11 +425,12 @@ def cwl_parsing_handler(callback):
         base_name = os.path.basename(cwl_file)
         if use_package:
             try:
-                s = sublime.load_resource(cwl_file)
+                s = (sublime.load_resource(cwl_file).replace("\r\n", "\n")
+                     .replace("\r", "\n"))
             except IOError:
                 print(
                     u'{0} does not exist or could not be accessed'.format(
-                        cwl_fil
+                        cwl_file
                     )
                 )
                 continue
@@ -444,7 +445,7 @@ def cwl_parsing_handler(callback):
             except IOError:
                 print(
                     u'{0} does not exist or could not be accessed'.format(
-                        cwl_fil
+                        cwl_file
                     )
                 )
                 continue
