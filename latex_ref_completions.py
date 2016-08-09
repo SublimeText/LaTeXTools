@@ -34,7 +34,7 @@ OLD_STYLE_REF_REGEX = re.compile(
 NEW_STYLE_REF_REGEX = re.compile(
     r"([^}]*)\{(?:\*?s?fer(" +
     _ref_special_commands +
-    r")?|)\\"
+    r")?)\\"
 )
 
 NEW_STYLE_REF_RANGE_REGEX = re.compile(
