@@ -46,8 +46,12 @@ import subprocess
 import types
 import traceback
 import shutil
+import re
+import html
 
 DEBUG = False
+
+_HAS_PHANTOMS = sublime.version() >= "3118"
 
 # Compile current .tex file to pdf
 # Allow custom scripts and build engines!
@@ -379,6 +383,12 @@ class CmdThread ( threading.Thread ):
 
 			self.caller.output(content)
 			self.caller.output("\n\n[Done!]\n")
+
+			if _HAS_PHANTOMS:
+				self.caller.errors = errors
+				self.caller.warnings = warnings
+				self.caller.badboxes = badboxes
+
 			self.caller.finish(len(errors) == 0)
 
 	def handle_std_outputs(self, out, err):
@@ -394,6 +404,10 @@ class CmdThread ( threading.Thread ):
 # Actual Command
 
 class make_pdfCommand(sublime_plugin.WindowCommand):
+
+	errs_by_file = {}
+	phantom_sets_by_buffer = {}
+	show_errors_inline = True
 
 	def __init__(self, *args, **kwargs):
 		sublime_plugin.WindowCommand.__init__(self, *args, **kwargs)
@@ -422,6 +436,11 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 				self.proc = None
 
 		view = self.view = self.window.active_view()
+
+		if _HAS_PHANTOMS:
+			self.hide_phantoms()
+			pref_settings = sublime.load_settings("Preferences.sublime-settings")
+			self.show_errors_inline = pref_settings.get("show_errors_inline", True)
 
 		if view.is_dirty():
 			print ("saving...")
@@ -645,6 +664,11 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 
 	def do_finish(self, can_switch_to_pdf):
 		self.output_view.run_command("do_finish_edit")
+
+		if _HAS_PHANTOMS and self.show_errors_inline:
+			self.create_errs_by_file()
+			self.update_phantoms()
+
 		# can_switch_to_pdf indicates a pdf should've been created
 		if can_switch_to_pdf:
 			# if using output_directory, follow the copy_output_on_build setting
@@ -671,6 +695,112 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 
 			if get_setting('open_pdf_on_build', True):
 				self.view.run_command("jump_to_pdf", {"from_keybinding": False})
+
+	if _HAS_PHANTOMS:
+		def _find_errors(self, errors, error_class):
+			for line in errors:
+				m = self.file_regex.search(line)
+				if not m:
+					continue
+				groups = m.groups()
+				if len(groups) == 4:
+					file, line, column, text = groups
+				else:
+					continue
+				if line is None:
+					continue
+				line = int(line)
+				column = int(column) if column else 0
+				if file not in self.errs_by_file:
+					self.errs_by_file[file] = []
+				self.errs_by_file[file].append((line, column, text, error_class))
+
+		def create_errs_by_file(self):
+			file_regex = self.output_view.settings().get("result_file_regex")
+			if not file_regex:
+				return
+			self.errs_by_file = {}
+			try:
+				self.file_regex = re.compile(file_regex, re.MULTILINE)
+			except:
+				print("Cannot compile file regex.")
+				return
+			self._find_errors(self.errors, "error")
+			self._find_errors(self.warnings, "warning")
+			self._find_errors(self.badboxes, "warning badbox")
+
+		def update_phantoms(self):
+			stylesheet = """
+				<style>
+					div.lt-error {
+						padding: 0.4rem 0 0.4rem 0.7rem;
+						margin: 0.2rem 0;
+						border-radius: 2px;
+					}
+					div.lt-error span.message {
+						padding-right: 0.7rem;
+					}
+					div.lt-error a {
+						text-decoration: inherit;
+						padding: 0.35rem 0.7rem 0.45rem 0.8rem;
+						position: relative;
+						bottom: 0.05rem;
+						border-radius: 0 2px 2px 0;
+						font-weight: bold;
+					}
+					html.dark div.lt-error a {
+						background-color: #00000018;
+					}
+					html.light div.lt-error a {
+						background-color: #ffffff18;
+					}
+				</style>
+			"""
+
+			for file, errs in self.errs_by_file.items():
+				view = self.window.find_open_file(file)
+				if view:
+
+					buffer_id = view.buffer_id()
+					if buffer_id not in self.phantom_sets_by_buffer:
+						phantom_set = sublime.PhantomSet(view, "lt_exec")
+						self.phantom_sets_by_buffer[buffer_id] = phantom_set
+					else:
+						phantom_set = self.phantom_sets_by_buffer[buffer_id]
+
+					phantoms = []
+
+					for line, column, text, error_class in errs:
+						pt = view.text_point(line - 1, column - 1)
+						html_text = html.escape(text, quote=False)
+						phantom_content = """
+							<body id="inline-error">
+								{stylesheet} 
+								<div class="lt-error {error_class}">
+									<span class="message">{html_text}</span>
+									<a href="hide">{cancel_char}</a>
+								</div>
+							</body>
+						""".format(cancel_char=chr(0x00D7), **locals())
+						phantoms.append(sublime.Phantom(
+							sublime.Region(pt, view.line(pt).b),
+							phantom_content, sublime.LAYOUT_BELOW,
+							on_navigate=self.on_phantom_navigate))
+
+					phantom_set.update(phantoms)
+
+		def hide_phantoms(self):
+			for file, errs in self.errs_by_file.items():
+				view = self.window.find_open_file(file)
+				if view:
+					view.erase_phantoms("lt_exec")
+
+			self.errs_by_file = {}
+			self.phantom_sets_by_buffer = {}
+			self.show_errors_inline = False
+
+		def on_phantom_navigate(self, href):
+			self.hide_phantoms()
 
 
 class DoOutputEditCommand(sublime_plugin.TextCommand):
