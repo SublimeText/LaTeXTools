@@ -49,9 +49,9 @@ class LaTeXToolsPluginMeta(type):
 
         registered_name = _classname_to_internal_name(name)
 
-        if _REGISTRY is None:
-            _REGISTERED_CLASSES_TO_LOAD.append((registered_name, cls))
-        else:
+        _REGISTERED_CLASSES_TO_LOAD.append((registered_name, cls))
+
+        if _REGISTRY is not None:
             _REGISTRY[registered_name] = cls
 
 
