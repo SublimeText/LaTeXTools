@@ -725,9 +725,21 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			except:
 				print("Cannot compile file regex.")
 				return
-			self._find_errors(self.errors, "error")
-			self._find_errors(self.warnings, "warning")
-			self._find_errors(self.badboxes, "warning badbox")
+			lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
+			level_name = lt_settings.get("show_error_phantoms")
+			level = {
+				"none": 0,
+				"errors": 1,
+				"warnings": 2,
+				"badboxes": 3
+			}.get(level_name, 2)
+
+			if level >= 1:
+				self._find_errors(self.errors, "error")
+			if level >= 2:
+				self._find_errors(self.warnings, "warning")
+			if level >= 3:
+				self._find_errors(self.badboxes, "warning badbox")
 
 		def update_phantoms(self):
 			stylesheet = """
