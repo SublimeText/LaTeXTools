@@ -199,7 +199,7 @@ class CwlCompletions(object):
     # of whether they have already been loaded
     def load_completions(self, force=False):
         with self._WLOCK:
-            if self._started or self._completed or force:
+            if self._started or (self._completed and not force):
                 return
 
             self._started = True
