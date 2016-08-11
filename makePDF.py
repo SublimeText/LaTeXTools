@@ -418,8 +418,22 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		self.proc = None
 		self.proc_lock = threading.Lock()
 
-	def run(self, cmd="", file_regex="", path=""):
-		
+	def run(self,
+			cmd="",
+			file_regex="",
+			path="",
+			update_phantoms_only=False,
+			hide_phantoms_only=False):
+
+		if update_phantoms_only:
+			if self.show_errors_inline:
+				self.update_phantoms()
+			return
+
+		if hide_phantoms_only:
+			self.hide_phantoms()
+			return
+
 		# Try to handle killing
 		with self.proc_lock:
 			if self.proc: # if we are running, try to kill running process
@@ -831,6 +845,16 @@ class DoFinishEditCommand(sublime_plugin.TextCommand):
         reg = sublime.Region(0)
         self.view.sel().add(reg)
         self.view.show(reg)
+
+if _HAS_PHANTOMS:
+	class BuildPhantomEventListener(sublime_plugin.EventListener):
+		def on_load(self, view):
+			if not view.score_selector(0, "text.tex"):
+				return
+			w = view.window()
+			if w is not None:
+				w.run_command("make_pdf", {"update_phantoms_only": True})
+
 
 def plugin_loaded():
 	# load the plugins from the builders dir
