@@ -385,9 +385,9 @@ class CmdThread ( threading.Thread ):
 			self.caller.output("\n\n[Done!]\n")
 
 			if _HAS_PHANTOMS:
-				self.caller.errors = errors
-				self.caller.warnings = warnings
-				self.caller.badboxes = badboxes
+				self.caller.errors = locals().get("errors", [])
+				self.caller.warnings = locals().get("warnings", [])
+				self.caller.badboxes = locals().get("badboxes", [])
 
 			self.caller.finish(len(errors) == 0)
 
@@ -408,6 +408,10 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 	errs_by_file = {}
 	phantom_sets_by_buffer = {}
 	show_errors_inline = True
+	errors = []
+	warnings = []
+	badboxes = []
+
 
 	def __init__(self, *args, **kwargs):
 		sublime_plugin.WindowCommand.__init__(self, *args, **kwargs)
