@@ -224,7 +224,7 @@ The `--output-directory` and `--aux-directory` flags can be set in several ways:
 
 There are three special values that can be used, `<<temp>>` `<<project>>` and `<<cache>>`. Their meaning is the same as that found in the [settings section](#settings) and they are described there.
 
-**Note**: the `--aux-directory` flag is only meaningful when used with MiKTeX, but see the `copy_on_build` setting for an option to get some similar behaviour with TeXLive. 
+**Note**: the `--aux-directory` flag is only meaningful when used with MiKTeX, but see the `copy_output_on_build` setting for an option to get some similar behaviour with TeXLive. 
 
 **Note**: These flags can only be set when using latexmk (default on OS X and Linux), the `basic` builder or the `script` builder (see below [for documentation on using the script builder](#script-builder)). If you are using texify (default when using MiKTeX) or the simple builder, setting these flags through any method will be ignored.
 
