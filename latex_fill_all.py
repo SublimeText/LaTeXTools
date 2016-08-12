@@ -890,7 +890,7 @@ class LatexFillAllCommand(
 
         # handle the _ prefix, if necessary
         if (
-            insert_char and (
+            insert_char == "{" and (
                 not isinstance(completion_type, FillAllHelper) or
                 completion_type.supports_fancy_prefix()
             )
