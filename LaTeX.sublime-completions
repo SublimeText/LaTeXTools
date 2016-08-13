@@ -1,5 +1,5 @@
 {
-        "scope": "text.tex.latex",
+        "scope": "text.tex.latex - (string.other.math, meta.environment.math)",
 
         "completions":
         [
