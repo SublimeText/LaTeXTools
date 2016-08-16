@@ -23,9 +23,9 @@ if sublime.version() < '3000':
     _ST3 = False
     import getTeXRoot
     from kpsewhich import kpsewhich
-    from latex_fill_all import FillAllHelper
     from latextools_utils.is_tex_file import is_tex_file, get_tex_extensions
     from latextools_utils import bibformat, get_setting
+    from latextools_utils.internal_types import FillAllHelper
     import latextools_plugin
 
     # reraise implementation from 6
