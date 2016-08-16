@@ -874,7 +874,8 @@ class LatexFillAllCommand(
         if isinstance(completion_type, strbase):
             completion_type = self.get_completion_type(completion_type)
             if completion_type is None:
-                self.complete_brackets(view, edit, insert_char)
+                if not force:
+                    self.complete_brackets(view, edit, insert_char)
                 return
         elif force:
             print('Cannot set `force` if completion type is not specified')
