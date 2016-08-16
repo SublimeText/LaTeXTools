@@ -1,0 +1,5 @@
+LaTeXTools Plugin version 3.10.9 (2016-08-16) changelog:
+
+Bugfixes:
+
+- Fix an error, which disabled the { triggered fillall helper for some commands
