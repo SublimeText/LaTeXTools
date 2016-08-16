@@ -1009,6 +1009,7 @@ class LatexFillAllCommand(
         # reset the _ completions if we are not using them
         if (
             insert_char and
+            "fancy_prefix" in locals() and
             prefix != fancy_prefix
         ):
             remove_regions = []
