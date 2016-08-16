@@ -546,11 +546,11 @@ class CiteFillAllHelper(FillAllHelper):
             NEW_STYLE_CITE_REGEX.match(line)
         )
 
+    def matches_fancy_prefix(self, line):
+        return bool(OLD_STYLE_CITE_REGEX.match(line))
+
     def is_enabled(self):
         return get_setting('cite_auto_trigger', True)
-
-    def supports_fancy_prefix(self):
-        return True
 
 
 def _is_prefix(lower_prefix, entry):

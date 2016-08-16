@@ -59,15 +59,11 @@ class FillAllHelper(LaTeXToolsPlugin):
         '''
         return False
 
+    # subclass may implement matches_fancy_prefix(self, line) to
+    # support a fancy prefix, such as \cite_prefix, etc.
+
     def is_enabled(self):
         '''
         Checks whether this plugin should be used for triggered completions
-        '''
-        return False
-
-    def supports_fancy_prefix(self):
-        '''
-        Checks whether this plugin should support a fancy prefix such as
-            \cite_prefix
         '''
         return False

@@ -712,15 +712,10 @@ class LatexFillAllEventListener(
 
         fancy_prefixed_line = None
         if remove_regions:
-            current_line = view.line(locations[0])
-            for region in remove_regions:
-                if current_line.contains(region):
-                    fancy_prefixed_line = (view.substr(
-                        getRegion(current_line.begin(), region.begin())
-                    ) + view.substr(
-                        getRegion(region.end(), locations[0])
-                    ))[::-1]
-                    break
+            if remove_regions:
+                fancy_prefixed_line = view.substr(
+                    getRegion(view.line(locations[0]).begin(), locations[0])
+                )[::-1]
 
         line = view.substr(
             getRegion(view.line(locations[0]).begin(), locations[0])
@@ -731,12 +726,16 @@ class LatexFillAllEventListener(
             ct = self.get_completion_type(name)
             if (
                 fancy_prefixed_line is not None and
-                ct.supports_fancy_prefix()
+                hasattr(ct, 'matches_fancy_prefix')
             ):
-                if ct.matches_line(fancy_prefixed_line):
+                if ct.matches_fancy_prefix(fancy_prefixed_line):
                     line = fancy_prefixed_line
                     prefix = fancy_prefix
                     completion_type = ct
+                    break
+                elif ct.matches_line(line):
+                    completion_type = ct
+                    remove_regions = []
                     break
             elif ct.matches_line(line):
                 completion_type = ct
@@ -887,32 +886,23 @@ class LatexFillAllCommand(
 
         # tracks any regions to be removed
         remove_regions = []
-        prefix = new_prefix = ''
+        prefix = ''
 
         # handle the _ prefix, if necessary
         if (
-            insert_char == "{" and (
-                not isinstance(completion_type, FillAllHelper) or
-                completion_type.supports_fancy_prefix()
-            )
+            not isinstance(completion_type, FillAllHelper) or
+            hasattr(completion_type, 'matches_fancy_prefix')
         ):
             fancy_prefix, remove_regions = self.get_common_fancy_prefix(
                 view, view.sel()
             )
 
-        # if we found a _ prefix, we need to use the modified line, so
-        # \ref_eq: -> \ref{ with a prefix of "eq:"
+        # if we found a _ prefix, we use the raw line, so \ref_eq
         fancy_prefixed_line = None
         if remove_regions:
-            current_line = view.line(point)
-            for region in remove_regions:
-                if current_line.contains(region):
-                    fancy_prefixed_line = (view.substr(
-                        getRegion(current_line.begin(), region.begin())
-                    ) + view.substr(
-                        getRegion(region.end(), point)
-                    ) + insert_char)[::-1]
-                    break
+            fancy_prefixed_line = view.substr(
+                getRegion(view.line(point).begin(), point)
+            )[::-1]
 
         # normal line calculation
         line = (view.substr(
@@ -926,11 +916,15 @@ class LatexFillAllCommand(
                     ct = self.get_completion_type(name)
                     if (
                         fancy_prefixed_line is not None and
-                        ct.supports_fancy_prefix()
+                        hasattr(ct, 'matches_fancy_prefix')
                     ):
-                        if ct.matches_line(fancy_prefixed_line):
+                        if ct.matches_fancy_prefix(fancy_prefixed_line):
                             completion_type = ct
                             prefix = fancy_prefix
+                            break
+                        elif ct.matches_line(line):
+                            completion_type = ct
+                            remove_regions = []
                             break
                     elif ct.matches_line(line):
                         completion_type = ct
@@ -948,7 +942,7 @@ class LatexFillAllCommand(
         # unknown completion type
         elif (
             completion_type is None or
-            completion_type not in self.COMPLETION_TYPES
+            not isinstance(completion_type, FillAllHelper)
         ):
             for name in self.get_completion_types():
                 ct = self.get_completion_type(name)
@@ -957,11 +951,15 @@ class LatexFillAllCommand(
 
                 if (
                     fancy_prefixed_line is not None and
-                    ct.supports_fancy_prefix()
+                    hasattr(ct, 'matches_fancy_prefix')
                 ):
-                    if ct.matches_line(fancy_prefixed_line):
+                    if ct.matches_fancy_prefix(fancy_prefixed_line):
                         completion_type = ct
                         prefix = fancy_prefix
+                        break
+                    elif ct.matches_line(line):
+                        completion_type = ct
+                        remove_regions = []
                         break
                 elif ct.matches_line(line):
                     completion_type = ct
@@ -979,23 +977,22 @@ class LatexFillAllCommand(
 
                 self.complete_brackets(view, edit, insert_char)
                 return
-        # assume a string: only a single completion type to use
+        # assume only a single completion type to use
         else:
             # if force is set, we do no matching
             if not force:
                 if (
                     fancy_prefixed_line is not None and
-                    ct.supports_fancy_prefix()
+                    hasattr(completion_type, 'matches_fancy_prefix')
                 ):
-                    if ct.matches_line(fancy_prefixed_line):
+                    if completion_type.matches_fancy_prefix(
+                        fancy_prefixed_line
+                    ):
                         prefix = fancy_prefix
-                    else:
-                        self.remove_regions(view, edit, remove_regions)
-                        self.complete_brackets(view, edit, insert_char)
-                        return
-                elif ct.matches_line(line):
-                    self.complete_brackets(view, edit, insert_char)
-                    return
+                    elif completion_type.matches_line(line):
+                        remove_regions = []
+                elif completion_type.matches_line(line):
+                    remove_regions = []
 
         # we only check if the completion type is enabled if we're also
         # inserting a comma or bracket; otherwise, it must've been a keypress
@@ -1010,7 +1007,10 @@ class LatexFillAllCommand(
             prefix = self.get_common_prefix(view, view.sel())
 
         # reset the _ completions if we are not using them
-        if insert_char and not completion_type.supports_fancy_prefix():
+        if (
+            insert_char and
+            prefix != fancy_prefix
+        ):
             remove_regions = []
             prefix = ''
 
@@ -1043,6 +1043,7 @@ class LatexFillAllCommand(
             # current text
             if force:
                 view.insert(edit, completions[0])
+                return
             else:
                 if completions[0] == prefix:
                     return
