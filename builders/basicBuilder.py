@@ -75,6 +75,7 @@ class BasicBuilder(PdfBuilder):
         if self.aux_directory is not None:
             self.make_directory(self.aux_directory)
 
+            biber.append(u'--output-directory=' + self.aux_directory)
             if self.aux_directory == self.output_directory:
                 latex.append(u'--output-directory=' + self.aux_directory)
             else:
