@@ -1,6 +1,7 @@
 import os
 import re
 import itertools
+import traceback
 
 import sublime
 
@@ -309,6 +310,8 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
     try:
         raw_content, content = _preprocess_file(file_name)
     except:
+        print('Error occurred while preprocessing {0}'.format(file_name))
+        traceback.print_exc()
         return ana
 
     ana._content[file_name] = content
