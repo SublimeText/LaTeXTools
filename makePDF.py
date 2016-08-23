@@ -290,7 +290,7 @@ class CmdThread ( threading.Thread ):
 				)
 				content = [""]
 				if errors:
-					content.append("Errors:") 
+					content.append("Errors:")
 					content.append("")
 					content.extend(errors)
 				else:
@@ -299,13 +299,15 @@ class CmdThread ( threading.Thread ):
 					if errors:
 						content.extend(["", "Warnings:"])
 					else:
-						content[-1] = content[-1] + " Warnings:" 
+						content[-1] = content[-1] + " Warnings:"
 					content.append("")
 					content.extend(warnings)
 				else:
 					if errors:
 						content.append("")
-					content.append("No warnings.")
+						content.append("No warnings.")
+					else:
+						content[-1] = content[-1] + " No warnings."
 
 				if badboxes and self.caller.display_bad_boxes:
 					if warnings or errors:
@@ -318,7 +320,9 @@ class CmdThread ( threading.Thread ):
 					if self.caller.display_bad_boxes:
 						if errors or warnings:
 							content.append("")
-						content.append("No bad boxes.")
+							content.append("No bad boxes.")
+						else:
+							content[-1] = content[-1] + " No bad boxes."
 
 				hide_panel = {
 					"always": True,
