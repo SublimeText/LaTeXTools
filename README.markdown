@@ -10,14 +10,14 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* v3.9.1 (2016-07-16).
+*Latest revision:* v3.10.9 (2016-08-16).
 
 *Headline features*:
 
- * Jump to Anywhere - IDE-like navigation by mouse and keyboard
- * New toggle quick panel that displays toggles and allows them to be changed
- * Highlighting of errors, warnings and bad boxes in the console
- * New toggable option to control whether or not the PDF is opened at the end of compilation
+* Better curly-brace completion algorithm
+* Support for more ref commands
+* CWL files can now be used based on loaded packages
+* Support for input completions following symlinks
 
 ## Introduction
 
@@ -220,13 +220,13 @@ You can pass command-line options to your engine in two ways (thanks Ian Bacher!
 The `--output-directory` and `--aux-directory` flags can be set in several ways:
  * Using a TEX directive, such as `%!TEX output_directory = <path>` near the top of the file.
  * Using the [TeX Options](#tex-options) feature to set `--output-directory` and / or `--aux-directory`.
- * Using the corresponding `output_directory` and `aux_directory` settings detailed in [the settings section](#settings).
+ * Using the corresponding `output_directory` and `aux_directory` settings detailed in [the settings section](#output-and-auxiliary-directory-settings).
 
-There are three special values that can be used, `<<temp>>` `<<project>>` and `<<cache>>`. Their meaning is the same as that found in the [settings section](#settings) and they are described there.
+There are three special values that can be used, `<<temp>>` `<<project>>` and `<<cache>>`. Their meaning is the same as that found in the [settings section](#output-and-auxiliary-directory-settings) and they are described there.
 
-**Note**: the `--aux-directory` flag is only meaningful when used with MiKTeX, but see the `copy_on_build` setting for an option to get some similar behaviour with TeXLive. 
+**Note**: the `--aux-directory` flag is only implemented by MiKTeX, so the corresponding settings will only be valid if you are using MiKTeX, as indicated by your `distro` setting. To get similar behavior on TeXLive / MacTeX, you can use the `copy_output_on_build` setting described in the [settings section](#output-and-auxiliary-directory-settings) with any of the `output_directory` settings. This will run `pdflatex` / `xelatex` / `lualatex` with the `--output-directory` flag and then copy the resulting PDF to the same directory as your main TeX document.
 
-**Note**: These flags can only be set when using latexmk (default on OS X and Linux), the `basic` builder or the `script` builder (see below [for documentation on using the script builder](#script-builder)). If you are using texify (default when using MiKTeX) or the simple builder, setting these flags through any method will be ignored.
+**Note**: These flags can only be set when using `latexmk` (i.e., the `traditional` builder on OS X and Linux), the `basic` builder or the `script` builder (see below [for documentation on using the script builder](#script-builder)). If you are using `texify` (i.e. the `traditional` builder on MiKTeX) or the simple builder, the `output_directory` and `aux_directory` settings will be ignored.
 
 #### Jobname
 The `--jobname` flag can be set in several ways:
@@ -234,7 +234,7 @@ The `--jobname` flag can be set in several ways:
  * Using the [TeX Options](#tex-options) feature to set `--jobname`
  * Using the corresponding `jobname` setting detailed in [the settings section](#settings).
 
-**Note**: Jobname can only be set when using latexmk (default on OS X and Linux), the `basic` builder or the `script` builder (see below [for documentation on using the script builder](#script-builder)). If you are using texify (default when using MiKTeX) or the simple builder, setting the jobname flag through any method will be ignored.
+**Note**: Jobname can only be set when using `latexmk` (i.e., the `traditional` builder on OS X and Linux), the `basic` builder or the `script` builder (see below [for documentation on using the script builder](#script-builder)). If you are using `texify` (i.e. the `traditional` builder on MiKTeX) or the simple builder, the `jobname` setting wil be ignored.
 
 #### Customizing the compilation command
 It is possible to customize the command run by setting the `command` option under Builder Settings. See the section on [Builder Settings](#builder-settings) for details.
@@ -339,7 +339,7 @@ For support of forward and inverse search in other viewers, see the viewer secti
 
 ### References and Citations
 
-**Keybinding:** *autotriggered* by default (see below). Otherwise, `C-l,x` for 'cross-reference,' or `C-l,C-f` (via the Fill Helper facility: see below). These are fully equivalent ways of invoking ref/cite completions.
+**Keybinding:** *autotriggered* by default (see below). Otherwise, `C-l,x` for 'cross-reference,' `C-l,C-f`, or `C-l,C-alt-f` (via the Fill Helper facility: see below). These are fully equivalent ways of invoking ref/cite completions.
 
 The basic idea is to help you insert labels in `\ref{}` commands and bibtex keys in `\cite{}` commands. The appropriate key combination shows a list of available labels or keys, and you can easily select the appropriate one. Full filtering facilities are provided. 
 
@@ -371,29 +371,35 @@ LaTeXTools now also looks `\addbibresource{}` commands, which provides basic com
 
 **For now**, completions are also injected into the standard ST autocompletion system. Thus, if you hit `Ctrl-space` immediately after typing, e.g., `\ref{}`, you get a drop-down menu at the current cursor position (not a quick-panel) showing all labels in your document. However, the width of this menu is OK for (most) labels, but not really for paper titles. In other words, it is workable for references, but not really for citations. Furthermore, there are other limitations dictated by the ST autocompletion system. So, this is **deprecated**, and I encourage you to use auto-trigger mode or the `C-l,x` or `C-l,C-f` keybindings instead.
 
+### Forcing Citations and References
+
+**Keybinding**: `C-l,alt-x,c` (citations) or `C-l,alt-x,r` (refs)
+
+In some cases, it may be desirable to forcibly insert a citation key or label, i.e., if LaTeXTools does not automatically understand the command you are using. In such circumstances, you can use these keybindings to forcibly insert either a citation or reference at the cursor position. Note that the current word won't be overridden and any open brackets will not be completed if either of these options are used.
+
 ### Toggle auto trigger mode on/off
 
-**Keybinding:** `C-l,t,a,r` for references; `C-l,t,a,c` for citations
+**Keybinding:** `C-l,t,a,r` for references; `C-l,t,a,c` for citations; `C-l,t,a,f` for input files; `C-l,t,a,e` for environments; `C-l,t,a,b` for smart brackets
 
 These toggles work just like the sync and focus toggles above. Indeed, `C-l,t,?` will now also display the status of the auto trigger toggles. Check the status bar for feedback (i.e. to see what the current state of the toggle is), but remember the message stays on for only a few seconds. `C-l,t,?` is your friend.
 
-
 ### Fill Helper: filling in package and file names automatically
 
-**Keybinding:** *autotriggered* by default (see below). Otherwise, `C-l,C-f`.
+**Keybinding:** *autotriggered* by default (see below). Otherwise, `C-l,C-f` or `C-l,C-alt-f` (see below).
 
 Thanks to the amazing work by users btstream and Ian Bacher, LaTeXTools now offers a list of available files and packages when using commands such as `\usepackage`, `\include`, `\includegraphics`, `\includesvg` and `\input`. Assuming autocompletion is toggled on (the default):
 
-* when you type `\usepackage{`, a list of available package is displayed in the ST drop-down menu. Pick the one you need, and it will be inserted in your file, with a closing brace.
+ * when you type `\usepackage{`, a list of available package is displayed in the ST drop-down menu. Pick the one you need, and it will be inserted in your file, with a closing brace.
 
-* when you type any of the file-related input commands, a list of files in the current directory is displayed (suitably filtered, so graphics files are displayed for `\includegraphics`).
+ * when you type any of the file-related input commands, a list of files in the current directory is displayed (suitably filtered, so graphics files are displayed for `\includegraphics`).
 
-To toggle autocompletion on or off, use the `fill_auto_trigger` setting, or the `c-l,t,a,f` toggle.
+To toggle autocompletion on or off, use the `fill_auto_trigger` setting, or the `C-l,t,a,f` toggle.
 
-In order for package autocomplete to work, you need to create a cache first. You can do it using the Command Palette: select `LaTeXtools: Build cache for LaTeX packages`.
+In order for package autocomplete to work, you need to create a cache first. You can do it using the Command Palette: select `LaTeXTools: Build cache for LaTeX packages`.
 
 The `C-l,C-f` keyboard shortcut also works for `\ref` and `\cite` completion. Basically, wherever you can use `C-l,x`, you can also use `C-l,C-f`. 
 
+The `C-l,C-alt-f` keyboard shortcut is identical to the `C-l,C-f` shortcut, except that it ensures that the current word that the cursor is within is replaced. This is useful for, e.g., switching one citation for another or one label for another.
 
 ### Jumping to sections and labels
 
@@ -403,11 +409,13 @@ The LaTeXtools plugin integrates with the awesome ST "Goto Anything" facility. H
 
 Selecting any entry in the list will take you to the corresponding place in the text.
 
-
 ### Jump to Anywhere
 
 **Keybinding:** `C-l, C-j` or `C-l, C-o` (see [below](#jumping-to-included-files))
-**Mousebinding:** `alt-leftclick` (Windows) / `super-leftclick` Linux) / `ctrl-leftclick` (OSX)
+
+**Mousebinding:** `ctrl-alt-leftclick` (Windows) / `super-leftclick` Linux) / `ctrl-super-leftclick` (OSX)
+
+**Mousebinding (With SublimeCodeIntel):** `alt-leftclick` (Windows) / `super-leftclick` Linux) / `ctrl-leftclick` (OSX)
 
 This is an IDE-like mouse navigation, which executes a jump depending on the context around the cursor. It is easy to use and intuitive. Just click with the mouse on a command while pressing the modifier key. The corresponding jump will be executed. Supported jump types are:
 
@@ -415,13 +423,14 @@ This is an IDE-like mouse navigation, which executes a jump depending on the con
 - Show and jump to label usages (e.g. `\label`)
 - Jump to citation entries in bibliography files (e.g. `\cite`)
 - Open included files (e.g. `\input` or `\include`)
+- Open root file from `%!TEX root =...` magic comment
 - Open bibliographies (e.g. `\bibliography` or `\addbibresource`)
 - Open included graphics with a specified program (e.g. `\includegraphics`)
 - Open the documentation of used packages (e.g. `\usepackage`)
 - Jump to self-defined command definition, i.e. jump to the `\newcommand` in which the command was defined
 
 #### SublimeCodeIntel Integration
-If you use [SublimeCodeIntel](https://github.com/SublimeCodeIntel/SublimeCodeIntel) you recognize the mouse-binding and it does not work out of the box. Just open the command palette and run the command `LaTeXTools: Create Mousemap in User folder`. This will create a mouse-map in the user folder or modify the existing one to add the mouse-binding. This mouse-binding has a `fallback_command` command as argument. This command will be executed if the command in called outside a LaTeX document.
+If you use [SublimeCodeIntel](https://github.com/SublimeCodeIntel/SublimeCodeIntel) you recognize the alternative mouse-bindings and it does not work out of the box. Just open the command palette and run the command `LaTeXTools: Create Mousemap in User folder`. This will create a mouse-map in the user folder or modify the existing one to add the mouse-binding with the same modifiers as SublimeCodeIntel. This mouse-binding has a `fallback_command` command as argument. This command will be executed if the command in called outside a LaTeX document.
 
 #### Jumping to included files
 To open a file included using, e.g., `\input` or `\include` or a bibliography, simply click while holding down the modifier key or press `C-l, C-j`. Sublime will open the included file.
@@ -457,7 +466,6 @@ and the cursor is placed inside the environment thus created. Again, Tab exits t
 
 Note that all these commands are undoable: thus, if e.g. you accidentally hit `C-l,c` but you really meant `C-l,e`, a quick `C-z`, followed by `C-l,e`, will fix things.
 
-
 ### Wrapping existing text in commands and environments
 
 **Keybindings:** `C-l,C-c`, `C-l, C-n`, etc.
@@ -478,6 +486,13 @@ These commands also work if there is no selection. In this case, they try to do 
 
 You can also *change the current environment* using the `C-l,C-Shift-n` shortcut. Note well how this works. First, the cursor must be inside the environment you are interested in. Second, the command selects the environment name in the `\begin{env}` command and also in the `\end{env}` command (using ST's multiple-selection support). This way you can rename the environment as needed. *Remember to exit multiple-selection mode* when you are done by pressing the `ESC` key.
 
+### Word Count
+
+**Keybinding:** `C-l,w`
+
+This uses [TeXcount](http://ctan.org/pkg/texcount) to generate a word count for the current document which is displayed in a quick panel. If you don't have the `TeXcount`, you will simply get an error message. Word counts in LaTeX documents can be quite finicky, and its worth reviewing the TeXcount documentation to ensure your document is setup to generate as accurate a word-count as possible. The counts returned are those reported by: `texcount -total -merge <main_file.tex>`.
+
+The `word_count_sub_level` setting can be tweaked to display subcounts by chapter, section, etc. See the [Settings](#settings) below.
 
 ## Completions
 
@@ -489,11 +504,14 @@ In addition, the LaTeXTools plugin provides useful completions for both regular 
 
 ### LaTeX-cwl support
 
-LaTeXTools supports the `LaTeX-cwl` autocompletion package. If the package is installed, support is automatically enabled. By default, as soon as one types, e.g., `\te`, a popup is shown displaying possible completions, including e.g. `\textit` and the like.
+LaTeXTools provides support for the `LaTeX-cwl` autocompletion word lists. If the package is installed, support is automatically enabled. In addition, support will be enabled if any custom cwl files are installed in the `Packages/User/cwl` directory.
 
-The following settings are provided:
+By default, as soon as one starts typing a command, e.g., `\te`, a popup is shown displaying possible completions, e.g. including `\textit` and the like.
 
-* `cwl_list`: a list of paths to the `cwl` files
+The following settings are provided to control LaTeXTools cwl behavior.
+
+* `cwl_list`: a list of `cwl` files to load
+* `cwl_autoload`: controls loading completions based on packages in the current document *in addition* to those specified in the `cwl_list`. Defaults to `true`, so you only need to set this if you want to *disable* this behavior.
 * `command_completion`: when to show that cwl completion popup. The possible values are:
 	* `prefixed` (default): show completions only if the current word is prefixed with a `\`
 	* `always`: always show cwl completions
@@ -521,23 +539,19 @@ The following options are currently available (defaults in parentheses):
 - `cite_auto_trigger` (`true`): if `true`, typing e.g. `\cite{` brings up the citation completion quick panel, without the need to type `C-l,x`. If `false`, you must explicitly type `C-l,x`.
 - `ref_auto_trigger` (`true`): ditto, but for `\ref{` and similar reference commands
 - `fill_auto_trigger` (`true`): ditto, but for package and file inclusion commands (see Fill Helper feature above)
+- `env_auto_trigger` (`true`): ditto, but for environment completions
+- `cwl_autoload` (`true`): whether to load cwl completions based on packages (see the LaTeX-cwl feature) 
 - `cwl_completion` (`prefixed`): when to activate the cwl completion poput (see LaTeX-cwl feature above)
-- `cwl_list` (empty): list of paths to cwl files
+- `cwl_list` (`["latex-document.cwl", "tex.cwl", "latex-dev", "latex-209.cwl", "latex-l2tabu.cwl", "latex-mathsymbols.cwl"]`): list of cwl files to load
 - `keep_focus` (`true`): if `true`, after compiling a tex file, ST retains the focus; if `false`, the PDF viewer gets the focus. Also note that you can *temporarily* toggle this behavior with `C-l,t,f`. **Note**: If you are on either Windows or Linux you may need to adjust the `sublime_executable` setting for this to work properly. See the **Platform settings** below. This can also be overridden via a key-binding by passing a `keep_focus` argument to `jump_to_pdf`.
 - `forward_sync` (`true`): if `true`, after compiling a tex file, the PDF viewer is asked to sync to the position corresponding to the current cursor location in ST. You can also *temporarily* toggle this behavior with `C-l,t,s`. This can also be overridden via a key-binding by passing a `forward_sync` argument to `jump_to_pdf`.
-- `aux_directory` (`""`): specifies the auxiliary directory to store any auxiliary files generated during a LaTeX build. Note that the auxiliary directory option is only useful if you are using MiKTeX. Path can be specified using either an absolute path or a relative path. If `aux_directory` is set from the project file, a relative path will be interpreted as relative to the project file. If it is set in the settings file, it will be interpreted relative to the main tex file. In addition, the following special values are honored:
-  * `<<temp>>`: uses a temporary directory in the system temp directory instead of a specified path; this directory will be unique to each main file, but does not persist across restarts.
-  * `<<cache>>`: uses the ST cache directory (or a suitable directory on ST2) to store the output files; unlike the `<<temp>>` option, this directory can persist across restarts.
-  * `<<project>>`: uses a sub-directory in the same folder as the main tex file with what should be a unique name; note, this is probably not all that useful and you're better off using one of the other two options or a named relative path
-- `output_directory` (`""`): specifies the output directory to store any file generated during a LaTeX build. Path can be specified using either an absolute path or a relative path. If `output_directory` is set from the project file, a relative path will be interpreted as relative to the project file. If it is set in the settings file, it will be interpreted relative to the main tex file. In addition, output_directory honors the same special values as `auxiliary_directory`.
-- `jobname` (`""`): specifies the jobname to use for the build, corresponding to the pdflatex `--jobname` argument.
-- `copy_output_on_build` (`true`): if `true` and you are using an `output_directory`, either set via the setting or the `%!TEX` directive, this instructs LaTeXTools to copy to resulting pdf to the same folder as the main tex file. If you are not using `output_directory` or it is set to `false`, it does nothing. If it is a list of extensions, it will copy each file with the same name as your main tex file and the given extension to the same folder as your main tex file. This is useful for copying, e.g., .synctex.gz or .log files.
 - `temp_files_exts`: list of file extensions to be considered temporary, and hence deleted using the `C-l, backspace` command.
 - `temp_files_ignored_folders`: subdirectories to skip when deleting temp files.
 * `tex_file_exts` (`['.tex']`): a list of extensions that should be considered TeX documents. Any extensions in this list will be treated exactly the same as `.tex` files. See the section on [Support for non-`.tex` files](#support-for-non-tex-files).
 * `latextools_set_syntax` (`true`): if `true` LaTeXTools will automatically set the syntax to `LaTeX` when opening or saving any file with an extension in the `tex_file_exts` list.
 * `use_biblatex`: (`false`): if `true` LaTeXTools will use BibLaTeX defaults for editing `.bib` files. If `false`, LaTeXTools will use BibTeX defaults. See the section on [Support for Editing Bibliographies](#support-for-editing-bibliographies) for details.
 * `tex_spellcheck_paths` (`{}`): A mapping from the locales to the paths of the dictionaries. See the section [Spell-checking](#spell-checking).
+* `word_count_sub_level` (`"none"`): controls the level at which subcounts of words can be generated. Valid values are: `"none"`, `"part"`, `"chapter"`, and `"section"`.
 
 ### Platform-Specific Settings
 
@@ -561,12 +575,20 @@ This section refers to setting that can be found in a platform-specific block fo
   * `sublime_executable`: this is used if `keep_focus` is set to true and the path to your sublime_text executable cannot be discovered automatically. It should point to the full path to your executable `sublime_text`.
   * `keep_focus_delay`: this is used if `keep_focus` is set to true. It controls how long (in seconds) the delay is between the completion of the `jump_to_pdf` command and the attempt to refocus on Sublime Text. This may need to be adjusted depending on your machine or configuration.
 
+### Output and Auxiliary Directory settings
+- `aux_directory` (`""`): specifies the auxiliary directory to store any auxiliary files generated during a LaTeX build. Note that the auxiliary directory option is only useful if you are using MiKTeX. Path can be specified using either an absolute path or a relative path. If `aux_directory` is set from the project file, a relative path will be interpreted as relative to the project file. If it is set in the settings file, it will be interpreted relative to the main tex file. In addition, the following special values are honored:
+  * `<<temp>>`: uses a temporary directory in the system temp directory instead of a specified path; this directory will be unique to each main file, but does not persist across restarts.
+  * `<<cache>>`: uses the ST cache directory (or a suitable directory on ST2) to store the output files; unlike the `<<temp>>` option, this directory can persist across restarts.
+  * `<<project>>`: uses a sub-directory in the same folder as the main tex file with what should be a unique name; note, this is probably not all that useful and you're better off using one of the other two options or a named relative path
+- `output_directory` (`""`): specifies the output directory to store any file generated during a LaTeX build. Path can be specified using either an absolute path or a relative path. If `output_directory` is set from the project file, a relative path will be interpreted as relative to the project file. If it is set in the settings file, it will be interpreted relative to the main tex file. In addition, output_directory honors the same special values as `auxiliary_directory`.
+- `jobname` (`""`): specifies the jobname to use for the build, corresponding to the pdflatex `--jobname` argument.
+- `copy_output_on_build` (`true`): if `true` and you are using an `output_directory`, either set via the setting or the `%!TEX` directive, this instructs LaTeXTools to copy to resulting pdf to the same folder as the main tex file. If you are not using `output_directory` or it is set to `false`, it does nothing. If it is a list of extensions, it will copy each file with the same name as your main tex file and the given extension to the same folder as your main tex file. This is useful for copying, e.g., .synctex.gz or .log files.
+
 ### Builder Settings
 
 NOTE: for the time being, you will need to refer to the `LaTeXTools.sublime-settings` file for detailed explanations. Also, since the new build system is meant to be fully customizable, if you use a third-party builder (which hopefully will become available!), you need to refer to its documentation.
 - `builder`: the builder you want to use. Leave blank (`""`) or set to `"default"` or `"traditional"` for the traditional (`latexmk`/`texify`) behavior. Set to `"basic"` for the basic builder that supports output and auxiliary directories on MiKTeX.
 - `builder_path`: builders can reside anywhere Sublime Text can access. Specify a path *relative to the Sublime text Packages directory*. In particular, `User` is a good choice. If you use a third-party builder, specify the builder-provided directory.
-- `display_bad_boxes` (`false`): if `true` LaTeXTools will display any bad boxes encountered after a build. Note that this is disabled by default.
 - `builder-settings`: these are builder-specific settings. For the `default`/`traditional` builder, the following settings are useful:
 	* `program` (unset): one of `pdflatex` (the default), `xelatex` or `lualatex`. This selects the TeX engine.
 	* `command` (unset): the precise `latexmk` or `texify` command to be invoked. This  must be a list of strings. The defaults (hardcoded, not shown in the settings file) are:
@@ -575,6 +597,17 @@ NOTE: for the time being, you will need to refer to the `LaTeXTools.sublime-sett
 	* `options` (unset): allows you to specify a TeX option, such as `--shell-escape`. This must be a tuple: that is, use `options: ["--shell-escape"]`
 	* `env` (unset): a dictionary of key-values corresponding to environment variables that should be set for the environment the build is run in. Note that `env`, if it is set, must be set at the platform-specific level, e.g., under the `osx`, `windows`, or `linux` keys. This is useful for setting, e.g., `TEXINPUTS`.
 	* In addition, there can be platform-specific settings. An important one for Windows is `distro`, which must be set to either `miktex` or `texlive`.
+
+### Build Panel Settings
+- `highlight_build_panel` (`true`): if `true` the build panel will have a syntax applied to highlight any errors and warnings. Otherwise, the standard output panel configuration will be used.
+- `hide_build_panel` (`"never"`): controls whether or not to hide the build panel after a build is finished. Possible values:
+	* `"always"` - hide the panel even if the build failed
+	* `"no_errors"` - only hide the panel if the build was successful even with warnings
+	* `"no_warnings"` - only hide the panel if no warnings occur
+	* `"no_badboxes"` - only hide the panel if no warnings or badbox messages occur; this only differs from `no_warnings` if `display_bad_boxes` is set to `true`.
+	* `"never"` - never hide the build panel
+Any other value will be interpretted as the default.
+- `display_bad_boxes` (`false`): if `true` LaTeXTools will display any bad boxes encountered after a build. Note that this is disabled by default.
 
 ### Viewer settings
 

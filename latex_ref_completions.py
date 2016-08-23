@@ -5,43 +5,49 @@ if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
     _ST3 = False
     import getTeXRoot
+    from latex_fill_all import FillAllHelper
     from latextools_utils.is_tex_file import is_tex_file, get_tex_extensions
     from latextools_utils import get_setting
 else:
     _ST3 = True
     from . import getTeXRoot
+    from .latex_fill_all import FillAllHelper
     from .latextools_utils.is_tex_file import is_tex_file, get_tex_extensions
     from .latextools_utils import get_setting
 
-import sublime_plugin
-import os, os.path
+import os
 import re
 import codecs
 
-
-class UnrecognizedRefFormatError(Exception): pass
-
 _ref_special_commands = "|".join([
-    "", "eq", "page", "v", "V", "auto", "name", "c", "C", "cpage", "sub"
+    "", "eq", "page", "v", "V", "auto", "autopage", "name",
+    "c", "C", "cpage", "Cpage", "namec", "nameC", "lcnamec", "labelc",
+    "labelcpage", "sub", "f", "F", "v", "vpage", "V"
 ])[::-1]
 
 OLD_STYLE_REF_REGEX = re.compile(
-    r"([^_]*_)?(p)?(?:(?:\*(?=ferbus))?fer(" +
+    r"([^_]*_)?(?:\*?s?fer(" +
     _ref_special_commands +
-    r")?)(?:\\|\b)"
+    r")?)\\"
 )
+
 NEW_STYLE_REF_REGEX = re.compile(
-    r"([^{}]*)\{(?:(?:\*(?=ferbus))?fer(" +
+    r"([^}]*)\{(?:\*?s?fer(" +
     _ref_special_commands +
-    r")?|)\\(\()?")
+    r")?)\\"
+)
 
+NEW_STYLE_REF_RANGE_REGEX = re.compile(
+    r"([^}]*)\{(?:\}[^\}]*\{)?\*?egnarfer(egapv|v|egapc|C|c)\\"
+)
 
-def match(rex, str):
-    m = rex.match(str)
-    if m:
-        return m.group(0)
-    else:
-        return None
+NEW_STYLE_REF_MULTIVALUE_REGEX = re.compile(
+    r"([^},]*)(?:,[^},]*)*\{fer(c|C|egapc|egapC)\\"
+)
+
+AUTOCOMPLETE_EXCLUDE_RX = re.compile(
+    r"fer(?:" + _ref_special_commands + r")?\\?"
+)
 
 
 # recursively search all linked tex files to find all
@@ -105,84 +111,7 @@ def find_labels_in_files(rootdir, src, labels):
 
 # get_ref_completions forms the guts of the parsing shared by both the
 # autocomplete plugin and the quick panel command
-def get_ref_completions(view, point, autocompleting=False):
-    # Get contents of line from start up to point
-    line = view.substr(sublime.Region(view.line(point).a, point))
-    # print line
-
-    # Reverse, to simulate having the regex
-    # match backwards (cool trick jps btw!)
-    line = line[::-1]
-    #print line
-
-    # Check the first location looks like a ref, but backward
-    rex = OLD_STYLE_REF_REGEX
-    expr = match(rex, line)
-    # print expr
-
-    if expr:
-        # Do not match on plain "ref" when autocompleting,
-        # in case the user is typing something else
-        if autocompleting and re.match(r"p?fer(?:" + _ref_special_commands + r")?\\?", expr):
-            raise UnrecognizedRefFormatError()
-        # Return the matched bits, for mangling
-        prefix, has_p, special_command = rex.match(expr).groups()
-        preformatted = False
-        if prefix:
-            prefix = prefix[::-1]   # reverse
-            prefix = prefix[1:]     # chop off "_"
-        else:
-            prefix = ""
-        #print prefix, has_p, special_command
-
-    else:
-        # Check to see if the location matches a preformatted "\ref{blah"
-        rex = NEW_STYLE_REF_REGEX
-        expr = match(rex, line)
-
-        if not expr:
-            raise UnrecognizedRefFormatError()
-
-        preformatted = True
-        # Return the matched bits (barely needed, in this case)
-        prefix, special_command, has_p = rex.match(expr).groups()
-        if prefix:
-            prefix = prefix[::-1]   # reverse
-        else:
-            prefix = ""
-        #print prefix, has_p, special_command
-
-    pre_snippet = "\\" + special_command[::-1] + "ref{"
-    post_snippet = "}"
-
-    # If we captured a parenthesis, we need to put it back in
-    # However, if the user had paren automatching, we don't want to add
-    # another one. So by default we don't, unless the user tells us to
-    # in the settings.
-    # (HACKISH: I don't actually remember why we matched the initial paren!)
-    if has_p:
-        pre_snippet = "(" + pre_snippet
-        add_paren = get_setting("ref_add_parenthesis", False)
-        if add_paren:
-            post_snippet = post_snippet + ")"
-
-    if not preformatted:
-        # Replace ref_blah with \ref{blah
-        # The "latex_tools_replace" command is defined in latex_ref_cite_completions.py
-        view.run_command("latex_tools_replace", {"a": point-len(expr), "b": point, "replacement": pre_snippet + prefix})
-        # save prefix begin and endpoints points
-        new_point_a = point - len(expr) + len(pre_snippet)
-        new_point_b = new_point_a + len(prefix)
-#        view.end_edit(ed)
-
-    else:
-        # Don't include post_snippet if it's already present
-        suffix = view.substr(sublime.Region(point, point + len(post_snippet)))
-        new_point_a = point - len(prefix)
-        new_point_b = point
-        if post_snippet == suffix:
-            post_snippet = ""
-
+def get_ref_completions(view):
     completions = []
     # Check the file buffer first:
     #    1) in case there are unsaved changes
@@ -191,18 +120,18 @@ def get_ref_completions(view, point, autocompleting=False):
 
     root = getTeXRoot.get_tex_root(view)
     if root:
-        print ("TEX root: " + repr(root))
+        print("TEX root: " + repr(root))
         find_labels_in_files(os.path.dirname(root), root, completions)
 
     # remove duplicates
     completions = list(set(completions))
 
-    return completions, prefix, post_snippet, new_point_a, new_point_b
+    return completions
 
 
 # Based on html_completions.py
 #
-# It expands references; activated by 
+# It expands references; activated by
 # ref<tab>
 # refp<tab> [this adds parentheses around the ref]
 # eqref<tab> [obvious]
@@ -211,99 +140,63 @@ def get_ref_completions(view, point, autocompleting=False):
 #
 # ref_sec
 #
-# to select all labels starting with "sec". 
+# to select all labels starting with "sec".
 #
 # There is only one problem: if you have a label "sec:intro", for instance,
 # doing "ref_sec:" will find it correctly, but when you insert it, this will be done
 # right after the ":", so the "ref_sec:" won't go away. The problem is that ":" is a
 # word boundary. Then again, TextMate has similar limitations :-)
 
-class LatexRefCompletions(sublime_plugin.EventListener):
+# called by LatexFillAllCommand
+class RefFillAllHelper(FillAllHelper):
 
-    def on_query_completions(self, view, prefix, locations):
-        # Only trigger within LaTeX
-        if view.score_selector(locations[0], "text.tex.latex") == 0:
+    def get_auto_completions(self, view, prefix, line):
+        # Reverse, to simulate having the regex
+        # match backwards (cool trick jps btw!)
+        line = line[::-1]
+
+        # Check the first location looks like a ref, but backward
+        old_style = OLD_STYLE_REF_REGEX.match(line)
+
+        # Do not match on plain "ref" when autocompleting,
+        # in case the user is typing something else
+        if old_style and not prefix:
             return []
 
-        point = locations[0]
+        completions = get_ref_completions(view)
 
-        try:
-            completions, prefix, post_snippet, new_point_a, new_point_b = get_ref_completions(view, point, autocompleting=True)
-        except UnrecognizedRefFormatError:
-            return []
+        if prefix:
+            lower_prefix = prefix.lower()
+            completions = [c for c in completions if lower_prefix in c.lower()]
 
-        # r = [(label + "\t\\ref{}", label + post_snippet) for label in completions]
-        r = [(label, label + post_snippet) for label in completions]
-        #print r
-        return (r, sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS)
-
-
-### Ref completions using the quick panel
-
-class LatexRefCommand(sublime_plugin.TextCommand):
-
-    # Remember that this gets passed an edit object
-    def run(self, edit):
-        # get view and location of first selection, which we expect to be just the cursor position
-        view = self.view
-        point = view.sel()[0].b
-        print(point)
-        # Only trigger within LaTeX
-        # Note using score_selector rather than match_selector
-        if not view.score_selector(point,
-                "text.tex.latex"):
-            return
-
-        try:
-            completions, prefix, post_snippet, new_point_a, new_point_b = get_ref_completions(view, point)
-        except UnrecognizedRefFormatError:
-            sublime.error_message("Not a recognized format for reference completion")
-            return
-
-        # filter! Note matching is "less fuzzy" than ST2. Room for improvement...
-        completions = [c for c in completions if prefix in c]
-
-        # Note we now generate refs on the fly. Less copying of vectors! Win!
-        def on_done(i):
-            print("latex_ref_completion called with index %d" % (i,))
-
-            # Allow user to cancel
-            if i < 0:
-                return
-
-            ref = completions[i] + post_snippet
-
-            # Replace ref expression with reference and possibly post_snippet
-            # The "latex_tools_replace" command is defined in
-            # latex_ref_cite_completions.py
-            view.run_command(
-                "latex_tools_replace",
-                {
-                    "a": new_point_a,
-                    "b": new_point_b,
-                    "replacement": ref
-                }
-            )
-            # Unselect the replaced region and leave the caret at the end
-            caret = view.sel()[0].b
-            view.sel().subtract(view.sel()[0])
-            view.sel().add(sublime.Region(caret, caret))
-
-        completions_length = len(completions)
-        if completions_length == 0:
-            sublime.error_message("No label matches %s !" % (prefix,))
-        elif completions_length == 1:
-            view.run_command(
-                "latex_tools_replace",
-                {
-                    "a": new_point_a,
-                    "b": new_point_b,
-                    "replacement": completions[0] + post_snippet
-                }
-            )
-            # Unselect the replaced region and leave the caret at the end
-            caret = view.sel()[0].b
-            view.sel().subtract(view.sel()[0])
-            view.sel().add(sublime.Region(caret, caret))
+        if old_style:
+            return completions, '{'
         else:
-            view.window().show_quick_panel(completions, on_done)
+            return completions
+
+    def get_completions(self, view, prefix, line):
+        completions = get_ref_completions(view)
+
+        if prefix:
+            lower_prefix = prefix.lower()
+            completions = [c for c in completions if lower_prefix in c.lower()]
+
+        return completions
+
+    def matches_line(self, line):
+        return bool(
+            (
+                not line.startswith(',') or
+                NEW_STYLE_REF_MULTIVALUE_REGEX.match(line)
+            ) and (
+                OLD_STYLE_REF_REGEX.match(line) or
+                NEW_STYLE_REF_REGEX.match(line) or
+                NEW_STYLE_REF_RANGE_REGEX.match(line)
+            )
+        )
+
+    def matches_fancy_prefix(self, line):
+        return bool(OLD_STYLE_REF_REGEX.match(line))
+
+    def is_enabled(self):
+        return get_setting('ref_auto_trigger', True)

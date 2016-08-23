@@ -1,14 +1,11 @@
 from latextools_plugin import LaTeXToolsPlugin
 
 import latex_chars
-from latextools_utils import cache
+from latextools_utils import bibcache
 
 import codecs
-import hashlib
-import os
 import re
 import sublime
-import time
 import traceback
 
 kp = re.compile(r'@[^\{]+\{\s*(.+)\s*,', re.UNICODE)
@@ -43,14 +40,10 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
     def get_entries(self, *bib_files):
         entries = []
         for bibfname in bib_files:
-            cache_name = "tradbib_" + hashlib.md5(bibfname.encode("utf8")).hexdigest()
             try:
-                modified_time = os.path.getmtime(bibfname)
-
-                (cached_time, cached_entries) = cache.read_global(cache_name)
-                if modified_time <= cached_time:
-                    entries.extend(cached_entries)
-                    continue
+                cached_entries = bibcache.read_fmt("trad", bibfname)
+                entries.extend(cached_entries)
+                continue
             except:
                 pass
 
@@ -62,6 +55,7 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                 continue
             else:
                 bib_data = bibf.readlines()
+                bib_entries = []
 
                 entry = {}
                 for line in bib_data:
@@ -77,7 +71,7 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                         continue
                     if line[0] == "@":
                         if 'keyword' in entry:
-                            entries.append(entry)
+                            bib_entries.append(entry)
                             entry = {}
 
                         kp_match = kp.search(line)
@@ -107,18 +101,16 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
 
                 # at the end, we have a single record
                 if 'keyword' in entry:
-                    entries.append(entry)
+                    bib_entries.append(entry)
 
-
-                print ('Loaded %d bibitems' % (len(entries)))
+                print ('Loaded %d bibitems' % (len(bib_entries)))
 
                 try:
-                    current_time = time.time()
-                    cache.write_global(cache_name, (current_time, entries))
+                    fmt_entries = bibcache.write_fmt("trad", bibfname, bib_entries)
+                    entries.extend(fmt_entries)
                 except:
-                    print('Error occurred while trying to write to cache {0}'.format(
-                        cache_name
-                    ))
+                    entries.extend(bib_entries)
+                    print('Error occurred while trying to write to cache')
                     traceback.print_exc()
             finally:
                 try:
@@ -128,6 +120,3 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
 
             print("Found %d total bib entries" % (len(entries),))
         return entries
-
-    def on_insert_citation(self, keyword):
-        print('Inserted {0}'.format(keyword))

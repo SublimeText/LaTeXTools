@@ -117,6 +117,10 @@ def focus_st():
 # Jump to current line in PDF file
 # NOTE: must be called with {"from_keybinding": <boolean>} as arg
 class JumpToPdf(sublime_plugin.TextCommand):
+	def is_visible(self, *args):
+		view = sublime.active_window().active_view()
+		return bool(view.score_selector(0, "text.tex"))
+
 	def run(self, edit, **args):
 		# Check prefs for PDF focus and sync
 		keep_focus = args.get('keep_focus', get_setting('keep_focus', True))
@@ -140,24 +144,29 @@ class JumpToPdf(sublime_plugin.TextCommand):
 		root = getTeXRoot.get_tex_root(self.view)
 		file_name = get_jobname(root)
 
-
 		output_directory = get_output_directory(self.view)
 		if output_directory is None:
 			root = getTeXRoot.get_tex_root(self.view)
-			pdffile = os.path.join(
-				os.path.dirname(root),
-				file_name + u'.pdf'
+			pdffile = os.path.realpath(
+				os.path.join(
+					os.path.dirname(root),
+					file_name + u'.pdf'
+				)
 			)
 		else:
-			pdffile = os.path.join(
-				output_directory,
-				file_name + u'.pdf'
+			pdffile = os.path.realpath(
+				os.path.join(
+					output_directory,
+					file_name + u'.pdf'
+				)
 			)
 
 			if not os.path.exists(pdffile):
-				pdffile = os.path.join(
-					os.path.dirname(root),
-					file_name + u'.pdf'
+				pdffile = os.path.realpath(
+					os.path.join(
+						os.path.dirname(root),
+						file_name + u'.pdf'
+					)
 				)
 
 		(line, col) = self.view.rowcol(self.view.sel()[0].end())
@@ -209,10 +218,18 @@ class JumpToPdf(sublime_plugin.TextCommand):
 
 
 class ViewPdf(sublime_plugin.WindowCommand):
+	def is_visible(self, *args):
+		view = self.window.active_view()
+		return bool(view.score_selector(0, "text.tex"))
+
 	def run(self, **args):
 		pdffile = None
 		if 'file' in args:
-			pdffile = args.pop('file', None)
+			pdffile = os.path.realpath(
+				os.path.normpath(
+					args.pop('file', None)
+				)
+			)
 		else:
 			view = self.window.active_view()
 
@@ -221,20 +238,26 @@ class ViewPdf(sublime_plugin.WindowCommand):
 
 			output_directory = get_output_directory(view)
 			if output_directory is None:
-				pdffile = os.path.join(
-					os.path.dirname(root),
-					file_name + u'.pdf'
+				pdffile = os.path.realpath(
+					os.path.join(
+						os.path.dirname(root),
+						file_name + u'.pdf'
+					)
 				)
 			else:
-				pdffile = os.path.join(
-					output_directory,
-					file_name + u'.pdf'
+				pdffile = os.path.realpath(
+					os.path.join(
+						output_directory,
+						file_name + u'.pdf'
+					)
 				)
 
 				if not os.path.exists(pdffile):
-					pdffile = os.path.join(
-						os.path.dirname(root),
-						file_name + u'.pdf'
+					pdffile = os.path.realpath(
+						os.path.join(
+							os.path.dirname(root),
+							file_name + u'.pdf'
+						)
 					)
 
 		# since we potentially accept an argument, add some extra

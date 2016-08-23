@@ -3,7 +3,7 @@ This module implements the cite-completion behaviour, largely by relying on
 implementations registered with latextools_plugin and configured using the
 `bibliograph_plugins` configuration key.
 
-At present, there are two supported methods on custom plugins.
+At present, there is one supported method on custom plugins.
 
 `get_entries`:
     This method should take a sequence of bib_files and return a sequence of
@@ -14,13 +14,6 @@ At present, there are two supported methods on custom plugins.
     entries that have no `journal` but use the `journaltitle` field. Plugins
     can override this behaviour, however, by explicitly setting a value for
     whatever key they like.
-
-`on_insert_citation`:
-    This method should take a single string value indicating the citekey of the
-    entry that has just been cited. This is provided to allow the plugin to
-    react to the insertion event. This method will be called on a separate
-    thread and should not interact with the Sublime view if possible, as this
-    may cause a race condition.
 '''
 # ST2/ST3 compat
 from __future__ import print_function
@@ -31,7 +24,8 @@ if sublime.version() < '3000':
     import getTeXRoot
     from kpsewhich import kpsewhich
     from latextools_utils.is_tex_file import is_tex_file, get_tex_extensions
-    from latextools_utils import get_setting
+    from latextools_utils import bibformat, get_setting
+    from latextools_utils.internal_types import FillAllHelper
     import latextools_plugin
 
     # reraise implementation from 6
@@ -44,8 +38,9 @@ else:
     _ST3 = True
     from . import getTeXRoot
     from .kpsewhich import kpsewhich
+    from .latex_fill_all import FillAllHelper
     from .latextools_utils.is_tex_file import is_tex_file, get_tex_extensions
-    from .latextools_utils import get_setting
+    from .latextools_utils import bibformat, get_setting
     from . import latextools_plugin
 
     # reraise implementation from 6
@@ -59,8 +54,7 @@ else:
     strbase = str
 
 
-import sublime_plugin
-import os, os.path
+import os
 import sys
 import re
 import codecs
@@ -68,9 +62,8 @@ import codecs
 from string import Formatter
 import collections
 
-import threading
+import traceback
 
-class UnrecognizedCiteFormatError(Exception): pass
 class NoBibFilesError(Exception): pass
 
 class BibParsingError(Exception):
@@ -79,7 +72,7 @@ class BibParsingError(Exception):
 
 class BibPluginError(Exception): pass
 
-OLD_STYLE_CITE_REGEX = re.compile(r"([^_]*_)?([a-zX*]*?)etic(?:\\|\b)")
+OLD_STYLE_CITE_REGEX = re.compile(r"([^_]*_)?\*?([a-z]*?)etic\\")
 # I apoligise profusely for this regex
 # forward version with explanation:
 # \\
@@ -180,7 +173,7 @@ NEW_STYLE_CITE_REGEX = re.compile(
                 (?:[\.\*\?]){0,2}(?:\)[^(]*\(){0,2}
                 seti(?:C|c(?!lov)[a-z]*[A-Z]?))|
             (?:(?P<prefix8>[^{},]*)(?:,[^{},]*)*\{(?:\][^\[]*\[){0,2}
-                (?:[\.\*\?]){0,2}(?!\*?teser|elyts)(?P<fancy_cite>[a-zX\*]*?)
+                (?:[\.\*\?]){0,2}(?!\*?teser|elyts)(?P<fancy_cite>[a-z\*]*?)
                 eti(?:C|c(?!lov|m\\)[a-z]*[A-Z]?))|
             (?:(?P<prefix9>[^{},]*)(?:,[^{},]*)*\{(?:\][^\[]*\[)?
                 (?:>[^<]*<)?(?:(?:PN)?(?:raey|rohtua)|PN|A)?etic
@@ -383,215 +376,8 @@ def run_plugin_command(command, *args, **kwargs):
 
     return result
 
-TITLE_SEP = re.compile(':|\.|\?')
-def get_title_short(title):
-    title = TITLE_SEP.split(title)[0]
-    if len(title) > 60:
-        title = title[:60] + '...'
-    return title
 
-
-# default implementation that convers the author field into a short version of itself
-# assumes we get a basically raw LaTeX string, e.g. "Lastname, Firstnamd and Otherlastname, Otherfirstname"
-def get_author_short(authors):
-    if authors == '':
-        return ''
-
-    # split authors using ' and ' and get last name for 'last, first' format
-    authors = [a.split(", ")[0].strip(' ') for a in authors.split(" and ")]
-    # get last name for 'first last' format (preserve {...} text)
-    authors = [a.split(" ")[-1] if not('{' in a and a.endswith('}'))
-               else re.sub(r'{|}', '', a[a.rindex('{') + 1:-1])
-               for a in authors if len(a) > 0]
-
-    # truncate and add 'et al.'
-    if len(authors) > 2:
-        authors = authors[0] + " et al."
-    else:
-        authors = ' & '.join(authors)
-
-    # return formated string
-    return authors
-
-class CompletionWrapper(collections.Mapping):
-    '''
-    Wraps the returned completions so that we can properly handle any KeyErrors that
-    occur
-    '''
-    def __init__(self, entry):
-        self._entry = entry
-
-    def __getitem__(self, key):
-        try:
-            # emulating previous behaviour of latex_cite_completions
-            if key not in ('author', 'journal'):
-                return self._entry[key]
-            else:
-                value = self._entry[key]
-                return value or u'????'
-        except KeyError:
-            if key == 'author':
-                try:
-                    return self._entry['editor']
-                except KeyError:
-                    pass
-            elif key == 'author_short':
-                try:
-                    return get_author_short(self._entry['author'])
-                except KeyError:
-                    pass
-
-                return self['editor_short']
-            elif key == 'editor_short':
-                try:
-                    return get_author_short(self._entry['editor'])
-                except KeyError:
-                    pass
-            elif key == 'title_short':
-                try:
-                    return self._entry['shorttitle']
-                except KeyError:
-                    pass
-
-                try:
-                    return get_title_short(self._entry['title'])
-                except KeyError:
-                    pass
-            elif key == 'journal':
-                try:
-                    return self._entry['journaltitle']
-                except KeyError:
-                    pass
-
-                try:
-                    return self._entry['eprint']
-                except KeyError:
-                    pass
-            elif key == 'keyword':
-                try:
-                    return self._entry['citekey']
-                except KeyError:
-                    pass
-            elif key == 'year':
-                try:
-                    date = self._entry['date']
-                    date_matcher = re.match(r'(\d{4})', date)
-                    if date_matcher:
-                        return date_matcher.group(1)
-                except KeyError:
-                    pass
-            elif key == 'month':
-                try:
-                    date = self._entry['date']
-                    date_matcher = re.match(r'\d{4}-(\d{2})', date)
-                    if date_matcher:
-                        return date_matcher.group(1)
-                except KeyError:
-                    pass
-
-            return u'????'
-
-    def __iter__(self):
-        return iter(self._entry)
-
-    def __len__(self):
-        return len(self._entry)
-
-def get_cite_completions(view, point, autocompleting=False):
-    line = view.substr(sublime.Region(view.line(point).a, point))
-    # print line
-
-    # Reverse, to simulate having the regex
-    # match backwards (cool trick jps btw!)
-    line = line[::-1]
-    #print line
-
-    # Check the first location looks like a cite_, but backward
-    # NOTE: use lazy match for the fancy cite part!!!
-    # NOTE2: restrict what to match for fancy cite
-    rex = OLD_STYLE_CITE_REGEX
-    expr = match(rex, line)
-
-    # See first if we have a cite_ trigger
-    if expr:
-        # Do not match on plain "cite[a-zX*]*?" when autocompleting,
-        # in case the user is typing something else
-        if autocompleting and re.match(r"[a-zX*]*etic\\?", expr):
-            raise UnrecognizedCiteFormatError()
-        # Return the completions
-        prefix, fancy_cite = rex.match(expr).groups()
-        preformatted = False
-        if prefix:
-            prefix = prefix[::-1]  # reverse
-            prefix = prefix[1:]  # chop off _
-        else:
-            prefix = ""  # because this could be a None, not ""
-        if fancy_cite:
-            fancy_cite = fancy_cite[::-1]
-            # fancy_cite = fancy_cite[1:] # no need to chop off?
-            if fancy_cite[-1] == "X":
-                fancy_cite = fancy_cite[:-1] + "*"
-        else:
-            fancy_cite = ""  # again just in case
-        # print prefix, fancy_cite
-
-    # Otherwise, see if we have a preformatted \cite{}
-    else:
-        rex = NEW_STYLE_CITE_REGEX
-        expr = match(rex, line)
-
-        if not expr:
-            raise UnrecognizedCiteFormatError()
-
-        preformatted = True
-        m = rex.match(expr)
-        prefix =   (m.group('prefix1') or
-                    m.group('prefix2') or
-                    m.group('prefix3') or
-                    m.group('prefix4') or
-                    m.group('prefix5') or
-                    m.group('prefix6') or
-                    m.group('prefix7') or
-                    m.group('prefix8') or
-                    m.group('prefix9'))
-        if prefix:
-            prefix = prefix[::-1]
-        else:
-            prefix = ""
-        fancy_cite = m.group('fancy_cite')
-        if fancy_cite:
-            fancy_cite = fancy_cite[::-1]
-            if fancy_cite[-1] == "X":
-                fancy_cite = fancy_cite[:-1] + "*"
-        else:
-            fancy_cite = ""
-        # print prefix, fancy_cite
-
-    # if the key is an optional parameter, ensure we close the optional parameter
-    post_brace = "}" if not re.match(r'(?:[^\[\],]*)\[', expr) else ']'
-
-    # Reverse back expr
-    expr = expr[::-1]
-
-    if not preformatted:
-        # Replace cite_blah with \cite{blah
-        pre_snippet = "\cite" + fancy_cite + "{"
-        # The "latex_tools_replace" command is defined in latex_ref_cite_completions.py
-        view.run_command("latex_tools_replace", {"a": point-len(expr), "b": point, "replacement": pre_snippet + prefix})        
-        # save prefix begin and endpoints points
-        new_point_a = point - len(expr) + len(pre_snippet)
-        new_point_b = new_point_a + len(prefix)
-
-    else:
-        # Don't include post_brace if it's already present
-        suffix = view.substr(sublime.Region(point, point + len(post_brace)))
-        new_point_a = point - len(prefix)
-        new_point_b = point
-        if post_brace == suffix:
-            post_brace = ""
-
-    #### GET COMPLETIONS HERE #####
-
+def get_cite_completions(view):
     root = getTeXRoot.get_tex_root(view)
 
     if root is None:
@@ -599,13 +385,13 @@ def get_cite_completions(view, point, autocompleting=False):
         # FIXME: should probably search the buffer instead of giving up
         raise NoBibFilesError()
 
-    print ("TEX root: " + repr(root))
+    print(u"TEX root: " + repr(root))
     bib_files = []
     find_bib_files(os.path.dirname(root), root, bib_files)
     # remove duplicate bib files
     bib_files = list(set(bib_files))
-    print ("Bib files found: ")
-    print (repr(bib_files))
+    print("Bib files found: ")
+    print(repr(bib_files))
 
     if not bib_files:
         # sublime.error_message("No bib files found!") # here we can!
@@ -613,16 +399,9 @@ def get_cite_completions(view, point, autocompleting=False):
 
     bib_files = ([x.strip() for x in bib_files])
 
-    print ("Files:")
-    print (repr(bib_files))
-
     completions = run_plugin_command('get_entries', *bib_files)
 
-    #### END COMPLETIONS HERE ####
-
-    completions = [CompletionWrapper(completion) for completion in completions]
-
-    return completions, prefix, post_brace, new_point_a, new_point_b
+    return completions
 
 
 # Based on html_completions.py
@@ -645,148 +424,141 @@ def get_cite_completions(view, point, autocompleting=False):
 #
 # There is also another problem: * is also a word boundary :-( So, use e.g. citeX if
 # what you want is \cite*{...}; the plugin handles the substitution
+class CiteFillAllHelper(FillAllHelper):
 
-class LatexCiteCompletions(sublime_plugin.EventListener):
+    def get_auto_completions(self, view, prefix, line):
+        # Reverse, to simulate having the regex
+        # match backwards (cool trick jps btw!)
+        line = line[::-1]
 
-    def on_query_completions(self, view, prefix, locations):
-        # Only trigger within LaTeX
-        if view.score_selector(locations[0], "text.tex.latex") == 0:
+        # Check the first location looks like a cite_, but backward
+        old_style = OLD_STYLE_CITE_REGEX.match(line)
+
+        # Do not match on plain "cite[a-zX*]*?" when autocompleting,
+        # in case the user is typing something else
+        if old_style and not prefix:
             return []
-
-        point = locations[0]
 
         try:
-            completions, prefix, post_brace, new_point_a, new_point_b = get_cite_completions(view, point, autocompleting=True)
-        except UnrecognizedCiteFormatError:
-            return []
+            completions = get_cite_completions(view)
         except NoBibFilesError:
+            print("No bib files found!")
             sublime.status_message("No bib files found!")
             return []
         except BibParsingError as e:
-            sublime.status_message("Bibliography " + e.filename + " is broken!")
+            message = "Error occurred parsing {0}. {1}.".format(
+                e.filename, e.message
+            )
+            print(message)
+            traceback.print_exc()
+
+            sublime.status_message(message)
             return []
 
-        # filter against keyword or title
         if prefix:
-            completions = [comp for comp in completions if prefix.lower() in "%s %s" %
-                                                    (
-                                                        comp['keyword'].lower(),
-                                                        comp['title'].lower())]
-            prefix += " "
+            lower_prefix = prefix.lower()
+            completions = [
+                c for c in completions
+                if _is_prefix(lower_prefix, c)
+            ]
 
-        # get preferences for formating of autocomplete entries
-        cite_autocomplete_format = get_setting('cite_autocomplete_format',
-            "{keyword}: {title}")
+        if len(completions) == 0:
+            return []
 
-        formatter = Formatter()
-        r = [(prefix + formatter.vformat(cite_autocomplete_format, (), completion),
-              completion['keyword'] + post_brace) for completion in completions]
+        cite_autocomplete_format = get_setting(
+            'cite_autocomplete_format',
+            '{keyword}: {title}'
+        )
 
-        # print "%d bib entries matching %s" % (len(r), prefix)
+        def formatted_entry(entry):
+            try:
+                return entry['<autocomplete_formatted>']
+            except:
+                return bibformat.format_entry(
+                    cite_autocomplete_format, entry
+                )
 
-        return r
+        completions = [
+            (
+                formatted_entry(c),
+                c['keyword']
+            ) for c in completions
+        ]
 
+        if old_style:
+            return completions, '{'
+        else:
+            return completions
 
-class LatexCiteCommand(sublime_plugin.TextCommand):
-
-    # Remember that this gets passed an edit object
-    def run(self, edit):
-        # get view and location of first selection, which we expect to be just the cursor position
-        view = self.view
-        point = view.sel()[0].b
-        print (point)
-        # Only trigger within LaTeX
-        # Note using score_selector rather than match_selector
-        if not view.score_selector(point,
-                "text.tex.latex"):
-            return
-
+    def get_completions(self, view, prefix, line):
         try:
-            completions, prefix, post_brace, new_point_a, new_point_b = get_cite_completions(view, point)
-        except UnrecognizedCiteFormatError:
-            sublime.error_message("Not a recognized format for citation completion")
-            return
+            completions = get_cite_completions(view)
         except NoBibFilesError:
             sublime.error_message("No bib files found!")
             return
         except BibParsingError as e:
-            sublime.error_message("Bibliography " + e.filename + " is broken!")
-            return
-        except BibParsingError as e:
-            sublime.error_message(e.message)
-            return
-
-        # filter against keyword, title, or author
-        if prefix:
-            completions = [comp for comp in completions if prefix.lower() in "%s %s %s" % 
-                                                    (
-                                                        comp['keyword'].lower(),
-                                                        comp['title'].lower(),
-                                                        comp['author'].lower())]
-
-        # Note we now generate citation on the fly. Less copying of vectors! Win!
-        def on_done(i):
-            print ("latex_cite_completion called with index %d" % (i,) )
-
-            # Allow user to cancel
-            if i < 0:
-                return
-
-            keyword = completions[i]['keyword']
-            # notify any plugins
-            notification_thread = threading.Thread(
-                target=run_plugin_command,
-                args=(
-                    'on_insert_citation',
-                    keyword
-                ),
-                kwargs={
-                    'stop_on_first': False,
-                    'expect_result': False
-                }
+            traceback.print_exc()
+            sublime.error_message(
+                "Error occurred parsing {0}. {1}.".format(
+                    e.filename, e.message
+                )
             )
+            return
 
-            notification_thread.daemon = True
-            notification_thread.start()
-
-            cite = completions[i]['keyword'] + post_brace
-
-            #print("DEBUG: types of new_point_a and new_point_b are " + repr(type(new_point_a)) + " and " + repr(type(new_point_b)))
-            # print "selected %s:%s by %s" % completions[i][0:3]
-            # Replace cite expression with citation
-            # the "latex_tools_replace" command is defined in latex_ref_cite_completions.py
-            view.run_command("latex_tools_replace", {"a": new_point_a, "b": new_point_b, "replacement": cite})
-            # Unselect the replaced region and leave the caret at the end
-            caret = view.sel()[0].b
-            view.sel().subtract(view.sel()[0])
-            view.sel().add(sublime.Region(caret, caret))
-
-        # get preferences for formating of quick panel
-        cite_panel_format = get_setting('cite_panel_format',
-            ["{title} ({keyword})", "{author}"])
+        if prefix:
+            lower_prefix = prefix.lower()
+            completions = [
+                c for c in completions
+                if _is_prefix(lower_prefix, c)
+            ]
 
         completions_length = len(completions)
         if completions_length == 0:
             return
         elif completions_length == 1:
-            # only one entry, so insert entry
-            view.run_command("latex_tools_replace",
-                {
-                    "a": new_point_a,
-                    "b": new_point_b,
-                    "replacement": completions[0]['keyword'] + post_brace
-                }
-            )
+            return [completions[0]['keyword']]
 
-            # Unselect the replaced region and leave the caret at the end
-            caret = view.sel()[0].b
-            view.sel().subtract(view.sel()[0])
-            view.sel().add(sublime.Region(caret, caret))
-        else:
-            # show quick
-            formatter = Formatter()
-            view.window().show_quick_panel([[formatter.vformat(s, (), completion) for s in cite_panel_format] \
-                                        for completion in completions], on_done)
+        cite_panel_format = get_setting(
+            'cite_panel_format',
+            ["{title} ({keyword})", "{author}"]
+        )
+
+        def formatted_entry(entry):
+            try:
+                return entry["<panel_formatted>"]
+            except:
+                return [
+                    bibformat.format_entry(s, entry)
+                    for s in cite_panel_format
+                ]
+
+        formatted_completions = []
+        result_completions = []
+        for completion in completions:
+            formatted_completions.append(formatted_entry(completion))
+            result_completions.append(completion['keyword'])
+
+        return formatted_completions, result_completions
+
+    def matches_line(self, line):
+        return bool(
+            OLD_STYLE_CITE_REGEX.match(line) or
+            NEW_STYLE_CITE_REGEX.match(line)
+        )
+
+    def matches_fancy_prefix(self, line):
+        return bool(OLD_STYLE_CITE_REGEX.match(line))
+
+    def is_enabled(self):
+        return get_setting('cite_auto_trigger', True)
+
+
+def _is_prefix(lower_prefix, entry):
+    try:
+        return lower_prefix in entry["<prefix_match>"]
+    except:
+        return lower_prefix in bibformat.create_prefix_match_str(entry)
+
 
 def plugin_loaded():
     # load plugins from the bibliography_plugins dir of LaTeXTools if it exists

@@ -14,7 +14,9 @@ _toggle_settings = [
     "open_pdf_on_build",
     "ref_auto_trigger",
     "cite_auto_trigger",
-    "fill_auto_trigger"
+    "fill_auto_trigger",
+    "env_auto_trigger",
+    "smart_bracket_auto_trigger"
 ]
 
 
@@ -23,6 +25,9 @@ def _make_panel_entry(t):
 
 
 class ToggleShowCommand(sublime_plugin.TextCommand):
+    def is_visible(self, *args):
+        view = sublime.active_window().active_view()
+        return bool(view.score_selector(0, "text.tex"))
 
     def run(self, edit, **args):
         view = self.view

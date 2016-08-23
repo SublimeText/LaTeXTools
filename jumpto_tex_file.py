@@ -213,7 +213,7 @@ def _split_bib_args(bib_args):
 class JumptoTexFileCommand(sublime_plugin.TextCommand):
 
     def run(self, edit, auto_create_missing_folders=True,
-            auto_insert_root=True):
+            auto_insert_root=True, position=None):
         view = self.view
         window = view.window()
         tex_root = get_tex_root(view)
@@ -221,7 +221,12 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
             sublime.status_message("Save your current file first")
             return
 
-        for sel in view.sel():
+        if position is None:
+            selections = list(view.sel())
+        else:
+            selections = [sublime.Region(position, position)]
+
+        for sel in selections:
             line_r = view.line(sel)
             line = view.substr(line_r)
 
