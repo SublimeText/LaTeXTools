@@ -78,10 +78,12 @@ def _show_usage_label(view, args):
     if tex_root is None:
         return False
     ana = analysis.analyze_document(tex_root)
-    # TODO add all reference commands
-    refs = ana.filter_commands(["ref"])
 
-    refs = [r for r in refs if r.args == args]
+    def is_correct_ref(c):
+        command = ("\\" + c.command + "{")[::-1]
+        return NEW_STYLE_REF_REGEX.match(command) and c.args == args
+
+    refs = ana.filter_commands(is_correct_ref)
 
     if len(refs) == 0:
         sublime.error_message("No references for '{0}' found.".format(args))
