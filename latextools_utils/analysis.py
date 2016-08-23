@@ -7,9 +7,11 @@ import sublime
 if sublime.version() < '3000':
     _ST3 = False
     from latextools_utils import cache, utils
+    from latextools_utils.tex_directives import get_tex_root
 else:
     _ST3 = True
     from . import cache, utils
+    from .tex_directives import get_tex_root
 
 if _ST3:
     strbase = str
@@ -240,14 +242,19 @@ def get_analysis(tex_root):
 
     Arguments:
     tex_root -- the path to the tex root as a string
+                if you use the view instead, the tex root will be extracted
+                automatically
 
     Returns:
     An Analysis of the view, which contains all relevant information and
     provides access methods to useful properties
     """
-    if not isinstance(tex_root, strbase):
-        # tex_root = get_tex_root(tex_root)
-        raise Exception("tex_root must be a string")
+    if tex_root is None:
+        return
+    elif isinstance(tex_root, sublime.View):
+        tex_root = get_tex_root(tex_root)
+    elif not isinstance(tex_root, strbase):
+        raise ValueError("tex_root must be a string or view")
 
     result = cache.cache(tex_root, "analysis",
                          lambda: analyze_document(tex_root))
@@ -260,6 +267,8 @@ def analyze_document(tex_root):
 
     Arguments:
     tex_root -- the path to the tex root as a string
+                if you use the view instead, the tex root will be extracted
+                automatically
 
     Returns:
     An Analysis of the view, which contains all relevant information and
@@ -267,9 +276,10 @@ def analyze_document(tex_root):
     """
     if tex_root is None:
         return
-    if not isinstance(tex_root, strbase):
-        # tex_root = get_tex_root(tex_root)
-        raise Exception("tex_root must be a string")
+    elif isinstance(tex_root, sublime.View):
+        tex_root = get_tex_root(tex_root)
+    elif not isinstance(tex_root, strbase):
+        raise ValueError("tex_root must be a string or view")
 
     result = _analyze_tex_file(tex_root)
     return result
