@@ -19,6 +19,8 @@ if sublime.version() > '3000':
 
 # these modules must be specified in the order they depend on one another
 LOAD_ORDER = [
+    'external.latex_chars',
+
     'latextools_plugin_internal',
     'latextools_plugin',
 
@@ -47,19 +49,6 @@ LOAD_ORDER = [
     'latextools_utils.bibcache',
     'latextools_utils.output_directory'
 ]
-
-EXTERNAL_LOAD_ORDER = [
-    'latex_chars'
-]
-
-for mod in EXTERNAL_LOAD_ORDER:
-    try:
-        if mod in sys.modules and sys.modules[mod] is not None:
-            reload(sys.modules[mod])
-        else:
-            __import__(mod)
-    except:
-        traceback.print_exc()
 
 for suffix in LOAD_ORDER:
     mod = MOD_PREFIX + suffix

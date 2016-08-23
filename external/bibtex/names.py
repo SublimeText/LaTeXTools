@@ -1,4 +1,4 @@
-from bibtex.tex import split_tex_string
+from .tex import split_tex_string
 from collections import namedtuple
 import sys
 
