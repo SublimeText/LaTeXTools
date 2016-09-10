@@ -229,7 +229,7 @@ class LatexFillHelper(object):
         # to find all matches once per bracket type
         # if the view has changed, we reset the candidates
         candidates = None
-        if hasattr(self, 'last_view') and self.last_view != view.id():
+        if not hasattr(self, 'last_view') or self.last_view != view.id():
             self.last_view = view.id()
             candidates = self.candidates = {}
 
