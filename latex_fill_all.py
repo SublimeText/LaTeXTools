@@ -128,64 +128,43 @@ class LatexFillHelper(object):
 
                     self.update_selections(view, new_regions)
                     return
+            elif get_setting('smart_bracket_auto_trigger', True):
+                # more complex: if we do not have an insert_char, try to close
+                # the nearest bracket that occurs before each selection
+                new_regions = []
 
-        if (
-            insert_char and insert_char not in self.MATCH_CHARS and
-            get_setting('smart_bracket_auto_trigger', True)
-        ):
-            # more complex: if we do not have an insert_char, try to close the
-            # nearest bracket that occurs before each selection
-            new_regions = []
+                for sel in view.sel():
+                    word_region = self.get_current_word(view, sel)
+                    close_bracket = self.get_closing_bracket(view, word_region)
+                    # we should close the bracket
+                    if close_bracket:
+                        # insert the closing bracket
+                        view.insert(edit, word_region.end(), close_bracket)
 
-            for sel in view.sel():
-                word_region = self.get_current_word(view, sel)
-                close_bracket = self.get_closing_bracket(view, word_region)
-                # we should close the bracket
-                if close_bracket:
-                    # move to the position after any words separated by a comma
-                    while True:
-                        suffix_region = getRegion(
-                            word_region.end() + 1,
-                            view.line(word_region.end()).end()
-                        )
-
-                        suffix = view.substr(suffix_region)
-
-                        # count words separated by commas as part of the
-                        # argument to the current command
-                        m = re.search(r',', suffix)
-                        if not m:
-                            break
-
-                        word_region = self.get_current_word(
-                            view,
-                            word_region.end() + len(m.group(0))
-                        )
-
-                    # insert the closing bracket
-                    view.insert(edit, word_region.end(), close_bracket)
-
-                    if sel.empty():
-                        if word_region.empty():
-                            new_regions.append(
-                                getRegion(word_region.end(), word_region.end())
-                            )
+                        if sel.empty():
+                            if word_region.empty():
+                                new_regions.append(
+                                    getRegion(
+                                        word_region.end(), word_region.end()
+                                    )
+                                )
+                            else:
+                                new_point = word_region.end() + \
+                                    len(close_bracket)
+                                new_regions.append(
+                                    getRegion(new_point, new_point)
+                                )
                         else:
-                            new_point = word_region.end() + len(close_bracket)
                             new_regions.append(
-                                getRegion(new_point, new_point)
+                                getRegion(
+                                    sel.begin(),
+                                    word_region.end() + len(close_bracket)
+                                )
                             )
                     else:
-                        new_regions.append(
-                            getRegion(
-                                sel.begin(),
-                                word_region.end() + len(close_bracket)
-                            )
-                        )
-                else:
-                    new_regions.append(sel)
+                        new_regions.append(sel)
 
-            self.update_selections(view, new_regions)
+                self.update_selections(view, new_regions)
 
     def complete_brackets(self, view, edit, insert_char='', remove_regions=[]):
         '''
