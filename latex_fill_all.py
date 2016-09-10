@@ -1072,9 +1072,12 @@ class LatexFillAllCommand(
                     return
 
                 if insert_char:
-                    self.insert_at_end(view, edit, insert_char)
-
-                if completions[0]:
+                    insert_text = (
+                        insert_char + completions[0]
+                        if completions[0] else insert_char
+                    )
+                    self.insert_at_end(view, edit, insert_text)
+                elif completions[0]:
                     self.replace_word(view, edit, completions[0])
 
                 self.complete_auto_match(view, edit, insert_char)
@@ -1136,9 +1139,12 @@ class LatexToolsReplaceWord(sublime_plugin.TextCommand, LatexFillHelper):
     def run(self, edit, replacement='', insert_char='', remove_regions=[]):
         view = self.view
         if insert_char:
-            self.insert_at_end(view, edit, insert_char)
-
-        if replacement:
+            insert_text = (
+                insert_char + replacement
+                if replacement else insert_char
+            )
+            self.insert_at_end(view, edit, insert_text)
+        elif replacement:
             self.replace_word(view, edit, replacement)
 
         self.complete_auto_match(view, edit, insert_char)
