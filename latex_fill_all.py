@@ -47,19 +47,41 @@ class LatexFillHelper(object):
     helpful for inserting text into the view and updating the cursor posiiton.
     '''
 
-    # FIXME: word detecting could be shortened by defining the
-    # "word_separators" setting and using `view.word()`. Unfortunately, the
-    # default value contains too many characters we may want to treat as
-    # part of the word for our purposes
+    # This is necessarily incomplete, but is intended to cover a number of
+    # cases and could be extended as needed. I'm unsure that this is the best
+    # design; it's done this way to emulate STs default definition of
+    # word_separators
     #
-    # defines non-word characters. See get_current_word
+    # defines non-word characters; see get_current_word
+    NON_WORD_CHARACTERS = u'/\\()"\':,.;<>~!@#$%^&*|+=\\[\\]{}`~?' + (
+        u'\u0080-\u00bf'  # LATIN-1 PUNCTUATION
+        u'\u2013-\u206f'  # GENERAL PUNCTUATION (w/o spaces or hyphens)
+        u'\u20a0-\u20cf'  # CURRENCY SYMBOLS
+        u'\u2190-\u21ff'  # ARROWS
+        u'\u2200-\u22ff'  # MATHEMATICAL OPERATORS
+        u'\u2300-\u23ff'  # MISC TECHNICAL
+        u'\u27c0-\u27ef'  # MISC MATHEMATICAL SYMBOLS-A
+        u'\u27f0-\u27ff'  # SUPPLEMENTAL ARROWS-A
+        u'\u2935-\u297f'  # SUPPLEMENTAL ARROWS-B
+        u'\u2980-\u29ff'  # MISC MATHEMATICAL SYMBOLS-B
+        u'\u2a00-\u2aff'  # SUPPLEMENTAL MATHEMATICAL OPERATORS
+        u'\u2b00-\u2bff'  # MISC SYMBOLS AND ARROWS
+        u'\u2e00-\u2e44'  # SUPPLEMENTAL PUNCTUATION
+        u'\u3000-\u3020'  # CJK PUNCTUATION / BRACKETS
+        u'\ufe30-\ufe4f'  # CJK COMPATIBILITY FORMS
+        u'\U0001f800-\U0001f8ff'  # SUPPLEMENTAL ARROWS-C
+    ) + r'\s'
+
     WORD_SEPARATOR_RX = re.compile(
-        r'([^{}\[\],\\$&#^~%\s]*)',
+        r'([^' + NON_WORD_CHARACTERS + r']*)',
         re.UNICODE
     )
 
     # define fancy match prefix to support, e.g., \cite_prefix
-    FANCY_PREFIX_RX = re.compile(r'([^_{}\[\],\\$&#^~%\s]*)_')
+    FANCY_PREFIX_RX = re.compile(
+        r'([^_' + NON_WORD_CHARACTERS + r']*)_',
+        re.UNICODE
+    )
 
     # defines which characters need a matching bracket and their match
     MATCH_CHARS = {
