@@ -584,7 +584,9 @@ The following options are currently available (defaults in parentheses):
 - `cwl_autoload` (`true`): whether to load cwl completions based on packages (see the LaTeX-cwl feature) 
 - `cwl_completion` (`prefixed`): when to activate the cwl completion poput (see LaTeX-cwl feature above)
 - `cwl_list` (`["latex-document.cwl", "tex.cwl", "latex-dev", "latex-209.cwl", "latex-l2tabu.cwl", "latex-mathsymbols.cwl"]`): list of cwl files to load
-- `keep_focus` (`true`): if `true`, after compiling a tex file, ST retains the focus; if `false`, the PDF viewer gets the focus. Also note that you can *temporarily* toggle this behavior with `C-l,t,f`. **Note**: If you are on either Windows or Linux you may need to adjust the `sublime_executable` setting for this to work properly. See the **Platform settings** below. This can also be overridden via a key-binding by passing a `keep_focus` argument to `jump_to_pdf`.
+- `keep_focus` (`true`): if `true`, after compiling a tex file, ST retains the focus; if `false`, the PDF viewer gets the focus. Also note that you can *temporarily* toggle this behavior with `C-l,t,f`.This can also be overridden via a key-binding by passing a `keep_focus` argument to `jump_to_pdf`.
+ **Note**: In general, `keep_focus` set to `true` tries to mean "do not *change* the focus". This isn't always possible, since several of the viewers will steal focus by default. In those circumstances, LaTeXTools tries to actively return the focus to Sublime. To disable this, set the `disable_focus_hack` setting to `true`.
+ **Note**: If you are on either Windows or Linux you may need to adjust the `sublime_executable` setting for this to work properly. See the **Platform settings** below.
 - `forward_sync` (`true`): if `true`, after compiling a tex file, the PDF viewer is asked to sync to the position corresponding to the current cursor location in ST. You can also *temporarily* toggle this behavior with `C-l,t,s`. This can also be overridden via a key-binding by passing a `forward_sync` argument to `jump_to_pdf`.
 - `temp_files_exts`: list of file extensions to be considered temporary, and hence deleted using the `C-l, backspace` command.
 - `temp_files_ignored_folders`: subdirectories to skip when deleting temp files.
@@ -689,6 +691,8 @@ Any other value will be interpretted as the default.
  * `viewer` (`""`): the viewer you want to use. Leave blank (`""`) or set to `"default"`for the platform-specific viewer. Can also be set to `"preview"` if you want to use Preview on OS X, `"okular"` if you want to use Okular on Linux, `"zathura"` is you want to use Zathura on Linux, or `"command"` to run arbitrary commands. For details on the `"command"` option, see the section on the [Command Viewer](#command-viewer).
  * `viewer_settings`: these are viewer-specific settings. Please see the section on [Viewers](#viewers) or the documentation on [Alternate Viewers](#alternate-viewers) for details of what should be set here.
  * `open_pdf_on_build` (`true`): Controls whether LaTeXTools will automatically open the configured PDF viewer on a successful build. If set to `false`, the PDF viewer will only be launched if explicitly requested using `C-l,v` or `C-l,j`.
+ * `disable_focus_hack` (`false`): if `true`, the focus hack that LaTeXTools uses to return focus to Sublime in some circumstances will not be run. **Note**: This does not mean that the *viewer* won't steal the focus, only that LaTeXTools won't try to steal the focus back.
+
 
 ### Bibliographic references settings
 

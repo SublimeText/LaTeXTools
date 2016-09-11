@@ -10,6 +10,13 @@ from latextools_utils.system import which
 
 class ZathuraViewer(BaseViewer):
 
+    def _run_zathura(self, pdf_file):
+        return external_command([
+            'zathura',
+            self._get_synctex_editor(),
+            pdf_file
+        ], use_texpath=False).pid
+
     def _get_synctex_editor(self):
         st_binary = get_sublime_exe()
         if st_binary is None:
@@ -82,6 +89,8 @@ class ZathuraViewer(BaseViewer):
 
         if pid is None:
             pid = self._run_zathura(pdf_file)
+            if keep_focus:
+                self.focus_st()
 
         command = [
             'zathura', '--synctex-forward',
@@ -105,11 +114,9 @@ class ZathuraViewer(BaseViewer):
 
         pid = self._get_zathura_pid(pdf_file)
         if pid is None:
-            pid = external_command([
-                'zathura',
-                self._get_synctex_editor(),
-                pdf_file
-            ], use_texpath=False).pid
+            pid = self._run_zathura(pdf_file)
+            if keep_focus:
+                self.focus_st()
         elif not keep_focus:
             self._focus_zathura(pid)
 
@@ -117,3 +124,6 @@ class ZathuraViewer(BaseViewer):
 
     def supports_platform(self, platform):
         return platform == 'linux'
+
+    def supports_keep_focus(self):
+        return True

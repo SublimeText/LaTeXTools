@@ -505,6 +505,12 @@
 	// unless explicitly launched using C-l,v or C-l,j
 	"open_pdf_on_build": true,
 
+	// OPTION: "disable_focus_hack"
+	// if set to true, this will stop LaTeXTools from attempting to steal focus
+	// from the viewer. NOTE: This does not mean that the *viewer* won't steal
+	// the focus, only that LaTeXTools won't try to steal the focus back.
+	"disable_focus_hack": false,
+
 // ------------------------------------------------------------------
 // Opening files included into the tex source code
 // ------------------------------------------------------------------

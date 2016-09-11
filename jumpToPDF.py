@@ -17,7 +17,7 @@ if sublime.version() < '3000':
 	from latextools_utils.output_directory import (
 		get_output_directory, get_jobname
 	)
-	from latextools_utils.sublime_utils import get_sublime_exe
+	from latextools_utils.sublime_utils import focus_st
 	from latextools_plugin import (
 		get_plugin, add_plugin_path, NoSuchPluginException,
 		add_whitelist_module
@@ -31,7 +31,7 @@ else:
 	from .latextools_utils.output_directory import (
 		get_output_directory, get_jobname
 	)
-	from .latextools_utils.sublime_utils import get_sublime_exe
+	from .latextools_utils.sublime_utils import focus_st
 	from .latextools_plugin import (
 		get_plugin, add_plugin_path, NoSuchPluginException,
 		add_whitelist_module
@@ -81,31 +81,6 @@ def get_viewer():
 		raise NoViewerException()
 
 	return viewer
-
-
-def focus_st():
-	sublime_command = get_sublime_exe()
-
-	if sublime_command is not None:
-		platform = sublime.platform()
-		# TODO: this does not work on OSX
-		# and I don't know why...
-		if platform == 'osx':
-			return
-
-		plat_settings = get_setting(platform, {})
-		wait_time = plat_settings.get('keep_focus_delay', 0.5)
-
-		def keep_focus():
-			external_command(
-				sublime_command,
-				use_texpath=False
-			)
-
-		if hasattr(sublime, 'set_async_timeout'):
-			sublime.set_async_timeout(keep_focus, int(wait_time * 1000))
-		else:
-			sublime.set_timeout(keep_focus, int(wait_time * 1000))
 
 
 # Jump to current line in PDF file

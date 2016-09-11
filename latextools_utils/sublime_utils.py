@@ -11,13 +11,17 @@ import sublime
 import sys
 
 try:
-    from latextools_utils.external_command import check_output
+    from latextools_utils.external_command import (
+        check_output, external_command
+    )
     from latextools_utils.settings import get_setting
     from latextools_utils.system import which
 except ImportError:
-    from .external_command import check_output
+    from .external_command import check_output, external_command
     from .settings import get_setting
     from .system import which
+
+_ST3 = sublime.version() >= '3000'
 
 
 __all__ = ['normalize_path', 'get_project_file_name']
@@ -40,6 +44,45 @@ def normalize_path(path):
         )
     else:
         return path
+
+
+# returns the focus to ST
+# NB its probably good to call this as little as possible since focus-stealing
+# annoys people
+def focus_st():
+    if get_setting('disable_focus_hack', False):
+        return
+
+    sublime_command = get_sublime_exe()
+
+    if sublime_command is not None:
+        platform = sublime.platform()
+        plat_settings = get_setting(platform, {})
+        wait_time = plat_settings.get('keep_focus_delay', 0.5)
+
+        # osx is a special snowflake
+        if platform == 'osx':
+            # sublime_command should be /path/to/Sublime Text.app/Contents/...
+            sublime_app = sublime_command.split('/Contents/')[0]
+
+            def keep_focus():
+                external_command(
+                    [
+                        'osascript', '-e',
+                        'tell application "{0}" to activate'.format(
+                            sublime_app
+                        )
+                    ],
+                    use_texpath=False
+                )
+        else:
+            def keep_focus():
+                external_command(sublime_command, use_texpath=False)
+
+        if hasattr(sublime, 'set_async_timeout'):
+            sublime.set_async_timeout(keep_focus, int(wait_time * 1000))
+        else:
+            sublime.set_timeout(keep_focus, int(wait_time * 1000))
 
 
 # returns the path to the sublime executable

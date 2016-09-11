@@ -62,8 +62,8 @@ class EvinceViewer(BaseViewer):
                     except:
                         sublime.error_message(
                             '''Cannot find a valid Python interpreter.
-                            Please set the python setting in your LaTeXTools settings.
-                            '''.strip()
+                            Please set the python setting in your LaTeXTools
+                            settings.'''.strip()
                         )
                         # exit the viewer process
                         raise Exception('Cannot find a valid interpreter')
@@ -100,6 +100,9 @@ class EvinceViewer(BaseViewer):
         evince_running = self._is_evince_running(pdf_file)
         if not keep_focus or not evince_running:
             self._launch_evince(pdf_file)
+            if keep_focus:
+                self.focus_st()
+
             time.sleep(sync_wait)
 
         external_command(
@@ -115,6 +118,11 @@ class EvinceViewer(BaseViewer):
 
         if not keep_focus or not self._is_evince_running(pdf_file):
             self._launch_evince(pdf_file)
+            if keep_focus:
+                self.focus_st()
 
     def supports_platform(self, platform):
         return platform == 'linux'
+
+    def supports_keep_focus(self):
+        return True
