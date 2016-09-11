@@ -255,7 +255,7 @@
 	// "default" or ""	the default built-in build engine; currently
 	//					this is the same as "traditional"
 	//
-	// "basic"			invokes pdflatex / xelatex / lualates as
+	// "basic"			invokes pdflatex / xelatex / lualatex as
 	//					needed, then biber / bibtex and pdflatex /
 	//					xelatex / lualatex again if needed. Unlike
 	//					the "simple" builder this supports most of
@@ -438,35 +438,35 @@
 	// "traditional" 		the default, regex-based bibliography
 	//						parsing
 	//
-	// "new"				a newer parser which supports UTF-8 and
-	//						additional fields, but may be slower and
-	//						less well tested.
+	// "new"				a newer parser which supports more complex
+	//						formatting and additional fields, but may
+	//						be slower
 	"bibliography": "traditional",
 
-	/* This preference sets the format of the quick panel to select citations using wildcards.
-	The setting is a list with one or two string using wildcards for author, title, keyword etc.
+	// OPTION: "cite_panel_format"
+	// This preference sets the format of the quick panel to select citations using wildcards.
+	// The setting is a list with one or two string using wildcards for author, title, keyword etc.
 
-	Default setting: the traditional display, `["{title} ({keyword})","{author}"]`
-	Format:
-	Can quantum-mechanical description of physical reality be considered complete? This is an non-existing subtitle to illustrate (einstein1935quantum)
-	Albert Einstein and B Podolsky and N Rosen
+	// The traditional display: `["{title} ({keyword})","{author}"]`
+	// Format:
+	// Can quantum-mechanical description of physical reality be considered complete? This is an non-existing subtitle to illustrate (einstein1935quantum)
+	// Albert Einstein and B Podolsky and N Rosen
 
-	Richer alternative: ["{author_short} {year} - {title_short} ({keyword})","{title}"]
-	Format:
-	Einstein et al. 1935 - Can quantum-mechanical description of physical reality be considered complete (einstein1935quantum)
-	Can quantum-mechanical description of physical reality be considered complete? This is an non-existing subtitle to illustrate
+	// Richer alternative: ["{author_short} {year} - {title_short} ({keyword})","{title}"]
+	// Format:
+	// Einstein et al. 1935 - Can quantum-mechanical description of physical reality be considered complete (einstein1935quantum)
+	// Can quantum-mechanical description of physical reality be considered complete? This is an non-existing subtitle to illustrate
 
-	Another alternative: ["({keyword}) {author_short} - {year}","{title} - {journal}"]
-	Format:
-	(einstein1935quantum) Einstein et al. - 1935
-	Can quantum-mechanical description of physical reality be considered complete? - Physical Review
+	// Another alternative: ["({keyword}) {author_short} - {year}","{title} - {journal}"]
+	// Format:
+	// (einstein1935quantum) Einstein et al. - 1935
+	// Can quantum-mechanical description of physical reality be considered complete? - Physical Review
 
-	No-title alternative: ["{author_short} {year} ({keyword})"]
-	Format:
-	Einstein et al. 1935 (einstein1935quantum)
+	// No-title alternative: ["{author_short} {year} ({keyword})"]
+	// Format:
+	// Einstein et al. 1935 (einstein1935quantum)
 
-	Valid wildcards: keyword, title, author, year, author_short, title_short, journal
-	*/
+	// Valid wildcards: keyword, title, author, year, author_short, title_short, journal
 
 	// Uncomment or modify at will
 	"cite_panel_format": ["{author_short} {year} - {title_short} ({keyword})","{title}"],
