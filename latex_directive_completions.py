@@ -9,9 +9,11 @@ _ST3 = sublime.version() >= "3000"
 
 if _ST3:
     from . import detect_spellcheck
+    from .latex_fill_all import FillAllHelper
     from .latextools_utils import get_setting
 else:
     import detect_spellcheck
+    from latex_fill_all import FillAllHelper
     from latextools_utils import get_setting
 
 try:
@@ -30,7 +32,7 @@ def _prettify_locale(loc):
     return "{0}_{1}".format(lang, country.upper())
 
 
-def _directive_root_completions(view, value):
+def _directive_root_completions(view, value, ac=True):
     if not view.file_name():
         return []
 
@@ -78,13 +80,17 @@ def _directive_root_completions(view, value):
         if s.startswith(value) or
         (not len_prefix and s.startswith("./" + value))
     ]
+    if ac:
+        comp = [(s + "\ttex-file", s[len_prefix:]) for s in tex_files]
+    else:
+        comp = [
+            [s, os.path.abspath(os.path.join(directory, s))] for s in tex_files
+        ], tex_files
 
-    comp = [(s + "\ttex-file", s[len_prefix:]) for s in tex_files]
     return comp
 
 
-def _directive_spellcheck_completions(view, value):
-
+def _directive_spellcheck_completions(view, value, ac=True):
     user_sc = get_setting("tex_spellcheck_paths", view=view, default={})
     locales = sorted(user_sc.keys())
 
@@ -94,7 +100,10 @@ def _directive_spellcheck_completions(view, value):
         try:
             loc = detect_spellcheck.normalize_locale(loc)
             dic = user_sc.get(loc) or detect_spellcheck.get_dict_path(loc)
-            _, dic = os.path.split(dic)
+            if ac:
+                _, dic = os.path.split(dic)
+            elif dic.startswith("Packages/"):
+                dic = dic[len("Packages/"):]
         except:
             dic = "locale"
         return dic
@@ -104,28 +113,91 @@ def _directive_spellcheck_completions(view, value):
         if loc.startswith(value)
     ]
 
-    comp = [
-        ("{0}\t{1}".format(loc, get_locale(loc)), loc)
-        for loc in locales
-    ]
+    if ac:
+        comp = [
+            ("{0}\t{1}".format(loc, get_locale(loc)), loc)
+            for loc in locales
+        ]
+    else:
+        comp = [[loc, get_locale(loc)] for loc in locales], locales
     return comp
 
 
-def _directive_program_completions(view, value):
-
+def _directive_program_completions(view, value, ac=True):
     engines = [
         "pdflatex", "xelatex", "lualatex", "pdftex", "xetex", "luatex"
     ]
     engines = [e for e in engines if e.startswith(value)]
-    comp = [(e + "\ttex-program", e) for e in engines]
+    if ac:
+        comp = [(e + "\ttex-program", e) for e in engines]
+    else:
+        comp = engines, engines
     return comp
+
+
+_LINE_RE = re.compile(
+    r"\s*%\s*!TEX\s+"
+    r"(?P<directive>[\w-]+)(?P<spaces>\s*)"
+    r"=(?P<postspaces>\s*)"
+    r"(?P<prefix>.*)"
+)
+
+_REVERSE_LINE_MATCH_RE = re.compile(
+    r".*\s*=\s*(\w+)\s+XET!\s*%\s*$"
+)
+
+
+class DirectiveFillAllHelper(FillAllHelper):
+
+    def _get_completions(self, view, prefix, line, ac=False):
+        m = re.match(_LINE_RE, line)
+        if not m:
+            return []
+        directive = m.group("directive").lower()
+        # remove leading TS-
+        if directive.startswith("ts-"):
+            directive = directive[3:]
+
+        value = m.group("prefix")
+
+        function = "_directive_{0}_completions".format(directive)
+        # call the completion
+        try:
+            comp = globals().get(function)(view, value, ac)
+        except:
+            comp = []
+
+        if not ac and not prefix and m.group("spaces"):
+            comp = comp[0], [" " + c for c in comp[1]]
+
+        return comp
+
+    def get_auto_completions(self, view, prefix, line):
+        print("get_auto_completions")
+        comp = self._get_completions(view, prefix, line, ac=True)
+
+        # print("comp:", comp)
+        return comp
+
+    def get_completions(self, view, prefix, line):
+        print("get_completions")
+        print("prefix: '%s'" % prefix)
+        print("line:", line)
+        comp = self._get_completions(view, prefix, line, ac=False)
+        # print("comp:", comp)
+        return comp
+
+    def matches_line(self, line):
+        return bool(_REVERSE_LINE_MATCH_RE.match(line))
+
+    def is_enabled(self):
+        return get_setting('cite_auto_trigger', True)
 
 
 class LatexDirectiveCompletion(sublime_plugin.EventListener):
     def on_query_completions(self, view, prefix, locations):
         if len(locations) > 1:
             return
-        # return
         point = locations[0]
         if not view.score_selector(
                 point, "text.tex.latex comment.line.percentage.tex"):
@@ -141,33 +213,16 @@ class LatexDirectiveCompletion(sublime_plugin.EventListener):
 
         comp = None
 
-        ts_directives = ["root", "spellcheck", "program"]
+        tex_directives = ["root", "spellcheck", "program"]
         if re.match("\s*%\s*!$", line_str):
-            comp = [
-                ("TEX {0}\tTS-directive".format(s), "TEX " + s)
-                for s in ts_directives
-            ]
+            row, _ = view.rowcol(point)
+            # do this completion only in the first 10 lines
+            if row < 10:
+                comp = [
+                    ("TEX {0}\tTEX directive".format(s), "TEX " + s)
+                    for s in tex_directives
+                ]
         elif re.match("\s*%\s*!TEX\s+$", line_str):
-            comp = [(s + "\tTS-directive", s) for s in ts_directives]
-        else:
-            m = re.match("\s*%\s*!TEX\s+([\w-]+)\s*=\s*(.*)$", line_str)
-            if not m:
-                return
-            directive = m.group(1).lower()
-            # remove leading TS-
-            if directive.startswith("ts-"):
-                directive = directive[3:]
-            value = m.group(2) + prefix
-            function = "_directive_{0}_completions".format(directive)
-            # call the completion
-            try:
-                comp = globals().get(function)(view, value)
-            except:
-                pass
-
-        if comp is not None:
-            return (
-                comp,
-                sublime.INHIBIT_WORD_COMPLETIONS |
-                sublime.INHIBIT_EXPLICIT_COMPLETIONS
-            )
+            comp = [(s + "\tTEX directive", s) for s in tex_directives]
+        # other completions are handled via fill all helper
+        return comp
