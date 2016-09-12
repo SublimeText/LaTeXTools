@@ -54,7 +54,7 @@ class LatexFillHelper(object):
     #
     # defines non-word characters. See get_current_word
     WORD_SEPARATOR_RX = re.compile(
-        r'([^{}\[\],\\$&#^~%\s]*)',
+        r'([^{}\[\],\\$&#^~%\s=]*)',
         re.UNICODE
     )
 
@@ -626,7 +626,8 @@ class LatexFillAllEventListener(
     SUPPORTED_INSERT_CHARS = {
         'open_curly': '{',
         'open_square': '[',
-        'comma': ','
+        'comma': ',',
+        'equal_sign': '='
     }
 
     def on_query_context(self, view, key, operator, operand, match_all):
@@ -639,8 +640,7 @@ class LatexFillAllEventListener(
         for sel in view.sel():
             point = sel.b
             if (
-                view.score_selector(point, "text.tex.latex") == 0 or
-                view.score_selector(point, "comment") > 0
+                view.score_selector(point, "text.tex.latex") == 0
             ):
                 return None
 
@@ -693,8 +693,7 @@ class LatexFillAllEventListener(
     def on_query_completions(self, view, prefix, locations):
         for location in locations:
             if (
-                view.score_selector(location, "text.tex.latex") == 0 or
-                view.score_selector(location, "comment") > 0
+                view.score_selector(location, "text.tex.latex") == 0
             ):
                 return
 
@@ -863,8 +862,7 @@ class LatexFillAllCommand(
         for sel in view.sel():
             point = sel.b
             if (
-                view.score_selector(point, "text.tex.latex") == 0 or
-                view.score_selector(point, "comment") > 0
+                view.score_selector(point, "text.tex.latex") == 0
             ):
                 self.complete_brackets(view, edit, insert_char)
                 return
