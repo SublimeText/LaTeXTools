@@ -133,15 +133,24 @@ def _directive_program_completions(view, value, ac=True):
     return comp
 
 
+_EXCLAMATION_MARK_RE = re.compile(
+    r"%+\s*!"
+    r"$",
+    re.UNICODE | re.IGNORECASE
+)
+_TEX_PREFIX_RE = re.compile(
+    r"%+\s*!"
+    r"TEX\s+"
+    r"$",
+    re.UNICODE | re.IGNORECASE
+)
 _LINE_RE = re.compile(
-    r"\s*%\s*!TEX\s+"
+    r"%+\s*!"
+    r"TEX\s+"
     r"(?P<directive>[\w-]+)(?P<spaces>\s*)"
     r"=(?P<postspaces>\s*)"
-    r"(?P<prefix>.*)"
-)
-
-_REVERSE_LINE_MATCH_RE = re.compile(
-    r".*\s*=\s*(\w+)\s+XET!\s*%\s*$"
+    r"(?P<prefix>.*)",
+    re.UNICODE | re.IGNORECASE
 )
 
 
@@ -179,7 +188,7 @@ class DirectiveFillAllHelper(FillAllHelper):
         return comp
 
     def matches_line(self, line):
-        return bool(_REVERSE_LINE_MATCH_RE.match(line))
+        return bool(_LINE_RE.match(line[::-1]))
 
     def get_supported_scope_selector(self):
         return "comment"
@@ -194,7 +203,7 @@ class LatexDirectiveCompletion(sublime_plugin.EventListener):
             return
         point = locations[0]
         if not view.score_selector(
-                point, "text.tex.latex comment.line.percentage.tex"):
+                point, "text.tex.latex comment.line.percentage"):
             return
 
         line_str = view.substr(sublime.Region(view.line(point).a, point))
@@ -207,16 +216,19 @@ class LatexDirectiveCompletion(sublime_plugin.EventListener):
 
         comp = None
 
-        tex_directives = ["root", "spellcheck", "program"]
-        if re.match("\s*%\s*!$", line_str):
+        tex_directives = [
+            "root", "spellcheck", "program", "output_directory",
+            "aux_directory", "jobname", "options"
+        ]
+        if _EXCLAMATION_MARK_RE.match(line_str):
             row, _ = view.rowcol(point)
             # do this completion only in the first 10 lines
-            if row < 10:
+            if row < 20:
                 comp = [
                     ("TEX {0}\tTEX directive".format(s), "TEX " + s)
                     for s in tex_directives
                 ]
-        elif re.match("\s*%\s*!TEX\s+$", line_str):
+        elif _TEX_PREFIX_RE.match(line_str):
             comp = [(s + "\tTEX directive", s) for s in tex_directives]
         # other completions are handled via fill all helper
         return comp
