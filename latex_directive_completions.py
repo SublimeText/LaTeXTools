@@ -191,7 +191,7 @@ class DirectiveFillAllHelper(FillAllHelper):
         return bool(_REVERSE_LINE_MATCH_RE.match(line))
 
     def is_enabled(self):
-        return get_setting('cite_auto_trigger', True)
+        return get_setting("tex_directive_auto_trigger", True)
 
 
 class LatexDirectiveCompletion(sublime_plugin.EventListener):

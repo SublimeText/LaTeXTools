@@ -141,6 +141,10 @@ LaTeX Package keymap for OS X
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "toggle_auto", "args": {"which": "env"}},
+	{ 	"keys": ["super+l","t","a", "d"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "toggle_auto", "args": {"which": "tex_directive"}},
 	{ 	"keys": ["super+l","t","a", "b"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],

@@ -149,6 +149,10 @@ LaTeX Package keymap for Windows
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "toggle_auto", "args": {"which": "env"}},
+	{ 	"keys": ["ctrl+l","t","a", "d"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "toggle_auto", "args": {"which": "tex_directive"}},
 	{ 	"keys": ["ctrl+l","t","a", "b"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
