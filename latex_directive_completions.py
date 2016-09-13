@@ -173,18 +173,11 @@ class DirectiveFillAllHelper(FillAllHelper):
         return comp
 
     def get_auto_completions(self, view, prefix, line):
-        print("get_auto_completions")
         comp = self._get_completions(view, prefix, line, ac=True)
-
-        # print("comp:", comp)
         return comp
 
     def get_completions(self, view, prefix, line):
-        print("get_completions")
-        print("prefix: '%s'" % prefix)
-        print("line:", line)
         comp = self._get_completions(view, prefix, line, ac=False)
-        # print("comp:", comp)
         return comp
 
     def matches_line(self, line):
