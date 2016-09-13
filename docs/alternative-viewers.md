@@ -2,15 +2,19 @@
 
 ## Preview.app
 
-The Preview.app viewer is very straight-forward. It simply launches Preview.app with the relevant PDF file. Please note that Preview.app *does not* support forward or reverse sync, so you will not have that functionality available. Nevertheless, if you want to avoid installing another PDF viewer, this may be an acceptable option.
+The Preview.app viewer is very straight-forward. It simply launches Preview.app with the relevant PDF file. Please note that Preview.app *does not* support forward or inverse sync, so you will not have that functionality available. Nevertheless, if you want to avoid installing another PDF viewer, this may be an acceptable option.
 
 ## Okular
 
-The Okular viewer is quite similar to the Evince viewer and should work out of the box. However, for forward sync (i.e. from Sublime to Okular) to work properly, the PDF document *must* be opened in Okular's unique session. If it is not, each forward sync command will open a new copy of the PDF. This also means that you can only have a single PDF document opened by LaTeXTools at a time. If, when the Okular viewer is run, you get a message which reads `There's already a unique Okular instance running. This instance won't be the unique one.`, you will need to adjust your `sync_wait` settings, increasing the value until the error stops. See the [Linux](#linux2) platform settings.
+The Okular viewer is quite similar to the Evince viewer. Forward sync (i.e., from Sublime to Okular) should work out of the box, but a caveat needs to be observed. For forward sync to work properly, the PDF document *must* be opened in Okular's unique session. If it is not, each forward sync command will open a new copy of the PDF. This also means that you can only have a *single* PDF document opened by LaTeXTools at a time.
+
+If, when you run a forward sync, you get a message which reads **There's already a unique Okular instance running. This instance won't be the unique one.**, you will need to adjust the `sync_wait` settings, increasing the value until the error stops. See the [Linux](#linux2) platform settings.
+
+To setup inverse sync (i.e., going from Okular to Sublime), in Okular open **Settings > Configure Okular > Editor**. From the dropdown menu, choose **Custom Text Editor** and in the **Command** box, fill in `subl "%f:%l"` (note that this assumes that you have `subl` in `/usr/bin` or another folder on your PATH).
 
 ## Zathura
 
-Zathura will mostly work out of the box. However, under some circumstances, Zathura may not properly gain focus if you have set `keep_focus` to `false` or set the toggle to `Focus PDF`. To ensure that the focus ends up on Zathura, you will have to install either [`wmctrl`](https://sites.google.com/site/tstyblo/wmctrl) or [`xodotool`](http://www.semicomplete.com/projects/xdotool/), which should be available through your package manager. You can, of course, install both.
+Zathura mostly works out of the box without any configuration. However, because, unlike other viewers, it does not steal the focus under some circumstances, Zathura may not properly gain focus if you have set `keep_focus` to `false`. To ensure that the focus ends up on Zathura, you will have to install either [`wmctrl`](https://sites.google.com/site/tstyblo/wmctrl) or [`xodotool`](http://www.semicomplete.com/projects/xdotool/), which should be available through your package manager. You can, of course, install both.
 
 ## Command Viewer
 

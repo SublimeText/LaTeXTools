@@ -8,7 +8,7 @@ You will also need to install a TeX distribution, but this can be done separatel
 
 The recommended way to install the LaTeXTools plugin is via [Package Control](https://packagecontrol.io/). It's awesome and makes it easy to keep your installed packages up-to-date. If you don't already have Package Control, instructions to install it can be found [here](https://packagecontrol.io/installation) (it's very easy!).
 
-Once, you have Package Control installed, launch the **Command Palette** by pressing <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>p</kbd> (Windows / Linux) or <kbd>cmd</kbd>+<kbd>shift</kbd>+<kbd>p</kbd> (OS X) and select the **Package Control: Install Package** option. This will bring up a quick panel with a list of installable plugins. Start typing **LaTeXTools** and when you see it, select it. That's it!
+Once, you have Package Control installed, launch the **Command Palette** by pressing <kbd>Ctrl+shift+p</kbd> (Windows / Linux) or <kbd>⌘+shift+p</kbd> (OS X) and select the **Package Control: Install Package** option. This will bring up a quick panel with a list of installable plugins. Start typing **LaTeXTools** and when you see it, select it. That's it!
 
 If you prefer a more hands-on approach, you can always clone the [git repository](https://github.com/SublimeText/LaTeXTools.git) or else just [grab the plugin's .zip file from GitHub](https://github.com/SublimeText/LaTeXTools/archive/master.zip) and extract it to your Sublime **Packages** directory (you can open it easily from ST, by clicking on **Preferences | Browse Packages**). Please note that if you do a manual installation, the package **must** be named "LaTeXTools".
 
