@@ -74,9 +74,7 @@ def _directive_root_completions(view, value, ac=True):
 
     len_prefix = len([v for v in value if v in [".", "/"]])
     tex_files = [
-        # (s, s[len_prefix:])
-        s
-        for s in tex_files
+        s for s in tex_files
         if s.startswith(value) or
         (not len_prefix and s.startswith("./" + value))
     ]
