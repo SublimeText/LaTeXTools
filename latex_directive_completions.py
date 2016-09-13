@@ -183,6 +183,9 @@ class DirectiveFillAllHelper(FillAllHelper):
     def matches_line(self, line):
         return bool(_REVERSE_LINE_MATCH_RE.match(line))
 
+    def get_supported_scope_selector(self):
+        return "comment"
+
     def is_enabled(self):
         return get_setting("tex_directive_auto_trigger", True)
 
