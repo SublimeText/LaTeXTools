@@ -650,6 +650,8 @@ class LatexFillAllEventListener(
         completion type, e.g. "lt_fill_all_cite", etc.
         '''
         # quick exit conditions
+        if not key.startswith("lt_fill_all_"):
+            return None
         for sel in view.sel():
             point = sel.b
             if not view.score_selector(point, "text.tex.latex"):
