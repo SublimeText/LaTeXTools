@@ -652,9 +652,7 @@ class LatexFillAllEventListener(
         # quick exit conditions
         for sel in view.sel():
             point = sel.b
-            if (
-                view.score_selector(point, "text.tex.latex") == 0
-            ):
+            if not view.score_selector(point, "text.tex.latex"):
                 return None
 
         # load the plugins
@@ -709,9 +707,7 @@ class LatexFillAllEventListener(
 
     def on_query_completions(self, view, prefix, locations):
         for location in locations:
-            if (
-                view.score_selector(location, "text.tex.latex") == 0
-            ):
+            if not view.score_selector(location, "text.tex.latex"):
                 return
 
         completion_types = self.get_completion_types()
@@ -882,9 +878,7 @@ class LatexFillAllCommand(
 
         for sel in view.sel():
             point = sel.b
-            if (
-                view.score_selector(point, "text.tex.latex") == 0
-            ):
+            if not view.score_selector(point, "text.tex.latex"):
                 self.complete_brackets(view, edit, insert_char)
                 return
 
@@ -1017,10 +1011,6 @@ class LatexFillAllCommand(
         # inserting a comma or bracket; otherwise, it must've been a keypress
         if insert_char and not completion_type.is_enabled():
             self.complete_brackets(view, edit, insert_char)
-            return
-
-        selector = completion_type.get_supported_scope_selector()
-        if not self.score_selector(view, selector):
             return
 
         # we are not adding a bracket or comma, we do not have a fancy prefix
