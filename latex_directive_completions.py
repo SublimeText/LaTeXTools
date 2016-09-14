@@ -133,6 +133,49 @@ def _directive_program_completions(view, value, ac=True):
     return comp
 
 
+def _directive_output_directory_completions(view, value, ac=True):
+    if not ac:
+        # deal popup panel trigger
+        comp = [
+            (["Other", "Define your own path"], ""),
+            (["Cache", "Use LaTeXTools cache path"], "<<cache>>"),
+            (["Project", "Use a folder relative to project root"],
+             "<<project>>"),
+            (["Temporary", "Use a temporary directory"], "<<temp>>")
+        ]
+        comp = [
+            c for c in comp
+            if c[1].startswith(value) or c[1].startswith("<<" + value)
+        ]
+        return [c[0] for c in comp], [c[1] for c in comp]
+
+    if value.endswith(">>"):
+        return []
+
+    # special behavior to deal with << and  and >
+    if value.endswith(">"):
+        lstrip = len(value)
+    elif value.startswith("<<"):
+        lstrip = 2
+    elif value.startswith("<"):
+        lstrip = 1
+    else:
+        lstrip = 0
+    comp = [
+        ("cache\tLaTeXTools cache", "<<cache>>"),
+        ("project\tRelative to project", "<<project>>"),
+        ("temp\tTemporary directory", "<<temp>>"),
+    ]
+    comp = [
+        (c[0], c[1][lstrip:]) for c in comp
+        if c[0].startswith(value) or c[1].startswith(value)
+    ]
+    return comp
+
+
+_directive_aux_directory_completions = _directive_output_directory_completions
+
+
 _EXCLAMATION_MARK_RE = re.compile(
     r"%+\s*!"
     r"$",
@@ -222,7 +265,7 @@ class LatexDirectiveCompletion(sublime_plugin.EventListener):
         ]
         if _EXCLAMATION_MARK_RE.match(line_str):
             row, _ = view.rowcol(point)
-            # do this completion only in the first 10 lines
+            # do this completion only in the first 20 lines
             if row < 20:
                 comp = [
                     ("TEX {0}\tTEX directive".format(s), "TEX " + s)
