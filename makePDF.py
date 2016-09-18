@@ -18,6 +18,7 @@ if sublime.version() < '3000':
 		get_aux_directory, get_output_directory, get_jobname
 	)
 	from latextools_utils.progress_indicator import ProgressIndicator
+	from latextools_utils.utils import run_on_main_thread
 
 	strbase = basestring
 else:
@@ -35,13 +36,14 @@ else:
 		get_aux_directory, get_output_directory, get_jobname
 	)
 	from .latextools_utils.progress_indicator import ProgressIndicator
+	from .latextools_utils.utils import run_on_main_thread
 
 	strbase = str
 	long = int
 
 import sublime_plugin
 import sys
-import os, os.path
+import os
 import signal
 import threading
 import functools
@@ -50,11 +52,13 @@ import types
 import traceback
 import shutil
 import re
-import html
 
 DEBUG = False
 
 _HAS_PHANTOMS = sublime.version() >= "3118"
+
+if _HAS_PHANTOMS:
+	import html
 
 # Compile current .tex file to pdf
 # Allow custom scripts and build engines!
@@ -160,10 +164,7 @@ class CmdThread ( threading.Thread ):
 								cwd=self.caller.tex_dir
 							)
 					except:
-						if self.caller.hide_panel_level != 'always':
-							self.caller.window.run_command(
-								"show_panel", {"panel": "output.latextools"}
-							)
+						self.caller.show_output_panel()
 						self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
 						self.caller.output("Attempted command:")
 						self.caller.output(" ".join(cmd))
@@ -203,10 +204,7 @@ class CmdThread ( threading.Thread ):
 				# At this point, out contains the output from the current command;
 				# we pass it to the cmd_iterator and get the next command, until completion
 		except:
-			if self.caller.hide_panel_level != 'always':
-				self.caller.window.run_command(
-					"show_panel", {"panel": "output.latextools"}
-				)
+			self.caller.show_output_panel()
 			self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
 			self.caller.output("\nBuild engine: " + self.caller.builder.name)
 			self.caller.proc = None
@@ -287,10 +285,8 @@ class CmdThread ( threading.Thread ):
 		except IOError:
 			traceback.print_exc()
 
-			if self.caller.hide_panel_level != 'always':
-				self.caller.window.run_command(
-					"show_panel", {"panel": "output.latextools"}
-				)
+			self.caller.show_output_panel()
+
 			content = ['', 'Could not read log file {0}.log'.format(
 				self.caller.tex_base
 			), '']
@@ -358,17 +354,7 @@ class CmdThread ( threading.Thread ):
 
 				if show_panel:
 					self.caller.progress_indicator.success_message = "Build completed"
-					# show the build panel (ST2 api is not thread save)
-					if _ST3:
-						self.caller.window.run_command(
-							"show_panel", {"panel": "output.latextools"}
-						)
-					else:
-						sublime.set_timeout(
-							lambda: self.caller.window.run_command(
-								"show_panel",
-								{"panel": "output.latextools"}
-							), 0)
+					self.caller.show_output_panel(force=True)
 				else:
 					message = "Build completed"
 					if errors:
@@ -391,11 +377,7 @@ class CmdThread ( threading.Thread ):
 
 					self.caller.progress_indicator.success_message = message
 			except Exception as e:
-				if self.caller.hide_panel_level != 'always':
-					self.caller.window.run_command(
-						"show_panel", {"panel": "output.latextools"}
-					)
-
+				self.caller.show_output_panel()
 				content = ["", ""]
 				content.append(
 					"LaTeXTools could not parse the TeX log file {0}".format(
@@ -531,7 +513,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 
 		self.hide_panel_level = get_setting("hide_build_panel", "no_warnings")
 		if self.hide_panel_level == "never":
-			self.window.run_command("show_panel", {"panel": "output.latextools"})
+			self.show_output_panel(force=True)
 
 		self.plat = sublime.platform()
 		if self.plat == "osx":
@@ -708,7 +690,15 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# if selection_was_at_end:
 		#     self.output_view.show(self.output_view.size())
 		# self.output_view.end_edit(edit)
-		self.output_view.set_read_only(True)	
+		self.output_view.set_read_only(True)
+
+	def show_output_panel(self, force=False):
+		if force or self.hide_panel_level != 'always':
+			f = functools.partial(
+				self.window.run_command,
+				"show_panel", {"panel": "output.latextools"}
+			)
+			run_on_main_thread(f, default_value=None)
 
 	# Also from exec.py
 	# Set the selection to the start of the output panel, so next_result works

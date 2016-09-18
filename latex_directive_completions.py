@@ -13,7 +13,7 @@ if _ST3:
     from .latextools_utils import get_setting
 else:
     import detect_spellcheck
-    from latex_fill_all import FillAllHelper
+    from latextools_utils.internal_types import FillAllHelper
     from latextools_utils import get_setting
 
 try:
