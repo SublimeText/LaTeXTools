@@ -47,10 +47,14 @@ class show_toc_quickpanel(quickpanel.CancelEntriesQuickpanel):
         # create the user readably captions
         # get the minimal indent (to lower the minimal section indent to 0)
         max_indent_value = max(toc_indentations.values())
-        indent_offset = min(toc_indentations.get(com.command, max_indent_value)
-                            for com in secs)
+        indent_offset = min([
+            toc_indentations.get(com.command, max_indent_value)
+            for com in secs
+        ] + [0])
+
         caption_secs = [_make_caption(toc_indentations, s, indent_offset)
                         for s in secs]
+
         caption_labels = [_make_caption(toc_indentations, l, indent_offset)
                           for l in labels]
 
