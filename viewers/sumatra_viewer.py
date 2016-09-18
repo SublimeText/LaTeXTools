@@ -9,13 +9,21 @@ import sys
 import traceback
 
 if sys.version_info < (3, 0):
-    import _winreg as winreg
+    try:
+        import _winreg as winreg
+    except:
+        # not on Windows
+        pass
 
     exec("""def reraise(tp, value, tb=None):
     raise tp, value, tb
 """)
 else:
-    import winreg
+    try:
+        import winreg
+    except:
+        # not on Windows
+        pass
 
     def reraise(tp, value, tb=None):
         if value is None:
