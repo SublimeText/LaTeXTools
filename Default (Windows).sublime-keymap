@@ -236,8 +236,17 @@ LaTeX Package keymap for Windows
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text monospace.sublime-snippet"}},
 
 
-
-
+	// Replace the `ctrl+r` overlay with a whole document overlay as opt-out
+	// Also add this overlay to `C-l, C-r`
+	{ "keys": ["ctrl+r"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex"},
+			{"key": "overwrite_goto_overlay"}],
+		"command": "latex_toc_quickpanel"},
+	{ "keys": ["ctrl+l","ctrl+r"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex"}],
+		"command": "latex_toc_quickpanel"},
 
 
 		// Auto-pair ``$''
