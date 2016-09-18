@@ -597,7 +597,7 @@ NOTE: for the time being, you will need to refer to the `LaTeXTools.sublime-sett
 	* `env` (unset): a dictionary of key-values corresponding to environment variables that should be set for the environment the build is run in. Note that `env`, if it is set, must be set at the platform-specific level, e.g., under the `osx`, `windows`, or `linux` keys. This is useful for setting, e.g., `TEXINPUTS`.
 	* In addition, there can be platform-specific settings. An important one for Windows is `distro`, which must be set to either `miktex` or `texlive`.
 
-### Build Panel Settings
+### Build Panel and Phantoms Settings
 - `highlight_build_panel` (`true`): if `true` the build panel will have a syntax applied to highlight any errors and warnings. Otherwise, the standard output panel configuration will be used.
 - `hide_build_panel` (`"never"`): controls whether or not to hide the build panel after a build is finished. Possible values:
 	* `"always"` - hide the panel even if the build failed
@@ -607,6 +607,11 @@ NOTE: for the time being, you will need to refer to the `LaTeXTools.sublime-sett
 	* `"never"` - never hide the build panel
 Any other value will be interpretted as the default.
 - `display_bad_boxes` (`false`): if `true` LaTeXTools will display any bad boxes encountered after a build. Note that this is disabled by default.
+- `show_error_phantoms` (`"warnings"`) *ST3, Build 3118+ only*: controls which errors are displayed via phantoms. Possible values are:
+	* `"none"` 	 don't show any phantoms at all
+	* `"errors"` 	 only show errors, which breaks the compilation
+	* `"warnings"` 	 show errors and warnings
+	* `"badboxes"` 	 show errors, warnings, and badboxes
 
 ### Viewer settings
 

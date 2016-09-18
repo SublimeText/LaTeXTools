@@ -318,7 +318,7 @@
 	},
 
 // ------------------------------------------------------------------
-// Build panel settings
+// Build panel and phantoms settings
 // ------------------------------------------------------------------
 	// OPTION: "highlight_build_panel"
 	// adds syntax highlighting to the build panel so that errors, warnings, etc.
@@ -341,6 +341,17 @@
 	// if this is not set to true, the setting "no_badboxes" for
 	// "hide_build_panel" is equivalent to "no_warnings"
 	"display_bad_boxes": false,
+
+
+	// OPTION: "show_error_phantoms"
+	// (ST3, Build 3118+ only)
+	// level to show error phantoms in the file
+	// Possible values are:
+	// "none" (don't show any phantoms at all)
+	// "errors" (only show errors, which breaks the compilation)
+	// "warnings" (default, show errors and warnings)
+	// "badboxes" (show errors, warnings, and badboxes)
+	"show_error_phantoms": "warnings",
 
 // ------------------------------------------------------------------
 // Viewer settings
