@@ -25,7 +25,6 @@ import dbus
 import sys
 import os
 import traceback
-import time
 
 if sys.version_info < (3,):
     from urllib import quote
@@ -63,12 +62,10 @@ if __name__ == '__main__':
             dbus_interface="org.gnome.evince.Daemon"
         )
         window = bus.get_object(dbus_name, '/org/gnome/evince/Window/0')
-        # Added int(time.time()) per
-        # https://www.benwhale.com/blog/evince-synctex-support-broke-for-me-today/
         window.SyncView(
             tex_file,
             (line_number, 1),
-            int(time.time()),
+            0,  # GDK_CURRENT_TIME constant
             dbus_interface="org.gnome.evince.Window"
         )
     except dbus.DBusException:
