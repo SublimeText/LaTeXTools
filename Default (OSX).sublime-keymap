@@ -235,8 +235,7 @@ LaTeX Package keymap for OS X
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text monospace.sublime-snippet"}},
 
-
-	// Replace the `ctrl+r` overlay with a whole document overlay as opt-out
+	// Replace the `C-r` overlay with a whole document overlay as opt-out
 	// Also add this overlay to `C-l, C-r`
 	{ "keys": ["super+r"],
 		"context":  [
@@ -248,6 +247,12 @@ LaTeX Package keymap for OS X
 			{"key": "selector", "operator": "equal", "operand": "text.tex"}],
 		"command": "latex_toc_quickpanel"},
 
+	// Show panel
+	{ "keys": ["shift+escape"],
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "panel_visible", "operator": "equal", "operand": false }],
+		"command": "show_panel", "args": {"panel": "output.latextools"}},
 
 		// Auto-pair ``$''
 		// Lifted from default file
