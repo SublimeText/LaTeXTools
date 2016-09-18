@@ -47,19 +47,41 @@ class LatexFillHelper(object):
     helpful for inserting text into the view and updating the cursor posiiton.
     '''
 
-    # FIXME: word detecting could be shortened by defining the
-    # "word_separators" setting and using `view.word()`. Unfortunately, the
-    # default value contains too many characters we may want to treat as
-    # part of the word for our purposes
+    # This is necessarily incomplete, but is intended to cover a number of
+    # cases and could be extended as needed. I'm unsure that this is the best
+    # design; it's done this way to emulate STs default definition of
+    # word_separators
     #
-    # defines non-word characters. See get_current_word
+    # defines non-word characters; see get_current_word
+    NON_WORD_CHARACTERS = u'/\\()"\':,.;<>~!@#$%^&*|+=\\[\\]{}`~?' + (
+        u'\u0080-\u00bf'  # LATIN-1 PUNCTUATION
+        u'\u2013-\u206f'  # GENERAL PUNCTUATION (w/o spaces or hyphens)
+        u'\u20a0-\u20cf'  # CURRENCY SYMBOLS
+        u'\u2190-\u21ff'  # ARROWS
+        u'\u2200-\u22ff'  # MATHEMATICAL OPERATORS
+        u'\u2300-\u23ff'  # MISC TECHNICAL
+        u'\u27c0-\u27ef'  # MISC MATHEMATICAL SYMBOLS-A
+        u'\u27f0-\u27ff'  # SUPPLEMENTAL ARROWS-A
+        u'\u2935-\u297f'  # SUPPLEMENTAL ARROWS-B
+        u'\u2980-\u29ff'  # MISC MATHEMATICAL SYMBOLS-B
+        u'\u2a00-\u2aff'  # SUPPLEMENTAL MATHEMATICAL OPERATORS
+        u'\u2b00-\u2bff'  # MISC SYMBOLS AND ARROWS
+        u'\u2e00-\u2e44'  # SUPPLEMENTAL PUNCTUATION
+        u'\u3000-\u3020'  # CJK PUNCTUATION / BRACKETS
+        u'\ufe30-\ufe4f'  # CJK COMPATIBILITY FORMS
+        u'\U0001f800-\U0001f8ff'  # SUPPLEMENTAL ARROWS-C
+    ) + r'\s'
+
     WORD_SEPARATOR_RX = re.compile(
-        r'([^{}\[\],\\$&#^~%\s]*)',
+        r'([^' + NON_WORD_CHARACTERS + r']*)',
         re.UNICODE
     )
 
     # define fancy match prefix to support, e.g., \cite_prefix
-    FANCY_PREFIX_RX = re.compile(r'([^_{}\[\],\\$&#^~%\s]*)_')
+    FANCY_PREFIX_RX = re.compile(
+        r'([^_' + NON_WORD_CHARACTERS + r']*)_',
+        re.UNICODE
+    )
 
     # defines which characters need a matching bracket and their match
     MATCH_CHARS = {
@@ -106,64 +128,43 @@ class LatexFillHelper(object):
 
                     self.update_selections(view, new_regions)
                     return
+            elif get_setting('smart_bracket_auto_trigger', True):
+                # more complex: if we do not have an insert_char, try to close
+                # the nearest bracket that occurs before each selection
+                new_regions = []
 
-        if (
-            insert_char and insert_char not in self.MATCH_CHARS and
-            get_setting('smart_bracket_auto_trigger', True)
-        ):
-            # more complex: if we do not have an insert_char, try to close the
-            # nearest bracket that occurs before each selection
-            new_regions = []
+                for sel in view.sel():
+                    word_region = self.get_current_word(view, sel)
+                    close_bracket = self.get_closing_bracket(view, word_region)
+                    # we should close the bracket
+                    if close_bracket:
+                        # insert the closing bracket
+                        view.insert(edit, word_region.end(), close_bracket)
 
-            for sel in view.sel():
-                word_region = self.get_current_word(view, sel)
-                close_bracket = self.get_closing_bracket(view, word_region)
-                # we should close the bracket
-                if close_bracket:
-                    # move to the position after any words separated by a comma
-                    while True:
-                        suffix_region = getRegion(
-                            word_region.end() + 1,
-                            view.line(word_region.end()).end()
-                        )
-
-                        suffix = view.substr(suffix_region)
-
-                        # count words separated by commas as part of the
-                        # argument to the current command
-                        m = re.search(r',', suffix)
-                        if not m:
-                            break
-
-                        word_region = self.get_current_word(
-                            view,
-                            word_region.end() + len(m.group(0))
-                        )
-
-                    # insert the closing bracket
-                    view.insert(edit, word_region.end(), close_bracket)
-
-                    if sel.empty():
-                        if word_region.empty():
-                            new_regions.append(
-                                getRegion(word_region.end(), word_region.end())
-                            )
+                        if sel.empty():
+                            if word_region.empty():
+                                new_regions.append(
+                                    getRegion(
+                                        word_region.end(), word_region.end()
+                                    )
+                                )
+                            else:
+                                new_point = word_region.end() + \
+                                    len(close_bracket)
+                                new_regions.append(
+                                    getRegion(new_point, new_point)
+                                )
                         else:
-                            new_point = word_region.end() + len(close_bracket)
                             new_regions.append(
-                                getRegion(new_point, new_point)
+                                getRegion(
+                                    sel.begin(),
+                                    word_region.end() + len(close_bracket)
+                                )
                             )
                     else:
-                        new_regions.append(
-                            getRegion(
-                                sel.begin(),
-                                word_region.end() + len(close_bracket)
-                            )
-                        )
-                else:
-                    new_regions.append(sel)
+                        new_regions.append(sel)
 
-            self.update_selections(view, new_regions)
+                self.update_selections(view, new_regions)
 
     def complete_brackets(self, view, edit, insert_char='', remove_regions=[]):
         '''
@@ -207,7 +208,7 @@ class LatexFillHelper(object):
         # to find all matches once per bracket type
         # if the view has changed, we reset the candidates
         candidates = None
-        if hasattr(self, 'last_view') and self.last_view != view.id():
+        if not hasattr(self, 'last_view') or self.last_view != view.id():
             self.last_view = view.id()
             candidates = self.candidates = {}
 
@@ -1050,9 +1051,12 @@ class LatexFillAllCommand(
                     return
 
                 if insert_char:
-                    self.insert_at_end(view, edit, insert_char)
-
-                if completions[0]:
+                    insert_text = (
+                        insert_char + completions[0]
+                        if completions[0] else insert_char
+                    )
+                    self.insert_at_end(view, edit, insert_text)
+                elif completions[0]:
                     self.replace_word(view, edit, completions[0])
 
                 self.complete_auto_match(view, edit, insert_char)
@@ -1114,9 +1118,12 @@ class LatexToolsReplaceWord(sublime_plugin.TextCommand, LatexFillHelper):
     def run(self, edit, replacement='', insert_char='', remove_regions=[]):
         view = self.view
         if insert_char:
-            self.insert_at_end(view, edit, insert_char)
-
-        if replacement:
+            insert_text = (
+                insert_char + replacement
+                if replacement else insert_char
+            )
+            self.insert_at_end(view, edit, insert_text)
+        elif replacement:
             self.replace_word(view, edit, replacement)
 
         self.complete_auto_match(view, edit, insert_char)
