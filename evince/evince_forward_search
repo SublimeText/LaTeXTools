@@ -57,7 +57,7 @@ if __name__ == '__main__':
             # RFC 1738: unreserved = alpha | digit | safe | extra
             #           safe       = "$" | "-" | "_" | "." | "+"
             #           extra      = "!" | "*" | "'" | "(" | ")" | ","
-            'file://' + quote(pdf_file, "/$+!*'(),@"),
+            'file://' + quote(pdf_file, "/$+!*'(),@=~"),
             True,
             dbus_interface="org.gnome.evince.Daemon"
         )

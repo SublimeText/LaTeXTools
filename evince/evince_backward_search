@@ -193,7 +193,7 @@ E.g.:
         # RFC 1738: unreserved = alpha | digit | safe | extra
         #           safe       = "$" | "-" | "_" | "." | "+"
         #           extra      = "!" | "*" | "'" | "(" | ")" | ","
-        'file://' + quote(pdf_file, "/$+!*'(),@"),
+        'file://' + quote(pdf_file, "/$+!*'(),@=~"),
         sys.argv[2],
         True
     )
