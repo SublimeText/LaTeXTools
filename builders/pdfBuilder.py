@@ -72,7 +72,7 @@ class PdfBuilder(latextools_plugin.LaTeXToolsPlugin):
 			self.aux_directory.startswith(self.tex_dir)
 		):
 			self.aux_directory = os.path.relpath(
-				self.output_directory, self.tex_dir
+				self.aux_directory, self.tex_dir
 			)
 
 	# Send to callable object
