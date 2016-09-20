@@ -147,27 +147,27 @@ class JumpToPdf(sublime_plugin.TextCommand):
 		output_directory = get_output_directory(self.view)
 		if output_directory is None:
 			root = getTeXRoot.get_tex_root(self.view)
-			pdffile = os.path.realpath(
-				os.path.join(
-					os.path.dirname(root),
-					file_name + u'.pdf'
-				)
+			pdffile = os.path.join(
+				os.path.dirname(root),
+				file_name + u'.pdf'
 			)
 		else:
-			pdffile = os.path.realpath(
-				os.path.join(
-					output_directory,
-					file_name + u'.pdf'
-				)
+			pdffile = os.path.join(
+				output_directory,
+				file_name + u'.pdf'
 			)
 
 			if not os.path.exists(pdffile):
-				pdffile = os.path.realpath(
-					os.path.join(
-						os.path.dirname(root),
-						file_name + u'.pdf'
-					)
+				pdffile = os.path.join(
+					os.path.dirname(root),
+					file_name + u'.pdf'
 				)
+
+		if not os.path.exists(pdffile):
+			print("Expected PDF file {0} not found".format(pdffile))
+			return
+
+		pdffile = os.path.realpath(pdffile)
 
 		(line, col) = self.view.rowcol(self.view.sel()[0].end())
 		print("Jump to: ", line, col)
@@ -225,11 +225,7 @@ class ViewPdf(sublime_plugin.WindowCommand):
 	def run(self, **args):
 		pdffile = None
 		if 'file' in args:
-			pdffile = os.path.realpath(
-				os.path.normpath(
-					args.pop('file', None)
-				)
-			)
+			pdffile = args.pop('file', None)
 		else:
 			view = self.window.active_view()
 
@@ -238,27 +234,29 @@ class ViewPdf(sublime_plugin.WindowCommand):
 
 			output_directory = get_output_directory(view)
 			if output_directory is None:
-				pdffile = os.path.realpath(
-					os.path.join(
-						os.path.dirname(root),
-						file_name + u'.pdf'
-					)
+				root = getTeXRoot.get_tex_root(self.view)
+				pdffile = os.path.join(
+					os.path.dirname(root),
+					file_name + u'.pdf'
 				)
 			else:
-				pdffile = os.path.realpath(
-					os.path.join(
-						output_directory,
-						file_name + u'.pdf'
-					)
+				pdffile = os.path.join(
+					output_directory,
+					file_name + u'.pdf'
 				)
 
 				if not os.path.exists(pdffile):
-					pdffile = os.path.realpath(
-						os.path.join(
-							os.path.dirname(root),
-							file_name + u'.pdf'
-						)
+					pdffile = os.path.join(
+						os.path.dirname(root),
+						file_name + u'.pdf'
 					)
+
+		pdffile = os.path.normpath(pdffile)
+		if not os.path.exists(pdffile):
+			print("Expected PDF file {0} not found".format(pdffile))
+			return
+
+		pdffile = os.path.realpath(pdffile)
 
 		# since we potentially accept an argument, add some extra
 		# safety checks
