@@ -10,14 +10,14 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* v3.10.11 (2016-08-23).
+*Latest revision:* v3.11.0 (2016-09-20).
 
 *Headline features*:
 
-* Better curly-brace completion algorithm
-* Support for more ref commands
-* CWL files can now be used based on loaded packages
-* Support for input completions following symlinks
+* Less obtrusive build panel
+* Improved outline view (`C-r`)
+* Auto-completions for magic comments
+* Phantoms are used to display error messsages (dev versions only)
 
 ## Introduction
 
@@ -96,7 +96,7 @@ Sorry for the complications. It's not my fault.
 
 On **Windows**, both [MikTeX](http://www.miktex.org/) and [TeXLive](https://www.tug.org/texlive/) are supported. Install either of these as usual.
 
-We recommend that you install a version of [Sumatra PDF viewer](http://www.sumatrapdfreader.org/), as this is the only viewer currently supported on Windows. Its very light-weight and supports both forward and inverse search. Just download and install it in the normal way. You may have to add the SumatraPDF directory to your `PATH` environment variable or else set the `sumatra` command in the `windows` platform settings (see the section on [platform settings](#platform-specific-settings) below). If you choose not to install SumatraPDF, you might be able to use the `command` viewer to support another PDF viewer. See the [Viewers](#viewer) section below for details.
+We recommend that you install a version of [Sumatra PDF viewer](http://www.sumatrapdfreader.org/), as this is the only viewer currently supported on Windows. Its very light-weight and supports both forward and inverse search. Just download and install it in the normal way. While LaTeXTools *should* automatically find Sumatra if its installed in the normal way, if you use a portable version or want to ensure LaTeXTools uses a particular version, you should set the `sumatra` setting in the `windows` platform settings (see the section on [platform settings](#platform-specific-settings) below). If you choose not to install SumatraPDF, you might be able to use the `command` viewer to support another PDF viewer. See the [Viewers](#viewer) section below for details.
 
 #### Setup Sumatra
 
