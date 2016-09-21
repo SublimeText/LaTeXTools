@@ -18,6 +18,6 @@ LaTeXTools plugin provides several features that simplify working with LaTeX fil
 
 # Bugs, issues & feature requests
 
-Please read the [Requirements and Setup](requirements.md) section carefully to ensure you get up and running as quickly as possible. Help for troubleshooting common issues can be found in the [Troubleshooting](troubleshooting) section. For other bugs, issues or to request new features, please get in touch with us via [Github](https://github.com/SublimeText/LaTeXTools).
+Please read the [Installation](install.md) section carefully to ensure you get up and running as quickly as possible. Help for troubleshooting common issues can be found in the [Troubleshooting](troubleshooting.md) section. For other bugs, issues or to request new features, please get in touch with us via [Github](https://github.com/SublimeText/LaTeXTools).
 
 **Please** [search for existing issues and pull requests](https://github.com/SublimeText/LaTeXTools/issues/?q=is%3Aopen) before [opening a new issue](https://github.com/SublimeText/LaTeXTools/issues/new).
