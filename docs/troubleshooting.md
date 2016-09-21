@@ -41,3 +41,7 @@ There are *two exceptions* to this request. First, the *xypic* package is very, 
 The second exception has to do with file and path names. In order to accommodate the many possible naming conventions across platforms and packages, as well as the different ways in which file names can occur in logs, I had to make some assumptions. The key one is that *extensions cannot contain spaces*. The reason is that the regex matching file names uses a period (".") followed by non-space characters, followed by a space as denoting the end of the file name. Trust me, it's the most robust regex I could come up with. So, you can have spaces in your base names, and you can even have multiple extensions; however, you cannot have spaces in your extensions. So, "This is a file.ver-1.tex" is OK; "file.my ext" (where "my ext" is supposed to be the extension) is *not OK*.
 
 Finally, I have done my best to accommodate non-ASCII characters in logs. I cannot promise that everything works, but I'd like to know if you see issues with this.
+
+### Other issues
+
+While we have tried to provide some guidance in this section on commonly-encountered issues, please feel free to [open a new issue](https://github.com/SublimeText/LaTeXTools/issues/new) if you have come across an issue with LaTeXTools. However, please [search for existing issue](https://github.com/SublimeText/LaTeXTools/issues/?q=is%3Aopen) before opening a new one, as we may have already covered it somewhere.
