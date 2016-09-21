@@ -14,7 +14,6 @@ Most plugin facilities are invoked using sequences of 2 keys or key combinations
 
 Henceforth, I will write <kbd>C+</kbd> to mean <kbd>Ctrl+</kbd> for Linux or Windows, and <kbd>⌘+</kbd> for OS X. You know your platform, so you know what you should use. In a few places, to avoid ambiguities, I will spell out which key I mean.
 
-
 ## Compiling LaTeX files
 
 **Keybinding:** <kbd>C+b</kbd> (standard ST keybinding)
@@ -27,7 +26,6 @@ The default ST Build command takes care of the following:
 * It invokes the tex build command (`texify` for MikTeX; `latexmk` for TeXlive and MacTeX).
 * It parses the tex log file and lists all errors, warnings and, if enabled, bad boxes in an output panel at the bottom of the ST window: click on any error/warning/bad boxes to jump to the corresponding line in the text, or use the ST-standard Next Error/Previous Error commands.
 * It invokes the PDF viewer for your platform and performs a forward search; that is, it displays the PDF page where the text corresponding to the current cursor position is located.
-
 
 ## Toggling window focus following a build
 
@@ -50,6 +48,12 @@ You can also change the default sync behavior via the `forward_sync` option: see
 **Keybinding:** <kbd>C+l</kbd>,<kbd>t</kbd>,<kbd>?</kbd>
 
 This opens a quick panel displaying the current toggle values and their corresponding default settings. Selecting an entry in the quick panel will toggle the value (turning the feature on or off).
+
+## Show the build panel
+
+**Keybinding:** <kbd>shift+escape</kbd>
+
+This will show the LaTeXTools build panel, including any messages from the previous build. This is useful if you have hidden the build panel, either using the `hide_build_panel` setting or by pressing <kbd>escape</kbd> when the panel is visible.
 
 ## Removing temporary files from build
 
@@ -164,9 +168,9 @@ These toggles work just like the sync and focus toggles, but control whether or 
 
 **Keybinding:** <kbd>C+r</kbd> (standard ST keybinding)
 
-The LaTeXtools plugin integrates with the awesome ST "Goto Anything" facility. Hit <kbd>C+r</kbd> to get a list of all section headings, and all labels. You can filter by typing a few initial letters. Note that section headings are preceded by the letter "S", and labels by "L"; so, if you only want section headings, type "S" when the drop-down list appears.
+This will display a list of all section headings and (if you so desire) labels in the current LaTeX document. You can filter the list of sections / labels by typing some of the characters in the heading name.
 
-Selecting any entry in the list will take you to the corresponding place in the text.
+Selecting any entry in the list will take you to the corresponding place in the text. On ST3 only, highlighting a specific item (using the arrow keys) will temporarily open the corresponding location.
 
 ## Jump to Anywhere
 

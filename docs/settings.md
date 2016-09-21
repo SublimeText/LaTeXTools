@@ -91,14 +91,20 @@ This section refers to setting that can be found in a platform-specific block fo
 ## Build Panel Settings
 
 * `highlight_build_panel` (`true`): if `true` the build panel will have a syntax applied to highlight any errors and warnings. Otherwise, the standard output panel configuration will be used.
-* `hide_build_panel` (`"never"`): controls whether or not to hide the build panel after a build is finished. Possible values:
-	* `"always"`: hide the panel even if the build failed
-	* `"no_errors"`: only hide the panel if the build was successful even with warnings
+* `hide_build_panel` (`"no_badboxes"`): controls whether or not to hide the build panel after a build is finished. Possible values:
+	* `"always"`: never show the build panel at all
+	* `"no_errors"`: only show the build panel if errors occur
 	* `"no_warnings"`: only hide the panel if no warnings occur
 	* `"no_badboxes"`: only hide the panel if no warnings or badbox messages occur; this only differs from `no_warnings` if `display_bad_boxes` is set to `true`.
 	* `"never"`: never hide the build panel
 Any other value will be interpretted as the default.
 * `display_bad_boxes` (`false`): if `true` LaTeXTools will display any bad boxes encountered after a build. Note that this is disabled by default.
+* `show_error_phantoms` (`"warnings"`): **ST3 Build 3118 or newer only** controls which errors are displayed via phantoms. Possible values:
+	 * `"none"`: never show any phantoms at all
+	 * `"errors"`: only show errors using phantoms
+	 * `"warnings"`: only show warnings or errors using phantoms
+	 * `"badboxes"`: show any warnings, errors, or bad box messages use phantoms
+* `build_finished_message_length` (`2.0`): the number of seconds to display the status bar message about the completion of the build
 
 ## Viewer Settings
 
