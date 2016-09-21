@@ -11,4 +11,6 @@ pages:
   - "Troubleshooting": "troubleshooting.md"
   - "About": "about.md"
 theme: readthedocs
+extra_css:
+  - extra.css
 repo_url: https://github.com/SublimeText/LaTeXTools
