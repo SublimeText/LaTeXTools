@@ -370,11 +370,18 @@ LaTeX Package keymap for OS X
 		]
 	},
 	// automatic addition of new \items when hitting Shift+Enter in a list environment
- 	{ "keys": ["shift+enter"], "command": "insert_snippet", "args": {"contents": "\n\\item $0"}, 
- 	"context":  
-	 	[
-			{"key": "selector", "operator": "equal", "operand": "meta.function.environment.list.latex"},
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
+	{ "keys": ["shift+enter"], "command": "insert_snippet", "args": {"contents": "\n\\item $0"},
+	"context":
+		[
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex meta.environment.list, meta.function.environment.list.latex"},
+			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
+		]
+	},
+	// create a \item[] in a description environment
+	{ "keys": ["shift+enter"], "command": "insert_snippet", "args": {"contents": "\n\\item[$1] $0"},
+	"context":
+		[
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex meta.environment.list.description"},
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
 		]
 	},
