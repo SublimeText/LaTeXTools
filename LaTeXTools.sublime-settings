@@ -81,10 +81,10 @@
 // ------------------------------------------------------------------
 
 	// The preview mode for math math live preview, possible values are:
-	// "all"	to show a phantom for each math environment
-	// "single"	to show a phantom only for the currently edited math environment
-	// "none"	to disable math live preview
-	"preview_math_mode": "single",
+	// "all"       to show a phantom for each math environment
+	// "selected"  to show a phantom only for the currently selected math environment
+	// "none"      to disable math live preview
+	"preview_math_mode": "selected",
 
 	// The program to compile the latex template files, possible values are
 	// pdflatex, xelatex, lualatex, latex

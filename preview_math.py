@@ -344,7 +344,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
         sublime.set_timeout(self._validate_after_modified, 600)
 
     def on_after_selection_modified_async(self):
-        if self.visible_mode == "single" or not self.phantoms:
+        if self.visible_mode == "selected" or not self.phantoms:
             self.update_phantoms()
 
     def _validate_after_selection_modified(self):
@@ -394,7 +394,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
         if self.visible_mode == "all":
             scopes = view.find_by_selector(
                 "text.tex.latex meta.environment.math")
-        elif self.visible_mode == "single":
+        elif self.visible_mode == "selected":
             math_scopes = view.find_by_selector(
                 "text.tex.latex meta.environment.math")
             scopes = [scope for scope in math_scopes
@@ -413,7 +413,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
             multline = "\n" in content
 
             layout = (sublime.LAYOUT_BLOCK
-                      if multline or self.visible_mode == "single"
+                      if multline or self.visible_mode == "selected"
                       else sublime.LAYOUT_INLINE)
             region = sublime.Region(scope.end())
 
