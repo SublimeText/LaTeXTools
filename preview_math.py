@@ -1,5 +1,6 @@
 import os
 import re
+import shutil
 import struct
 import subprocess
 import threading
@@ -13,12 +14,13 @@ import sublime_plugin
 _ST3 = sublime.version() >= "3000"
 if _ST3:
     from .latextools_utils import cache, get_setting
-else:
-    from latextools_utils import cache, get_setting
 
 _IS_SUPPORTED = sublime.version() >= "3118"
 if _IS_SUPPORTED:
     import mdpopups
+
+# check that image magick is installed
+_HAS_CONVERT = shutil.which("convert") is not None
 
 
 startupinfo = None
@@ -443,6 +445,8 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
             self._update_phantoms()
 
     def _update_phantoms(self):
+        if not _HAS_CONVERT:
+            return
         if not self.view.is_primary():
             return
         view = self.view
