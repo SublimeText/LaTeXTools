@@ -109,6 +109,7 @@
 
 	// An string of the remaining preamble (not packages) for the file,
 	// which generates the math live preview.
+	// Can also be an array, with an string for each line (as in the packages).
 	"preview_math_template_preamble": "",
 
 // ------------------------------------------------------------------

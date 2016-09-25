@@ -240,8 +240,12 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
         self.packages = get_setting(
             "preview_math_template_packages", view=view)
         self.packages_str = "\n".join(self.packages)
-        self.preamble_str = get_setting(
+        self.preamble = get_setting(
             "preview_math_template_preamble", view=view)
+        if isinstance(self.preamble, str):
+            self.preamble_str = self.preamble
+        else:
+            self.preamble_str = "\n".join(self.preamble)
         self.latex_program = get_setting(
             "preview_math_latex_compile_program", view=view)
 
@@ -259,6 +263,13 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
             self.packages_str = "\n".join(self.packages)
             self.reset_phantoms()
 
+        def update_preamble_str():
+            if isinstance(self.preamble, str):
+                self.preamble_str = self.preamble
+            else:
+                self.preamble_str = "\n".join(self.preamble)
+            self.reset_phantoms()
+
         self.attr_updates = {
             "visible_mode": {
                 "setting": "preview_math_mode",
@@ -272,9 +283,9 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
                 "setting": "preview_math_template_packages",
                 "call_after": update_packages_str
             },
-            "preamble_str": {
+            "preamble": {
                 "setting": "preview_math_template_preamble",
-                "call_after": self.reset_phantoms
+                "call_after": update_preamble_str
             }
         }
         self.lt_attr_updates = self.attr_updates.copy()
