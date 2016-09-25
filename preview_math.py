@@ -1,4 +1,3 @@
-import base64
 import os
 import re
 import struct
@@ -16,6 +15,10 @@ if _ST3:
     from .latextools_utils import cache, get_setting
 else:
     from latextools_utils import cache, get_setting
+
+_IS_SUPPORTED = sublime.version() >= "3118"
+if _IS_SUPPORTED:
+    import mdpopups
 
 
 startupinfo = None
@@ -202,24 +205,21 @@ def _run_image_jobs():
                          args=(thread_id,)).start()
 
 
-def _generate_html(image_path):
+def _generate_html(view, image_path):
     with open(image_path, "rb") as f:
         image_raw_data = f.read()
-    img_data = base64.b64encode(image_raw_data).decode()
 
+    color = mdpopups.scope2style(view, "").get("color", "#CCCCCC")
     # create the image tag
     if _scale_quotient == 1 or len(image_raw_data) < 24:
-        img_tag = '<img src="data:image/png;base64,{0}">'.format(img_data)
+        img_tag = mdpopups.tint(image_raw_data, color)
     else:
         # read the image dimensions out of the binary string
         width, height = struct.unpack(">ii", image_raw_data[16:24])
         width /= _scale_quotient
         height /= _scale_quotient
-        img_tag = (
-            '<img src="data:image/png;base64,{img_data}" width="{width}" '
-            'height="{height}">'
-            .format(**locals())
-        )
+        img_tag = mdpopups.tint(
+            image_raw_data, color, height=height, width=width)
     return img_tag
 
 
@@ -452,7 +452,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
                 if p.id is not None:
                     view.erase_phantom_by_id(p.id)
                     _cancel_image_jobs(view.id(), p)
-                html_content = _generate_html(image_path)
+                html_content = _generate_html(view, image_path)
                 p.id = view.add_phantom(
                     self.key, region, html_content, layout, on_navigate=None)
                 new_phantoms.append(p)
@@ -544,7 +544,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
                 return
 
             # generate the html
-            html_content = _generate_html(image_path)
+            html_content = _generate_html(self.view, image_path)
             # move to main thread and update the phantom
             sublime.set_timeout(
                 self._update_phantom_content(p, html_content, update_time)
