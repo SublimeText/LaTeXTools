@@ -27,8 +27,8 @@ if sublime.platform() == "windows":
     startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
 
-# TODO read from file?
-latex_template = """
+# the default and usual template for the latex file
+default_latex_template = """
 \\documentclass[preview]{standalone}
 <<packages>>
 <<preamble>>
@@ -225,6 +225,12 @@ def _generate_html(view, image_path):
 
 class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
     key = "preview_math"
+    # a dict from the file name to the content to avoid storing it for
+    # every view
+    template_contents = {}
+    # cache to check refresh the template
+    template_mtime = {}
+    template_lock = threading.Lock()
 
     def __init__(self, view):
         self.view = view
@@ -248,8 +254,14 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
             self.preamble_str = "\n".join(self.preamble)
         self.latex_program = get_setting(
             "preview_math_latex_compile_program", view=view)
+        self.latex_template_file = get_setting(
+            "preview_math_latex_template_file", view=view)
+        self.latex_template_file_content = None
 
         self._init_watch_settings()
+
+        if self.latex_template_file:
+            sublime.set_timeout_async(self._read_latex_template_file)
 
         view.erase_phantoms(self.key)
         # start with updating the phantoms
@@ -270,6 +282,10 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
                 self.preamble_str = "\n".join(self.preamble)
             self.reset_phantoms()
 
+        def update_template_file():
+            self._read_latex_template_file(refresh=True)
+            self.reset_phantoms()
+
         self.attr_updates = {
             "visible_mode": {
                 "setting": "preview_math_mode",
@@ -286,6 +302,10 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
             "preamble": {
                 "setting": "preview_math_template_preamble",
                 "call_after": update_preamble_str
+            },
+            "latex_template_file": {
+                "setting": "preview_math_latex_template_file",
+                "call_after": update_template_file
             }
         }
         self.lt_attr_updates = self.attr_updates.copy()
@@ -311,6 +331,42 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
         view.settings().add_on_change(
             "lt_preview_math", lambda: self._on_setting_change(True))
 
+    def _read_latex_template_file(self, refresh=False):
+        with self.template_lock:
+            if not self.latex_template_file:
+                return
+
+            if self.latex_template_file in self.template_contents:
+                if not refresh:
+                    return
+                try:
+                    mtime = os.path.getmtime(self.latex_template_file)
+                    old_mtime = self.template_mtime[self.latex_template_file]
+                    if old_mtime == mtime:
+                        return
+                except:
+                    return
+
+            mtime = 0
+            try:
+                with open(self.latex_template_file, "r", encoding="utf8") as f:
+                    file_content = f.read()
+                mtime = os.path.getmtime(self.latex_template_file)
+                print(
+                    "LaTeXTools preview_math: "
+                    "Load template file for '{0}'"
+                    .format(self.latex_template_file)
+                )
+            except Exception as e:
+                print(
+                    "LaTeXTools preview_math: "
+                    "Error while reading template file: {0}"
+                    .format(e)
+                )
+                file_content = None
+            self.template_contents[self.latex_template_file] = file_content
+            self.template_mtime[self.latex_template_file] = mtime
+
     def _on_setting_change(self, for_view):
         settings = self.view.settings() if for_view else _lt_settings
         attr_updates = self.attr_updates if for_view else self.lt_attr_updates
@@ -318,7 +374,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
             attr = attr_updates[attr_name]
             settings_name = attr["setting"]
             value = settings.get(settings_name)
-            if value is None:
+            if for_view and value is None:
                 continue
             if self.__dict__[attr_name] == value:
                 continue
@@ -538,6 +594,13 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
             "{open_str}\n{content}\n{close_str}"
             .format(**locals())
         )
+
+        try:
+            latex_template = self.template_contents[self.latex_template_file]
+            if not latex_template:
+                raise Exception("Template must not be empty!")
+        except:
+            latex_template = default_latex_template
 
         latex_document = (
             latex_template
