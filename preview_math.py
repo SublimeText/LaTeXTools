@@ -258,7 +258,9 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
             "preview_math_latex_compile_program", view=view)
         self.latex_template_file = get_setting(
             "preview_math_latex_template_file", view=view)
-        self.latex_template_file_content = None
+
+        self.no_star_env = get_setting(
+            "preview_math_no_star_envs", view=view)
 
         self._init_watch_settings()
 
@@ -295,6 +297,10 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
             },
             "latex_program": {
                 "setting": "preview_math_latex_compile_program",
+                "call_after": self.reset_phantoms
+            },
+            "no_star_env": {
+                "setting": "preview_math_no_star_envs",
                 "call_after": self.reset_phantoms
             },
             "packages": {
@@ -577,7 +583,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
             line_reg = view.line(scope_end)
             after_reg = sublime.Region(scope_end, line_reg.end())
             after_str = view.substr(line_reg)
-            m = re.match(r"\\end\{([^\}]+?)\*?\}", after_str)
+            m = re.match(r"\\end\{([^\}]+?)(\*?)\}", after_str)
             if m:
                 env = m.group(1)
 
@@ -590,10 +596,11 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
         open_str = "\\("
         close_str = "\\)"
         if env:
+            star = "*" if env not in self.no_star_env or m.group(2) else ""
             # add a * to the env to avoid numbers in the resulting image
-            # TODO blacklist of envs, which does not support a *
-            open_str = "\\begin{{{env}*}}".format(env=env)
-            close_str = "\\end{{{env}*}}".format(env=env)
+            open_str = "\\begin{{{env}{star}}}".format(**locals())
+            close_str = "\\end{{{env}{star}}}".format(**locals())
+
         document_content = (
             "{open_str}\n{content}\n{close_str}"
             .format(**locals())

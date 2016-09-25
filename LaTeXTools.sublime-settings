@@ -112,6 +112,12 @@
 	// Can also be an array, with an string for each line (as in the packages).
 	"preview_math_template_preamble": "",
 
+	// The preview functionality by default appends a star (*) to each
+	// math environments, since we cannot and want not track the
+	// equation numbers. This may not be possible with each environment,
+	// therefore you can create a blacklist of such environments here.
+	"preview_math_no_star_envs": [],
+
 // ------------------------------------------------------------------
 // Temporary file settings
 // ------------------------------------------------------------------
