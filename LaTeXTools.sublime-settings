@@ -73,6 +73,17 @@
 	"word_count_sub_level": "none",
 
 // ------------------------------------------------------------------
+// Live preview settings
+// ------------------------------------------------------------------
+
+	// The preview mode for image preview, possible values are:
+	// "all"       to show a phantom for each includegraphics command
+	// "selected"  to show a phantom only for the currently selected includegraphics command
+	// "hover"     to show a popup if you hover over an includegraphics command
+	// "none"      to disable image preview
+	"preview_image_mode": "hover",
+
+// ------------------------------------------------------------------
 // Temporary file settings
 // ------------------------------------------------------------------
 	// Ends of the names of temporary files to be deleted
