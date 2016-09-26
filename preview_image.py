@@ -204,7 +204,19 @@ def open_image_folder(image_path):
         "open_dir", {"dir": folder_path, "file": image_name})
 
 
+def _validate_thumbnail_currentness(image_path, thumbnail_path):
+    """Remove the thumbnail if it is outdated"""
+    if not os.path.exists(thumbnail_path) or image_path == thumbnail_path:
+        return
+    try:
+        if os.path.getmtime(image_path) > os.path.getmtime(thumbnail_path):
+            os.remove(thumbnail_path)
+    except:
+        pass
+
+
 def _get_thumbnail_path(image_path, width, height):
+    """Get the path to the the thumbnail"""
     if image_path is None:
         return None
     _, ext = os.path.splitext(image_path)
@@ -217,6 +229,9 @@ def _get_thumbnail_path(image_path, width, height):
         )
         thumbnail_path = os.path.join(
             temp_path, fingerprint + _IMAGE_EXTENSION)
+
+        # remove the thumbnail if it is outdated
+        _validate_thumbnail_currentness(image_path, thumbnail_path)
     return thumbnail_path
 
 
