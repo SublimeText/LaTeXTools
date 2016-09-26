@@ -191,7 +191,7 @@ def _adapt_image_size(thumbnail_path, width, height):
         height_ratio = float(height) / h
         if height_ratio > width_ration:
             height = int(height * width_ration / height_ratio)
-        elif width_ration < height_ratio:
+        elif width_ration > height_ratio:
             width = int(width * height_ratio / width_ration)
     except TypeError:
         pass
