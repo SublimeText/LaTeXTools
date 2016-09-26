@@ -1,5 +1,7 @@
+import imghdr
 import os
 import shutil
+import struct
 import subprocess
 import threading
 import time
@@ -145,6 +147,57 @@ def _run_image_jobs():
                          args=(thread_id,)).start()
 
 
+# from http://stackoverflow.com/a/20380514/5963435
+def get_image_size(image_path):
+    '''Determine the image type of image_path and return its size.
+    from draco'''
+    with open(image_path, 'rb') as fhandle:
+        head = fhandle.read(24)
+        if len(head) != 24:
+            return
+        if imghdr.what(image_path) == 'png':
+            check = struct.unpack('>i', head[4:8])[0]
+            if check != 0x0d0a1a0a:
+                return
+            width, height = struct.unpack('>ii', head[16:24])
+        elif imghdr.what(image_path) == 'gif':
+            width, height = struct.unpack('<HH', head[6:10])
+        elif imghdr.what(image_path) == 'jpeg':
+            try:
+                fhandle.seek(0)  # Read 0xff next
+                size = 2
+                ftype = 0
+                while not 0xc0 <= ftype <= 0xcf:
+                    fhandle.seek(size, 1)
+                    byte = fhandle.read(1)
+                    while ord(byte) == 0xff:
+                        byte = fhandle.read(1)
+                    ftype = ord(byte)
+                    size = struct.unpack('>H', fhandle.read(2))[0] - 2
+                # We are at a SOFn block
+                fhandle.seek(1, 1)  # Skip `precision' byte.
+                height, width = struct.unpack('>HH', fhandle.read(4))
+            except Exception:  # IGNORE:W0703
+                return
+        else:
+            return
+        return width, height
+
+
+def _adapt_image_size(thumbnail_path, width, height):
+    try:
+        w, h = get_image_size(thumbnail_path)
+        width_ration = float(width) / w
+        height_ratio = float(height) / h
+        if height_ratio > width_ration:
+            height = int(height * width_ration / height_ratio)
+        elif width_ration < height_ratio:
+            width = int(width * height_ratio / width_ration)
+    except TypeError:
+        pass
+    return width, height
+
+
 def open_image_folder(image_path):
     folder_path, image_name = os.path.split(image_path)
     sublime.active_window().run_command(
@@ -169,6 +222,9 @@ def _get_thumbnail_path(image_path, width, height):
 
 def _get_popup_html(thumbnail_path, width, height):
     if os.path.exists(thumbnail_path):
+        # adapt the size to keep the width/height ratio, but stay inside
+        # the image dimensions
+        width, height = _adapt_image_size(thumbnail_path, width, height)
         img_tag = (
             '<img src="file://{thumbnail_path}"'
             ' width="{width}" '
@@ -420,7 +476,8 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener):
             </div>
             """.format(**locals())
             if os.path.exists(p.thumbnail_path):
-                width, height = self.image_width, self.image_height
+                width, height = _adapt_image_size(
+                    p.thumbnail_path, self.image_width, self.image_height)
                 html_content += """
                 <div>
                 <img src="file://{p.thumbnail_path}"
