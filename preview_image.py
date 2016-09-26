@@ -1,8 +1,9 @@
 import os
-import types
+import shutil
 import subprocess
 import threading
 import time
+import types
 
 import sublime
 import sublime_plugin
@@ -15,6 +16,8 @@ if _ST3:
 
 _HAS_IMG_POPUP = sublime.version() >= "3114"
 _HAS_HOVER = sublime.version() >= "3116"
+
+_HAS_CONVERT = shutil.which("convert") is not None
 
 # the path to the temp files (set on loading)
 temp_path = None
@@ -108,6 +111,8 @@ def _convert_image_thread(thread_id):
 
 def _append_image_job(image_path, thumbnail_path, cont, max_size=300):
     global _job_list
+    if not _HAS_CONVERT:
+        return
 
     def job():
         print("job:", image_path)
@@ -175,6 +180,8 @@ def _get_popup_html(thumbnail_path):
             # '>'
             .format(**locals())
         )
+    elif not _HAS_CONVERT:
+        img_tag = "Install ImageMagick to enable preview."
     else:
         img_tag = "Preparing image for preview..."
     html_content = """
@@ -253,7 +260,7 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
             on_hide=on_hide)
 
         # if the thumbnail does not exists, create it and update the popup
-        if not os.path.exists(thumbnail_path):
+        if _HAS_CONVERT and not os.path.exists(thumbnail_path):
             def update_popup():
                 html_content = _get_popup_html(thumbnail_path)
                 if on_hide.hidden:
@@ -470,8 +477,9 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener):
 
         self.phantoms = new_phantoms
 
-        for p in need_thumbnails:
-            _append_image_job(p.image_path, p.thumbnail_path,
-                              cont=lambda: self.update_phantom(p))
-        if need_thumbnails:
-            _run_image_jobs()
+        if _HAS_CONVERT:
+            for p in need_thumbnails:
+                _append_image_job(p.image_path, p.thumbnail_path,
+                                  cont=lambda: self.update_phantom(p))
+            if need_thumbnails:
+                _run_image_jobs()
