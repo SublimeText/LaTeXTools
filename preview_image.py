@@ -146,38 +146,33 @@ def _run_image_jobs():
 
 
 def open_image_folder(image_path):
-
-    # TODO open folder for other platforms
-    # if sublime.platform() == "windows":
-    #     os.startfile(folder_path)
-
-    # if sublime.platform() == 'windows':
-    #     subprocess.Popen(["explorer", '/select,', image_path])
-    # else:
     folder_path, image_name = os.path.split(image_path)
     sublime.active_window().run_command(
         "open_dir", {"dir": folder_path, "file": image_name})
 
 
-def _get_thumbnail_path(image_path):
+def _get_thumbnail_path(image_path, width, height):
     if image_path is None:
         return None
     _, ext = os.path.splitext(image_path)
     if ext in [".png", ".jpg", ".jpeg", ".gif"]:
         thumbnail_path = image_path
     else:
+        fingerprint = cache.hash_digest(
+            "{width}x{height}\n{image_path}"
+            .format(**locals()),
+        )
         thumbnail_path = os.path.join(
-            temp_path, cache.hash_digest(image_path) + _IMAGE_EXTENSION)
+            temp_path, fingerprint + _IMAGE_EXTENSION)
     return thumbnail_path
 
 
-def _get_popup_html(thumbnail_path):
+def _get_popup_html(thumbnail_path, width, height):
     if os.path.exists(thumbnail_path):
         img_tag = (
             '<img src="file://{thumbnail_path}"'
-            ' width="150%" '
-            'height="150%">'
-            # '>'
+            ' width="{width}" '
+            'height="{height}">'
             .format(**locals())
         )
     elif not _HAS_CONVERT:
@@ -240,9 +235,18 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
                 flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY)
             return
 
-        thumbnail_path = _get_thumbnail_path(image_path)
+        size = get_setting("preview_popup_image_size", view=view)
+        if isinstance(size, list):
+            width, height = size
+        else:
+            width = height = size
 
-        html_content = _get_popup_html(thumbnail_path)
+        scale = get_setting("preview_image_scale_quotient", view=view)
+
+        thumbnail_path = _get_thumbnail_path(
+            image_path, scale * width, scale * height)
+
+        html_content = _get_popup_html(thumbnail_path, width, height)
 
         def on_navigate(href):
             if href == "open_image":
@@ -262,7 +266,7 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
         # if the thumbnail does not exists, create it and update the popup
         if _HAS_CONVERT and not os.path.exists(thumbnail_path):
             def update_popup():
-                html_content = _get_popup_html(thumbnail_path)
+                html_content = _get_popup_html(thumbnail_path, width, height)
                 if on_hide.hidden:
                     return
                 view.show_popup(
@@ -291,16 +295,35 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener):
         sublime.set_timeout_async(self.update_phantoms)
 
     def _init_watch_settings(self):
+        def update_image_size(init=False):
+            size = self.image_size
+            if isinstance(size, list):
+                self.image_width, self.image_height = size
+            else:
+                self.image_width = self.image_height = size
+            if not init:
+                self.reset_phantoms()
+
         self.v_attr_updates = {
             "visible_mode": {
                 "setting": "preview_image_mode",
                 "call_after": self.update_phantoms
-            }
+            },
+            "image_size": {
+                "setting": "preview_phantom_image_size",
+                "call_after": update_image_size
+            },
+            "image_scale": {
+                "setting": "preview_image_scale_quotient",
+                "call_after": self.reset_phantoms
+            },
         }
 
         self.lt_attr_updates = self.v_attr_updates.copy()
 
         self._init_list_add_on_change("preview_image")
+
+        update_image_size(True)
 
     def _init_list_add_on_change(self, key):
         view = self.view
@@ -396,15 +419,22 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener):
                 <a href="open_folder {p.index}">(Open folder)</a>
             </div>
             """.format(**locals())
-            if not os.path.exists(p.thumbnail_path):
-                html_content += """No preview for this extension available!"""
-            else:
+            if os.path.exists(p.thumbnail_path):
+                width, height = self.image_width, self.image_height
                 html_content += """
                 <div>
-                <img src="file://{p.thumbnail_path}" width="100%"
-                 height="100%">
+                <img src="file://{p.thumbnail_path}"
+                 width="{width}"
+                 height="{height}">
                 </div>
                 """.format(**locals())
+            elif _HAS_CONVERT:
+                html_content += """Preparing image for preview..."""
+            else:
+                html_content += (
+                    "Install ImageMagick to enable a preview for "
+                    "this image type."
+                )
         html_content = """
         <body id="latextools-preview-image-phantom">
             {html_content}
@@ -430,6 +460,14 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener):
             open_image(self.view.window(), p.image_path)
         elif command == "open_folder":
             open_image_folder(p.image_path)
+
+    def reset_phantoms(self):
+        view = self.view
+        with self._phantom_lock:
+            for p in self.phantoms:
+                view.erase_phantom_by_id(p.id)
+            self.phantoms = []
+        self.update_phantoms()
 
     def update_phantom(self, p):
         with self._phantom_lock:
@@ -492,7 +530,9 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener):
             file_name = view.substr(scope)[1:-1]
             image_path = find_image(tex_root, file_name)
 
-            thumbnail_path = _get_thumbnail_path(image_path)
+            thumbnail_path = _get_thumbnail_path(
+                image_path, self.image_scale * self.image_width,
+                self.image_scale * self.image_height)
 
             region = sublime.Region(scope.end())
 

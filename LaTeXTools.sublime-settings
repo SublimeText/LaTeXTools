@@ -83,6 +83,27 @@
 	// "none"      to disable image preview
 	"preview_image_mode": "hover",
 
+	// The image size in the preview popup.
+	// These are the outer dimensions of the maximal size.
+	// The image will be scaled down to fit into these dimensions.
+	// It can either be an number or an array, which consist of two numbers
+	// e.g. [200, 150]
+	"preview_popup_image_size": 200,
+
+	// The image size in the preview phantoms.
+	// These are the outer dimensions of the maximal size.
+	// The image will be scaled down to fit into these dimensions.
+	// It can either be an number or an array, which consist of two numbers
+	// e.g. [200, 150]
+	"preview_phantom_image_size": 150,
+
+	// Increase this number to get a better resolution on high dpi displays.
+	// Control the thumbnail image size, which will be generated to preview
+	// images, that are not natively supported like pdf files.
+	// E.g. a image size of 300 with a scale of 2 will create a
+	// thumbnail with the size 600, which is scaled down in the popup.
+	"preview_image_scale_quotient": 1,
+
 // ------------------------------------------------------------------
 // Temporary file settings
 // ------------------------------------------------------------------
