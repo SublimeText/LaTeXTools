@@ -53,13 +53,12 @@ def _call_shell_command(command):
                      startupinfo=startupinfo).wait()
 
 
-def create_thumbnail(image_path, thumbnail_path, max_size=300):
+def create_thumbnail(image_path, thumbnail_path, width, height):
     # convert the image
-    # max_size = 300
     if os.path.exists(thumbnail_path):
         return
     _call_shell_command(
-        'convert -thumbnail {max_size}x{max_size} '
+        'convert -thumbnail {width}x{height} '
         '"{image_path}" "{thumbnail_path}"'
         .format(**locals())
     )
@@ -111,7 +110,7 @@ def _convert_image_thread(thread_id):
         _thread_num -= 1
 
 
-def _append_image_job(image_path, thumbnail_path, cont, max_size=300):
+def _append_image_job(image_path, thumbnail_path, width, height, cont):
     global _job_list
     if not _HAS_CONVERT:
         return
@@ -119,7 +118,7 @@ def _append_image_job(image_path, thumbnail_path, cont, max_size=300):
     def job():
         print("job:", image_path)
         before = time.time()
-        create_thumbnail(image_path, thumbnail_path)
+        create_thumbnail(image_path, thumbnail_path, width, height)
         cont()
         print("duration:", time.time() - before)
 
@@ -317,8 +316,9 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
 
         scale = get_setting("preview_image_scale_quotient", view=view)
 
+        tn_width, tn_height = scale * width, scale * height
         thumbnail_path = _get_thumbnail_path(
-            image_path, scale * width, scale * height)
+            image_path, tn_width, tn_height)
 
         html_content = _get_popup_html(thumbnail_path, width, height)
 
@@ -348,7 +348,9 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
                     flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY,
                     on_navigate=on_navigate)
 
-            _append_image_job(image_path, thumbnail_path, cont=update_popup)
+            _append_image_job(
+                image_path, thumbnail_path, width=tn_width, height=tn_height,
+                cont=update_popup)
             _run_image_jobs()
 
 
@@ -601,13 +603,14 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener):
 
         self._update_phantom_regions()
 
+        tn_width = self.image_scale * self.image_width
+        tn_height = self.image_scale * self.image_height
         for scope in scopes:
             file_name = view.substr(scope)[1:-1]
             image_path = find_image(tex_root, file_name)
 
             thumbnail_path = _get_thumbnail_path(
-                image_path, self.image_scale * self.image_width,
-                self.image_scale * self.image_height)
+                image_path, tn_width, tn_height)
 
             region = sublime.Region(scope.end())
 
@@ -647,7 +650,9 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener):
 
         if _HAS_CONVERT:
             for p in need_thumbnails:
-                _append_image_job(p.image_path, p.thumbnail_path,
-                                  cont=lambda: self.update_phantom(p))
+                _append_image_job(
+                    p.image_path, p.thumbnail_path,
+                    width=tn_width, height=tn_height,
+                    cont=lambda: self.update_phantom(p))
             if need_thumbnails:
                 _run_image_jobs()
