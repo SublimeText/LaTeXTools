@@ -86,11 +86,15 @@ class GlossaryFillAllHelper(FillAllHelper):
             return "glo"
 
     def get_auto_completions(self, view, prefix, line):
-        comp = self._get_completions(view, prefix, line, ac=True)
+        comp_type = self.get_compl_type(line)
+        comp = self._get_completions(
+            view, prefix, line, comp_type=comp_type, ac=True)
         return comp
 
     def get_completions(self, view, prefix, line):
-        comp = self._get_completions(view, prefix, line, ac=False)
+        comp_type = self.get_compl_type(line)
+        comp = self._get_completions(
+            view, prefix, line, comp_type=comp_type, ac=False)
         return comp
 
     def matches_line(self, line):
