@@ -284,11 +284,64 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener):
 
         self._phantom_lock = threading.Lock()
 
-        self.visible_mode = get_setting("preview_image_mode", view=view)
+        self._init_watch_settings()
 
         view.erase_phantoms(self.key)
         # self.update_phantoms()
         sublime.set_timeout_async(self.update_phantoms)
+
+    def _init_watch_settings(self):
+        self.v_attr_updates = {
+            "visible_mode": {
+                "setting": "preview_image_mode",
+                "call_after": self.update_phantoms
+            }
+        }
+
+        self.lt_attr_updates = self.v_attr_updates.copy()
+
+        self._init_list_add_on_change("preview_image")
+
+    def _init_list_add_on_change(self, key):
+        view = self.view
+        if "v_attr_updates" not in self.__dict__:
+            self.v_attr_updates = {}
+        if "lt_attr_updates" not in self.__dict__:
+            self.lt_attr_updates = {}
+
+        for attr_name, d in self.v_attr_updates.items():
+            settings_name = d["setting"]
+            self.__dict__[attr_name] = get_setting(settings_name, view=view)
+
+        for attr_name, d in self.lt_attr_updates.items():
+            if attr_name in self.__dict__:
+                continue
+            settings_name = d["setting"]
+            self.__dict__[attr_name] = _lt_settings.get(settings_name)
+
+        _lt_settings.add_on_change(
+            key, lambda: self._on_setting_change(False))
+        self.view.settings().add_on_change(
+            key, lambda: self._on_setting_change(True))
+
+    def _on_setting_change(self, for_view):
+        settings = self.view.settings() if for_view else _lt_settings
+        attr_updates = (self.v_attr_updates if for_view
+                        else self.lt_attr_updates)
+        for attr_name in attr_updates.keys():
+            attr = attr_updates[attr_name]
+            settings_name = attr["setting"]
+            value = settings.get(settings_name)
+            if for_view and value is None:
+                continue
+            if self.__dict__[attr_name] == value:
+                continue
+            if not for_view and self.view.settings().has(settings_name):
+                continue
+            # update the value and call the after function
+            self.__dict__[attr_name] = value
+            sublime.set_timeout_async(attr["call_after"])
+            break
 
     @classmethod
     def is_applicable(cls, settings):
