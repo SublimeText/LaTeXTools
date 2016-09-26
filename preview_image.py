@@ -266,6 +266,9 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
     def on_hover(self, view, point, hover_zone):
         if hover_zone != sublime.HOVER_TEXT:
             return
+        if view.is_popup_visible():
+            # don't let the popup blink
+            return
         if not view.score_selector(
                 point, "meta.function.includegraphics.latex"):
             return
@@ -289,7 +292,7 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
             print("No file name scope found.")
             return
 
-        file_name = view.substr(image_scope)[1:-1]
+        file_name = view.substr(image_scope)[1:-1].strip()
         location = containing_scope.begin() + 1
 
         tex_root = get_tex_root(view)
