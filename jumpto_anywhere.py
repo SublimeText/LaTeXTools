@@ -10,6 +10,7 @@ try:
     from .latextools_utils import analysis, utils
     from .latextools_utils.tex_directives import TEX_DIRECTIVE
     from .latex_cite_completions import NEW_STYLE_CITE_REGEX
+    from .latex_glossary_completions import ACR_LINE_RE, GLO_LINE_RE
     from .latex_ref_completions import NEW_STYLE_REF_REGEX
     from .jumpto_tex_file import INPUT_REG, BIB_REG, IMAGE_REG
     from . import jumpto_tex_file
@@ -19,6 +20,7 @@ except:
     from latextools_utils import analysis, utils
     from latextools_utils.tex_directives import TEX_DIRECTIVE
     from latex_cite_completions import NEW_STYLE_CITE_REGEX
+    from .latex_glossary_completions import ACR_LINE_RE, GLO_LINE_RE
     from latex_ref_completions import NEW_STYLE_REF_REGEX
     from jumpto_tex_file import INPUT_REG, BIB_REG, IMAGE_REG
     import jumpto_tex_file
@@ -144,6 +146,31 @@ def _jumpto_cite(view, com_reg, pos):
     sublime.status_message(message)
 
 
+def _jumpto_glo(view, com_reg, pos, acr=False):
+    tex_root = get_tex_root(view)
+    if not tex_root:
+        return
+    ana = analysis.analyze_document(tex_root)
+    if not acr:
+        commands = ana.filter_commands(
+            ["newglossaryentry", "longnewglossaryentry"])
+    else:
+        commands = ana.filter_commands("newacronym")
+
+    iden = com_reg.group("args")
+    try:
+        entry = next(c for c in commands if c.args == iden)
+    except:
+        message = "Glossary definition not found for '{0}'".format(iden)
+        print(message)
+        sublime.status_message(message)
+        return
+    message = "Jumping to Glossary '{0}'.".format(iden)
+    print(message)
+    sublime.status_message(message)
+    utils.open_and_select_region(view, entry.file_name, entry.args_region)
+
+
 def _jumpto_pkg_doc(view, com_reg, pos):
     def view_doc(package):
         message = "Try opening documentation for package '{0}'".format(package)
@@ -263,6 +290,12 @@ class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
         elif NEW_STYLE_CITE_REGEX.match(reversed_command):
             sublime.status_message("Jump to citation '{0}'".format(args))
             _jumpto_cite(view, com_reg, pos)
+        elif GLO_LINE_RE.match(reversed_command):
+            sublime.status_message("Jump to glossary '{0}'".format(args))
+            _jumpto_glo(view, com_reg, pos)
+        elif ACR_LINE_RE.match(reversed_command):
+            sublime.status_message("Jump to acronym '{0}'".format(args))
+            _jumpto_glo(view, com_reg, pos, acr=True)
         # check if it is any kind of input command
         elif any(reg.match(com_reg.group(0)) for reg in INPUT_REG_EXPS):
             kwargs = {

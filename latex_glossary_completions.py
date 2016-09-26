@@ -16,10 +16,10 @@ else:
     from latextools_utils.tex_directives import get_tex_root
 
 
-_GLO_LINE_RE = re.compile(
+GLO_LINE_RE = re.compile(
     r"([^{}\[\]]*)\{*?(?:lp|lobmys)?sl(?:G|g)\\"
 )
-_ACR_LINE_RE = re.compile(
+ACR_LINE_RE = re.compile(
     r"([^{}\[\]]*)\{(?:lluf|gnol|trohs)rca\\"
 )
 
@@ -78,9 +78,9 @@ class GlossaryFillAllHelper(FillAllHelper):
         return comp
 
     def get_compl_type(self, line):
-        if _GLO_LINE_RE.match(line[::-1]):
+        if GLO_LINE_RE.match(line[::-1]):
             return "glo"
-        elif _ACR_LINE_RE.match(line[::-1]):
+        elif ACR_LINE_RE.match(line[::-1]):
             return "acr"
         else:
             return "glo"
@@ -94,7 +94,7 @@ class GlossaryFillAllHelper(FillAllHelper):
         return comp
 
     def matches_line(self, line):
-        return bool(_GLO_LINE_RE.match(line) or _ACR_LINE_RE.match(line))
+        return bool(GLO_LINE_RE.match(line) or ACR_LINE_RE.match(line))
 
     def is_enabled(self):
         return get_setting("glossary_auto_trigger", True)
