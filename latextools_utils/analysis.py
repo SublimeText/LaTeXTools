@@ -73,7 +73,7 @@ _RE_COMMENT = re.compile(
 )
 # the analysis will walk recursively into the included files
 # i.e. the 'args' field of the command
-_input_commands = ["input", "include", "subfile"]
+_input_commands = ["input", "include", "subfile", "loadglsentries"]
 
 
 # FLAGS
