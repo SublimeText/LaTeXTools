@@ -20,7 +20,7 @@ except:
     from latextools_utils import analysis, utils
     from latextools_utils.tex_directives import TEX_DIRECTIVE
     from latex_cite_completions import NEW_STYLE_CITE_REGEX
-    from .latex_glossary_completions import ACR_LINE_RE, GLO_LINE_RE
+    from latex_glossary_completions import ACR_LINE_RE, GLO_LINE_RE
     from latex_ref_completions import NEW_STYLE_REF_REGEX
     from jumpto_tex_file import INPUT_REG, BIB_REG, IMAGE_REG
     import jumpto_tex_file
