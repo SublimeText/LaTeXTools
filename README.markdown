@@ -74,7 +74,7 @@ in the Command field, and `"%file":%line` in the Arguments field. (This is corre
 
 #### Setup LaTeXTools
 
-Finally, edit the file `LaTeXTools.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution. Open the file and scroll down to the  section titled "Platform settings." Look at the block for your OS, namely `"osx"`. Within that block, verify that the `"texpath"` setting is correct. Note that `"texpath"` **must** include `$PATH` somewhere.
+Finally, edit the LaTeXtools settings to make sure that the configuration reflects your preferred TeX distribution. Open the settings from the menu via **Preferences | Package Settings | LaTeXTools | Settings - User** and scroll down to the section titled "Platform settings". Look at the block for your OS, namely `"osx"`. Within that block, verify that the `"texpath"` setting is correct. Note that `"texpath"` **must** include `$PATH` somewhere.
 
 #### Support for BasicTeX
 
@@ -112,7 +112,7 @@ I'm sorry this is not straightforward---it's not my fault :-)
 
 #### Setup LaTeXTools
 
-Finally, edit the file `LaTeXTools.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution. Open the file and scroll down to the  section titled "Platform settings." Look at the block for your OS, namely `windows`. Within that block, verify that the `texpath` setting is correct; for MiKTeX, you can leave this empty, i.e., `""`. If you do specify a path, note that it **must** include the system path variable, i.e., `$PATH` (this syntax seems to be OK). Also verify that the `distro` setting is correct: the possible values are `"miktex"` and `"texlive"`.
+Finally, edit the LaTeXtools settings to make sure that the configuration reflects your preferred TeX distribution. Open the settings from the menu via **Preferences | Package Settings | LaTeXTools | Settings - User** and scroll down to the section titled "Platform settings". Look at the block for your OS, namely `windows`. Within that block, verify that the `texpath` setting is correct; for MiKTeX, you can leave this empty, i.e., `""`. If you do specify a path, note that it **must** include the system path variable, i.e., `$PATH` (this syntax seems to be OK). Also verify that the `distro` setting is correct: the possible values are `"miktex"` and `"texlive"`.
 
 TeXlive has one main advantage over MikTeX: it supports file names and paths with spaces.
 
@@ -130,7 +130,7 @@ You need to install TeXlive; if you are on Ubuntu, note that `apt-get install te
 
 #### Setup LaTeXTools
 
-You also need to edit the file `LaTeXTools.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution.  Open that file and scroll down to the  section titled "Platform settings." Look at the block for your OS, namely `"linux"`. Within that block, verify that the `"texpath"` setting is correct. Notice that this **must** include `$PATH` somewhere, or things will not work.
+Finally, edit the LaTeXtools settings to make sure that the configuration reflects your preferred TeX distribution. Open the settings from the menu via **Preferences | Package Settings | LaTeXTools | Settings - User** and scroll down to the section titled "Platform settings". Look at the block for your OS, namely `"linux"`. Within that block, verify that the `"texpath"` setting is correct. Notice that this **must** include `$PATH` somewhere, or things will not work.
 
 You may also have to set the `command` option in `"builder_settings"`, which tells the builder how to invoke `latexmk`. By default (i.e., if `command` is empty or not given) it is `["latexmk", "-cd", "-e", "-f", "-pdf", "-interaction=nonstopmode", "-synctex=1"]`.
 
