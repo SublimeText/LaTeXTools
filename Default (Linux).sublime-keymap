@@ -7,12 +7,12 @@ LaTeX Package keymap for Linux
 	{	"keys": ["ctrl+b"],
 		"context": [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{"key": "ltt_st_build", "operator": "regex_match", "operand": "2|30[0-7]"}],
+			{"key": "ltt_st_build", "operator": "equal", "operand": "<3080"}],
 		"command": "latextools_build_selector"},
 	{	"keys": ["ctrl+shift+b"],
 		"context": [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{"key": "ltt_st_build", "operator": "regex_match", "operand": "2|30[0-7]"}],
+			{"key": "ltt_st_build", "operator": "equal", "operand": "<3080"}],
 		"command": "latextools_build_selector",
 			"args": {"select": true}},
 
