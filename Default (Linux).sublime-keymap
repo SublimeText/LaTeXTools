@@ -6,11 +6,13 @@ LaTeX Package keymap for Linux
 	// it is necessary so on ST2 we can implement our build selector
 	{	"keys": ["ctrl+b"],
 		"context": [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "ltt_st_build", "operator": "regex_match", "operand": "2|30[1-7]"}],
 		"command": "latextools_build_selector"},
 	{	"keys": ["ctrl+shift+b"],
 		"context": [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "ltt_st_build", "operator": "regex_match", "operand": "2|30[1-7]"}],
 		"command": "latextools_build_selector",
 			"args": {"select": true}},
 

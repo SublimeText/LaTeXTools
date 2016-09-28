@@ -59,8 +59,6 @@ import traceback
 import shutil
 import glob
 import re
-import json
-import codecs
 
 DEBUG = False
 
@@ -77,159 +75,152 @@ if _HAS_PHANTOMS:
 # Encoding: especially useful for Windows
 # TODO: counterpart for OSX? Guess encoding of files?
 def getOEMCP():
-    # Windows OEM/Ansi codepage mismatch issue.
-    # We need the OEM cp, because texify and friends are console programs
-    import ctypes
-    codepage = ctypes.windll.kernel32.GetOEMCP()
-    return str(codepage)
+	# Windows OEM/Ansi codepage mismatch issue.
+	# We need the OEM cp, because texify and friends are console programs
+	import ctypes
+	codepage = ctypes.windll.kernel32.GetOEMCP()
+	return str(codepage)
 
 
 class LatextoolsBuildSelector(sublime_plugin.WindowCommand):
 
-	# on 3080+, the necessary features are built-in by default
-	if sublime.version() > '3079':
-		def run(self, select=False):
-			select = False if select not in (True, False) else select
-			self.window.run_command('build', {'select': select})
-	# ST2 or ST3 before 3080
+	# stores last settings for build
+	WINDOWS = {}
+
+	if _ST3:
+		def load_build_system(self, build_system):
+			build_system = sublime.load_resource(build_system)
 	else:
-		# stores last settings for build
-		WINDOWS = {}
+		def load_build_system(self, build_system):
+			build_system = os.path.normpath(
+				build_system.replace('Packages', sublime.packages_path())
+			)
 
+			return self.parse_json_with_comments(build_system)
+
+	def run(self, select=False):
+		select = False if select not in (True, False) else select
+		view = self.view = self.window.active_view()
+		if not select:
+			window_settings = self.WINDOWS.get(self.window.id(), {})
+			build_system = window_settings.get('build_system')
+
+			if build_system:
+				build_variant = window_settings.get('build_variant', '')
+				self.run_build(build_system, build_variant)
+				return
+
+		# no previously selected build system or select is True
+		# find all .sublime-build files
 		if _ST3:
-			def load_build_system(self, build_system):
-				build_system = sublime.load_resource(build_system)
+			sublime_build_files = sublime.find_resources('*.sublime-build')
+			project_settings = self.window.project_data()
 		else:
-			def load_build_system(self, build_system):
-				build_system = os.path.normpath(
-					build_system.replace('Packages', sublime.packages_path())
-				)
-
-				return self.parse_json_with_comments(build_system)
-
-		def run(self, select=False):
-			select = False if select not in (True, False) else select
-			view = self.view = self.window.active_view()
-			if not select:
-				window_settings = self.WINDOWS.get(self.window.id(), {})
-				build_system = window_settings.get('build_system')
-
-				if build_system:
-					build_variant = window_settings.get('build_variant', '')
-					self.run_build(build_system, build_variant)
-					return
-
-			# no previously selected build system or select is True
-			# find all .sublime-build files
-			if _ST3:
-				sublime_build_files = sublime.find_resources('*.sublime-build')
-				project_settings = self.window.project_data()
-			else:
-				sublime_build_files = glob.glob(os.path.join(
-					sublime.packages_path(), '*', '*.sublime-build'
-				))
-				project_file_name = get_project_file_name(view)
-				if project_file_name is not None:
-					try:
-						project_settings = \
-							parse_json_with_comments(project_file_name)
-					except:
-						print('Error parsing project file')
-						traceback.print_exc()
-						project_settings = {}
-				else:
-					project_settings = {}
-
-			builders = []
-			for i, build_system in enumerate(
-				project_settings.get('build_systems', [])
-			):
-				if (
-					'selector' not in build_system or
-					view.score_selector(0, project_settings['selector']) > 0
-				):
-					try:
-						build_system['name']
-					except:
-						print('Could not determine name for build system {0}'.format(
-							build_system
-						))
-						continue
-
-					build_system['index'] = i
-					builders.append(build_system)
-
-			for filename in sublime_build_files:
+			sublime_build_files = glob.glob(os.path.join(
+				sublime.packages_path(), '*', '*.sublime-build'
+			))
+			project_file_name = get_project_file_name(view)
+			if project_file_name is not None:
 				try:
-					sublime_build = parse_json_with_comments(filename)
+					project_settings = \
+						parse_json_with_comments(project_file_name)
 				except:
-					print(u'Error parsing file {0}'.format(filename))
+					print('Error parsing project file')
+					traceback.print_exc()
+					project_settings = {}
+			else:
+				project_settings = {}
+
+		builders = []
+		for i, build_system in enumerate(
+			project_settings.get('build_systems', [])
+		):
+			if (
+				'selector' not in build_system or
+				view.score_selector(0, project_settings['selector']) > 0
+			):
+				try:
+					build_system['name']
+				except:
+					print('Could not determine name for build system {0}'.format(
+						build_system
+					))
 					continue
 
-				if (
-					'selector' not in sublime_build or
-					view.score_selector(0, sublime_build['selector']) > 0
-				):
-					sublime_build['file'] = filename.replace(
-						sublime.packages_path(), 'Packages', 1
-					).replace(os.path.sep, '/')
+				build_system['index'] = i
+				builders.append(build_system)
 
-					sublime_build['name'] = os.path.splitext(
-						os.path.basename(sublime_build['file'])
-					)[0]
+		for filename in sublime_build_files:
+			try:
+				sublime_build = parse_json_with_comments(filename)
+			except:
+				print(u'Error parsing file {0}'.format(filename))
+				continue
 
-					builders.append(sublime_build)
+			if (
+				'selector' not in sublime_build or
+				view.score_selector(0, sublime_build['selector']) > 0
+			):
+				sublime_build['file'] = filename.replace(
+					sublime.packages_path(), 'Packages', 1
+				).replace(os.path.sep, '/')
 
-			formatted_entries = []
-			build_system_variants = []
-			for builder in builders:
-				build_system_name = builder['name']
-				build_system_internal_name = builder.get(
-					'index', builder.get('file')
+				sublime_build['name'] = os.path.splitext(
+					os.path.basename(sublime_build['file'])
+				)[0]
+
+				builders.append(sublime_build)
+
+		formatted_entries = []
+		build_system_variants = []
+		for builder in builders:
+			build_system_name = builder['name']
+			build_system_internal_name = builder.get(
+				'index', builder.get('file')
+			)
+
+			formatted_entries.append(build_system_name)
+			build_system_variants.append((build_system_internal_name, ''))
+
+			for variant in builder.get('variants', []):
+				try:
+					formatted_entries.append(
+						"{0} - {1}".format(
+							build_system_name,
+							variant['name']
+						)
+					)
+				except KeyError:
+					continue
+
+				build_system_variants.append(
+					(build_system_internal_name, variant['name'])
 				)
 
-				formatted_entries.append(build_system_name)
-				build_system_variants.append((build_system_internal_name, ''))
+		entries = len(formatted_entries)
+		if entries == 0:
+			self.window.run_command('build')
+		elif entries == 1:
+			build_system, build_variant = build_system_variants[0]
+			self.WINDOWS[self.window.id()] = {
+				'build_system': build_system,
+				'build_variant': build_variant
+			}
+			self.run_build(build_system, build_variant)
+		else:
+			def on_done(index):
+				# cancel
+				if index == -1:
+					return
 
-				for variant in builder.get('variants', []):
-					try:
-						formatted_entries.append(
-							"{0} - {1}".format(
-								build_system_name,
-								variant['name']
-							)
-						)
-					except KeyError:
-						continue
-
-					build_system_variants.append(
-						(build_system_internal_name, variant['name'])
-					)
-
-			entries = len(formatted_entries)
-			if entries == 0:
-				self.window.run_command('build')
-			elif entries == 1:
-				build_system, build_variant = build_system_variants[0]
+				build_system, build_variant = build_system_variants[index]
 				self.WINDOWS[self.window.id()] = {
 					'build_system': build_system,
 					'build_variant': build_variant
 				}
 				self.run_build(build_system, build_variant)
-			else:
-				def on_done(index):
-					# cancel
-					if index == -1:
-						return
 
-					build_system, build_variant = build_system_variants[index]
-					self.WINDOWS[self.window.id()] = {
-						'build_system': build_system,
-						'build_variant': build_variant
-					}
-					self.run_build(build_system, build_variant)
-
-				self.window.show_quick_panel(formatted_entries, on_done)
+			self.window.show_quick_panel(formatted_entries, on_done)
 
 	def run_build(self, build_system, build_variant):
 		if build_system.isdigit():
