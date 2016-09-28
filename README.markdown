@@ -868,6 +868,7 @@ Otherwise, other features may not work as expected. In addition, you can specify
 |`command`|Overrides the `command` setting, providing the command run by the builder. This is only useful if you use the `traditional` builder. For the format, see the relevant [builder setting](#builder-settings).|
 |`env`|Overrides the `env` setting. Should be a dictionary similar to `env`, but note that when specified in a `.sublime-build` file, it is not, by default, platform-specific.|
 |`path`|Overrides the `texpath` settings. Note that if you set this, you are responsible for ensuring that the appropriate LaTeX install can still be found.|
+|`script_commands`|Overrides the `script_commands` setting used by the `script` builder. This is only useful if the `builder` is also changed to `script`.|
 
 ### Custom Builders
 

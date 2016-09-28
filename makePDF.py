@@ -586,7 +586,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 	# parameters
 	def run(
 		self, file_regex="", program=None, builder=None, command=None,
-		env=None, path=None, update_phantoms_only=False,
+		env=None, path=None, script_commands=None, update_phantoms_only=False,
 		hide_phantoms_only=False, **kwargs
 	):
 		if update_phantoms_only:
@@ -752,7 +752,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		self.output_directory = get_output_directory(self.file_name)
 
 		# Read the env option (platform specific)
-		builder_platform_settings = builder_settings.get(self.plat)
+		builder_platform_settings = builder_settings.get(self.plat, {})
 
 		if env is not None:
 			self.env = env
@@ -782,6 +782,10 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			)
 			self.window.run_command('hide_panel', {"panel": "output.latextools"})
 			return
+
+		if builder_name == 'script' and script_commands:
+			builder_platform_settings['script_commands'] = script_commands
+			builder_settings[self.plat] = builder_platform_settings
 
 		print(repr(builder))
 		self.builder = builder(
