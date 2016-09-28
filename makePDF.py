@@ -807,7 +807,9 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			self.path = path
 		else:
 			self.path = platform_settings.get('texpath', None)
-		CmdThread(self).start()
+
+		thread = CmdThread(self)
+		thread.start()
 		print(threading.active_count())
 
 		# setup the progress indicator
