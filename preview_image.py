@@ -1,6 +1,5 @@
 import imghdr
 import os
-import shutil
 import struct
 import subprocess
 import threading
@@ -15,11 +14,11 @@ if _ST3:
     from .getTeXRoot import get_tex_root
     from .jumpto_tex_file import open_image, find_image
     from .latextools_utils import cache, get_setting
+    from . import preview_utils
+    from .preview_utils import convert_installed
 
 _HAS_IMG_POPUP = sublime.version() >= "3114"
 _HAS_HOVER = sublime.version() >= "3116"
-
-_HAS_CONVERT = shutil.which("convert") is not None
 
 # the path to the temp files (set on loading)
 temp_path = None
@@ -112,7 +111,7 @@ def _convert_image_thread(thread_id):
 
 def _append_image_job(image_path, thumbnail_path, width, height, cont):
     global _job_list
-    if not _HAS_CONVERT:
+    if not convert_installed():
         return
 
     def job():
@@ -245,7 +244,7 @@ def _get_popup_html(thumbnail_path, width, height):
             'height="{height}">'
             .format(**locals())
         )
-    elif not _HAS_CONVERT:
+    elif not convert_installed():
         img_tag = "Install ImageMagick to enable preview."
     else:
         img_tag = "Preparing image for preview..."
@@ -338,7 +337,7 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
             on_hide=on_hide)
 
         # if the thumbnail does not exists, create it and update the popup
-        if _HAS_CONVERT and not os.path.exists(thumbnail_path):
+        if convert_installed() and not os.path.exists(thumbnail_path):
             def update_popup():
                 html_content = _get_popup_html(thumbnail_path, width, height)
                 if on_hide.hidden:
@@ -354,7 +353,8 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
             _run_image_jobs()
 
 
-class PreviewImagePhantomListener(sublime_plugin.ViewEventListener):
+class PreviewImagePhantomListener(sublime_plugin.ViewEventListener,
+                                  preview_utils.SettingsListener):
     key = "preview_image"
 
     def __init__(self, view):
@@ -380,7 +380,7 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener):
             if not init:
                 self.reset_phantoms()
 
-        self.v_attr_updates = {
+        view_attr = {
             "visible_mode": {
                 "setting": "preview_image_mode",
                 "call_after": self.update_phantoms
@@ -395,52 +395,12 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener):
             },
         }
 
-        self.lt_attr_updates = self.v_attr_updates.copy()
+        lt_attr_updates = view_attr.copy()
 
-        self._init_list_add_on_change("preview_image")
+        self._init_list_add_on_change(
+            "preview_image", view_attr, lt_attr_updates)
 
-        update_image_size(True)
-
-    def _init_list_add_on_change(self, key):
-        view = self.view
-        if "v_attr_updates" not in self.__dict__:
-            self.v_attr_updates = {}
-        if "lt_attr_updates" not in self.__dict__:
-            self.lt_attr_updates = {}
-
-        for attr_name, d in self.v_attr_updates.items():
-            settings_name = d["setting"]
-            self.__dict__[attr_name] = get_setting(settings_name, view=view)
-
-        for attr_name, d in self.lt_attr_updates.items():
-            if attr_name in self.__dict__:
-                continue
-            settings_name = d["setting"]
-            self.__dict__[attr_name] = _lt_settings.get(settings_name)
-
-        _lt_settings.add_on_change(
-            key, lambda: self._on_setting_change(False))
-        self.view.settings().add_on_change(
-            key, lambda: self._on_setting_change(True))
-
-    def _on_setting_change(self, for_view):
-        settings = self.view.settings() if for_view else _lt_settings
-        attr_updates = (self.v_attr_updates if for_view
-                        else self.lt_attr_updates)
-        for attr_name in attr_updates.keys():
-            attr = attr_updates[attr_name]
-            settings_name = attr["setting"]
-            value = settings.get(settings_name)
-            if for_view and value is None:
-                continue
-            if self.__dict__[attr_name] == value:
-                continue
-            if not for_view and self.view.settings().has(settings_name):
-                continue
-            # update the value and call the after function
-            self.__dict__[attr_name] = value
-            sublime.set_timeout_async(attr["call_after"])
-            break
+        update_image_size(init=True)
 
     @classmethod
     def is_applicable(cls, settings):
@@ -505,7 +465,7 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener):
                  height="{height}">
                 </div>
                 """.format(**locals())
-            elif _HAS_CONVERT:
+            elif convert_installed():
                 html_content += """Preparing image for preview..."""
             else:
                 html_content += (
@@ -648,7 +608,7 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener):
 
         self.phantoms = new_phantoms
 
-        if _HAS_CONVERT:
+        if convert_installed():
             for p in need_thumbnails:
                 _append_image_job(
                     p.image_path, p.thumbnail_path,

@@ -1,6 +1,5 @@
 import os
 import re
-import shutil
 import struct
 import subprocess
 import threading
@@ -14,13 +13,12 @@ import sublime_plugin
 _ST3 = sublime.version() >= "3000"
 if _ST3:
     from .latextools_utils import cache, get_setting
+    from . import preview_utils
+    from .preview_utils import convert_installed
 
 _IS_SUPPORTED = sublime.version() >= "3118"
 if _IS_SUPPORTED:
     import mdpopups
-
-# check that image magick is installed
-_HAS_CONVERT = shutil.which("convert") is not None
 
 
 startupinfo = None
@@ -225,7 +223,8 @@ def _generate_html(view, image_path):
     return img_tag
 
 
-class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
+class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
+                                 preview_utils.SettingsListener):
     key = "preview_math"
     # a dict from the file name to the content to avoid storing it for
     # every view
@@ -243,24 +242,24 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
         self._modifications = 0
         self._selection_modifications = 0
 
-        # read and cache settings as fields
-        self.visible_mode = get_setting("preview_math_mode", view=view)
-        self.packages = get_setting(
-            "preview_math_template_packages", view=view)
-        self.packages_str = "\n".join(self.packages)
-        self.preamble = get_setting(
-            "preview_math_template_preamble", view=view)
-        if isinstance(self.preamble, str):
-            self.preamble_str = self.preamble
-        else:
-            self.preamble_str = "\n".join(self.preamble)
-        self.latex_program = get_setting(
-            "preview_math_latex_compile_program", view=view)
-        self.latex_template_file = get_setting(
-            "preview_math_latex_template_file", view=view)
+        # # read and cache settings as fields
+        # self.visible_mode = get_setting("preview_math_mode", view=view)
+        # self.packages = get_setting(
+        #     "preview_math_template_packages", view=view)
+        # self.packages_str = "\n".join(self.packages)
+        # self.preamble = get_setting(
+        #     "preview_math_template_preamble", view=view)
+        # if isinstance(self.preamble, str):
+        #     self.preamble_str = self.preamble
+        # else:
+        #     self.preamble_str = "\n".join(self.preamble)
+        # self.latex_program = get_setting(
+        #     "preview_math_latex_compile_program", view=view)
+        # self.latex_template_file = get_setting(
+        #     "preview_math_latex_template_file", view=view)
 
-        self.no_star_env = get_setting(
-            "preview_math_no_star_envs", view=view)
+        # self.no_star_env = get_setting(
+        #     "preview_math_no_star_envs", view=view)
 
         self._init_watch_settings()
 
@@ -275,22 +274,25 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
         view = self.view
 
         # listen to setting changes to update the phantoms
-        def update_packages_str():
+        def update_packages_str(init=False):
             self.packages_str = "\n".join(self.packages)
-            self.reset_phantoms()
+            if not init:
+                self.reset_phantoms()
 
-        def update_preamble_str():
+        def update_preamble_str(init=False):
             if isinstance(self.preamble, str):
                 self.preamble_str = self.preamble
             else:
                 self.preamble_str = "\n".join(self.preamble)
-            self.reset_phantoms()
+            if not init:
+                self.reset_phantoms()
 
-        def update_template_file():
+        def update_template_file(init=False):
             self._read_latex_template_file(refresh=True)
-            self.reset_phantoms()
+            if not init:
+                self.reset_phantoms()
 
-        self.attr_updates = {
+        view_attr = {
             "visible_mode": {
                 "setting": "preview_math_mode",
                 "call_after": self.update_phantoms
@@ -316,7 +318,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
                 "call_after": update_template_file
             }
         }
-        self.lt_attr_updates = self.attr_updates.copy()
+        lt_attr = view_attr.copy()
         # watch this attributes for setting changes to reset the phantoms
         watch_attr = {
             "_watch_scale_quotient": {
@@ -332,12 +334,12 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
             settings_name = d["setting"]
             self.__dict__[attr_name] = _lt_settings.get(settings_name)
 
-        self.lt_attr_updates.update(watch_attr)
+        lt_attr.update(watch_attr)
 
-        _lt_settings.add_on_change(
-            "lt_preview_math", lambda: self._on_setting_change(False))
-        view.settings().add_on_change(
-            "lt_preview_math", lambda: self._on_setting_change(True))
+        self._init_list_add_on_change("preview_math", view_attr, lt_attr)
+        update_packages_str(init=True)
+        update_preamble_str(init=True)
+        update_template_file(init=True)
 
     def _read_latex_template_file(self, refresh=False):
         with self.template_lock:
@@ -374,24 +376,6 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
                 file_content = None
             self.template_contents[self.latex_template_file] = file_content
             self.template_mtime[self.latex_template_file] = mtime
-
-    def _on_setting_change(self, for_view):
-        settings = self.view.settings() if for_view else _lt_settings
-        attr_updates = self.attr_updates if for_view else self.lt_attr_updates
-        for attr_name in attr_updates.keys():
-            attr = attr_updates[attr_name]
-            settings_name = attr["setting"]
-            value = settings.get(settings_name)
-            if for_view and value is None:
-                continue
-            if self.__dict__[attr_name] == value:
-                continue
-            if not for_view and self.view.settings().has(settings_name):
-                continue
-            # update the value and call the after function
-            self.__dict__[attr_name] = value
-            sublime.set_timeout_async(attr["call_after"])
-            break
 
     @classmethod
     def is_applicable(cls, settings):
@@ -451,7 +435,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
             self._update_phantoms()
 
     def _update_phantoms(self):
-        if not _HAS_CONVERT:
+        if not convert_installed():
             return
         if not self.view.is_primary():
             return
