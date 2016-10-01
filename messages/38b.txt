@@ -1,0 +1,5 @@
+LaTeXTools Plugin version 3.11.2 (2016-09-28) changelog:
+
+Bugfixes:
+
+- Now `shift+enter` adds `\item` again inside list environments (#845 and #856)

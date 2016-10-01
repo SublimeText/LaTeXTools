@@ -1,5 +1,44 @@
 {
 // ------------------------------------------------------------------
+// Configuring the table of content quickpanel (C-r)
+// ------------------------------------------------------------------
+
+	// the commands, which will be treated as sections,
+	// i.e. the commands, which will be inserted into the quickpanel
+	"toc_section_commands": [
+		"part",
+		"chapter",
+		"section",
+		"subsection",
+		"subsubsection",
+		"paragraph",
+		"addpart",
+		"addchap",
+		"addsec",
+		"minisec"
+	],
+	// a mapping from each section command to its indent
+	"toc_indentations": {
+		"part": 0,
+		"chapter": 1,
+		"section": 2,
+		"subsection": 3,
+		"subsubsection": 4,
+		"paragraph": 5,
+		"addpart": 0,
+		"addchap": 1,
+		"addsec": 2,
+		"minisec": 2,
+		"label": 0
+	},
+	// the label commands, i.e. the commands,
+	// which will be shown/hidden using "Show Label" and "Hide Label"
+	"toc_labels": [
+		"label"
+	],
+
+
+// ------------------------------------------------------------------
 // Opening files included into the tex source code
 // ------------------------------------------------------------------
 // the commands to open image files. The extensions will be matched from top to bottom.
@@ -37,7 +76,7 @@
 				"extension": ["pdf", "eps"],
 				"command": "SumatraPDF"
 			}
-			// uncomment these lines to open all other images with the default programm
+			// uncomment these lines to open all other images with the default program
 			// ,
 			// {
 			// 	"command": "start"

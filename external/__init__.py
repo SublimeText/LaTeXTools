@@ -1,0 +1,3 @@
+# included so we can import from here as though it were a module
+# e.g.
+# from external.latex_chars import ...

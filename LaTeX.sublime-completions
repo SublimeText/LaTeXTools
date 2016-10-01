@@ -1,5 +1,5 @@
 {
-        "scope": "text.tex.latex",
+        "scope": "text.tex.latex - (string.other.math, meta.environment.math)",
 
         "completions":
         [
@@ -25,8 +25,8 @@
                 { "trigger": "baan", "contents": "\\begin{alignat}\n$0\n\\end{alignat}\n"},
                 { "trigger": "bfl", "contents": "\\begin{flalign*}\n$0\n\\end{flalign*}\n"},                
                 { "trigger": "bfln", "contents": "\\begin{flalign}\n$0\n\\end{flalign}\n"},
-                { "trigger": "bml", "contents": "\\begin{multiline*}\n$0\n\\end{multiline*}\n"},                
-                { "trigger": "bmln", "contents": "\\begin{multiline}\n$0\n\\end{multiline}\n"},
+                { "trigger": "bml", "contents": "\\begin{multline*}\n$0\n\\end{multline*}\n"},                
+                { "trigger": "bmln", "contents": "\\begin{multline}\n$0\n\\end{multline}\n"},
 
                 { "trigger": "bit", "contents": "\\begin{itemize}\n\t\\item $0\n\\end{itemize}\n"},
                 { "trigger": "ben", "contents": "\\begin{enumerate}\n\t\\item $0\n\\end{enumerate}\n"},

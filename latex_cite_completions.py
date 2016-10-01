@@ -23,9 +23,9 @@ if sublime.version() < '3000':
     _ST3 = False
     import getTeXRoot
     from kpsewhich import kpsewhich
-    from latex_fill_all import FillAllHelper
     from latextools_utils.is_tex_file import is_tex_file, get_tex_extensions
     from latextools_utils import bibformat, get_setting
+    from latextools_utils.internal_types import FillAllHelper
     import latextools_plugin
 
     # reraise implementation from 6
@@ -177,7 +177,8 @@ NEW_STYLE_CITE_REGEX = re.compile(
                 eti(?:C|c(?!lov|m\\)[a-z]*[A-Z]?))|
             (?:(?P<prefix9>[^{},]*)(?:,[^{},]*)*\{(?:\][^\[]*\[)?
                 (?:>[^<]*<)?(?:(?:PN)?(?:raey|rohtua)|PN|A)?etic
-                (?:lluf|trohs)?(?:ksam)?)
+                (?:lluf|trohs)?(?:ksam)?)|
+            (?:(?P<prefix10>[^{},]*)\{yrtnebib)
         )\\""", re.X)
 
 def match(rex, str):
@@ -546,11 +547,11 @@ class CiteFillAllHelper(FillAllHelper):
             NEW_STYLE_CITE_REGEX.match(line)
         )
 
+    def matches_fancy_prefix(self, line):
+        return bool(OLD_STYLE_CITE_REGEX.match(line))
+
     def is_enabled(self):
         return get_setting('cite_auto_trigger', True)
-
-    def supports_fancy_prefix(self):
-        return True
 
 
 def _is_prefix(lower_prefix, entry):

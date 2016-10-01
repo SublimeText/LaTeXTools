@@ -62,6 +62,7 @@ class EvinceWindowProxy:
     def __init__(self, uri, editor, spawn=False, logger=None):
         self._log = logger
         self.uri = uri
+        self.uri_unquoted = unquote(uri)
         self.editor = editor
         self.status = CLOSED
         self.source_handler = None
@@ -94,7 +95,7 @@ class EvinceWindowProxy:
 
     def _on_doc_loaded(self, uri, **keyargs):
         if (
-            unquote(uri) == self.uri and
+            unquote(uri) == self.uri_unquoted and
             self._handler is None
         ):
             self.handle_find_document_reply(keyargs['sender'])
@@ -192,7 +193,7 @@ E.g.:
         # RFC 1738: unreserved = alpha | digit | safe | extra
         #           safe       = "$" | "-" | "_" | "." | "+"
         #           extra      = "!" | "*" | "'" | "(" | ")" | ","
-        'file://' + quote(pdf_file, "/$+!*'(),"),
+        'file://' + quote(pdf_file, "/$+!*'(),@=~"),
         sys.argv[2],
         True
     )

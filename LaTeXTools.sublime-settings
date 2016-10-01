@@ -30,6 +30,10 @@
 	// You can also use toggle: C-l,t,a,e
 	"env_auto_trigger": false,
 
+	// Fill-helper autocompletion trigger for tex directive values after TEX directive=
+	// You can also use toggle: C-l,t,a,d
+	"tex_directive_auto_trigger": true,
+
 	// Controls whether the various fill-helpers should try to insert a
 	// completing }, ], or ) when inserted and either the C-l,C-f or C-l,x
 	// keybindings were used to trigger the completion. This attempts to be smart
@@ -44,6 +48,10 @@
 	"keep_focus": true,
 	// Sync PDF to current editor position after building (true) or not
 	"forward_sync": true,
+
+	// Set this to false to disable the overwriting of the goto overlay for the hotkey `C-r`
+	// You can still access the "table of content quickpanel" via `C-l, C-r`
+	"overwrite_goto_overlay": true,
 
 	// When to trigger cwl-command completion (requires the LaTeX-cwl package)
 	// possible values are:
@@ -63,7 +71,7 @@
 	// can also be set on a per-project basis
 	"use_biblatex": false,
 
-	// the mapping from the locales to the dictionaries for the 
+	// the mapping from the locales to the dictionaries for the
 	// `%!TEX spellcheck` directive, where the locales must be all lowercase
 	// and separated by a minus sign (-). The dictionaries must be valid path
 	// and compatible with the ST integrated spellcheck
@@ -321,15 +329,15 @@
 	// "default" or ""	the default built-in build engine; currently
 	//					this is the same as "traditional"
 	//
-	// "basic"			invokes pdflatex / xelatex / lualates as 
+	// "basic"			invokes pdflatex / xelatex / lualates as
 	//					needed, then biber / bibtex and pdflatex /
 	//					xelatex / lualatex again if needed. Unlike
 	//					the "simple" builder this supports most of
 	//					LaTeXTools builder features.
 	//
 	// "script"			external script: invokes the set of commands
-	//					specified in the "script_commands" setting 
-	//					in the platform-specific part of the 
+	//					specified in the "script_commands" setting
+	//					in the platform-specific part of the
 	//					"builder_settings"
 	//
 	// "simple"			invokes pdflatex 1x or 2x as needed, then
@@ -388,7 +396,7 @@
 	},
 
 // ------------------------------------------------------------------
-// Build panel settings
+// Build panel and phantoms settings
 // ------------------------------------------------------------------
 	// OPTION: "highlight_build_panel"
 	// adds syntax highlighting to the build panel so that errors, warnings, etc.
@@ -404,13 +412,27 @@
 	// "no_warnings" (only hide the panel if no warnings occur)
 	// "no_badboxes" (only hide the panel if no badbox messages occur when badboxes are enabled) and
 	// "never" (default, never hide the build panel)
-	"hide_build_panel": "never",
+	"hide_build_panel": "no_badboxes",
 
 	// OPTION: "display_bad_boxes"
 	// controls whether or not to display any bad boxes in the build output
 	// if this is not set to true, the setting "no_badboxes" for
 	// "hide_build_panel" is equivalent to "no_warnings"
 	"display_bad_boxes": false,
+
+	// OPTION: "show_error_phantoms"
+	// (ST3, Build 3118+ only)
+	// level to show error phantoms in the file
+	// Possible values are:
+	// "none" (don't show any phantoms at all)
+	// "errors" (only show errors, which breaks the compilation)
+	// "warnings" (default, show errors and warnings)
+	// "badboxes" (show errors, warnings, and badboxes)
+	"show_error_phantoms": "warnings",
+
+	// number of seconds to display the "build succeeded" or "build failed"
+	// message
+	"build_finished_message_length": 2.0,
 
 // ------------------------------------------------------------------
 // Viewer settings
@@ -419,7 +441,7 @@
 	// Specifies which viewer to use
 	// Possible values:
 	//
-	// "default" or ""	the default viewer for your platform, which 
+	// "default" or ""	the default viewer for your platform, which
 	//					is sumatra on Windows, skim on OS X and
 	//					evince on linux
 	//
@@ -481,13 +503,13 @@
 // Bibliographic references
 // ------------------------------------------------------------------
 	// OPTION: "bibliography"
-	// Either a single  bibliography plugin to use or a list of plugins 
+	// Either a single  bibliography plugin to use or a list of plugins
 	// which will be executed in order, stopping after the first result
 	// found
 	//
 	// Possible values:
 	//
-	// "traditional" 		the default, regex-based bibliography 
+	// "traditional" 		the default, regex-based bibliography
 	//						parsing
 	//
 	// "new"				a newer parser which supports UTF-8 and

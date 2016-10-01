@@ -34,7 +34,7 @@ OLD_STYLE_REF_REGEX = re.compile(
 NEW_STYLE_REF_REGEX = re.compile(
     r"([^}]*)\{(?:\*?s?fer(" +
     _ref_special_commands +
-    r")?|)\\"
+    r")?)\\"
 )
 
 NEW_STYLE_REF_RANGE_REGEX = re.compile(
@@ -177,12 +177,6 @@ class RefFillAllHelper(FillAllHelper):
     def get_completions(self, view, prefix, line):
         completions = get_ref_completions(view)
 
-        completions_length = len(completions)
-        if completions_length == 0:
-            return
-        elif completions_length == 1:
-            return completions
-
         if prefix:
             lower_prefix = prefix.lower()
             completions = [c for c in completions if lower_prefix in c.lower()]
@@ -190,8 +184,6 @@ class RefFillAllHelper(FillAllHelper):
         return completions
 
     def matches_line(self, line):
-        print(line)
-        print(NEW_STYLE_REF_RANGE_REGEX.match(line))
         return bool(
             (
                 not line.startswith(',') or
@@ -203,8 +195,8 @@ class RefFillAllHelper(FillAllHelper):
             )
         )
 
+    def matches_fancy_prefix(self, line):
+        return bool(OLD_STYLE_REF_REGEX.match(line))
+
     def is_enabled(self):
         return get_setting('ref_auto_trigger', True)
-
-    def supports_fancy_prefix(self):
-        return True
