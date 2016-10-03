@@ -242,25 +242,6 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
         self._modifications = 0
         self._selection_modifications = 0
 
-        # # read and cache settings as fields
-        # self.visible_mode = get_setting("preview_math_mode", view=view)
-        # self.packages = get_setting(
-        #     "preview_math_template_packages", view=view)
-        # self.packages_str = "\n".join(self.packages)
-        # self.preamble = get_setting(
-        #     "preview_math_template_preamble", view=view)
-        # if isinstance(self.preamble, str):
-        #     self.preamble_str = self.preamble
-        # else:
-        #     self.preamble_str = "\n".join(self.preamble)
-        # self.latex_program = get_setting(
-        #     "preview_math_latex_compile_program", view=view)
-        # self.latex_template_file = get_setting(
-        #     "preview_math_latex_template_file", view=view)
-
-        # self.no_star_env = get_setting(
-        #     "preview_math_no_star_envs", view=view)
-
         self._init_watch_settings()
 
         if self.latex_template_file:
@@ -271,8 +252,6 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
         sublime.set_timeout_async(self.update_phantoms)
 
     def _init_watch_settings(self):
-        view = self.view
-
         # listen to setting changes to update the phantoms
         def update_packages_str(init=False):
             self.packages_str = "\n".join(self.packages)
