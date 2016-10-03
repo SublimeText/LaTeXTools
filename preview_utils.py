@@ -1,11 +1,14 @@
+import os
 import shutil
+import threading
+import time
 
 import sublime
 
 
 _ST3 = sublime.version() >= "3000"
 if _ST3:
-    from .latextools_utils import get_setting
+    from .latextools_utils import cache, get_setting
 
 
 _lt_settings = {}
@@ -76,3 +79,79 @@ class SettingsListener(object):
             self.__dict__[attr_name] = value
             sublime.set_timeout_async(attr["call_after"])
             break
+
+
+_last_delete_try = {}
+
+
+def try_delete_temp_files(key, temp_path):
+    try:
+        last_try = _last_delete_try[key]
+    except KeyError:
+        try:
+            last_try = cache.read_global("preview_image_temp_delete")
+        except:
+            last_try = 0
+        _last_delete_try[key] = last_try
+
+    max_remaining_size = get_setting(key + "_temp_size", 50, view={})
+    period = get_setting("preview_temp_delete_period", 24, view={})
+
+    # if the period is negative don't clear automatically
+    if period < 0:
+        return
+
+    # convert the units
+    max_remaining_size *= 10**6  # MB -> B
+    period *= 60 * 60  # h -> s
+
+    # the remaining size as tenth of the cache size
+    max_remaining_size /= 10.
+
+    if time.time() <= last_try + period:
+        return
+    cache.write_global(key + "_temp_delete", last_try)
+
+    tr = threading.Thread(
+        target=lambda: delete_temp_files(temp_path, max_remaining_size))
+    tr.start()
+
+
+def _temp_folder_size(temp_path):
+    size = 0
+    for file_name in os.listdir(temp_path):
+        file_path = os.path.join(temp_path, file_name)
+        if os.path.isfile(file_path):
+            size += os.path.getsize(file_path)
+    return size
+
+
+def _modified_time(file_path):
+    try:
+        mtime = os.path.getmtime(file_path)
+    except:
+        mtime = 0
+    return mtime
+
+
+def delete_temp_files(temp_path, max_remaining_size, total_size=None,
+                      delete_all=False):
+    if total_size is None and not delete_all:
+        total_size = _temp_folder_size(temp_path)
+    if total_size <= max_remaining_size:
+        return
+
+    del_files = [
+        os.path.join(temp_path, file_name)
+        for file_name in os.listdir(temp_path)
+    ]
+    # sort the delete files by their modification time
+    del_files.sort(key=_modified_time, reverse=True)
+
+    # delete the files until the max boundary is reached
+    # oldest files first
+    while del_files and (delete_all or total_size > max_remaining_size):
+        file_path = del_files.pop()
+        if os.path.isfile(file_path):
+            total_size -= os.path.getsize(file_path)
+            os.remove(file_path)

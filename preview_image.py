@@ -15,7 +15,7 @@ if _ST3:
     from .jumpto_tex_file import open_image, find_image
     from .latextools_utils import cache, get_setting
     from . import preview_utils
-    from .preview_utils import convert_installed
+    from .preview_utils import convert_installed, try_delete_temp_files
 
 _HAS_IMG_POPUP = sublime.version() >= "3114"
 _HAS_HOVER = sublime.version() >= "3116"
@@ -107,6 +107,12 @@ def _convert_image_thread(thread_id):
     global _thread_num
     with _thread_num_lock:
         _thread_num -= 1
+        remaining_threads = _thread_num
+
+    # if all threads have been terminated we can check to delete
+    # the temporary files beyond the size limit
+    if remaining_threads == 0:
+        try_delete_temp_files("preview_image", temp_path)
 
 
 def _append_image_job(image_path, thumbnail_path, width, height, cont):

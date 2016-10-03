@@ -14,7 +14,7 @@ _ST3 = sublime.version() >= "3000"
 if _ST3:
     from .latextools_utils import cache, get_setting
     from . import preview_utils
-    from .preview_utils import convert_installed
+    from .preview_utils import convert_installed, try_delete_temp_files
 
 _IS_SUPPORTED = sublime.version() >= "3118"
 if _IS_SUPPORTED:
@@ -36,6 +36,7 @@ default_latex_template = """
 <<content>>
 \\end{document}
 """
+
 
 # the path to the temp files (set on loading)
 temp_path = None
@@ -139,6 +140,12 @@ def _convert_image_thread(thread_id):
     global _thread_num
     with _thread_num_lock:
         _thread_num -= 1
+        remaining_threads = _thread_num
+
+    # if all threads have been terminated we can check to delete
+    # the temporary files beyond the size limit
+    if remaining_threads == 0:
+        try_delete_temp_files("preview_math", temp_path)
 
 
 _max_threads = 2

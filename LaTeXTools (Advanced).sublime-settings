@@ -112,6 +112,17 @@
 	// by the compilation content.
 	"preview_math_latex_template_file": null,
 
+	// Setting for the temporary folder, which hold the preview images.
+	// For performance reasons the images are cached and not directly deleted.
+	// The max size of the image and math preview folders in MB. If the folders
+	// exceed the size images will be deleted until the folders are 10% of that size.
+	"preview_math_temp_size": 50,
+	"preview_image_temp_size": 30,
+	// The duration in which this exceeding will be checked in hours.
+	// Use -1 to not automatically delete the files.
+	"preview_temp_delete_period": 24,
+
+
 // ------------------------------------------------------------------
 // Additional fill all helper settings (for experts)
 // ------------------------------------------------------------------
