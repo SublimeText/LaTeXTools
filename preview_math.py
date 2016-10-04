@@ -450,7 +450,14 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             layout = (sublime.LAYOUT_BLOCK
                       if multline or self.visible_mode == "selected"
                       else sublime.LAYOUT_INLINE)
-            region = sublime.Region(scope.end())
+            BE_BLOCK = view.score_selector(
+                scope.begin(), "meta.environment.math.block.be")
+
+            # avoid jumping around in begin end block
+            if multline and BE_BLOCK:
+                region = sublime.Region(scope.end() + 4)
+            else:
+                region = sublime.Region(scope.end())
 
             try:
                 p = next(e for e in self.phantoms if e.region == region)
