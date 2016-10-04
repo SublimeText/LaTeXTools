@@ -11,11 +11,10 @@ import sublime_plugin
 
 _ST3 = sublime.version() >= "3000"
 if _ST3:
-    from .latextools_utils import cache
+    from .latextools_utils import cache, get_setting
     from . import preview_utils
-    from .preview_utils import (
-        call_shell_command, convert_installed, try_delete_temp_files
-    )
+    from .preview_utils import call_shell_command, convert_installed
+    from . import preview_threading as pv_threading
 
 _IS_SUPPORTED = sublime.version() >= "3118"
 if _IS_SUPPORTED:
@@ -43,19 +42,25 @@ _scale_quotient = 1
 _density = 150
 _lt_settings = {}
 
+_name = "preview_math"
+
 
 def _on_setting_change():
     global _density, _scale_quotient
     _scale_quotient = _lt_settings.get(
         "preview_math_scale_quotient", _scale_quotient)
     _density = _lt_settings.get("preview_math_density", _density)
+    max_threads = get_setting(
+        "preview_max_convert_threads", default=None, view={})
+    if max_threads is not None:
+        pv_threading.set_max_threads(max_threads)
 
 
 def plugin_loaded():
     global _lt_settings, temp_path
     _lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
 
-    temp_path = os.path.join(cache._global_cache_path(), "preview_math")
+    temp_path = os.path.join(cache._global_cache_path(), _name)
     # validate the temporary file directory is available
     if not os.path.exists(temp_path):
         os.makedirs(temp_path)
@@ -65,12 +70,23 @@ def plugin_loaded():
     # add a callback to setting changes
     _lt_settings.add_on_change("lt_preview_math_main", _on_setting_change)
 
+    # register the temp folder for auto deletion
+    pv_threading.register_temp_folder(_name, temp_path)
 
-def _create_image(latex_program, latex_document, base_name):
+
+def plugin_unloaded():
+    _lt_settings.clear_on_change("lt_preview_math_main")
+
+
+def _create_image(latex_program, latex_document, base_name, **kwargs):
     """Create an image for a latex document."""
     rel_source_path = base_name + ".tex"
     pdf_path = os.path.join(temp_path, base_name + ".pdf")
     image_path = os.path.join(temp_path, base_name + _IMAGE_EXTENSION)
+
+    # do nothing if the pdf already exists
+    if os.path.exists(pdf_path):
+        return
 
     # write the latex document
     source_path = os.path.join(temp_path, rel_source_path)
@@ -108,39 +124,11 @@ def _create_image(latex_program, latex_document, base_name):
             os.remove(delete_path)
 
 
-def _convert_image_thread(thread_id):
-    print("start convert thread", thread_id, threading.get_ident())
-    while True:
-        try:
-            with _job_list_lock:
-                do = _job_list.pop()[0]
-            do()
-        except IndexError:
-            break
-        except Exception as e:
-            print("Exception:", e)
-            break
-        if thread_id >= _max_threads:
-            break
-    print("close convert thread", thread_id, threading.get_ident())
-
-    # decrease the number of threads -> delete this thread
-    global _thread_num
-    with _thread_num_lock:
-        _thread_num -= 1
-        remaining_threads = _thread_num
-
-    # if all threads have been terminated we can check to delete
-    # the temporary files beyond the size limit
-    if remaining_threads == 0:
-        try_delete_temp_files("preview_math", temp_path)
-
-
-_max_threads = 2
-_job_list_lock = threading.Lock()
-_job_list = []
-_thread_num_lock = threading.Lock()
-_thread_num = 0
+# CONVERT THREADING
+def _execute_job(job):
+    _create_image(
+        job["latex_program"], job["latex_document"], job["base_name"])
+    job["cont"]()
 
 
 def _cancel_image_jobs(vid, p=None):
@@ -148,56 +136,34 @@ def _cancel_image_jobs(vid, p=None):
 
     if p is None:
         def is_target_job(job):
-            return job[1] == vid
+            return job["vid"] == vid
     elif isinstance(p, list):
         pset = set(p)
 
         def is_target_job(job):
-            return job[1] == vid and job[2] in pset
+            return job["vid"] == vid and job["p"] in pset
     else:
         def is_target_job(job):
-            return job[1] == vid and job[2] == p
-    with _job_list_lock:
-        if any(is_target_job(job) for job in _job_list):
-            _job_list = [job for job in _job_list if not is_target_job(job)]
+            return job["vid"] == vid and job["p"] == p
 
-
-def _wrap_create_image(latex_program, latex_document, base_name, cont):
-    def do():
-        _create_image(latex_program, latex_document, base_name)
-        cont()
-    return do
+    pv_threading.cancel_jobs(_name, is_target_job)
 
 
 def _extend_image_jobs(vid, latex_program, jobs):
-    global _job_list
     prepared_jobs = []
     for job in jobs:
-        wrap = _wrap_create_image(
-            latex_program, job["latex_document"], job["base_name"],
-            job["cont"])
-        prepared_jobs.append((wrap, vid, job["p"]))
+        job["latex_program"] = latex_program
+        job["vid"] = vid
 
-    with _job_list_lock:
-        _job_list.extend(prepared_jobs[::-1])
+        prepared_jobs.append((job["base_name"], job))
+
+    pv_threading.extend_jobs(_name, prepared_jobs[::-1])
 
 
 def _run_image_jobs():
-    global _thread_num
-    thread_id = -1
-
-    # we may not need locks for this
-    with _job_list_lock:
-        rem_len = len(_job_list)
-    with _thread_num_lock:
-        before_num = _thread_num
-        after_num = min(_max_threads, rem_len)
-        start_threads = after_num - before_num
-        if start_threads > 0:
-            _thread_num += start_threads
-    for thread_id in range(before_num, after_num):
-        threading.Thread(target=_convert_image_thread,
-                         args=(thread_id,)).start()
+    if not pv_threading.has_function(_name):
+        pv_threading.register_function(_name, _execute_job)
+    pv_threading.run_jobs(_name)
 
 
 def _generate_html(view, image_path):
@@ -310,7 +276,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
 
         lt_attr.update(watch_attr)
 
-        self._init_list_add_on_change("preview_math", view_attr, lt_attr)
+        self._init_list_add_on_change(_name, view_attr, lt_attr)
         update_packages_str(init=True)
         update_preamble_str(init=True)
         update_template_file(init=True)

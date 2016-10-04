@@ -14,9 +14,8 @@ if _ST3:
     from .jumpto_tex_file import open_image, find_image
     from .latextools_utils import cache, get_setting
     from . import preview_utils
-    from .preview_utils import (
-        call_shell_command, convert_installed, try_delete_temp_files
-    )
+    from .preview_utils import call_shell_command, convert_installed
+    from . import preview_threading as pv_threading
 
 _HAS_IMG_POPUP = sublime.version() >= "3114"
 _HAS_HOVER = sublime.version() >= "3116"
@@ -29,15 +28,37 @@ _IMAGE_EXTENSION = ".png"
 
 _lt_settings = {}
 
+# the name is used as identifier and to extract folder and file names
+_name = "preview_image"
+
+
+def _on_setting_change():
+    max_threads = get_setting(
+        "preview_max_convert_threads", default=None, view={})
+    if max_threads is not None:
+        pv_threading.set_max_threads(max_threads)
+
 
 def plugin_loaded():
     global _lt_settings, temp_path
     _lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
 
-    temp_path = os.path.join(cache._global_cache_path(), "preview_image")
+    temp_path = os.path.join(cache._global_cache_path(), _name)
     # validate the temporary file directory is available
     if not os.path.exists(temp_path):
         os.makedirs(temp_path)
+
+    # init all variables
+    _on_setting_change()
+    # add a callback to setting changes
+    _lt_settings.add_on_change("lt_preview_image_main", _on_setting_change)
+
+    # register the temp folder for auto deletion
+    pv_threading.register_temp_folder(_name, temp_path)
+
+
+def plugin_unloaded():
+    _lt_settings.clear_on_change("lt_preview_image_main")
 
 
 def create_thumbnail(image_path, thumbnail_path, width, height):
@@ -51,58 +72,7 @@ def create_thumbnail(image_path, thumbnail_path, width, height):
     )
 
 
-_max_threads = 2
-_job_list_lock = threading.Lock()
-_job_list = []
-_working_set = set()
-_thread_num_lock = threading.Lock()
-_thread_num = 0
-
-
-def _convert_image_thread(thread_id):
-    print("start convert thread", thread_id, threading.get_ident())
-    while True:
-        try:
-            with _job_list_lock:
-                next_job = _job_list.pop()
-                if next_job[1] in _working_set:
-                    _job_list.append(next_job)
-                    for i in range(len(_job_list)):
-                        next_job = _job_list[i]
-                        if next_job[1] not in _working_set:
-                            del _job_list[i]
-                            break
-                    else:
-                        print("Already working on", next_job[1])
-                        raise StopIteration()
-                job = next_job[0]
-                _working_set.add(next_job[1])
-            job()
-            with _job_list_lock:
-                _working_set.remove(next_job[1])
-        except IndexError:
-            break
-        except StopIteration:
-            break
-        except Exception as e:
-            print("Exception:", e)
-            break
-        if thread_id >= _max_threads:
-            break
-    print("close convert thread", thread_id, threading.get_ident())
-
-    # decrease the number of threads -> delete this thread
-    global _thread_num
-    with _thread_num_lock:
-        _thread_num -= 1
-        remaining_threads = _thread_num
-
-    # if all threads have been terminated we can check to delete
-    # the temporary files beyond the size limit
-    if remaining_threads == 0:
-        try_delete_temp_files("preview_image", temp_path)
-
-
+# CONVERT THREADING
 def _append_image_job(image_path, thumbnail_path, width, height, cont):
     global _job_list
     if not convert_installed():
@@ -115,28 +85,14 @@ def _append_image_job(image_path, thumbnail_path, width, height, cont):
         cont()
         print("duration:", time.time() - before)
 
-    with _job_list_lock:
-        _job_list.append((job, thumbnail_path, image_path))
+    _, job_id = os.path.split(thumbnail_path)
+    pv_threading.append_job(_name, jid=job_id, job=job)
 
 
 def _run_image_jobs():
-    global _thread_num
-    thread_id = -1
-
-    # we may not need locks for this
-    with _job_list_lock:
-        rem_len = len(_job_list)
-    with _thread_num_lock:
-        before_num = _thread_num
-        after_num = min(_max_threads, rem_len)
-        start_threads = after_num - before_num
-        if start_threads > 0:
-            _thread_num += start_threads
-    print("before_num, after_num:", before_num, after_num)
-    print("_job_list:", _job_list)
-    for thread_id in range(before_num, after_num):
-        threading.Thread(target=_convert_image_thread,
-                         args=(thread_id,)).start()
+    if not pv_threading.has_function(_name):
+        pv_threading.register_function(_name, lambda job: job())
+    pv_threading.run_jobs(_name)
 
 
 # from http://stackoverflow.com/a/20380514/5963435
@@ -391,8 +347,7 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener,
 
         lt_attr_updates = view_attr.copy()
 
-        self._init_list_add_on_change(
-            "preview_image", view_attr, lt_attr_updates)
+        self._init_list_add_on_change(_name, view_attr, lt_attr_updates)
 
         update_image_size(init=True)
 

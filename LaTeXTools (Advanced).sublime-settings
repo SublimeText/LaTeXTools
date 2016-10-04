@@ -112,6 +112,13 @@
 	// by the compilation content.
 	"preview_math_latex_template_file": null,
 
+	// The maximal number of thread used to convert images for the math live preview
+	// and the image preview (which requires this to convert pdf files to png thumbnails).
+	// Decrease this number if you are running in performance issues while editing math
+	// or viewing images.
+	// This must be greater than 0.
+	"preview_max_convert_threads": 2,
+
 	// Setting for the temporary folder, which hold the preview images.
 	// For performance reasons the images are cached and not directly deleted.
 	// The max size of the image and math preview folders in MB. If the folders
