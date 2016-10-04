@@ -1,7 +1,6 @@
 import os
 import re
 import struct
-import subprocess
 import threading
 import time
 import types
@@ -12,19 +11,15 @@ import sublime_plugin
 
 _ST3 = sublime.version() >= "3000"
 if _ST3:
-    from .latextools_utils import cache, get_setting
+    from .latextools_utils import cache
     from . import preview_utils
-    from .preview_utils import convert_installed, try_delete_temp_files
+    from .preview_utils import (
+        call_shell_command, convert_installed, try_delete_temp_files
+    )
 
 _IS_SUPPORTED = sublime.version() >= "3118"
 if _IS_SUPPORTED:
     import mdpopups
-
-
-startupinfo = None
-if sublime.platform() == "windows":
-    startupinfo = subprocess.STARTUPINFO()
-    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
 
 # the default and usual template for the latex file
@@ -71,13 +66,6 @@ def plugin_loaded():
     _lt_settings.add_on_change("lt_preview_math_main", _on_setting_change)
 
 
-def _call_shell_command(command):
-    """Call the command with shell=True and wait for it to finish."""
-    subprocess.Popen(command,
-                     shell=True,
-                     startupinfo=startupinfo).wait()
-
-
 def _create_image(latex_program, latex_document, base_name):
     """Create an image for a latex document."""
     rel_source_path = base_name + ".tex"
@@ -90,7 +78,7 @@ def _create_image(latex_program, latex_document, base_name):
         f.write(latex_document)
 
     # compile the latex document to a pdf
-    _call_shell_command(
+    call_shell_command(
         "cd \"{temp_path}\" && "
         "{latex_program} -interaction=nonstopmode "
         "{rel_source_path}"
@@ -107,7 +95,7 @@ def _create_image(latex_program, latex_document, base_name):
     if pdf_exists:
         # convert the pdf to a png image
         density = _density
-        _call_shell_command(
+        call_shell_command(
             "convert -density {density}x{density} -trim "
             '"{pdf_path}" "{image_path}"'
             .format(**locals())

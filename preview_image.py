@@ -1,7 +1,6 @@
 import imghdr
 import os
 import struct
-import subprocess
 import threading
 import time
 import types
@@ -15,7 +14,9 @@ if _ST3:
     from .jumpto_tex_file import open_image, find_image
     from .latextools_utils import cache, get_setting
     from . import preview_utils
-    from .preview_utils import convert_installed, try_delete_temp_files
+    from .preview_utils import (
+        call_shell_command, convert_installed, try_delete_temp_files
+    )
 
 _HAS_IMG_POPUP = sublime.version() >= "3114"
 _HAS_HOVER = sublime.version() >= "3116"
@@ -29,12 +30,6 @@ _IMAGE_EXTENSION = ".png"
 _lt_settings = {}
 
 
-startupinfo = None
-if sublime.platform() == "windows":
-    startupinfo = subprocess.STARTUPINFO()
-    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-
-
 def plugin_loaded():
     global _lt_settings, temp_path
     _lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
@@ -45,18 +40,11 @@ def plugin_loaded():
         os.makedirs(temp_path)
 
 
-def _call_shell_command(command):
-    """Call the command with shell=True and wait for it to finish."""
-    subprocess.Popen(command,
-                     shell=True,
-                     startupinfo=startupinfo).wait()
-
-
 def create_thumbnail(image_path, thumbnail_path, width, height):
     # convert the image
     if os.path.exists(thumbnail_path):
         return
-    _call_shell_command(
+    call_shell_command(
         'convert -thumbnail {width}x{height} '
         '"{image_path}" "{thumbnail_path}"'
         .format(**locals())
