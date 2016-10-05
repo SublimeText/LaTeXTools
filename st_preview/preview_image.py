@@ -2,11 +2,11 @@ import imghdr
 import os
 import struct
 import threading
-import time
 import types
 
 import sublime
 import sublime_plugin
+
 
 from ..getTeXRoot import get_tex_root
 from ..jumpto_tex_file import open_image, find_image
@@ -77,11 +77,8 @@ def _append_image_job(image_path, thumbnail_path, width, height, cont):
         return
 
     def job():
-        print("job:", image_path)
-        before = time.time()
         create_thumbnail(image_path, thumbnail_path, width, height)
         cont()
-        print("duration:", time.time() - before)
 
     _, job_id = os.path.split(thumbnail_path)
     pv_threading.append_job(_name, jid=job_id, job=job)
@@ -427,10 +424,8 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener,
         return html_content
 
     def on_navigate(self, href):
-        print("href:", href)
         command, index = href.split(" ")
         index = int(index)
-        print("command, index:", command, index)
         p = self.phantoms[index]
         if command == "hide":
             p.hidden = True

@@ -466,7 +466,6 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
                 return
             scopes = []
         else:
-            print("Invalid mode reseted to \"none\".", self.visible_mode)
             self.visible_mode = "none"
             scopes = []
 

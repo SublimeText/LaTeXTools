@@ -1,4 +1,6 @@
 import threading
+import traceback
+
 
 from .preview_utils import try_delete_temp_files
 
@@ -18,7 +20,6 @@ _thread_functions = {}
 
 def set_max_threads(max_threads):
     global _max_threads
-    print("max_threads:", max_threads)
     if max_threads > 0 and max_threads != _max_threads:
         _max_threads = max_threads
 
@@ -81,7 +82,6 @@ def append_job(name, jid, job):
 
 
 def _start_threads(name, thread_id):
-    print("start, ", name, thread_id)
     try:
         func = _thread_functions[name]
     except KeyError:
@@ -110,10 +110,7 @@ def _start_threads(name, thread_id):
                             del job_list[i]
                             break
                     else:
-                        print("Already working on", jid)
                         raise StopIteration()
-
-            print("jid, func, job:", jid, func, job)
 
             with lock:
                 working_set.add(jid)
@@ -124,8 +121,8 @@ def _start_threads(name, thread_id):
             break
         except StopIteration:
             break
-        except Exception as e:
-            print("Exception:", e)
+        except Exception:
+            traceback.print_exc()
             break
         if thread_id >= _max_threads:
             break
@@ -155,19 +152,15 @@ def start_threads(name, thread_id):
         _thread_num -= 1
         remaining_threads = _thread_num
 
-    print("remaining_threads:", remaining_threads)
     # if all threads have been terminated we can check to delete
     # the temporary files beyond the size limit
     if remaining_threads == 0:
         for v in visited:
-            print("v:", v)
             try:
                 temp_path = _temp_folder_paths[v]
-            except KeyError as e:
-                print(e)
+            except KeyError:
                 continue
 
-            print("Try delete ", name, temp_path)
             threading.Thread(
                 target=lambda: try_delete_temp_files(name, temp_path))
 

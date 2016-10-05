@@ -10,8 +10,8 @@ _load_modules = []
 def _load_module_exports(module):
     for name in module.exports:
         try:
+            # lift the export to this modules top level
             globals()[name] = module.__dict__[name]
-            print("Load {0} from module {1}".format(name, module.__name__))
         except KeyError:
             print(
                 "Error: {0} not defined in {1}."
