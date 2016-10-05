@@ -10,12 +10,13 @@ import sublime
 import sublime_plugin
 
 
-_ST3 = sublime.version() >= "3000"
-if _ST3:
-    from .latextools_utils import cache, get_setting
-    from . import preview_utils
-    from .preview_utils import call_shell_command, convert_installed
-    from . import preview_threading as pv_threading
+from ..latextools_utils import cache, get_setting
+from . import preview_utils
+from .preview_utils import call_shell_command, convert_installed
+from . import preview_threading as pv_threading
+
+# export the listener
+exports = ["MathPreviewPhantomListener"]
 
 
 try:

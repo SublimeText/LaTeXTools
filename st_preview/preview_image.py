@@ -8,17 +8,15 @@ import types
 import sublime
 import sublime_plugin
 
-_ST3 = sublime.version() >= "3000"
-if _ST3:
-    from .getTeXRoot import get_tex_root
-    from .jumpto_tex_file import open_image, find_image
-    from .latextools_utils import cache, get_setting
-    from . import preview_utils
-    from .preview_utils import call_shell_command, convert_installed
-    from . import preview_threading as pv_threading
+from ..getTeXRoot import get_tex_root
+from ..jumpto_tex_file import open_image, find_image
+from ..latextools_utils import cache, get_setting
+from . import preview_utils
+from .preview_utils import call_shell_command, convert_installed
+from . import preview_threading as pv_threading
 
-_HAS_IMG_POPUP = sublime.version() >= "3114"
-_HAS_HOVER = sublime.version() >= "3116"
+# export the listeners
+exports = ["PreviewImageHoverListener", "PreviewImagePhantomListener"]
 
 # the path to the temp files (set on loading)
 temp_path = None

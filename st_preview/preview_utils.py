@@ -7,9 +7,7 @@ import time
 import sublime
 
 
-_ST3 = sublime.version() >= "3000"
-if _ST3:
-    from .latextools_utils import cache, get_setting
+from ..latextools_utils import cache, get_setting
 
 
 _lt_settings = {}
