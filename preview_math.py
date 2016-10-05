@@ -469,6 +469,18 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             self.visible_mode = "none"
             scopes = []
 
+        # avoid creating a preview if someone just inserts $|$ and
+        # most likely want to create an inline and not a block block
+        def is_dollar_snippet(scope):
+            is_selector = view.score_selector(
+                scope.begin(), "meta.environment.math.block.dollar")
+            sel_at_start = any(
+                sel.empty() and sel.b == scope.begin() + 1
+                for sel in view.sel()
+            )
+            return is_selector and sel_at_start
+        scopes = [scope for scope in scopes if not is_dollar_snippet(scope)]
+
         color = self.color
         # if no foreground color is defined use the default test color
         if not color:
