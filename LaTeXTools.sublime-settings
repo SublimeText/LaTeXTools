@@ -101,6 +101,21 @@
 	// DON'T(!) use tex engines like pdftex
 	"preview_math_latex_compile_program": "pdflatex",
 
+
+	// The color of the text in the preview math phantoms.
+	// The format can either be RGB based "#RRGGBB" (e.g. "#FFFF00") 
+	// or a color name (e.g. "yellow")
+	// If it is the empty string "" it will be guessed based in the color scheme.
+	"preview_math_color": "",
+
+	// The background color of the preview math phantoms.
+	// In contrast to the foreground color you may also edit your colorscheme to change this.
+	// The format can either be RGB(A) based "#RRGGBB" (e.g. "#0000FF50")
+	// or a color name (e.g. "blue")
+	// If it is the empty string "" the default color will be used.
+	"preview_math_background_color": "",
+
+
 	// The density of the preview image. The higher the density the bigger the phantom.
 	"preview_math_density": 300,
 	// Only change this setting for high dpi displays!

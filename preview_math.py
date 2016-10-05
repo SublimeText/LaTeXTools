@@ -1,3 +1,4 @@
+import base64
 import os
 import re
 import struct
@@ -16,9 +17,19 @@ if _ST3:
     from .preview_utils import call_shell_command, convert_installed
     from . import preview_threading as pv_threading
 
-_IS_SUPPORTED = sublime.version() >= "3118"
-if _IS_SUPPORTED:
+
+try:
     import mdpopups
+
+    def get_color(view):
+        try:
+            color = mdpopups.scope2style(view, "").get("color", "#CCCCCC")
+        except:
+            color = "#CCCCCC"
+        return color
+except:
+    def get_color(view):
+        return "#CCCCCC"
 
 
 # the default and usual template for the latex file
@@ -78,7 +89,8 @@ def plugin_unloaded():
     _lt_settings.clear_on_change("lt_preview_math_main")
 
 
-def _create_image(latex_program, latex_document, base_name, **kwargs):
+def _create_image(latex_program, latex_document, base_name, color,
+                  **kwargs):
     """Create an image for a latex document."""
     rel_source_path = base_name + ".tex"
     pdf_path = os.path.join(temp_path, base_name + ".pdf")
@@ -112,7 +124,13 @@ def _create_image(latex_program, latex_document, base_name, **kwargs):
         # convert the pdf to a png image
         density = _density
         call_shell_command(
-            "convert -density {density}x{density} -trim "
+            "convert "
+            # set the image size/density
+            "-density {density}x{density} "
+            # change the color form black to the used defined
+            "-fuzz 99% -fill \"{color}\" -opaque black "
+            # trim the content to the real size
+            "-trim "
             '"{pdf_path}" "{image_path}"'
             .format(**locals())
         )
@@ -126,8 +144,7 @@ def _create_image(latex_program, latex_document, base_name, **kwargs):
 
 # CONVERT THREADING
 def _execute_job(job):
-    _create_image(
-        job["latex_program"], job["latex_document"], job["base_name"])
+    _create_image(**job)
     job["cont"]()
 
 
@@ -166,22 +183,57 @@ def _run_image_jobs():
     pv_threading.run_jobs(_name)
 
 
-def _generate_html(view, image_path):
+def _wrap_html(html_content, color=None, background_color=None):
+    if background_color:
+        style = "<style>"
+        style += "body {"
+        if color:
+            style += "color: {0};".format(color)
+        if background_color:
+            style += "background-color: {0};".format(background_color)
+        style += "}"
+        style += "</style>"
+    else:
+        style = ""
+    html_content = (
+        '<body id="latextools-preview-math">'
+        '{style}'
+        '{html_content}'
+        '</body>'
+        .format(**locals())
+    )
+    return html_content
+
+
+def _generate_html(view, image_path, style_kwargs):
     with open(image_path, "rb") as f:
         image_raw_data = f.read()
 
-    color = mdpopups.scope2style(view, "").get("color", "#CCCCCC")
-    # create the image tag
-    if _scale_quotient == 1 or len(image_raw_data) < 24:
-        img_tag = mdpopups.tint(image_raw_data, color)
+    if len(image_raw_data) < 24:
+        width = height = 0
     else:
-        # read the image dimensions out of the binary string
         width, height = struct.unpack(">ii", image_raw_data[16:24])
-        width /= _scale_quotient
-        height /= _scale_quotient
-        img_tag = mdpopups.tint(
-            image_raw_data, color, height=height, width=width)
-    return img_tag
+
+    if width <= 1 and height <= 1:
+        html_content = "&nbsp;"
+    else:
+        if _scale_quotient != 1:
+            width /= _scale_quotient
+            height /= _scale_quotient
+            style = (
+                'style="width: {width}; height: {height};"'
+                .format(**locals())
+            )
+        else:
+            style = ""
+        img_data_b64 = base64.b64encode(image_raw_data).decode('ascii')
+        html_content = (
+            "<img {style} src=\"data:image/png;base64,{img_data_b64}\">"
+            .format(**locals())
+        )
+    # wrap the html content in a body and style
+    html_content = _wrap_html(html_content, **style_kwargs)
+    return html_content
 
 
 class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
@@ -243,6 +295,14 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             },
             "no_star_env": {
                 "setting": "preview_math_no_star_envs",
+                "call_after": self.reset_phantoms
+            },
+            "color": {
+                "setting": "preview_math_color",
+                "call_after": self.reset_phantoms
+            },
+            "background_color": {
+                "setting": "preview_math_background_color",
                 "call_after": self.reset_phantoms
             },
             "packages": {
@@ -409,6 +469,16 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             self.visible_mode = "none"
             scopes = []
 
+        color = self.color
+        # if no foreground color is defined use the default test color
+        if not color:
+            color = get_color(view)
+
+        style_kwargs = {
+            "color": color,
+            "background_color": self.background_color
+        }
+
         for scope in scopes:
             content = view.substr(scope)
             multline = "\n" in content
@@ -450,6 +520,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             id_str = "\n".join([
                 self.latex_program,
                 str(_density),
+                color,
                 latex_document
             ])
             base_name = cache.hash_digest(id_str)
@@ -460,7 +531,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
                 if p.id is not None:
                     view.erase_phantom_by_id(p.id)
                     _cancel_image_jobs(view.id(), p)
-                html_content = _generate_html(view, image_path)
+                html_content = _generate_html(view, image_path, style_kwargs)
                 p.id = view.add_phantom(
                     self.key, region, html_content, layout, on_navigate=None)
                 new_phantoms.append(p)
@@ -469,13 +540,16 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             # placeholder phantom
             elif p.id is None:
                 p.id = view.add_phantom(
-                    self.key, region, "\u231B", layout, on_navigate=None)
+                    self.key, region, _wrap_html("\u231B", **style_kwargs),
+                    layout, on_navigate=None)
 
             job_args.append({
                 "latex_document": latex_document,
                 "base_name": base_name,
+                "color": color,
                 "p": p,
-                "cont": self._make_cont(p, image_path, time.time())
+                "cont": self._make_cont(
+                    p, image_path, time.time(), style_kwargs)
             })
 
             new_phantoms.append(p)
@@ -553,14 +627,14 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
 
         return latex_document
 
-    def _make_cont(self, p, image_path, update_time):
+    def _make_cont(self, p, image_path, update_time, style_kwargs):
         def cont():
             # if the image does not exists do nothing
             if not os.path.exists(image_path):
                 return
 
             # generate the html
-            html_content = _generate_html(self.view, image_path)
+            html_content = _generate_html(self.view, image_path, style_kwargs)
             # move to main thread and update the phantom
             sublime.set_timeout(
                 self._update_phantom_content(p, html_content, update_time)
