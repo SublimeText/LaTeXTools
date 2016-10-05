@@ -196,7 +196,7 @@ def _wrap_html(html_content, color=None, background_color=None):
     else:
         style = ""
     html_content = (
-        '<body id="latextools-preview-math">'
+        '<body id="latextools-preview-math-phantom">'
         '{style}'
         '{html_content}'
         '</body>'
