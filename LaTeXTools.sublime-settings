@@ -90,7 +90,7 @@
 
 	// MATH LIVE PREVIEW
 
-	// The preview mode for math math live preview, possible values are:
+	// The preview mode for math live preview, possible values are:
 	// "all"       to show a phantom for each math environment
 	// "selected"  to show a phantom only for the currently selected math environment
 	// "none"      to disable math live preview
@@ -100,7 +100,6 @@
 	// pdflatex, xelatex, lualatex, latex
 	// DON'T(!) use tex engines like pdftex
 	"preview_math_latex_compile_program": "pdflatex",
-
 
 	// The color of the text in the preview math phantoms.
 	// The format can either be RGB based "#RRGGBB" (e.g. "#FFFF00") 
@@ -114,14 +113,6 @@
 	// or a color name (e.g. "blue")
 	// If it is the empty string "" the default color will be used.
 	"preview_math_background_color": "",
-
-
-	// The density of the preview image. The higher the density the bigger the phantom.
-	"preview_math_density": 300,
-	// Only change this setting for high dpi displays!
-	// If the image is not sharp enough increase this scale to get a better resolution.
-	// However also change the density by the same factor to keep the size.
-	"preview_math_scale_quotient": 2,
 
 	// An array of the used packages, from which the file for the live preview
 	// will be generated.
@@ -142,6 +133,12 @@
 	// equation numbers. This may not be possible with each environment,
 	// therefore you can create a blacklist of such environments here.
 	"preview_math_no_star_envs": [],
+
+	// The density of the preview image. The higher the density the bigger the phantom.
+	"preview_math_density": 300,
+	// If the image is not sharp enough increase this scale to get a better resolution.
+	// However also change the density by the same factor to keep the size.
+	"preview_math_scale_quotient": 2,
 
 	// IMAGE PREVIEW
 

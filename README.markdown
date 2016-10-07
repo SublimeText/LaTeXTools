@@ -174,6 +174,25 @@ As an alternative, to using the `%!TEX root = <master file name>` syntax, if you
 
 Note that if you specify a relative path as the `TEXroot` in the project file, the path is determined *relative to the location of the project file itself*. It may be less ambiguous to specify an absolute path to the `TEXroot` if possible.
 
+### Previewing
+
+**For technical reasons all preview functionalities are only available in Sublime Text Build 3118 and newer.**
+
+LaTeXTools has the ability to preview parts of the document using phantoms or popups.
+Those functionalities rely on [ImageMagick](http://www.imagemagick.org) to be installed and in your PATH.
+
+#### Math-Live preview
+
+While editing math equations this will preview the result using phantoms.
+By default this will only preview the currently edited environment, but you can also preview all math environments.
+
+#### Preview images
+
+You can preview images included via the `\includegraphics` command.
+By default you can just hover over the image and a popup will appear to show the image.
+You can click on buttons to open the image or the folder, which contains the image.
+It is also possible to show all images at once via phantoms.
+
 ### Spell-checking
 
 LaTeXTools parses the `%!TEX spellcheck` directive to set the language for the spell-checker integrated in Sublime Text. The [Dictionaries](https://github.com/titoBouzout/Dictionaries) package is recommended and supported. If you have additional dictionaries, you can add them using the `tex_spellcheck_paths` setting, which is a mapping from the locales to the dictionary paths. Each locale must be lowercase and use only a hyphen as a separator. The dictionary paths must be compatible with those used by Sublime Text's spell-checker. For example `{"en-us": "Packages/Language - English/en_US.dic"}` would be a valid value. For more on Sublime Text support for spell checking, see [the relevant online documentation](http://www.sublimetext.com/docs/3/spell_checking.html) and [how to convert hunspell dictionaries to UTF-8](https://github.com/titoBouzout/Dictionaries#iconv-and-encodings).
@@ -557,6 +576,34 @@ The following options are currently available (defaults in parentheses):
 * `use_biblatex`: (`false`): if `true` LaTeXTools will use BibLaTeX defaults for editing `.bib` files. If `false`, LaTeXTools will use BibTeX defaults. See the section on [Support for Editing Bibliographies](#support-for-editing-bibliographies) for details.
 * `tex_spellcheck_paths` (`{}`): A mapping from the locales to the paths of the dictionaries. See the section [Spell-checking](#spell-checking).
 * `word_count_sub_level` (`"none"`): controls the level at which subcounts of words can be generated. Valid values are: `"none"`, `"part"`, `"chapter"`, and `"section"`.
+
+### Preview Settings
+
+#### Math-Live Preview Settings
+
+- `preview_math_mode` (`"selected"`): The mode to preview math environments, possible values are:
+  + `"all"`:       to show a phantom for each math environment
+  + `"selected"`:  to show a phantom only for the currently selected math environment
+  + `"none"`:      to disable math live preview
+- `preview_math_latex_compile_program` (`"pdflatex"`): The program to compile the latex template files, possible values are `"pdflatex"`, `"xelatex"`, `"lualatex"`, `"latex"`.
+- `preview_math_color` (`""`): The color of the text in the preview math phantoms. The format can either be RGB based "#RRGGBB" (e.g. `"#FFFF00"`)
+or a color name (e.g. `"yellow"`) If it is the empty string `""` it will be guessed based in the color scheme.
+- `preview_math_background_color` (`""`): The background color of the preview math phantoms. In contrast to the foreground color you may also edit your colorscheme to change this. The format can either be RGB(A) based `"#RRGGBB"` (e.g. `"#0000FF"` or `"#0000FF50"`) or a color name (e.g. `"blue"`). If it is the empty string `""` the default color will be used.
+- `preview_math_template_packages`: An array containing the used packages for the template as latex code.
+- `preview_math_template_preamble` (`""`): An string of the remaining preamble (not packages) for the file, which generates the math live preview. Can also be an array, with an string for each line (as in the packages). This is useful, if you define math commands or operators on your own. You may change this per project basis.
+- `preview_math_density` (`300`): The density of the preview image. The higher the density the bigger the phantom.
+- `preview_math_scale_quotient` (`2`): If the image is not sharp enough increase this scale to get a better resolution. However also change the density by the same factor to keep the size.
+
+#### Preview Image Settings
+
+- "preview_image_mode": "hover",
+   The preview mode for image preview, possible values are:
+  + `"all"`:       to show a phantom for each includegraphics command
+  + `"selected"`:  to show a phantom only for the currently selected `\includegraphics` command
+  + `"hover"`:     to show a popup if you hover over an includegraphics command
+  + `"none"`:      to disable image preview
+- `preview_popup_image_size` (`200`) and `preview_phantom_image_size` (`150`): The image size in the preview image popup and phantoms. These are the outer dimensions of the maximal size. The image will be scaled down to fit into these dimensions. It can either be an number or an array, which consist of two numbers (x and y), e.g. [200, 150].
+- `preview_image_scale_quotient` (`1`): Increase this number to get a better resolution on high dpi displays. Control the thumbnail image size, which will be generated to preview images, that are not natively supported (like pdf files). E.g. a image size of 300 with a scale quotient of 2 will create a thumbnail with the size 600, which is scaled down in the popup.
 
 ### Platform-Specific Settings
 
