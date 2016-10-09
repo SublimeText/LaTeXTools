@@ -1,15 +1,18 @@
 import os
 import re
 import itertools
+import traceback
 
 import sublime
 
 if sublime.version() < '3000':
     _ST3 = False
     from latextools_utils import cache, utils
+    from latextools_utils.tex_directives import get_tex_root
 else:
     _ST3 = True
     from . import cache, utils
+    from .tex_directives import get_tex_root
 
 if _ST3:
     strbase = str
@@ -193,12 +196,15 @@ class Analysis():
         A list of all commands, which are preprocessed with the flags
         """
         # convert the filter into a function
-        if type(how) is str:
-            def command_filter(c): return c.command == how
+        if isinstance(how, strbase):
+            def command_filter(c):
+                return c.command == how
         elif type(how) is list:
-            def command_filter(c): return c.command in how
+            def command_filter(c):
+                return c.command in how
         elif callable(how):
-            def command_filter(c): return how(c)
+            def command_filter(c):
+                return how(c)
         else:
             raise Exception("Unsupported filter type: " + str(type(how)))
         com = self._commands(flags)
@@ -237,14 +243,19 @@ def get_analysis(tex_root):
 
     Arguments:
     tex_root -- the path to the tex root as a string
+                if you use the view instead, the tex root will be extracted
+                automatically
 
     Returns:
     An Analysis of the view, which contains all relevant information and
     provides access methods to useful properties
     """
-    if not isinstance(tex_root, strbase):
-        # tex_root = get_tex_root(tex_root)
-        raise Exception("tex_root must be a string")
+    if tex_root is None:
+        return
+    elif isinstance(tex_root, sublime.View):
+        tex_root = get_tex_root(tex_root)
+    elif not isinstance(tex_root, strbase):
+        raise ValueError("tex_root must be a string or view")
 
     result = cache.cache(tex_root, "analysis",
                          lambda: analyze_document(tex_root))
@@ -257,6 +268,8 @@ def analyze_document(tex_root):
 
     Arguments:
     tex_root -- the path to the tex root as a string
+                if you use the view instead, the tex root will be extracted
+                automatically
 
     Returns:
     An Analysis of the view, which contains all relevant information and
@@ -264,9 +277,10 @@ def analyze_document(tex_root):
     """
     if tex_root is None:
         return
-    if not isinstance(tex_root, strbase):
-        # tex_root = get_tex_root(tex_root)
-        raise Exception("tex_root must be a string")
+    elif isinstance(tex_root, sublime.View):
+        tex_root = get_tex_root(tex_root)
+    elif not isinstance(tex_root, strbase):
+        raise ValueError("tex_root must be a string or view")
 
     result = _analyze_tex_file(tex_root)
     return result
@@ -296,6 +310,8 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
     try:
         raw_content, content = _preprocess_file(file_name)
     except:
+        print('Error occurred while preprocessing {0}'.format(file_name))
+        traceback.print_exc()
         return ana
 
     ana._content[file_name] = content

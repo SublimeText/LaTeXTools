@@ -1,5 +1,5 @@
 from ..ast import *
-from ..model import  *
+from ..model import *
 from ..parser import Parser
 
 import unittest

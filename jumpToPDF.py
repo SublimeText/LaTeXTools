@@ -117,6 +117,10 @@ def focus_st():
 # Jump to current line in PDF file
 # NOTE: must be called with {"from_keybinding": <boolean>} as arg
 class JumpToPdf(sublime_plugin.TextCommand):
+	def is_visible(self, *args):
+		view = sublime.active_window().active_view()
+		return bool(view.score_selector(0, "text.tex"))
+
 	def run(self, edit, **args):
 		# Check prefs for PDF focus and sync
 		keep_focus = args.get('keep_focus', get_setting('keep_focus', True))
@@ -140,7 +144,6 @@ class JumpToPdf(sublime_plugin.TextCommand):
 		root = getTeXRoot.get_tex_root(self.view)
 		file_name = get_jobname(root)
 
-
 		output_directory = get_output_directory(self.view)
 		if output_directory is None:
 			root = getTeXRoot.get_tex_root(self.view)
@@ -159,6 +162,12 @@ class JumpToPdf(sublime_plugin.TextCommand):
 					os.path.dirname(root),
 					file_name + u'.pdf'
 				)
+
+		if not os.path.exists(pdffile):
+			print("Expected PDF file {0} not found".format(pdffile))
+			return
+
+		pdffile = os.path.realpath(pdffile)
 
 		(line, col) = self.view.rowcol(self.view.sel()[0].end())
 		print("Jump to: ", line, col)
@@ -209,6 +218,10 @@ class JumpToPdf(sublime_plugin.TextCommand):
 
 
 class ViewPdf(sublime_plugin.WindowCommand):
+	def is_visible(self, *args):
+		view = self.window.active_view()
+		return bool(view.score_selector(0, "text.tex"))
+
 	def run(self, **args):
 		pdffile = None
 		if 'file' in args:
@@ -221,6 +234,7 @@ class ViewPdf(sublime_plugin.WindowCommand):
 
 			output_directory = get_output_directory(view)
 			if output_directory is None:
+				root = getTeXRoot.get_tex_root(view)
 				pdffile = os.path.join(
 					os.path.dirname(root),
 					file_name + u'.pdf'
@@ -236,6 +250,13 @@ class ViewPdf(sublime_plugin.WindowCommand):
 						os.path.dirname(root),
 						file_name + u'.pdf'
 					)
+
+		pdffile = os.path.normpath(pdffile)
+		if not os.path.exists(pdffile):
+			print("Expected PDF file {0} not found".format(pdffile))
+			return
+
+		pdffile = os.path.realpath(pdffile)
 
 		# since we potentially accept an argument, add some extra
 		# safety checks

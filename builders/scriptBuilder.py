@@ -139,8 +139,8 @@ class ScriptBuilder(PdfBuilder):
 				file_name=self.tex_name,
 				file_ext=self.tex_ext,
 				file_base_name=self.base_name,
-				output_directory=self.output_directory or self.tex_dir,
-				aux_directory=self.aux_directory or self.tex_dir,
+				output_directory=self.output_directory_full or self.tex_dir,
+				aux_directory=self.aux_directory_full or self.tex_dir,
 				jobname=self.job_name
 			)
 

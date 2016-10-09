@@ -27,11 +27,11 @@ grammar (roughly):
     value = IDENTIFIER | NUMBER | VALUE | QUOTED_STRING;
 '''
 
-from bibtex.ast import *
-from bibtex.lexer import Lexer
-from bibtex.model import *
-from bibtex.names import Name
-from bibtex.tex import tokenize_list
+from .ast import *
+from .lexer import Lexer
+from .model import *
+from .names import Name
+from .tex import tokenize_list
 
 import sys
 

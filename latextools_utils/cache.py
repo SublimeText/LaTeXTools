@@ -41,6 +41,20 @@ class CacheMiss(Exception):
     pass
 
 
+def hash_digest(text):
+    """
+    Create the hash digest for a text. These digest can be used to
+    create a unique filename from the path to the root file.
+    The used has function is md5.
+
+    Arguments:
+    text -- the text for which the digest should be created
+    """
+    text_encoded = text.encode("utf8")
+    hash_result = hashlib.md5(text_encoded)
+    return hash_result.hexdigest()
+
+
 def delete_local_cache(tex_root):
     """
     Removes the local cache folder and the local cache files
@@ -226,9 +240,7 @@ def _local_cache_path(tex_root):
     else:
         cache_path = _hidden_local_cache_path()
         # convert the root to plain string and hash it
-        tex_root = tex_root.encode("utf8")
-        root_hash = hashlib.md5(tex_root)
-        root_hash = root_hash.hexdigest()
+        root_hash = hash_digest(tex_root)
         return os.path.join(cache_path, root_hash)
 
 
@@ -261,7 +273,7 @@ def _write(cache_path, name, obj):
 
     file_path = os.path.join(cache_path, name)
     with open(file_path, "wb") as f:
-        pickle.dump(obj, f)
+        pickle.dump(obj, f, protocol=-1)
 
 
 def _read(cache_path, name):

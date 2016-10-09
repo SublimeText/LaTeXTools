@@ -1,0 +1,5 @@
+LaTeXTools Plugin version 3.10.7 (2016-08-10) changelog:
+
+Bugfixes:
+
+- Fix an issue where certain completions would be unavailable on upgrade (#807, #808)

@@ -1,0 +1,6 @@
+LaTeXTools Plugin version 3.10.5 (2016-08-06) changelog:
+
+Bugfixes:
+
+- Ensure parseTeXlog is loaded before makePDF (#802)
+- Fix an issue where MiKTeX paths with quotes were being treated as relative paths (#802)

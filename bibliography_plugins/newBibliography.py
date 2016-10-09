@@ -1,18 +1,15 @@
 from latextools_plugin import LaTeXToolsPlugin
 
-from bibtex import Parser
-from bibtex.names import Name
-from bibtex.tex import tokenize_list
+from external.bibtex import Parser
+from external.bibtex.names import Name
+from external.bibtex.tex import tokenize_list
 
-import latex_chars
-from latextools_utils import cache
+from external import latex_chars
+from latextools_utils import bibcache
 
 import codecs
 from collections import Mapping
-import hashlib
-import os
 import sublime
-import time
 import traceback
 
 # LaTeX -> Unicode decoder
@@ -115,14 +112,10 @@ class NewBibliographyPlugin(LaTeXToolsPlugin):
         entries = []
         parser = Parser()
         for bibfname in bib_files:
-            cache_name = "bib_" + hashlib.md5(bibfname.encode("utf8")).hexdigest()
             try:
-                modified_time = os.path.getmtime(bibfname)
-
-                (cached_time, cached_entries) = cache.read_global(cache_name)
-                if modified_time <= cached_time:
-                    entries.extend(cached_entries)
-                    continue
+                cached_entries = bibcache.read_fmt("new", bibfname)
+                entries.extend(cached_entries)
+                continue
             except:
                 pass
 
@@ -137,19 +130,19 @@ class NewBibliographyPlugin(LaTeXToolsPlugin):
 
                 print ('Loaded %d bibitems' % (len(bib_data)))
 
+                bib_entries = []
                 for key in bib_data:
                     entry = bib_data[key]
                     if entry.entry_type in ('xdata', 'comment', 'string'):
                         continue
-                    entries.append(EntryWrapper(entry))
+                    bib_entries.append(EntryWrapper(entry))
 
                 try:
-                    current_time = time.time()
-                    cache.write_global(cache_name, (current_time, entries))
+                    fmt_entries = bibcache.write_fmt("new", bibfname, bib_entries)
+                    entries.extend(fmt_entries)
                 except:
-                    print('Error occurred while trying to write to cache {0}'.format(
-                        cache_name
-                    ))
+                    entries.extend(bib_entries)
+                    print('Error occurred while trying to write to cache.')
                     traceback.print_exc()
             finally:
                 try:
@@ -159,6 +152,3 @@ class NewBibliographyPlugin(LaTeXToolsPlugin):
 
             print("Found %d total bib entries" % (len(entries),))
         return entries
-
-    def on_insert_citation(self, keyword):
-        print('Inserted {0}'.format(keyword))

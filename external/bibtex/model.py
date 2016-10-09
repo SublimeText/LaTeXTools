@@ -1,4 +1,4 @@
-from bibtex.utils import CaseInsensitiveOrderedDict
+from .utils import CaseInsensitiveOrderedDict
 from collections import MutableMapping
 import sys
 

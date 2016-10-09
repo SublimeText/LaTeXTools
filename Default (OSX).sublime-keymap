@@ -29,67 +29,108 @@ LaTeX Package keymap for OS X
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "latex_env_closer"},
 
-	// Complete reference or citation
+	// Bindings for completions
 	// cmd+l,ctrl+space suggests ST2's standard autocompletion keybinding, but for LaTeX;
 	// cmd+l,x suggests "cross" references, which both cites and refs are 
+	// TODO: remove cmd+l,ctrl+space
 	{ 	"keys": ["super+l","ctrl+space"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latex_ref_cite"},
+		"command": "latex_fill_all"},
 	{ 	"keys": ["super+l","x"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latex_ref_cite"},
+		"command": "latex_fill_all", "args": {"completion_type": ["cite", "ref"]}},
+	{	"keys": ["super+l","alt+x","c"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "latex_fill_all", "args": {"completion_type": "cite", "force": true}},
+	{	"keys": ["super+l","alt+x","r"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "latex_fill_all", "args": {"completion_type": "ref", "force": true}},
+
+	// Fill helper command	
+	{	"keys": ["super+l","super+f"],
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "latex_fill_all"},
+	{	"keys": ["super+l","super+alt+f"], 
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "latex_fill_all", "args": {"overwrite": true}},
 
 	{	"keys": ["{"],
 		"context":  [
 			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
-			{"key": "preceding_text", "operator": "regex_contains",
-				"operand": "\\\\(?:(?:(?:(?:eq|page|v|V|auto|name|c|C|cpage)?ref)|subref\\*?)|(?:(?:foreign|hyphen|hybrid(?=block))(?:text|block)cquote\\*?\\{[^}]*\\}(?:\\[[^\\]]*\\]){0,2}|(?:text|block)cquote\\*?(?:\\[[^\\]]*\\]){0,2}|(?:p|P|f|ft|s|S|t|T|a|A)?volcite(?:\\[[^\\]]*\\])?\\{[^}]*\\}(?:\\[[^\\]]*\\])?|(?:p|P|f|ft|s|S|t|T|a|A)?volcites(?:\\([^)]*\\)){0,2}(?:(?:\\[[^\\]]*\\])?\\{[^}]*\\}(?:\\[[^\\]]*\\])?)(?:\\{[^}]*\\}(?:\\[[^\\]]*\\])?\\{[^}]*\\}(?:\\[[^\\]]*\\])?)*|(?:(?!(?:p|P|f|ft|s|S|t|T|a|A)?volcites)(?:[A-Z]?[a-z]*c)|C)ites(?:\\([^)]*\\)){0,2}(?:(?:\\[[^\\]]*\\]){0,2}\\{[^}]*\\}(?:\\[[^\\]]*\\]){0,2})*|(?:(?!(?:p|P|f|ft|s|S|t|T|a|A)?volcite|mcite)(?:[A-Z]?[a-z]*c)|C)ite(?!reset\\*?|style)([a-zX*]*?)([.*?]){0,2}(?:\\[[^\\]]*\\]){0,2})|cite(?:(?:mask)?(?:full|short)?(?:author|year)(?:NP)?|NP|A)?(?:<[^>]*>)?(?:\\[[^\\]]*\\])?)$", "match_all": true}],
-		"command": "latex_ref_cite", "args": {"insert_char": "{"}},
+			{"key": "lt_fill_all_ref.open_curly", "operator": "equal", "match_all": true, "operand": true}],
+		"command": "latex_fill_all", "args": {"completion_type": "ref", "insert_char": "{"}},
+
+	{	"keys": ["{"],
+		"context":  [
+			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
+			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
+			{"key": "lt_fill_all_cite.open_curly", "operator": "equal", "match_all": true, "operand": true}],
+		"command": "latex_fill_all", "args": {"completion_type": "cite", "insert_char": "{"}},
 
 	{	"keys": [","],
 		"context":  [
 			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
-			{"key": "preceding_text", "operator": "regex_contains",
-				"operand": "\\\\(?:(?:foreign|hyphen|hybrid(?=block))(?:text|block)quote\\*?\\{[^}]*\\}\\[(?:(?:[^[\\],]*,)*)?[^[\\],]*|(?:text|block)quote\\*?\\[(?:(?:[^[\\],]*,)*)?[^[\\],]*|(?:foreign|hyphen|hybrid(?=block))(?:text|block)cquote\\*?\\{[^}]*\\}(?:\\[[^\\]]*\\]){0,2}\\{(?:(?:[^{},]*,)*)?[^{},]*|(?:text|block)cquote\\*?(?:\\[[^\\]]*\\]){0,2}\\{(?:(?:[^{},]*,)*)?[^{},]*|(?:p|P|f|ft|s|S|t|T|a|A)?volcite(?:\\[[^\\]]*\\])?\\{[^}]*\\}(?:\\[[^\\]]*\\])?\\{(?:(?:[^{},]*,)*)?[^{},]*|(?:p|P|f|ft|s|S|t|T|a|A)?volcites(?:\\([^)]*\\)){0,2}(?:(?:\\[[^\\]]*\\])?\\{[^}]*\\}(?:\\[[^\\]]*\\])?\\{(?:(?:[^{},]*,)*)?(?:\\}(?=.*?\\{))?){1,}|(?:(?!(?:p|P|f|ft|s|S|t|T|a|A)?volcites)(?:[A-Z]?[a-z]*c)|C)ites(?:\\([^)]*\\)){0,2}(?:(?:\\[[^\\]]*\\]){0,2}\\{(?:(?:[^{},]*,)*)?(?:\\}(?=.*?\\{))?){1,}|(?:(?!(?:p|P|f|ft|s|S|t|T|a|A)?volcite|mcite)(?:[A-Z]?[a-z]*c)|C)ite(?!reset\\*?|style)([a-zX*]*?)([.*?]){0,2}(?:\\[[^\\]]*\\]){0,2}\\{(?:(?:[^{},]*,)*)?[^{},]*|cite(?:(?:mask)?(?:full|short)?(?:author|year)(?:NP)?|NP|A)?(?:<[^>]*>)?(?:\\[[^\\]]*\\])?\\{(?:(?:[^{},]*,)*)?[^{},]*)$", "match_all": true}],
-		"command": "latex_ref_cite", "args": {"insert_char": ","}},
+			{"key": "lt_fill_all_cite.comma", "operator": "equal", "match_all": true, "operand": true}],
+		"command": "latex_fill_all", "args": {"completion_type": "cite", "insert_char": ","}},
+
+	{	"keys": [","],
+		"context":  [
+			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
+			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
+			{"key": "lt_fill_all_ref.comma", "operator": "equal", "match_all": true, "operand": true}],
+		"command": "latex_fill_all", "args": {"completion_type": "ref", "insert_char": ","}},
+
 	{	"keys": ["["],
 		"context":  [
 			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
-			{"key": "preceding_text", "operator": "regex_contains",
-				"operand": "\\\\(?:(?:foreign|hyphen|hybrid(?=block))(?:text|block)quote\\*?\\{[^}]*\\}|(?:text|block)quote\\*?)$", "match_all": true}],
-		"command": "latex_ref_cite", "args": {"insert_char": "["}},
+			{"key": "lt_fill_all_cite.open_square", "operator": "equal", "match_all": true, "operand": true}],
+		"command": "latex_fill_all", "args": {"completion_type": "cite", "insert_char": "["}},
 
 	{	"keys": ["{"],
 		"context":  [
 			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
-			{"key": "lt_fill_input.open", "operator": "equal", "operand": true, "match_all": true}],
-		"command": "latex_fill_input", "args": {"insert_char": "{"}},
+			{"key": "lt_fill_all_input.open_curly", "operator": "equal", "operand": true, "match_all": true}],
+		"command": "latex_fill_all", "args": {"completion_type": "input", "insert_char": "{"}},
+
 	{	"keys": [","],
 		"context":  [
 			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
-			{"key": "lt_fill_input.inside", "operator": "equal", "operand": true, "match_all": true}],
-		"command": "latex_fill_input", "args": {"insert_char": ","}},
+			{"key": "lt_fill_all_input.comma", "operator": "equal", "operand": true, "match_all": true}],
+		"command": "latex_fill_all", "args": {"completion_type": "input", "insert_char": ","}},
 
 	{	"keys": ["{"],
 		"context":  [
 			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
-			{"key": "preceding_text", "operator": "regex_contains",
-				"operand": "(?:\\\\begin(?:\\[[^{}\\[\\]]\\])?)|(?:\\\\end)", "match_all": true}],
-		"command": "latex_fill_env", "args": {"insert_char": "{"}},
+			{"key": "lt_fill_all_env.open_curly", "operator": "equal", "operand": true, "match_all": true}],
+		"command": "latex_fill_all", "args": {"completion_type": "env", "insert_char": "{"}},
+
+	{	"keys": ["="],
+		"context":  [
+			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex comment.line.percentage"},
+			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
+			{"key": "lt_fill_all_directive.equal_sign", "operator": "equal", "match_all": true, "operand": true}],
+		"command": "latex_fill_all", "args": {"completion_type": "directive", "insert_char": "="}},
 
 	// Toggle autocomplete
 	{ 	"keys": ["super+l","t","a", "r"],
@@ -108,6 +149,14 @@ LaTeX Package keymap for OS X
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "toggle_auto", "args": {"which": "env"}},
+	{ 	"keys": ["super+l","t","a", "d"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "toggle_auto", "args": {"which": "tex_directive"}},
+	{ 	"keys": ["super+l","t","a", "b"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "toggle_auto", "args": {"which": "smart_bracket"}},
 
 	// View PDF, jump to point, toggle editor/viewer focus
 	{ 	"keys": ["super+l","v"],
@@ -186,9 +235,24 @@ LaTeX Package keymap for OS X
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text monospace.sublime-snippet"}},
 
+	// Replace the `C-r` overlay with a whole document overlay as opt-out
+	// Also add this overlay to `C-l, C-r`
+	{ "keys": ["super+r"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex"},
+			{"key": "overwrite_goto_overlay"}],
+		"command": "latex_toc_quickpanel"},
+	{ "keys": ["super+l","super+r"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex"}],
+		"command": "latex_toc_quickpanel"},
 
-
-
+	// Show panel
+	{ "keys": ["shift+escape"],
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "panel_visible", "operator": "equal", "operand": false }],
+		"command": "show_panel", "args": {"panel": "output.latextools"}},
 
 		// Auto-pair ``$''
 		// Lifted from default file
@@ -306,11 +370,18 @@ LaTeX Package keymap for OS X
 		]
 	},
 	// automatic addition of new \items when hitting Shift+Enter in a list environment
- 	{ "keys": ["shift+enter"], "command": "insert_snippet", "args": {"contents": "\n\\item $0"}, 
- 	"context":  
-	 	[
-			{"key": "selector", "operator": "equal", "operand": "meta.function.environment.list.latex"},
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
+	{ "keys": ["shift+enter"], "command": "insert_snippet", "args": {"contents": "\n\\item $0"},
+	"context":
+		[
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex meta.environment.list, meta.function.environment.list.latex"},
+			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
+		]
+	},
+	// create a \item[] in a description environment
+	{ "keys": ["shift+enter"], "command": "insert_snippet", "args": {"contents": "\n\\item[$1] $0"},
+	"context":
+		[
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex meta.environment.list.description"},
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
 		]
 	},
@@ -348,6 +419,11 @@ LaTeX Package keymap for OS X
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "clear_local_latex_cache"},
 
+	// super+l,w to display word count
+	{	"keys": ["super+l", "w"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "texcount" },
 
 	// Avoid weird brace-matching behavior with indented text
 	{ "keys": ["{"], "command": "insert_snippet", "args": {"contents": "{$0}"}, "context":
@@ -357,13 +433,6 @@ LaTeX Package keymap for OS X
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
 			{ "key": "following_text", "operator": "regex_match", "operand": "^$", "match_all": true }
-		]
-	},
-
-	// Fill helper command
-	{	"keys": ["super+l", "super+f"], "command": "latex_fill_all", "context":
-		[
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
 		]
 	}
 ]

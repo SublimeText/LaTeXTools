@@ -32,19 +32,20 @@ def debug(s):
 # Return value: the question is, "Should I skip this file?" Hence:
 # 	True means YES, DO SKIP IT, IT IS NOT A FILE
 #	False means NO, DO NOT SKIP IT, IT IS A FILE
-def debug_skip_file(f):
+def debug_skip_file(f, root_dir):
 	# If we are not debugging, then it's not a file for sure, so skip it
-	if not (print_debug or interactive):
+	# if not (print_debug or interactive):
+	if not (interactive or print_debug):
 		return True
 	debug("debug_skip_file: " + f)
 	f_ext = os.path.splitext(f)[1].lower()[1:]
 	# Heuristic: TeXlive on Mac or Linux (well, Ubuntu at least) or Windows / MiKTeX
 	# Known file extensions:
-	known_file_exts = ['tex','sty','cls','cfg','def','mkii','fd','map','clo', 'dfu', \
+	known_file_exts = ['tex','sty','cls','cfg','def','mkii','fd','map','clo', 'dfu',
 						'ldf', 'bdf', 'bbx','cbx','lbx','dict']
 	if (f_ext in known_file_exts) and \
 	   (("/usr/local/texlive/" in f) or ("/usr/share/texlive/" in f) or ("Program Files\\MiKTeX" in f) \
-	   	or re.search(r"\\MiKTeX\\\d\.\d+\\tex",f)) or ("\\MiKTeX\\tex\\" in f):
+	   	or re.search(r"\\MiKTeX(?:\\| )\d\.\d+\\tex",f)) or ("\\MiKTeX\\tex\\" in f):
 		print ("TeXlive / MiKTeX FILE! Don't skip it!")
 		return False
 	if (f_ext in known_file_exts and re.search(r'(\\|/)texmf\1', f, re.I)):
@@ -71,8 +72,8 @@ def debug_skip_file(f):
 		print ("Skip it!")
 		return True
 	# Heuristic: file in local directory with .tex ending
-	file_exts = extra_file_ext + ['tex', 'aux', 'bbl', 'cls', 'sty','out']
-	if f[0:2] in ['./', '.\\', '..'] and f_ext in file_exts:
+	file_exts = extra_file_ext + ['tex', 'aux', 'bbl', 'cls', 'sty', 'out', 'toc', 'dbx']
+	if (f.startswith(root_dir) or f[0:2] in ['./', '.\\', '..']) and f_ext in file_exts:
 		print ("File! Don't skip it")
 		return False
 
@@ -110,7 +111,7 @@ def debug_skip_file(f):
 # Input: tex log file, read in **binary** form, unprocessed
 # Output: content to be displayed in output panel, split into lines
 
-def parse_tex_log(data):
+def parse_tex_log(data, root_dir):
 	debug("Parsing log file")
 	errors = []
 	warnings = []
@@ -167,7 +168,7 @@ def parse_tex_log(data):
 	# from being considered files
 	file_badmatch_rx = re.compile(r"^\s*\([a-zA-Z]+\)\s{4,}.+")
 	pagenum_begin_rx = re.compile(r"\s*\[\d*(.*)")
-	line_rx = re.compile(r"^l\.(\d+)\s(.*)")		# l.nn <text>
+	line_rx = re.compile(r"^l\.(\d+)\s(.*)")  # l.nn <text>
 
 	warning_rx = re.compile(r"^(.*?) Warning: (.+)") # Warnings, first line
 	line_rx_latex_warn = re.compile(r"input line (\d+)\..*") # Warnings, line number
@@ -190,6 +191,7 @@ def parse_tex_log(data):
 		if files==[]:
 			location = "[no file]"
 			parsing.append("PERR [handle_warning no files] " + l)
+			debug("PERR [handle_warning no files] (%d)" % (line_num,))
 		else:
 			location = files[-1]		
 
@@ -206,6 +208,7 @@ def parse_tex_log(data):
 		if files==[]:
 			location = "[no file]"
 			parsing.append("PERR [handle_badbox no files] " + l)
+			debug("PERR [handle_badbox no files] (%d)" % (line_num,))
 		else:
 			location = files[-1]		
 
@@ -279,6 +282,11 @@ def parse_tex_log(data):
 			if file_match:
 				debug("MATCHED (long line)")
 				file_name = file_match.group(1)
+				file_name = os.path.normpath(file_name.strip('"'))
+
+				if not os.path.isabs(file_name):
+					file_name = os.path.normpath(os.path.join(root_dir, file_name))
+
 				file_extra = file_match.group(2) + file_match.group(3) # don't call it "extra"
 				# remove quotes if necessary, but first save the count for a later check
 				quotecount = file_name.count("\"")
@@ -298,7 +306,7 @@ def parse_tex_log(data):
 					debug("only one quote, extending")
 				# Now we have a long line consisting of a potential file name alone
 				# Check if it really is a file name
-				elif (not os.path.isfile(file_name)) and debug_skip_file(file_name):
+				elif (not os.path.isfile(file_name)) and debug_skip_file(file_name, root_dir):
 					debug("Not a file name")
 				else:
 					debug("IT'S A (LONG) FILE NAME WITH NO EXTRA TEXT")
@@ -338,7 +346,7 @@ def parse_tex_log(data):
 					# valid file, this likely starts something else we need to
 					# process as a file, so add a space...
 					elif extralen > 0 and extra[0] == '(' and (
-						os.path.isfile(file_name) or not debug_skip_file(file_name)
+						os.path.isfile(file_name) or not debug_skip_file(file_name, root_dir)
 					):
 						line += " " + extra
 						debug("Extended: " + line)
@@ -378,6 +386,7 @@ def parse_tex_log(data):
 			if files==[]:
 				location = "[no file]"
 				parsing.append("PERR [STATE_REPORT_ERROR no files] " + line)
+				debug("PERR [STATE_REPORT_ERROR no files] (%d)" % (line_num,))
 			else:
 				location = files[-1]
 			debug("Found error: " + err_msg)		
@@ -499,7 +508,8 @@ def parse_tex_log(data):
 						and files and "bibgerm" in files[-1]:
 			debug("special case: bibgerm")
 			debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
-			files.pop()
+			f = files.pop()
+			debug(u"Popped file: {0} ({1})".format(f, line_num))
 			continue
 
 		# Special case: the relsize package, which puts ")" at the end of a
@@ -508,7 +518,8 @@ def parse_tex_log(data):
 						and files and  "relsize" in files[-1]:
 			debug("special case: relsize")
 			debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
-			files.pop()
+			f = files.pop()
+			debug(u"Popped file: {0} ({1})".format(f, line_num))
 			continue
 		
 		# Special case: the comment package, which puts ")" at the end of a 
@@ -530,7 +541,8 @@ def parse_tex_log(data):
 						and files and "numprint" in files[-1]:
 			debug("special case: numprint")
 			debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
-			files.pop()
+			f = files.pop()
+			debug(u"Popped file: {0} ({1})".format(f, line_num))
 			continue	
 
 		# Special case: xypic's "loaded)" at the BEGINNING of a line. Will check later
@@ -542,7 +554,8 @@ def parse_tex_log(data):
 			# likely to be an xypic file? Look for xypic in the file name
 			if files and "xypic" in files[-1]:
 				debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
-				files.pop()
+				f = files.pop()
+				debug(u"Popped file: {0} ({1})".format(f, line_num))
 				extra = xypic_match.group(1)
 				debug("Reprocessing " + extra)
 				reprocess_extra = True
@@ -570,6 +583,7 @@ def parse_tex_log(data):
 				continue
 			else:
 				parsing.append("PERR [')' no files]")
+				debug("PERR [')' no files] (%d)" % (line_num,))
 				break
 
 		# Opening page indicators: skip and reprocess
@@ -618,6 +632,11 @@ def parse_tex_log(data):
 		if file_match:
 			debug("MATCHED")
 			file_name = file_match.group(1)
+			file_name = os.path.normpath(file_name.strip('"'))
+
+			if not os.path.isabs(file_name):
+				file_name = os.path.normpath(os.path.join(root_dir, file_name))
+
 			extra = file_match.group(2) + file_match.group(3)
 			# remove quotes if necessary
 			file_name = file_name.replace("\"", "")
@@ -629,7 +648,7 @@ def parse_tex_log(data):
 				file_name = file_name[:-6]
 				extra = "pdfTeX" + extra
 			# This kills off stupid matches
-			if (not os.path.isfile(file_name)) and debug_skip_file(file_name):
+			if (not os.path.isfile(file_name)) and debug_skip_file(file_name, root_dir):
 				#continue
 				# NOTE BIG CHANGE HERE: CONTINUE PROCESSING IF NO MATCH
 				pass
@@ -658,7 +677,8 @@ def parse_tex_log(data):
 			# likely to be an xypic file? Look for xypic in the file name
 			if files and "xypic" in files[-1]:
 				debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
-				files.pop()
+				f = files.pop()
+				debug(u"Popped file: {0} ({1})".format(f, line_num))
 				extra = xypic_match.group(1)
 				debug("Reprocessing " + extra)
 				reprocess_extra = True
@@ -723,7 +743,8 @@ if __name__ == '__main__':
 		if len(sys.argv) == 3:
 			extra_file_ext = sys.argv[2].split(" ")
 		data = open(logfilename, 'rb').read()
-		errors, warnings, badboxes = parse_tex_log(data)
+		root_dir = os.path.dirname(logfilename)
+		errors, warnings, badboxes = parse_tex_log(data, logfilename)
 		print("")
 		print("Errors:")
 		for err in errors:

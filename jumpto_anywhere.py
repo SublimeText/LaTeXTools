@@ -8,6 +8,7 @@ try:
     _ST3 = True
     from .getTeXRoot import get_tex_root
     from .latextools_utils import analysis, utils
+    from .latextools_utils.tex_directives import TEX_DIRECTIVE
     from .latex_cite_completions import NEW_STYLE_CITE_REGEX
     from .latex_ref_completions import NEW_STYLE_REF_REGEX
     from .jumpto_tex_file import INPUT_REG, BIB_REG, IMAGE_REG
@@ -16,6 +17,7 @@ except:
     _ST3 = False
     from getTeXRoot import get_tex_root
     from latextools_utils import analysis, utils
+    from latextools_utils.tex_directives import TEX_DIRECTIVE
     from latex_cite_completions import NEW_STYLE_CITE_REGEX
     from latex_ref_completions import NEW_STYLE_REF_REGEX
     from jumpto_tex_file import INPUT_REG, BIB_REG, IMAGE_REG
@@ -154,6 +156,20 @@ def _jumpto_pkg_doc(view, com_reg, pos):
         view_doc(package_name)
 
 
+def _jumpto_tex_root(view, root):
+    if os.path.isabs(root):
+        path = root
+    else:
+        path = os.path.normpath(
+            os.path.join(
+                os.path.dirname(view.file_name()),
+                root
+            )
+        )
+
+    sublime.active_window().open_file(path)
+
+
 def _opt_jumpto_self_def_command(view, com_reg):
     tex_root = get_tex_root(view)
     if tex_root is None:
@@ -195,12 +211,15 @@ def _opt_jumpto_self_def_command(view, com_reg):
 
 
 class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
-    def run(self, edit):
+    def run(self, edit, position=None):
         view = self.view
-        if len(view.sel()) != 1:
-            print("Jump to anywhere does not work with multiple cursors")
-            return
-        sel = view.sel()[0]
+        if position is None:
+            if len(view.sel()) != 1:
+                print("Jump to anywhere does not work with multiple cursors")
+                return
+            sel = view.sel()[0]
+        else:
+            sel = sublime.Region(position, position)
         line_r = view.line(sel)
         line = view.substr(line_r)
 
@@ -216,13 +235,26 @@ class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
         try:
             com_reg = next(ifilter(is_inside, COMMAND_REG.finditer(line)))
         except:
+            # since the magic comment will not match the command, do this here
+            if view.file_name():
+                m = TEX_DIRECTIVE.search(line)
+                if (
+                    m and
+                    m.group(1) == 'root' and
+                    m.start() <= sel.begin() - line_r.begin() and
+                    sel.end() - line_r.begin() <= m.end()
+                ):
+                    _jumpto_tex_root(view, m.group(2))
+                    return
+
             print("Cursor is not inside a command")
             return
+
         command = com_reg.group("command")
         args = com_reg.group("args")
         reversed_command = "{" + command[::-1] + "\\"
         # the cursor position inside the command
-        pos = view.sel()[0].b - line_r.begin() - com_reg.start()
+        pos = sel.b - line_r.begin() - com_reg.start()
         # check if its a ref
         if NEW_STYLE_REF_REGEX.match(reversed_command):
             sublime.status_message("Jump to reference '{0}'".format(args))
@@ -233,11 +265,13 @@ class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
             _jumpto_cite(view, com_reg, pos)
         # check if it is any kind of input command
         elif any(reg.match(com_reg.group(0)) for reg in INPUT_REG_EXPS):
-            args = {
+            kwargs = {
                 "auto_create_missing_folders": False,
                 "auto_insert_root": False
             }
-            view.run_command("jumpto_tex_file", args)
+            if pos is not None:
+                kwargs.update({"position": position})
+            view.run_command("jumpto_tex_file", kwargs)
         elif command in ["usepackage", "Requirepackage"]:
             _jumpto_pkg_doc(view, com_reg, pos)
         else:
@@ -252,8 +286,12 @@ class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
 
 
 class JumptoTexAnywhereByMouseCommand(sublime_plugin.WindowCommand):
-    def run(self, fallback_command=""):
-        view = self.window.active_view()
+    def want_event(self):
+        return True
+
+    def run(self, event=None, fallback_command="", set_caret=False):
+        window = self.window
+        view = window.active_view()
 
         def score_selector(selector):
             point = view.sel()[0].b if len(view.sel()) else 0
@@ -261,7 +299,21 @@ class JumptoTexAnywhereByMouseCommand(sublime_plugin.WindowCommand):
 
         if score_selector("text.tex.latex"):
             print("Jump in tex file.")
-            view.run_command("jumpto_tex_anywhere")
+            if _ST3:
+                pos = view.window_to_text((event["x"], event["y"]))
+            else:
+                pos = view.sel()[0].b
+            view.run_command("jumpto_tex_anywhere", {"position": pos})
         elif fallback_command:
+            if set_caret:
+                self._set_caret(view, event)
             print("Run command '{0}'".format(fallback_command))
-            view.run_command(fallback_command)
+            window.run_command(fallback_command)
+
+    def _set_caret(self, view, event):
+        # this is not supported for ST2
+        if not _ST3:
+            return
+        pos = view.window_to_text((event["x"], event["y"]))
+        view.sel().clear()
+        view.sel().add(sublime.Region(pos, pos))
