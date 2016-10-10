@@ -58,8 +58,8 @@ LOAD_ORDER = [
 for suffix in LOAD_ORDER:
     mod = MOD_PREFIX + suffix
     try:
-    if mod in sys.modules and sys.modules[mod] is not None:
-        reload(sys.modules[mod])
+        if mod in sys.modules and sys.modules[mod] is not None:
+            reload(sys.modules[mod])
         else:
             __import__(mod)
     except:
