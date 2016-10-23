@@ -139,12 +139,13 @@ class CmdThread ( threading.Thread ):
 					# Now create a Popen object
 					try:
 						if self.caller.plat == "windows":
+							encodedTexDir = self.caller.tex_dir.encode(sys.getfilesystemencoding())
 							proc = subprocess.Popen(
 								cmd,
 								startupinfo=startupinfo,
 								stderr=subprocess.STDOUT,
 								stdout=subprocess.PIPE,
-								cwd=self.caller.tex_dir
+								cwd=encodedTexDir
 							)
 						elif self.caller.plat == "osx":
 							proc = subprocess.Popen(
