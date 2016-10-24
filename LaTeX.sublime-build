@@ -25,5 +25,51 @@
 	"linux":
 		{
 			"file_regex": "^(...*?):([0-9]+): ([0-9]*)([^\\.]+)"
+		},
+
+	"variants":
+	[
+		{
+			"name": "Traditional",
+			"builder": "traditional"
+		},
+		{
+			"name": "PdfLaTeX",
+			"builder": "traditional",
+			"program": "pdflatex"
+		},
+		{
+			"name": "XeLaTeX",
+			"builder": "traditional",
+			"program": "xelatex"
+		},
+		{
+			"name": "LuaLaTeX",
+			"builder": "traditional",
+			"program": "lualatex"
+		},
+		{
+			"name": "Basic Builder",
+			"builder": "basic"
+		},
+		{
+			"name": "Basic Builder - PdfLaTeX",
+			"builder": "basic",
+			"program": "pdflatex"
+		},
+		{
+			"name": "Basic Builder - XeLaTeX",
+			"builder": "basic",
+			"program": "xelatex"
+		},
+		{
+			"name": "Basic Builder - LuaLaTeX",
+			"builder": "basic",
+			"program": "lualatex"
+		},
+		{
+			"name": "Script Builder",
+			"builder": "script"
 		}
+	]
 }
