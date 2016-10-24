@@ -435,6 +435,7 @@ Selecting any entry in the list will take you to the corresponding place in the 
 This is an IDE-like mouse navigation, which executes a jump depending on the context around the cursor. It is easy to use and intuitive. Just click with the mouse on a command while pressing the modifier key. The corresponding jump will be executed. Supported jump types are:
 
 - Jump to referenced labels (e.g. `\ref`)
+- Show and jump to label usages (e.g. `\label`)
 - Jump to citation entries in bibliography files (e.g. `\cite`)
 - Open included files (e.g. `\input` or `\include`)
 - Open root file from `%!TEX root =...` magic comment
