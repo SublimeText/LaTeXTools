@@ -161,6 +161,12 @@ def external_command(command, cwd=None, shell=False, env=None,
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
+        # encode cwd in the file system encoding; this is necessary to support
+        # some non-ASCII paths; see PR #878. Thanks to anamewing for the
+        # suggested fix
+        if not _ST3 and cwd:
+            cwd = cwd.encode(sys.getfilesystemencoding())
+
     if stdin is __sentinel__:
         stdin = None
 
