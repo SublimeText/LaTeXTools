@@ -139,7 +139,9 @@ class CmdThread ( threading.Thread ):
 					# Now create a Popen object
 					try:
 						if self.caller.plat == "windows":
-							encoded_tex_dir = self.caller.tex_dir.encode(sys.getfilesystemencoding())
+							encoded_tex_dir = self.caller.tex_dir
+							if not _ST3:
+								encoded_tex_dir = encoded_tex_dir.encode(sys.getfilesystemencoding())
 							proc = subprocess.Popen(
 								cmd,
 								startupinfo=startupinfo,
