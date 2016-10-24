@@ -128,7 +128,7 @@ class TraditionalBuilder(PdfBuilder):
 				if texify:
 					cmd.append(u"--tex-option=\"" + option + "\"")
 				else:
-					cmd.append(u"-latexoption=\"" + option + "\"")
+					cmd.append(u"-latexoption='" + option + "'")
 
 		# texify wants the .tex extension; latexmk doesn't care either way
 		yield (cmd + [self.tex_name], "Invoking " + cmd[0] + "... ")
