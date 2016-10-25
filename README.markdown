@@ -1011,6 +1011,10 @@ The local cache also has a lifespan, after which it will be invalidated. The lif
 
 ## Troubleshooting
 
+### System Check
+
+To aid in troubleshooting a range of issues, we have added a feature that wil check your current system setup to give you an idea of what your current configuration looks like to LaTeXTools. In particular, it tests for key environment variables, the availability of key executables, the selected builder and the selected viewer. This command can be run by invoking **LaTeXTools: Check system** from the **Command Palette**. If it is run with a LaTeX document as the visible window, the information provided will reflect the settings for the current project.
+
 ### Path issues
 
 Many LaTeXTools problems are path-related. The `LaTeXTools.sublime-settings` file attempts to set up default path locations for MiKTeX, TeXLive and MacTeX, but these are not guaranteed to cover all possibilities. Please let me know if you have any difficulties.
