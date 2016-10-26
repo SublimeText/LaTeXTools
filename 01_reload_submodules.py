@@ -51,7 +51,10 @@ LOAD_ORDER = [
     'latextools_utils.bibcache',
     'latextools_utils.output_directory',
 
-    'latextools_plugin'
+    'latextools_plugin',
+
+    # ensure latex_fill_all is loaded before the modules that depend on it
+    'latex_fill_all'
 ]
 
 for suffix in LOAD_ORDER:
@@ -63,3 +66,26 @@ for suffix in LOAD_ORDER:
             __import__(mod)
     except:
         traceback.print_exc()
+
+
+# reload any plugins cached in memory
+def plugin_loaded():
+    try:
+        import latextools_plugin
+    except ImportError:
+        from . import latextools_plugin
+
+    try:
+        with latextools_plugin._latextools_module_hack():
+            for mod in sys.modules:
+                if mod.startswith('_latextools_'):
+                    try:
+                        reload(sys.modules[mod])
+                    except:
+                        traceback.print_exc()
+    except:
+        traceback.print_exc()
+
+
+if sublime.version() < '3000':
+    plugin_loaded()

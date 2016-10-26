@@ -475,7 +475,7 @@ def _latextools_module_hack():
     # add any white-listed plugins to sys.modules under their own name
     plugins_whitelist = get_setting(
         'plugins_whitelist',
-        ['external', 'getTeXRoot', 'kpsewhich', 'latextools_utils']
+        ['external', 'getTeXRoot', 'latextools_utils']
     )
 
     # always include latextools_pluing
