@@ -22,7 +22,6 @@ LOAD_ORDER = [
     'external.latex_chars',
 
     'latextools_plugin_internal',
-    'latextools_plugin',
 
     # reloaded here so that makePDF imports the current version
     'parseTeXlog',
@@ -43,11 +42,15 @@ LOAD_ORDER = [
     'latextools_utils.sublime_utils',
     'latextools_utils.cache',
     'latextools_utils.quickpanel',
+    'latextools_utils.external_command',
 
     # depend on any previous
     'latextools_utils.analysis',
+    'latextools_utils.ana_utils',
     'latextools_utils.bibcache',
-    'latextools_utils.output_directory'
+    'latextools_utils.output_directory',
+
+    'latextools_plugin'
 ]
 
 for suffix in LOAD_ORDER:

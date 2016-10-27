@@ -1,7 +1,6 @@
 import re
 import os
 import codecs
-import subprocess
 import shlex
 import traceback
 
@@ -12,14 +11,16 @@ try:
     _ST3 = True
     from .getTeXRoot import get_tex_root
     from .latextools_utils import get_setting, utils
+    from .latextools_utils.external_command import external_command
 except:
     _ST3 = False
     from getTeXRoot import get_tex_root
     from latextools_utils import get_setting, utils
+    from latextools_utils.external_command import external_command
 
 
 INPUT_REG = re.compile(
-    r"\\(?:input|include|subfile)"
+    r"\\(?:input|include|subfile|loadglsentries)"
     r"\{(?P<file>[^}]+)\}",
     re.UNICODE
 )
@@ -161,8 +162,8 @@ def _jumpto_image_file(view, window, tex_root, file_name):
             # if $file is not used, append the file path
             else:
                 command.append(file_path)
-            print("RUN: {0}".format(command))
-            subprocess.Popen(command)
+
+            external_command(command)
 
     psystem = sublime.platform()
     commands = get_setting("open_image_command", {}).get(psystem, None)

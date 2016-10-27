@@ -3,37 +3,33 @@ from __future__ import print_function
 import sublime
 import sublime_plugin
 
-import subprocess
-from subprocess import Popen, PIPE
-
 import os
 import json
 
 from collections import defaultdict
 
+from functools import partial
 import threading
+import traceback
 
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
     _ST3 = False
     strbase = basestring
-    import sys
-    from latextools_utils import get_setting
+
+    from latextools_utils.external_command import (
+        check_output, CalledProcessError
+    )
 else:
     _ST3 = True
     strbase = str
-    from .latextools_utils import get_setting
+
+    from .latextools_utils.external_command import (
+        check_output, CalledProcessError
+    )
 
 __all__ = ['LatexGenPkgCacheCommand']
 
-def get_texpath():
-    platform_settings = get_setting(sublime.platform(), {})
-    texpath = platform_settings.get('texpath', '')
-
-    if not _ST3:
-        return os.path.expandvars(texpath).encode(sys.getfilesystemencoding())
-    else:
-        return os.path.expandvars(texpath)
 
 def _get_tex_searchpath(file_type):
     if file_type is None:
@@ -42,39 +38,34 @@ def _get_tex_searchpath(file_type):
     command = ['kpsewhich']
     command.append('--show-path={0}'.format(file_type))
 
-    texpath = get_texpath() or os.environ['PATH']
-    env = dict(os.environ)
-    env['PATH'] = texpath
-
     try:
-        # Windows-specific adjustments
-        startupinfo = None
-        shell = False
-        if sublime.platform() == 'windows':
-            # ensure console window doesn't show
-            startupinfo = subprocess.STARTUPINFO()
-            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            shell = True
-
-        print('Running %s' % (' '.join(command)))
-        p = Popen(
-            command,
-            stdout=PIPE,
-            stdin=PIPE,
-            startupinfo=startupinfo,
-            shell=shell,
-            env=env
+        return check_output(command)
+    except CalledProcessError as e:
+        sublime.set_timeout(
+            partial(
+                sublime.error_message,
+                'An error occurred while trying to run kpsewhich. '
+                'Files in your TEXMF tree could not be accessed.'
+            ),
+            0
         )
-
-        paths = p.communicate()[0].decode('utf-8').rstrip()
-        if p.returncode == 0:
-            return paths
-        else:
-            sublime.error_message('An error occurred while trying to run kpsewhich. TEXMF tree could not be accessed.')
+        if e.output:
+            print(e.output)
+        traceback.print_exc()
     except OSError:
-        sublime.error_message('Could not run kpsewhich. Please ensure that your texpath setting is configured correctly in the LaTeXTools settings.')
+        sublime.set_timeout(
+            partial(
+                sublime.error_message,
+                'Could not run kpsewhich. Please ensure that your texpath '
+                'setting is configured correctly in your LaTeXTools '
+                'settings.'
+            ),
+            0
+        )
+        traceback.print_exc()
 
     return None
+
 
 def _get_files_matching_extensions(paths, extensions=[]):
     if isinstance(extensions, strbase):
@@ -83,7 +74,7 @@ def _get_files_matching_extensions(paths, extensions=[]):
     matched_files = defaultdict(lambda: [])
 
     for path in paths.split(os.pathsep):
-        # bad idea... also our current directory isn't meaningful from a WindowCommand
+        # our current directory isn't usually meaningful from a WindowCommand
         if path == '.':
             continue
 
@@ -108,6 +99,7 @@ def _get_files_matching_extensions(paths, extensions=[]):
         for key, value in matched_files.items()])
 
     return matched_files
+
 
 def _generate_package_cache():
     installed_tex_items = _get_files_matching_extensions(
@@ -152,7 +144,14 @@ def _generate_package_cache():
     with open(pkg_cache_file, 'w+') as f:
         json.dump(pkg_cache, f)
 
-    sublime.status_message('Finished generating LaTeX package cache')
+    sublime.set_timeout(
+        partial(
+            sublime.status_message,
+            'Finished generating LaTeX package cache'
+        ),
+        0
+    )
+
 
 # Generates a cache for installed latex packages, classes and bst.
 # Used for fill all command for \documentclass, \usepackage and
@@ -160,11 +159,7 @@ def _generate_package_cache():
 class LatexGenPkgCacheCommand(sublime_plugin.WindowCommand):
 
     def run(self):
-        if _ST3:
-            # on ST3+, use a separate thread to generate the package cache
-            thread = threading.Thread(target=_generate_package_cache)
-            thread.daemon = True
-            thread.start()
-        else:
-            # on ST2, sublime API must be accessed from main thread so...
-            _generate_package_cache()
+        # use a separate thread to update cache
+        thread = threading.Thread(target=_generate_package_cache)
+        thread.daemon = True
+        thread.start()

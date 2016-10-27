@@ -2,6 +2,19 @@
 LaTeX Package keymap for OS X
 */
 [
+	// these also override ST3 commands, but we simply run the same commands
+	// it is necessary so on ST2 we can implement our build selector
+	{	"keys": ["super+b"],
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "ltt_st_build", "operator": "equal", "operand": "<3080"}],
+		"command": "latextools_build_selector"},
+	{	"keys": ["super+shift+b"],
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "ltt_st_build", "operator": "equal", "operand": "<3080"}],
+		"command": "latextools_build_selector",
+			"args": {"select": true}},
 
 	// New-style keybindings use "cmd+l" as a prefix
 	// This overrides "extend selection to line", which is remapped to
@@ -134,6 +147,14 @@ LaTeX Package keymap for OS X
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "lt_fill_all_env.open_curly", "operator": "equal", "operand": true, "match_all": true}],
 		"command": "latex_fill_all", "args": {"completion_type": "env", "insert_char": "{"}},
+
+	{	"keys": ["{"],
+		"context":  [
+			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
+			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
+			{"key": "lt_fill_all_glossary.open_curly", "operator": "equal", "operand": true, "match_all": true}],
+		"command": "latex_fill_all", "args": {"completion_type": "glossary", "insert_char": "{"}},
 
 	{	"keys": ["="],
 		"context":  [
@@ -273,13 +294,30 @@ LaTeX Package keymap for OS X
 	"context":  
 		[
 			{ "key": "setting.command_mode", "operator": "equal", "operand": false },
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex" },
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
-			/*{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\t| |\\)|])", "match_all": true },*/
-			{ "key": "preceding_text", "operator": "not_regex_contains", "operand": "[\"a-zA-Z0-9_]$", "match_all": true },
-			{ "key": "eol_selector", "operator": "not_equal", "operand": "string.quoted.double", "match_all": true }
+			// do not insert this if it is escaped
+			{ "key": "preceding_text", "operator": "not_regex_contains", "operand": "(?:\\\\\\\\)*(?:\\\\|\\$)$", "match_all": true },
+			// don't insert, it inside math environments
+			{ "key": "selector", "operator": "not_equal", "operand": "meta.environment.math, string.other.math", "match_all": true },
+			// don't insert, if there is an open dollar math environment at the end of the line
+			{ "key": "eol_selector", "operator": "not_equal", 
+			  "operand": "meta.environment.math.inline.dollar - punctuation.definition.string.end, string.other.math - punctuation.definition.string.end",
+			  "match_all": true }
 		] 
+	},
+	// fully close $$ environments
+	{ "keys": ["$"], "command": "insert", "args": {"characters": "$$"}, 
+	"context":
+		[
+			{ "key": "setting.command_mode", "operator": "equal", "operand": false },
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex meta.environment.math.block.dollar" },
+			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
+			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
+			// do not insert this if it is escaped
+			{ "key": "preceding_text", "operator": "not_regex_contains", "operand": "(?:\\\\\\\\)*(?:\\\\|\\$)$", "match_all": true }
+		]
 	},
 	// wrap in $
 	{ "keys": ["$"], "command": "insert_snippet", "args": {"contents": "\\$${0:$SELECTION}\\$"}, "context":
