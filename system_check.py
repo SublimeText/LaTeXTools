@@ -27,6 +27,7 @@ try:
     )
     from latextools_utils import get_setting
     from latextools_utils.distro_utils import using_miktex
+    from latextools_utils.external_command import check_output
     from latextools_utils.output_directory import (
         get_aux_directory, get_output_directory, get_jobname
     )
@@ -44,6 +45,7 @@ except ImportError:
     )
     from .latextools_utils import get_setting
     from .latextools_utils.distro_utils import using_miktex
+    from .latextools_utils.external_command import check_output
     from .latextools_utils.output_directory import (
         get_aux_directory, get_output_directory, get_jobname
     )
@@ -572,14 +574,18 @@ class SystemCheckThread(threading.Thread):
                 viewer_location = '/Applications/Skim.app'
 
                 if not os.path.exists(viewer_location):
-                    viewer_location = subprocess.check_output([
-                        'osascript',
-                        '-e',
-                        'POSIX path of '
-                        '(path to app id "net.sourceforge.skim-app.skim")'
-                    ]).decode("utf8")[:-1]
+                    try:
+                        viewer_location = check_output([
+                            'osascript',
+                            '-e',
+                            'POSIX path of '
+                            '(path to app id "net.sourceforge.skim-app.skim")'
+                        ], use_texpath=False)
+                    except subprocess.CalledProcessError:
+                        viewer_location = None
 
-                viewer_available = os.path.exists(viewer_location)
+                viewer_available = False \
+                    if not viewer_location else os.path.exists(viewer_location)
             elif viewer_name == 'sumatra':
                 sumatra_exe = get_setting('viewer_settings', {}).\
                     get('sumatra', get_setting('windows', {}).
