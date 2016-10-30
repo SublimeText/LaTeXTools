@@ -179,11 +179,9 @@ Note that if you specify a relative path as the `TEXroot` in the project file, t
 
 ### Previewing
 
-**For technical reasons all preview functionalities are only available in Sublime Text Build 3118 and newer.**
+**For technical reasons, all preview functions are only available in Sublime Text Build 3118 and newer.**
 
-LaTeXTools has the ability to preview parts of the document using phantoms or popups.
-Those functionalities rely on [Ghostscript](http://www.ghostscript.com/) and [ImageMagick](http://www.imagemagick.org) to be installed and in your PATH.
-*You might need to install the [Fix Mac Path](https://github.com/int3h/SublimeFixMacPath) package on OSX.*
+LaTeXTools has the ability to preview parts of the document using phantoms or popups. These functions rely on [Ghostscript](http://www.ghostscript.com/) and [ImageMagick](http://www.imagemagick.org) being installed and available on your `texpath`.
 
 #### Math-Live preview
 

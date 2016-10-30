@@ -11,8 +11,9 @@ import sublime_plugin
 
 
 from ..latextools_utils import cache, get_setting
+from ..latextools_utils.external_command import execute_command
 from . import preview_utils
-from .preview_utils import call_shell_command, convert_installed
+from .preview_utils import convert_installed
 from . import preview_threading as pv_threading
 
 # export the listener
@@ -107,12 +108,9 @@ def _create_image(latex_program, latex_document, base_name, color,
         f.write(latex_document)
 
     # compile the latex document to a pdf
-    call_shell_command(
-        "cd \"{temp_path}\" && "
-        "{latex_program} -interaction=nonstopmode "
-        "{rel_source_path}"
-        .format(temp_path=temp_path, **locals())
-    )
+    execute_command([
+        latex_program, '-interaction=nonstopmode', rel_source_path
+    ], cwd=temp_path)
 
     pdf_exists = os.path.exists(pdf_path)
     if not pdf_exists:
@@ -124,17 +122,16 @@ def _create_image(latex_program, latex_document, base_name, color,
     if pdf_exists:
         # convert the pdf to a png image
         density = _density
-        call_shell_command(
-            "convert "
+        execute_command([
+            'convert',
             # set the image size/density
-            "-density {density}x{density} "
-            # change the color form black to the used defined
-            "-fuzz 99% -fill \"{color}\" -opaque black "
+            '-density', '{density}x{density}'.format(density=density),
+            # change the color form black to the user-defined
+            '-fuzz', '99%', '-fill', color, '-opaque', 'black',
             # trim the content to the real size
-            "-trim "
-            '"{pdf_path}" "{image_path}"'
-            .format(**locals())
-        )
+            '-trim',
+            pdf_path, image_path
+        ], shell=sublime.platform() == 'windows')
 
     # cleanup created files
     for ext in ["tex", "aux", "log", "pdf", "dvi"]:
@@ -441,10 +438,14 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
         if not self.view.is_primary():
             return
         view = self.view
-        # TODO we may only want to apply if the view is visible
+
+        # not sure why this happens, but ignore these cases
+        if view.window() is None:
+            return
         if not any(view.window().active_view_in_group(g) == view
                    for g in range(view.window().num_groups())):
             return
+        # TODO we may only want to apply if the view is visible
         # if view != view.window().active_view():
         #     return
 

@@ -11,8 +11,9 @@ import sublime_plugin
 from ..getTeXRoot import get_tex_root
 from ..jumpto_tex_file import open_image, find_image
 from ..latextools_utils import cache, get_setting
+from ..latextools_utils.external_command import execute_command
 from . import preview_utils
-from .preview_utils import call_shell_command, convert_installed
+from .preview_utils import convert_installed
 from . import preview_threading as pv_threading
 
 # export the listeners
@@ -63,11 +64,11 @@ def create_thumbnail(image_path, thumbnail_path, width, height):
     # convert the image
     if os.path.exists(thumbnail_path):
         return
-    call_shell_command(
-        'convert -thumbnail {width}x{height} '
-        '"{image_path}" "{thumbnail_path}"'
-        .format(**locals())
-    )
+
+    execute_command([
+        'convert', '-thumbnail', width + 'x' + height,
+        image_path, thumbnail_path
+    ], shell=sublime.platform() == 'windows')
 
 
 # CONVERT THREADING

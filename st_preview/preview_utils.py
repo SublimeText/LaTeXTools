@@ -1,6 +1,4 @@
 import os
-import shutil
-import subprocess
 import threading
 import time
 
@@ -8,6 +6,8 @@ import sublime
 
 
 from ..latextools_utils import cache, get_setting
+from ..latextools_utils.external_command import get_texpath
+from ..latextools_utils.system import which
 
 
 _lt_settings = {}
@@ -20,24 +20,7 @@ def plugin_loaded():
 
 def convert_installed():
     """Return whether ImageMagick/convert is available in the PATH."""
-    if hasattr(convert_installed, "result"):
-        return convert_installed.result
-
-    convert_installed.result = shutil.which("convert") is not None
-    return convert_installed.result
-
-
-startupinfo = None
-if sublime.platform() == "windows":
-    startupinfo = subprocess.STARTUPINFO()
-    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-
-
-def call_shell_command(command):
-    """Call the command with shell=True and wait for it to finish."""
-    subprocess.Popen(command,
-                     shell=True,
-                     startupinfo=startupinfo).wait()
+    return which('convert', path=get_texpath()) is not None
 
 
 class SettingsListener(object):
