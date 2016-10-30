@@ -10,14 +10,14 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* v3.10.9 (2016-08-16).
+*Latest revision:* v3.11.2 (2016-09-28).
 
 *Headline features*:
 
-* Better curly-brace completion algorithm
-* Support for more ref commands
-* CWL files can now be used based on loaded packages
-* Support for input completions following symlinks
+* Less obtrusive build panel
+* Improved outline view (`C-r`)
+* Auto-completions for magic comments
+* Phantoms are used to display error messsages (dev versions only)
 
 ## Introduction
 
@@ -74,7 +74,7 @@ in the Command field, and `"%file":%line` in the Arguments field. (This is corre
 
 #### Setup LaTeXTools
 
-Finally, edit the file `LaTeXTools.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution. Open the file and scroll down to the  section titled "Platform settings." Look at the block for your OS, namely `"osx"`. Within that block, verify that the `"texpath"` setting is correct. Note that `"texpath"` **must** include `$PATH` somewhere.
+Finally, edit the LaTeXtools settings to make sure that the configuration reflects your preferred TeX distribution. Open the settings from the menu via **Preferences | Package Settings | LaTeXTools | Settings - User** and scroll down to the section titled "Platform settings". Look at the block for your OS, namely `"osx"`. Within that block, verify that the `"texpath"` setting is correct. Note that `"texpath"` **must** include `$PATH` somewhere.
 
 #### Support for BasicTeX
 
@@ -96,7 +96,7 @@ Sorry for the complications. It's not my fault.
 
 On **Windows**, both [MikTeX](http://www.miktex.org/) and [TeXLive](https://www.tug.org/texlive/) are supported. Install either of these as usual.
 
-We recommend that you install a version of [Sumatra PDF viewer](http://www.sumatrapdfreader.org/), as this is the only viewer currently supported on Windows. Its very light-weight and supports both forward and inverse search. Just download and install it in the normal way. You may have to add the SumatraPDF directory to your `PATH` environment variable or else set the `sumatra` command in the `windows` platform settings (see the section on [platform settings](#platform-specific-settings) below). If you choose not to install SumatraPDF, you might be able to use the `command` viewer to support another PDF viewer. See the [Viewers](#viewer) section below for details.
+We recommend that you install a version of [Sumatra PDF viewer](http://www.sumatrapdfreader.org/), as this is the only viewer currently supported on Windows. Its very light-weight and supports both forward and inverse search. Just download and install it in the normal way. While LaTeXTools *should* automatically find Sumatra if its installed in the normal way, if you use a portable version or want to ensure LaTeXTools uses a particular version, you should set the `sumatra` setting in the `windows` platform settings (see the section on [platform settings](#platform-specific-settings) below). If you choose not to install SumatraPDF, you might be able to use the `command` viewer to support another PDF viewer. See the [Viewers](#viewer) section below for details.
 
 #### Setup Sumatra
 
@@ -112,7 +112,7 @@ I'm sorry this is not straightforward---it's not my fault :-)
 
 #### Setup LaTeXTools
 
-Finally, edit the file `LaTeXTools.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution. Open the file and scroll down to the  section titled "Platform settings." Look at the block for your OS, namely `windows`. Within that block, verify that the `texpath` setting is correct; for MiKTeX, you can leave this empty, i.e., `""`. If you do specify a path, note that it **must** include the system path variable, i.e., `$PATH` (this syntax seems to be OK). Also verify that the `distro` setting is correct: the possible values are `"miktex"` and `"texlive"`.
+Finally, edit the LaTeXtools settings to make sure that the configuration reflects your preferred TeX distribution. Open the settings from the menu via **Preferences | Package Settings | LaTeXTools | Settings - User** and scroll down to the section titled "Platform settings". Look at the block for your OS, namely `windows`. Within that block, verify that the `texpath` setting is correct; for MiKTeX, you can leave this empty, i.e., `""`. If you do specify a path, note that it **must** include the system path variable, i.e., `$PATH` (this syntax seems to be OK). Also verify that the `distro` setting is correct: the possible values are `"miktex"` and `"texlive"`.
 
 TeXlive has one main advantage over MikTeX: it supports file names and paths with spaces.
 
@@ -130,7 +130,7 @@ You need to install TeXlive; if you are on Ubuntu, note that `apt-get install te
 
 #### Setup LaTeXTools
 
-You also need to edit the file `LaTeXTools.sublime-settings` in the `User` directory to make sure that the configuration reflects your preferred TeX distribution.  Open that file and scroll down to the  section titled "Platform settings." Look at the block for your OS, namely `"linux"`. Within that block, verify that the `"texpath"` setting is correct. Notice that this **must** include `$PATH` somewhere, or things will not work.
+Finally, edit the LaTeXtools settings to make sure that the configuration reflects your preferred TeX distribution. Open the settings from the menu via **Preferences | Package Settings | LaTeXTools | Settings - User** and scroll down to the section titled "Platform settings". Look at the block for your OS, namely `"linux"`. Within that block, verify that the `"texpath"` setting is correct. Notice that this **must** include `$PATH` somewhere, or things will not work.
 
 You may also have to set the `command` option in `"builder_settings"`, which tells the builder how to invoke `latexmk`. By default (i.e., if `command` is empty or not given) it is `["latexmk", "-cd", "-e", "-f", "-pdf", "-interaction=nonstopmode", "-synctex=1"]`.
 
@@ -176,7 +176,7 @@ Note that if you specify a relative path as the `TEXroot` in the project file, t
 
 ### Spell-checking
 
-LaTeXTools parses the `%!TEX spellcheck` directive to set the language for the spell-checker integrated in Sublime Text. The [Dictionaries](https://github.com/titoBouzout/Dictionaries) package is recommended and supported. If you have additional dictionaries, you can add them using the `tex_spellcheck_paths` setting, which is a mapping from the locales to the dictionary paths. Each locale must be lowercase and use only a hyphen as a separator. The dictionary paths must be compatible with those used by Sublime Text's spell-checker. For example `{"en-us": "Packages/Language - English/en_US.dic"}` would be a valid value. For more on Sublime Text support for spell checking, see [the relevant online documentation](http://www.sublimetext.com/docs/3/spell_checking.html).
+LaTeXTools parses the `%!TEX spellcheck` directive to set the language for the spell-checker integrated in Sublime Text. The [Dictionaries](https://github.com/titoBouzout/Dictionaries) package is recommended and supported. If you have additional dictionaries, you can add them using the `tex_spellcheck_paths` setting, which is a mapping from the locales to the dictionary paths. Each locale must be lowercase and use only a hyphen as a separator. The dictionary paths must be compatible with those used by Sublime Text's spell-checker. For example `{"en-us": "Packages/Language - English/en_US.dic"}` would be a valid value. For more on Sublime Text support for spell checking, see [the relevant online documentation](http://www.sublimetext.com/docs/3/spell_checking.html) and [how to convert hunspell dictionaries to UTF-8](https://github.com/titoBouzout/Dictionaries#iconv-and-encodings).
 
 ### Support for non-`.tex` files
 
@@ -324,6 +324,12 @@ Two settings allow you to fine-tune the behavior of this command. `temp_files_ex
 **Keybinding:** `C-l,C-d,C-c`
 
 This clears the [LaTeXTools cache](#latextools-cache). It is useful if the LaTeXTools cache information gets too out of date, but you want to maintain the LaTeX build files, such as `.aux`.
+
+### Show the build panel
+
+**Keybinding:** `shift+escape`
+
+This will show the LaTeXTools build panel, including any messages from the previous build.
 
 ### Forward and Inverse Search
 
@@ -598,9 +604,9 @@ NOTE: for the time being, you will need to refer to the `LaTeXTools.sublime-sett
 	* `env` (unset): a dictionary of key-values corresponding to environment variables that should be set for the environment the build is run in. Note that `env`, if it is set, must be set at the platform-specific level, e.g., under the `osx`, `windows`, or `linux` keys. This is useful for setting, e.g., `TEXINPUTS`.
 	* In addition, there can be platform-specific settings. An important one for Windows is `distro`, which must be set to either `miktex` or `texlive`.
 
-### Build Panel Settings
+### Build Panel and Phantoms Settings
 - `highlight_build_panel` (`true`): if `true` the build panel will have a syntax applied to highlight any errors and warnings. Otherwise, the standard output panel configuration will be used.
-- `hide_build_panel` (`"never"`): controls whether or not to hide the build panel after a build is finished. Possible values:
+- `hide_build_panel` (`"no_badboxes"`): controls whether or not the build panel is show after a build. Possible values:
 	* `"always"` - hide the panel even if the build failed
 	* `"no_errors"` - only hide the panel if the build was successful even with warnings
 	* `"no_warnings"` - only hide the panel if no warnings occur
@@ -608,6 +614,12 @@ NOTE: for the time being, you will need to refer to the `LaTeXTools.sublime-sett
 	* `"never"` - never hide the build panel
 Any other value will be interpretted as the default.
 - `display_bad_boxes` (`false`): if `true` LaTeXTools will display any bad boxes encountered after a build. Note that this is disabled by default.
+- `show_error_phantoms` (`"warnings"`) *ST3, Build 3118+ only*: controls which errors are displayed via phantoms. Possible values are:
+	* `"none"` 	 don't show any phantoms at all
+	* `"errors"` 	 only show errors, which breaks the compilation
+	* `"warnings"` 	 show errors and warnings
+	* `"badboxes"` 	 show errors, warnings, and badboxes
+- `build_finished_message_length` (`2.0`): the number of seconds to display the notification about the completion of the build in the status bar.
 
 ### Viewer settings
 

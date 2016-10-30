@@ -8,12 +8,13 @@ import sublime_plugin
 import re
 import sys
 
-from bibtex.names import Name
-from bibtex.tex import tokenize_list
-
 try:
+    from external.bibtex.names import Name
+    from external.bibtex.tex import tokenize_list
     from latextools_utils import is_bib_buffer
 except ImportError:
+    from .external.bibtex.names import Name
+    from .external.bibtex.tex import tokenize_list
     from .latextools_utils import is_bib_buffer
 
 if sys.version_info > (3, 0):

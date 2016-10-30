@@ -73,8 +73,7 @@ class BasicBuilder(PdfBuilder):
         biber = [u"biber"]
 
         if self.aux_directory is not None:
-            self.make_directory(self.aux_directory)
-
+            biber.append(u'--output-directory=' + self.aux_directory)
             if self.aux_directory == self.output_directory:
                 latex.append(u'--output-directory=' + self.aux_directory)
             else:
@@ -86,7 +85,6 @@ class BasicBuilder(PdfBuilder):
             self.output_directory is not None and
             self.output_directory != self.aux_directory
         ):
-            self.make_directory(self.output_directory)
             latex.append(u'--output-directory=' + self.output_directory)
 
         if self.job_name != self.base_name:
@@ -97,14 +95,23 @@ class BasicBuilder(PdfBuilder):
 
         latex.append(self.base_name)
 
+        # Check if any subfolders need to be created
+        # this adds a number of potential runs as LaTeX treats being unable
+        # to open output files as fatal errors
+        output_directory = (
+            self.aux_directory_full or self.output_directory_full
+        )
+
+        if (
+            output_directory is not None and
+            not os.path.exists(output_directory)
+        ):
+            self.make_directory(output_directory)
+
         yield (latex, "running {0}...".format(engine))
         self.display("done.\n")
         self.log_output()
 
-        # Check if any subfolders need to be created
-        # this adds a number of potential runs as LaTeX treats being unable
-        # to open output files as fatal errors
-        output_directory = self.aux_directory or self.output_directory
         if output_directory is not None:
             while True:
                 start = 0
@@ -201,7 +208,9 @@ class BasicBuilder(PdfBuilder):
         env = dict(os.environ)
         cwd = self.tex_dir
 
-        output_directory = self.aux_directory or self.output_directory
+        output_directory = (
+            self.aux_directory_full or self.output_directory_full
+        )
         if output_directory is not None:
             # cwd is, at the point, the path to the main tex file
             if _ST3:

@@ -1,10 +1,10 @@
 from latextools_plugin import LaTeXToolsPlugin
 
-from bibtex import Parser
-from bibtex.names import Name
-from bibtex.tex import tokenize_list
+from external.bibtex import Parser
+from external.bibtex.names import Name
+from external.bibtex.tex import tokenize_list
 
-import latex_chars
+from external import latex_chars
 from latextools_utils import bibcache
 
 import codecs

@@ -275,18 +275,13 @@ def resolve_to_absolute_path(root, value, root_path):
         )
     )
 
-    if os.path.isabs(result):
-        return os.path.realpath(os.path.normpath(result))
-    else:
-        return os.path.realpath(
-            os.path.normpath(
-                os.path.join(
-                    root_path,
-                    result
-                )
-            )
-        )
+    if not os.path.isabs(result):
+        result = os.path.join(root_path, result)
+    result = os.path.normpath(result)
+    if os.path.exists(result):
+        result = os.path.realpath(result)
 
+    return result
 
 # wrapper for os.makedirs which will not raise an error is path already
 # exists
@@ -376,6 +371,7 @@ def _get_root_hash(root):
     if root is None:
         return None
 
-    root = os.path.realpath(root)
+    if os.path.exists(root):
+        root = os.path.realpath(root)
 
     return hashlib.md5(root.encode('utf-8')).hexdigest()

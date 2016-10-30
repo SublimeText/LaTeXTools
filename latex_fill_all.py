@@ -47,19 +47,24 @@ class LatexFillHelper(object):
     helpful for inserting text into the view and updating the cursor posiiton.
     '''
 
-    # FIXME: word detecting could be shortened by defining the
-    # "word_separators" setting and using `view.word()`. Unfortunately, the
-    # default value contains too many characters we may want to treat as
-    # part of the word for our purposes
+    # This is necessarily incomplete, but is intended to cover a number of
+    # cases and could be extended as needed. I'm unsure that this is the best
+    # design; it's done this way to emulate STs default definition of
+    # word_separators
     #
-    # defines non-word characters. See get_current_word
+    # defines non-word characters; see get_current_word
+    NON_WORD_CHARACTERS = u'/\\()"\':,.;<>~!@#$%^&*|+=\\[\\]{}`~?\\s'
+
     WORD_SEPARATOR_RX = re.compile(
-        r'([^{}\[\],\\$&#^~%\s]*)',
+        r'([^' + NON_WORD_CHARACTERS + r']*)',
         re.UNICODE
     )
 
     # define fancy match prefix to support, e.g., \cite_prefix
-    FANCY_PREFIX_RX = re.compile(r'([^_{}\[\],\\$&#^~%\s]*)_')
+    FANCY_PREFIX_RX = re.compile(
+        r'([^_' + NON_WORD_CHARACTERS + r']*)_',
+        re.UNICODE
+    )
 
     # defines which characters need a matching bracket and their match
     MATCH_CHARS = {
@@ -106,64 +111,43 @@ class LatexFillHelper(object):
 
                     self.update_selections(view, new_regions)
                     return
+            elif get_setting('smart_bracket_auto_trigger', True):
+                # more complex: if we do not have an insert_char, try to close
+                # the nearest bracket that occurs before each selection
+                new_regions = []
 
-        if (
-            insert_char and insert_char not in self.MATCH_CHARS and
-            get_setting('smart_bracket_auto_trigger', True)
-        ):
-            # more complex: if we do not have an insert_char, try to close the
-            # nearest bracket that occurs before each selection
-            new_regions = []
+                for sel in view.sel():
+                    word_region = self.get_current_word(view, sel)
+                    close_bracket = self.get_closing_bracket(view, word_region)
+                    # we should close the bracket
+                    if close_bracket:
+                        # insert the closing bracket
+                        view.insert(edit, word_region.end(), close_bracket)
 
-            for sel in view.sel():
-                word_region = self.get_current_word(view, sel)
-                close_bracket = self.get_closing_bracket(view, word_region)
-                # we should close the bracket
-                if close_bracket:
-                    # move to the position after any words separated by a comma
-                    while True:
-                        suffix_region = getRegion(
-                            word_region.end() + 1,
-                            view.line(word_region.end()).end()
-                        )
-
-                        suffix = view.substr(suffix_region)
-
-                        # count words separated by commas as part of the
-                        # argument to the current command
-                        m = re.search(r',', suffix)
-                        if not m:
-                            break
-
-                        word_region = self.get_current_word(
-                            view,
-                            word_region.end() + len(m.group(0))
-                        )
-
-                    # insert the closing bracket
-                    view.insert(edit, word_region.end(), close_bracket)
-
-                    if sel.empty():
-                        if word_region.empty():
-                            new_regions.append(
-                                getRegion(word_region.end(), word_region.end())
-                            )
+                        if sel.empty():
+                            if word_region.empty():
+                                new_regions.append(
+                                    getRegion(
+                                        word_region.end(), word_region.end()
+                                    )
+                                )
+                            else:
+                                new_point = word_region.end() + \
+                                    len(close_bracket)
+                                new_regions.append(
+                                    getRegion(new_point, new_point)
+                                )
                         else:
-                            new_point = word_region.end() + len(close_bracket)
                             new_regions.append(
-                                getRegion(new_point, new_point)
+                                getRegion(
+                                    sel.begin(),
+                                    word_region.end() + len(close_bracket)
+                                )
                             )
                     else:
-                        new_regions.append(
-                            getRegion(
-                                sel.begin(),
-                                word_region.end() + len(close_bracket)
-                            )
-                        )
-                else:
-                    new_regions.append(sel)
+                        new_regions.append(sel)
 
-            self.update_selections(view, new_regions)
+                self.update_selections(view, new_regions)
 
     def complete_brackets(self, view, edit, insert_char='', remove_regions=[]):
         '''
@@ -207,7 +191,7 @@ class LatexFillHelper(object):
         # to find all matches once per bracket type
         # if the view has changed, we reset the candidates
         candidates = None
-        if hasattr(self, 'last_view') and self.last_view != view.id():
+        if not hasattr(self, 'last_view') or self.last_view != view.id():
             self.last_view = view.id()
             candidates = self.candidates = {}
 
@@ -577,6 +561,19 @@ class LatexFillHelper(object):
             for start, end in tuples
         ]
 
+    def score_selector(self, view, selector):
+        '''
+        Scores a selector on a view, returns True if the selectors is
+        scored for each selection.
+
+        :param view:
+            the current view
+
+        :param selector:
+            the selector, which should be scored
+        '''
+        return all(view.score_selector(sel.b, selector) for sel in view.sel())
+
 
 class LatexFillAllPluginConsumer(object):
     '''
@@ -626,7 +623,8 @@ class LatexFillAllEventListener(
     SUPPORTED_INSERT_CHARS = {
         'open_curly': '{',
         'open_square': '[',
-        'comma': ','
+        'comma': ',',
+        'equal_sign': '='
     }
 
     def on_query_context(self, view, key, operator, operand, match_all):
@@ -636,12 +634,11 @@ class LatexFillAllEventListener(
         completion type, e.g. "lt_fill_all_cite", etc.
         '''
         # quick exit conditions
+        if not key.startswith("lt_fill_all_"):
+            return None
         for sel in view.sel():
             point = sel.b
-            if (
-                view.score_selector(point, "text.tex.latex") == 0 or
-                view.score_selector(point, "comment") > 0
-            ):
+            if not view.score_selector(point, "text.tex.latex"):
                 return None
 
         # load the plugins
@@ -675,6 +672,10 @@ class LatexFillAllEventListener(
         if not(completion_type and completion_type.is_enabled()):
             return False
 
+        selector = completion_type.get_supported_scope_selector()
+        if not self.score_selector(view, selector):
+            return False
+
         lines = [
             insert_char + view.substr(
                 getRegion(view.line(sel).begin(), sel.b)
@@ -692,10 +693,7 @@ class LatexFillAllEventListener(
 
     def on_query_completions(self, view, prefix, locations):
         for location in locations:
-            if (
-                view.score_selector(location, "text.tex.latex") == 0 or
-                view.score_selector(location, "comment") > 0
-            ):
+            if not view.score_selector(location, "text.tex.latex"):
                 return
 
         completion_types = self.get_completion_types()
@@ -744,6 +742,10 @@ class LatexFillAllEventListener(
                 break
 
         if completion_type is None:
+            self.clear_bracket_cache()
+            return []
+        elif not self.score_selector(
+                view, completion_type.get_supported_scope_selector()):
             self.clear_bracket_cache()
             return []
         # completions could be unpredictable if we've changed the prefix
@@ -862,10 +864,7 @@ class LatexFillAllCommand(
 
         for sel in view.sel():
             point = sel.b
-            if (
-                view.score_selector(point, "text.tex.latex") == 0 or
-                view.score_selector(point, "comment") > 0
-            ):
+            if not view.score_selector(point, "text.tex.latex"):
                 self.complete_brackets(view, edit, insert_char)
                 return
 
@@ -1050,9 +1049,12 @@ class LatexFillAllCommand(
                     return
 
                 if insert_char:
-                    self.insert_at_end(view, edit, insert_char)
-
-                if completions[0]:
+                    insert_text = (
+                        insert_char + completions[0]
+                        if completions[0] else insert_char
+                    )
+                    self.insert_at_end(view, edit, insert_text)
+                elif completions[0]:
                     self.replace_word(view, edit, completions[0])
 
                 self.complete_auto_match(view, edit, insert_char)
@@ -1114,9 +1116,12 @@ class LatexToolsReplaceWord(sublime_plugin.TextCommand, LatexFillHelper):
     def run(self, edit, replacement='', insert_char='', remove_regions=[]):
         view = self.view
         if insert_char:
-            self.insert_at_end(view, edit, insert_char)
-
-        if replacement:
+            insert_text = (
+                insert_char + replacement
+                if replacement else insert_char
+            )
+            self.insert_at_end(view, edit, insert_text)
+        elif replacement:
             self.replace_word(view, edit, replacement)
 
         self.complete_auto_match(view, edit, insert_char)

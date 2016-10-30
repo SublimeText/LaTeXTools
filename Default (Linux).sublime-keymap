@@ -15,6 +15,17 @@ LaTeX Package keymap for Linux
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "expand_selection", "args": {"to": "line"} },
 
+	// Avoid weird brace-matching behavior with indented text
+	{ "keys": ["{"], "command": "insert_snippet", "args": {"contents": "{$0}"}, "context":
+		[
+			{ "key": "indented_block", "match_all": true },
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
+			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
+			{ "key": "following_text", "operator": "regex_match", "operand": "^$", "match_all": true }
+		]
+	},
+
 	// Insert latex command or environment, and close current environment
 	{ 	"keys": ["ctrl+l","c"], 
 		"context":  [
@@ -63,7 +74,7 @@ LaTeX Package keymap for Linux
 	{	"keys": ["{"],
 		"context":  [
 			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "lt_fill_all_ref.open_curly", "operator": "equal", "match_all": true, "operand": true}],
 		"command": "latex_fill_all", "args": {"completion_type": "ref", "insert_char": "{"}},
@@ -71,7 +82,7 @@ LaTeX Package keymap for Linux
 	{	"keys": ["{"],
 		"context":  [
 			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "lt_fill_all_cite.open_curly", "operator": "equal", "match_all": true, "operand": true}],
 		"command": "latex_fill_all", "args": {"completion_type": "cite", "insert_char": "{"}},
@@ -79,7 +90,7 @@ LaTeX Package keymap for Linux
 	{	"keys": [","],
 		"context":  [
 			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "lt_fill_all_cite.comma", "operator": "equal", "match_all": true, "operand": true}],
 		"command": "latex_fill_all", "args": {"completion_type": "cite", "insert_char": ","}},
@@ -87,7 +98,7 @@ LaTeX Package keymap for Linux
 	{	"keys": [","],
 		"context":  [
 			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "lt_fill_all_ref.comma", "operator": "equal", "match_all": true, "operand": true}],
 		"command": "latex_fill_all", "args": {"completion_type": "ref", "insert_char": ","}},
@@ -95,7 +106,7 @@ LaTeX Package keymap for Linux
 	{	"keys": ["["],
 		"context":  [
 			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "lt_fill_all_cite.open_square", "operator": "equal", "match_all": true, "operand": true}],
 		"command": "latex_fill_all", "args": {"completion_type": "cite", "insert_char": "["}},
@@ -103,7 +114,7 @@ LaTeX Package keymap for Linux
 	{	"keys": ["{"],
 		"context":  [
 			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "lt_fill_all_input.open_curly", "operator": "equal", "operand": true, "match_all": true}],
 		"command": "latex_fill_all", "args": {"completion_type": "input", "insert_char": "{"}},
@@ -111,7 +122,7 @@ LaTeX Package keymap for Linux
 	{	"keys": [","],
 		"context":  [
 			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "lt_fill_all_input.comma", "operator": "equal", "operand": true, "match_all": true}],
 		"command": "latex_fill_all", "args": {"completion_type": "input", "insert_char": ","}},
@@ -119,10 +130,18 @@ LaTeX Package keymap for Linux
 	{	"keys": ["{"],
 		"context":  [
 			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "lt_fill_all_env.open_curly", "operator": "equal", "operand": true, "match_all": true}],
 		"command": "latex_fill_all", "args": {"completion_type": "env", "insert_char": "{"}},
+
+	{	"keys": ["="],
+		"context":  [
+			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex comment.line.percentage"},
+			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
+			{"key": "lt_fill_all_directive.equal_sign", "operator": "equal", "match_all": true, "operand": true}],
+		"command": "latex_fill_all", "args": {"completion_type": "directive", "insert_char": "="}},
 
 	// Toggle autocomplete
 	{ 	"keys": ["ctrl+l","t","a", "r"],
@@ -141,6 +160,10 @@ LaTeX Package keymap for Linux
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "toggle_auto", "args": {"which": "env"}},
+	{ 	"keys": ["ctrl+l","t","a", "d"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "toggle_auto", "args": {"which": "tex_directive"}},
 	{ 	"keys": ["ctrl+l","t","a", "b"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
@@ -223,9 +246,24 @@ LaTeX Package keymap for Linux
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text monospace.sublime-snippet"}},
 
+	// Replace the `C-r` overlay with a whole document overlay as opt-out
+	// Also add this overlay to `C-l, C-r`
+	{ "keys": ["ctrl+r"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex"},
+			{"key": "overwrite_goto_overlay"}],
+		"command": "latex_toc_quickpanel"},
+	{ "keys": ["ctrl+l","ctrl+r"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex"}],
+		"command": "latex_toc_quickpanel"},
 
-
-
+	// Show panel
+	{ "keys": ["shift+escape"],
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "panel_visible", "operator": "equal", "operand": false }],
+		"command": "show_panel", "args": {"panel": "output.latextools"}},
 
 		// Auto-pair ``$''
 		// Lifted from default file
@@ -343,11 +381,18 @@ LaTeX Package keymap for Linux
 		]
 	},
 	// automatic addition of new \items when hitting Shift+Enter in a list environment
-	{ "keys": ["shift+enter"], "command": "insert_snippet", "args": {"contents": "\n\\item $0"}, 
-	"context":  
+	{ "keys": ["shift+enter"], "command": "insert_snippet", "args": {"contents": "\n\\item $0"},
+	"context":
 		[
-			{"key": "selector", "operator": "equal", "operand": "meta.function.environment.list.latex"},
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex meta.environment.list, meta.function.environment.list.latex"},
+			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
+		]
+	},
+	// create a \item[] in a description environment
+	{ "keys": ["shift+enter"], "command": "insert_snippet", "args": {"contents": "\n\\item[$1] $0"},
+	"context":
+		[
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex meta.environment.list.description"},
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
 		]
 	},
@@ -389,16 +434,5 @@ LaTeX Package keymap for Linux
 	{	"keys": ["ctrl+l", "w"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "texcount" },
-
-	// Avoid weird brace-matching behavior with indented text
-	{ "keys": ["{"], "command": "insert_snippet", "args": {"contents": "{$0}"}, "context":
-		[
-			{ "key": "indented_block", "match_all": true },
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
-			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
-			{ "key": "following_text", "operator": "regex_match", "operand": "^$", "match_all": true }
-		]
-	}
+		"command": "texcount" }
 ]

@@ -9,10 +9,22 @@ import sys
 import traceback
 
 if sys.version_info < (3, 0):
+    try:
+        import _winreg as winreg
+    except:
+        # not on Windows
+        pass
+
     exec("""def reraise(tp, value, tb=None):
     raise tp, value, tb
 """)
 else:
+    try:
+        import winreg
+    except:
+        # not on Windows
+        pass
+
     def reraise(tp, value, tb=None):
         if value is None:
             value = tp()
@@ -22,6 +34,7 @@ else:
 
 
 class SumatraViewer(BaseViewer):
+
     def __init__(self, *args, **kwargs):
         super(SumatraViewer, self).__init__(*args, **kwargs)
 
@@ -29,10 +42,25 @@ class SumatraViewer(BaseViewer):
         if hasattr(SumatraViewer, '_sumatra_exe'):
             return SumatraViewer._sumatra_exe
 
+        # Sumatra's installer writes the location of the exe to the
+        # App Paths registry key, which we can access using the winreg
+        # module.
+        try:
+            hndl = winreg.OpenKey(
+                winreg.HKEY_LOCAL_MACHINE,
+                'SOFTWARE\\Microsoft\\Windows\\CurrentVersion'
+                '\\App Paths\\SumatraPDF.exe'
+            )
+
+            SumatraViewer._sumatra_exe = winreg.QueryValue(hndl, '')
+            return SumatraViewer._sumatra_exe
+        except:
+            pass
+
         paths = [
+            os.path.expandvars("%PROGRAMFILES%\\SumatraPDF"),
             os.path.expandvars("%ProgramW6432%\\SumatraPDF"),
-            os.path.expandvars("%PROGRAMFILES(x86)%\\SumatraPDF"),
-            os.path.expandvars("%PROGRAMFILES%\\SumatraPDF")
+            os.path.expandvars("%PROGRAMFILES(x86)%\\SumatraPDF")
         ]
 
         for path in paths:
@@ -41,6 +69,7 @@ class SumatraViewer(BaseViewer):
                 if os.path.exists(exe):
                     SumatraViewer._sumatra_exe = exe
                     return exe
+
         return None
 
     def _run_with_sumatra_exe(self, commands):

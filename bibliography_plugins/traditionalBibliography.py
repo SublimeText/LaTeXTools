@@ -1,6 +1,6 @@
 from latextools_plugin import LaTeXToolsPlugin
 
-import latex_chars
+from external import latex_chars
 from latextools_utils import bibcache
 
 import codecs
@@ -34,6 +34,7 @@ multip = re.compile(
     re.IGNORECASE | re.UNICODE
 )
 
+# LaTeX -> Unicode decoder
 latex_chars.register()
 
 class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
