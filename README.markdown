@@ -286,8 +286,17 @@ The default ST Build command takes care of the following:
 * It parses the tex log file and lists all errors, warnings and, if enabled, bad boxes in an output panel at the bottom of the ST window: click on any error/warning/bad boxes to jump to the corresponding line in the text, or use the ST-standard Next Error/Previous Error commands.
 * It invokes the PDF viewer for your platform and performs a forward search: that is, it displays the PDF page where the text corresponding to the current cursor position is located.
 
+### Selecting Build Variant
 
-### Toggling window focus following a build
+**Keybinding:** `C-shift-b` (standard ST3 keybinding)
+
+LaTeXTools offers a range of build variants to select standard build options. These variants can be used to customize the options passed to the LaTeXTools builder, so that you don't need a project file or to use any of the `%!TEX` directives to change, e.g., the build system used. Variants are provided for the supported builders and for the supported programs.
+
+In addition, custom Sublime build files can be created to add your own variants to standard LaTeXTools commands. For more on this, see the section on [Sublime Build Files](#sublime-build-files).
+
+**Note**: The settings provided by build variants *override* settings specified in the file itself or in your settings. This means, for example, if you select a build variant that changes the program, `%!TEX program` directives or `program` settings will be ignored. If you want to return LaTeXTools back to its default behavior, please select the **LaTeX** build variant.
+
+### Toggling window focus following a build ###
 
 **Keybinding:** `C-l,t,f` (yes, this means `C-l`, then `t`, then `f`)
 
@@ -826,7 +835,46 @@ In addition, to ensure that forward and backward sync work, you need to ensure t
 
 Finally, please remember that script commands on Windows are run using `cmd.exe` which means that if your script uses any UNC paths will have to use `pushd` and `popd` to properly map and unmap a network drive.
 
-### Customizing the Build System
+### Sublime Build Files
+
+LaTeXTools now has some support for custom `.sublime-build` files or builders specified in your project settings. For an overview of `.sublime-build` files in general, please see [the Unofficial Documentation](http://sublime-text-unofficial-documentation.readthedocs.io/en/latest/reference/build_systems.html) (which is generally a great resource about Sublime Text). For more on adding builders to project files, see [the relevant section of the Sublime documentation](https://www.sublimetext.com/docs/3/projects.html). This section will cover the basics of creating a `.sublime-build` file that works with LaTeXTools.
+
+At a minimum, your `.sublime-build` file must have the following elements:
+
+```json
+{
+	"target": "make_pdf",
+	"selector": "text.tex.latex",
+
+	"osx":
+		{
+			"file_regex": "^(...*?):([0-9]+): ([0-9]*)([^\\.]+)"
+		},
+
+	"windows":
+		{
+			"file_regex": "^((?:.:)?[^:\n\r]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+
+	"linux":
+		{
+			"file_regex": "^(...*?):([0-9]+): ([0-9]*)([^\\.]+)"
+		}
+}
+```
+
+Otherwise, other features may not work as expected. In addition, you can specify the following other parameters:
+
+|Parameter|Description|
+|-----------------|------------------------------------------------------------|
+|`builder`|Overrides the `builder` setting. May refer to any valid LaTeXTools builder.|
+|`program`|Overrides the `program` setting or `%!TEX program` macro. May be one of `pdflatex`, `xelatex`, or `lualatex`|
+|`command`|Overrides the `command` setting, providing the command run by the builder. This is only useful if you use the `traditional` builder. For the format, see the relevant [builder setting](#builder-settings).|
+|`env`|Overrides the `env` setting. Should be a dictionary similar to `env`, but note that when specified in a `.sublime-build` file, it is not, by default, platform-specific.|
+|`path`|Overrides the `texpath` settings. Note that if you set this, you are responsible for ensuring that the appropriate LaTeX install can still be found.|
+|`script_commands`|Overrides the `script_commands` setting used by the `script` builder. This is only useful if the `builder` is also changed to `script`.|
+
+### Custom Builders
 
 Since the release on March 13, 2014 ([v3.1.0](https://github.com/SublimeText/LaTeXTools/tree/v3.1.0)), LaTeXTools has had support for custom build systems, in addition to the default build system, called the "traditional" builder. Details on how to customize the traditional builder are documented above. If neither the traditional builder nor the script builder meet your needs you can also create a completely custom builder which should be able to support just about anything you can imagine. Let me know if you are interested in writing a custom builder!
 

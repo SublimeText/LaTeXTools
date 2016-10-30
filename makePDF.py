@@ -18,6 +18,9 @@ if sublime.version() < '3000':
 		get_aux_directory, get_output_directory, get_jobname
 	)
 	from latextools_utils.progress_indicator import ProgressIndicator
+	from latextools_utils.sublime_utils import (
+		get_project_file_name, parse_json_with_comments
+	)
 	from latextools_utils.utils import run_on_main_thread
 
 	strbase = basestring
@@ -36,6 +39,9 @@ else:
 		get_aux_directory, get_output_directory, get_jobname
 	)
 	from .latextools_utils.progress_indicator import ProgressIndicator
+	from .latextools_utils.sublime_utils import (
+		get_project_file_name, parse_json_with_comments
+	)
 	from .latextools_utils.utils import run_on_main_thread
 
 	strbase = str
@@ -51,6 +57,7 @@ import subprocess
 import types
 import traceback
 import shutil
+import glob
 import re
 
 DEBUG = False
@@ -68,14 +75,167 @@ if _HAS_PHANTOMS:
 # Encoding: especially useful for Windows
 # TODO: counterpart for OSX? Guess encoding of files?
 def getOEMCP():
-    # Windows OEM/Ansi codepage mismatch issue.
-    # We need the OEM cp, because texify and friends are console programs
-    import ctypes
-    codepage = ctypes.windll.kernel32.GetOEMCP()
-    return str(codepage)
+	# Windows OEM/Ansi codepage mismatch issue.
+	# We need the OEM cp, because texify and friends are console programs
+	import ctypes
+	codepage = ctypes.windll.kernel32.GetOEMCP()
+	return str(codepage)
 
 
+class LatextoolsBuildSelector(sublime_plugin.WindowCommand):
 
+	# stores last settings for build
+	WINDOWS = {}
+
+	if _ST3:
+		def load_build_system(self, build_system):
+			build_system = sublime.load_resource(build_system)
+	else:
+		def load_build_system(self, build_system):
+			build_system = os.path.normpath(
+				build_system.replace('Packages', sublime.packages_path())
+			)
+
+			return self.parse_json_with_comments(build_system)
+
+	def run(self, select=False):
+		select = False if select not in (True, False) else select
+		view = self.view = self.window.active_view()
+		if not select:
+			window_settings = self.WINDOWS.get(self.window.id(), {})
+			build_system = window_settings.get('build_system')
+
+			if build_system:
+				build_variant = window_settings.get('build_variant', '')
+				self.run_build(build_system, build_variant)
+				return
+
+		# no previously selected build system or select is True
+		# find all .sublime-build files
+		if _ST3:
+			sublime_build_files = sublime.find_resources('*.sublime-build')
+			project_settings = self.window.project_data()
+		else:
+			sublime_build_files = glob.glob(os.path.join(
+				sublime.packages_path(), '*', '*.sublime-build'
+			))
+			project_file_name = get_project_file_name(view)
+			if project_file_name is not None:
+				try:
+					project_settings = \
+						parse_json_with_comments(project_file_name)
+				except:
+					print('Error parsing project file')
+					traceback.print_exc()
+					project_settings = {}
+			else:
+				project_settings = {}
+
+		builders = []
+		for i, build_system in enumerate(
+			project_settings.get('build_systems', [])
+		):
+			if (
+				'selector' not in build_system or
+				view.score_selector(0, project_settings['selector']) > 0
+			):
+				try:
+					build_system['name']
+				except:
+					print('Could not determine name for build system {0}'.format(
+						build_system
+					))
+					continue
+
+				build_system['index'] = i
+				builders.append(build_system)
+
+		for filename in sublime_build_files:
+			try:
+				sublime_build = parse_json_with_comments(filename)
+			except:
+				print(u'Error parsing file {0}'.format(filename))
+				continue
+
+			if (
+				'selector' not in sublime_build or
+				view.score_selector(0, sublime_build['selector']) > 0
+			):
+				sublime_build['file'] = filename.replace(
+					sublime.packages_path(), 'Packages', 1
+				).replace(os.path.sep, '/')
+
+				sublime_build['name'] = os.path.splitext(
+					os.path.basename(sublime_build['file'])
+				)[0]
+
+				builders.append(sublime_build)
+
+		formatted_entries = []
+		build_system_variants = []
+		for builder in builders:
+			build_system_name = builder['name']
+			build_system_internal_name = builder.get(
+				'index', builder.get('file')
+			)
+
+			formatted_entries.append(build_system_name)
+			build_system_variants.append((build_system_internal_name, ''))
+
+			for variant in builder.get('variants', []):
+				try:
+					formatted_entries.append(
+						"{0} - {1}".format(
+							build_system_name,
+							variant['name']
+						)
+					)
+				except KeyError:
+					continue
+
+				build_system_variants.append(
+					(build_system_internal_name, variant['name'])
+				)
+
+		entries = len(formatted_entries)
+		if entries == 0:
+			self.window.run_command('build')
+		elif entries == 1:
+			build_system, build_variant = build_system_variants[0]
+			self.WINDOWS[self.window.id()] = {
+				'build_system': build_system,
+				'build_variant': build_variant
+			}
+			self.run_build(build_system, build_variant)
+		else:
+			def on_done(index):
+				# cancel
+				if index == -1:
+					return
+
+				build_system, build_variant = build_system_variants[index]
+				self.WINDOWS[self.window.id()] = {
+					'build_system': build_system,
+					'build_variant': build_variant
+				}
+				self.run_build(build_system, build_variant)
+
+			self.window.show_quick_panel(formatted_entries, on_done)
+
+	def run_build(self, build_system, build_variant):
+		if build_system.isdigit():
+			self.window.run_command(
+				'set_build_system', {'index': int(build_system)}
+			)
+		else:
+			self.window.run_command(
+				'set_build_system', {'file': build_system}
+			)
+
+		if build_variant:
+			self.window.run_command('build', {'variant': build_variant})
+		else:
+			self.window.run_command('build')
 
 
 # First, define thread class for async processing
@@ -422,13 +582,13 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		self.proc = None
 		self.proc_lock = threading.Lock()
 
-	def run(self,
-			cmd="",
-			file_regex="",
-			path="",
-			update_phantoms_only=False,
-			hide_phantoms_only=False):
-
+	# **kwargs is unused but there so run can safely ignore any unknown
+	# parameters
+	def run(
+		self, file_regex="", program=None, builder=None, command=None,
+		env=None, path=None, script_commands=None, update_phantoms_only=False,
+		hide_phantoms_only=False, **kwargs
+	):
 		if update_phantoms_only:
 			if self.show_errors_inline:
 				self.update_phantoms()
@@ -527,18 +687,13 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			return
 
 		# Get platform settings, builder, and builder settings
-		platform_settings  = get_setting(self.plat, {})
-		builder_name = get_setting("builder", "traditional")
+		platform_settings = get_setting(self.plat, {})
 		self.display_bad_boxes = get_setting("display_bad_boxes", False)
-		# This *must* exist, so if it doesn't, the user didn't migrate
-		if builder_name is None:
-			sublime.error_message(
-				"LaTeXTools: you need to migrate your preferences. See the README file for instructions."
-			)
-			self.window.run_command(
-				'hide_panel', {"panel": "output.latextools"}
-			)
-			return
+
+		if builder is not None:
+			builder_name = builder
+		else:
+			builder_name = get_setting("builder", "traditional")
 
 		# Default to 'traditional' builder
 		if builder_name in ['', 'default']:
@@ -550,6 +705,10 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 
 		builder_settings = get_setting("builder_settings", {})
 
+		# override the command
+		if command is not None:
+			builder_settings.set("command", command)
+
 		# parse root for any %!TEX directives
 		tex_directives = parse_tex_directives(
 			self.file_name,
@@ -558,8 +717,13 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		)
 
 		# determine the engine
-		engine = tex_directives.get('program',
-			builder_settings.get("program", "pdflatex"))
+		if program is not None:
+			engine = program
+		else:
+			engine = tex_directives.get(
+				'program',
+				builder_settings.get("program", "pdflatex")
+			)
 
 		engine = engine.lower()
 
@@ -588,19 +752,22 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		self.output_directory = get_output_directory(self.file_name)
 
 		# Read the env option (platform specific)
-		builder_platform_settings = builder_settings.get(self.plat)
-		if builder_platform_settings:
+		builder_platform_settings = builder_settings.get(self.plat, {})
+
+		if env is not None:
+			self.env = env
+		elif builder_platform_settings:
 			self.env = builder_platform_settings.get("env", None)
 		else:
 			self.env = None
-
-		# Now actually get the builder
-		builder_path = get_setting("builder_path", "")  # relative to ST packages dir!
 
 		# Safety check: if we are using a built-in builder, disregard
 		# builder_path, even if it was specified in the pref file
 		if builder_name in ['simple', 'traditional', 'script', 'basic']:
 			builder_path = None
+		else:
+			# relative to ST packages dir!
+			builder_path = get_setting("builder_path", "")
 
 		if builder_path:
 			bld_path = os.path.join(sublime.packages_path(), builder_path)
@@ -609,10 +776,16 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		try:
 			builder = get_plugin('{0}_builder'.format(builder_name))
 		except NoSuchPluginException:
-			sublime.error_message("Cannot find builder " + builder_name + ".\n" \
-							      "Check your LaTeXTools Preferences")
+			sublime.error_message(
+				"Cannot find builder {0}.\n"
+				"Check your LaTeXTools Preferences".format(builder_name)
+			)
 			self.window.run_command('hide_panel', {"panel": "output.latextools"})
 			return
+
+		if builder_name == 'script' and script_commands:
+			builder_platform_settings['script_commands'] = script_commands
+			builder_settings[self.plat] = builder_platform_settings
 
 		print(repr(builder))
 		self.builder = builder(
@@ -630,7 +803,11 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 
 		# Now get the tex binary path from prefs, change directory to
 		# that of the tex root file, and run!
-		self.path = platform_settings['texpath']
+		if path is not None:
+			self.path = path
+		else:
+			self.path = platform_settings.get('texpath', None)
+
 		thread = CmdThread(self)
 		thread.start()
 		print(threading.active_count())
@@ -865,6 +1042,7 @@ class DoOutputEditCommand(sublime_plugin.TextCommand):
         self.view.insert(edit, self.view.size(), data)
         if selection_was_at_end:
             self.view.show(self.view.size())
+
 
 class DoFinishEditCommand(sublime_plugin.TextCommand):
     def run(self, edit):

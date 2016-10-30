@@ -2,6 +2,19 @@
 LaTeX Package keymap for Windows
 */
 [
+	// these also override ST3 commands, but we simply run the same commands
+	// it is necessary so on ST2 we can implement our build selector
+	{	"keys": ["ctrl+b"],
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "ltt_st_build", "operator": "equal", "operand": "<3080"}],
+		"command": "latextools_build_selector"},
+	{	"keys": ["ctrl+shift+b"],
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "ltt_st_build", "operator": "equal", "operand": "<3080"}],
+		"command": "latextools_build_selector",
+			"args": {"select": true}},
 
 	// New-style keybindings use "ctrl+l" as a prefix
 	// This overrides "extend selection to line", which is remapped to
