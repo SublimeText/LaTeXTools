@@ -15,6 +15,17 @@ LaTeX Package keymap for Windows
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "expand_selection", "args": {"to": "line"} },
 
+	// Avoid weird brace-matching behavior with indented text
+	{ "keys": ["{"], "command": "insert_snippet", "args": {"contents": "{$0}"}, "context":
+		[
+			{ "key": "indented_block", "match_all": true },
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
+			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
+			{ "key": "following_text", "operator": "regex_match", "operand": "^$", "match_all": true }
+		]
+	},
+
 	// Insert latex command or environment, and close current environment
 	{ 	"keys": ["ctrl+l","c"], 
 		"context":  [
@@ -123,6 +134,14 @@ LaTeX Package keymap for Windows
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "lt_fill_all_env.open_curly", "operator": "equal", "operand": true, "match_all": true}],
 		"command": "latex_fill_all", "args": {"completion_type": "env", "insert_char": "{"}},
+
+	{	"keys": ["{"],
+		"context":  [
+			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
+			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
+			{"key": "lt_fill_all_glossary.open_curly", "operator": "equal", "operand": true, "match_all": true}],
+		"command": "latex_fill_all", "args": {"completion_type": "glossary", "insert_char": "{"}},
 
 	{	"keys": ["="],
 		"context":  [
@@ -423,16 +442,5 @@ LaTeX Package keymap for Windows
 	{	"keys": ["ctrl+l", "w"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "texcount" },
-
-	// Avoid weird brace-matching behavior with indented text
-	{ "keys": ["{"], "command": "insert_snippet", "args": {"contents": "{$0}"}, "context":
-		[
-			{ "key": "indented_block", "match_all": true },
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
-			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
-			{ "key": "following_text", "operator": "regex_match", "operand": "^$", "match_all": true }
-		]
-	}
+		"command": "texcount" }
 ]

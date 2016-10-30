@@ -16,6 +16,7 @@ _toggle_settings = [
     "cite_auto_trigger",
     "fill_auto_trigger",
     "env_auto_trigger",
+    "glossary_auto_trigger",
     "tex_directive_auto_trigger",
     "smart_bracket_auto_trigger"
 ]

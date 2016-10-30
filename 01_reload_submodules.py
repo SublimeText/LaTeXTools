@@ -47,10 +47,6 @@ LOAD_ORDER = [
     # depend on any previous
     'latextools_utils.analysis',
     'latextools_utils.ana_utils',
-
-    'latextools_plugin_internal',
-
-    'latex_chars'
     'latextools_utils.bibcache',
     'latextools_utils.output_directory'
 ]

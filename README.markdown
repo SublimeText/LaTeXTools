@@ -426,7 +426,9 @@ Selecting any entry in the list will take you to the corresponding place in the 
 This is an IDE-like mouse navigation, which executes a jump depending on the context around the cursor. It is easy to use and intuitive. Just click with the mouse on a command while pressing the modifier key. The corresponding jump will be executed. Supported jump types are:
 
 - Jump to referenced labels (e.g. `\ref`)
+- Show and jump to label usages (e.g. `\label`)
 - Jump to citation entries in bibliography files (e.g. `\cite`)
+- Jump to glossary entries (e.g. `\gls`)
 - Open included files (e.g. `\input` or `\include`)
 - Open root file from `%!TEX root =...` magic comment
 - Open bibliographies (e.g. `\bibliography` or `\addbibresource`)
@@ -544,7 +546,9 @@ The following options are currently available (defaults in parentheses):
 - `cite_auto_trigger` (`true`): if `true`, typing e.g. `\cite{` brings up the citation completion quick panel, without the need to type `C-l,x`. If `false`, you must explicitly type `C-l,x`.
 - `ref_auto_trigger` (`true`): ditto, but for `\ref{` and similar reference commands
 - `fill_auto_trigger` (`true`): ditto, but for package and file inclusion commands (see Fill Helper feature above)
-- `env_auto_trigger` (`true`): ditto, but for environment completions
+- `env_auto_trigger` (`false`): ditto, but for environment completions
+- `glossary_auto_trigger` (`true`): ditto, but for glossary completions
+- `tex_directive_auto_trigger` (`true`): ditto, but for tex directive completions
 - `cwl_autoload` (`true`): whether to load cwl completions based on packages (see the LaTeX-cwl feature) 
 - `cwl_completion` (`prefixed`): when to activate the cwl completion poput (see LaTeX-cwl feature above)
 - `cwl_list` (`["latex-document.cwl", "tex.cwl", "latex-dev", "latex-209.cwl", "latex-l2tabu.cwl", "latex-mathsymbols.cwl"]`): list of cwl files to load
