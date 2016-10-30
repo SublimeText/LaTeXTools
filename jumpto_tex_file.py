@@ -19,7 +19,7 @@ except:
 
 
 INPUT_REG = re.compile(
-    r"\\(?:input|include|subfile)"
+    r"\\(?:input|include|subfile|loadglsentries)"
     r"\{(?P<file>[^}]+)\}",
     re.UNICODE
 )
