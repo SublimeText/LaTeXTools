@@ -433,15 +433,16 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             self._update_phantoms()
 
     def _update_phantoms(self):
-        if not convert_installed():
-            return
         if not self.view.is_primary():
             return
+        # not sure why this happens, but ignore these cases
+        if self.view.window() is None:
+            return
+        if not convert_installed():
+            return
+
         view = self.view
 
-        # not sure why this happens, but ignore these cases
-        if view.window() is None:
-            return
         if not any(view.window().active_view_in_group(g) == view
                    for g in range(view.window().num_groups())):
             return
