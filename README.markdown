@@ -10,14 +10,17 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* v3.11.2 (2016-09-28).
+*Latest revision:* v3.12.0 (2016-10-30).
 
 *Headline features*:
 
-* Less obtrusive build panel
-* Improved outline view (`C-r`)
-* Auto-completions for magic comments
-* Phantoms are used to display error messsages (dev versions only)
+- Live-preview math equations while writing them (ST3 only)
+- Hover over included graphics to show them in a popup (ST3 only)
+- LaTeX build variants (`C-shift-b`) now supports alternative and more flexible builders
+- Jump to label usages are added to jump-to-anywhere
+- Added a command to search for LaTeX-commands in the whole document 
+- Added support for the glossary package
+- Improvements in CWL completions for environments
 
 ## Introduction
 
