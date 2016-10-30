@@ -30,6 +30,9 @@
 	// You can also use toggle: C-l,t,a,e
 	"env_auto_trigger": false,
 
+	// Fill-helper autocompletion trigger for glossary entries \gls{ and \acrfull{
+	"glossary_auto_trigger": true,
+
 	// Fill-helper autocompletion trigger for tex directive values after TEX directive=
 	// You can also use toggle: C-l,t,a,d
 	"tex_directive_auto_trigger": true,
