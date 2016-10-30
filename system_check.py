@@ -560,6 +560,7 @@ class SystemCheckThread(threading.Thread):
         except NoSuchPluginException:
             viewer_available = False
 
+        viewer_location = 'N/A'
         if viewer_available:
             if viewer_name == 'command':
                 # assume the command viewer is always valid
@@ -568,8 +569,21 @@ class SystemCheckThread(threading.Thread):
                 viewer_location = which(viewer_name)
                 viewer_available = bool(viewer_location)
             elif viewer_name == 'preview':
-                # assume preview always exists
-                pass
+                viewer_location = '/Applications/Preview.app'
+
+                if not os.path.exists(viewer_location):
+                    try:
+                        viewer_location = check_output([
+                            'osascript',
+                            '-e',
+                            'POSIX path of '
+                            '(path to app id "com.apple.Preview")'
+                        ], use_texpath=False)
+                    except subprocess.CalledProcessError:
+                        viewer_location = None
+
+                viewer_available = False \
+                    if not viewer_location else os.path.exists(viewer_location)
             elif viewer_name == 'skim':
                 viewer_location = '/Applications/Skim.app'
 
