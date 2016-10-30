@@ -108,7 +108,6 @@ def get_file_content(file_name, encoding="utf8", ignore=True,
 class TimeoutError(Exception):
     pass
 
-
 __sentinel__ = object()
 
 
@@ -116,8 +115,10 @@ def run_on_main_thread(func, timeout=10, default_value=__sentinel__):
     """
     Ensures the function, func is run on the main thread and returns the rsult
     of that function call.
+
     Note that this function blocks the thread it is executed on and should only
     be used when the result of the function call is necessary to continue.
+
     Arguments:
     func (callable): a no-args callable; functions that need args should
         be wrapped in a `functools.partial`
@@ -125,6 +126,7 @@ def run_on_main_thread(func, timeout=10, default_value=__sentinel__):
         TimeoutError is raised if this limit is reached a no `default_value`
         is specified
     default_value (any): the value to be returned if a timeout occurs
+
     Note that both timeout and default value are ignored when run in ST3 or
     from the main thread.
     """

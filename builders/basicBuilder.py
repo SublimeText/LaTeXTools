@@ -23,11 +23,12 @@ else:
 
 import os
 import re
-import subprocess
 import sys
 # This will work because makePDF.py puts the appropriate
 # builders directory in sys.path
 from pdfBuilder import PdfBuilder
+
+from latextools_utils.external_command import external_command, get_texpath
 
 # Standard LaTeX warning
 CITATIONS_REGEX = re.compile(r"Warning: Citation `.+' on page \d+ undefined")
@@ -226,27 +227,13 @@ class BasicBuilder(PdfBuilder):
             # now we modify cwd to be the output directory
             # NOTE this cwd is not reused by any of the other command
             cwd = output_directory
-
-        startupinfo = None
-        preexec_fn = None
-
-        if sublime.platform() == 'windows':
-            startupinfo = subprocess.STARTUPINFO()
-            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        else:
-            preexec_fn = os.setsid
+        env['PATH'] = get_texpath()
 
         command.append(self.job_name)
-        print(command)
-        bib_proc = subprocess.Popen(
+        return external_command(
             command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            startupinfo=startupinfo,
-            shell=False,
             env=env,
             cwd=cwd,
-            preexec_fn=preexec_fn
+            preexec_fn=os.setid if sublime.platform() != 'windows' else None,
+            use_texpath=False
         )
-
-        return bib_proc
