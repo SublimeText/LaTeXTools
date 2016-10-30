@@ -173,10 +173,15 @@ def get_version_info(executable, env=None):
     if env is None:
         env = os.environ
 
+    version = '--version'
+    # gs / gswin32c has a different format for --version vs -version
+    if os.path.splitext(os.path.basename(executable))[0] in ['gs', 'gswin32c']:
+        version = '-version'
+
     try:
         t = SubprocessTimeoutThread(
             30,  # wait 30 seconds
-            [executable, '--version'],
+            [executable, version],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             shell=False,
@@ -189,7 +194,9 @@ def get_version_info(executable, env=None):
         if stdout is None:
             return None
 
-        return re.split(r'\r?\n', stdout.decode('utf-8').strip(), 1)[0]
+        return re.split(
+            r'\r?\n', stdout.decode('utf-8').strip(), 1
+        )[0].lstrip('Version: ')
     except:
         return None
 
@@ -425,9 +432,19 @@ class SystemCheckThread(threading.Thread):
                 version_info if version_info is not None else u'unavailable'
             ])
 
-        for program in ['latexmk' if not self.uses_miktex else 'texify',
-                        'pdflatex', 'xelatex', 'lualatex', 'biber',
-                        'bibtex', 'bibtex8', 'kpsewhich']:
+        programs = [
+            'latexmk' if not self.uses_miktex else 'texify', 'pdflatex',
+            'xelatex', 'lualatex', 'biber', 'bibtex', 'bibtex8', 'kpsewhich'
+        ]
+
+        if sublime.version() >= '3118':
+            # ImageMagick requires gs to work with PDFs
+            programs += [
+                'convert',
+                'gs' if sublime.platform() != 'windows' else 'gswin32c'
+            ]
+
+        for program in programs:
             location = which(program, path=texpath)
             available = location is not None
 
