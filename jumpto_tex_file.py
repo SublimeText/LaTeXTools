@@ -124,7 +124,7 @@ def _jumpto_bib_file(view, window, tex_root, file_name,
                      auto_create_missing_folders, False)
 
 
-def _jumpto_image_file(view, window, tex_root, file_name):
+def find_image(tex_root, file_name):
     base_path = os.path.dirname(tex_root)
 
     image_types = get_setting(
@@ -146,10 +146,11 @@ def _jumpto_image_file(view, window, tex_root, file_name):
                 print("Found file: '{0}'".format(test_path))
                 break
     if not os.path.exists(file_path):
-        sublime.status_message(
-            "file does not exists: '{0}'".format(file_path))
-        return
+        return None
+    return file_path
 
+
+def open_image(window, file_path):
     def run_command(command):
             if not _ST3:
                 command = str(command)
@@ -164,6 +165,8 @@ def _jumpto_image_file(view, window, tex_root, file_name):
             print("RUN: {0}".format(command))
             subprocess.Popen(command)
 
+    _, extension = os.path.splitext(file_path)
+    extension = extension[1:]  # strip the leading point
     psystem = sublime.platform()
     commands = get_setting("open_image_command", {}).get(psystem, None)
     print("Commands: '{0}'".format(commands))
@@ -198,6 +201,14 @@ def _jumpto_image_file(view, window, tex_root, file_name):
                 "No opening command for {0} defined"
                 .format(extension))
             window.open_file(file_path)
+
+
+def _jumpto_image_file(view, window, tex_root, file_name):
+    file_path = find_image(tex_root, file_name)
+    if not file_path:
+        sublime.status_message("file does not exists: '{0}'".format(file_path))
+        return
+    open_image(window, file_path)
 
 
 def _split_bib_args(bib_args):

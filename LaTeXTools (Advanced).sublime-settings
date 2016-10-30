@@ -99,6 +99,38 @@
 
 
 // ------------------------------------------------------------------
+// Math Preview
+// ------------------------------------------------------------------
+	// It is recommended to use the "preview_math_template_packages" and
+	// "preview_math_template_preamble" setting to define your template file.
+	// However if you don't like this you can also also set the absolute path to
+	// your own compile template in this setting.
+	// INSTEAD of using the default template and inject the packages and preamble
+	// you can also define a path to your own template. This must be an absolute
+	// path and the template MUST NOT INCLUDE OTHER FILES.
+	// The file should should contain a field <<content>>, which will be substituted
+	// by the compilation content.
+	"preview_math_latex_template_file": null,
+
+	// The maximal number of thread used to convert images for the math live preview
+	// and the image preview (which requires this to convert pdf files to png thumbnails).
+	// Decrease this number if you are running in performance issues while editing math
+	// or viewing images.
+	// This must be greater than 0.
+	"preview_max_convert_threads": 2,
+
+	// Setting for the temporary folder, which hold the preview images.
+	// For performance reasons the images are cached and not directly deleted.
+	// The max size of the image and math preview folders in MB. If the folders
+	// exceed the size images will be deleted until the folders are 10% of that size.
+	"preview_math_temp_size": 50,
+	"preview_image_temp_size": 30,
+	// The duration in which this exceeding will be checked in hours.
+	// Use -1 to not automatically delete the files.
+	"preview_temp_delete_period": 24,
+
+
+// ------------------------------------------------------------------
 // Additional fill all helper settings (for experts)
 // ------------------------------------------------------------------
 	// entries for the fill all helper
