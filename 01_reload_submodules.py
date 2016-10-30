@@ -46,6 +46,8 @@ LOAD_ORDER = [
 
     # depend on any previous
     'latextools_utils.analysis',
+    'latextools_utils.ana_utils',
+    'latextools_utils.output_directory',
     'latextools_utils.bibcache',
     'latextools_utils.output_directory'
 ]
