@@ -66,7 +66,7 @@ def create_thumbnail(image_path, thumbnail_path, width, height):
         return
 
     execute_command([
-        'convert', '-thumbnail', width + 'x' + height,
+        'convert', '-thumbnail', '{width}x{height}'.format(**locals()),
         image_path, thumbnail_path
     ], shell=sublime.platform() == 'windows')
 
