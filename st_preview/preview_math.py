@@ -36,11 +36,11 @@ except:
 
 # the default and usual template for the latex file
 default_latex_template = """
-\\documentclass[preview]{standalone}
+\\documentclass[preview,border=.2pt]{standalone}
 <<packages>>
 <<preamble>>
 \\begin{document}
-<<content>>
+$\\mathstrut$ <<content>>
 \\end{document}
 """
 
@@ -128,8 +128,6 @@ def _create_image(latex_program, latex_document, base_name, color,
             '-density', '{density}x{density}'.format(density=density),
             # change the color form black to the user-defined
             '-fuzz', '99%', '-fill', color, '-opaque', 'black',
-            # trim the content to the real size
-            '-trim',
             pdf_path, image_path
         ], shell=sublime.platform() == 'windows')
 
