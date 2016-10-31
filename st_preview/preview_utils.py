@@ -20,7 +20,7 @@ def plugin_loaded():
 
 def convert_installed():
     """Return whether ImageMagick/convert is available in the PATH."""
-    return which('convert', path=get_texpath()) is not None
+    return which('convert', path=get_texpath() or None) is not None
 
 
 class SettingsListener(object):
