@@ -4,7 +4,6 @@ from latextools_utils import get_setting
 from latextools_utils.external_command import external_command
 from latextools_utils.sublime_utils import get_sublime_exe
 
-from copy import copy
 import os
 import re
 import shlex
@@ -20,19 +19,9 @@ except ImportError:
 if sys.version_info >= (3, 0):
     PY2 = False
     strbase = str
-
-    def get_texpath():
-        platform_settings = get_setting(sublime.platform(), {})
-        texpath = platform_settings.get('texpath', '')
-        return os.path.expandvars(texpath)
 else:
     PY2 = True
     strbase = basestring
-
-    def get_texpath():
-        platform_settings = get_setting(sublime.platform(), {})
-        texpath = platform_settings.get('texpath', '')
-        return os.path.expandvars(texpath).encode(sys.getfilesystemencoding())
 
 
 # a viewer that runs a user-specified command
