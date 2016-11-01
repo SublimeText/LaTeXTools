@@ -10,7 +10,7 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* v3.12.0 (2016-10-30).
+*Latest revision:* v3.12.1 (2016-11-01).
 
 *Headline features*:
 
@@ -21,6 +21,7 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 - Added a command to search for LaTeX-commands in the whole document 
 - Added support for the glossary package
 - Improvements in CWL completions for environments
+- Added a command to check your system setup
 
 ## Introduction
 
