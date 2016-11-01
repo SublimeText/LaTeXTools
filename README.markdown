@@ -182,7 +182,7 @@ Note that if you specify a relative path as the `TEXroot` in the project file, t
 **For technical reasons, all preview functions are only available in Sublime Text Build 3118 and newer.**
 
 LaTeXTools has the ability to preview parts of the document using phantoms or popups. These functions rely on [Ghostscript](http://www.ghostscript.com/) and [ImageMagick](http://www.imagemagick.org) being installed and available on your `texpath`.
-Ensure to install the `convert` command with ImageMagick, on Windows you should enable the *Install legacy utilities* check box.
+Ensure to install the `convert` command with ImageMagick. On Windows you should enable the *Install legacy utilities* check box.
 
 #### Math-Live preview
 
