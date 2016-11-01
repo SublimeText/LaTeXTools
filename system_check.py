@@ -175,7 +175,8 @@ def get_version_info(executable, env=None):
 
     version = '--version'
     # gs / gswin32c has a different format for --version vs -version
-    if os.path.splitext(os.path.basename(executable))[0] in ['gs', 'gswin32c']:
+    if (os.path.splitext(os.path.basename(executable))[0] in
+            ['gs', 'gswin32c', 'gswin64c']):
         version = '-version'
 
     try:
@@ -432,10 +433,13 @@ class SystemCheckThread(threading.Thread):
                 version_info if version_info is not None else u'unavailable'
             ])
 
+        # a list of programs, each program is either a string or a list
+        # of alternatives (e.g. 32/64 bit version)
         programs = [
             'latexmk' if not self.uses_miktex else 'texify', 'pdflatex',
             'xelatex', 'lualatex', 'biber', 'bibtex', 'bibtex8', 'kpsewhich',
-            'gs' if sublime.platform() != 'windows' else 'gswin32c'
+            ('gs' if sublime.platform() != 'windows'
+                else ['gswin32c', 'gswin64c', 'gs'])
         ]
 
         if sublime.version() >= '3118':
@@ -443,7 +447,18 @@ class SystemCheckThread(threading.Thread):
             programs += ['convert']
 
         for program in programs:
-            location = which(program, path=texpath)
+            if isinstance(program, list):
+                program_list = program
+                program = program_list[0]
+                location = None
+                for p in program_list:
+                    location = which(p, path=texpath)
+                    if location is not None:
+                        program = p
+                        break
+            else:
+                location = which(program, path=texpath)
+
             available = location is not None
 
             if available:
