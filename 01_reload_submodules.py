@@ -39,10 +39,12 @@ LOAD_ORDER = [
     # depend on previous only
     'latextools_utils.distro_utils',
     'latextools_utils.is_tex_file',
-    'latextools_utils.sublime_utils',
     'latextools_utils.cache',
     'latextools_utils.quickpanel',
     'latextools_utils.external_command',
+
+    # depend on any previous
+    'latextools_utils.sublime_utils',
 
     # depend on any previous
     'latextools_utils.analysis',
