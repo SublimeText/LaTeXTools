@@ -128,6 +128,8 @@ def _create_image(latex_program, latex_document, base_name, color,
             '-density', '{density}x{density}'.format(density=density),
             # change the color form black to the user-defined
             '-fuzz', '99%', '-fill', color, '-opaque', 'black',
+            # trim the content to the real size     
+            '-trim',
             pdf_path, image_path
         ], shell=sublime.platform() == 'windows')
 
