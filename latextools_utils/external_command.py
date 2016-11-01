@@ -144,8 +144,12 @@ def external_command(command, cwd=None, shell=False, env=None,
     if env is not None:
         update_env(_env, env)
 
-    # if command is a string rather than a list
-    if isinstance(command, strbase):
+    # if command is a string rather than a list, convert it to a list
+    # unless shell is set to True on a non-Windows platform
+    if (
+        (shell is False or sublime.platform() == 'windows') and
+        isinstance(command, strbase)
+    ):
         if sys.version_info < (3,):
             command = str(command)
 
@@ -153,6 +157,11 @@ def external_command(command, cwd=None, shell=False, env=None,
 
         if sys.version_info < (3,):
             command = [unicode(c) for c in command]
+    elif (
+        shell is True and sublime.platform() != 'windows' and
+        (isinstance(command, list) or isinstance(command, tuple))
+    ):
+        command = u' '.join(command)
 
     # Windows-specific adjustments
     startupinfo = None
