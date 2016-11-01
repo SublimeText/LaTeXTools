@@ -40,7 +40,7 @@ default_latex_template = """
 <<packages>>
 <<preamble>>
 \\begin{document}
-$\\mathstrut$ <<content>>
+<<content>>
 \\end{document}
 """
 
@@ -624,8 +624,9 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             open_str = "\\begin{{{env}{star}}}".format(**locals())
             close_str = "\\end{{{env}{star}}}".format(**locals())
 
+        # wrap content plus invisible mathstrut to ensure minimum height
         document_content = (
-            "{open_str}\n{content}\n{close_str}"
+            "{open_str}\n\\mathstrut {content}\n{close_str}"
             .format(**locals())
         )
 
