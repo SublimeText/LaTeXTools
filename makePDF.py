@@ -861,8 +861,8 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			# if using output_directory, follow the copy_output_on_build setting
 			# files are copied to the same directory as the main tex file
 			if self.output_directory is not None:
-				copy_on_build = get_setting('copy_output_on_build', True) or True
-				if copy_on_build is True:
+				copy_on_build = get_setting('copy_output_on_build', True)
+				if copy_on_build is None or copy_on_build is True:
 					shutil.copy2(
 						os.path.join(
 							self.output_directory,
