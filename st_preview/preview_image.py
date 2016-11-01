@@ -442,12 +442,15 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener,
             open_image_folder(p.image_path)
 
     def reset_phantoms(self):
+        self.delete_phantoms()
+        self.update_phantoms()
+
+    def delete_phantoms(self):
         view = self.view
         with self._phantom_lock:
             for p in self.phantoms:
                 view.erase_phantom_by_id(p.id)
             self.phantoms = []
-        self.update_phantoms()
 
     def update_phantom(self, p):
         with self._phantom_lock:

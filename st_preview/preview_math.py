@@ -70,6 +70,7 @@ def _on_setting_change():
 
 
 def plugin_loaded():
+    print('plugin_loaded in preview_math called')
     global _lt_settings, temp_path
     _lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
 
@@ -274,6 +275,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
                 self.preamble_str = self.preamble
             else:
                 self.preamble_str = "\n".join(self.preamble)
+
             if not init:
                 self.reset_phantoms()
 
@@ -316,8 +318,10 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
                 "call_after": update_template_file
             }
         }
+
         lt_attr = view_attr.copy()
-        # watch this attributes for setting changes to reset the phantoms
+
+        # watch these attributes for setting changes to reset the phantoms
         watch_attr = {
             "_watch_scale_quotient": {
                 "setting": "preview_math_scale_quotient",
@@ -420,13 +424,16 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
     #########
 
     def reset_phantoms(self):
+        self.delete_phantoms()
+        self.update_phantoms()
+
+    def delete_phantoms(self):
         view = self.view
         _cancel_image_jobs(view.id())
         with self._phantom_lock:
             for p in self.phantoms:
                 view.erase_phantom_by_id(p.id)
             self.phantoms = []
-        self.update_phantoms()
 
     def update_phantoms(self):
         with self._phantom_lock:

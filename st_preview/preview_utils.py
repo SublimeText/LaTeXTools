@@ -1,6 +1,7 @@
 import os
 import threading
 import time
+import traceback
 
 import sublime
 
@@ -11,11 +12,6 @@ from ..latextools_utils.system import which
 
 
 _lt_settings = {}
-
-
-def plugin_loaded():
-    global _lt_settings
-    _lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
 
 
 def convert_installed():
@@ -34,10 +30,18 @@ class SettingsListener(object):
 
     def _init_list_add_on_change(self, key, view_attr, lt_attr):
         view = self.view
-        _lt_settings.add_on_change(
-            key, lambda: self._on_setting_change(False))
-        self.view.settings().add_on_change(
-            key, lambda: self._on_setting_change(True))
+
+        # this can end up being called *before* plugin_loaded() because
+        # ST creates the ViewEventListeners *before* calling plugin_loaded()
+        global _lt_settings
+        if not isinstance(_lt_settings, sublime.Settings):
+            try:
+                _lt_settings = sublime.load_settings(
+                    "LaTeXTools.sublime-settings"
+                )
+            except Exception:
+                traceback.print_exc()
+
         self.v_attr_updates = view_attr
         self.lt_attr_updates = lt_attr
 
