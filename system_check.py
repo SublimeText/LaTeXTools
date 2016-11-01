@@ -434,15 +434,13 @@ class SystemCheckThread(threading.Thread):
 
         programs = [
             'latexmk' if not self.uses_miktex else 'texify', 'pdflatex',
-            'xelatex', 'lualatex', 'biber', 'bibtex', 'bibtex8', 'kpsewhich'
+            'xelatex', 'lualatex', 'biber', 'bibtex', 'bibtex8', 'kpsewhich',
+            'gs' if sublime.platform() != 'windows' else 'gswin32c'
         ]
 
         if sublime.version() >= '3118':
             # ImageMagick requires gs to work with PDFs
-            programs += [
-                'convert',
-                'gs' if sublime.platform() != 'windows' else 'gswin32c'
-            ]
+            programs += ['convert']
 
         for program in programs:
             location = which(program, path=texpath)
