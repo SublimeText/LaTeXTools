@@ -444,7 +444,7 @@ class SystemCheckThread(threading.Thread):
 
         if sublime.version() >= '3118':
             # ImageMagick requires gs to work with PDFs
-            programs += ['convert']
+            programs += [['magick', 'convert']]
 
         for program in programs:
             if isinstance(program, list):

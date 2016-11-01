@@ -13,7 +13,7 @@ import sublime_plugin
 from ..latextools_utils import cache, get_setting
 from ..latextools_utils.external_command import execute_command
 from . import preview_utils
-from .preview_utils import convert_installed
+from .preview_utils import convert_installed, run_convert_command
 from . import preview_threading as pv_threading
 
 # export the listener
@@ -123,8 +123,7 @@ def _create_image(latex_program, latex_document, base_name, color,
     if pdf_exists:
         # convert the pdf to a png image
         density = _density
-        execute_command([
-            'convert',
+        run_convert_command([
             # set the image size/density
             '-density', '{density}x{density}'.format(density=density),
             # change the color form black to the user-defined
@@ -132,7 +131,7 @@ def _create_image(latex_program, latex_document, base_name, color,
             # trim the content to the real size
             '-trim',
             pdf_path, image_path
-        ], shell=sublime.platform() == 'windows')
+        ])
 
     # cleanup created files
     for ext in ["tex", "aux", "log", "pdf", "dvi"]:

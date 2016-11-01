@@ -7,16 +7,40 @@ import sublime
 
 
 from ..latextools_utils import cache, get_setting
-from ..latextools_utils.external_command import get_texpath
+from ..latextools_utils.external_command import get_texpath, execute_command
 from ..latextools_utils.system import which
 
 
 _lt_settings = {}
 
 
+def _get_convert_command():
+    texpath = get_texpath() or os.environ['PATH']
+    return (
+        which('magick', path=texpath) or
+        which('convert', path=texpath)
+    )
+
+
 def convert_installed():
     """Return whether ImageMagick/convert is available in the PATH."""
-    return which('convert', path=get_texpath() or None) is not None
+    return _get_convert_command() is not None
+
+
+def run_convert_command(args):
+    """Executes ImageMagick convert or magick command as appropriate with the
+    given args"""
+    if not isinstance(args, list):
+        raise TypeError('args must be a list')
+
+    convert_command = _get_convert_command()
+    if os.path.splitext(os.path.basename(convert_command))[0] == 'magick':
+        args.insert(0, convert_command)
+        args.insert(1, 'convert')
+    else:
+        args.insert(0, convert_command)
+
+    execute_command(args, shell=sublime.platform() == 'windows')
 
 
 class SettingsListener(object):
