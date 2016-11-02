@@ -88,17 +88,12 @@ class ScriptBuilder(PdfBuilder):
 				else:
 					cmd.append(self.base_name)
 
-			if sublime.platform() != 'windows':
-				if not isinstance(cmd, strbase):
-					cmd = u' '.join([quote(s) for s in cmd])
-				self.display("Invoking '{0}'... ".format(cmd))
+			if not isinstance(cmd, strbase):
+				self.display("Invoking '{0}'... ".format(
+					u' '.join([quote(s) for s in cmd])
+				))
 			else:
-				if not isinstance(cmd, strbase):
-					self.display("Invoking '{0}'... ".format(
-						u' '.join([quote(s) for s in cmd])
-					))
-				else:
-					self.display("Invoking '{0}'... ".format(cmd))
+				self.display("Invoking '{0}'... ".format(cmd))
 
 			yield (
 				# run with use_texpath=False as we have already configured
