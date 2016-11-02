@@ -1,0 +1,6 @@
+LaTeXTools Plugin version 3.12.4 (2016-11-02) changelog:
+
+Bugfixes:
+- Fix an error where Sumatra was being run hidden (#900)
+- Fix an issue which caused the Script builder to not run on OS X / macOS (#894)
+- Fix an error where copy_on_build setting was not actually being honored (#893)
