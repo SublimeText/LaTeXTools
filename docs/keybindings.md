@@ -27,6 +27,16 @@ The default ST Build command takes care of the following:
 * It parses the tex log file and lists all errors, warnings and, if enabled, bad boxes in an output panel at the bottom of the ST window: click on any error/warning/bad boxes to jump to the corresponding line in the text, or use the ST-standard Next Error/Previous Error commands.
 * It invokes the PDF viewer for your platform and performs a forward search; that is, it displays the PDF page where the text corresponding to the current cursor position is located.
 
+## Selecting Build Variant
+
+**Keybinding:** <kbd>C+shift+b</kbd> (standard ST3 keybinding)
+
+LaTeXTools offers a range of build variants to select standard build options. These variants can be used to customize the options passed to the LaTeXTools builder, so that you don't need a project file or to use any of the `%!TEX` directives to change, e.g., the build system used. Variants are provided for the supported builders and for the supported programs.
+
+In addition, custom Sublime build files can be created to add your own variants to standard LaTeXTools commands. For more on this, see the section on [Sublime Build Files](alternative-builders.md#sublime-build-files).
+
+**Note**: The settings provided by build variants *override* settings specified using TeX directives or in your settings. This means, for example, if you select a build variant that changes the program, `%!TEX program` directives or `program` settings will be ignored. If you want to return LaTeXTools back to its default behavior, please select the **LaTeX** build variant.
+
 ## Toggling window focus following a build
 
 **Keybinding:** <kbd>C+l</kbd>,<kbd>t</kbd>,<kbd>f</kbd>
@@ -183,7 +193,9 @@ Selecting any entry in the list will take you to the corresponding place in the 
 This is an IDE-like mouse navigation, which executes a jump depending on the context around the cursor. It is easy to use and intuitive. Just click with the mouse on a command while pressing the modifier key. The corresponding jump will be executed. Supported jump types are:
 
 - Jump to referenced labels (e.g. `\ref`)
+- Show and jump to label usages (e.g. `\label`)
 - Jump to citation entries in bibliography files (e.g. `\cite`)
+- Jump to glossary entries (e.g. `\gls`)
 - Open included files (e.g. `\input` or `\include`)
 - Open root file from `%!TEX root =...` magic comment
 - Open bibliographies (e.g. `\bibliography` or `\addbibresource`)

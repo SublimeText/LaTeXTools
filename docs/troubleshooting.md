@@ -1,6 +1,10 @@
-## Troubleshooting
+# Troubleshooting
 
-### Path issues
+## System Check
+
+To aid in troubleshooting a range of issues, we have added a feature that wil check your current system setup to give you an idea of what your current configuration looks like to LaTeXTools. In particular, it tests for key environment variables, the availability of key executables, the selected builder and the selected viewer. This command can be run by invoking **LaTeXTools: Check system** from the **Command Palette**. If it is run with a LaTeX document as the visible window, the information provided will reflect the settings for the current project.
+
+## Path issues
 
 Many LaTeXTools problems are path-related. The `LaTeXTools.sublime-settings` file attempts to set up default path locations for MiKTeX, TeXLive and MacTeX, but these are not guaranteed to cover all possibilities. Please let me know if you have any difficulties.
 
@@ -20,17 +24,17 @@ and again take note of what you see in the output panel (right above the line wh
 
 On Linux, do note that your login shell may be different from the shell that launched Sublime Text. This can mean that LaTeXTools does not inherit your `$PATH` correctly, particularly if you modify your `$PATH` in `.bash_profile` or `.bashrc` or other, shell-specific files (X Windows is run via `/bin/sh` rather than `/bin/bash`). If you have a similar problem, follow the same procedure as above, although you should launch the `sublime_text` executable from a shell.
 
-### Non-ASCII characters and spaces in path and file names ###
+## Non-ASCII characters and spaces in path and file names ###
 
 Another *significant* source of issues are **Unicode characters in path and file names**. On TeXLive-based platforms, LaTeXTools tries to handle these by telling `latexmk` to `cd` to each source file's directory before running `pdflatex`. This seems to help some. However, things seem to vary by platform and locale, so we cannot make any guarantees that your Unicode path names will work. Keep in mind that TeX itself has issues with Unicode characters in file names (as a quick Google search will confirm).
 
 Spaces in paths and file names *are* supported, but see the notes on log parsing below.
 
-### Compilation hangs on Windows
+## Compilation hangs on Windows
 
 On Windows, sometimes a build seems to succeed, but the PDF file is not updated. This is most often the case if there is a stale `pdflate`x process running; a symptom is the appearence of a file with extension `.synctex.gz(busy)`. If so, launch the Task Manager and end the `pdflatex.exe` process; if you see a `perl.exe` process, end that, too. This kind of behavior is probably a bug: LaTeXTools should be able to see that something went wrong in the earlier compilation. So, *please let use know*, and provide as much detail as you can (ideally, with a test case). Thanks!
 
-### Log parsing issues, and good vs. bad path/file names (again!)
+## Log parsing issues, and good vs. bad path/file names (again!)
 
 The log parser is fairly robust and flexible---it "understands" the log file format much, much better. This is the result of *manually* and *painstakingly* debugging a fair number of users' log files. The many possible exceptions, idiosyncrasies, warts, etc. displayed by TeX packages is mind-boggling, and the parsing code reflects this :-(
 
@@ -42,6 +46,6 @@ The second exception has to do with file and path names. In order to accommodate
 
 Finally, I have done my best to accommodate non-ASCII characters in logs. I cannot promise that everything works, but I'd like to know if you see issues with this.
 
-### Other issues
+## Other issues
 
 While we have tried to provide some guidance in this section on commonly-encountered issues, please feel free to [open a new issue](https://github.com/SublimeText/LaTeXTools/issues/new) if you have come across an issue with LaTeXTools. However, please [search for existing issue](https://github.com/SublimeText/LaTeXTools/issues/?q=is%3Aopen) before opening a new one, as we may have already covered it somewhere.

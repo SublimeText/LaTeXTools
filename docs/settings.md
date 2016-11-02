@@ -16,10 +16,14 @@ If at any time you wish to erase your customizations and start afresh, you can s
 * `ref_auto_trigger` (`true`): ditto, but for `\ref{` and similar reference commands
 * `fill_auto_trigger` (`true`): ditto, but for package and file inclusion commands (see Fill Helper feature above)
 * `env_auto_trigger` (`true`): ditto, but for environment completions
+* `glossary_auto_trigger` (`true`): ditto, but for glossary completions
+* `tex_directive_auto_trigger` (`true`): ditto, but for tex directive completions
 * `cwl_autoload` (`true`): whether to load cwl completions based on packages (see the LaTeX-cwl feature) 
 * `cwl_completion` (`prefixed`): when to activate the cwl completion poput (see LaTeX-cwl feature above)
 * `cwl_list` (`["latex-document.cwl", "tex.cwl", "latex-dev", "latex-209.cwl", "latex-l2tabu.cwl", "latex-mathsymbols.cwl"]`): list of cwl files to load
-* `keep_focus` (`true`): if `true`, after compiling a tex file, ST retains the focus; if `false`, the PDF viewer gets the focus. Also note that you can *temporarily* toggle this behavior with `C-l,t,f`. **Note**: If you are on either Windows or Linux you may need to adjust the `sublime_executable` setting for this to work properly. See the **Platform settings** below. This can also be overridden via a key-binding by passing a `keep_focus` argument to `jump_to_pdf`.
+* `keep_focus` (`true`): if `true`, after compiling a tex file, ST retains the focus; if `false`, the PDF viewer gets the focus. Also note that you can *temporarily* toggle this behavior with `C-l,t,f`.This can also be overridden via a key-binding by passing a `keep_focus` argument to `jump_to_pdf`.
+ **Note**: In general, `keep_focus` set to `true` tries to mean "do not *change* the focus". This isn't always possible, since several of the viewers will steal focus by default. In those circumstances, LaTeXTools tries to actively return the focus to Sublime. To disable this, set the `disable_focus_hack` setting to `true`.
+ **Note**: If you are on either Windows or Linux you may need to adjust the `sublime_executable` setting for this to work properly. See the [Platform settings](#platform-specific-settings) below.
 * `forward_sync` (`true`): if `true`, after compiling a tex file, the PDF viewer is asked to sync to the position corresponding to the current cursor location in ST. You can also *temporarily* toggle this behavior with `C-l,t,s`. This can also be overridden via a key-binding by passing a `forward_sync` argument to `jump_to_pdf`.
 * `tex_file_exts` (`['.tex']`): a list of extensions that should be considered TeX documents. Any extensions in this list will be treated exactly the same as `.tex` files. See the section on [Support for non-`.tex` files](#support-for-non-tex-files).
 * `latextools_set_syntax` (`true`): if `true` LaTeXTools will automatically set the syntax to `LaTeX` when opening or saving any file with an extension in the `tex_file_exts` list.
@@ -28,6 +32,34 @@ If at any time you wish to erase your customizations and start afresh, you can s
 * `word_count_sub_level` (`"none"`): controls the level at which subcounts of words can be generated. Valid values are: `"none"`, `"part"`, `"chapter"`, and `"section"`.
 * `temp_files_exts`: list of file extensions to be considered temporary, and hence deleted using the `C-l, backspace` command.
 * `temp_files_ignored_folders`: subdirectories to skip when deleting temp files.
+
+## Preview Settings
+
+### Math-Live Preview Settings
+
+* `preview_math_mode` (`"selected"`): The mode to preview math environments, possible values are:
+  * `"all"`:       to show a phantom for each math environment
+  * `"selected"`:  to show a phantom only for the currently selected math environment
+  * `"none"`:      to disable math live preview
+* `preview_math_latex_compile_program` (`"pdflatex"`): The program to compile the latex template files, possible values are `"pdflatex"`, `"xelatex"`, `"lualatex"`, `"latex"`.
+* `preview_math_color` (`""`): The color of the text in the preview math phantoms. The format can either be RGB based "#RRGGBB" (e.g. `"#FFFF00"`)
+or a color name (e.g. `"yellow"`) If it is the empty string `""` it will be guessed based in the color scheme.
+* `preview_math_background_color` (`""`): The background color of the preview math phantoms. In contrast to the foreground color you may also edit your colorscheme to change this. The format can either be RGB(A) based `"#RRGGBB"` (e.g. `"#0000FF"` or `"#0000FF50"`) or a color name (e.g. `"blue"`). If it is the empty string `""` the default color will be used.
+* `preview_math_template_packages`: An array containing the used packages for the template as latex code.
+* `preview_math_template_preamble` (`""`): An string of the remaining preamble (not packages) for the file, which generates the math live preview. Can also be an array, with an string for each line (as in the packages). This is useful, if you define math commands or operators on your own. You may change this per project basis.
+* `preview_math_density` (`300`): The density of the preview image. The higher the density the larger the phantom.
+* `preview_math_scale_quotient` (`2`): If the image is not sharp enough increase this scale to get a better resolution. However also change the density by the same factor to keep the size.
+
+#### Preview Image Settings
+
+* "preview_image_mode": (`"hover"`),
+   The preview mode for image preview, possible values are:
+  * `"all"`:       to show a phantom for each `\includegraphics` command
+  * `"selected"`:  to show a phantom only for the currently selected `\includegraphics` command
+  * `"hover"`:     to show a popup if you hover over an `\includegraphics` command
+  * `"none"`:      to disable image preview
+* `preview_popup_image_size` (`200`) and `preview_phantom_image_size` (`150`): The image size in the preview image popup and phantoms. These are the outer dimensions of the maximal size. The image will be scaled down to fit into these dimensions. It can either be an number or an array, which consist of two numbers (x and y), e.g. [200, 150].
+* `preview_image_scale_quotient` (`1`): Increase this number to get a better resolution on high dpi displays. Control the thumbnail image size, which will be generated to preview images, that are not natively supported (like pdf files). E.g. a image size of 300 with a scale quotient of 2 will create a thumbnail with the size 600, which is scaled down in the popup.
 
 ## Platform-Specific Settings
 
@@ -111,6 +143,7 @@ Any other value will be interpretted as the default.
  * `viewer` (`""`): the viewer you want to use. Leave blank (`""`) or set to `"default"`for the platform-specific viewer. Can also be set to `"preview"` if you want to use Preview on OS X, `"okular"` if you want to use Okular on Linux, `"zathura"` is you want to use Zathura on Linux, or `"command"` to run arbitrary commands. For details on the `"command"` option, see the section on the [Command Viewer](#command-viewer).
  * `viewer_settings`: these are viewer-specific settings. Please see the section on [Viewers](#viewers) or the documentation on [Alternate Viewers](#alternate-viewers) for details of what should be set here.
  * `open_pdf_on_build` (`true`): Controls whether LaTeXTools will automatically open the configured PDF viewer on a successful build. If set to `false`, the PDF viewer will only be launched if explicitly requested using `C-l,v` or `C-l,j`.
+  * `disable_focus_hack` (`false`): if `true`, the focus hack that LaTeXTools uses to return focus to Sublime in some circumstances will not be run. **Note**: This does not mean that the *viewer* won't steal the focus, only that LaTeXTools won't try to steal the focus back.
 
 ## Included File Settings
 

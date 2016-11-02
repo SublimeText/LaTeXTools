@@ -22,6 +22,20 @@ As an alternative, to using the `%!TEX root = <master file name>` syntax, if you
 
 Note that if you specify a relative path as the `TEXroot` in the project file, the path is determined *relative to the location of the project file itself*. It may be less ambiguous to specify an absolute path to the `TEXroot` if possible.
 
+## Previewing
+
+**Preview functions are only available in Sublime Text Build 3118 and newer.**
+
+LaTeXTools has the ability to preview images included in the document using a popup or equations as they are typed using phantoms. Both of these functions rely on [Ghostscript](http://www.ghostscript.com/) and [ImageMagick](http://www.imagemagick.org) being installed and available on your `texpath`.
+
+### Math-Live preview
+
+While editing equations LaTeXTools will preview the result using phantoms. By default this will only preview the currently edited environment, but you can also preview all math environments by adjusting the appropriate settings. See the documentation on [Preview Settings](settings.md#preview-settings)
+
+### Preview images
+
+You can preview images included via the `\includegraphics` command. By default, when you hover over the name of the image, a popup will appear to show the image. Links are provided to open the image itself or the folder containing the image. It is also possible to show all images at once via phantoms. See the documentation on [Preview Settings](settings.md#preview-settings) for details.
+
 ## Spell-checking
 
 LaTeXTools parses the `%!TEX spellcheck` directive to set the language for the spell-checker integrated in Sublime Text. The [Dictionaries](https://github.com/titoBouzout/Dictionaries) package is recommended and supported. If you have additional dictionaries, you can add them using the `tex_spellcheck_paths` setting, which is a mapping from the locales to the dictionary paths. Each locale must be lowercase and use only a hyphen as a separator. The dictionary paths must be compatible with those used by Sublime Text's spell-checker. For example `{"en-us": "Packages/Language - English/en_US.dic"}` would be a valid value. For more on Sublime Text support for spell checking, see [the relevant online documentation](http://www.sublimetext.com/docs/3/spell_checking.html).
