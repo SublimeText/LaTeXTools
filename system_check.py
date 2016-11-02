@@ -57,6 +57,9 @@ except ImportError:
     from .jumpToPDF import DEFAULT_VIEWERS
     from .getTeXRoot import get_tex_root
 
+if sublime.version() >= '3118':
+    from .st_preview.preview_utils import convert_installed
+
 if sys.version_info >= (3,):
     unicode = str
 
@@ -470,11 +473,17 @@ class SystemCheckThread(threading.Thread):
                 location, env=env
             ) if available else None
 
+            available_str = (
+                u'available' if available and version_info is not None
+                else u'missing')
+            if (available and program in ['magick', 'convert'] and
+                    not convert_installed()):
+                available_str = u'restart required'
+
             table.append([
                 program,
                 location,
-                (u'available'
-                    if available and version_info is not None else u'missing'),
+                available_str,
                 version_info if version_info is not None else u'unavailable'
             ])
 
