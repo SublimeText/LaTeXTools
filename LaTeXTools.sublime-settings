@@ -119,6 +119,7 @@
 
 	// An array of the used packages, from which the file for the live preview
 	// will be generated.
+	// (The xcolor package will be present, even if not in this list.)
 	"preview_math_template_packages": [
 		"\\usepackage{amsmath}",
 		"\\usepackage{amssymb}",
@@ -129,6 +130,7 @@
 	// An string of the remaining preamble (not packages) for the file,
 	// which generates the math live preview.
 	// Can also be an array, with an string for each line (as in the packages).
+	// For technical reasons DON'T include other files.
 	"preview_math_template_preamble": "",
 
 	// The preview functionality by default appends a star (*) to each

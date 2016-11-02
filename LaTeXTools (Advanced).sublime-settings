@@ -110,7 +110,9 @@
 	// path and the template MUST NOT INCLUDE OTHER FILES.
 	// The file should should contain a field <<content>>, which will be substituted
 	// by the compilation content.
-	"preview_math_latex_template_file": null,
+	// If you want to have colorful equations you should use the package xcolor and
+	// add the field <<set_color>> at the begin of the document (above <<content>>).
+	"preview_math_template_file": null,
 
 	// The maximal number of thread used to convert images for the math live preview
 	// and the image preview (which requires this to convert pdf files to png thumbnails).
