@@ -182,7 +182,7 @@ def _run_image_jobs():
 
 
 def _wrap_html(html_content, color=None, background_color=None):
-    if background_color:
+    if color or background_color:
         style = "<style>"
         style += "body {"
         if color:
