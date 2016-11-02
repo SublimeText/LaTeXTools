@@ -125,7 +125,7 @@ __sentinel__ = object()
 def external_command(command, cwd=None, shell=False, env=None,
                      stdin=__sentinel__, stdout=__sentinel__,
                      stderr=__sentinel__, preexec_fn=None,
-                     use_texpath=True):
+                     use_texpath=True, show_window=False):
     '''
     Takes a command object to be passed to subprocess.Popen.
 
@@ -170,6 +170,9 @@ def external_command(command, cwd=None, shell=False, env=None,
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
+        if show_window:
+            startupinfo.wShowWindow = 1
+
         # encode cwd in the file system encoding; this is necessary to support
         # some non-ASCII paths; see PR #878. Thanks to anamewing for the
         # suggested fix
@@ -211,7 +214,7 @@ def external_command(command, cwd=None, shell=False, env=None,
 def execute_command(command, cwd=None, shell=False, env=None,
                     stdin=__sentinel__, stdout=__sentinel__,
                     stderr=__sentinel__, preexec_fn=None,
-                    use_texpath=True):
+                    use_texpath=True, show_window=False):
     '''
     Takes a command to be passed to subprocess.Popen and runs it. This is
     similar to subprocess.call().
@@ -242,7 +245,8 @@ def execute_command(command, cwd=None, shell=False, env=None,
         stdout=stdout,
         stderr=stderr,
         preexec_fn=preexec_fn,
-        use_texpath=use_texpath
+        use_texpath=use_texpath,
+        show_window=show_window
     )
 
     stdout, stderr = p.communicate()
@@ -256,7 +260,7 @@ def execute_command(command, cwd=None, shell=False, env=None,
 def check_call(command, cwd=None, shell=False, env=None,
                stdin=__sentinel__, stdout=__sentinel__,
                stderr=__sentinel__, preexec_fn=None,
-               use_texpath=True):
+               use_texpath=True, show_window=False):
     '''
     Takes a command to be passed to subprocess.Popen.
 
@@ -280,7 +284,8 @@ def check_call(command, cwd=None, shell=False, env=None,
         stdin=stdin,
         stderr=stderr,
         preexec_fn=preexec_fn,
-        use_texpath=use_texpath
+        use_texpath=use_texpath,
+        show_window=show_window
     )
 
     if returncode:
@@ -295,7 +300,8 @@ def check_call(command, cwd=None, shell=False, env=None,
 
 def check_output(command, cwd=None, shell=False, env=None,
                  stdin=__sentinel__, stderr=__sentinel__,
-                 preexec_fn=None, use_texpath=True):
+                 preexec_fn=None, use_texpath=True,
+                 show_window=False):
     '''
     Takes a command to be passed to subprocess.Popen.
 
@@ -319,7 +325,8 @@ def check_output(command, cwd=None, shell=False, env=None,
         stdin=stdin,
         stderr=stderr,
         preexec_fn=preexec_fn,
-        use_texpath=use_texpath
+        use_texpath=use_texpath,
+        show_window=show_window
     )
 
     if returncode:
