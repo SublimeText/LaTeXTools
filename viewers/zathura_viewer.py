@@ -1,14 +1,21 @@
 from base_viewer import BaseViewer
 
 from latextools_utils import get_setting
+from latextools_utils.external_command import (
+    check_output, external_command
+)
 from latextools_utils.sublime_utils import get_sublime_exe
 from latextools_utils.system import which
 
-import subprocess
-import sys
-
 
 class ZathuraViewer(BaseViewer):
+
+    def _run_zathura(self, pdf_file):
+        return external_command([
+            'zathura',
+            self._get_synctex_editor(),
+            pdf_file
+        ], use_texpath=False).pid
 
     def _get_synctex_editor(self):
         st_binary = get_sublime_exe()
@@ -20,16 +27,16 @@ class ZathuraViewer(BaseViewer):
         )
 
     def _get_zathura_pid(self, pdf_file):
-        stdout = subprocess.Popen(
-            ['ps', 'xw'], stdout=subprocess.PIPE
-        ).communicate()[0]
+        try:
+            running_apps = check_output(['ps', 'xv'], use_texpath=False)
+            for app in running_apps.splitlines():
+                if 'zathura' not in app:
+                    continue
+                if pdf_file in app:
+                    return app.lstrip().split(' ', 1)[0]
+        except:
+            pass
 
-        running_apps = stdout.decode(sys.getdefaultencoding(), 'ignore')
-        for app in running_apps.splitlines():
-            if 'zathura' not in app:
-                continue
-            if pdf_file in app:
-                return app.lstrip().split(' ', 1)[0]
         return None
 
     def _focus_zathura(self, pid):
@@ -47,27 +54,30 @@ class ZathuraViewer(BaseViewer):
                 pass
 
     def _focus_wmctrl(self, pid):
-        pid = ' {0} '.format(pid)
-        stdout = subprocess.Popen(
-            ['wmctrl', '-l', '-p'], stdout=subprocess.PIPE
-        ).communicate()[0]
-
         window_id = None
-        windows = stdout.decode(sys.getdefaultencoding(), 'ignore')
-        for window in windows.splitlines():
-            if pid in window:
-                window_id = window.split(' ', 1)[0]
-                break
+        try:
+            windows = check_output(
+                ['wmctrl', '-l', '-p'], use_texpath=False
+            )
+        except:
+            pass
+        else:
+            pid = ' {0} '.format(pid)
+            for window in windows.splitlines():
+                if pid in window:
+                    window_id = window.split(' ', 1)[0]
+                    break
 
         if window_id is None:
             raise Exception('Cannot find window for Zathura')
 
-        subprocess.Popen(['wmctrl', '-a', window_id, '-i'])
+        external_command(['wmctrl', '-a', window_id, '-i'], use_texpath=False)
 
     def _focus_xdotool(self, pid):
-        subprocess.Popen(
+        external_command(
             ['xdotool', 'search', '--pid', pid,
-             '--class', 'Zathura', 'windowactivate', '%2']
+             '--class', 'Zathura', 'windowactivate', '%2'],
+            use_texpath=False
         )
 
     def forward_sync(self, pdf_file, tex_file, line, col, **kwargs):
@@ -79,6 +89,8 @@ class ZathuraViewer(BaseViewer):
 
         if pid is None:
             pid = self._run_zathura(pdf_file)
+            if keep_focus:
+                self.focus_st()
 
         command = [
             'zathura', '--synctex-forward',
@@ -92,7 +104,7 @@ class ZathuraViewer(BaseViewer):
 
         command.append(pdf_file)
 
-        subprocess.Popen(command)
+        external_command(command, use_texpath=False)
 
         if pid is not None and not keep_focus:
             self._focus_zathura(pid)
@@ -102,11 +114,9 @@ class ZathuraViewer(BaseViewer):
 
         pid = self._get_zathura_pid(pdf_file)
         if pid is None:
-            pid = subprocess.Popen([
-                'zathura',
-                self._get_synctex_editor(),
-                pdf_file
-            ]).pid
+            pid = self._run_zathura(pdf_file)
+            if keep_focus:
+                self.focus_st()
         elif not keep_focus:
             self._focus_zathura(pid)
 
@@ -114,3 +124,6 @@ class ZathuraViewer(BaseViewer):
 
     def supports_platform(self, platform):
         return platform == 'linux'
+
+    def supports_keep_focus(self):
+        return True

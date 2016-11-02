@@ -1,0 +1,5 @@
+LaTeXTools Plugin version 3.11.1 (2016-09-22) changelog:
+
+Bugfixes:
+
+- Fix view_pdf command (#844)

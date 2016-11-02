@@ -5,16 +5,20 @@ by Ian Bacher, Marciano Siniscalchi, and Richard Stein
 Marciano's blog:
 <http://tekonomist.wordpress.com>
 
-*Latest revision:* v3.11.0 (2016-09-20).
+*Latest revision:* v3.12.4 (2016-11-02).
 
 [![Package Control](https://img.shields.io/packagecontrol/dm/LaTeXTools.svg?maxAge=2592000)]()
 
 *Headline features*:
 
-* Less obtrusive build panel
-* Improved outline view (`C-r`)
-* Auto-completions for magic comments
-* Phantoms are used to display error messsages (dev versions only)
+- Live-preview math equations while writing them (ST3 only)
+- Hover over included graphics to show them in a popup (ST3 only)
+- LaTeX build variants (`C-shift-b`) now supports alternative and more flexible builders
+- Jump to label usages are added to jump-to-anywhere
+- Added a command to search for LaTeX-commands in the whole document 
+- Added support for the glossary package
+- Improvements in CWL completions for environments
+- Added a command to check your system setup
 
 ## Overview
 

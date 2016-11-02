@@ -23,6 +23,9 @@ if sublime.version() < '3000':
     strbase = basestring
 else:
     _ST3 = True
+    # hack to ensure relative package imports work
+    __package__ = 'LaTeXTools'
+
     from .getRegion import getRegion
     from .latextools_plugin import (
         get_plugins_by_type, _classname_to_internal_name

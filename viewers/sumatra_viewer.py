@@ -1,10 +1,10 @@
 from base_viewer import BaseViewer
 
 from latextools_utils import get_setting
+from latextools_utils.external_command import external_command
 
 import os
 import sublime
-import subprocess
 import sys
 import traceback
 
@@ -91,23 +91,16 @@ class SumatraViewer(BaseViewer):
         if not isinstance(commands, list):
             commands = [commands]
 
-        startupinfo = subprocess.STARTUPINFO()
-        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        startupinfo.wShowWindow = 4  # SHOWNOACTIVE
-
         # favour 'sumatra' setting under viewer_settings if
         # it exists, otherwise, use the platform setting
         sumatra_binary = get_setting('viewer_settings', {}).\
             get('sumatra', get_setting('windows', {}).
-                get('sumatra', 'SumatraPDF.exe'))
-
-        if sumatra_binary == '':
-            sumatra_binary = 'SumatraPDF.exe'
+                get('sumatra', 'SumatraPDF.exe')) or 'SumatraPDF.exe'
 
         try:
-            subprocess.Popen(
+            external_command(
                 [sumatra_binary] + commands,
-                startupinfo=startupinfo
+                use_texpath=False, show_window=True
             )
         except OSError:
             exc_info = sys.exc_info()
@@ -115,9 +108,9 @@ class SumatraViewer(BaseViewer):
             sumatra_exe = self._find_sumatra_exe()
             if sumatra_exe is not None and sumatra_exe != sumatra_binary:
                 try:
-                    subprocess.Popen(
+                    external_command(
                         [sumatra_exe] + commands,
-                        startupinfo=startupinfo
+                        use_texpath=False, show_window=True
                     )
                 except OSError:
                     traceback.print_exc()

@@ -1,17 +1,23 @@
 # ST2/ST3 compat
 from __future__ import print_function 
 import sublime
-import sys
+import sublime_plugin
+
+import os
+import traceback
+import re
+
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
 	_ST3 = False
 	import getTeXRoot
 	from latextools_utils.is_tex_file import is_tex_file
 	from latextools_utils import get_setting
+	from latextools_utils.external_command import external_command
 	from latextools_utils.output_directory import (
 		get_output_directory, get_jobname
 	)
-	from latextools_utils.sublime_utils import get_sublime_exe
+	from latextools_utils.sublime_utils import focus_st
 	from latextools_plugin import (
 		get_plugin, add_plugin_path, NoSuchPluginException,
 		add_whitelist_module
@@ -21,18 +27,15 @@ else:
 	from . import getTeXRoot
 	from .latextools_utils.is_tex_file import is_tex_file
 	from .latextools_utils import get_setting
+	from .latextools_utils.external_command import external_command
 	from .latextools_utils.output_directory import (
 		get_output_directory, get_jobname
 	)
-	from .latextools_utils.sublime_utils import get_sublime_exe
+	from .latextools_utils.sublime_utils import focus_st
 	from .latextools_plugin import (
 		get_plugin, add_plugin_path, NoSuchPluginException,
 		add_whitelist_module
 	)
-
-import sublime_plugin, os.path, subprocess, time
-import traceback
-import re
 
 SUBLIME_VERSION = re.compile(r'Build (\d{4})', re.UNICODE)
 DEFAULT_VIEWERS = {
@@ -78,40 +81,6 @@ def get_viewer():
 		raise NoViewerException()
 
 	return viewer
-
-
-def focus_st():
-	sublime_command = get_sublime_exe()
-
-	if sublime_command is not None:
-		platform = sublime.platform()
-		# TODO: this does not work on OSX
-		# and I don't know why...
-		if platform == 'osx':
-			return
-
-		plat_settings = get_setting(platform, {})
-		wait_time = plat_settings.get('keep_focus_delay', 0.5)
-
-		def keep_focus():
-			startupinfo = None
-			shell = False
-			if platform == 'windows':
-				startupinfo = subprocess.STARTUPINFO()
-				startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-				shell = _ST3
-
-			subprocess.Popen(
-				sublime_command,
-				startupinfo=startupinfo,
-				shell=shell,
-				env=os.environ
-			)
-
-		if hasattr(sublime, 'set_async_timeout'):
-			sublime.set_async_timeout(keep_focus, int(wait_time * 1000))
-		else:
-			sublime.set_timeout(keep_focus, int(wait_time * 1000))
 
 
 # Jump to current line in PDF file
@@ -234,7 +203,7 @@ class ViewPdf(sublime_plugin.WindowCommand):
 
 			output_directory = get_output_directory(view)
 			if output_directory is None:
-				root = getTeXRoot.get_tex_root(self.view)
+				root = getTeXRoot.get_tex_root(view)
 				pdffile = os.path.join(
 					os.path.dirname(root),
 					file_name + u'.pdf'

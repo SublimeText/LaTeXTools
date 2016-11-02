@@ -30,6 +30,9 @@
 	// You can also use toggle: C-l,t,a,e
 	"env_auto_trigger": false,
 
+	// Fill-helper autocompletion trigger for glossary entries \gls{ and \acrfull{
+	"glossary_auto_trigger": true,
+
 	// Fill-helper autocompletion trigger for tex directive values after TEX directive=
 	// You can also use toggle: C-l,t,a,d
 	"tex_directive_auto_trigger": true,
@@ -83,6 +86,92 @@
 	// passed to texcount via the -sub= paramater
 	// valid values: "none", "part", "chapter", "section"
 	"word_count_sub_level": "none",
+
+// ------------------------------------------------------------------
+// Preview settings
+// ------------------------------------------------------------------
+
+	// MATH LIVE PREVIEW
+
+	// The preview mode for math live preview, possible values are:
+	// "all"       to show a phantom for each math environment
+	// "selected"  to show a phantom only for the currently selected math environment
+	// "none"      to disable math live preview
+	"preview_math_mode": "selected",
+
+	// The program to compile the latex template files, possible values are
+	// pdflatex, xelatex, lualatex, latex
+	// DON'T(!) use tex engines like pdftex
+	"preview_math_latex_compile_program": "pdflatex",
+
+	// The color of the text in the preview math phantoms.
+	// The format can either be RGB based "#RRGGBB" (e.g. "#FFFF00") 
+	// or a color name (e.g. "yellow")
+	// If it is the empty string "" it will be guessed based in the color scheme.
+	"preview_math_color": "",
+
+	// The background color of the preview math phantoms.
+	// In contrast to the foreground color you may also edit your colorscheme to change this.
+	// The format can either be RGB(A) based "#RRGGBB" (e.g. "#0000FF50")
+	// or a color name (e.g. "blue")
+	// If it is the empty string "" the default color will be used.
+	"preview_math_background_color": "",
+
+	// An array of the used packages, from which the file for the live preview
+	// will be generated.
+	"preview_math_template_packages": [
+		"\\usepackage{amsmath}",
+		"\\usepackage{amssymb}",
+		"\\usepackage{latexsym}",
+		"\\usepackage{mathtools}"
+	],
+
+	// An string of the remaining preamble (not packages) for the file,
+	// which generates the math live preview.
+	// Can also be an array, with an string for each line (as in the packages).
+	"preview_math_template_preamble": "",
+
+	// The preview functionality by default appends a star (*) to each
+	// math environments, since we cannot and want not track the
+	// equation numbers. This may not be possible with each environment,
+	// therefore you can create a blacklist of such environments here.
+	"preview_math_no_star_envs": [],
+
+	// The density of the preview image. The higher the density the bigger the phantom.
+	"preview_math_density": 300,
+	// If the image is not sharp enough increase this scale to get a better resolution.
+	// However also change the density by the same factor to keep the size.
+	"preview_math_scale_quotient": 2,
+
+	// IMAGE PREVIEW
+
+	// The preview mode for image preview, possible values are:
+	// "all"       to show a phantom for each includegraphics command
+	// "selected"  to show a phantom only for the currently selected includegraphics command
+	// "hover"     to show a popup if you hover over an includegraphics command
+	// "none"      to disable image preview
+	"preview_image_mode": "hover",
+
+	// The image size in the preview popup.
+	// These are the outer dimensions of the maximal size.
+	// The image will be scaled down to fit into these dimensions.
+	// It can either be an number or an array, which consist of two numbers
+	// e.g. [200, 150]
+	"preview_popup_image_size": 200,
+
+	// The image size in the preview phantoms.
+	// These are the outer dimensions of the maximal size.
+	// The image will be scaled down to fit into these dimensions.
+	// It can either be an number or an array, which consist of two numbers
+	// e.g. [200, 150]
+	"preview_phantom_image_size": 150,
+
+	// Increase this number to get a better resolution on high dpi displays.
+	// Control the thumbnail image size, which will be generated to preview
+	// images, that are not natively supported like pdf files.
+	// E.g. a image size of 300 with a scale of 2 will create a
+	// thumbnail with the size 600, which is scaled down in the popup.
+	"preview_image_scale_quotient": 1,
 
 // ------------------------------------------------------------------
 // Temporary file settings
@@ -415,6 +504,12 @@
 	// successful build. If set to false, the PDF file won't be opened
 	// unless explicitly launched using C-l,v or C-l,j
 	"open_pdf_on_build": true,
+
+	// OPTION: "disable_focus_hack"
+	// if set to true, this will stop LaTeXTools from attempting to steal focus
+	// from the viewer. NOTE: This does not mean that the *viewer* won't steal
+	// the focus, only that LaTeXTools won't try to steal the focus back.
+	"disable_focus_hack": false,
 
 // ------------------------------------------------------------------
 // Opening files included into the tex source code

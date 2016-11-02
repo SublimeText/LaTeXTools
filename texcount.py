@@ -3,29 +3,22 @@ from __future__ import print_function
 import sublime
 import sublime_plugin
 
-import subprocess
-from subprocess import Popen, PIPE
 import os
-import sys
 
 if sublime.version() < '3000':
     _ST3 = False
     from latextools_utils import get_setting
+    from latextools_utils.external_command import (
+        check_output, CalledProcessError
+    )
     from getTeXRoot import get_tex_root
 else:
     _ST3 = True
     from .latextools_utils import get_setting
+    from .latextools_utils.external_command import (
+        check_output, CalledProcessError
+    )
     from .getTeXRoot import get_tex_root
-
-
-def get_texpath():
-    platform_settings = get_setting(sublime.platform(), {})
-    texpath = platform_settings.get('texpath', '')
-
-    if not _ST3:
-        return os.path.expandvars(texpath).encode(sys.getfilesystemencoding())
-    else:
-        return os.path.expandvars(texpath)
 
 
 class TexcountCommand(sublime_plugin.TextCommand):
@@ -42,10 +35,6 @@ class TexcountCommand(sublime_plugin.TextCommand):
                 'all files are saved before invoking TeXCount.'
             )
             return
-
-        texpath = get_texpath() or os.environ['PATH']
-        env = dict(os.environ)
-        env['PATH'] = texpath
 
         sub_level = args.get(
             'sub_level',
@@ -66,36 +55,15 @@ class TexcountCommand(sublime_plugin.TextCommand):
         command.append(os.path.basename(tex_root))
 
         try:
-            startupinfo = None
-            shell = False
-            if sublime.platform() == 'windows':
-                startupinfo = subprocess.STARTUPINFO()
-                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                shell = True
-
-            print('Running {0}'.format(' '.join(command)))
-            p = Popen(
-                command,
-                stdout=PIPE,
-                stderr=PIPE,
-                startupinfo=startupinfo,
-                shell=shell,
-                env=env,
-                cwd=cwd
+            result = check_output(command, cwd=cwd)
+            res_split = result.splitlines()
+            self.view.window().show_quick_panel(
+                res_split[1:4] + res_split[9:], None
             )
-
-            result = p.communicate()[0].decode('utf-8').strip()
-            if p.returncode == 0:
-                res_split = result.splitlines()
-                self.view.window().show_quick_panel(
-                    res_split[1:4] + res_split[9:], None
-                )
-            else:
-                sublime.error_message(
-                    'Error while running TeXCount: {0}'.format(
-                        str(p.stderr)
-                    )
-                )
+        except CalledProcessError as e:
+            sublime.error_message(
+                'Error while running TeXCount: {0}'.format(e.output or e)
+            )
         except OSError:
             sublime.error_message(
                 'Could not run texcount. Please ensure that TeXcount is '
@@ -105,4 +73,4 @@ class TexcountCommand(sublime_plugin.TextCommand):
 
     def is_visible(self, *args):
         view = self.view
-        return bool(view.score_selector(0, "text.tex"))
+        return bool(view.score_selector(0, 'text.tex.latex'))

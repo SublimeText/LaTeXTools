@@ -22,6 +22,11 @@
                             },
                             { "caption": "-" },
                             {
+                                "command": "latextools_system_check",
+                                "caption": "Check System"
+                            },
+                            { "caption": "-" },
+                            {
                                 "command": "open_latextools_default_settings",
                                 "caption": "Settings – Default (read-only)"
                             },

@@ -313,7 +313,7 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
         # completion
         if is_prefixed:
             completions = [
-                (c[0], c[1][1:]) if _is_snippet(c) else c
+                (c[0], c[1][1:]) if c[1].startswith("\\") else c
                 for c in completions
             ]
 
@@ -400,15 +400,6 @@ def _check_if_cwl_enabled():
 
     # pre-load the completions
     get_cwl_completions().load_completions()
-
-
-def _is_snippet(completion_entry):
-    """
-    returns True if the second part of the completion tuple
-    is a sublime snippet
-    """
-    completion_result = completion_entry[1]
-    return completion_result[0] == '\\' and '{' in completion_result
 
 
 # -- Internal Parsing API --
@@ -500,7 +491,7 @@ def parse_line_as_environment(line):
 
 
 def parse_line_as_command(line):
-    return line, command_to_snippet(line)
+    return command_to_snippet(line)
 
 
 # actually does the parsing of the cwl files
@@ -533,10 +524,19 @@ def parse_cwl_file(cwl, s, parse_line=parse_line_as_command):
         # tracking purposes, but we can ignore it
         line = line.split('#', 1)[0]
 
+        # trailing spaces aren't relevant (done here in case they precede)
+        # a # char
+        line = line.rstrip()
+
         result = parse_line(line)
         if result is None:
             continue
-        (keyword, insertion) = result
+        keyword, insertion = result
+
+        # pad the keyword with spaces; this is to keep the size of the
+        # autocompletions consistent regardless of the returned results
+        keyword = keyword.ljust(50)
+
         item = (u'%s\t%s' % (keyword, method), insertion)
         completions.append(item)
 
