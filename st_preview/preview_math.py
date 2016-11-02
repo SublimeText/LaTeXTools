@@ -36,7 +36,7 @@ except:
 
 # the default and usual template for the latex file
 default_latex_template = """
-\\documentclass[preview]{standalone}
+\\documentclass[preview,border=.2pt]{standalone}
 <<packages>>
 <<preamble>>
 \\begin{document}
@@ -129,7 +129,11 @@ def _create_image(latex_program, latex_document, base_name, color,
             # change the color form black to the user-defined
             '-fuzz', '99%', '-fill', color, '-opaque', 'black',
             # trim the content to the real size
-            '-trim',
+            '-background', 'black',
+            # trim the left side
+            '-gravity', 'East', '-splice', '1x0', '-trim', '+repage',
+            # trim the right side
+            '-gravity', 'West', '-splice', '1x0', '-trim', '+repage',
             pdf_path, image_path
         ])
 
@@ -626,8 +630,9 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             open_str = "\\begin{{{env}{star}}}".format(**locals())
             close_str = "\\end{{{env}{star}}}".format(**locals())
 
+        # wrap content plus invisible mathstrut to ensure minimum height
         document_content = (
-            "{open_str}\n{content}\n{close_str}"
+            "{open_str}\n\\mathstrut {content}\n{close_str}"
             .format(**locals())
         )
 
