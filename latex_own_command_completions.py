@@ -83,5 +83,5 @@ def _parse_command(c):
         comp = command_to_snippet(s)
     except:  # no args
         s = c.args + "{}"
-        comp = s
-    return (s + "\tlocal", comp)
+        comp = (s + "\tlocal", s)
+    return comp
