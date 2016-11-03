@@ -313,7 +313,7 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
         # completion
         if is_prefixed:
             completions = [
-                (c[0], c[1][1:]) if c[1].startswith("\\") else c
+                (c[0], c[1][1:]) if c[1][0].startswith("\\") else c
                 for c in completions
             ]
 
