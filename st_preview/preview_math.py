@@ -19,6 +19,10 @@ from . import preview_threading as pv_threading
 # export the listener
 exports = ["MathPreviewPhantomListener"]
 
+# increase this number if you change the convert command to mark the
+# generated images as expired
+_version = 1
+
 
 try:
     import mdpopups
@@ -37,9 +41,13 @@ except:
 # the default and usual template for the latex file
 default_latex_template = """
 \\documentclass[preview]{standalone}
+% import xcolor if available and not already present
+\\IfFileExists{xcolor.sty}{\\usepackage{xcolor}}{}%
 <<packages>>
 <<preamble>>
 \\begin{document}
+% set the foreground color
+\\IfFileExists{xcolor.sty}{<<set_color>>}{}%
 <<content>>
 \\end{document}
 """
@@ -126,8 +134,6 @@ def _create_image(latex_program, latex_document, base_name, color,
         run_convert_command([
             # set the image size/density
             '-density', '{density}x{density}'.format(density=density),
-            # change the color form black to the user-defined
-            '-fuzz', '99%', '-fill', color, '-opaque', 'black',
             # trim the content to the real size
             '-trim',
             pdf_path, image_path
@@ -313,7 +319,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
                 "call_after": update_preamble_str
             },
             "latex_template_file": {
-                "setting": "preview_math_latex_template_file",
+                "setting": "preview_math_template_file",
                 "call_after": update_template_file
             }
         }
@@ -534,10 +540,11 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
                 )
 
             # generate the latex template
-            latex_document = self._create_document(scope)
+            latex_document = self._create_document(scope, color)
 
             # create a string, which uniquely identifies the compiled document
             id_str = "\n".join([
+                str(_version),
                 self.latex_program,
                 str(_density),
                 color,
@@ -589,7 +596,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             _extend_image_jobs(view.id(), self.latex_program, job_args)
             _run_image_jobs()
 
-    def _create_document(self, scope):
+    def _create_document(self, scope, color):
         view = self.view
         content = view.substr(scope)
         env = None
@@ -638,9 +645,16 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
         except:
             latex_template = default_latex_template
 
+        if color.startswith("#"):
+            color = color[1:].upper()
+            set_color = "\\color[HTML]{{{color}}}".format(color=color)
+        else:
+            set_color = "\\color{{{color}}}".format(color=color)
+
         latex_document = (
             latex_template
             .replace("<<content>>", document_content, 1)
+            .replace("<<set_color>>", set_color, 1)
             .replace("<<packages>>", self.packages_str, 1)
             .replace("<<preamble>>", self.preamble_str, 1)
         )
