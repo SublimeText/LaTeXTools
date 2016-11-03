@@ -540,7 +540,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
                 )
 
             # generate the latex template
-            latex_document = self._create_document(scope)
+            latex_document = self._create_document(scope, color)
 
             # create a string, which uniquely identifies the compiled document
             id_str = "\n".join([
@@ -596,7 +596,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             _extend_image_jobs(view.id(), self.latex_program, job_args)
             _run_image_jobs()
 
-    def _create_document(self, scope):
+    def _create_document(self, scope, color):
         view = self.view
         content = view.substr(scope)
         env = None
@@ -645,11 +645,11 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
         except:
             latex_template = default_latex_template
 
-        if self.color.startswith("#"):
-            color = self.color[1:].upper()
+        if color.startswith("#"):
+            color = color[1:].upper()
             set_color = "\\color[HTML]{{{color}}}".format(color=color)
         else:
-            set_color = "\\color{{{color}}}".format(color=self.color)
+            set_color = "\\color{{{color}}}".format(color=color)
 
         latex_document = (
             latex_template
