@@ -51,16 +51,28 @@ def get_own_command_completion(view):
 
 def _make_own_env_completion(ana):
     commands = ana.filter_commands(["newenvironment", "renewenvironment"])
-    return [(c.args + "\tself-defined", c.args) for c in commands]
+    return [(c.args.ljust(50) + "\tlocal", c.args) for c in commands]
 
 
 def _make_own_command_completion(ana, is_math):
     com = ana.filter_commands(["newcommand", "renewcommand"])
     res = [_parse_command(c) for c in com]
 
+    env = ana.filter_commands(["newenvironment", "renewenvironment"])
+    for e in env:
+        res.extend([
+            ("\\begin{{{0}}}".format(e.args).ljust(50) + "\tlocal",
+                "\\begin{{{0}}}\n$1\n\\end{{{0}}}$0".format(e.args)),
+            ("\\end{{{0}}}".format(e.args).ljust(50) + "\tlocal",
+                "\\end{{{0}}}".format(e.args))
+        ])
+
     if is_math:
         dop = ana.filter_commands(["DeclareMathOperator"])
-        res.extend((s.args + "\tself-declared operator", s.args) for s in dop)
+        res.extend(
+            (s.args.ljust(50) + "\tlocal", s.args)
+            for s in dop
+        )
 
     return res
 
@@ -68,6 +80,7 @@ def _make_own_command_completion(ana, is_math):
 def _parse_command(c):
     class NoArgs(Exception):
         pass
+
     try:
         if not c.optargs2:
             raise NoArgs()
@@ -81,7 +94,12 @@ def _parse_command(c):
             raise NoArgs()
         s += "{arg}" * arg_count
         comp = command_to_snippet(s)
+        if comp is None:
+            raise NoArgs()
+        comp = comp[1]
     except:  # no args
         s = c.args + "{}"
         comp = s
+
+    s = s.ljust(50)
     return (s + "\tlocal", comp)
