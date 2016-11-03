@@ -15,11 +15,15 @@ _lt_settings = {}
 
 
 def _get_convert_command():
+    if hasattr(_get_convert_command, "result"):
+        return _get_convert_command.result
+
     texpath = get_texpath() or os.environ['PATH']
-    return (
+    _get_convert_command.result = (
         which('magick', path=texpath) or
         which('convert', path=texpath)
     )
+    return _get_convert_command.result
 
 
 def convert_installed():
