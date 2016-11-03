@@ -10,7 +10,7 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* v3.12.4 (2016-11-02).
+*Latest revision:* v3.12.5 (2016-11-03).
 
 *Headline features*:
 
