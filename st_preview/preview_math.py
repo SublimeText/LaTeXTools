@@ -1,4 +1,5 @@
 import base64
+import html
 import os
 import re
 import struct
@@ -58,6 +59,8 @@ temp_path = None
 
 # we use png files for the html popup
 _IMAGE_EXTENSION = ".png"
+# we add this extension to log error information
+_ERROR_EXTENSION = ".err"
 
 _scale_quotient = 1
 _density = 150
@@ -139,6 +142,17 @@ def _create_image(latex_program, latex_document, base_name, color,
             pdf_path, image_path
         ])
 
+    err_file_path = image_path + _ERROR_EXTENSION
+    if not pdf_exists:
+        with open(err_file_path, "w") as f:
+            f.write(
+                "Failed to run '{latex_program}' to create pdf to preview."
+                .format(**locals())
+            )
+    elif not os.path.exists(image_path):
+        with open(err_file_path, "w") as f:
+            f.write("Failed to convert pdf to png to preview.")
+
     # cleanup created files
     for ext in ["tex", "aux", "log", "pdf", "dvi"]:
         delete_path = os.path.join(temp_path, base_name + "." + ext)
@@ -188,7 +202,7 @@ def _run_image_jobs():
 
 
 def _wrap_html(html_content, color=None, background_color=None):
-    if background_color:
+    if color or background_color:
         style = "<style>"
         style += "body {"
         if color:
@@ -206,6 +220,17 @@ def _wrap_html(html_content, color=None, background_color=None):
         '</body>'
         .format(**locals())
     )
+    return html_content
+
+
+def _generate_error_html(view, image_path, style_kwargs):
+    content = "ERROR: "
+    with open(image_path + _ERROR_EXTENSION, "r") as f:
+        content += f.read()
+
+    html_content = html.escape(content, quote=False)
+
+    html_content = _wrap_html(html_content, **style_kwargs)
     return html_content
 
 
@@ -664,11 +689,16 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
     def _make_cont(self, p, image_path, update_time, style_kwargs):
         def cont():
             # if the image does not exists do nothing
-            if not os.path.exists(image_path):
+            if os.path.exists(image_path):
+                # generate the html
+                html_content = _generate_html(
+                    self.view, image_path, style_kwargs)
+            elif os.path.exists(image_path + _ERROR_EXTENSION):
+                # inform the user about the error
+                html_content = _generate_error_html(
+                    self.view, image_path, style_kwargs)
+            else:
                 return
-
-            # generate the html
-            html_content = _generate_html(self.view, image_path, style_kwargs)
             # move to main thread and update the phantom
             sublime.set_timeout(
                 self._update_phantom_content(p, html_content, update_time)

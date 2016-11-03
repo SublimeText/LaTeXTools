@@ -23,6 +23,8 @@ temp_path = None
 
 # we use png files for the html popup
 _IMAGE_EXTENSION = ".png"
+# we add this extension to log error information
+_ERROR_EXTENSION = ".err"
 
 _lt_settings = {}
 
@@ -68,6 +70,10 @@ def create_thumbnail(image_path, thumbnail_path, width, height):
         '-thumbnail', '{width}x{height}'.format(**locals()),
         image_path, thumbnail_path
     ])
+
+    if not os.path.exists(thumbnail_path):
+        with open(thumbnail_path + _ERROR_EXTENSION, "w") as f:
+            f.write("Failed to create preview thumbnail.")
 
 
 # CONVERT THREADING
@@ -191,6 +197,8 @@ def _get_popup_html(thumbnail_path, width, height):
         )
     elif not convert_installed():
         img_tag = "Install ImageMagick to enable preview."
+    elif os.path.exists(thumbnail_path + _ERROR_EXTENSION):
+        img_tag = "ERROR: Failed to create preview thumbnail."
     else:
         img_tag = "Preparing image for preview..."
     html_content = """
@@ -411,6 +419,8 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener,
                 """.format(**locals())
             elif convert_installed():
                 html_content += """Preparing image for preview..."""
+            elif os.path.exists(p.thumbnail_path + _ERROR_EXTENSION):
+                img_tag = "ERROR: Failed to create preview thumbnail."
             else:
                 html_content += (
                     "Install ImageMagick to enable a preview for "
