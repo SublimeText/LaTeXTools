@@ -10,6 +10,7 @@ import types
 import sublime
 import sublime_plugin
 
+from ..parseTeXlog import parse_tex_log
 
 from ..latextools_utils import cache, get_setting
 from ..latextools_utils.external_command import execute_command
@@ -143,15 +144,51 @@ def _create_image(latex_program, latex_document, base_name, color,
         ])
 
     err_file_path = image_path + _ERROR_EXTENSION
+    err_log = []
     if not pdf_exists:
-        with open(err_file_path, "w") as f:
-            f.write(
-                "Failed to run '{latex_program}' to create pdf to preview."
-                .format(**locals())
-            )
+        err_log.append(
+            "Failed to run '{latex_program}' to create pdf to preview."
+            .format(**locals())
+        )
+        err_log.append("")
+        err_log.append("")
+        err_log.append("LaTeX document:")
+        err_log.append("-----BEGIN DOCUMENT-----")
+        err_log.append(latex_document)
+        err_log.append("-----END DOCUMENT-----")
+
+        err_log.append("")
+
+        log_file = os.path.join(temp_path, base_name + ".log")
+        if not os.path.exists(log_file):
+            err_log.append("No log file found.")
+        else:
+            with open(log_file, "rb") as f:
+                log_data = f.read()
+            try:
+                errors, warnings, _ = parse_tex_log(log_data, temp_path)
+            except StopIteration:
+                err_log.append("Error while parsing log file.")
+                errors = warnings = []
+            if errors:
+                err_log.append("Logged errors:")
+                err_log.extend(errors)
+            if warnings:
+                err_log.append("Logged warnings:")
+                err_log.extend(warnings)
+            err_log.append("")
+
+            log_content = log_data.decode("utf8")
+            err_log.append("Log file:")
+            err_log.append("-----BEGIN LOG-----")
+            err_log.append(log_content)
+            err_log.append("-----END LOG-----")
     elif not os.path.exists(image_path):
+        err_log.append("Failed to convert pdf to png to preview.")
+
+    if err_log:
         with open(err_file_path, "w") as f:
-            f.write("Failed to convert pdf to png to preview.")
+            f.write("\n".join(err_log))
 
     # cleanup created files
     for ext in ["tex", "aux", "log", "pdf", "dvi"]:
@@ -225,8 +262,9 @@ def _wrap_html(html_content, color=None, background_color=None):
 
 def _generate_error_html(view, image_path, style_kwargs):
     content = "ERROR: "
-    with open(image_path + _ERROR_EXTENSION, "r") as f:
-        content += f.read()
+    err_file = image_path + _ERROR_EXTENSION
+    with open(err_file, "r") as f:
+        content += f.readline()
 
     html_content = html.escape(content, quote=False)
 
