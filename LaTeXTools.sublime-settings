@@ -120,12 +120,13 @@
 
 	// An array of the used packages, from which the file for the live preview
 	// will be generated.
+	// Just write \\usepackage{packagename} to include other packages.
 	// (The xcolor package will be present, even if not in this list.)
 	"preview_math_template_packages": [
 		"\\usepackage{amsmath}",
 		"\\usepackage{amssymb}",
-		"\\usepackage{latexsym}",
-		"\\usepackage{mathtools}"
+		"\\IfFileExists{latexsym.sty}{\\usepackage{latexsym}}{}",
+		"\\IfFileExists{mathtools.sty}{\\usepackage{mathtools}}{}"
 	],
 
 	// An string of the remaining preamble (not packages) for the file,
