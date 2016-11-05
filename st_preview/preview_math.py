@@ -152,33 +152,36 @@ def _create_image(latex_program, latex_document, base_name, color,
         )
         err_log.append("")
         err_log.append("")
-        err_log.append("LaTeX document:")
-        err_log.append("-----BEGIN DOCUMENT-----")
-        err_log.append(latex_document)
-        err_log.append("-----END DOCUMENT-----")
-
-        err_log.append("")
 
         log_file = os.path.join(temp_path, base_name + ".log")
-        if not os.path.exists(log_file):
+        log_exists = os.path.exists(log_file)
+
+        if not log_exists:
             err_log.append("No log file found.")
         else:
             with open(log_file, "rb") as f:
                 log_data = f.read()
             try:
                 errors, warnings, _ = parse_tex_log(log_data, temp_path)
-            except StopIteration:
+            except:
                 err_log.append("Error while parsing log file.")
                 errors = warnings = []
             if errors:
-                err_log.append("Logged errors:")
+                err_log.append("Errors:")
                 err_log.extend(errors)
             if warnings:
-                err_log.append("Logged warnings:")
+                err_log.append("Warnings:")
                 err_log.extend(warnings)
             err_log.append("")
 
-            log_content = log_data.decode("utf8")
+        err_log.append("LaTeX document:")
+        err_log.append("-----BEGIN DOCUMENT-----")
+        err_log.append(latex_document)
+        err_log.append("-----END DOCUMENT-----")
+
+        if log_exists:
+            err_log.append("")
+            log_content = log_data.decode("utf8", "ignore")
             err_log.append("Log file:")
             err_log.append("-----BEGIN LOG-----")
             err_log.append(log_content)
