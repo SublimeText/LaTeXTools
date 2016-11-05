@@ -1,4 +1,5 @@
 import imghdr
+import inspect
 import os
 import struct
 import threading
@@ -356,8 +357,12 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener,
 
     @classmethod
     def is_applicable(cls, settings):
-        syntax = settings.get('syntax')
-        return syntax == 'Packages/LaTeX/LaTeX.sublime-syntax'
+        try:
+            view = inspect.currentframe().f_back.f_locals['view']
+            return view.score_selector(0, 'text.tex.latex') > 0
+        except KeyError:
+            syntax = settings.get('syntax')
+            return syntax == 'Packages/LaTeX/LaTeX.sublime-syntax'
 
     @classmethod
     def applies_to_primary_view_only(cls):
