@@ -279,6 +279,13 @@ def get_tex_path_variable_miktex(variable, env=None):
         return None
 
 
+def kpsewhich(file):
+    try:
+        return check_output(['kpsewhich', file])
+    except Exception:
+        return None
+
+
 def get_max_width(table, column):
     return max(len(unicode(row[column])) for row in table)
 
@@ -475,7 +482,9 @@ class SystemCheckThread(threading.Thread):
 
             available_str = (
                 u'available' if available and version_info is not None
-                else u'missing')
+                else u'missing'
+            )
+
             if (available and program in ['magick', 'convert'] and
                     not convert_installed()):
                 available_str = u'restart required'
@@ -488,6 +497,40 @@ class SystemCheckThread(threading.Thread):
             ])
 
         results.append(table)
+
+        # This really only works for the default template
+        # Note that no attempt is made to find other packages that the
+        # included package depends on
+        if sublime.version() >= '3118' and get_setting(
+                'preview_math_template_file') is None:
+            packages = [
+                re.sub(r'\\usepackage(?:\[[^\]]*\])?\{([^}]*)\}', r'\1', p)
+                for p in get_setting(
+                    'preview_math_template_packages', [], view=self.view
+                )
+            ]
+
+            if packages:
+                table = [[u'Packages for equation preview', u'Status']]
+                table.append([
+                    u'standalone',
+                    (u'available' if kpsewhich(u'standalone.cls') is not None
+                        else u'missing')
+                ])
+
+                # required by the preview option
+                packages.insert(0, 'preview')
+                # added by default if it exists
+                packages.append('xcolor')
+
+                for package in packages:
+                    table.append([
+                        package,
+                        (u'available' if kpsewhich(package + u'.sty')
+                            is not None else u'missing')
+                    ])
+
+                results.append(table)
 
         run_on_main_thread(partial(self._on_main_thread, results), timeout=30)
 

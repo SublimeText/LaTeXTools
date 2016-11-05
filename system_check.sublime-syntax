@@ -10,7 +10,7 @@ contexts:
   main:
     - match: "-{3,}"
       scope: comment.other.latextools-system-check.header
-    - match: ^(?:Variable|Program\s+Location|Builder|Viewer|LaTeX Output Setting)\s+.+$
+    - match: ^(?:Variable|Program\s+Location|Builder|Viewer|LaTeX Output Setting|Packages for)\s+.+$
       scope: comment.other.latextools-system-check.header
     - match: ^(?:TeX Root|LaTeX Engine|LaTeX Options)\s*$
       scope: comment.other.latextools-system-check.header
@@ -20,5 +20,7 @@ contexts:
       scope: keyword.control.latextools-system-check.available
     - match: \bunavailable\b
       scope: keyword.control.latextools-system-check.available
+    - match: \restart required\b
+      scope: keyword.control.latextools-system-check.restart-required
     - match: True|False
       scope: constant.language.latextools-system-check.available
