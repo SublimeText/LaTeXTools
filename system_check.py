@@ -57,7 +57,8 @@ except ImportError:
     from .jumpToPDF import DEFAULT_VIEWERS
     from .getTeXRoot import get_tex_root
 
-if sublime.version() >= '3118':
+_HAS_PREVIEW = sublime.version() >= '3118'
+if _HAS_PREVIEW:
     from .st_preview.preview_utils import convert_installed
 
 if sys.version_info >= (3,):
@@ -452,7 +453,7 @@ class SystemCheckThread(threading.Thread):
                 else ['gswin32c', 'gswin64c', 'gs'])
         ]
 
-        if sublime.version() >= '3118':
+        if _HAS_PREVIEW:
             # ImageMagick requires gs to work with PDFs
             programs += [['magick', 'convert']]
 
@@ -501,33 +502,38 @@ class SystemCheckThread(threading.Thread):
         # This really only works for the default template
         # Note that no attempt is made to find other packages that the
         # included package depends on
-        if sublime.version() >= '3118' and get_setting(
-                'preview_math_template_file') is None:
-            packages = [
-                re.sub(r'\\usepackage(?:\[[^\]]*\])?\{([^}]*)\}', r'\1', p)
-                for p in get_setting(
-                    'preview_math_template_packages', [], view=self.view
-                )
-            ]
+        if (_HAS_PREVIEW and convert_installed() and
+                get_setting('preview_math_template_file') is None and
+                get_setting("preview_math_mode", view=self.view) != "none"):
+
+            find_package_re = re.compile(
+                r'\\usepackage(?:\[[^\]]*\])?\{(?P<pkg>[^\}]*)\}'
+            )
+
+            packages = ["standalone.cls", "preview.sty", "xcolor.sty"]
+
+            package_settings = get_setting(
+                "preview_math_template_packages", [], view=self.view)
+            # extract all packages from each package line
+            for pkg_str in package_settings:
+                # search for all \usepackage in the line
+                for m in find_package_re.finditer(pkg_str):
+                    pkg_arg = m.group("pkg")
+                    # search for each package in the \usepackage argument
+                    for pkg in pkg_arg.split(","):
+                        pkg = pkg.strip()
+                        if pkg:
+                            packages.append(pkg + ".sty")
 
             if packages:
                 table = [[u'Packages for equation preview', u'Status']]
-                table.append([
-                    u'standalone',
-                    (u'available' if kpsewhich(u'standalone.cls') is not None
-                        else u'missing')
-                ])
-
-                # required by the preview option
-                packages.insert(0, 'preview')
-                # added by default if it exists
-                packages.append('xcolor')
 
                 for package in packages:
+                    available = kpsewhich(package) is not None
+                    package_name = package.split(".")[0]
                     table.append([
-                        package,
-                        (u'available' if kpsewhich(package + u'.sty')
-                            is not None else u'missing')
+                        package_name,
+                        (u'available' if available else u'missing')
                     ])
 
                 results.append(table)
