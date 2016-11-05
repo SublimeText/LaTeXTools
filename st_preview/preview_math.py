@@ -267,6 +267,12 @@ def _generate_error_html(view, image_path, style_kwargs):
         content += f.readline()
 
     html_content = html.escape(content, quote=False)
+    html_content += (
+        '<br>'
+        '<a href="check_system">(Check System)</a> '
+        '<a href="report-{err_file}">(Show Report)</a>'
+        .format(**locals())
+    )
 
     html_content = _wrap_html(html_content, **style_kwargs)
     return html_content
@@ -491,6 +497,18 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
     # METHODS
     #########
 
+    def on_navigate(self, href):
+        if href == "check_system":
+            self.view.window().run_command("latextools_system_check")
+        elif href.startswith("report-"):
+            file_path = href[len("report-"):]
+            if not os.path.exists(file_path):
+                sublime.error_message(
+                    "Report file missing: {0}.".format(file_path)
+                )
+                return
+            self.view.window().open_file(file_path)
+
     def reset_phantoms(self):
         self.delete_phantoms()
         self.update_phantoms()
@@ -623,7 +641,8 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
                     _cancel_image_jobs(view.id(), p)
                 html_content = _generate_html(view, image_path, style_kwargs)
                 p.id = view.add_phantom(
-                    self.key, region, html_content, layout, on_navigate=None)
+                    self.key, region, html_content, layout,
+                    on_navigate=self.on_navigate)
                 new_phantoms.append(p)
                 continue
             # if neither the file nor the phantom exists, create a
@@ -631,7 +650,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             elif p.id is None:
                 p.id = view.add_phantom(
                     self.key, region, _wrap_html("\u231B", **style_kwargs),
-                    layout, on_navigate=None)
+                    layout, on_navigate=self.on_navigate)
 
             job_args.append({
                 "latex_document": latex_document,
@@ -763,7 +782,8 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
         # erase the old and add the new phantom
         view.erase_phantom_by_id(p.id)
         p.id = view.add_phantom(
-            self.key, p.region, html_content, p.layout, on_navigate=None)
+            self.key, p.region, html_content, p.layout,
+            on_navigate=self.on_navigate)
 
         # update the phantoms update time
         p.update_time = update_time
