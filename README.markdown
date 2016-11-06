@@ -76,6 +76,23 @@ In case you are using an old version of Skim, you can always choose the Custom p
 
 in the Command field, and `"%file":%line` in the Arguments field. (This is correct as of 7/18/2013; you may want to double-check that ST3 is indeed in `/Applications/Sublime Text.app`; just go to the Applications folder in the Finder. Adapt as needed for ST2).
 
+#### Setup ImageMagick and Ghostscript
+
+If you are using Sublime Text 3 version 3118 or later and want to use the image and equation previewing features, you will need to ensure that both ImageMagick 6 or higher and Ghostscript 9 or higher are installed and available on your machine. If you installed the full MacTeX distribution, Ghostscript is already included. If you installed the BasicTeX distribution, you will need to install Ghostscript yourself.
+
+The easiest way to install ImageMagick or Ghostscript is to use either [Homebrew](http://brew.sh/) or [MacPorts](https://www.macports.org/). Installing should be as simple as typing the relevant command in the Terminal:
+
+|Product|Package Manager|Command|
+|-------|---------------|-------|
+|ImageMagick|Homebrew|`brew install imagemagick`|
+|ImageMagick|Mac Ports|`sudo port install ImageMagick`|
+|Ghostscript|Homebrew|`brew install ghostscript`|
+|Ghostscript|Mac Ports|`sudo port install ghostscript`|
+
+If you do not use Homebrew or MacPorts (and you should), you will need to compile and install binaries from source. The source for Ghostscript can be found [on this page](http://ghostscript.com/download/gsdnld.html) and the source and compilation instructions for ImageMagick can be found [on this page](http://www.imagemagick.org/script/binary-releases.php#macosx).
+
+You can use the **LaTeXTools: Check System** command to verify that these are installed and setup in a place LaTeXTools can find.
+
 #### Setup LaTeXTools
 
 Finally, edit the LaTeXtools settings to make sure that the configuration reflects your preferred TeX distribution. Open the settings from the menu via **Preferences | Package Settings | LaTeXTools | Settings - User** and scroll down to the section titled "Platform settings". Look at the block for your OS, namely `"osx"`. Within that block, verify that the `"texpath"` setting is correct. Note that `"texpath"` **must** include `$PATH` somewhere.
@@ -114,6 +131,17 @@ sumatrapdf.exe -inverse-search "\"C:\Program Files\Sublime Text 3\sublime_text.e
 
 I'm sorry this is not straightforward---it's not my fault :-)
 
+#### Setup ImageMagick and Ghostscript
+
+If you are using Sublime Text 3 version 3118 or later and want to use the image and equation previewing features, you will need to ensure that both ImageMagick 6 or higher and Ghostscript 9 or higher are installed and available on your machine.
+
+* If you're using TeXLive and you installed the default profile, you should already have Ghostscript installed in `<Drive>:\path\to\texlive\<year>\tlgs\bin`. Make sure this is added to your `PATH` system variable or to the `texpath` when setting up LaTeXTools.
+* If you are using MiKTeX or do not have Ghostscript installed with your TeXLive distribution, you can simple download and install the [latest release here](http://ghostscript.com/download/gsdnld.html). MiKTeX does bundle a version of Ghostscript, but ImageMagick will not find it.
+
+To install ImageMagick, download and install a release from [the ImageMagick website](http://www.imagemagick.org/script/binary-releases.php#windows). For the easiest setup, make sure you select the **Add application directory to your system path** option when installing. Otherwise, you will need to either manually add it to your system PATH or add it to your `texpath` setting when setting up LaTeXTools.
+
+You can use the **LaTeXTools: Check System** command to verify that these are installed and setup in a place LaTeXTools can find.
+
 #### Setup LaTeXTools
 
 Finally, edit the LaTeXtools settings to make sure that the configuration reflects your preferred TeX distribution. Open the settings from the menu via **Preferences | Package Settings | LaTeXTools | Settings - User** and scroll down to the section titled "Platform settings". Look at the block for your OS, namely `windows`. Within that block, verify that the `texpath` setting is correct; for MiKTeX, you can leave this empty, i.e., `""`. If you do specify a path, note that it **must** include the system path variable, i.e., `$PATH` (this syntax seems to be OK). Also verify that the `distro` setting is correct: the possible values are `"miktex"` and `"texlive"`.
@@ -130,7 +158,13 @@ Recent versions of MikTeX add themselves to your path automatically, but in case
 
 #### Install TeXLive
 
-You need to install TeXlive; if you are on Ubuntu, note that `apt-get install texlive` will get you a working but incomplete setup. In particular, it will *not* bring in `latexmk`, which is essential to LaTeXTools. You need to install it via `apt-get install latexmk`. If on the other hand you choose to install the TeXlive distro from TUG, `latexmk` comes with it, so you don't need to do anything else.
+You need to install TeXlive. We highly recommend installing the version directly from TUG, which can be found [here](https://www.tug.org/texlive/acquire-netinstall.html) rather than the version included with your distribution, as your distribution may be out of date (maintain a TeX distribution is a time-consuming task).  In particular, if you are on Ubuntu, note that `apt-get install texlive` will get you a working but incomplete setup. For example, it will *not* install `latexmk`, which is essential to LaTeXTools. You need to install it via `apt-get install latexmk`. You can use the **LaTeXTools: Check System** command to ensure that the expected binaries are found.
+
+#### Setup ImageMagick and Ghostscript
+
+If you are using Sublime Text 3 version 3118 or later and want to use the image and equation previewing features, you will need to ensure that both ImageMagick 6 or higher and Ghostscript 9 or higher are installed and available on your machine.
+
+If you installed the full TeXLive profile from TUG, you should already have a version of Ghostscript installed. Otherwise, it can simply be installed using your distribution's package manager. ImageMagick should also be available the same way. Once again, you can use the **LaTeXTools: Check System** command to verify that these are setup.
 
 #### Setup LaTeXTools
 
@@ -183,7 +217,6 @@ Note that if you specify a relative path as the `TEXroot` in the project file, t
 **For technical reasons, all preview functions are only available in Sublime Text Build 3118 and newer.**
 
 LaTeXTools has the ability to preview parts of the document using phantoms or popups. These functions rely on [Ghostscript](http://www.ghostscript.com/) and [ImageMagick](http://www.imagemagick.org) being installed and available on your `texpath`.
-Ensure to install the `convert` command with ImageMagick. On Windows you should enable the *Install legacy utilities* check box.
 
 #### Math-Live preview
 
@@ -1043,7 +1076,7 @@ and again take note of what you see in the output panel (right above the line wh
 
 On Linux, do note that your login shell may be different from the shell that launched Sublime Text. This can mean that LaTeXTools does not inherit your `$PATH` correctly, particularly if you modify your `$PATH` in `.bash_profile` or `.bashrc` or other, shell-specific files (X Windows is run via `/bin/sh` rather than `/bin/bash`). If you have a similar problem, follow the same procedure as above, although you should launch the `sublime_text` executable from a shell.
 
-### Non-ASCII characters and spaces in path and file names ###
+### Non-ASCII characters and spaces in path and file names
 
 Another *significant* source of issues are **Unicode characters in path and file names**. On TeXLive-based platforms, LaTeXTools tries to handle these by telling `latexmk` to `cd` to each source file's directory before running `pdflatex`. This seems to help some. However, things seem to vary by platform and locale, so I cannot make any guarantees that your Unicode path names will work. Keep in mind that TeX itself has issues with Unicode characters in file names (as a quick Google search will confirm).
 
@@ -1065,3 +1098,27 @@ The second exception has to do with file and path names. In order to accommodate
 
 Finally, I have done my best to accommodate non-ASCII characters in logs. I cannot promise that everything works, but I'd like to know if you see issues with this.
  
+### Equation preview shows "ERROR: Failed to run 'pdflatex' to create pdf to preview."
+
+This indicates that there is a problem running pdflatex to create the equation preview document. Normally this caused by not having the necessary packages installed. You can check that the required packages are installed by using the **LaTeXTools: Check System** command and use your package manager to install any missing packages.
+
+By default, the template that LaTeXTools uses looks like this:
+
+```latex
+\documentclass[preview]{standalone}
+% import xcolor if available and not already present
+\IfFileExists{xcolor.sty}{\usepackage{xcolor}}{}%
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{latexsym}
+\usepackage{mathtools}
+\begin{document}
+% set the foreground color
+\IfFileExists{xcolor.sty}{\color{green}}{}%
+You're file should work.
+\end{document}
+```
+
+You can copy and paste that into a new `tex` document and try to compile it to see if there are any other errors.
+
+The other common cause would be due to using commands and symbols in your equation that are not defined in the default template. You can extend the packages loaded by changing the `preview_math_template` setting or by modifying the `preview_math_template_preamble` setting to add new commands, etc.
