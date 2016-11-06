@@ -1100,25 +1100,7 @@ Finally, I have done my best to accommodate non-ASCII characters in logs. I cann
  
 ### Equation preview shows "ERROR: Failed to run 'pdflatex' to create pdf to preview."
 
-This indicates that there is a problem running pdflatex to create the equation preview document. Normally this caused by not having the necessary packages installed. You can check that the required packages are installed by using the **LaTeXTools: Check System** command and use your package manager to install any missing packages.
+This indicates that there is a problem running pdflatex to create the equation preview document. Normally this caused by not having the necessary packages installed. You can check that the required packages are installed by using the **LaTeXTools: Check System** command or click on the **(Check System)** Button and use your package manager to install any missing packages.
 
-By default, the template that LaTeXTools uses looks like this:
-
-```latex
-\documentclass[preview]{standalone}
-% import xcolor if available and not already present
-\IfFileExists{xcolor.sty}{\usepackage{xcolor}}{}%
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{latexsym}
-\usepackage{mathtools}
-\begin{document}
-% set the foreground color
-\IfFileExists{xcolor.sty}{\color{green}}{}%
-You're file should work.
-\end{document}
-```
-
-You can copy and paste that into a new `tex` document and try to compile it to see if there are any other errors.
-
-The other common cause would be due to using commands and symbols in your equation that are not defined in the default template. You can extend the packages loaded by changing the `preview_math_template` setting or by modifying the `preview_math_template_preamble` setting to add new commands, etc.
+If the system check does not report preview related problem, you can click on **(Show Report)** to see more details like the build errors and the tex document, which was used to build the preview.
+An common cause would be due to using commands and symbols in your equation that are not defined in the default template. You can extend the packages loaded by changing the `preview_math_template_packages` setting or by modifying the `preview_math_template_preamble` setting to add new commands, etc.
