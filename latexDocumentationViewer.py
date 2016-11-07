@@ -6,9 +6,11 @@ import traceback
 
 try:
     from latextools_utils import get_setting
+    from latextools_utils.distro_utils import using_miktex
     from latextools_utils.external_command import external_command
 except ImportError:
     from .latextools_utils import get_setting
+    from .latextools_utils.distro_utils import using_miktex
     from .latextools_utils.external_command import external_command
 
 if sublime.version() < '3000':
