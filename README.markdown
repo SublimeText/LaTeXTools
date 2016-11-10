@@ -135,7 +135,7 @@ I'm sorry this is not straightforward---it's not my fault :-)
 
 If you are using Sublime Text 3 version 3118 or later and want to use the image and equation previewing features, you will need to ensure that both ImageMagick 6 or higher and Ghostscript 9 or higher are installed and available on your machine.
 
-* If you're using TeXLive and you installed the default profile, you should already have Ghostscript installed in `<Drive>:\path\to\texlive\<year>\tlgs\bin` or `<Drive>:path\to\texlive\<year>\tlpkg\tlgs\bin`. Make sure this is added to your `PATH` system variable or to the `texpath` when setting up LaTeXTools.
+* If you're using TeXLive and you installed the default profile, you should already have Ghostscript installed in `<drive>:path\to\texlive\<year>\tlpkg\tlgs\bin`. Make sure this is added to your `PATH` system variable or to the `texpath` when setting up LaTeXTools.
 * If you are using MiKTeX or do not have Ghostscript installed with your TeXLive distribution, you can simple download and install the [latest release here](http://ghostscript.com/download/gsdnld.html). MiKTeX does bundle a version of Ghostscript, but ImageMagick will not find it.
 
 To install ImageMagick, download and install a release from [the ImageMagick website](http://www.imagemagick.org/script/binary-releases.php#windows). For the easiest setup, make sure you select the **Add application directory to your system path** option when installing. Otherwise, you will need to either manually add it to your system PATH or add it to your `texpath` setting when setting up LaTeXTools.
