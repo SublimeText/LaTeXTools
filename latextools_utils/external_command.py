@@ -119,8 +119,11 @@ def get_texpath():
     # ensure _get_texpath() is run in a thread-safe manner
     return run_on_main_thread(_get_texpath, default_value=None)
 
+
 # marker object used to indicate default behaviour
-__sentinel__ = object()
+# (avoid overwrite while module reloads)
+if "__sentinel__" not in globals():
+    __sentinel__ = object()
 
 
 # wrapper to handle common logic for executing subprocesses
