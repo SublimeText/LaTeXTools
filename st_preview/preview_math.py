@@ -42,7 +42,7 @@ except:
 
 # the default and usual template for the latex file
 default_latex_template = """
-\\documentclass[preview]{standalone}
+\\documentclass[preview,border=0.3pt]{standalone}
 % import xcolor if available and not already present
 \\IfFileExists{xcolor.sty}{\\usepackage{xcolor}}{}%
 <<packages>>
