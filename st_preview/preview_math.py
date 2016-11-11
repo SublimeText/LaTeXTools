@@ -704,19 +704,23 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             if m:
                 env = m.group(1)
 
-        # strip the content
+        # create the opening and closing string
         if offset:
+            open_str = content[:offset]
+            close_str = content[-offset:]
+            # strip those strings from the content
             content = content[offset:-offset]
-        content = content.strip()
-
-        # create the wrap string
-        open_str = "\\("
-        close_str = "\\)"
-        if env:
+        elif env:
             star = "*" if env not in self.no_star_env or m.group(2) else ""
             # add a * to the env to avoid numbers in the resulting image
             open_str = "\\begin{{{env}{star}}}".format(**locals())
             close_str = "\\end{{{env}{star}}}".format(**locals())
+        else:
+            open_str = "\\("
+            close_str = "\\)"
+
+        # strip the content
+        content = content.strip()
 
         document_content = (
             "{open_str}\n{content}\n{close_str}"
