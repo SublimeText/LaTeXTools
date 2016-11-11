@@ -243,7 +243,7 @@ def execute_command(command, cwd=None, shell=False, env=None,
             return u''
         else:
             return u'\n'.join(
-                re.split(r'\r?\n', stream.decode('utf-8').rstrip())
+                re.split(r'\r?\n', stream.decode('utf-8', 'ignore').rstrip())
             )
 
     p = external_command(
