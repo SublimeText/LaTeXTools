@@ -700,7 +700,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             line_reg = view.line(scope_end)
             after_reg = sublime.Region(scope_end, line_reg.end())
             after_str = view.substr(line_reg)
-            m = re.match(r"\\end\{([^\}]+?)(\*?)\}", after_str)
+            m = re.match(r"\s*\\end\{([^\}]+?)(\*?)\}", after_str)
             if m:
                 env = m.group(1)
 
