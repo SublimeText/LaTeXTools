@@ -179,9 +179,12 @@ def external_command(command, cwd=None, shell=False, env=None,
             startupinfo.wShowWindow = 1
 
         if not os.path.isabs(command[0]):
-            command[0] = which(
+            _command = which(
                 command[0], path=_env['PATH'] or os.environ['PATH']
             )
+
+            if command:
+                command[0] = _command
 
         # encode cwd in the file system encoding; this is necessary to support
         # some non-ASCII paths; see PR #878. Thanks to anamewing for the
