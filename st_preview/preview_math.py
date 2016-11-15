@@ -25,6 +25,9 @@ exports = ["MathPreviewPhantomListener"]
 # generated images as expired
 _version = 1
 
+# use this variable to disable the plugin for a session
+# (until ST is restarted)
+_IS_ENABLED = True
 
 try:
     import mdpopups
@@ -101,6 +104,8 @@ def plugin_loaded():
 
 
 def plugin_unloaded():
+    global _IS_ENABLED
+    _IS_ENABLED = False
     _lt_settings.clear_on_change("lt_preview_math_main")
 
 
@@ -273,7 +278,8 @@ def _generate_error_html(view, image_path, style_kwargs):
     html_content += (
         '<br>'
         '<a href="check_system">(Check System)</a> '
-        '<a href="report-{err_file}">(Show Report)</a>'
+        '<a href="report-{err_file}">(Show Report)</a> '
+        '<a href="disable">(Disable)</a>'
         .format(**locals())
     )
 
@@ -501,8 +507,25 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
     #########
 
     def on_navigate(self, href):
+        global _IS_ENABLED
         if href == "check_system":
             self.view.window().run_command("latextools_system_check")
+        elif href == "disable":
+            answer = sublime.yes_no_cancel_dialog(
+                "The math-live preview will be temporary disabled until "
+                "you restart Sublime Text. If you want to disable it "
+                "permanent open your LaTeXTools settings and set "
+                "\"preview_math_mode\" to \"none\".",
+                yes_title="Open LaTeXTools settings",
+                no_title="Disable for this session"
+            )
+            if answer == sublime.DIALOG_CANCEL:
+                # do nothing
+                return
+            _IS_ENABLED = False
+            self.update_phantoms()
+            if answer == sublime.DIALOG_YES:
+                self.view.window().run_command("open_latextools_user_settings")
         elif href.startswith("report-"):
             file_path = href[len("report-"):]
             if not os.path.exists(file_path):
@@ -551,7 +574,11 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
 
         new_phantoms = []
         job_args = []
-        if self.visible_mode == "all":
+        if not _IS_ENABLED or self.visible_mode == "none":
+            if not self.phantoms:
+                return
+            scopes = []
+        elif self.visible_mode == "all":
             scopes = view.find_by_selector(
                 "text.tex.latex meta.environment.math")
         elif self.visible_mode == "selected":
@@ -559,10 +586,6 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
                 "text.tex.latex meta.environment.math")
             scopes = [scope for scope in math_scopes
                       if any(scope.contains(sel) for sel in view.sel())]
-        elif self.visible_mode == "none":
-            if not self.phantoms:
-                return
-            scopes = []
         else:
             self.visible_mode = "none"
             scopes = []
