@@ -27,7 +27,7 @@ ACR_LINE_RE = re.compile(
 def _get_glo_completions(ana, prefix, ac):
     comp = []
     glo_commands = ana.filter_commands(
-        ["newglossaryentry", "longnewglossaryentry"])
+        ["newglossaryentry", "longnewglossaryentry", "newacronym"])
     if ac:
         comp = [(a.args + "\tGlossary", a.args) for a in glo_commands]
     else:
