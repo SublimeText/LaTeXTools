@@ -2,8 +2,11 @@
 
 by Ian Bacher, Marciano Siniscalchi, and Richard Stein
 
-Marciano's blog:
+**Marciano's blog:**
 <http://tekonomist.wordpress.com>
+
+**Documentation:**
+<https://latextools.readthedocs.io>
 
 *Latest revision:* v3.12.8 (2016-11-15).
 
@@ -42,7 +45,7 @@ The easiest way to install LaTeXTools is via [Package Control](https://packageco
 
 If you prefer a more hands-on approach, you can always clone the git repository, or else just grab this plugin's .zip file from GitHub and extract it to your Packages directory (you can open it easily from ST, by clicking on **Preferences > Browse Packages**). Then, (re)launch ST. Please note that if you do a manual installation, the Package **must** be named **LaTeXTools**.
 
-Finally, you'll need to have a working TeX installation and a PDF viewer. LaTeXTools supports [MacTeX](https://www.tug.org/mactex/), [MiKTeX](http://www.miktex.org/) and [TeXLive](https://www.tug.org/texlive/) as TeX systems and [Skim](http://skim-app.sourceforge.net/), [Sumatra PDF](http://sumatrapdfreader.org/free-pdf-reader.html), [Evince](https://wiki.gnome.org/Apps/Evince), [Okular](https://okular.kde.org/), and [Zathura](https://pwmt.org/projects/zathura/) as PDF viewers. For detailed instructions on how to set these up, please see [our online documentation](#)!
+Finally, you'll need to have a working TeX installation and a PDF viewer. LaTeXTools supports [MacTeX](https://www.tug.org/mactex/), [MiKTeX](http://www.miktex.org/) and [TeXLive](https://www.tug.org/texlive/) as TeX systems and [Skim](http://skim-app.sourceforge.net/), [Sumatra PDF](http://sumatrapdfreader.org/free-pdf-reader.html), [Evince](https://wiki.gnome.org/Apps/Evince), [Okular](https://okular.kde.org/), and [Zathura](https://pwmt.org/projects/zathura/) as PDF viewers. For detailed instructions on how to set these up, please see [our online documentation](http://latextools.readthedocs.io/en/latest/install/)!
 
 ## Bugs, issues & feature requests
 
