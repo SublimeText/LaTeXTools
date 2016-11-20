@@ -1,0 +1,6 @@
+LaTeXTools Plugin version 3.12.7 (2016-11-10) changelog:
+
+Bugfixes:
+- Fixed a bug which disable the command to view package documentation
+- Fixed a bug which caused texpath not to be honored on Windows (#930)
+- Fixed a typo which broke the basic builder on macOS and Linux

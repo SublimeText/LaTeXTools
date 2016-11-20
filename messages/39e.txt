@@ -1,0 +1,6 @@
+LaTeXTools Plugin version 3.12.5 (2016-11-03) changelog:
+
+Bugfixes:
+- Fix an error which disabled cwl completion (#910)
+- Improved the resolution if math-live preview (#901)
+- Improved the feedback if preview fails

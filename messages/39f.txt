@@ -1,0 +1,5 @@
+LaTeXTools Plugin version 3.12.6 (2016-11-06) changelog:
+
+Features:
+- Improved the error reports of the preview feature
+- The system check now also searches for packages used by the preview feature

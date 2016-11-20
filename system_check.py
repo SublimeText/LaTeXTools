@@ -57,6 +57,10 @@ except ImportError:
     from .jumpToPDF import DEFAULT_VIEWERS
     from .getTeXRoot import get_tex_root
 
+_HAS_PREVIEW = sublime.version() >= '3118'
+if _HAS_PREVIEW:
+    from .st_preview.preview_utils import convert_installed
+
 if sys.version_info >= (3,):
     unicode = str
 
@@ -276,6 +280,13 @@ def get_tex_path_variable_miktex(variable, env=None):
         return None
 
 
+def kpsewhich(file):
+    try:
+        return check_output(['kpsewhich', file])
+    except Exception:
+        return None
+
+
 def get_max_width(table, column):
     return max(len(unicode(row[column])) for row in table)
 
@@ -442,7 +453,7 @@ class SystemCheckThread(threading.Thread):
                 else ['gswin32c', 'gswin64c', 'gs'])
         ]
 
-        if sublime.version() >= '3118':
+        if _HAS_PREVIEW:
             # ImageMagick requires gs to work with PDFs
             programs += [['magick', 'convert']]
 
@@ -470,15 +481,62 @@ class SystemCheckThread(threading.Thread):
                 location, env=env
             ) if available else None
 
+            available_str = (
+                u'available' if available and version_info is not None
+                else u'missing'
+            )
+
+            if (available and program in ['magick', 'convert'] and
+                    not convert_installed()):
+                available_str = u'restart required'
+
             table.append([
                 program,
                 location,
-                (u'available'
-                    if available and version_info is not None else u'missing'),
+                available_str,
                 version_info if version_info is not None else u'unavailable'
             ])
 
         results.append(table)
+
+        # This really only works for the default template
+        # Note that no attempt is made to find other packages that the
+        # included package depends on
+        if (_HAS_PREVIEW and convert_installed() and
+                get_setting('preview_math_template_file') is None and
+                get_setting("preview_math_mode", view=self.view) != "none"):
+
+            find_package_re = re.compile(
+                r'\\usepackage(?:\[[^\]]*\])?\{(?P<pkg>[^\}]*)\}'
+            )
+
+            packages = ["standalone.cls", "preview.sty", "xcolor.sty"]
+
+            package_settings = get_setting(
+                "preview_math_template_packages", [], view=self.view)
+            # extract all packages from each package line
+            for pkg_str in package_settings:
+                # search for all \usepackage in the line
+                for m in find_package_re.finditer(pkg_str):
+                    pkg_arg = m.group("pkg")
+                    # search for each package in the \usepackage argument
+                    for pkg in pkg_arg.split(","):
+                        pkg = pkg.strip()
+                        if pkg:
+                            packages.append(pkg + ".sty")
+
+            if packages:
+                table = [[u'Packages for equation preview', u'Status']]
+
+                for package in packages:
+                    available = kpsewhich(package) is not None
+                    package_name = package.split(".")[0]
+                    table.append([
+                        package_name,
+                        (u'available' if available else u'missing')
+                    ])
+
+                results.append(table)
 
         run_on_main_thread(partial(self._on_main_thread, results), timeout=30)
 

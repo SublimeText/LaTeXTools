@@ -5,7 +5,7 @@ by Ian Bacher, Marciano Siniscalchi, and Richard Stein
 Marciano's blog:
 <http://tekonomist.wordpress.com>
 
-*Latest revision:* v3.12.4 (2016-11-02).
+*Latest revision:* v3.12.8 (2016-11-15).
 
 [![Package Control](https://img.shields.io/packagecontrol/dm/LaTeXTools.svg?maxAge=2592000)]()
 

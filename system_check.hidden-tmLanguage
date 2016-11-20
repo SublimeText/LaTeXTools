@@ -44,6 +44,12 @@
 		</dict>
 		<dict>
 			<key>match</key>
+			<string>\restart required\b</string>
+			<key>name</key>
+			<string>keyword.control.latextools-system-check.restart-required</string>
+		</dict>
+		<dict>
+			<key>match</key>
 			<string>\bunavailable\b</string>
 			<key>name</key>
 			<string>keyword.control.latextools-system-check.available</string>

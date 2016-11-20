@@ -234,6 +234,6 @@ class BasicBuilder(PdfBuilder):
             command,
             env=env,
             cwd=cwd,
-            preexec_fn=os.setid if sublime.platform() != 'windows' else None,
+            preexec_fn=os.setsid if sublime.platform() != 'windows' else None,
             use_texpath=False
         )

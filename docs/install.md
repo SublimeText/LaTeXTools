@@ -33,6 +33,23 @@ To configure inverse search, in Skim, open the **Preferences** dialog, select th
 
 If you are using an old version of Skim without built-in support for ST,  you can always choose the Custom preset and enter (for ST3): `/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl` in the **Command** field, and `"%file":%line` in the **Arguments** field.
 
+#### Setup ImageMagick and Ghostscript
+
+If you are using Sublime Text 3 version 3118 or later and want to use the image and equation previewing features, you will need to ensure that both ImageMagick 6 or higher and Ghostscript 9 or higher are installed and available on your machine. If you installed the full MacTeX distribution, Ghostscript is already included. If you installed the BasicTeX distribution, you will need to install Ghostscript yourself.
+
+The easiest way to install ImageMagick or Ghostscript is to use either [Homebrew](http://brew.sh/) or [MacPorts](https://www.macports.org/). Installing should be as simple as typing the relevant command in the Terminal:
+
+|Product|Package Manager|Command|
+|-------|---------------|-------|
+|ImageMagick|Homebrew|`brew install imagemagick`|
+|ImageMagick|Mac Ports|`sudo port install ImageMagick`|
+|Ghostscript|Homebrew|`brew install ghostscript`|
+|Ghostscript|Mac Ports|`sudo port install ghostscript`|
+
+If you do not use Homebrew or MacPorts (and you should), you will need to compile and install binaries from source. The source for Ghostscript can be found [on this page](http://ghostscript.com/download/gsdnld.html) and the source and compilation instructions for ImageMagick can be found [on this page](http://www.imagemagick.org/script/binary-releases.php#macosx).
+
+You can use the **LaTeXTools: Check System** command to verify that these are installed and setup in a place LaTeXTools can find.
+
 ### Configure LaTeXTools Settings
 
 To edit the LaTeXTools user settings, select **Preferences | Package Settings | LaTeXTools | Settings – User** from the ST menu and scroll down to the  section titled **Platform settings** and find the **osx** block. 
@@ -79,6 +96,17 @@ If you do not already have such a file, you can easily create one by compiling a
 
 I'm sorry this is not straightforward---it's not my fault :-)
 
+#### Setup ImageMagick and Ghostscript
+
+If you are using Sublime Text 3 version 3118 or later and want to use the image and equation previewing features, you will need to ensure that both ImageMagick 6 or higher and Ghostscript 9 or higher are installed and available on your machine.
+
+* If you're using TeXLive and you installed the default profile, you should already have Ghostscript installed in `<drive>:path\to\texlive\<year>\tlpkg\tlgs\bin`. Make sure this is added to your `PATH` system variable or to the `texpath` when setting up LaTeXTools.
+* If you are using MiKTeX or do not have Ghostscript installed with your TeXLive distribution, you can simple download and install the [latest release here](http://ghostscript.com/download/gsdnld.html). MiKTeX does bundle a version of Ghostscript, but ImageMagick will not find it.
+
+To install ImageMagick, download and install a release from [the ImageMagick website](http://www.imagemagick.org/script/binary-releases.php#windows). For the easiest setup, make sure you select the **Add application directory to your system path** option when installing. Otherwise, you will need to either manually add it to your system PATH or add it to your `texpath` setting when setting up LaTeXTools.
+
+You can use the **LaTeXTools: Check System** command to verify that these are installed and setup in a place LaTeXTools can find.
+
 ### Configure LaTeXTools Settings
 
 To edit the LaTeXTools user settings, select **Preferences | Package Settings | LaTeXTools | Settings – User** from the ST menu and scroll down to the  section titled **Platform settings** and find the **windows** block.
@@ -97,12 +125,15 @@ Finally, you need to ensure that the `distro` setting is correct. The possible v
 
 You need to install TeXLive.
 
-If you are on Ubuntu, note that `apt-get install texlive` will get you a working but incomplete setup. In particular, it will *not* bring in `latexmk`, which is essential to LaTeXTools. You need to install it via `apt-get install latexmk`. 
+We highly recommend installing the version directly from TUG, which can be found [here](https://www.tug.org/texlive/acquire-netinstall.html) rather than the version included with your distribution, as TeXLive is generally updated more regularly and tends to include more features. In particular, if you are on Ubuntu, note that `apt-get install texlive` will get you a working but incomplete setup. For example, it will *not* install `latexmk`, which is essential to LaTeXTools. You need to install it via `apt-get install latexmk`. However, as long as the expected binaries are available on your system, LaTeXTools should generally work.
 
-If, on the other hand, you choose to install the TeXLive distro from [TUG](https://www.tug.org/texlive/), `latexmk` comes with it, so you don't need to do anything else.
+You can use the **LaTeXTools: Check System** command to ensure that the expected binaries are found.
 
-Because the TUG version of TeXLive is generally updated more regularly and includes more features, we generally recommend you install this version instead of your distribution's default version. However, LaTeXTools should work regardless.
+#### Setup ImageMagick and Ghostscript
 
+If you are using Sublime Text 3 version 3118 or later and want to use the image and equation previewing features, you will need to ensure that both ImageMagick 6 or higher and Ghostscript 9 or higher are installed and available on your machine.
+
+If you installed the full TeXLive profile from TUG, you should already have a version of Ghostscript installed. Otherwise, it can simply be installed using your distribution's package manager. ImageMagick should also be available the same way. Once again, you can use the **LaTeXTools: Check System** command to verify that these are setup.
 
 ### Setup Viewer
 

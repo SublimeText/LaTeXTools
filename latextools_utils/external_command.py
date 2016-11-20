@@ -46,9 +46,11 @@ from subprocess import Popen, PIPE, STDOUT, CalledProcessError
 
 try:
     from latextools_utils.settings import get_setting
+    from latextools_utils.system import which
     from latextools_utils.utils import run_on_main_thread
 except ImportError:
     from .settings import get_setting
+    from .system import which
     from .utils import run_on_main_thread
 
 if sys.version_info < (3,):
@@ -117,8 +119,11 @@ def get_texpath():
     # ensure _get_texpath() is run in a thread-safe manner
     return run_on_main_thread(_get_texpath, default_value=None)
 
+
 # marker object used to indicate default behaviour
-__sentinel__ = object()
+# (avoid overwrite while module reloads)
+if "__sentinel__" not in globals():
+    __sentinel__ = object()
 
 
 # wrapper to handle common logic for executing subprocesses
@@ -172,6 +177,14 @@ def external_command(command, cwd=None, shell=False, env=None,
 
         if show_window:
             startupinfo.wShowWindow = 1
+
+        if not os.path.isabs(command[0]):
+            _command = which(
+                command[0], path=_env['PATH'] or os.environ['PATH']
+            )
+
+            if command:
+                command[0] = _command
 
         # encode cwd in the file system encoding; this is necessary to support
         # some non-ASCII paths; see PR #878. Thanks to anamewing for the
@@ -233,7 +246,7 @@ def execute_command(command, cwd=None, shell=False, env=None,
             return u''
         else:
             return u'\n'.join(
-                re.split(r'\r?\n', stream.decode('utf-8').rstrip())
+                re.split(r'\r?\n', stream.decode('utf-8', 'ignore').rstrip())
             )
 
     p = external_command(
