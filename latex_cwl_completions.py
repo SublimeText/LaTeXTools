@@ -80,9 +80,9 @@ KOMA_SCRIPT_CLASSES = set(('class-scrartcl', 'class-scrreprt', 'class-book'))
 
 
 # -- Public Methods --
-def is_cwl_available():
+def is_cwl_available(view=None):
     if CWL_COMPLETION_ENABLED is None:
-        _check_if_cwl_enabled()
+        _check_if_cwl_enabled(view)
     return CWL_COMPLETION_ENABLED
 
 
@@ -239,13 +239,8 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
     '''
 
     def on_query_completions(self, view, prefix, locations):
-        if not CWL_COMPLETION_ENABLED:
-            if CWL_COMPLETION_ENABLED is None:
-                _check_if_cwl_enabled()
-                if not CWL_COMPLETION_ENABLED:
-                    return []
-            else:
-                return []
+        if not is_cwl_available():
+            return []
 
         point = locations[0]
         if not view.score_selector(point, "text.tex.latex"):
@@ -326,7 +321,7 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
     # This functions is to determine whether LaTeX-cwl is installed,
     # if so, trigger auto-completion in latex buffers by '\'
     def on_activated_async(self, view):
-        _check_if_cwl_enabled()
+        is_cwl_available(view)
 
     # used to ensure that completions are loaded whenever a LaTeX document
     # is loaded
@@ -344,11 +339,21 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
 
 # -- Internal API --
 # run to see if cwl completions should be enabled
-def _check_if_cwl_enabled():
-    try:
-        view = sublime.active_window().active_view()
-    except AttributeError:
-        return
+CWL_PACKAGE_PATHS = [os.path.join(sublime.packages_path(), 'LaTeX-cwl')]
+if _ST3:
+    # add to the front as this is most likely to exist
+    CWL_PACKAGE_PATHS.insert(0, os.path.join(
+        sublime.installed_packages_path(), 'LaTeX-cwl.sublime-package'
+    ))
+CWL_PACKAGE_PATHS.append(os.path.join(sublime.packages_path(), 'User', 'cwl'))
+
+
+def _check_if_cwl_enabled(view=None):
+    if view is None:
+        try:
+            view = sublime.active_window().active_view()
+        except AttributeError:
+            return
 
     if view is None or not view.score_selector(0, "text.tex.latex"):
         return
@@ -358,21 +363,10 @@ def _check_if_cwl_enabled():
 
     # Checking whether LaTeX-cwl is installed
     global CWL_COMPLETION_ENABLED
-    if (
-        os.path.exists(
-            os.path.join(sublime.packages_path(), "LaTeX-cwl")
-        ) or
-        os.path.exists(
-            os.path.join(
-                sublime.installed_packages_path(),
-                "LaTeX-cwl.sublime-package"
-            )
-        ) or
-        os.path.exists(
-            os.path.join(sublime.packages_path(), "User", "cwl")
-        )
-    ):
-        CWL_COMPLETION_ENABLED = True
+    for path in CWL_PACKAGE_PATHS:
+        if os.path.exists(path):
+            CWL_COMPLETION_ENABLED = True
+            break
     else:
         CWL_COMPLETION_ENABLED = False
         return
@@ -457,29 +451,19 @@ def cwl_parsing_handler(callback):
 if _ST3:
     def get_cwl_package_files():
         results = [
-            r for r in
-            sublime.find_resources('*.cwl')
+            r for r in sublime.find_resources('*.cwl')
             if (r.startswith('Packages/User/cwl/') or
                 r.startswith('Packages/LaTeX-cwl/'))
         ]
         return(results, True) if results else ([], False)
 else:
     def get_cwl_package_files():
-        packages_path = os.path.join(
-            sublime.packages_path(),
-        )
+        results = [
+            glob.glob(os.path.join(p, '*.cwl'))
+            for p in CWL_PACKAGE_PATHS
+        ]
 
-        if os.path.exists(packages_path):
-            results = glob.glob(os.path.join(
-                packages_path, 'LaTeX-cwl', '*.cwl'
-            ))
-            results += glob.glob(os.path.join(
-                packages_path, 'User', 'cwl', '*.cwl'
-            ))
-            return (results, False)
-
-        # somehow this function got called without a cwl package existing
-        return ([], False)
+        return (results, False)
 
 
 def parse_line_as_environment(line):
