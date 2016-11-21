@@ -85,7 +85,6 @@ def _on_setting_change():
 
 
 def plugin_loaded():
-    print('plugin_loaded in preview_math called')
     global _lt_settings, temp_path
     _lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
 
