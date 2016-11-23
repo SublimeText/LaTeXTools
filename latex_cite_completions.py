@@ -567,7 +567,9 @@ def plugin_loaded():
     # setup
     os_path = os.path
     latextools_plugin.add_plugin_path(
-        os_path.join(os_path.dirname(__file__), 'bibliography_plugins'))
+        os_path.join(
+            sublime.packages_path(), 'LaTeXTools', 'bibliography_plugins'))
+
 
 # ensure plugin_loaded() called on ST2
 if not _ST3:
