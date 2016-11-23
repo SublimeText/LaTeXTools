@@ -584,6 +584,29 @@
 	// whether the local cache should be hidden in the sublime cache path (true)
 	// or in the same directory as the root file (false)
 	"hide_local_cache": true,
+
+	// settings for caches to update on load
+	// leaving these as `true` will ensure LaTeXTools pre-caches the appropriate
+	// data when a TeX document is loaded; setting these to `false` will
+	// cause the cache to be built when first needed
+	"cache_on_load": {
+		// analysis: the internal view that LaTeXTools has of your document
+		"analysis": true,
+		// bibliography: ensures the bibliography is parsed and cached
+		"bibliography": true
+	},
+
+	// settings to update caches when a document is saved
+	// leaving these as `true` will ensure LaTeXTools reloads the data on save,
+	// if necessary; setting these to `false` will cause the cache to be
+	// re-built according to its rules
+	"cache_on_save": {
+		// analysis: the internal view that LaTeXTools has of your document
+		"analysis": true,
+		// bibliography: ensures the bibliography is parsed and cached
+		"bibliography": false
+	},
+
 	/* The life-span of the local cache.
 	After this life-span the local cache will automatically be invalidated and refreshed.
 	You can invalidate the cache manually by removing all temporary files `C-l,backspace`.
