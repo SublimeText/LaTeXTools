@@ -183,7 +183,7 @@ def external_command(command, cwd=None, shell=False, env=None,
                 command[0], path=_env['PATH'] or os.environ['PATH']
             )
 
-            if command:
+            if _command:
                 command[0] = _command
 
         # encode cwd in the file system encoding; this is necessary to support
