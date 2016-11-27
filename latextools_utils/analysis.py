@@ -1,23 +1,23 @@
 import os
 import re
 import itertools
+from functools import partial
 import traceback
 
 import sublime
 
 if sublime.version() < '3000':
     _ST3 = False
-    from latextools_utils import cache, utils
+    from latextools_utils import utils
+    from latextools_utils.cache import LocalCache
+    from latextools_utils.six import strbase
     from latextools_utils.tex_directives import get_tex_root
 else:
     _ST3 = True
-    from . import cache, utils
+    from . import utils
+    from .cache import LocalCache
+    from .six import strbase
     from .tex_directives import get_tex_root
-
-if _ST3:
-    strbase = str
-else:
-    strbase = basestring
 
 # because we cannot natively pickle sublime.Region in ST2
 # we provide the ability to pickle
@@ -252,13 +252,15 @@ def get_analysis(tex_root):
     """
     if tex_root is None:
         return
-    elif isinstance(tex_root, sublime.View):
+    if isinstance(tex_root, sublime.View):
         tex_root = get_tex_root(tex_root)
+        if tex_root is None:
+            return
     elif not isinstance(tex_root, strbase):
-        raise ValueError("tex_root must be a string or view")
+        raise TypeError("tex_root must be a string or view")
 
-    result = cache.cache(tex_root, "analysis",
-                         lambda: analyze_document(tex_root))
+    result = LocalCache(tex_root).cache(
+        'analysis', partial(analyze_document, tex_root))
     return result
 
 
@@ -277,10 +279,12 @@ def analyze_document(tex_root):
     """
     if tex_root is None:
         return
-    elif isinstance(tex_root, sublime.View):
+    if isinstance(tex_root, sublime.View):
         tex_root = get_tex_root(tex_root)
+        if tex_root is None:
+            return
     elif not isinstance(tex_root, strbase):
-        raise ValueError("tex_root must be a string or view")
+        raise TypeError("tex_root must be a string or view")
 
     result = _analyze_tex_file(tex_root)
     return result
@@ -359,7 +363,8 @@ def _preprocess_file(file_name):
     reads and preprocesses a file, return the raw content
     and the content without comments
     """
-    raw_content = utils.get_file_content(file_name, force_lf_endings=True)
+    raw_content = utils.run_on_main_thread(
+        partial(utils.get_file_content, file_name, force_lf_endings=True))
 
     # replace all comments with spaces to not change the position
     # of the rest

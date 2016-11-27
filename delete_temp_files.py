@@ -25,22 +25,32 @@ import traceback
 
 
 class ClearLocalLatexCacheCommand(sublime_plugin.WindowCommand):
+
+	def is_visible(self, *args):
+		view = self.window.active_view()
+		return bool(view.score_selector(0, "text.tex.latex"))
+
 	def run(self):
 		view = self.window.active_view()
 
+		if view is None or not bool(view.score_selector(0, "text.tex.latex")):
+			return
+
 		tex_root = getTeXRoot.get_tex_root(view)
 		if tex_root:
+			# clear the cache
 			try:
-				cache.delete_local_cache(tex_root)
+				cache.LocalCache(tex_root).invalidate()
 			except:
 				print('Error while trying to delete local cache')
 				traceback.print_exc()
 
 
 class DeleteTempFilesCommand(sublime_plugin.WindowCommand):
+
 	def is_visible(self, *args):
 		view = self.window.active_view()
-		return bool(view.score_selector(0, "text.tex"))
+		return bool(view.score_selector(0, "text.tex.latex"))
 
 	def run(self):
 		# Retrieve root file and dirname.
@@ -64,7 +74,7 @@ class DeleteTempFilesCommand(sublime_plugin.WindowCommand):
 
 		# clear the cache
 		try:
-			cache.delete_local_cache(root_file)
+			cache.LocalCache(root_file).invalidate()
 		except:
 			print('Error while trying to delete local cache')
 			traceback.print_exc()

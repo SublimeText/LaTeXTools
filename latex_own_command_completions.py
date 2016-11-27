@@ -23,7 +23,8 @@ def get_own_env_completion(view):
         ana = analysis.get_analysis(tex_root)
         return _make_own_env_completion(ana)
 
-    return cache.cache(tex_root, "own_env_completion", make_completions)
+    return cache.LocalCache(tex_root).cache(
+        "own_env_completion", make_completions)
 
 
 def get_own_command_completion(view):
@@ -46,7 +47,7 @@ def get_own_command_completion(view):
     cache_name = "own_command_completion"
     if is_math:
         cache_name += "_math"
-    return cache.cache(tex_root, cache_name, make_completions)
+    return cache.LocalCache(tex_root).cache(cache_name, make_completions)
 
 
 def _make_own_env_completion(ana):

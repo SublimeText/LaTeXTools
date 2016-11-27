@@ -2,7 +2,6 @@ import hashlib
 import json
 import os
 import sublime
-import sys
 import tempfile
 
 try:
@@ -12,11 +11,13 @@ try:
         get_tex_root, parse_tex_directives
     )
     from latextools_utils.sublime_utils import get_project_file_name
+    from latextools_utils.system import make_dirs
 except ImportError:
     from . import get_setting
     from .distro_utils import using_miktex
     from .tex_directives import get_tex_root, parse_tex_directives
     from .sublime_utils import get_project_file_name
+    from .system import make_dirs
 
 
 __all__ = [
@@ -282,32 +283,6 @@ def resolve_to_absolute_path(root, value, root_path):
         result = os.path.realpath(result)
 
     return result
-
-# wrapper for os.makedirs which will not raise an error is path already
-# exists
-def make_dirs(path):
-    try:
-        os.makedirs(path)
-    except OSError:
-        if not os.path.exists(path):
-            reraise(*sys.exc_info())
-
-
-if sys.version_info < (3,):
-    # reraise implementation from 6
-    exec("""def reraise(tp, value, tb=None):
-    raise tp, value, tb
-""")
-
-else:
-    # reraise implementation from 6
-    def reraise(tp, value, tb=None):
-        if value is None:
-            value = tp()
-        if value.__traceback__ is not tb:
-            raise value.with_traceback(tb)
-        raise value
-
 
 if sublime.version() < '3000':
     def get_cache_directory():
