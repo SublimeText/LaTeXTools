@@ -60,7 +60,7 @@ except ImportError:
 _HAS_PREVIEW = sublime.version() >= '3118'
 if _HAS_PREVIEW:
     from .st_preview.preview_utils import (
-        convert_installed, ghostscript_installed, __get_gs_command
+        convert_installed, ghostscript_installed, __get_gs_command as get_gs_command
     )
 
 if sys.version_info >= (3,):
@@ -498,7 +498,7 @@ class SystemCheckThread(threading.Thread):
             ])
 
         program = 'ghostscript'
-        location = __get_gs_command()
+        location = get_gs_command()
 
         available = location is not None
 
