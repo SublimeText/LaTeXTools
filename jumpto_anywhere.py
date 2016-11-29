@@ -178,7 +178,7 @@ def _jumpto_glo(view, com_reg, pos, acr=False):
     ana = analysis.analyze_document(tex_root)
     if not acr:
         commands = ana.filter_commands(
-            ["newglossaryentry", "longnewglossaryentry"])
+            ["newglossaryentry", "longnewglossaryentry", "newacronym"])
     else:
         commands = ana.filter_commands("newacronym")
 
