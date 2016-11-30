@@ -6,8 +6,8 @@ import re
 class LatexChangeEnvironmentCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         view = self.view
-        begin_re = r"\\begin(?:\[.*\])?\{(.*)\}"
-        end_re = r"\\end\{(.*)\}"
+        begin_re = r"\\begin(?:\[[^\]]*\])?\{([^\}]*)\}"
+        end_re = r"\\end\{([^\}]*)\}"
         begins = view.find_all(begin_re, sublime.IGNORECASE)
         ends = view.find_all(end_re, sublime.IGNORECASE)
         # compile the begin_re (findall does not work if its compiled)
@@ -65,10 +65,11 @@ class LatexChangeEnvironmentCommand(sublime_plugin.TextCommand):
                 new_regions.append(begin_region)
                 new_regions.append(end_region)
             elif one_sel:
-                message = "The environment begin and end does not match:"\
-                    "'{0}' and '{1}'"\
+                sublime.status_message(
+                    "The environment begin and end does not match:"
+                    "'{0}' and '{1}'"
                     .format(view.substr(begin_region), view.substr(end_region))
-                sublime.status_message(message)
+                )
         if not new_regions:
             sublime.status_message("Environment detection failed")
             return
