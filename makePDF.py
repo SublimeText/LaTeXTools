@@ -741,12 +741,16 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		try:
 			builder = get_plugin('{0}_builder'.format(builder_name))
 		except NoSuchPluginException:
-			sublime.error_message(
-				"Cannot find builder {0}.\n"
-				"Check your LaTeXTools Preferences".format(builder_name)
-			)
-			self.window.run_command('hide_panel', {"panel": "output.latextools"})
-			return
+			try:
+				builder = get_plugin(builder_name)
+			except NoSuchPluginException:
+				sublime.error_message(
+					"Cannot find builder {0}.\n"
+					"Check your LaTeXTools Preferences".format(builder_name)
+				)
+				self.window.run_command(
+					'hide_panel', {"panel": "output.latextools"})
+				return
 
 		if builder_name == 'script' and script_commands:
 			builder_platform_settings['script_commands'] = script_commands
@@ -1034,11 +1038,6 @@ def plugin_loaded():
 	add_plugin_path(os.path.join(ltt_path, 'pdfBuilder.py'))
 	add_plugin_path(ltt_path)
 
-	# load any .latextools_builder files from User directory
-	add_plugin_path(
-		os.path.join(sublime.packages_path(), 'User'),
-		'*.latextools_builder'
-	)
 
 if not _ST3:
 	plugin_loaded()
