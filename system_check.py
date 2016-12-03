@@ -59,7 +59,9 @@ except ImportError:
 
 _HAS_PREVIEW = sublime.version() >= '3118'
 if _HAS_PREVIEW:
-    from .st_preview.preview_utils import convert_installed
+    from .st_preview.preview_utils import (
+        convert_installed, ghostscript_installed, __get_gs_command as get_gs_command
+    )
 
 if sys.version_info >= (3,):
     unicode = str
@@ -448,9 +450,7 @@ class SystemCheckThread(threading.Thread):
         # of alternatives (e.g. 32/64 bit version)
         programs = [
             'latexmk' if not self.uses_miktex else 'texify', 'pdflatex',
-            'xelatex', 'lualatex', 'biber', 'bibtex', 'bibtex8', 'kpsewhich',
-            ('gs' if sublime.platform() != 'windows'
-                else ['gswin32c', 'gswin64c', 'gs'])
+            'xelatex', 'lualatex', 'biber', 'bibtex', 'bibtex8', 'kpsewhich'
         ]
 
         if _HAS_PREVIEW:
@@ -496,6 +496,33 @@ class SystemCheckThread(threading.Thread):
                 available_str,
                 version_info if version_info is not None else u'unavailable'
             ])
+
+        program = 'ghostscript'
+        location = get_gs_command()
+
+        available = location is not None
+
+        if available:
+            basename, extension = os.path.splitext(location)
+            if extension is not None:
+                location = ''.join((basename, extension.lower()))
+
+        version_info = get_version_info(
+            location, env=env
+        ) if available else None
+
+        available_str = (
+            u'available' if available and version_info is not None
+            else u'missing'
+        )
+
+        if available and _HAS_PREVIEW and not ghostscript_installed():
+            available_str = u'restart required'
+
+        table.append([
+            program, location, available_str,
+            version_info if version_info is not None else u'unavailable'
+        ])
 
         results.append(table)
 

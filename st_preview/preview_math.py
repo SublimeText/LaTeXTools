@@ -3,6 +3,7 @@ import html
 import os
 import re
 import struct
+import subprocess
 import threading
 import time
 import types
@@ -15,7 +16,7 @@ from ..parseTeXlog import parse_tex_log
 from ..latextools_utils import cache, get_setting
 from ..latextools_utils.external_command import execute_command
 from . import preview_utils
-from .preview_utils import convert_installed, run_convert_command
+from .preview_utils import ghostscript_installed, run_ghostscript_command
 from . import preview_threading as pv_threading
 
 # export the listener
@@ -137,15 +138,59 @@ def _create_image(latex_program, latex_document, base_name, color,
             pdf_exists = True
 
     if pdf_exists:
+        # get the cropping boundaries; note that the relevant output is
+        # written to STDERR rather than STDOUT; we specify 72 dpi in order to
+        # speed up processing; the user-supplied density will be used in
+        # making the actual conversion
+        rc, _, output = run_ghostscript_command([
+            '-sDEVICE=bbox', '-r72', '-dLastPage=1', pdf_path
+        ], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+
+        if rc == 0:
+            # we only check the first line of output which should be in the
+            # format:
+            # %%BoundingBox: int int int int
+            try:
+                bbox = [
+                    int(x) for x in
+                    output.splitlines()[0].lstrip('%%BoundingBox: ').split()
+                ]
+            except ValueError:
+                bbox = None
+        else:
+            bbox = None
+
         # convert the pdf to a png image
-        density = _density
-        run_convert_command([
-            # set the image size/density
-            '-density', '{density}x{density}'.format(density=density),
-            # trim the content to the real size
-            '-trim',
-            pdf_path, image_path
-        ])
+        command = [
+            '-sDEVICE=pngalpha', '-dLastPage=1',
+            '-sOutputFile={image_path}'.format(image_path=image_path),
+            '-r{density}'.format(density=_density)
+        ]
+
+        # calculate and apply cropping boundaries, if we have them
+        if bbox:
+            # coordinates in bounding box given in the form:
+            # (ll_x, ll_y), (ur_x, ur_y)
+            # where ll is lower left and ur is upper right
+            # 4pts are added to each length for some padding
+            # these are then multiplied by the ratio of the final density to
+            # the PDFs DPI (72) to get the final size of the image in pixels
+            width = round((bbox[2] - bbox[0] + 4) * _density / 72)
+            height = round((bbox[3] - bbox[1] + 4) * _density / 72)
+            command.extend([
+                '-g{width}x{height}'.format(**locals()), '-c',
+                # this is the command that does the clipping starting from
+                # the lower left of the displayed contents; we subtract 2pts
+                # to properly center the final image with our padding
+                '<</Install {{{0} {1} translate}}>> setpagedevice'.format(
+                    -1 * (bbox[0] - 2), -1 * (bbox[1] - 2)
+                ),
+                '-f'
+            ])
+
+        command.append(pdf_path)
+
+        run_ghostscript_command(command)
 
     err_file_path = image_path + _ERROR_EXTENSION
     err_log = []
@@ -556,7 +601,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
         # not sure why this happens, but ignore these cases
         if self.view.window() is None:
             return
-        if not convert_installed():
+        if not ghostscript_installed():
             return
 
         view = self.view
