@@ -96,27 +96,36 @@ def _run_image_jobs():
     pv_threading.run_jobs(_name)
 
 
+# see https://bugs.python.org/issue16512#msg198034
+# not added to imghdr.tests because of potential issues with reloads
+def _is_jpg(h):
+    return h.startswith(b'\xff\xd8')
+
+
 # from http://stackoverflow.com/a/20380514/5963435
+# somewhat enhanced from http://stackoverflow.com/a/39778771
 def get_image_size(image_path):
     '''Determine the image type of image_path and return its size.
     from draco'''
     with open(image_path, 'rb') as fhandle:
-        head = fhandle.read(24)
-        if len(head) != 24:
+        # read 32 as we pass this to imghdr
+        head = fhandle.read(32)
+        if len(head) != 32:
             return
-        if imghdr.what(image_path) == 'png':
+        what = imghdr.what(image_path, head)
+        if what == 'png':
             check = struct.unpack('>i', head[4:8])[0]
             if check != 0x0d0a1a0a:
                 return
             width, height = struct.unpack('>ii', head[16:24])
-        elif imghdr.what(image_path) == 'gif':
+        elif what == 'gif':
             width, height = struct.unpack('<HH', head[6:10])
-        elif imghdr.what(image_path) == 'jpeg':
+        elif what == 'jpeg' or _is_jpg(head):
             try:
                 fhandle.seek(0)  # Read 0xff next
                 size = 2
                 ftype = 0
-                while not 0xc0 <= ftype <= 0xcf:
+                while not 0xc0 <= ftype <= 0xcf or ftype in (0xc4, 0xc8, 0xcc):
                     fhandle.seek(size, 1)
                     byte = fhandle.read(1)
                     while ord(byte) == 0xff:
