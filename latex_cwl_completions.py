@@ -469,6 +469,9 @@ else:
             for p in CWL_PACKAGE_PATHS
         ]
 
+        # flatten the results
+        results = [i for sublist in results for i in sublist]
+
         return (results, False)
 
 
