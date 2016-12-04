@@ -107,29 +107,12 @@ for suffix in LOAD_ORDER:
 
 def plugin_loaded():
     # reload any plugins cached in memory
-    try:
-        import latextools_plugin
-    except ImportError:
-        from . import latextools_plugin
-
-    if _ST3:
+    mods = [m for m in sys.modules if m.startswith('_latextools_')]
+    for mod in mods:
         try:
-            with latextools_plugin._latextools_module_hack():
-                for mod in sys.modules:
-                    if mod.startswith('_latextools_'):
-                        try:
-                            reload(sys.modules[mod])
-                        except ImportError:
-                            traceback.print_exc()
+            del sys.modules[mod]
         except:
             traceback.print_exc()
-    else:
-        mods = [m for m in sys.modules if m.startswith('_latextools_')]
-        for mod in mods:
-            try:
-                del sys.modules[mod]
-            except:
-                traceback.print_exc()
 
     for module in EXPORT_MODULES:
         mod = MOD_PREFIX + module
