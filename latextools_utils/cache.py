@@ -18,11 +18,13 @@ import sublime
 if sublime.version() < '3000':
     _ST3 = False
     from latextools_utils import get_setting, utils
+    from external.frozendict import frozendict
     from latextools_utils.six import unicode, long, strbase
     from latextools_utils.system import make_dirs
 else:
     _ST3 = True
     from . import get_setting, utils
+    from ..external.frozendict import frozendict
     from .six import unicode, long, strbase
     from .system import make_dirs
 
@@ -137,6 +139,13 @@ class Cache(object):
         if result is _invalid_object:
             raise CacheMiss('{0} is invalid'.format(key))
 
+        # return a copy of any objects
+        try:
+            if hasattr(result, '__dict__') or hasattr(result, '__slots__'):
+                result = copy.copy(result)
+        except:
+            pass
+
         return result
 
     def has(self, key):
@@ -171,6 +180,13 @@ class Cache(object):
             pickle.dumps(obj, protocol=-1)
         except pickle.PicklingError:
             raise ValueError('obj must be picklable')
+
+        if isinstance(obj, list):
+            obj = tuple(obj)
+        elif isinstance(obj, dict):
+            obj = frozendict(obj)
+        elif isinstance(obj, set):
+            obj = frozenset(obj)
 
         with self._write_lock:
             self._objects[key] = obj

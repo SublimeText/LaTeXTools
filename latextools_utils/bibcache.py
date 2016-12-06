@@ -6,14 +6,16 @@ import sublime
 if sublime.version() < '3000':
     _ST3 = False
     from latextools_utils import bibformat, cache, get_setting
+    from external.frozendict import frozendict
     from latextools_utils.system import make_dirs
 else:
     _ST3 = True
     from . import bibformat, cache, get_setting
+    from ..external.frozendict import frozendict
     from .six import long
     from .system import make_dirs
 
-_VERSION = 1
+_VERSION = 2
 
 
 class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
@@ -142,23 +144,24 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
         autocomplete_format = get_setting("cite_autocomplete_format")
         panel_format = get_setting("cite_panel_format")
 
-        meta_data = {
-            "cache_time": long(time.time()),
-            "version": _VERSION,
-            "autocomplete_format": autocomplete_format,
-            "panel_format": panel_format
-        }
-        formatted_entries = [
-            {
+        meta_data = frozendict(
+            cache_time=long(time.time()),
+            version=_VERSION,
+            autocomplete_format=autocomplete_format,
+            panel_format=panel_format
+        )
+
+        formatted_entries = tuple(
+            frozendict(**{
                 "keyword": entry["keyword"],
                 "<prefix_match>": bibformat.create_prefix_match_str(entry),
-                "<panel_formatted>": [
+                "<panel_formatted>": tuple(
                     bibformat.format_entry(s, entry) for s in panel_format
-                ],
+                ),
                 "<autocomplete_formatted>":
                     bibformat.format_entry(autocomplete_format, entry)
-            }
+            })
             for entry in bib_entries
-        ]
+        )
 
         return meta_data, formatted_entries

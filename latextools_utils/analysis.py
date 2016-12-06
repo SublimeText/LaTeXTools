@@ -1,3 +1,4 @@
+import copy
 import os
 import re
 import itertools
@@ -10,12 +11,14 @@ if sublime.version() < '3000':
     _ST3 = False
     from latextools_utils import utils
     from latextools_utils.cache import LocalCache
+    from external.frozendict import frozendict
     from latextools_utils.six import strbase
     from latextools_utils.tex_directives import get_tex_root
 else:
     _ST3 = True
     from . import utils
     from .cache import LocalCache
+    from ..external.frozendict import frozendict
     from .six import strbase
     from .tex_directives import get_tex_root
 
@@ -113,7 +116,8 @@ class FileNotAnalyzed(Exception):
     pass
 
 
-class Analysis():
+class Analysis(object):
+
     def __init__(self, tex_root):
         self._tex_root = tex_root
         self._content = {}
@@ -122,7 +126,8 @@ class Analysis():
         self._all_commands = []
         self._command_cache = {}
 
-        self._finished = False
+        self.__finished = False
+        self.__frozen = False
 
     def tex_root(self):
         """The tex root of the analysis"""
@@ -169,7 +174,7 @@ class Analysis():
         Returns:
         A list of all commands, which are preprocessed with the flags
         """
-        return _copy_entries(self._commands(flags))
+        return self._commands(flags)
 
     def filter_commands(self, how, flags=DEFAULT_FLAGS):
         """
@@ -208,7 +213,7 @@ class Analysis():
         else:
             raise Exception("Unsupported filter type: " + str(type(how)))
         com = self._commands(flags)
-        return _copy_entries(filter(command_filter, com))
+        return tuple(filter(command_filter, com))
 
     def _add_command(self, command):
         self._all_commands.append(command)
@@ -223,12 +228,32 @@ class Analysis():
             if flags & cflag:
                 f = _FLAG_FILTER[cflag]
                 com = filter(f, com)
-        self._command_cache[flags] = list(com)
+        self._command_cache[flags] = tuple(com)
 
     def _commands(self, flags):
         if flags not in self._command_cache:
             self._build_cache(flags)
         return self._command_cache[flags]
+
+    @property
+    def _finished(self):
+        return self.__finished
+
+    @_finished.setter
+    def _finished(self, value):
+        self.__finished = value
+        if value and not self.__frozen:
+            self._freeze()
+
+    def _freeze(self):
+        self._content = frozendict(**self._content)
+        self._raw_content = frozendict(**self._raw_content)
+        self._all_commands = tuple(c for c in self._all_commands)
+        self.__frozen = True
+
+
+    def __copy__(self):
+        return self
 
 
 def get_analysis(tex_root):
@@ -340,7 +365,7 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
             reg = m.regs[_RE_COMMAND.groupindex[k]]
             entryDict[region_name] = sublime.Region(reg[0], reg[1])
         # create an object from the dict and insert it into the analysis
-        entry = objectview(entryDict)
+        entry = objectview(frozendict(entryDict))
         ana._add_command(entry)
 
         # read child files if it is an input command
@@ -409,16 +434,28 @@ class objectview(object):
     Converts an dict into an object, such that every dict entry
     is an attribute of the object
     """
-    def __init__(self, d):
-        self.__dict__ = d
 
-    def copy(self):
-        return objectview(self.__dict__.copy())
+    def __init__(self, d):
+        self.__dict__['_d'] = d
+
+    def __getattr__(self, attr):
+        return self._d[attr]
+
+    def __setattr__(self, attr, value):
+        raise TypeError('cannot set value on an objectview')
+
+    def copy(self, **add_or_replace):
+        new_dict = self._d.copy()
+        if add_or_replace:
+            new_dict.update(**add_or_replace)
+        return objectview(new_dict)
+
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        result = cls.__new__(cls)
+        memo[id(self)] = result
+        result.__dict__['_d'] = copy.deepcopy(self.__dict__['_d'], memo)
+        return result
 
     def __repr__(self):
-        return repr(self.__dict__)
-
-
-def _copy_entries(arr):
-    """creates an array with a copy of each entry of arr"""
-    return [c.copy() for c in arr]
+        return repr(self._d)

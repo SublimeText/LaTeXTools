@@ -501,7 +501,10 @@ class CiteFillAllHelper(FillAllHelper):
 
         def formatted_entry(entry):
             try:
-                return entry["<panel_formatted>"]
+                result = entry["<panel_formatted>"]
+                if isinstance(result, tuple):
+                    result = list(result)
+                return result
             except:
                 return [
                     bibformat.format_entry(s, entry)
