@@ -327,8 +327,7 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
     # is loaded; run on_load instead of on_load_async to assure that view
     # exists / is active
     def on_load(self, view):
-        point = view.sel()[0].end()
-        if not view.score_selector(point, "text.tex.latex"):
+        if not view.score_selector(0, "text.tex.latex"):
             return
 
         CWL_COMPLETIONS.load_completions()
