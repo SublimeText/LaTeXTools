@@ -324,8 +324,9 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
         is_cwl_available(view)
 
     # used to ensure that completions are loaded whenever a LaTeX document
-    # is loaded
-    def on_load_async(self, view):
+    # is loaded; run on_load instead of on_load_async to assure that view
+    # exists / is active
+    def on_load(self, view):
         point = view.sel()[0].end()
         if not view.score_selector(point, "text.tex.latex"):
             return
@@ -334,7 +335,6 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
 
     if not _ST3:
         on_activated = on_activated_async
-        on_load = on_load_async
 
 
 # -- Internal API --

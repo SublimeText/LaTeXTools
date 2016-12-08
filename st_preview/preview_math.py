@@ -610,10 +610,15 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             return
 
         view = self.view
+        window = view.window()
 
-        if not any(view.window().active_view_in_group(g) == view
-                   for g in range(view.window().num_groups())):
-            return
+        # see #980; in any case window is None only for newly created views
+        # where there isn't much point in running the phantom update.
+        if (window is None or
+            not any(window.active_view_in_group(g) == view
+                    for g in range(window.num_groups()))):
+                return
+
         # TODO we may only want to apply if the view is visible
         # if view != view.window().active_view():
         #     return
