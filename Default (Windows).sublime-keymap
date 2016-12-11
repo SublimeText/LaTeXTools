@@ -249,7 +249,7 @@ LaTeX Package keymap for Windows
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "latex_change_environment"},
 
-	// Wrap selected text in emph, bold or underline
+	// Wrap selected text in emph, bold, underline or small caps
 	{ "keys": ["ctrl+l","ctrl+e"],  
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
@@ -266,6 +266,10 @@ LaTeX Package keymap for Windows
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text monospace.sublime-snippet"}},
+	{ "keys": ["ctrl+l","ctrl+s"],  
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text small-caps.sublime-snippet"}},
 
 	// Replace the `C-r` overlay with a whole document overlay as opt-out
 	// Also add this overlay to `C-l, C-r`

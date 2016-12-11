@@ -574,6 +574,7 @@ LaTeXTools' wrapping facility helps you in just these circumstances. All command
 - `C-l,C-b` gives you `\textbf{blah}`
 - `C-l,C-u` gives you `\underline{blah}`
 - `C-l,C-t` gives you `\texttt{blah}`
+- `C-l,C-s` gives you `\textsc{blah}`
 - `C-l,C-n` wraps the selected text in a LaTeX environment structure. You get `\begin{env}`,`blah`, `\end{env}` on three separate lines, with `env` selected. Change `env` to whatever environment you want, then hit Tab to move to the end of the environment.
 
 
