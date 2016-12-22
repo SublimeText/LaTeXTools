@@ -24,6 +24,9 @@ else:
     strbase = basestring
 
 
+WINDOWS_SHELL = re.compile(r'\b(?:cmd|powershell)(?:.exe)?\b', re.UNICODE)
+
+
 # a viewer that runs a user-specified command
 class CommandViewer(BaseViewer):
 
@@ -128,7 +131,11 @@ class CommandViewer(BaseViewer):
 
         external_command(
             command,
-            cwd=os.path.split(pdf_file)[0]
+            cwd=os.path.split(pdf_file)[0],
+            # show the Window if not using a Windows shell, i.e., powershell or
+            # cmd
+            show_window=not bool(WINDOWS_SHELL.match(command[0]))
+            if sublime.platform() == 'windows' else False
         )
 
     def forward_sync(self, pdf_file, tex_file, line, col, **kwargs):
