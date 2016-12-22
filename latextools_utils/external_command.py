@@ -196,10 +196,10 @@ def external_command(command, cwd=None, shell=False, env=None,
         stdin = None
 
     if stdout is __sentinel__:
-        stdout = PIPE
+        stdout = None
 
     if stderr is __sentinel__:
-        stderr = STDOUT
+        stderr = None
 
     try:
         print(u'Running "{0}"'.format(u' '.join([quote(s) for s in command])))
@@ -248,6 +248,12 @@ def execute_command(command, cwd=None, shell=False, env=None,
             return u'\n'.join(
                 re.split(r'\r?\n', stream.decode('utf-8', 'ignore').rstrip())
             )
+
+    if stdout is __sentinel__:
+        stdout = PIPE
+
+    if stderr is __sentinel__:
+        stderr = STDOUT
 
     p = external_command(
         command,
