@@ -292,7 +292,8 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
                 "Save your file to show an image preview.",
                 location=location, flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY)
             return
-        image_path = find_image(tex_root, file_name)
+        image_path = find_image(
+            tex_root, file_name, tex_file_name=view.file_name())
         if not image_path:
             # image does not exists
             view.show_popup(
@@ -569,7 +570,8 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener,
         tn_height = self.image_scale * self.image_height
         for scope in scopes:
             file_name = view.substr(scope)[1:-1]
-            image_path = find_image(tex_root, file_name)
+            image_path = find_image(
+                tex_root, file_name, tex_file_name=view.file_name())
 
             thumbnail_path = _get_thumbnail_path(
                 image_path, tn_width, tn_height)
