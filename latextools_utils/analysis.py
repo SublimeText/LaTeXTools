@@ -379,8 +379,6 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
             process_file_stack.pop()
         elif (g("command") in _import_commands and g("args") is not None and
                 g("args2") is not None):
-            print("g:", g)
-            print("entryDict:", entryDict)
             if g("command").startswith("sub"):
                 next_import_path = os.path.join(base_path, g("args"))
             else:
@@ -388,8 +386,6 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
             # normalize the path
             next_import_path = os.path.normpath(next_import_path)
             open_file = os.path.join(next_import_path, g("args2"))
-            print("next_import_path:", next_import_path)
-            print("open_file:", open_file)
 
             process_file_stack.append(file_name)
             _analyze_tex_file(
