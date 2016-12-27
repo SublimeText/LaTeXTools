@@ -25,6 +25,14 @@ INPUT_REG = re.compile(
     re.UNICODE
 )
 
+IMPORT_REG = re.compile(
+    r"\\(?:import|subimport)"
+    r"\*?"
+    r"\{(?P<path>[^}]+)\}"
+    r"(?:\{(?P<file>[^}]+)\})?",  # optional for compat with jumpto-anywhere
+    re.UNICODE
+)
+
 BIB_REG = re.compile(
     r"\\(?:bibliography|nobibliography|addbibresource|add(?:global|section)bib)"
     r"(?:\[[^\]]*\])?"
@@ -257,6 +265,14 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
 
             for g in filter(is_inside, INPUT_REG.finditer(line)):
                 file_name = g.group("file")
+                print("Jumpto tex file '{0}'".format(file_name))
+                _jumpto_tex_file(view, window, tex_root, file_name,
+                                 auto_create_missing_folders, auto_insert_root)
+
+            for g in filter(is_inside, IMPORT_REG.finditer(line)):
+                if not g.group("file"):
+                    continue
+                file_name = os.path.join(g.group("path"), g.group("file"))
                 print("Jumpto tex file '{0}'".format(file_name))
                 _jumpto_tex_file(view, window, tex_root, file_name,
                                  auto_create_missing_folders, auto_insert_root)
