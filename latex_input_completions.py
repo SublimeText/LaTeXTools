@@ -81,6 +81,21 @@ _TEX_INPUT_GROUP_MAPPING = None
 TEX_INPUT_FILE_REGEX = None
 
 
+def _post_process_path_only(completions):
+    result = []
+    added = set()
+    for t in completions:
+        try:
+            relpath, file_name = t
+        except:
+            continue
+        if relpath == "." or relpath in added:
+            continue
+        added.add(relpath)
+        result.append(relpath + "/")
+    return result
+
+
 def plugin_loaded():
     # get additional entries from the settings
     _setting_entries = get_setting("fillall_helper_entries", [])
@@ -88,16 +103,39 @@ def plugin_loaded():
     _fillall_entries.extend(_setting_entries)
 
     _fillall_entries.extend([
+        # input/include
         {
             "regex": r'(?:edulcni|tupni)\\',
             "extensions": [e[1:] for e in get_tex_extensions()],
             "strip_extensions": [".tex"]
         },
+        # includegraphics
         {
             "regex": r'(?:\][^{}\[\]]*\[)?scihpargedulcni\\',
             "extensions": get_setting("image_types", [
                 "pdf", "png", "jpeg", "jpg", "eps"
             ])
+        },
+        # import/subimport
+        {
+            "regex": r'\*?(?:tropmibus)\\',
+            "extensions": [e[1:] for e in get_tex_extensions()],
+            "strip_extensions": [".tex"],
+            "post_process": "path_only"
+        },
+        {
+            "regex": r'\}[^{}\[\]]*\{\*?(?:tropmibus)\\',
+            "extensions": [e[1:] for e in get_tex_extensions()],
+            "strip_extensions": [".tex"],
+            "post_regex": r'\\subimport\*?\{([^{}\[\]]*)\}\{[^\}]*?$',
+            "folder": "$base/$_1"
+        },
+        {
+            "regex": r'\}[^{}\[\]]*\{\*?(?:tropmi?)\\',
+            "extensions": [e[1:] for e in get_tex_extensions()],
+            "strip_extensions": [".tex"],
+            "post_regex": r'\\import\*?\{([^{}\[\]]*)\}\{[^\}]*?$',
+            "folder": "$_1"
         },
         {
             "regex": r'(?:\][^{}\[\]]*\[)?ecruoserbibdda\\',
@@ -237,17 +275,37 @@ def parse_completions(view, line):
 
     if entry["type"] == "input":
         root = getTeXRoot.get_tex_root(view)
-        ana = analysis.get_analysis(root)
-        tex_base_path = ana.tex_base_path(view.file_name())
         if root:
-            output_directory = get_output_directory(root)
-            aux_directory = get_aux_directory(root)
-            completions = get_file_list(
-                root, entry["extensions"],
-                entry.get("strip_extensions", []),
-                base_path=tex_base_path,
-                output_directory=output_directory, aux_directory=aux_directory
-            )
+            ana = analysis.get_analysis(root)
+            tex_base_path = ana.tex_base_path(view.file_name())
+            completions = []
+            sub = {
+                "root": root,
+                "base": tex_base_path
+            }
+            if "post_regex" in entry:
+                m = re.search(entry["post_regex"], line[::-1])
+                if m:
+                    for i in range(1, len(m.groups()) + 1):
+                        sub["_{0}".format(i)] = m.group(i)
+            if "folder" in entry:
+                folders = []
+                for folder in entry["folder"].split(";"):
+                    import string
+                    temp = string.Template(folder)
+                    folders.append(temp.safe_substitute(sub))
+            else:
+                folders = [tex_base_path]
+            for base_path in folders:
+                output_directory = get_output_directory(root)
+                aux_directory = get_aux_directory(root)
+                completions.extend(get_file_list(
+                    root, entry["extensions"],
+                    entry.get("strip_extensions", []),
+                    base_path=base_path,
+                    output_directory=output_directory,
+                    aux_directory=aux_directory
+                ))
         else:
             # file is unsaved
             completions = []
@@ -257,6 +315,12 @@ def parse_completions(view, line):
             completions = cache.get(entry["cache_name"])
     else:
         print("Unknown entry type {0}.".format(entry["type"]))
+
+    if "post_process" in entry:
+        fkt = globals().get(
+            "_post_process_{0}".format(entry["post_process"]), None)
+        if fkt:
+            completions = fkt(completions)
 
     return completions
 
