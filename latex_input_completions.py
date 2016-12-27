@@ -10,12 +10,14 @@ import json
 
 try:
     from latex_fill_all import FillAllHelper
+    from latextools_utils import analysis
     from latextools_utils.is_tex_file import get_tex_extensions
     from latextools_utils.output_directory import (
         get_aux_directory, get_output_directory
     )
 except ImportError:
     from .latex_fill_all import FillAllHelper
+    from .latextools_utils import analysis
     from .latextools_utils.is_tex_file import get_tex_extensions
     from .latextools_utils.output_directory import (
         get_aux_directory, get_output_directory
@@ -141,9 +143,10 @@ if not _ST3:
 
 
 # Get all file by types
-def get_file_list(root, types, filter_exts=[], output_directory=None,
+def get_file_list(root, types, filter_exts=[], base_path=None, output_directory=None,
                   aux_directory=None):
-    path = os.path.dirname(root)
+    if not base_path:
+        base_path = os.path.dirname(root)
 
     def file_match(f):
         filename, extname = os.path.splitext(f)
@@ -166,7 +169,7 @@ def get_file_list(root, types, filter_exts=[], output_directory=None,
 
     completions = []
     handled_directories = set([])
-    for dir_name, dirs, files in os.walk(path, followlinks=True):
+    for dir_name, dirs, files in os.walk(base_path, followlinks=True):
         handled_directories.add(os.path.realpath(dir_name))
         files = [f for f in files if f[0] != '.' and file_match(f)]
         dirs[:] = [d for d in dirs if d[0] != '.' and dir_match(d)]
@@ -182,7 +185,7 @@ def get_file_list(root, types, filter_exts=[], output_directory=None,
                 if f.endswith(ext):
                     f = f[:-len(ext)]
 
-            completions.append((os.path.relpath(dir_name, path), f))
+            completions.append((os.path.relpath(dir_name, base_path), f))
 
     return completions
 
@@ -234,13 +237,16 @@ def parse_completions(view, line):
 
     if entry["type"] == "input":
         root = getTeXRoot.get_tex_root(view)
+        ana = analysis.get_analysis(root)
+        tex_base_path = ana.tex_base_path(view.file_name())
         if root:
             output_directory = get_output_directory(root)
             aux_directory = get_aux_directory(root)
             completions = get_file_list(
                 root, entry["extensions"],
                 entry.get("strip_extensions", []),
-                output_directory, aux_directory
+                base_path=tex_base_path,
+                output_directory=output_directory, aux_directory=aux_directory
             )
         else:
             # file is unsaved
