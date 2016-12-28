@@ -26,7 +26,7 @@ INPUT_REG = re.compile(
 )
 
 IMPORT_REG = re.compile(
-    r"\\(?:import|subimport)"
+    r"\\(?:(?:sub)?import|(?:sub)?inputfrom|(?:sub)?includefrom)"
     r"\*?"
     r"\{(?P<path>[^}]+)\}"
     r"(?:\{(?P<file>[^}]+)\})?",  # optional for compat with jumpto-anywhere

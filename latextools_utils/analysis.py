@@ -74,7 +74,10 @@ _RE_COMMENT = re.compile(
 # the analysis will walk recursively into the included files
 # i.e. the 'args' field of the command
 _input_commands = ["input", "include", "subfile", "loadglsentries"]
-_import_commands = ["import", "subimport"]
+_import_commands = [
+    "import", "subimport", "includefrom", "subincludefrom",
+    "inputfrom", "subinputfrom"
+]
 
 
 # FLAGS

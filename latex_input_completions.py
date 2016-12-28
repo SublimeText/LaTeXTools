@@ -124,17 +124,23 @@ def plugin_loaded():
             "post_process": "path_only"
         },
         {
-            "regex": r'\}[^{}\[\]]*\{\*?(?:tropmibus)\\',
+            "regex": r'\}[^{}\[\]]*\{\*?(?:tropmi|morftupni|morfedulcni)?bus\\',
             "extensions": [e[1:] for e in get_tex_extensions()],
             "strip_extensions": [".tex"],
-            "post_regex": r'\\subimport\*?\{([^{}\[\]]*)\}\{[^\}]*?$',
+            "post_regex": (
+                r'\\sub(?:import|includefrom|inputfrom)\*?'
+                r'\{([^{}\[\]]*)\}\{[^\}]*?$'
+            ),
             "folder": "$base/$_1"
         },
         {
-            "regex": r'\}[^{}\[\]]*\{\*?(?:tropmi?)\\',
+            "regex": r'\}[^{}\[\]]*\{\*?(?:tropmi|morftupni|morfedulcni)\\',
             "extensions": [e[1:] for e in get_tex_extensions()],
             "strip_extensions": [".tex"],
-            "post_regex": r'\\import\*?\{([^{}\[\]]*)\}\{[^\}]*?$',
+            "post_regex": (
+                r'\\(?:import|includefrom|inputfrom)\*?'
+                r'\{([^{}\[\]]*)\}\{[^\}]*?$'
+            ),
             "folder": "$_1"
         },
         {
