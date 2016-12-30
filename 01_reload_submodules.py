@@ -12,6 +12,8 @@ import traceback
 if sys.version_info >= (3,):
     from imp import reload
 
+_ST3 = sublime.version() >= '3000'
+
 
 def _load_module_exports(module):
     if 'exports' in module.__dict__:
@@ -22,20 +24,17 @@ def _load_module_exports(module):
             except KeyError:
                 print(
                     "Error: {0} not defined in {1}."
-                    .format(name, module.__name__)
-                )
+                    .format(name, module.__name__))
 
 
 MOD_PREFIX = ''
 
-if sublime.version() > '3000':
+if _ST3:
     MOD_PREFIX = 'LaTeXTools.' + MOD_PREFIX
 
 # these modules must be specified in the order they depend on one another
 LOAD_ORDER = [
     'external.latex_chars',
-
-    'latextools_plugin_internal',
 
     # reloaded here so that makePDF imports the current version
     'parseTeXlog',
@@ -73,6 +72,9 @@ LOAD_ORDER = [
     'latex_fill_all'
 ]
 
+if _ST3:
+    LOAD_ORDER.insert(1, 'latextools_plugin_internal')
+
 # modules which should be scanned for any exports to be hoisted to this
 # module's context
 EXPORT_MODULES = []
@@ -105,21 +107,12 @@ for suffix in LOAD_ORDER:
 
 def plugin_loaded():
     # reload any plugins cached in memory
-    try:
-        import latextools_plugin
-    except ImportError:
-        from . import latextools_plugin
-
-    try:
-        with latextools_plugin._latextools_module_hack():
-            for mod in sys.modules:
-                if mod.startswith('_latextools_'):
-                    try:
-                        reload(sys.modules[mod])
-                    except:
-                        traceback.print_exc()
-    except:
-        traceback.print_exc()
+    mods = [m for m in sys.modules if m.startswith('_latextools_')]
+    for mod in mods:
+        try:
+            del sys.modules[mod]
+        except:
+            traceback.print_exc()
 
     for module in EXPORT_MODULES:
         mod = MOD_PREFIX + module
@@ -138,5 +131,5 @@ def plugin_unloaded():
             pass
 
 
-if sublime.version() < '3000':
+if not _ST3:
     plugin_loaded()

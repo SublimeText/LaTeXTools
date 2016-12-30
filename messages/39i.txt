@@ -1,0 +1,14 @@
+LaTeXTools Plugin version 3.12.8 (2016-11-15) changelog:
+
+Features:
+- Preview directly uses Ghostscript for equations and EPS files
+- Preview feature supports some extra JPEG files
+- Preview should work with custom syntaxes, provided they are based on the new (>=3119) LaTeX syntax
+- Support for \newacronym when checking \gls commands
+
+Bugfixes:
+- Fixed issue in change_environment caused by a too-greedy regex (#967)
+- Try to make CWL completions take less time (#933)
+- Stop plugin load from slowing down ST
+- Fix an issue with loading certain fill all plugins on ST2 (#970)
+- Better detection of Ghostscript on Windows

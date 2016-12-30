@@ -5,9 +5,18 @@ import traceback
 
 import sublime
 
+try:
+    import winreg
+except:
+    # not on Windows
+    pass
+
 
 from ..latextools_utils import cache, get_setting
-from ..latextools_utils.external_command import get_texpath, execute_command
+from ..latextools_utils.distro_utils import using_miktex
+from ..latextools_utils.external_command import (
+    get_texpath, execute_command, __sentinel__
+)
 from ..latextools_utils.system import which
 
 
@@ -45,6 +54,146 @@ def run_convert_command(args):
         args.insert(0, convert_command)
 
     execute_command(args, shell=sublime.platform() == 'windows')
+
+
+def _get_gs_command():
+    if hasattr(_get_gs_command, "result"):
+        return _get_gs_command.result
+
+    _get_gs_command.result = __get_gs_command()
+    return _get_gs_command.result
+
+
+# broken out to be called from system_check
+def __get_gs_command():
+    texpath = get_texpath() or os.environ['PATH']
+    if sublime.platform() == 'windows':
+        # use Ghostscript from the texpath if possible
+        result = (
+            which('gswin32c', path=texpath) or
+            which('gswin64c', path=texpath) or
+            which('mgs', path=texpath) or
+            which('gs', path=texpath)
+        )
+
+        if not using_miktex():
+            result = _get_tl_gs_path(texpath)
+
+        # try to find Ghostscript from the registry
+        if result is None:
+            result = _get_gs_exe_from_registry()
+    else:
+        result = which('gs', path=texpath)
+
+    return result
+
+
+def _get_tl_gs_path(texpath):
+    """Tries to find the gs installed by TeXLive"""
+    pdflatex = which('pdflatex', path=texpath)
+    if pdflatex is None:
+        return None
+
+    # assumed structure
+    # texlive/<year>/
+    tlgs_path = os.path.normpath(os.path.join(
+        os.path.dirname(pdflatex),
+        '..', '..', 'tlpkg', 'tlgs', 'bin'
+    ))
+    return (
+        which('gswin32c', path=tlgs_path) or
+        which('gswin64c', path=tlgs_path)
+    )
+
+
+def _get_gs_exe_from_registry():
+    result = None
+    hndl = None
+
+    product_family = None
+    major_version = -1
+    minor_version = -1
+
+    # find the most recent version of Ghostscript installed
+    for product in ["GPL Ghostscript", "AFPL Ghostscript"]:
+        try:
+            hndl = winreg.OpenKey(
+                winreg.HKEY_LOCAL_MACHINE,
+                'SOFTWARE\\{0}'.format(product)
+            )
+
+            try:
+                for i in range(winreg.QueryInfoKey(hndl)[0]):
+                    version = winreg.EnumKey(hndl, i)
+                    try:
+                        major, minor = version.split('.')
+                        if (
+                            major > major_version or
+                            (
+                                major == major_version and
+                                minor > minor_version
+                            )
+                        ):
+                            major_version = major
+                            minor_version = minor
+                            product_family = product
+                    except ValueError:
+                        continue
+            finally:
+                winreg.CloseKey(hndl)
+        except OSError:
+            continue
+
+    if product_family is not None:
+        try:
+            hndl = winreg.OpenKey(
+                winreg.HKEY_LOCAL_MACHINE,
+                'SOFTWARE\\{product_family}\\{major_version}.'
+                '{minor_version:02}'.format(**locals())
+            )
+
+            try:
+                gs_path = os.path.dirname(
+                    winreg.QueryValue(hndl, 'GS_DLL')
+                )
+
+                result = (
+                    which('gswin32c', path=gs_path) or
+                    which('gswin64c', path=gs_path)
+                )
+            finally:
+                winreg.CloseKey(hndl)
+        except OSError:
+            print(
+                'Could not find GS_DLL value for '
+                '{product_family}'.format(**locals())
+            )
+
+    return result
+
+
+def ghostscript_installed():
+    return _get_gs_command() is not None
+
+
+def run_ghostscript_command(args, stdout=__sentinel__, stderr=__sentinel__):
+    """Executes a Ghostscript command with the given args"""
+    if not isinstance(args, list):
+        raise TypeError('args must be a list')
+
+    # add some default args to run in quiet batch mode
+    args.insert(0, _get_gs_command())
+    args.insert(1, '-q')
+    args.insert(1, '-dQUIET')
+    args.insert(1, '-dNOPROMPT')
+    args.insert(1, '-dNOPAUSE')
+    args.insert(1, '-dBATCH')
+    args.insert(1, '-dSAFER')
+
+    return execute_command(
+        args, shell=sublime.platform() == 'windows',
+        stdout=stdout, stderr=stderr
+    )
 
 
 class SettingsListener(object):

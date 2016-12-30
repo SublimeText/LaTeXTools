@@ -46,15 +46,14 @@ class SumatraViewer(BaseViewer):
         # App Paths registry key, which we can access using the winreg
         # module.
         try:
-            hndl = winreg.OpenKey(
+            with winreg.OpenKey(
                 winreg.HKEY_LOCAL_MACHINE,
                 'SOFTWARE\\Microsoft\\Windows\\CurrentVersion'
                 '\\App Paths\\SumatraPDF.exe'
-            )
-
-            SumatraViewer._sumatra_exe = winreg.QueryValue(hndl, '')
-            return SumatraViewer._sumatra_exe
-        except:
+            ) as hndl:
+                SumatraViewer._sumatra_exe = winreg.QueryValue(hndl, '')
+                return SumatraViewer._sumatra_exe
+        except WindowsError:
             pass
 
         paths = [

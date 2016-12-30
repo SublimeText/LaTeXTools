@@ -1,4 +1,5 @@
 import imghdr
+import inspect
 import os
 import struct
 import threading
@@ -12,7 +13,10 @@ from ..getTeXRoot import get_tex_root
 from ..jumpto_tex_file import open_image, find_image
 from ..latextools_utils import cache, get_setting
 from . import preview_utils
-from .preview_utils import convert_installed, run_convert_command
+from .preview_utils import (
+    convert_installed, run_convert_command, ghostscript_installed,
+    run_ghostscript_command
+)
 from . import preview_threading as pv_threading
 
 # export the listeners
@@ -61,15 +65,40 @@ def plugin_unloaded():
     _lt_settings.clear_on_change("lt_preview_image_main")
 
 
+_GS_EXTS = set(['ps', 'eps', 'pdf'])
+
+
+def _uses_gs(file):
+    file, ext = os.path.splitext(file)
+    return ext.lower() in _GS_EXTS
+
+
+def _can_create_preview(file=None):
+    if file is None:
+        return ghostscript_installed() or convert_installed()
+    else:
+        if _uses_gs(file):
+            return ghostscript_installed()
+        else:
+            return convert_installed()
+
+
 def create_thumbnail(image_path, thumbnail_path, width, height):
     # convert the image
     if os.path.exists(thumbnail_path):
         return
 
-    run_convert_command([
-        '-thumbnail', '{width}x{height}'.format(**locals()),
-        image_path, thumbnail_path
-    ])
+    if _uses_gs(image_path):
+        run_ghostscript_command([
+            '-sDEVICE=pngalpha', '-dLastPage=1',
+            '-sOutputFile={thumbnail_path}'.format(**locals()),
+            '-g{width}x{height}'.format(**locals())
+        ])
+    else:
+        run_convert_command([
+            '-thumbnail', '{width}x{height}'.format(**locals()),
+            image_path, thumbnail_path
+        ])
 
     if not os.path.exists(thumbnail_path):
         with open(thumbnail_path + _ERROR_EXTENSION, "w") as f:
@@ -79,7 +108,7 @@ def create_thumbnail(image_path, thumbnail_path, width, height):
 # CONVERT THREADING
 def _append_image_job(image_path, thumbnail_path, width, height, cont):
     global _job_list
-    if not convert_installed():
+    if not _can_create_preview(image_path):
         return
 
     def job():
@@ -96,27 +125,36 @@ def _run_image_jobs():
     pv_threading.run_jobs(_name)
 
 
+# see https://bugs.python.org/issue16512#msg198034
+# not added to imghdr.tests because of potential issues with reloads
+def _is_jpg(h):
+    return h.startswith(b'\xff\xd8')
+
+
 # from http://stackoverflow.com/a/20380514/5963435
+# somewhat enhanced from http://stackoverflow.com/a/39778771
 def get_image_size(image_path):
     '''Determine the image type of image_path and return its size.
     from draco'''
     with open(image_path, 'rb') as fhandle:
-        head = fhandle.read(24)
-        if len(head) != 24:
+        # read 32 as we pass this to imghdr
+        head = fhandle.read(32)
+        if len(head) != 32:
             return
-        if imghdr.what(image_path) == 'png':
+        what = imghdr.what(image_path, head)
+        if what == 'png':
             check = struct.unpack('>i', head[4:8])[0]
             if check != 0x0d0a1a0a:
                 return
             width, height = struct.unpack('>ii', head[16:24])
-        elif imghdr.what(image_path) == 'gif':
+        elif what == 'gif':
             width, height = struct.unpack('<HH', head[6:10])
-        elif imghdr.what(image_path) == 'jpeg':
+        elif what == 'jpeg' or _is_jpg(head):
             try:
                 fhandle.seek(0)  # Read 0xff next
                 size = 2
                 ftype = 0
-                while not 0xc0 <= ftype <= 0xcf:
+                while not 0xc0 <= ftype <= 0xcf or ftype in (0xc4, 0xc8, 0xcc):
                     fhandle.seek(size, 1)
                     byte = fhandle.read(1)
                     while ord(byte) == 0xff:
@@ -184,7 +222,7 @@ def _get_thumbnail_path(image_path, width, height):
     return thumbnail_path
 
 
-def _get_popup_html(thumbnail_path, width, height):
+def _get_popup_html(image_path, thumbnail_path, width, height):
     if os.path.exists(thumbnail_path):
         # adapt the size to keep the width/height ratio, but stay inside
         # the image dimensions
@@ -195,7 +233,9 @@ def _get_popup_html(thumbnail_path, width, height):
             'height="{height}">'
             .format(**locals())
         )
-    elif not convert_installed():
+    elif _uses_gs(image_path) and not ghostscript_installed():
+        img_tag = "Install Ghostscript to enable preview."
+    elif not _uses_gs(image_path) and not convert_installed():
         img_tag = "Install ImageMagick to enable preview."
     elif os.path.exists(thumbnail_path + _ERROR_EXTENSION):
         img_tag = "ERROR: Failed to create preview thumbnail."
@@ -272,7 +312,8 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
         thumbnail_path = _get_thumbnail_path(
             image_path, tn_width, tn_height)
 
-        html_content = _get_popup_html(thumbnail_path, width, height)
+        html_content = _get_popup_html(
+            image_path, thumbnail_path, width, height)
 
         def on_navigate(href):
             if href == "open_image":
@@ -290,9 +331,11 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
             on_hide=on_hide)
 
         # if the thumbnail does not exists, create it and update the popup
-        if convert_installed() and not os.path.exists(thumbnail_path):
+        if (_can_create_preview(image_path) and
+                not os.path.exists(thumbnail_path)):
             def update_popup():
-                html_content = _get_popup_html(thumbnail_path, width, height)
+                html_content = _get_popup_html(
+                    image_path, thumbnail_path, width, height)
                 if on_hide.hidden:
                     return
                 view.show_popup(
@@ -356,8 +399,12 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener,
 
     @classmethod
     def is_applicable(cls, settings):
-        syntax = settings.get('syntax')
-        return syntax == 'Packages/LaTeX/LaTeX.sublime-syntax'
+        try:
+            view = inspect.currentframe().f_back.f_locals['view']
+            return view.score_selector(0, 'text.tex.latex') > 0
+        except KeyError:
+            syntax = settings.get('syntax')
+            return syntax == 'Packages/LaTeX/LaTeX.sublime-syntax'
 
     @classmethod
     def applies_to_primary_view_only(cls):
@@ -563,7 +610,7 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener,
 
         self.phantoms = new_phantoms
 
-        if convert_installed():
+        if _can_create_preview():
             for p in need_thumbnails:
                 _append_image_job(
                     p.image_path, p.thumbnail_path,

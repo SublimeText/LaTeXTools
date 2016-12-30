@@ -1,5 +1,5 @@
 try:
-    from latextools_plugin import LaTeXToolsPlugin
+    from latextools_plugin_internal import LaTeXToolsPlugin
 except ImportError:
     from LaTeXTools.latextools_plugin import LaTeXToolsPlugin
 

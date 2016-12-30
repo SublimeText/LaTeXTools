@@ -48,10 +48,9 @@ initialize the plugin and then interact with it.
 Finding Plugins
 ===============
 
-The easiest way to make this system aware of a plugin is to create a file with
-the .latextools-plugin extension containing the plugin code. However,
-alternative loading mechanisms are provided, either using configuration options
-or the `add_plugin_path()` function defined in this module.
+The following loading mechanisms for plugins are provided, either using
+configuration options or the `add_plugin_path()` function defined in this
+module.
 
 Configuration options:
     `plugin_paths`: in the standard user configuration.
@@ -119,6 +118,7 @@ import glob as _glob
 import os
 import sys
 
+import threading
 import traceback
 
 from contextlib import contextmanager
@@ -418,7 +418,6 @@ def _load_plugin(filename, *paths):
 
     if module_name in sys.modules:
         try:
-            reload(sys.modules[module_name])
             return sys.modules[module_name]
         except ImportError:
             # On ST2, this appears to be triggered on the initial reload and
@@ -527,13 +526,19 @@ def _latextools_module_hack():
     # restore any temporarily overwritten modules and clear our loaded modules
     for module in plugins_whitelist:
         if _get_sublime_module_name(__dir__, module) != module:
-            sys.modules[module] = None
+            del sys.modules[module]
         if module in overwritten_modules:
             sys.modules[module] = overwritten_modules[module]
 
 
 # load plugins when the Sublime API is available, just in case...
 def plugin_loaded():
+    t = threading.Thread(target=_plugin_loaded)
+    t.daemon = True
+    t.start()
+
+
+def _plugin_loaded():
     internal._REGISTRY = LaTeXToolsPluginRegistry()
 
     print('Loading LaTeXTools plugins...')
@@ -546,12 +551,6 @@ def plugin_loaded():
     for path, glob in internal._REGISTERED_PATHS_TO_LOAD:
         add_plugin_path(path, glob)
 
-    # by default load anything in the User package with a .latextools-plugin
-    # extension
-    add_plugin_path(
-        os.path.join(sublime.packages_path(), 'User'),
-        '*.latextools-plugin'
-    )
 
 # ensure plugin_loaded() called on ST2
 if sublime.version() < '3000' and internal._REGISTRY is None:
