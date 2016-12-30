@@ -1,8 +1,16 @@
-# Alternative Builders
+# Available Builders
+
+## Traditional Builder
+
+By default, LaTeXTools uses the `traditional` builder, which is designed to work in most circumstances and for most setups. This builder provides all of the builder features discussed elsewhere in the documentation, such as the various [builder features](features.md#default-builder), including multi-document support, the ability to set LaTeX flags via the `TeX Options` settings, etc.
+
+When you are using MiKTeX, the `traditional` builder defaults to using the MiKTeX compiler driver [`texify`](http://docs.miktex.org/manual/texifying.html), which automatically runs PDFLaTeX / XeLaTeX / LuaLaTeX as many times as necessary to generate a document. Note that because of certain limitations of `texify`, some features, such as support for output directory, auxiliary directory, jobname, etc. are unavailable when using the traditional builder. You can change this by installing `latexmk` and changing the `command` setting in the `builder_settings` block to `"latexmk -cd -f -%E -interaction=nonstopmode -synctex=1"`, in which case the `traditional` builder will run `latexmk` instead of `texify`
+
+When you are using any other setup (MacTeX or TeXLive on Linux or Windows), the `traditional` builder uses [`latexmk`](http://www.ctan.org/pkg/latexmk/), which supports all the documentated features for the builder.
 
 ## Basic Builder
 
-The basic builder is a simple, straight-forward build system. that simply runs the configured build engine (pdflatex, xelatex, or lualatex) and bibtex or biber if necessary. It can also be configured to support bibtex8 through the `bibtex` builder setting. In addition, it supports the [TeX Options](#tex-options) feature, the [output and auxiliary directory](#output-directory-and-auxiliary-directory) features and the [Jobname](#jobname) feature. It has been included because the default builder on MiKTeX, `texify` cannot be easily coerced to support biber or any of the other features supported by the basic builder. Note, however, that unlike `texify`, the basic builder does **not** support `makeindex` and friends (patches are welcome!).
+The basic builder is a simple, straight-forward build system. that simply runs the configured build engine (pdflatex, xelatex, or lualatex) and bibtex or biber if necessary. It can also be configured to support bibtex8 through the `bibtex` builder setting. In addition, it supports the [TeX Options](features.md#tex-options) feature, the [output and auxiliary directory](features.md#output-directory-and-auxiliary-directory) features and the [Jobname](features.md#jobname) feature. It has been included because the default builder on MiKTeX, `texify` cannot be easily coerced to support biber or any of the other features supported by the basic builder. Note, however, that unlike `texify`, the basic builder does **not** support `makeindex` and friends (patches are welcome!).
 
 You can use the basic builder by changing the `builder` setting to `"basic"`. It will read the same settings as the traditional builder.
 

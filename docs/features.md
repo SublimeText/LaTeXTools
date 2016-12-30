@@ -88,7 +88,7 @@ There are three special values that can be used, `<<temp>>` `<<project>>` and `<
 
 **Note**: the `--aux-directory` flag is only implemented by MiKTeX, so the corresponding settings will only be valid if you are using MiKTeX, as indicated by your `distro` setting. To get similar behavior on TeXLive / MacTeX, you can use the `copy_output_on_build` setting described in the [settings section](settings.md#output-directory-settings) with any of the `output_directory` settings. This will run `pdflatex` / `xelatex` / `lualatex` with the `--output-directory` flag and then copy the resulting PDF to the same directory as your main TeX document.
 
-**Note**: These flags can only be set when using `latexmk` (i.e., the `traditional` builder on OS X and Linux), the `basic` builder or the `script` builder (see below [for documentation on using the script builder](alternative-builders.md#script-builder)). If you are using `texify` (i.e. the `traditional` builder on MiKTeX) or the simple builder, the `output_directory` and `aux_directory` settings will be ignored.
+**Note**: These flags can only be set when using `latexmk` (i.e., the `traditional` builder on OS X and Linux), the `basic` builder or the `script` builder (see below [for documentation on using the script builder](available-builders.md#script-builder)). If you are using `texify` (i.e. the `traditional` builder on MiKTeX) or the simple builder, the `output_directory` and `aux_directory` settings will be ignored.
 
 ### Jobname
 The `--jobname` flag can be set in several ways:
@@ -96,7 +96,7 @@ The `--jobname` flag can be set in several ways:
  * Using the [TeX Options](#tex-options) feature to set `--jobname`
  * Using the corresponding `jobname` setting detailed in [the settings section](settings.md#output-directory-settings).
 
-**Note**: Jobname can only be set when using `latexmk` (i.e., the `traditional` builder on OS X and Linux), the `basic` builder or the `script` builder (see below [for documentation on using the script builder](alternative-builders.md#script-builder)). If you are using `texify` (i.e. the `traditional` builder on MiKTeX) or the simple builder, the `jobname` setting wil be ignored.
+**Note**: Jobname can only be set when using `latexmk` (i.e., the `traditional` builder on OS X and Linux), the `basic` builder or the `script` builder (see below [for documentation on using the script builder](available-builders.md#script-builder)). If you are using `texify` (i.e. the `traditional` builder on MiKTeX) or the simple builder, the `jobname` setting wil be ignored.
 
 ### Customizing the compilation command
 It is possible to customize the command run by setting the `command` option under Builder Settings. See the section on [Builder Settings](settings.md#builder-settings) for details.
@@ -107,7 +107,7 @@ If you change the compilation command, you are responsible for making it work on
 
 ## Other Builders
 
-If the default builder doesn't meet your needs for any reason, please see the section on [Alternative Builders](alternative-builders.md).
+If the default builder doesn't meet your needs for any reason, please see the page on [available builders](available-builders.md).
 
 # Viewers
 
