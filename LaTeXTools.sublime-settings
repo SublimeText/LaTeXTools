@@ -142,10 +142,13 @@
 	"preview_math_no_star_envs": [],
 
 	// The density of the preview image. The higher the density the bigger the phantom.
-	"preview_math_density": 300,
+	"preview_math_density": 150,
 	// If the image is not sharp enough increase this scale to get a better resolution.
 	// However also change the density by the same factor to keep the size.
-	"preview_math_scale_quotient": 2,
+	"preview_math_scale_quotient": 1,
+	// If this is true, the image will be rendered at a higher resolution and
+	// then scaled down. This generally results in a clearer image.
+	"preview_math_hires": true,
 
 	// IMAGE PREVIEW
 
