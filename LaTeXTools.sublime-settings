@@ -106,7 +106,7 @@
 
 	// The color of the text in the preview math phantoms.
 	// Ensure you have the latex xcolor package available to change the color.
-	// The format can either be RGB based "#RRGGBB" (e.g. "#FFFF00") 
+	// The format can either be RGB based "#RRGGBB" (e.g. "#FFFF00")
 	// or a color name (e.g. "yellow")
 	// If it is the empty string "" it will be guessed based in the color scheme.
 	"preview_math_color": "",
@@ -139,7 +139,7 @@
 	// math environments, since we cannot and want not track the
 	// equation numbers. This may not be possible with each environment,
 	// therefore you can create a blacklist of such environments here.
-	"preview_math_no_star_envs": [],
+	"preview_math_no_star_envs": ["displaymath"],
 
 	// The density of the preview image. The higher the density the bigger the phantom.
 	"preview_math_density": 150,
