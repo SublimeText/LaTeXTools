@@ -81,7 +81,7 @@ def _on_setting_change():
     _scale_quotient = _lt_settings.get(
         "preview_math_scale_quotient", _scale_quotient)
     _density = _lt_settings.get("preview_math_density", _density)
-    _hires = _lt_settings.get("preview_path_hires", _hires)
+    _hires = _lt_settings.get("preview_math_hires", _hires)
     max_threads = get_setting(
         "preview_max_convert_threads", default=None, view={})
     if max_threads is not None:
