@@ -23,6 +23,7 @@ else:
 
 import os
 import re
+import subprocess
 import sys
 # This will work because makePDF.py puts the appropriate
 # builders directory in sys.path
@@ -235,5 +236,7 @@ class BasicBuilder(PdfBuilder):
             env=env,
             cwd=cwd,
             preexec_fn=os.setsid if sublime.platform() != 'windows' else None,
-            use_texpath=False
+            use_texpath=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT
         )

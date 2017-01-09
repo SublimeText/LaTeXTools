@@ -290,6 +290,7 @@ class CmdThread ( threading.Thread ):
 							env=env,
 							use_texpath=False,
 							stdout=subprocess.PIPE,
+							stderr=subprocess.STDOUT,
 							preexec_fn=os.setsid if self.caller.plat != 'windows' else None,
 							cwd=self.caller.tex_dir
 						)

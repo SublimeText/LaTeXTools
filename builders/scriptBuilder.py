@@ -3,6 +3,7 @@ import sublime
 
 import os
 import re
+import subprocess
 import sys
 
 from string import Template
@@ -100,7 +101,8 @@ class ScriptBuilder(PdfBuilder):
 				# the environment above, including the texpath
 				external_command(
 					cmd, env=env, cwd=self.tex_dir, use_texpath=False,
-					shell=True
+					shell=True, stdout=subprocess.PIPE,
+					stderr=subprocess.STDOUT
 				),
 				""
 			)
