@@ -32,15 +32,18 @@ from pdfBuilder import PdfBuilder
 from latextools_utils.external_command import external_command, get_texpath
 
 # Standard LaTeX warning
-CITATIONS_REGEX = re.compile(r"Warning: Citation `.+' on page \d+ undefined")
-# BibLaTeX outputs a different message from BibTeX, so we must catch that too
-BIBLATEX_REGEX = re.compile(r"Package biblatex Warning: Please \(re\)run (\S*)")
+CITATIONS_REGEX = re.compile(
+    r"Warning: Citation [`|'].+' on page \d+ undefined")
+# Capture which program to run for BibLaTeX
+BIBLATEX_REGEX = re.compile(
+    r"Package biblatex Warning: Please \(re\)run (\S*)")
 # Used to indicate a subdirectory that needs to be made for a file input using
 # \include
-FILE_WRITE_ERROR_REGEX = re.compile(r"! I can't write on file `(.*)/([^/']*)'")
+FILE_WRITE_ERROR_REGEX = re.compile(
+    r"! I can't write on file `(.*)/([^/']*)'")
 
 
-#----------------------------------------------------------------
+# ----------------------------------------------------------------
 # BasicBuilder class
 #
 # This is a more fully functional verion of the Simple Builder
@@ -141,38 +144,40 @@ class BasicBuilder(PdfBuilder):
                     break
 
         # Check for citations
-        # Use search, not match: match looks at the beginning of the string
         # We need to run pdflatex twice after bibtex
-        if (
-            CITATIONS_REGEX.search(self.out) or
-            "Package natbib Warning: There were undefined citations."
-                in self.out
-        ):
-            yield (self.run_bibtex(), "running bibtex...")
-            self.display("done.\n")
+        run_bibtex = False
+        use_bibtex = True
+        bibtex = None
+        if CITATIONS_REGEX.search(self.out):
+            run_bibtex = True
+            # are we using biblatex?
+            m = BIBLATEX_REGEX.search(self.out)
+            if m:
+                bibtex = m.group(1).lower()
+                if bibtex == 'biber':
+                    use_bibtex = False
+        # check for natbib as well
+        elif (
+            'Package natbib Warning: There were undefined citations'
+                in self.out):
+            run_bibtex = True
+
+        if run_bibtex:
+            if use_bibtex:
+                yield (
+                    self.run_bibtex(bibtex),
+                    "running {0}...".format(bibtex or 'bibtex')
+                )
+            else:
+                yield (biber + [self.job_name], 'running biber...')
+
+            self.display('done.\n')
             self.log_output()
 
             for i in range(2):
                 yield (latex, "running {0}...".format(engine))
                 self.display("done.\n")
                 self.log_output()
-        else:
-            match = BIBLATEX_REGEX.search(self.out)
-            if match:
-                if match.group(1).lower() == 'biber':
-                    yield (biber + [self.job_name], "running biber...")
-                else:
-                    yield (
-                        self.run_bibtex(match.group(1).lower()),
-                        "running {0}...".format(match.group(1).lower9)
-                    )
-                self.display("done.\n")
-                self.log_output()
-
-                for i in range(2):
-                    yield (latex, "running {0}...".format(engine))
-                    self.display("done.\n")
-                    self.log_output()
 
         # Check for changed labels
         # Do this at the end, so if there are also citations to resolve,
@@ -181,7 +186,6 @@ class BasicBuilder(PdfBuilder):
             yield (latex, "running {0}...".format(engine))
             self.display("done.\n")
             self.log_output()
-            self.display("done.\n")
 
     def log_output(self):
         if self.display_log:
