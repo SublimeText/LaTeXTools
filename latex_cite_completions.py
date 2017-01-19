@@ -213,7 +213,7 @@ def find_bib_files(rootdir, src, bibfiles):
         src_file = codecs.open(file_path, "r", 'UTF-8')
     except IOError:
         sublime.status_message("LaTeXTools WARNING: cannot open included file " + file_path)
-        print ("WARNING! I can't find it! Check your \\include's and \\input's.")
+        print ("WARNING! I can't find it! Check your \\include's, \\input's and \\subfile's.")
         return
 
     src_content = re.sub("%.*","",src_file.read())
