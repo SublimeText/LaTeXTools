@@ -17,13 +17,17 @@ def _make_caption(ana, entry):
 
 
 class LatexSearchCommandCommand(sublime_plugin.WindowCommand):
-    def run(self, commands):
+    def run(self, commands, only_current_file=False):
         window = self.window
         view = window.active_view()
         tex_root = get_tex_root(view)
 
         ana = analysis.analyze_document(tex_root)
         entries = ana.filter_commands(commands, flags=analysis.ALL_COMMANDS)
+
+        if only_current_file:
+            file_name = view.file_name()
+            entries = [e for e in entries if e.file_name == file_name]
 
         captions = [_make_caption(ana, e) for e in entries]
         quickpanel.show_quickpanel(captions, entries)
@@ -34,12 +38,16 @@ class LatexSearchCommandInputCommand(sublime_plugin.WindowCommand):
         view = self.window.active_view()
         return bool(view.score_selector(0, "text.tex"))
 
-    def run(self):
+    def run(self, only_current_file=False):
         window = self.window
 
         def on_done(text):
             commands = [c.strip() for c in text.split(",")]
-            window.run_command("latex_search_command", {"commands": commands})
+            kwargs = {
+                "commands": commands,
+                "only_current_file": only_current_file
+            }
+            window.run_command("latex_search_command", kwargs)
 
         def do_nothing(text):
             pass
