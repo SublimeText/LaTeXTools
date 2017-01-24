@@ -52,8 +52,8 @@
 	// Sync PDF to current editor position after building (true) or not
 	"forward_sync": true,
 
-	// Set this to false to disable the overwriting of the goto overlay for the hotkey `C-r`
-	// You can still access the "table of content quickpanel" via `C-l, C-r`
+	// Set this to false to disable the overwriting of the goto overlay for the hotkey `C-r` and `C-shift-r`
+	// You can still access the "table of content quickpanel" via `C-l, C-r` and  `C-shift-l, C-r`
 	"overwrite_goto_overlay": true,
 
 	// When to trigger cwl-command completion (requires the LaTeX-cwl package)
