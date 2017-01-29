@@ -173,7 +173,7 @@ Recent versions of MikTeX add themselves to your path automatically, but in case
 
 #### Install TeXLive
 
-You need to install TeXlive. We highly recommend installing the version directly from TUG, which can be found [here](https://www.tug.org/texlive/acquire-netinstall.html) rather than the version included with your distribution, as your distribution may be out of date (maintain a TeX distribution is a time-consuming task).  In particular, if you are on Ubuntu, note that `apt-get install texlive` will get you a working but incomplete setup. For example, it will *not* install `latexmk`, which is essential to LaTeXTools. You need to install it via `apt-get install latexmk`. You can use the **LaTeXTools: Check System** command to ensure that the expected binaries are found.
+You need to install TeXlive. We highly recommend installing the version directly from TUG, which can be found [here](https://www.tug.org/texlive/acquire-netinstall.html) rather than the version included with your distribution, as your distribution may be out of date (maintaining a TeX distribution is a time-consuming task).  In particular, if you are on Ubuntu, note that `apt-get install texlive` will get you a working but incomplete setup. For example, it will *not* install `latexmk`, which is essential to LaTeXTools. You need to install it via `apt-get install latexmk`. You can use the **LaTeXTools: Check System** command to ensure that the expected binaries are found.
 
 #### Setup ImageMagick and Ghostscript
 
