@@ -1,4 +1,5 @@
 import os
+import re
 import threading
 import time
 import traceback
@@ -15,7 +16,7 @@ except:
 from ..latextools_utils import cache, get_setting
 from ..latextools_utils.distro_utils import using_miktex
 from ..latextools_utils.external_command import (
-    get_texpath, execute_command, __sentinel__
+    get_texpath, execute_command, check_output, __sentinel__
 )
 from ..latextools_utils.system import which
 
@@ -56,12 +57,44 @@ def run_convert_command(args):
     execute_command(args, shell=sublime.platform() == 'windows')
 
 
-def _get_gs_command():
-    if hasattr(_get_gs_command, "result"):
-        return _get_gs_command.result
+_GS_COMMAND = None
+_GS_VERSION_LOCK = threading.Lock()
+_GS_VERSION = None
+_GS_VERSION_REGEX = re.compile(r'Ghostscript (?P<major>\d+)\.(?P<minor>\d{2})')
 
-    _get_gs_command.result = __get_gs_command()
-    return _get_gs_command.result
+
+def _get_gs_command():
+    global _GS_COMMAND
+    if _GS_COMMAND is not None:
+        return _GS_COMMAND
+
+    _GS_COMMAND = __get_gs_command()
+
+    # load the GS version on a background thread
+    t = threading.Thread(target=_update_gs_version)
+    t.daemon = True
+    t.start()
+
+    return _GS_COMMAND
+
+
+def _update_gs_version():
+    global _GS_VERSION
+    with _GS_VERSION_LOCK:
+        if _GS_VERSION is not None:
+            return
+
+        try:
+            raw_version = check_output([_GS_COMMAND, '-version'])
+            m = _GS_VERSION_REGEX.search(raw_version)
+            if m:
+                _GS_VERSION = tuple(int(x) for x in m.groups())
+        except OSError:
+            print('Error finding Ghostscript version for {0}'.format(
+                _GS_COMMAND))
+            traceback.print_exc()
+        except Exception:
+            traceback.print_exc()
 
 
 # broken out to be called from system_check
@@ -76,7 +109,7 @@ def __get_gs_command():
             which('gs', path=texpath)
         )
 
-        if not using_miktex():
+        if result is None and not using_miktex():
             result = _get_tl_gs_path(texpath)
 
         # try to find Ghostscript from the registry
@@ -174,6 +207,15 @@ def _get_gs_exe_from_registry():
 
 def ghostscript_installed():
     return _get_gs_command() is not None
+
+
+def get_ghostscript_version():
+    global _GS_VERSION
+    with _GS_VERSION_LOCK:
+        if _GS_VERSION is None:
+            _update_gs_version()
+
+        return _GS_VERSION if _GS_VERSION is not None else (-1, -1)
 
 
 def run_ghostscript_command(args, stdout=__sentinel__, stderr=__sentinel__):
