@@ -1,0 +1,58 @@
+#!/bin/sh
+# setup paths to use
+DIR=$(cd -- "$(dirname -- "$0")" >/dev/null && pwd -P)
+
+mkdir -p "$DIR/../tmp"
+BUILD=$(cd -- "$DIR/../tmp" && pwd -P)
+
+# setup virtual environment
+INSTALLED_VENV=0
+
+pyvenv -h >/dev/null 2>&1
+STATUS=$?
+if [ $STATUS -eq 0 ]; then
+	pyvenv "$BUILD" >/dev/null 2>&1
+	STATUS=$?
+fi
+
+if [ $STATUS -ne 0 ]; then
+	virtualenv -h >/dev/null 2>&1
+	[ $? -ne 0 ] && pip install virtualenv && INSTALLED_VENV=1
+	[ $? -ne 0 ] && echo Could not install virtualenv && exit 1
+	virtualenv "$BUILD" >/dev/null 2>&1
+	STATUS=$?
+fi
+
+if [ $STATUS -ne 0 ]; then
+	echo Could not create virtualenv
+	[ $INSTALLED_VENV -ne 1 ] || pip uninstall -y virtualenv
+	exit 1
+fi
+
+source "$BUILD/bin/activate"
+
+# install dependencies
+pip install -r "$DIR/requirements.txt"
+
+# ensure filter is executable
+chmod +x "$DIR/readme-filter.py"
+# run pandoc
+pandoc -f markdown_github+yaml_metadata_block -H "$DIR/header-include.tex" --listings --number-sections -F "$DIR/readme-filter.py" -o "$BUILD/README.tex" "$DIR/../README.markdown" "$DIR/metadata.yaml"
+
+if [ -f "$BUILD/README.tex" ]; then
+	# run latexmk to build PDF
+	latexmk -cd -pdf --shell-escape --interaction=nonstopmode -silent "$BUILD/README.tex"
+	STATUS=$?
+else
+	echo Could not find "$BUILD/README.tex"
+	[ $INSTALLED_VENV -ne 1 ] || pip uninstall -y virtualenv
+	exit 1
+fi
+
+[ $STATUS -ne 0 ] && ([ $INSTALLED_VENV -ne 1 ] || pip uninstall -y virtualenv) && exit $STATUS
+
+cp "$BUILD/README.pdf" "$BUILD/../"
+rm -rf "$BUILD"
+[ $INSTALLED_VENV -ne 1 ] || pip uninstall -y virtualenv
+echo Build succeeded
+exit 0

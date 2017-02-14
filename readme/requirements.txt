@@ -1,0 +1,2 @@
+Pygments >=2.1
+pygments-style-github >= 0.4
