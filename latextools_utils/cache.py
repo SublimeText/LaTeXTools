@@ -68,6 +68,112 @@ def hash_digest(text):
     return hash_result.hexdigest()
 
 
+def cache(tex_root, key, func):
+    '''
+    alias for cache() on the LocalCache instance corresponding to the tex_root:
+
+    convenience method to attempt to get the value from the cache and
+    generate the value if it hasn't been cached yet or the entry has
+    otherwise been invalidated
+
+    :param tex_root:
+        the tex_root the data should be associated with
+
+    :param key:
+        the key to retrieve or set
+
+    :param func:
+        a callable that takes no arguments and when invoked will return
+        the proper value
+    '''
+    return LocalCache(tex_root).cache(key, func)
+
+
+def set(tex_root, key, obj):
+    '''
+    alias for set() on the LocalCache instance corresponding to the tex_root:
+
+    set the cache value for the given key
+
+    :param tex_root:
+        the tex_root the data should be associated with
+
+    :param key:
+        the key to set
+
+    :param obj:
+        the value to store; note that obj *must* be picklable
+    '''
+    return LocalCache(tex_root).set(key, obj)
+
+
+def get(tex_root, key):
+    '''
+    alias for get() on the LocalCache instance corresponding to the tex_root:
+
+    retrieve the cached value for the corresponding key
+
+    raises CacheMiss if value has not been cached
+
+    :param tex_root:
+        the tex_root the data should be associated with
+
+    :param key:
+        the key to set
+    '''
+    return LocalCache(tex_root).get(key)
+
+
+def cache_global(key, func):
+    '''
+    alias for cache() on the GlobalCache:
+
+    convenience method to attempt to get the value from the cache and
+    generate the value if it hasn't been cached yet or the entry has
+    otherwise been invalidated
+
+    :param key:
+        the key to retrieve or set
+
+    :param func:
+        a callable that takes no arguments and when invoked will return
+        the proper value
+    '''
+    return GlobalCache().cache(key, func)
+
+
+def set_global(key, obj):
+    '''
+    alias for set() on the GlobalCache:
+
+    set the cache value for the given key
+
+    :param key:
+        the key to set
+
+    :param obj:
+        the value to store; note that obj *must* be picklable
+    '''
+    return GlobalCache().set(key, obj)
+
+
+def get_global(key):
+    '''
+    alias for get() on the GlobablCache:
+
+    retrieve the cached value for the corresponding key
+
+    raises CacheMiss if value has not been cached
+
+    :param tex_root:
+        the tex_root the data should be associated with
+
+    :param key:
+        the key to set
+    '''
+    return GlobalCache().get(key)
+
+
 if _ST3:
     def _global_cache_path():
         return os.path.normpath(os.path.join(
