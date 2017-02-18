@@ -178,5 +178,18 @@
 
 	// these entries should only be used for project settings or
 	// while you want to test new entries
-	"dynamic_fillall_helper_entries": []
+	"dynamic_fillall_helper_entries": [],
+
+	// this determines whether or not the smart bracket autotriggering
+	// will scan the full document or only a pre-configured number of lines
+	// enabling full document scan will likely be more accurate for straight-
+	// forward LaTeX documents, since it counts the number of open and closed
+	// brackets, but in some circumstances, will yield undesirable results
+	"smart_bracket_scan_full_document": false,
+
+	// this setting determines the number of lines that smart bracket
+	// auto triggering will look around each selection. by default, smart
+	// bracket auto triggering looks 5 lines before the selection and 5 lines
+	// after
+	"smart_bracket_look_around": 5
 }
