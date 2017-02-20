@@ -89,7 +89,7 @@ def cache(tex_root, key, func):
     return LocalCache(tex_root).cache(key, func)
 
 
-def set(tex_root, key, obj):
+def write(tex_root, key, obj):
     '''
     alias for set() on the LocalCache instance corresponding to the tex_root:
 
@@ -107,7 +107,7 @@ def set(tex_root, key, obj):
     return LocalCache(tex_root).set(key, obj)
 
 
-def get(tex_root, key):
+def read(tex_root, key):
     '''
     alias for get() on the LocalCache instance corresponding to the tex_root:
 
@@ -142,7 +142,7 @@ def cache_global(key, func):
     return GlobalCache().cache(key, func)
 
 
-def set_global(key, obj):
+def write_global(key, obj):
     '''
     alias for set() on the GlobalCache:
 
@@ -157,7 +157,7 @@ def set_global(key, obj):
     return GlobalCache().set(key, obj)
 
 
-def get_global(key):
+def read_global(key):
     '''
     alias for get() on the GlobablCache:
 
