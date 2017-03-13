@@ -502,9 +502,9 @@ The `C-l,C-alt-f` keyboard shortcut is identical to the `C-l,C-f` shortcut, exce
 
 ### Jumping to sections and labels
 
-**Keybinding:** `C-r` (standard ST keybinding)
+**Keybinding:** `C-r`, `C-shift-r` (standard ST keybinding) and `C-l, C-r`, `C-l, C-shift-r`
 
-The LaTeXtools plugin integrates with the awesome ST "Goto Anything" facility. Hit `C-r`to get a list of all section headings, and all labels. You can filter by typing a few initial letters. Note that section headings are preceded by the letter "S", and labels by "L"; so, if you only want section headings, type "S" when the drop-down list appears.
+LaTeXTools replaces the integrated "Goto Anything" facility. This enables better multi-file support, because the sections remains ordered. In addition you can toggle the appearance of labels. You can filter by typing a few initial letters. You can disable this and use the default overlay by settings `overwrite_goto_overlay` to `false` in your LaTeXTools settings.
 
 Selecting any entry in the list will take you to the corresponding place in the text.
 
@@ -652,6 +652,8 @@ The following options are currently available (defaults in parentheses):
 - `temp_files_exts`: list of file extensions to be considered temporary, and hence deleted using the `C-l, backspace` command.
 - `temp_files_ignored_folders`: subdirectories to skip when deleting temp files.
 * `tex_file_exts` (`['.tex']`): a list of extensions that should be considered TeX documents. Any extensions in this list will be treated exactly the same as `.tex` files. See the section on [Support for non-`.tex` files](#support-for-non-tex-files).
+* `overwrite_goto_overlay` (`true`): Set this to `false` to disable the overwriting of the goto overlay for the hotkey `C-r` and `C-shift-r` You can still access the "table of content quickpanel" via `C-l, C-r` and `C-shift-l, C-r`
+  ,
 * `latextools_set_syntax` (`true`): if `true` LaTeXTools will automatically set the syntax to `LaTeX` when opening or saving any file with an extension in the `tex_file_exts` list.
 * `use_biblatex`: (`false`): if `true` LaTeXTools will use BibLaTeX defaults for editing `.bib` files. If `false`, LaTeXTools will use BibTeX defaults. See the section on [Support for Editing Bibliographies](#support-for-editing-bibliographies) for details.
 * `tex_spellcheck_paths` (`{}`): A mapping from the locales to the paths of the dictionaries. See the section [Spell-checking](#spell-checking).

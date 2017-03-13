@@ -267,14 +267,28 @@ LaTeX Package keymap for Windows
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text monospace.sublime-snippet"}},
 
-	// Replace the `C-r` overlay with a whole document overlay as opt-out
-	// Also add this overlay to `C-l, C-r`
-	{ "keys": ["ctrl+r"],
+	// Replace the `C-r` overlay and the `C-shift-r` overlay with a 
+	// whole document overlay as opt-out
+	// Also add these overlays to `C-l, C-r` and `C-l, C-shift-r`
+	{ "keys": ["ctrl+r"], "command": "latex_toc_quickpanel",
+		"args": {"only_current_file": true},
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex"},
-			{"key": "overwrite_goto_overlay"}],
-		"command": "latex_toc_quickpanel"},
+			{"key": "overwrite_goto_overlay"}]
+	},
+	{ "keys": ["ctrl+shift+r"], "command": "latex_toc_quickpanel",
+		"args": {"only_current_file": false},
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex"},
+			{"key": "overwrite_goto_overlay"}]
+	},
 	{ "keys": ["ctrl+l","ctrl+r"],
+		"args": {"only_current_file": true},
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex"}],
+		"command": "latex_toc_quickpanel"},
+	{ "keys": ["ctrl+l","ctrl+shift+r"], "command": "latex_toc_quickpanel",
+		"args": {"only_current_file": false},
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex"}],
 		"command": "latex_toc_quickpanel"},
