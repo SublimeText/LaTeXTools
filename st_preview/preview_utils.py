@@ -6,12 +6,16 @@ import traceback
 
 import sublime
 
-try:
+if sublime.platform() == 'windows':
     import winreg
-except:
-    # not on Windows
-    pass
+    import ctypes
+    from ctypes import wintypes
 
+    # wrapper for GetSystemDirectoryW
+    def get_system_root():
+        buffer = ctypes.create_unicode_buffer(wintypes.MAX_PATH + 1)
+        ctypes.windll.kernel32.GetSystemDirectoryW(buffer, len(buffer))
+        return buffer.value
 
 from ..latextools_utils import cache, get_setting
 from ..latextools_utils.distro_utils import using_miktex
@@ -33,6 +37,13 @@ def _get_convert_command():
         which('magick', path=texpath) or
         which('convert', path=texpath)
     )
+
+    # DO NOT RUN THE CONVERT COMMAND IN THE SYSTEM ROOT ON WINDOWS
+    if (sublime.platform() == 'windows' and
+            _get_convert_command.result.lower().endswith('convert.exe')):
+        system_root = get_system_root().lower()
+        if _get_convert_command.result.lower().startswith(system_root):
+            _get_convert_command.result = None
     return _get_convert_command.result
 
 
