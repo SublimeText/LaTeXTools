@@ -259,7 +259,7 @@ LaTeXTools parses the `%!TEX spellcheck` directive to set the language for the s
 Since the dictionary package is no longer available via Package Control, you can follow these steps to install it:
 
 1. Open the command palette (`C-shift-p`) and select the entry `Package Control: Add Repository`
-2. Paste the url: https://github.com/titoBouzout/Dictionaries and press enter
+2. Paste the url: `https://github.com/titoBouzout/Dictionaries` and press enter
 3. Now you can install it as any other package: First select `Package Control: Install Package` in the command panel and afterwards select `Dictionaries` to install it
 
 ### Support for non-`.tex` files
