@@ -40,6 +40,12 @@ You can preview images included via the `\includegraphics` command. By default, 
 
 LaTeXTools parses the `%!TEX spellcheck` directive to set the language for the spell-checker integrated in Sublime Text. The [Dictionaries](https://github.com/titoBouzout/Dictionaries) package is recommended and supported. If you have additional dictionaries, you can add them using the `tex_spellcheck_paths` setting, which is a mapping from the locales to the dictionary paths. Each locale must be lowercase and use only a hyphen as a separator. The dictionary paths must be compatible with those used by Sublime Text's spell-checker. For example `{"en-us": "Packages/Language - English/en_US.dic"}` would be a valid value. For more on Sublime Text support for spell checking, see [the relevant online documentation](http://www.sublimetext.com/docs/3/spell_checking.html).
 
+Since the dictionary package is no longer available via Package Control, you can follow these steps to install it:
+
+1. Open the command palette (`C-shift-p`) and select the entry `Package Control: Add Repository`
+2. Paste the url: `https://github.com/titoBouzout/Dictionaries` and press enter
+3. Now you can install it as any other package: First select `Package Control: Install Package` in the command panel and afterwards select `Dictionaries` to install it
+
 ## Support for non-`.tex` files
 
 LaTeXTools has some degree of support for LaTeX documents that are in files with an extension other than `.tex`. In particular, this feature is designed to work  well with alternative extensions, such as `.ltx`. Other extensions such as `.Rnw` and `.tikz` are supported, but, for now they will be treated as standard LaTeX documents (patches are always welcome!).

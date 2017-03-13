@@ -94,7 +94,7 @@ Each command can use the following variables which will be expanded before it is
 |`$file`   | The full path to the main file, e.g., _C:\\Files\\document.tex_|
 |`$file_name`| The name of the main file, e.g., _document.tex_|
 |`$file_ext`| The extension portion of the main file, e.g., _tex_|
-|`$file_base_name`| The name portion of the main file without the, e.g., _document_|
+|`$file_base_name`| The name portion of the main file without the extension, e.g., _document_|
 |`$file_path`| The directory of the main file, e.g., _C:\\Files_|
 |`$aux_directory`| The auxiliary directory set via a `%!TEX` directive or the settings|
 |`$output_directory`| The output directory set via a `%!TEX` directive or the settings|
