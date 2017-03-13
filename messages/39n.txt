@@ -1,0 +1,5 @@
+LaTeXTools Plugin version 3.12.14 (2017-01-10) changelog:
+
+Bugfixes:
+- Fixed a bug, which disabled some builders and debug information (#1004)
+- Improved math preview inside displaymath environment (#996)

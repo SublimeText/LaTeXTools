@@ -17,7 +17,8 @@ from ..parseTeXlog import parse_tex_log
 from ..latextools_utils import cache, get_setting
 from ..latextools_utils.external_command import execute_command
 from . import preview_utils
-from .preview_utils import ghostscript_installed, run_ghostscript_command
+from .preview_utils import (
+    ghostscript_installed, get_ghostscript_version, run_ghostscript_command)
 from . import preview_threading as pv_threading
 
 # export the listener
@@ -25,7 +26,7 @@ exports = ["MathPreviewPhantomListener"]
 
 # increase this number if you change the convert command to mark the
 # generated images as expired
-_version = 1
+_version = 2
 
 # use this variable to disable the plugin for a session
 # (until ST is restarted)
@@ -70,16 +71,18 @@ _ERROR_EXTENSION = ".err"
 
 _scale_quotient = 1
 _density = 150
+_hires = True
 _lt_settings = {}
 
 _name = "preview_math"
 
 
 def _on_setting_change():
-    global _density, _scale_quotient
+    global _density, _scale_quotient, _hires
     _scale_quotient = _lt_settings.get(
         "preview_math_scale_quotient", _scale_quotient)
     _density = _lt_settings.get("preview_math_density", _density)
+    _hires = _lt_settings.get("preview_math_hires", _hires)
     max_threads = get_setting(
         "preview_max_convert_threads", default=None, view={})
     if max_threads is not None:
@@ -161,11 +164,17 @@ def _create_image(latex_program, latex_document, base_name, color,
         else:
             bbox = None
 
+        # hires renders the image at 8 times the dpi, then scales it down
+        scale_factor = \
+            8 if _hires and get_ghostscript_version() >= (9, 14) else 1
+
         # convert the pdf to a png image
         command = [
             '-sDEVICE=pngalpha', '-dLastPage=1',
             '-sOutputFile={image_path}'.format(image_path=image_path),
-            '-r{density}'.format(density=_density)
+            '-r{density}'.format(density=_density * scale_factor),
+            '-dDownScaleFactor={0}'.format(scale_factor),
+            '-dTextAlphaBits=4', '-dGraphicsAlphaBits=4'
         ]
 
         # calculate and apply cropping boundaries, if we have them
@@ -176,17 +185,17 @@ def _create_image(latex_program, latex_document, base_name, color,
             # 4pts are added to each length for some padding
             # these are then multiplied by the ratio of the final density to
             # the PDFs DPI (72) to get the final size of the image in pixels
-            width = round((bbox[2] - bbox[0] + 4) * _density / 72)
-            height = round((bbox[3] - bbox[1] + 4) * _density / 72)
+            width = round(
+                (bbox[2] - bbox[0] + 4) * _density * scale_factor / 72)
+            height = round(
+                (bbox[3] - bbox[1] + 4) * _density * scale_factor / 72)
             command.extend([
                 '-g{width}x{height}'.format(**locals()), '-c',
                 # this is the command that does the clipping starting from
                 # the lower left of the displayed contents; we subtract 2pts
                 # to properly center the final image with our padding
                 '<</Install {{{0} {1} translate}}>> setpagedevice'.format(
-                    -1 * (bbox[0] - 2), -1 * (bbox[1] - 2)
-                ),
-                '-f'
+                    -1 * (bbox[0] - 2), -1 * (bbox[1] - 2)), '-f'
             ])
 
         command.append(pdf_path)
@@ -458,6 +467,10 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             "_watch_density": {
                 "setting": "preview_math_density",
                 "call_after": self.reset_phantoms
+            },
+            "_watch_hires": {
+                "setting": "preview_math_hires",
+                "call_after": self.reset_phantoms
             }
         }
         for attr_name, d in watch_attr.items():
@@ -708,6 +721,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
                 str(_version),
                 self.latex_program,
                 str(_density),
+                str(_hires and get_ghostscript_version() >= (9, 14)),
                 color,
                 latex_document
             ])
