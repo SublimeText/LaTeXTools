@@ -6,8 +6,8 @@ pages:
   - "Keybindings": "keybindings.md"
   - "Completions": "completions.md"
   - "Settings": "settings.md"
-  - "Availalbe Builders": "available-builders.md"
-  - "Alternative Viewers": "alternative-viewers.md"
+  - "Available Builders": "available-builders.md"
+  - "Available Viewers": "available-viewers.md"
   - "Troubleshooting": "troubleshooting.md"
   - "About": "about.md"
 theme: readthedocs

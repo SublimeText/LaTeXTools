@@ -123,6 +123,6 @@ By default, LaTeXTools supports the following viewers, depending on platform:
  * On Windows, Sumatra
  * On Linux, Evince
 
-However, it is possible to use other programs to view PDF files. Currently, there are viewers available for Preview.app, Okular and Zathura. These viewers can be chosen by changing the `"viewer"` setting. See the [Viewer Settings](settings.md#viewer-settings) section for details. If you are using an alternate viewer, please see the relevant section under [Alternate Viewers](alternative-viewers.md) for any caveats or other instructions. In addition, there is a viewer, called the Command Viewer which can be used to launch a PDF document using the command line.
+However, it is possible to use other programs to view PDF files. Currently, there are viewers available for Preview.app, Okular and Zathura. These viewers can be chosen by changing the `"viewer"` setting. See the [Viewer Settings](settings.md#viewer-settings) section for details. If you are using an alternate viewer, please see the relevant section under [Available Viewers](available-viewers.md) for any caveats or other instructions. In addition, there is a viewer, called the Command Viewer which can be used to launch a PDF document using the command line.
 
 

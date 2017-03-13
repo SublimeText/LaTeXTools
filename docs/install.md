@@ -24,7 +24,7 @@ If you don't want to install the entire MacTeX distribution—which is pretty bi
 
 ### Setup Skim
 
-We recommend that you install the [Skim PDF viewer](http://skim-app.sourceforge.net/), as this provides forward and inverse search capabilities, which are very useful! Skim is the default viewer that LaTeXTools uses on OS X. If you don't install Skim, please see the information on [alternative viewers](alternative-viewers.md#preview) for details on how to setup LaTeXTools to work with Preview.app
+We recommend that you install the [Skim PDF viewer](http://skim-app.sourceforge.net/), as this provides forward and inverse search capabilities, which are very useful! Skim is the default viewer that LaTeXTools uses on OS X. If you don't install Skim, please see the information on [available viewers](available-viewers.md#preview) for details on how to setup LaTeXTools to work with Preview.app
 
 To configure inverse search, in Skim, open the **Preferences** dialog, select the **Sync** tab, then:
 
@@ -158,7 +158,7 @@ Once again, you can use the **LaTeXTools: Check System** command to verify that 
 
 ### Setup Viewer
 
-By default, LaTeXTools assumes you are using Evince (Document Viewer) as your PDF viewer. Support is also available for Okular and Zathura and other viewers that can be run via the command line. See the section on [alternative-viewers](alternative-viewers.md) for details on how to setup other viewers.
+By default, LaTeXTools assumes you are using Evince (Document Viewer) as your PDF viewer. Support is also available for Okular and Zathura and other viewers that can be run via the command line. See the section on [available-viewers](available-viewers.md) for details on how to setup other viewers.
 
 Evince is already installed by default on any distro that provides the Gnome desktop environment, but if it hasn't been, it can be installed using your distribution's package manager. In addition to Evince, you will need to ensure you have the Python bindings for `dbus` and the Python bindings for Gnome, i.e. `gobject` or `python-gi`, depending on your distribution. If you use the Gnome desktop, you likely already have these, but if not, you will need to install them using your distribution's package manager. In particular, they are reportedly not installed on Arch Linux by default.
 
