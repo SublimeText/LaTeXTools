@@ -1,8 +1,13 @@
+import collections
+import copy
+import hashlib
 import os
 import re
 import shutil
-import hashlib
 import time
+import threading
+import traceback
+
 try:
     import cPickle as pickle
 except ImportError:
@@ -12,11 +17,17 @@ import sublime
 
 if sublime.version() < '3000':
     _ST3 = False
-    from latextools_utils import get_setting
+    from latextools_utils import get_setting, utils
+    from external.frozendict import frozendict
+    from latextools_utils.six import unicode, long, strbase
+    from latextools_utils.system import make_dirs
 else:
     _ST3 = True
-    from . import get_setting
-    long = int
+    from . import get_setting, utils
+    from ..external.frozendict import frozendict
+    from .six import unicode, long, strbase
+    from .system import make_dirs
+
 
 # the folder, if the local cache is not hidden, i.e. folder in the same
 # folder as the tex root
@@ -27,7 +38,9 @@ HIDDEN_LOCAL_CACHE_FOLDER = "local_cache"
 # folder to store the global and the local cache
 ST2_GLOBAL_CACHE_FOLDER = ".lt_cache"
 
-
+# re for parsing the local_cache_life_span setting when written
+# in "natural" language:
+# 100 d(ays) 100 h(ours) 100 m((in)utes) 100 s((ec)onds)
 TIME_RE = re.compile(
     r"\s*(?:(?P<day>\d+)\s*d(?:ays?)?)?"
     r"\s*(?:(?P<hour>\d+)\s*h(?:ours?)?)?"
@@ -55,313 +68,683 @@ def hash_digest(text):
     return hash_result.hexdigest()
 
 
-def delete_local_cache(tex_root):
-    """
-    Removes the local cache folder and the local cache files
-    """
-    print(u"Deleting local cache for '{0}'.".format(repr(tex_root)))
-    local_cache_paths = [_hidden_local_cache_path(),
-                         _local_cache_path(tex_root)]
-    for cache_path in local_cache_paths:
-        if os.path.exists(cache_path):
-            print(u"Delete local cache folder '{0}'".format(repr(cache_path)))
-            shutil.rmtree(cache_path)
+def cache(tex_root, key, func):
+    '''
+    alias for cache() on the LocalCache instance corresponding to the tex_root:
+
+    convenience method to attempt to get the value from the cache and
+    generate the value if it hasn't been cached yet or the entry has
+    otherwise been invalidated
+
+    :param tex_root:
+        the tex_root the data should be associated with
+
+    :param key:
+        the key to retrieve or set
+
+    :param func:
+        a callable that takes no arguments and when invoked will return
+        the proper value
+    '''
+    return LocalCache(tex_root).cache(key, func)
 
 
-def invalidate_local_cache(cache_path):
-    """
-    Invalidates the local cache by removing the cache folders
-    """
-    if os.path.exists(cache_path):
-        print(u"Invalidate local cache '{0}'.".format(repr(cache_path)))
-        shutil.rmtree(cache_path)
+def write(tex_root, key, obj):
+    '''
+    alias for set() on the LocalCache instance corresponding to the tex_root:
+
+    set the cache value for the given key
+
+    :param tex_root:
+        the tex_root the data should be associated with
+
+    :param key:
+        the key to set
+
+    :param obj:
+        the value to store; note that obj *must* be picklable
+    '''
+    return LocalCache(tex_root).set(key, obj)
 
 
-def cache(tex_root, name, generate):
-    """
-    Alias for cache_local:
-    Uses the local cache to retrieve the entry for the name.
-    If the entry is not available, it will be calculated via the
-    generate-function and cached using pickle.
-    The local cache is per tex document and the path will extracted
-    from the tex root.
+def read(tex_root, key):
+    '''
+    alias for get() on the LocalCache instance corresponding to the tex_root:
 
-    Arguments:
-    tex_root -- the root of the tex file (for the folder of the cache)
-    name -- the relative file name to write the object
-    generate -- a function pointer/closure to create the cached object
-        for case it is not available in the cache,
-        must be compatible with pickle
-    """
-    return cache_local(tex_root, name, generate)
+    retrieve the cached value for the corresponding key
+
+    raises CacheMiss if value has not been cached
+
+    :param tex_root:
+        the tex_root the data should be associated with
+
+    :param key:
+        the key to set
+    '''
+    return LocalCache(tex_root).get(key)
 
 
-def write(tex_root, name, obj):
-    """
-    Alias for write_local:
-    Writes the object to the local cache using pickle.
-    The local cache is per tex document and the path will extracted
-    from the tex root
+def cache_global(key, func):
+    '''
+    alias for cache() on the GlobalCache:
 
-    Arguments:
-    tex_root -- the root of the tex file (for the folder of the cache)
-    name -- the relative file name to write the object
-    obj -- the object to write, must be compatible with pickle
-    """
-    write_local(tex_root, name, obj)
+    convenience method to attempt to get the value from the cache and
+    generate the value if it hasn't been cached yet or the entry has
+    otherwise been invalidated
 
+    :param key:
+        the key to retrieve or set
 
-def read(tex_root, name):
-    """
-    Alias for read_local:
-    Reads the object from the local cache using pickle.
-    The local cache is per tex document and the path will extracted
-    from the tex root
-
-    Arguments:
-    tex_root -- the root of the tex file (for the folder of the cache)
-    name -- the relative file name to read the object
-
-    Returns:
-    The object at the location with the name
-    """
-    return read_local(tex_root, name)
+    :param func:
+        a callable that takes no arguments and when invoked will return
+        the proper value
+    '''
+    return GlobalCache().cache(key, func)
 
 
-def cache_local(tex_root, name, generate):
-    """
-    Uses the local cache to retrieve the entry for the name.
-    If the entry is not available, it will be calculated via the
-    generate-function and cached using pickle.
-    The local cache is per tex document and the path will extracted
-    from the tex root.
+def write_global(key, obj):
+    '''
+    alias for set() on the GlobalCache:
 
-    Arguments:
-    tex_root -- the root of the tex file (for the folder of the cache)
-    name -- the relative file name to write the object
-    generate -- a function pointer/closure to create the cached object
-        for case it is not available in the cache,
-        must be compatible with pickle
-    """
-    try:
-        result = read_local(tex_root, name)
-    except CacheMiss:
-        result = generate()
-        write_local(tex_root, name, result)
-    return result
+    set the cache value for the given key
+
+    :param key:
+        the key to set
+
+    :param obj:
+        the value to store; note that obj *must* be picklable
+    '''
+    return GlobalCache().set(key, obj)
 
 
-def write_local(tex_root, name, obj):
-    """
-    Writes the object to the local cache using pickle.
-    The local cache is per tex document and the path will extracted
-    from the tex root
+def read_global(key):
+    '''
+    alias for get() on the GlobablCache:
 
-    Arguments:
-    tex_root -- the root of the tex file (for the folder of the cache)
-    name -- the relative file name to write the object
-    obj -- the object to write, must be compatible with pickle
-    """
-    cache_path = _local_cache_path(tex_root)
-    _write(cache_path, name, obj)
-    _create_cache_timestamp(cache_path)
+    retrieve the cached value for the corresponding key
 
+    raises CacheMiss if value has not been cached
 
-def read_local(tex_root, name):
-    """
-    Reads the object from the local cache using pickle.
-    The local cache is per tex document and the path will extracted
-    from the tex root
+    :param tex_root:
+        the tex_root the data should be associated with
 
-    Arguments:
-    tex_root -- the root of the tex file (for the folder of the cache)
-    name -- the relative file name to read the object
-
-    Returns:
-    The object at the location with the name
-    """
-    cache_path = _local_cache_path(tex_root)
-    _validate_life_span(cache_path)
-    return _read(cache_path, name)
+    :param key:
+        the key to set
+    '''
+    return GlobalCache().get(key)
 
 
-def cache_global(name, generate):
-    """
-    Uses the global sublime cache retrieve the entry for the name.
-    If the entry is not available, it will be calculated via the
-    generate-function and cached using pickle.
-
-    Arguments:
-    name -- the relative file name to write the object
-    generate -- a function pointer/closure to create the cached object
-        for case it is not available in the cache,
-        must be compatible with pickle
-    """
-    try:
-        result = read_global(name)
-    except CacheMiss:
-        result = generate()
-        write_global(name, result)
-    return result
+if _ST3:
+    def _global_cache_path():
+        return os.path.normpath(os.path.join(
+            sublime.cache_path(), "LaTeXTools"))
+else:
+    def _global_cache_path():
+        return os.path.normpath(os.path.join(
+            sublime.packages_path(), "User", ST2_GLOBAL_CACHE_FOLDER))
 
 
-def write_global(name, obj):
-    """
-    Writes the object to the global sublime cache path using pickle
-
-    Arguments:
-    name -- the relative file name to write the object
-    obj -- the object to write, must be compatible with pickle
-    """
-    cache_path = _global_cache_path()
-    _write(cache_path, name, obj)
+# marker object for invalidated result
+try:
+    _invalid_object
+except NameError:
+    _invalid_object = object()
 
 
-def read_global(name):
-    """
-    Reads the object from the global sublime cache path using pickle
+class Cache(object):
+    '''
+    default cache object and definition
 
-    Arguments:
-    name -- the relative file name to read the object
+    implements the shared functionality between the various caches
+    '''
 
-    Returns:
-    The object at the location with the name
-    """
-    cache_path = _global_cache_path()
-    return _read(cache_path, name)
+    def __new__(cls, *args, **kwargs):
+        # don't allow this class to be instantiated directly
+        if cls is Cache:
+            raise NotImplemented
 
+        return super(Cache, cls).__new__(cls)
 
-def _local_cache_path(tex_root):
-    hide_cache = get_setting("hide_local_cache", True)
+    def __init__(self):
+        # initialize state but ONLY if it hasn't already been initialized
+        if not hasattr(self, '_disk_lock'):
+            self._disk_lock = threading.Lock()
+        if not hasattr(self, '_write_lock'):
+            self._write_lock = threading.Lock()
+        if not hasattr(self, '_save_lock'):
+            self._save_lock = threading.Lock()
+        if not hasattr(self, '_objects'):
+            self._objects = {}
+        if not hasattr(self, '_dirty'):
+            self._dirty = False
+        if not hasattr(self, '_save_queue'):
+            self._save_queue = []
+        if not hasattr(self, '_pool'):
+            self._pool = utils.ThreadPool(2)
 
-    if not hide_cache:
-        root_folder = os.path.dirname(tex_root)
-        return os.path.join(root_folder, LOCAL_CACHE_FOLDER)
-    else:
-        cache_path = _hidden_local_cache_path()
-        # convert the root to plain string and hash it
-        root_hash = hash_digest(tex_root)
-        return os.path.join(cache_path, root_hash)
+        self.cache_path = self._get_cache_path()
 
+    def get(self, key):
+        '''
+        retrieve the cached value for the corresponding key
 
-def _hidden_local_cache_path():
-    global_path = _global_cache_path()
-    return os.path.join(global_path, HIDDEN_LOCAL_CACHE_FOLDER)
+        raises CacheMiss if value has not been cached
 
+        :param key:
+            the key that the value has been stored under
+        '''
+        if key is None:
+            raise ValueError('key cannot be None')
 
-def _global_cache_path():
-    # For ST3, put the cache files in cache dir
-    # and for ST2, put it in the user packages dir
-    if _ST3:
-        cache_path = os.path.join(sublime.cache_path(), "LaTeXTools")
-    else:
-        cache_path = os.path.join(sublime.packages_path(),
-                                  "User",
-                                  ST2_GLOBAL_CACHE_FOLDER)
-    return os.path.normpath(cache_path)
-
-
-def _write(cache_path, name, obj):
-    if _ST3:
         try:
-            os.makedirs(cache_path, exist_ok=True)
-        except FileExistsError:
+            result = self._objects[key]
+        except KeyError:
+            # note: will raise CacheMiss if can't be found
+            result = self.load(key)
+
+        if result is _invalid_object:
+            raise CacheMiss('{0} is invalid'.format(key))
+
+        # return a copy of any objects
+        try:
+            if hasattr(result, '__dict__') or hasattr(result, '__slots__'):
+                result = copy.copy(result)
+        except:
             pass
-    else:
-        if not os.path.isdir(cache_path):
-            os.makedirs(cache_path)
 
-    file_path = os.path.join(cache_path, name)
-    with open(file_path, "wb") as f:
-        pickle.dump(obj, f, protocol=-1)
+        return result
 
+    def has(self, key):
+        '''
+        check if cache has a value for the corresponding key
 
-def _read(cache_path, name):
-    file_path = os.path.join(cache_path, name)
-    if not os.path.exists(file_path):
-        raise CacheMiss()
+        :param key:
+            the key that the value has been stored under
+        '''
+        if key is None:
+            raise ValueError('key cannot be None')
 
-    with open(file_path, "rb") as f:
-        return pickle.load(f)
+        return (
+            key in self._objects and
+            self._objects[key] is not _invalid_object
+        )
 
+    def set(self, key, obj):
+        '''
+        set the cache value for the given key
 
-_CACHE_TIMESTAMP_FILE = "created_time_stamp"
+        :param key:
+            the key to store the value under
 
+        :param obj:
+            the value to store; note that obj *must* be picklable
+        '''
+        if key is None:
+            raise ValueError('key cannot be None')
 
-def _create_cache_timestamp(cache_path):
-    """
-    Creates a life span with the current time (cache folder exist).
-    Does only create a timestamp if it does not already exists.
-    """
-    access_path = os.path.join(cache_path, _CACHE_TIMESTAMP_FILE)
-    if not os.path.exists(access_path):
-        print(u"Writing cache creation timestamp")
-        created = long(time.time())
         try:
-            with open(access_path, "w") as f:
-                f.write(str(created))
-        except Exception as e:
-            print(u"Error occured writing cache creation timestamp")
-            print(e)
+            pickle.dumps(obj, protocol=-1)
+        except pickle.PicklingError:
+            raise ValueError('obj must be picklable')
+
+        if isinstance(obj, list):
+            obj = tuple(obj)
+        elif isinstance(obj, dict):
+            obj = frozendict(obj)
+        elif isinstance(obj, set):
+            obj = frozenset(obj)
+
+        with self._write_lock:
+            self._objects[key] = obj
+            self._dirty = True
+        self._schedule_save()
+
+    def cache(self, key, func):
+        '''
+        convenience method to attempt to get the value from the cache and
+        generate the value if it hasn't been cached yet or the entry has
+        otherwise been invalidated
+
+        :param key:
+            the key to retrieve or set
+
+        :param func:
+            a callable that takes no arguments and when invoked will return
+            the proper value
+        '''
+        if key is None:
+            raise ValueError('key cannot be None')
+
+        try:
+            return self.get(key)
+        except:
+            result = func()
+            self.set(key, result)
+            return result
+
+    def invalidate(self, key=None):
+        '''
+        invalidates either this whole cache, a single entry or a list of
+        entries in this cache
+
+        :param key:
+            the key of the entry to invalidate; if None, the entire cache
+            will be invalidated
+        '''
+        def _invalidate(key):
+            try:
+                self._objects[key] = _invalid_object
+            except:
+                print('error occurred while invalidating {0}'.format(key))
+                traceback.print_exc()
+
+        with self._write_lock:
+            if key is None:
+                for k in self._objects.keys():
+                    _invalidate(k)
+            else:
+                if isinstance(key, strbase):
+                    _invalidate(key)
+                else:
+                    for k in key:
+                        _invalidate(k)
+
+        self._schedule_save()
+
+    def _get_cache_path(self):
+        return _global_cache_path()
+
+    def load(self, key=None):
+        '''
+        loads the value specified from the disk and stores it in the in-memory
+        cache
+
+        :param key:
+            the key to load from disk; if None, all entries in the cache
+            will be read from disk
+        '''
+        with self._write_lock:
+            if key is None:
+                for entry in os.listdir(self.cache_path):
+                    if os.path.isfile(entry):
+                        entry_name = os.path.basename[entry]
+                        try:
+                            self._objects[entry_name] = self._read(entry_name)
+                        except:
+                            print(
+                                u'error while loading {0}'.format(entry_name))
+            else:
+                self._objects[key] = self._read(key)
+
+    def load_async(self, key=None):
+        '''
+        an async version of load; does the loading in a new thread
+        '''
+        self._pool.apply_async(self.load, key)
+
+    def _read(self, key):
+        file_path = os.path.join(self.cache_path, key)
+        with self._disk_lock:
+            try:
+                with open(file_path, 'rb') as f:
+                    return pickle.load(f)
+            except:
+                raise CacheMiss(u'cannot read cache file {0}'.format(key))
+
+    def save(self, key=None):
+        '''
+        saves the cache entry specified to disk
+
+        :param key:
+            the entry to flush to disk; if None, all entries in the cache will
+            be written to disk
+        '''
+        if not self._dirty:
+            return
+
+        # lock is aquired here so that all keys being flushed reflect the
+        # same state; note that this blocks disk reads, but not cache reads
+        with self._disk_lock:
+            # operate on a stable copy of the object
+            with self._write_lock:
+                _objs = copy.deepcopy(self._objects)
+                self._dirty = False
+
+            if key is None:
+                # remove all InvalidObjects
+                delete_keys = [
+                    k for k in _objs if _objs[k] is _invalid_object
+                ]
+
+                for k in delete_keys:
+                    del _objs[k]
+
+                if _objs:
+                    make_dirs(self.cache_path)
+                    for k in _objs.keys():
+                        try:
+                            self._write(k, _objs)
+                        except:
+                            traceback.print_exc()
+                else:
+                    # cache has been emptied, so remove it
+                    try:
+                        shutil.rmtree(self.cache_path)
+                    except:
+                        print(
+                            'error while deleting {0}'.format(self.cache_path))
+                        traceback.print_exc()
+            elif key in _objs:
+                if _objs[key] is _invalid_object:
+                    file_path = os.path.join(self.cache_path, key)
+                    try:
+                        os.path.remove(file_path)
+                    except:
+                        print('error while deleting {0}'.format(file_path))
+                        traceback.print_exc()
+                else:
+                    make_dirs(self.cache_path)
+                    self._write(key, _objs)
+
+    def save_async(self, key=None):
+        '''
+        an async version of save; does the save in a new thread
+        '''
+        self._pool.apply_async(self.save, key)
+
+    def _write(self, key, obj):
+        try:
+            _obj = obj[key]
+        except KeyError:
+            raise CacheMiss()
+
+        try:
+            with open(os.path.join(self.cache_path, key), 'wb') as f:
+                pickle.dump(_obj, f, protocol=-1)
+        except OSError:
+            print('error while writing to {0}'.format(key))
+            traceback.print_exc()
+            raise CacheMiss()
+
+    def _schedule_save(self):
+        with self._save_lock:
+            self._save_queue.append(0)
+            threading.Timer(0.5, self._debounce_save).start()
+
+    def _debounce_save(self):
+        with self._save_lock:
+            if len(self._save_queue) > 1:
+                self._save_queue.pop()
+            else:
+                self._save_queue = []
+                sublime.set_timeout(self.save_async, 0)
+
+    # ensure cache is saved to disk when removed from memory
+    def __del__(self):
+        self.save_async()
+        self._pool.terminate()
 
 
-def _validate_life_span(cache_path):
-    life_span = _read_life_span()
-    # if life span is none: only manual deletion
-    if life_span is None:
-        return
+class GlobalCache(Cache):
+    '''
+    the global cache
 
-    created = _read_cache_timestamp(cache_path)
+    stores data in the appropriate global cache folder; SHOULD NOT be used
+    for data related to a particular tex document
 
-    current_time = long(time.time())
-    if created + life_span < current_time:
-        print(u"Life span of local cache is over. Invalidate local cache.")
-        invalidate_local_cache(cache_path)
-        raise CacheMiss(u"Cache life span expired")
+    note that all instance of the global cache share state, meaning that it
+    behaves as though there were a single object
+    '''
 
+    __STATE = {}
 
-def _read_cache_timestamp(cache_path):
-    access_path = os.path.join(cache_path, _CACHE_TIMESTAMP_FILE)
-    try:
-        with open(access_path, "r") as f:
-            created = long(f.read())
-    except:
-        print(u"No creation timestamp for local cache")
-        invalidate_local_cache(cache_path)
-        raise CacheMiss(u"Life span timestamp missing")
-    return created
+    def __new__(cls, *args, **kwargs):
+        # almost-singleton implementation; all instances share the same state
+        inst = super(GlobalCache, cls).__new__(cls, *args, **kwargs)
+        inst.__dict__ = cls.__STATE
+        return inst
+
+    def invalidate(self, key):
+        if key is None:
+            raise ValueError('key must not be None')
+        super(GlobalCache, self).invalidate(key)
 
 
-def _read_life_span():
-    try:
-        life_span_string = get_setting("local_cache_life_span")
-        if not life_span_string:
-            raise Exception(u"No lifespan defined")
-        if life_span_string == "infinite":
+class ValidatingCache(Cache):
+    '''
+    an abstract class for a cache which implements validation either when an
+    entry is retrieved or changed
+
+    implementing subclasses SHOULD override validate_on_get or validate_on_set
+    as appropriate
+    '''
+
+    def __new__(cls, *args, **kwargs):
+        # don't allow this class to be instantiated directly
+        if cls is ValidatingCache:
+            raise NotImplemented
+
+        return super(ValidatingCache, cls).__new__(cls, *args, **kwargs)
+
+    def validate_on_get(self, key):
+        '''
+        subclasses should override this to run validation when an object is
+        retrieved from the cache
+
+        subclasses should raise a ValueError if the validation shouldn't
+        succeed
+        '''
+
+    def validate_on_set(self, key, obj):
+        '''
+        subclasses should override this to run validation when an object is
+        added or modified in the cache
+
+        subclasses should raise a ValueError if the validation shouldn't
+        succeed
+        '''
+
+    def get(self, key):
+        try:
+            self.validate_on_get(key)
+        except ValueError as e:
+            self.invalidate()
+            raise CacheMiss(unicode(e))
+
+        return super(ValidatingCache, self).get(key)
+
+    get.__doc__ = Cache.get.__doc__
+
+    def set(self, key, obj):
+        if key is None:
+            raise ValueError('key cannot be None')
+
+        self.validate_on_set(key, obj)
+
+        return super(ValidatingCache, self).set(key, obj)
+
+    set.__doc__ = Cache.set.__doc__
+
+
+class InstanceTrackingCache(Cache):
+    '''
+    an abstract class for caches that share state between different instances
+    that point to the same underlying data; in addition, when all instances
+    of a given cache have been removed from memory, the cache is written to
+    disk
+
+    this is used, for example, by the local cache to ensure that all documents
+    with the same tex_root share a local cache instance; this helps minimize
+    memory usage and ensure data consistency across multiple cache instances,
+    e.g., caches instantiated in different functions or multiple ST views of
+    the "same" document
+
+    subclasses MUST implement the _get_inst_key method
+    '''
+
+    _CLASSES = set([])
+
+    def __new__(cls, *args, **kwargs):
+        if cls is InstanceTrackingCache:
+            raise NotImplemented
+
+        InstanceTrackingCache._CLASSES.add(cls)
+
+        if not hasattr(cls, '_INSTANCES'):
+            cls._INSTANCES = collections.defaultdict(lambda: {})
+            cls._REF_COUNTS = collections.defaultdict(lambda: 0)
+            cls._LOCKS = collections.defaultdict(lambda: threading.Lock())
+
+        inst = super(InstanceTrackingCache, cls).__new__(cls, *args, **kwargs)
+        inst_key = inst._get_inst_key(*args, **kwargs)
+
+        with cls._LOCKS[inst_key]:
+            inst.__dict__ = cls._INSTANCES[inst_key]
+            cls._REF_COUNTS[inst_key] += 1
+
+        return inst
+
+    def _get_inst_key(self, *args, **kwargs):
+        '''
+        subclasses MUST override this method to return a key which identifies
+        this instance; this key MUST be able to be used as a dictionary key
+
+        the key is intended to be shared by multiple instances of the cache,
+        but only those which represent the same underlying data; for example,
+        the LocalCache uses the tex_root value as its key, so that all
+        documents with the same tex_root share the same cache instance
+
+        NB this method is called in TWO DISTINCT ways and subclass
+        implementations MUST be able to generate the same response for both or
+        else the behavior of the instance-tracking cannot be guaranteed.
+
+            1)  This method is called from __new__ with the args and kwargs
+                passed to the constructor; subclasses SHOULD derive the key
+                from those args
+            2)  This method is called from __del__ without the args and kwargs
+                passed to the construtor; subclasses MUST ensure that the same
+                key derived in #1 can be derived in this case from information
+                stored in the object
+        '''
+        raise NotImplemented
+
+    # ensure the cache is written to disk when LAST copy of this instance is
+    # removed
+    def __del__(self):
+        inst_key = self._get_inst_key()
+        if inst_key is None:
+            return
+
+        with self._LOCKS[inst_key]:
+            ref_count = self._REF_COUNTS[inst_key]
+            ref_count -= 1
+            self._REF_COUNTS[inst_key] = ref_count
+
+            if ref_count <= 0:
+                self.save_async()
+                self._pool.terminate()
+                del self._REF_COUNTS[inst_key]
+                del self._INSTANCES[inst_key]
+
+
+class LocalCache(ValidatingCache, InstanceTrackingCache):
+    '''
+    the local cache
+
+    stores data related to a particular tex document (identified by the
+    tex_root) to a uniquely named folder in the cache directory
+
+    all data in this cache SHOULD relate directly to the tex_root
+    '''
+
+    _CACHE_TIMESTAMP = "created_time_stamp"
+    _LIFE_SPAN_LOCK = threading.Lock()
+
+    def __init__(self, tex_root):
+        self.tex_root = tex_root
+        # although this could change, currently only the value when the
+        # cache is created is relevant
+        self.hide_cache = get_setting('hide_local_cache', True)
+        super(LocalCache, self).__init__()
+
+    def validate_on_get(self, key):
+        try:
+            cache_time = Cache.get(self, self._CACHE_TIMESTAMP)
+        except:
+            raise ValueError('cannot load created timestamp')
+        else:
+            if not self.is_up_to_date(key, cache_time):
+                raise ValueError('value outdated')
+
+    def validate_on_set(self, key, obj):
+        if not self.has(self._CACHE_TIMESTAMP):
+            Cache.set(self, self._CACHE_TIMESTAMP, long(time.time()))
+
+    def _get_inst_key(self, *args, **kwargs):
+        if not hasattr(self, 'tex_root'):
+            if len(args) > 0:
+                return args[0]
             return None
-        life_span = _parse_life_span_string(life_span_string)
-    except:
-        life_span = 30 * 60  # default: 30 mins
-    return life_span
+        else:
+            return self.tex_root
 
+    def _get_cache_path(self):
+        if self.hide_cache:
+            cache_path = super(LocalCache, self)._get_cache_path()
+            root_hash = hash_digest(self.tex_root)
+            return os.path.join(
+                cache_path, HIDDEN_LOCAL_CACHE_FOLDER, root_hash)
+        else:
+            root_folder = os.path.dirname(self.tex_root)
+            return os.path.join(root_folder, LOCAL_CACHE_FOLDER)
 
-def _parse_life_span_string(life_span_string):
-    """Parses a life span string, raises an exception if it cannot parse"""
-    try:
-        life_span = int(life_span_string)
-    except:
-        life_span = _convert_life_span_string(life_span_string)
-    if life_span <= 0:
-        raise Exception("Life span must be greater than 0")
-    return life_span
+    def is_up_to_date(self, key, timestamp):
+        if timestamp is None:
+            return False
 
+        cache_life_span = LocalCache._get_cache_life_span()
 
-def _convert_life_span_string(life_span_string):
-    """Converts a TIME_RE compatible life span string,
-    raises an exception if it is not compatible"""
-    (d, h, m, s) = TIME_RE.match(life_span_string).groups()
-    # time conversions in seconds
-    times = [(s, 1), (m, 60), (h, 3600), (d, 86400)]
-    # sum the converted times
-    # if not specified (None) use 0
-    return sum(int(t[0] or 0) * t[1] for t in times)
+        current_time = long(time.time())
+        if timestamp + cache_life_span < current_time:
+            return False
+
+        return True
+
+    @classmethod
+    def _get_cache_life_span(cls):
+        '''
+        gets the length of time an item should remain in the local cache
+        before being evicted
+
+        note that previous values are calculated and stored since this method
+        is used on every cache read
+        '''
+        def __parse_life_span_string():
+            try:
+                return long(life_span_string)
+            except ValueError:
+                try:
+                    (d, h, m, s) = TIME_RE.match(life_span_string).groups()
+                    # time conversions in seconds
+                    times = [(s, 1), (m, 60), (h, 3600), (d, 86400)]
+                    # sum the converted times
+                    # if not specified (None) use 0
+                    return sum(long(t[0] or 0) * t[1] for t in times)
+                except:
+                    print('error parsing life_span_string {0}'.format(
+                        life_span_string))
+                    traceback.print_exc()
+                    # default 30 minutes in seconds
+                    return 1800
+
+        with cls._LIFE_SPAN_LOCK:
+            life_span_string = get_setting('local_cache_life_span')
+            try:
+                if cls._PREV_LIFE_SPAN_STR == life_span_string:
+                    return cls._PREV_LIFE_SPAN
+            except AttributeError:
+                pass
+
+            cls._PREV_LIFE_SPAN_STR = life_span_string
+            cls._PREV_LIFE_SPAN = life_span = __parse_life_span_string()
+            return life_span

@@ -1,6 +1,19 @@
 import os
 import sys
 
+from .six import reraise
+
+
+def make_dirs(path):
+    '''
+    wraps os.makedirs to surpress any error as long as the directory exists
+    '''
+    try:
+        os.makedirs(path)
+    except OSError:
+        if not os.path.isdir(path):
+            reraise(*sys.exc_info())
+
 
 if sys.version_info < (3, 3):
     def which(cmd, mode=os.F_OK | os.X_OK, path=None):

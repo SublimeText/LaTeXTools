@@ -6,118 +6,162 @@ import sublime
 if sublime.version() < '3000':
     _ST3 = False
     from latextools_utils import bibformat, cache, get_setting
+    from external.frozendict import frozendict
+    from latextools_utils.system import make_dirs
 else:
     _ST3 = True
     from . import bibformat, cache, get_setting
+    from ..external.frozendict import frozendict
+    from .six import long
+    from .system import make_dirs
 
-_VERSION = 1
-
-
-def write_fmt(bib_name, bib_file, bib_entries):
-    """
-    Writes the entries resulting from the bibliography into the cache.
-    The entries are pre-formatted to improve the time for the cite
-    completion command.
-    These pre-formatted entries are returned and should be used in the
-    to improve the time and be consistent with the return values.
-
-    Arguments:
-    bib_name -- the (unique) name of the bibliography
-    bib_file -- the bibliography file, which resulted in the entries
-    bib_entries -- the entries, which are parsed from the bibliography
-
-    Returns:
-    The pre-formatted entries, which should be passed to the cite
-    completions
-    """
-    cache_name, formatted_cache_name = _cache_name(bib_name, bib_file)
-
-    current_time = time.time()
-
-    # write the full unformatted bib entries into the cache together
-    # with a time stamp
-    print("Writing bibliography into cache {0}".format(cache_name))
-    cache.write_global(cache_name, (current_time, bib_entries))
-
-    # create and cache the formatted entries
-    formatted_entries = _create_formatted_entries(formatted_cache_name,
-                                                  bib_entries, current_time)
-    return formatted_entries
+_VERSION = 2
 
 
-def read_fmt(bib_name, bib_file):
-    """
-    Reads the cache file of a bibliography file.
-    If the bibliography file has been changed after the caching, this
-    will result in a CacheMiss.
-    These entries are pre-formatted and compatible with cite
-    completions.
+class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
+    '''
+    implements a cache for a bibliography file
 
-    Arguments:
-    bib_name -- the (unique) name of the bibliography
-    bib_file -- the bibliography file, which resulted in the entries
+    note that this differs somewhat from the other cache objects because it
+    does not store multiple values, but only values derived from a single
+    bib file
 
-    Returns:
-    The cached pre-formatted entries, which should be passed to the
-    cite completions
-    """
-    cache_name, formatted_cache_name = _cache_name(bib_name, bib_file)
+    note that the bibliography entries themselves are NOT stored in the
+    in-memory cache which ONLY stores the formatted entries; instead,
+    they are read from disk as necessary
+    '''
 
-    try:
-        meta_data, formatted_entries = cache.read_global(formatted_cache_name)
-    except:
-        raise cache.CacheMiss()
+    def __init__(self, bib_plugin_name, bib_file):
+        self._inst_name = (bib_plugin_name, bib_file)
+        super(BibCache, self).__init__()
 
-    # raise a cache miss if the modification took place after the caching
-    modified_time = os.path.getmtime(bib_file)
-    if modified_time > meta_data["cache_time"]:
-        raise cache.CacheMiss()
+        file_hash = cache.hash_digest(bib_file)
+        self.bib_file = bib_file
+        self.cache_name = "bib_{0}_{1}".format(bib_plugin_name, file_hash)
+        self.formatted_cache_name = "bib_{0}_fmt_{1}".format(
+            bib_plugin_name, file_hash
+        )
 
-    # validate the version and format strings are still valid
-    if (meta_data["version"] != _VERSION or
-            any(meta_data[s] != get_setting("cite_" + s)
-                for s in ["panel_format", "autocomplete_format"])):
-        print("Formatting string has changed, updating cache...")
-        # read the base information from the unformatted cache
-        current_time, bib_entries = cache.read_global(cache_name)
-        # format and cache the entries
-        formatted_entries = _create_formatted_entries(formatted_cache_name,
-                                                      bib_entries,
-                                                      current_time)
+    def get(self):
+        try:
+            result = self._objects[self.formatted_cache_name]
+        except KeyError:
+            try:
+                result = self.load(self.formatted_cache_name)
+            except cache.CacheMiss:
+                result = None
 
-    return formatted_entries
+        try:
+            return self.validate_on_get(result)
+        except cache.CacheMiss:
+            return self._get_bib_cache()[1]
 
+    def set(self, bib_entries):
+        def _write_bib_cache():
+            try:
+                cache.pickle.dumps(bib_entries, protocol=-1)
+            except cache.pickle.PicklingError:
+                print('bib_entries must be pickleable')
+            else:
+                with self._disk_lock:
+                    make_dirs(self.cache_path)
+                    self._write(
+                        self.cache_name,
+                        {self.cache_name: bib_entries}
+                    )
 
-def _cache_name(bib_name, bib_file):
-    file_hash = cache.hash_digest(bib_file)
-    cache_name = "bib_{0}_{1}".format(bib_name, file_hash)
-    formatted_cache_name = "bib_{0}_fmt_{1}".format(bib_name, file_hash)
-    return cache_name, formatted_cache_name
+        # write bib_entries to disk
+        self._pool.apply_async(_write_bib_cache)
 
+        formatted_entries = self._create_formatted_entries(bib_entries)
 
-def _create_formatted_entries(formatted_cache_name, bib_entries, cache_time):
-    # create the formatted entries
-    autocomplete_format = get_setting("cite_autocomplete_format")
-    panel_format = get_setting("cite_panel_format")
+        with self._write_lock:
+            self._objects[self.formatted_cache_name] = formatted_entries
+            self._dirty = True
+        self._schedule_save()
 
-    meta_data = {
-        "cache_time": cache_time,
-        "version": _VERSION,
-        "autocomplete_format": autocomplete_format,
-        "panel_format": panel_format
-    }
-    formatted_entries = [
-        {
-            "keyword": entry["keyword"],
-            "<prefix_match>": bibformat.create_prefix_match_str(entry),
-            "<panel_formatted>": [
-                bibformat.format_entry(s, entry) for s in panel_format
-            ],
-            "<autocomplete_formatted>":
-                bibformat.format_entry(autocomplete_format, entry)
-        }
-        for entry in bib_entries
-    ]
+    def cache(self, func):
+        try:
+            return self.get()
+        except:
+            result = func()
+            self.set(result)
 
-    cache.write_global(formatted_cache_name, (meta_data, formatted_entries))
-    return formatted_entries
+    def validate_on_get(self, obj):
+        if obj is None:
+            raise cache.CacheMiss()
+
+        meta_data, formatted_entries = obj
+
+        try:
+            mtime = os.path.getmtime(self.bib_file)
+        except:
+            raise cache.CacheMiss()
+        else:
+            if mtime > meta_data['cache_time']:
+                raise cache.CacheMiss('outdated formatted entries')
+
+        if _VERSION != meta_data['version'] or any(
+            meta_data[s] != get_setting("cite_" + s)
+            for s in ["panel_format", "autocomplete_format"]
+        ):
+            return self._get_bib_cache()[1]
+
+        return formatted_entries
+
+    def _get_inst_key(self, *args, **kwargs):
+        if not hasattr(self, '_inst_name'):
+            if len(args) > 1:
+                return (args[0], args[1])
+            else:
+                return None
+        else:
+            return self._inst_name
+
+    def _get_bib_cache(self):
+        try:
+            cache_mtime = os.path.getmtime(
+                os.path.join(self.cache_path, self.cache_name))
+
+            bib_mtime = os.path.getmtime(self.bib_file)
+        except:
+            raise cache.CacheMiss()
+        else:
+            if cache_mtime < bib_mtime:
+                raise cache.CacheMiss('outdated bib entry cache')
+
+        bib_entries = self._read(self.cache_name)
+        formatted_entries = self._create_formatted_entries(bib_entries)
+        with self._write_lock:
+            self._objects[self.formatted_cache_name] = formatted_entries
+            self._dirty = True
+        self._schedule_save()
+
+        return formatted_entries
+
+    def _create_formatted_entries(self, bib_entries):
+        # create the formatted entries
+        autocomplete_format = get_setting("cite_autocomplete_format")
+        panel_format = get_setting("cite_panel_format")
+
+        meta_data = frozendict(
+            cache_time=long(time.time()),
+            version=_VERSION,
+            autocomplete_format=autocomplete_format,
+            panel_format=panel_format
+        )
+
+        formatted_entries = tuple(
+            frozendict(**{
+                "keyword": entry["keyword"],
+                "<prefix_match>": bibformat.create_prefix_match_str(entry),
+                "<panel_formatted>": tuple(
+                    bibformat.format_entry(s, entry) for s in panel_format
+                ),
+                "<autocomplete_formatted>":
+                    bibformat.format_entry(autocomplete_format, entry)
+            })
+            for entry in bib_entries
+        )
+
+        return meta_data, formatted_entries
