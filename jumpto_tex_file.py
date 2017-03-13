@@ -10,18 +10,26 @@ import sublime_plugin
 try:
     _ST3 = True
     from .getTeXRoot import get_tex_root
-    from .latextools_utils import get_setting, utils
+    from .latextools_utils import analysis, get_setting, utils
     from .latextools_utils.external_command import external_command
 except:
     _ST3 = False
     from getTeXRoot import get_tex_root
-    from latextools_utils import get_setting, utils
+    from latextools_utils import analysis, get_setting, utils
     from latextools_utils.external_command import external_command
 
 
 INPUT_REG = re.compile(
     r"\\(?:input|include|subfile|loadglsentries)"
     r"\{(?P<file>[^}]+)\}",
+    re.UNICODE
+)
+
+IMPORT_REG = re.compile(
+    r"\\(?:(?:sub)?import|(?:sub)?inputfrom|(?:sub)?includefrom)"
+    r"\*?"
+    r"\{(?P<path>[^}]+)\}"
+    r"(?:\{(?P<file>[^}]+)\})?",  # optional for compat with jumpto-anywhere
     re.UNICODE
 )
 
@@ -42,7 +50,10 @@ IMAGE_REG = re.compile(
 
 def _jumpto_tex_file(view, window, tex_root, file_name,
                      auto_create_missing_folders, auto_insert_root):
-    base_path, base_name = os.path.split(tex_root)
+    root_base_path, root_base_name = os.path.split(tex_root)
+
+    ana = analysis.get_analysis(tex_root)
+    base_path = ana.tex_base_path(view.file_name())
 
     _, ext = os.path.splitext(file_name)
     if not ext:
@@ -83,8 +94,8 @@ def _jumpto_tex_file(view, window, tex_root, file_name,
             root_path = tex_root
         else:
             root_path = os.path.join(
-                os.path.relpath(base_path, containing_folder),
-                base_name)
+                os.path.relpath(root_base_path, containing_folder),
+                root_base_name)
 
         # Use slashes consistent with TeX's usage
         if sublime.platform() == 'windows' and not isabs:
@@ -125,8 +136,9 @@ def _jumpto_bib_file(view, window, tex_root, file_name,
                      auto_create_missing_folders, False)
 
 
-def find_image(tex_root, file_name):
-    base_path = os.path.dirname(tex_root)
+def find_image(tex_root, file_name, tex_file_name=None):
+    ana = analysis.get_analysis(tex_root)
+    base_path = ana.tex_base_path(tex_file_name)
 
     image_types = get_setting(
         "image_types", [
@@ -205,7 +217,7 @@ def open_image(window, file_path):
 
 
 def _jumpto_image_file(view, window, tex_root, file_name):
-    file_path = find_image(tex_root, file_name)
+    file_path = find_image(tex_root, file_name, tex_file_name=view.file_name())
     if not file_path:
         sublime.status_message("file does not exists: '{0}'".format(file_path))
         return
@@ -253,6 +265,14 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
 
             for g in filter(is_inside, INPUT_REG.finditer(line)):
                 file_name = g.group("file")
+                print("Jumpto tex file '{0}'".format(file_name))
+                _jumpto_tex_file(view, window, tex_root, file_name,
+                                 auto_create_missing_folders, auto_insert_root)
+
+            for g in filter(is_inside, IMPORT_REG.finditer(line)):
+                if not g.group("file"):
+                    continue
+                file_name = os.path.join(g.group("path"), g.group("file"))
                 print("Jumpto tex file '{0}'".format(file_name))
                 _jumpto_tex_file(view, window, tex_root, file_name,
                                  auto_create_missing_folders, auto_insert_root)
