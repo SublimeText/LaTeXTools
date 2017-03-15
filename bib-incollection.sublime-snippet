@@ -1,0 +1,13 @@
+<snippet>
+    <content><![CDATA[@Incollection{${1:refName},
+    author = {${2:authors}},
+     title = {${3:title}},
+ booktitle = {${4:title of the collection}},
+ publisher = {${5:publisher}},
+      year = {${6:year}}
+}
+]]></content>
+    <tabTrigger>incollection</tabTrigger>
+    <scope>text.bibtex</scope>
+    <description>Entry referencing a part of a collection</description>
+</snippet>

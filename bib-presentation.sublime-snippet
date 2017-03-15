@@ -1,0 +1,11 @@
+<snippet>
+    <content><![CDATA[@Presentation{${1:refname},
+     author = {${2:author}},
+      title = {${3:title}},
+       date = {${4:yyyy-mm-dd}},
+        url = {${5:http://site/paper}},
+}]]></content>
+    <tabTrigger>presentation</tabTrigger>
+    <scope>text.bibtex</scope>
+    <description>A presentation</description>
+</snippet>

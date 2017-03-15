@@ -1,0 +1,11 @@
+<snippet>
+    <content><![CDATA[@Masterthesis{${1:refname},
+    title = {${2:title}},
+   author = {${3:author}},
+   school = {${4:name of school}},
+     year = {${5:year}}
+}]]></content>
+    <tabTrigger>masterthesis</tabTrigger>
+    <scope>text.bibtex</scope>
+    <description>A Master thesis</description>
+</snippet>

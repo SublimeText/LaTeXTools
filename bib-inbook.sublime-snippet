@@ -1,0 +1,13 @@
+<snippet>
+    <content><![CDATA[@Inbook{${1:refName},
+    author = {${2:authors}},
+     title = {${3:title}},
+     pages = {${4:page range, Can be changed to chapter}},
+ publisher = {${5:publisher}},
+      year = {${6:year}}
+}
+]]></content>
+    <tabTrigger>inbook</tabTrigger>
+    <scope>text.bibtex</scope>
+    <description>Entry referencing a part of a book</description>
+</snippet>

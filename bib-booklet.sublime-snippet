@@ -1,0 +1,12 @@
+<snippet>
+    <content><![CDATA[@Booklet{${1:refName},
+         title = {${2:title}},
+        author = {${3:author}},
+          year = {${4:year}},
+  howpublished = {${5:Website}}
+}
+]]></content>
+    <tabTrigger>booklet</tabTrigger>
+    <scope>text.bibtex</scope>
+    <description>Booklet BibTex entry</description>
+</snippet>

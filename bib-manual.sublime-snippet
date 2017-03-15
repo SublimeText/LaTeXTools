@@ -1,0 +1,11 @@
+<snippet>
+    <content><![CDATA[@Manual{${1:refname},
+          title = {${2:title}},
+         author = {${3:author}},
+   organization = {${4:acme, inc}},
+           year = {${5:year}}
+}]]></content>
+    <tabTrigger>manual</tabTrigger>
+    <scope>text.bibtex</scope>
+    <description>entry of a manual (e.g. technical docs)</description>
+</snippet>

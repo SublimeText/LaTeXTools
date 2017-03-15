@@ -1,0 +1,13 @@
+<snippet>
+    <content><![CDATA[@Conference{${1:refName},
+        author = {${2:authors}},
+         title = {${3:title}},
+     booktitle = {${4:title of book}},
+          year = {${5:year}},
+  organization = {${6:org name}}
+}
+]]></content>
+    <tabTrigger>conference</tabTrigger>
+    <scope>text.bibtex</scope>
+    <description>Conference entry</description>
+</snippet>

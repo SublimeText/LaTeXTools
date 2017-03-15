@@ -1,0 +1,17 @@
+<snippet>
+    <content><![CDATA[@Inproceedings{${1:refName},
+        author = {${2:authors}},
+         title = {${3:title}},
+          year = {${4:year}},
+         month = {${5:month(text)}},
+     booktitle = {${6:title of the book}},
+        volume = {${7:volumne}},
+        number = {${8:number}},
+         pages = {${9:fromPage-toPage)}},
+  organization = {${10:Springer}}
+}
+]]></content>
+    <tabTrigger>inproceedings</tabTrigger>
+    <scope>text.bibtex</scope>
+    <description>inproceedings entry</description>
+</snippet>
