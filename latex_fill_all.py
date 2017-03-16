@@ -525,7 +525,7 @@ class LatexFillHelper(object):
                 value
             )
 
-            if sel.empty:
+            if sel.empty():
                 start_point = end_point = start_point + len(value)
             else:
                 end_point = start_point + len(value)
