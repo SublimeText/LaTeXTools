@@ -253,19 +253,19 @@ LaTeX Package keymap for OS X
 	{ "keys": ["super+l","super+e"],  
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text emphasize.sublime-snippet"}},
+		"command": "latextools_wrap_in_text", "args": {"command": "emph"}},
 	{ "keys": ["super+l","super+b"],  
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text boldface.sublime-snippet"}},
+		"command": "latextools_wrap_in_text", "args": {"command": "textbf"}},
 	{ "keys": ["super+l","super+u"],  
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text underline.sublime-snippet"}},
+		"command": "latextools_wrap_in_text", "args": {"command": "underline"}},
 	{ "keys": ["super+l","super+t"],  
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text monospace.sublime-snippet"}},
+		"command": "latextools_wrap_in_text", "args": {"command": "texttt"}},
 
 	// Replace the `C-r` overlay with a whole document overlay as opt-out
 	// Also add this overlay to `C-l, C-r`
