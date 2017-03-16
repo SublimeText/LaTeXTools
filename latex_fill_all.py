@@ -141,7 +141,7 @@ class LatexFillHelper(object):
                             new_regions.append(
                                 getRegion(
                                     sel.begin(),
-                                    word_region.end() +len(close_bracket)))
+                                    word_region.end() + len(close_bracket)))
                     else:
                         new_regions.append(sel)
 
@@ -261,8 +261,11 @@ class LatexFillHelper(object):
             start = prefix_start
             re_str = re.escape(open_bracket) + '|' + re.escape(close_bracket)
             while True:
+                if start >= suffix_end:
+                    break
+
                 c = view.find(re_str, start)
-                if c is None:
+                if c is None or c.begin() == -1:
                     break
 
                 if c.end() > suffix_end:
@@ -273,6 +276,7 @@ class LatexFillHelper(object):
                     continue
 
                 results.append(c)
+
                 start = c.end()
 
         for candidate in candidates[open_bracket]:
