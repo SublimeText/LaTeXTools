@@ -223,10 +223,17 @@ class LatexFillHelper(object):
             prefix_start = 0
             suffix_end = view.size()
         else:
-            prefix_start = view.lines(
-                getRegion(0, start))[-look_around].begin()
-            suffix_end = view.lines(
-                getRegion(end, view.size()))[look_around].end()
+            prefix_lines = view.lines(getRegion(0, start))
+            if len(prefix_lines) >= look_around:
+                prefix_start = prefix_lines[-look_around].begin()
+            else:
+                prefix_start = prefix_lines[0].begin()
+
+            suffix_lines = view.lines(getRegion(end, view.size()))
+            if len(suffix_lines) >= look_around:
+                suffix_end = suffix_lines[look_around].end()
+            else:
+                suffix_end = suffix_lines[-1].end()
 
             prefix = view.substr(getRegion(prefix_start, start))
 
