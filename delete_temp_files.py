@@ -70,7 +70,11 @@ class ClearBibliographyCacheCommand(sublime_plugin.WindowCommand):
 		# find the instance of LatextoolsCacheUpdateListener, if any
 		cache_listener = None
 		for callback in sublime_plugin.all_callbacks['on_close']:
-			instance = get_self(callback)
+			try:
+				instance = get_self(callback)
+			except:
+				continue
+
 			if instance.__class__.__name__ == 'LatextoolsCacheUpdateListener':
 				cache_listener = instance
 				break

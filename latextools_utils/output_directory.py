@@ -34,7 +34,7 @@ class UnsavedFileException(Exception):
 
 # finds the aux-directory
 # general algorithm:
-#   1. check for an explicit aux_directory directory
+#   1. check for an explicit aux_directory directive
 #   2. check for an --aux-directory flag
 #   3. check for a project setting
 #   4. check for a global setting

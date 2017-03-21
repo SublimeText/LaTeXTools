@@ -17,16 +17,18 @@ import sublime
 
 if sublime.version() < '3000':
     _ST3 = False
-    from latextools_utils import get_setting, utils
+    from latextools_utils import get_setting
     from external.frozendict import frozendict
     from latextools_utils.six import unicode, long, strbase
     from latextools_utils.system import make_dirs
+    from latextools_utils.utils import ThreadPool
 else:
     _ST3 = True
-    from . import get_setting, utils
+    from . import get_setting
     from ..external.frozendict import frozendict
     from .six import unicode, long, strbase
     from .system import make_dirs
+    from .utils import ThreadPool
 
 
 # the folder, if the local cache is not hidden, i.e. folder in the same
@@ -68,7 +70,7 @@ def hash_digest(text):
     return hash_result.hexdigest()
 
 
-def cache(tex_root, key, func):
+def cache_local(tex_root, key, func):
     '''
     alias for cache() on the LocalCache instance corresponding to the tex_root:
 
@@ -89,7 +91,7 @@ def cache(tex_root, key, func):
     return LocalCache(tex_root).cache(key, func)
 
 
-def write(tex_root, key, obj):
+def write_local(tex_root, key, obj):
     '''
     alias for set() on the LocalCache instance corresponding to the tex_root:
 
@@ -107,7 +109,7 @@ def write(tex_root, key, obj):
     return LocalCache(tex_root).set(key, obj)
 
 
-def read(tex_root, key):
+def read_local(tex_root, key):
     '''
     alias for get() on the LocalCache instance corresponding to the tex_root:
 
@@ -174,6 +176,11 @@ def read_global(key):
     return GlobalCache().get(key)
 
 
+# aliases
+cache = cache_local
+write = write_local
+read = read_local
+
 if _ST3:
     def _global_cache_path():
         return os.path.normpath(os.path.join(
@@ -220,7 +227,7 @@ class Cache(object):
         if not hasattr(self, '_save_queue'):
             self._save_queue = []
         if not hasattr(self, '_pool'):
-            self._pool = utils.ThreadPool(2)
+            self._pool = ThreadPool(2)
 
         self.cache_path = self._get_cache_path()
 
