@@ -74,7 +74,11 @@ class LatextoolsAnalysisUpdater(LatextoolsCacheUpdater):
 class LatextoolsBibCacheUpdater(LatextoolsCacheUpdater):
 
     def run_bib_cache(self, tex_root):
+        self.add_step(partial(self._invalidate_find_bib_files, tex_root))
         self.add_step(partial(self._run_bib_cache, tex_root))
+
+    def _invalidate_find_bib_files(self, tex_root):
+        LocalCache(tex_root).invalidate('bib_files')
 
     def _run_bib_cache(self, tex_root):
         run_plugin_command('get_entries', *(find_bib_files(tex_root) or []))
@@ -119,6 +123,7 @@ class LatextoolsCacheUpdateListener(
 
             self._BIB_CACHES[tex_root] = bib_caches = []
 
+            LocalCache(tex_root).invalidate('bib_files')
             bib_files = find_bib_files(tex_root)
 
             plugins = get_setting('bibliography_plugins', ['traditional'])
