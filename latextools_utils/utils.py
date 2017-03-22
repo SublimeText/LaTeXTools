@@ -8,7 +8,12 @@ import time
 try:
     from os import cpu_count
 except ImportError:
-    from multiprocessing import cpu_count
+    try:
+        from multiprocessing import cpu_count
+    # quickfix for ST2 compat
+    except ImportError:
+        def cpu_count():
+            return 1
 
 try:
     from Queue import Queue
