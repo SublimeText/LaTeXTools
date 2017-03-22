@@ -10,18 +10,15 @@ Additional contributors (*thank you thank you thank you*): first of all, Wallace
 
 *If you have contributed and I haven't acknowledged you, email me!*
 
-*Latest revision:* v3.12.16 (2017-02-08).
+*Latest revision:* v3.13.0 (2017-03-22).
 
 *Headline features*:
 
-- Live-preview math equations while writing them (ST3 only)
-- Hover over included graphics to show them in a popup (ST3 only)
-- LaTeX build variants (`C-shift-b`) now supports alternative and more flexible builders
-- Jump to label usages are added to jump-to-anywhere
-- Added a command to search for LaTeX-commands in the whole document 
-- Added support for the glossary package
-- Improvements in CWL completions for environments
-- Added a command to check your system setup
+- Support for the import package
+- TOC quickpanel now shows just the current document when using (`C-r`)
+- Uses analysis for ref / cite commands and better caching
+- Improved fill all completions for large files
+- %!TEX directives now override settings in all circumstances
 
 ## Introduction
 
