@@ -176,11 +176,13 @@ These toggles work just like the sync and focus toggles, but control whether or 
 
 ## Jumping to sections and labels
 
-**Keybinding:** <kbd>C+r</kbd> (standard ST keybinding)
+**Keybinding:** <kbd>C+r</kbd> or <kbd>C+shift+r</kbd> (standard ST keybinding) or <kbd>C+l</kbd>,<kbd>C+r</kbd> or <kbd>C+l</kbd>,<kbd>C+shift+r</kbd> (LaTeXTools only)
 
 This will display a list of all section headings and (if you so desire) labels in the current LaTeX document. You can filter the list of sections / labels by typing some of the characters in the heading name.
 
 Selecting any entry in the list will take you to the corresponding place in the text. On ST3 only, highlighting a specific item (using the arrow keys) will temporarily open the corresponding location.
+
+You can disable this and use the default overlay by settings `overwrite_goto_overlay` to `false` in your LaTeXTools settings.
 
 ## Jump to Anywhere
 
