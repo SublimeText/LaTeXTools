@@ -267,14 +267,28 @@ LaTeX Package keymap for OS X
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text monospace.sublime-snippet"}},
 
-	// Replace the `C-r` overlay with a whole document overlay as opt-out
-	// Also add this overlay to `C-l, C-r`
-	{ "keys": ["super+r"],
+	// Replace the `C-r` overlay and the `C-shift-r` overlay with a 
+	// whole document overlay as opt-out
+	// Also add these overlays to `C-l, C-r` and `C-l, C-shift-r`
+	{ "keys": ["super+r"], "command": "latex_toc_quickpanel",
+		"args": {"only_current_file": true},
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex"},
-			{"key": "overwrite_goto_overlay"}],
-		"command": "latex_toc_quickpanel"},
+			{"key": "overwrite_goto_overlay"}]
+	},
+	{ "keys": ["super+shift+r"], "command": "latex_toc_quickpanel",
+		"args": {"only_current_file": false},
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex"},
+			{"key": "overwrite_goto_overlay"}]
+	},
 	{ "keys": ["super+l","super+r"],
+		"args": {"only_current_file": true},
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex"}],
+		"command": "latex_toc_quickpanel"},
+	{ "keys": ["super+l","super+shift+r"], "command": "latex_toc_quickpanel",
+		"args": {"only_current_file": false},
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex"}],
 		"command": "latex_toc_quickpanel"},

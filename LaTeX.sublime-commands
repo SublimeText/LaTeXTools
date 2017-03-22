@@ -1,6 +1,8 @@
 [
 	{ "caption": "LaTeXTools: Check system", "command": "latextools_system_check"},
 	{ "caption": "LaTeXTools: Delete temporary files", "command": "delete_temp_files"},
+	{ "caption": "LaTeXTools: Clear document cache", "command": "clear_local_latex_cache"},
+	{ "caption": "LaTeXTools: Clear current bibliography cache", "command": "clear_bibliography_cache"},
 	{ "caption": "LaTeXTools: View PDF", "command": "view_pdf"},
 	{ "caption": "LaTeXTools: Jump to PDF", "command": "jump_to_pdf"},
 	{ "caption": "LaTeXTools: Show word count", "command": "texcount"},
@@ -9,5 +11,7 @@
 	{ "caption": "LaTeXTools: Reset user settings to default", "command": "latextools_migrate"},
 	{ "caption": "LaTeXTools: Create mousemap in user folder", "command": "latextools_create_mousemap"},
 	{ "caption": "LaTeXTools: View TeX package documentation", "command": "latex_pkg_doc"},
-	{ "caption": "LaTeXTools: Build cache of LaTeX packages", "command": "latex_gen_pkg_cache"}
+	{ "caption": "LaTeXTools: Build cache of LaTeX packages", "command": "latex_gen_pkg_cache"},
+	{ "caption": "LaTeXTools: Update document analysis cache", "command": "latextools_analysis_update"},
+	{ "caption": "LaTeXTools: Update bibliography cache", "command": "latextools_bib_update"}
 ]

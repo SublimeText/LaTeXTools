@@ -284,8 +284,7 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
             ENV_DONOT_AUTO_COM
         ):
             ENV_DONOT_AUTO_COM.append(
-                latex_input_completions.TEX_INPUT_FILE_REGEX
-            )
+                latex_input_completions.TEX_INPUT_FILE_REGEX)
 
         for rex in ENV_DONOT_AUTO_COM:
             if match(rex, line) is not None:

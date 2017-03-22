@@ -60,7 +60,8 @@ except ImportError:
 _HAS_PREVIEW = sublime.version() >= '3118'
 if _HAS_PREVIEW:
     from .st_preview.preview_utils import (
-        convert_installed, ghostscript_installed, __get_gs_command as get_gs_command
+        convert_installed, ghostscript_installed,
+        __get_gs_command as get_gs_command
     )
 
 if sys.version_info >= (3,):
@@ -440,7 +441,7 @@ class SystemCheckThread(threading.Thread):
 
             table.append([
                 'sublime',
-                sublime_exe,
+                sublime_exe if available and version_info is not None else u'',
                 (u'available'
                     if available and version_info is not None else u'missing'),
                 version_info if version_info is not None else u'unavailable'
@@ -492,7 +493,7 @@ class SystemCheckThread(threading.Thread):
 
             table.append([
                 program,
-                location,
+                location if available and version_info is not None else u'',
                 available_str,
                 version_info if version_info is not None else u'unavailable'
             ])
@@ -520,7 +521,9 @@ class SystemCheckThread(threading.Thread):
             available_str = u'restart required'
 
         table.append([
-            program, location, available_str,
+            program,
+            location if available and version_info is not None else u'',
+            available_str,
             version_info if version_info is not None else u'unavailable'
         ])
 

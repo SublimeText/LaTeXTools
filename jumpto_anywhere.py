@@ -12,7 +12,7 @@ try:
     from .latex_cite_completions import NEW_STYLE_CITE_REGEX
     from .latex_glossary_completions import ACR_LINE_RE, GLO_LINE_RE
     from .latex_ref_completions import NEW_STYLE_REF_REGEX
-    from .jumpto_tex_file import INPUT_REG, BIB_REG, IMAGE_REG
+    from .jumpto_tex_file import INPUT_REG, IMPORT_REG, BIB_REG, IMAGE_REG
     from . import jumpto_tex_file
 except:
     _ST3 = False
@@ -22,7 +22,7 @@ except:
     from latex_cite_completions import NEW_STYLE_CITE_REGEX
     from latex_glossary_completions import ACR_LINE_RE, GLO_LINE_RE
     from latex_ref_completions import NEW_STYLE_REF_REGEX
-    from jumpto_tex_file import INPUT_REG, BIB_REG, IMAGE_REG
+    from jumpto_tex_file import INPUT_REG, IMPORT_REG, BIB_REG, IMAGE_REG
     import jumpto_tex_file
 
 # we need a filter as iterator
@@ -31,11 +31,12 @@ if not _ST3:
 else:
     ifilter = filter
 
-INPUT_REG_EXPS = [INPUT_REG, BIB_REG, IMAGE_REG]
+INPUT_REG_EXPS = [INPUT_REG, IMPORT_REG, BIB_REG, IMAGE_REG]
 
 COMMAND_REG = re.compile(
     r"\\(?P<command>[\w]+)"
-    r"(?:\[[^\]]*\])?"
+    r"\*?\s*"
+    r"(?:\[[^\]]*\]\s*)?"
     r"\{(?P<args>[^}]*)\}",
     re.UNICODE
 )

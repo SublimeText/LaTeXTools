@@ -131,22 +131,17 @@ class LatexFillHelper(object):
                             if word_region.empty():
                                 new_regions.append(
                                     getRegion(
-                                        word_region.end(), word_region.end()
-                                    )
-                                )
+                                        word_region.end(), word_region.end()))
                             else:
-                                new_point = word_region.end() + \
-                                    len(close_bracket)
-                                new_regions.append(
-                                    getRegion(new_point, new_point)
-                                )
+                                new_point = word_region.end() + len(
+                                    close_bracket)
+                                new_regions.append(getRegion(
+                                    new_point, new_point))
                         else:
                             new_regions.append(
                                 getRegion(
                                     sel.begin(),
-                                    word_region.end() + len(close_bracket)
-                                )
-                            )
+                                    word_region.end() + len(close_bracket)))
                     else:
                         new_regions.append(sel)
 
@@ -194,9 +189,22 @@ class LatexFillHelper(object):
         # to find all matches once per bracket type
         # if the view has changed, we reset the candidates
         candidates = None
+
         if not hasattr(self, 'last_view') or self.last_view != view.id():
             self.last_view = view.id()
+            self.use_full_scan = get_setting(
+                'smart_bracket_scan_full_document', False)
             candidates = self.candidates = {}
+
+        if not self.use_full_scan:
+            # always clear the candidates when not using a full scan
+            candidates = {}
+            # when not using a full scan, get the number of lines to
+            # look-behind
+            try:
+                look_around = int(get_setting('smart_bracket_look_around', 5))
+            except ValueError:
+                look_around = 5
 
         if candidates is None:
             try:
@@ -210,7 +218,24 @@ class LatexFillHelper(object):
         else:
             start = end = sel
 
-        prefix = view.substr(getRegion(0, start))
+        if self.use_full_scan:
+            prefix = view.substr(getRegion(0, start))
+            prefix_start = 0
+            suffix_end = view.size()
+        else:
+            prefix_lines = view.lines(getRegion(0, start))
+            if len(prefix_lines) >= look_around:
+                prefix_start = prefix_lines[-look_around].begin()
+            else:
+                prefix_start = prefix_lines[0].begin()
+
+            suffix_lines = view.lines(getRegion(end, view.size()))
+            if len(suffix_lines) >= look_around:
+                suffix_end = suffix_lines[look_around].end()
+            else:
+                suffix_end = suffix_lines[-1].end()
+
+            prefix = view.substr(getRegion(prefix_start, start))
 
         open_bracket, last_index = None, -1
         for char in self.MATCH_CHARS:
@@ -231,17 +256,32 @@ class LatexFillHelper(object):
         if open_bracket not in candidates:
             # find all open / close brackets in the current buffer,
             # removing all comments
-            candidates[open_bracket] = [
-                c for c in view.find_all(
-                    re.escape(open_bracket) + '|' +
-                    re.escape(close_bracket)
-                )
-                if view.score_selector(c.begin(), 'comment') == 0
-            ]
+            candidates[open_bracket] = results = []
+
+            start = prefix_start
+            re_str = re.escape(open_bracket) + '|' + re.escape(close_bracket)
+            while True:
+                if start >= suffix_end:
+                    break
+
+                c = view.find(re_str, start)
+                if c is None or c.begin() == -1:
+                    break
+
+                if c.end() > suffix_end:
+                    break
+
+                if view.score_selector(c.begin(), 'comment') != 0:
+                    start = c.end()
+                    continue
+
+                results.append(c)
+
+                start = c.end()
 
         for candidate in candidates[open_bracket]:
             if view.substr(candidate) == open_bracket:
-                if candidate.begin() > end:
+                if len(open_brackets) == 0 and candidate.begin() > end:
                     break
 
                 open_brackets.append(candidate)
@@ -281,6 +321,11 @@ class LatexFillHelper(object):
 
         try:
             del self.last_view
+        except:
+            pass
+
+        try:
+            del self.use_full_scan
         except:
             pass
 
@@ -491,7 +536,7 @@ class LatexFillHelper(object):
                 value
             )
 
-            if sel.empty:
+            if sel.empty():
                 start_point = end_point = start_point + len(value)
             else:
                 end_point = start_point + len(value)

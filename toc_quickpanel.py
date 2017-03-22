@@ -33,7 +33,7 @@ class show_toc_quickpanel(quickpanel.CancelEntriesQuickpanel):
     __hide_string = "Hide Labels"
     __toggles = [__show_string, __hide_string]
 
-    def __init__(self, ana):
+    def __init__(self, ana, only_file=None):
         # retrieve the labels and the sections
         toc_section_commands = get_setting("toc_section_commands", [])
         toc_indentations = get_setting("toc_indentations", {})
@@ -43,6 +43,10 @@ class show_toc_quickpanel(quickpanel.CancelEntriesQuickpanel):
         # filter the labels and sections to only get the labels
         # (faster than an additional query)
         secs = [c for c in labels if c.command in toc_section_commands]
+
+        if only_file:
+            labels = [l for l in labels if l.file_name == only_file]
+            secs = [s for s in secs if s.file_name == only_file]
 
         # create the user readably captions
         # get the minimal indent (to lower the minimal section indent to 0)
@@ -114,14 +118,15 @@ def show_commands(captions, entries, show_cancel=True):
 
 
 class LatexTocQuickpanelCommand(sublime_plugin.WindowCommand):
-    def run(self):
+    def run(self, only_current_file=False):
         view = self.window.active_view()
         tex_root = get_tex_root(view)
         if not tex_root:
             return
         ana = analysis.analyze_document(tex_root)
 
-        show_toc_quickpanel(ana)
+        only_file = None if not only_current_file else view.file_name()
+        show_toc_quickpanel(ana, only_file=only_file)
 
 
 class LatexTocQuickpanelContext(sublime_plugin.EventListener):

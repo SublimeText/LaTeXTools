@@ -107,13 +107,17 @@ class EntryWrapper(Mapping):
     def __len__(self):
         return len(self.entry)
 
+
 class NewBibliographyPlugin(LaTeXToolsPlugin):
+
     def get_entries(self, *bib_files):
         entries = []
         parser = Parser()
+
         for bibfname in bib_files:
+            bib_cache = bibcache.BibCache("new", bibfname)
             try:
-                cached_entries = bibcache.read_fmt("new", bibfname)
+                cached_entries = bib_cache.get()
                 entries.extend(cached_entries)
                 continue
             except:
@@ -135,14 +139,23 @@ class NewBibliographyPlugin(LaTeXToolsPlugin):
                     entry = bib_data[key]
                     if entry.entry_type in ('xdata', 'comment', 'string'):
                         continue
+
+                    # purge some unnecessary fields from the bib entry to save
+                    # some space and time reloading
+                    for k in [
+                        'abstract', 'annotation', 'annote', 'execute',
+                        'langidopts', 'options'
+                    ]:
+                        if k in entry:
+                            del entry[k]
+
                     bib_entries.append(EntryWrapper(entry))
 
                 try:
-                    fmt_entries = bibcache.write_fmt("new", bibfname, bib_entries)
+                    bib_cache.set(bib_entries)
+                    fmt_entries = bib_cache.get()
                     entries.extend(fmt_entries)
                 except:
-                    entries.extend(bib_entries)
-                    print('Error occurred while trying to write to cache.')
                     traceback.print_exc()
             finally:
                 try:

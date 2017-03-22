@@ -37,12 +37,15 @@ multip = re.compile(
 # LaTeX -> Unicode decoder
 latex_chars.register()
 
+
 class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
+
     def get_entries(self, *bib_files):
         entries = []
         for bibfname in bib_files:
+            bib_cache = bibcache.BibCache("trad", bibfname)
             try:
-                cached_entries = bibcache.read_fmt("trad", bibfname)
+                cached_entries = bib_cache.get()
                 entries.extend(cached_entries)
                 continue
             except:
@@ -107,11 +110,10 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                 print ('Loaded %d bibitems' % (len(bib_entries)))
 
                 try:
-                    fmt_entries = bibcache.write_fmt("trad", bibfname, bib_entries)
+                    bib_cache.set(bib_entries)
+                    fmt_entries = bib_cache.get()
                     entries.extend(fmt_entries)
                 except:
-                    entries.extend(bib_entries)
-                    print('Error occurred while trying to write to cache')
                     traceback.print_exc()
             finally:
                 try:

@@ -25,7 +25,7 @@ TEX_DIRECTIVE = re.compile(
     re.UNICODE
 )
 
-# this is obviously imperfect, but is intended as a heuristic. we 
+# this is obviously imperfect, but is intended as a heuristic. we
 # can tolerate false negatives, but not false positives that match, e.g.,
 # Windows paths or parts of Windows paths.
 LATEX_COMMAND = re.compile(r'\\[a-zA-Z]+\*?(?:\[[^\]]+\])*\{[^\}]+\}')
@@ -54,6 +54,7 @@ def parse_tex_directives(view_or_path, multi_values=[], key_maps={},
     '''
     result = {}
 
+    # used to indicate if we opened a file so it can be closed
     is_file = False
     if isinstance(view_or_path, sublime.View):
         lines = view_or_path.substr(
@@ -123,15 +124,11 @@ def parse_tex_directives(view_or_path, multi_values=[], key_maps={},
             lines.close()
 
 
-# Parse magic comments to retrieve TEX root
-# Stops searching for magic comments at first latex command in file
-# Returns root file or current file or None (if there is no root file,
-# and the current buffer is an unnamed unsaved file)
-
 # Contributed by Sam Finn
 def get_tex_root(view):
     view_file = view.file_name()
-    root = view_file
+
+    root = None
     directives = parse_tex_directives(view, only_for=['root'])
     try:
         root = directives['root']
@@ -139,19 +136,17 @@ def get_tex_root(view):
         pass
     else:
         if not is_tex_file(root):
-            root = view_file
-
-        if not os.path.isabs(root) and view_file is not None:
+            root = None
+        elif not os.path.isabs(root) and view_file is not None:
             file_path, _ = os.path.split(view_file)
             root = os.path.normpath(os.path.join(file_path, root))
 
-    if root == view_file:
+    if root is None:
         root = get_tex_root_from_settings(view)
-        if root is not None:
-            return root
-        return view_file
 
-    return root
+    if root is not None:
+        return root
+    return view_file
 
 
 def get_tex_root_from_settings(view):

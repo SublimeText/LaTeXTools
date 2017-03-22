@@ -41,6 +41,8 @@ LOAD_ORDER = [
 
     'latextools_utils',
 
+    'latextools_utils.six',
+
     # no internal dependencies
     'latextools_utils.bibformat',
     'latextools_utils.settings',
@@ -64,7 +66,6 @@ LOAD_ORDER = [
     'latextools_utils.ana_utils',
     'latextools_utils.output_directory',
     'latextools_utils.bibcache',
-    'latextools_utils.output_directory',
 
     'latextools_plugin',
 
