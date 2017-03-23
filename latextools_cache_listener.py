@@ -98,6 +98,9 @@ class LatextoolsCacheUpdateListener(
     def on_load_async(self, view):
         if not view.score_selector(0, 'text.tex.latex'):
             return
+        on_load = get_setting('cache_on_load', {}, view=view)
+        if not on_load or not any(on_load.values()):
+            return
 
         tex_root = get_tex_root(view)
         if tex_root is None:
@@ -106,19 +109,17 @@ class LatextoolsCacheUpdateListener(
         self._TEX_CACHES[view.id()] = local_cache = LocalCache(tex_root)
         self._TEX_ROOT_REFS[tex_root] += 1
 
-        on_load = get_setting('cache_on_load', {})
-
         # because cache state is shared amongst all documents sharing a tex
         # root, this ensure we only load the analysis ONCE in the on_load
         # event
         if (
             not local_cache.has('analysis') and
-            on_load.get('analysis', True)
+            on_load.get('analysis', False)
         ):
             self.run_analysis(tex_root)
 
         if tex_root not in self._BIB_CACHES:
-            if on_load.get('bibliography', True):
+            if on_load.get('bibliography', False):
                 self.run_bib_cache(tex_root)
 
             self._BIB_CACHES[tex_root] = bib_caches = []
@@ -126,7 +127,8 @@ class LatextoolsCacheUpdateListener(
             LocalCache(tex_root).invalidate('bib_files')
             bib_files = find_bib_files(tex_root)
 
-            plugins = get_setting('bibliography_plugins', ['traditional'])
+            plugins = get_setting(
+                'bibliography_plugins', ['traditional'], view=view)
             if not isinstance(plugins, list):
                 plugins = [plugins]
 
@@ -167,6 +169,10 @@ class LatextoolsCacheUpdateListener(
         if not view.score_selector(0, 'text.tex.latex'):
             return
 
+        on_save = get_setting('cache_on_save', {}, view=view)
+        if not on_save or not any(on_save.values()):
+            return
+
         tex_root = get_tex_root(view)
         if tex_root is None:
             return
@@ -177,9 +183,7 @@ class LatextoolsCacheUpdateListener(
         else:
             local_cache = self._TEX_CACHES[_id]
 
-        on_save = get_setting('cache_on_save', {})
-
-        if on_save.get('analysis', True):
+        if on_save.get('analysis', False):
             # ensure the cache of bib_files is rebuilt on demand
             local_cache.invalidate('bib_files')
             self.run_analysis(tex_root)
