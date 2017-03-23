@@ -205,6 +205,10 @@ class Cache(object):
     implements the shared functionality between the various caches
     '''
 
+    # these threads are used for IO, so having too many is probably OK
+    # NB: This pool is shared by all caches
+    _pool = ThreadPool()
+
     def __new__(cls, *args, **kwargs):
         # don't allow this class to be instantiated directly
         if cls is Cache:
@@ -226,8 +230,6 @@ class Cache(object):
             self._dirty = False
         if not hasattr(self, '_save_queue'):
             self._save_queue = []
-        if not hasattr(self, '_pool'):
-            self._pool = ThreadPool(2)
 
         self.cache_path = self._get_cache_path()
 
