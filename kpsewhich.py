@@ -17,7 +17,7 @@ else:
 __all__ = ['kpsewhich']
 
 
-def kpsewhich(filename, file_format=None):
+def kpsewhich(filename, file_format=None, notify_user_on_error=False):
     # build command
     command = ['kpsewhich']
     if file_format is not None:
@@ -27,18 +27,20 @@ def kpsewhich(filename, file_format=None):
     try:
         return check_output(command)
     except CalledProcessError as e:
-        sublime.error_message(
-            'An error occurred while trying to run kpsewhich. '
-            'Files in your TEXINPUTS could not be accessed.'
-        )
-        if e.output:
-            print(e.output)
-        traceback.print_exc()
+        if notify_user_on_error:
+            sublime.error_message(
+                'An error occurred while trying to run kpsewhich. '
+                'Files in your TEXINPUTS could not be accessed.'
+            )
+            if e.output:
+                print(e.output)
+            traceback.print_exc()
     except OSError:
-        sublime.error_message(
-            'Could not run kpsewhich. Please ensure that your texpath '
-            'setting is correct.'
-        )
-        traceback.print_exc()
+        if notify_user_on_error:
+            sublime.error_message(
+                'Could not run kpsewhich. Please ensure that your texpath '
+                'setting is correct.'
+            )
+            traceback.print_exc()
 
     return None
