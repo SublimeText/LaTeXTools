@@ -6,6 +6,7 @@ import sublime_plugin
 import collections
 from functools import partial
 import threading
+import time
 import traceback
 
 try:
@@ -52,6 +53,8 @@ class LatextoolsCacheUpdater(object):
         ProgressIndicator(
             t, 'Updating LaTeXTools cache', 'LaTeXTools cache updated')
 
+        return t
+
     def _run_cache_update(self):
         for step in self._steps:
             try:
@@ -67,8 +70,7 @@ class LatextoolsAnalysisUpdater(LatextoolsCacheUpdater):
 
     def _run_analysis(self, tex_root):
         LocalCache(tex_root).set(
-            'analysis', analysis.analyze_document(tex_root)
-        )
+            'analysis', analysis.analyze_document(tex_root))
 
 
 class LatextoolsBibCacheUpdater(LatextoolsCacheUpdater):
@@ -94,6 +96,8 @@ class LatextoolsCacheUpdateListener(
     _TEX_CACHES = {}
     _TEX_ROOT_REFS = collections.defaultdict(lambda: 0)
     _BIB_CACHES = {}
+    _UPDATING_DOCS_LOCK = threading.Lock()
+    _UPDATING_DOCS = set([])
 
     def on_load_async(self, view):
         if not view.score_selector(0, 'text.tex.latex'):
@@ -124,7 +128,6 @@ class LatextoolsCacheUpdateListener(
 
             self._BIB_CACHES[tex_root] = bib_caches = []
 
-            LocalCache(tex_root).invalidate('bib_files')
             bib_files = find_bib_files(tex_root)
 
             plugins = get_setting(
@@ -143,7 +146,10 @@ class LatextoolsCacheUpdateListener(
                 for bib_file in bib_files:
                     bib_caches.append(BibCache('trad', bib_file))
 
-        self.run_cache_update()
+        with self._UPDATING_DOCS_LOCK:
+            self._UPDATING_DOCS.add(tex_root)
+        t = self.run_cache_update()
+        self._monitor_update_thread(t, tex_root)
 
     def on_close(self, view):
         if not view.score_selector(0, 'text.tex.latex'):
@@ -177,25 +183,44 @@ class LatextoolsCacheUpdateListener(
         if tex_root is None:
             return
 
+        with self._UPDATING_DOCS_LOCK:
+            if tex_root in self._UPDATING_DOCS:
+                return
+
         _id = view.id()
         if _id not in self._TEX_CACHES:
-            local_cache = self._TEX_CACHES[_id] = LocalCache(tex_root)
-        else:
-            local_cache = self._TEX_CACHES[_id]
+            self._TEX_CACHES[_id] = LocalCache(tex_root)
 
         if on_save.get('analysis', False):
-            # ensure the cache of bib_files is rebuilt on demand
-            local_cache.invalidate('bib_files')
             self.run_analysis(tex_root)
 
         if on_save.get('bibliography', False):
             self.run_bib_cache(tex_root)
 
-        self.run_cache_update()
+        with self._UPDATING_DOCS_LOCK:
+            self._UPDATING_DOCS.add(tex_root)
+        t = self.run_cache_update()
+        self._monitor_update_thread(t, tex_root)
 
     if not _ST3:
         on_load = on_load_async
         on_post_save = on_post_save_async
+
+    def _monitor_update_thread(self, t, tex_root):
+        monitor = threading.Thread(
+            target=self.__monitor_thread, args=(t, tex_root))
+        monitor.daemon = True
+        monitor.start()
+
+    def __monitor_thread(self, t, tex_root):
+        while t.is_alive():
+            time.sleep(0.1)
+
+        with self._UPDATING_DOCS_LOCK:
+            try:
+                self._UPDATING_DOCS.remove(tex_root)
+            except KeyError:
+                pass
 
 
 class LatextoolsCacheUpdateCommand(object):
