@@ -8,7 +8,7 @@ by Ian Bacher, Marciano Siniscalchi, and Richard Stein
 **Documentation:**
 <https://latextools.readthedocs.io>
 
-*Latest revision:* v3.13.2 (2017-03-22).
+*Latest revision:* v3.13.3 (2017-03-23).
 
 [![Package Control](https://img.shields.io/packagecontrol/dm/LaTeXTools.svg?maxAge=2592000)]()
 
