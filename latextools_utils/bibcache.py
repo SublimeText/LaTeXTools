@@ -86,6 +86,7 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
         except:
             result = func()
             self.set(result)
+            return result
 
     def validate_on_get(self, obj):
         if obj is None:

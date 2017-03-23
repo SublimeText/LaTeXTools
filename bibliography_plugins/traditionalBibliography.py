@@ -115,6 +115,8 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                     entries.extend(fmt_entries)
                 except:
                     traceback.print_exc()
+                    print("Using bibliography without caching it")
+                    entries.extend(bib_entries)
             finally:
                 try:
                     bibf.close()
