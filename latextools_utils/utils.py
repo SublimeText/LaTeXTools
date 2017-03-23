@@ -185,7 +185,10 @@ def run_on_main_thread(func, timeout=10, default_value=__sentinel__):
 
     def _get_result():
         with condition:
-            _get_result.result = func()
+            try:
+                _get_result.result = func()
+            except Exception:
+                _get_result.result = sys.exc_info()
             condition.notify()
 
     sublime.set_timeout(_get_result, 0)
@@ -197,6 +200,12 @@ def run_on_main_thread(func, timeout=10, default_value=__sentinel__):
             raise TimeoutError('Timeout while waiting for {0}'.format(func))
         else:
             return default_value
+
+    # if the result is an exception, re-raise it
+    if (isinstance(_get_result.result, tuple) and
+        len(_get_result.result) == 3 and
+            issubclass(_get_result.result[0], BaseException)):
+        reraise(*_get_result.result)
 
     return _get_result.result
 
