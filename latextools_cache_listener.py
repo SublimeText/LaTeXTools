@@ -171,12 +171,20 @@ class LatextoolsCacheUpdateListener(
         except:
             pass
 
+        try:
+            del self._LAST_CHANGE_COUNT[_id]
+        except:
+            pass
+
     def on_post_save_async(self, view):
         if not view.score_selector(0, 'text.tex.latex'):
             return
 
         on_save = get_setting('cache_on_save', {}, view=view)
         if not on_save or not any(on_save.values()):
+            return
+
+        if not self._should_update(view):
             return
 
         tex_root = get_tex_root(view)
@@ -205,6 +213,36 @@ class LatextoolsCacheUpdateListener(
     if not _ST3:
         on_load = on_load_async
         on_post_save = on_post_save_async
+
+        _SHOULD_UPDATE_VIEWS = set([])
+
+        def on_pre_save(self, view):
+            if not view.score_selector(0, 'text.tex.latex'):
+                return
+
+            on_save = get_setting('cache_on_save', {}, view=view)
+            if not on_save or not any(on_save.values()):
+                return
+
+            if view.is_dirty():
+                self._SHOULD_UPDATE_VIEWS.add(view.id())
+
+        def _should_update(self, view):
+            _id = view.id()
+            if _id in self._SHOULD_UPDATE_VIEWS:
+                self._SHOULD_UPDATE_VIEWS.remove(_id)
+                return True
+            return False
+    else:
+        _LAST_CHANGE_COUNT = collections.defaultdict(lambda: 0)
+
+        def _should_update(self, view):
+            _id = view.id()
+            change_count = view.change_count()
+            if change_count > self._LAST_CHANGE_COUNT.get(_id):
+                self._LAST_CHANGE_COUNT[_id] = change_count
+                return True
+            return False
 
     def _monitor_update_thread(self, t, tex_root):
         monitor = threading.Thread(
