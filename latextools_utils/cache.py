@@ -758,3 +758,11 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
             cls._PREV_LIFE_SPAN_STR = life_span_string
             cls._PREV_LIFE_SPAN = life_span = __parse_life_span_string()
             return life_span
+
+
+# terminates the cache threadpool
+def _terminate_cache_threadpool():
+    try:
+        Cache._pool.terminate()
+    except Exception:
+        traceback.print_exc()
