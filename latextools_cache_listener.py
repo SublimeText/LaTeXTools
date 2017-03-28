@@ -59,7 +59,7 @@ class LatextoolsCacheUpdater(object):
         for step in self._steps:
             try:
                 step()
-            except:
+            except Exception:
                 traceback.print_exc()
 
 
@@ -69,8 +69,12 @@ class LatextoolsAnalysisUpdater(LatextoolsCacheUpdater):
         self.add_step(partial(self._run_analysis, tex_root))
 
     def _run_analysis(self, tex_root):
-        LocalCache(tex_root).set(
-            'analysis', analysis.analyze_document(tex_root))
+        ana = analysis.analyze_document(tex_root)
+
+        local_cache = LocalCache(tex_root)
+        with local_cache._write_lock:
+            local_cache.invalidate()
+            local_cache.set('analysis', ana)
 
 
 class LatextoolsBibCacheUpdater(LatextoolsCacheUpdater):
@@ -132,6 +136,7 @@ class LatextoolsCacheUpdateListener(
 
             plugins = get_setting(
                 'bibliography_plugins', ['traditional'], view=view)
+
             if not isinstance(plugins, list):
                 plugins = [plugins]
 
@@ -163,17 +168,17 @@ class LatextoolsCacheUpdateListener(
             if self._TEX_ROOT_REFS[tex_root] <= 0:
                 del self._TEX_ROOT_REFS[tex_root]
                 del self._BIB_CACHES[tex_root]
-        except:
+        except Exception:
             pass
 
         try:
             del self._TEX_CACHES[_id]
-        except:
+        except Exception:
             pass
 
         try:
             del self._LAST_CHANGE_COUNT[_id]
-        except:
+        except Exception:
             pass
 
     def on_post_save_async(self, view):
