@@ -21,14 +21,14 @@ if sublime.version() < '3000':
     from external.frozendict import frozendict
     from latextools_utils.six import unicode, long, strbase
     from latextools_utils.system import make_dirs
-    from latextools_utils.utils import ThreadPool
+    from latextools_utils.utils import ThreadPool, cpu_count
 else:
     _ST3 = True
     from . import get_setting
     from ..external.frozendict import frozendict
     from .six import unicode, long, strbase
     from .system import make_dirs
-    from .utils import ThreadPool
+    from .utils import ThreadPool, cpu_count
 
 
 # the folder, if the local cache is not hidden, i.e. folder in the same
@@ -207,7 +207,7 @@ class Cache(object):
 
     # these threads are used for IO, so having too many is probably OK
     # NB: This pool is shared by all caches
-    _pool = ThreadPool()
+    _pool = ThreadPool(max(min(cpu_count() - 1, 4), 1))
 
     def __new__(cls, *args, **kwargs):
         # don't allow this class to be instantiated directly
@@ -494,7 +494,6 @@ class Cache(object):
     # ensure cache is saved to disk when removed from memory
     def __del__(self):
         self.save_async()
-        self._pool.terminate()
 
 
 class GlobalCache(Cache):
@@ -654,7 +653,6 @@ class InstanceTrackingCache(Cache):
 
             if ref_count <= 0:
                 self.save_async()
-                self._pool.terminate()
                 del self._REF_COUNTS[inst_key]
                 del self._INSTANCES[inst_key]
 
