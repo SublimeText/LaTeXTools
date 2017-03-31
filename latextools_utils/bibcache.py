@@ -88,7 +88,8 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
         except cache.CacheMiss:
             result = func()
             self.set(result)
-            return result
+            return self._objects[self.formatted_cache_name]
+
 
     def validate_on_get(self, obj):
         if obj is None:
@@ -124,10 +125,8 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
 
     def _get_bib_cache(self):
         try:
-            # use the lock to not contend with writing the file
-            with self._disk_lock:
-                cache_mtime = os.path.getmtime(
-                    os.path.join(self.cache_path, self.cache_name))
+            cache_mtime = os.path.getmtime(
+                os.path.join(self.cache_path, self.cache_name))
 
             bib_mtime = os.path.getmtime(self.bib_file)
         except OSError as e:
