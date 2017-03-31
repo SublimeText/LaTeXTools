@@ -546,7 +546,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 	def __init__(self, *args, **kwargs):
 		sublime_plugin.WindowCommand.__init__(self, *args, **kwargs)
 		self.proc = None
-		self.proc_lock = threading.Lock()
+		self.proc_lock = threading.RLock()
 
 	# **kwargs is unused but there so run can safely ignore any unknown
 	# parameters

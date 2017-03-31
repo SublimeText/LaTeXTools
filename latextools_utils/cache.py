@@ -219,11 +219,11 @@ class Cache(object):
     def __init__(self):
         # initialize state but ONLY if it hasn't already been initialized
         if not hasattr(self, '_disk_lock'):
-            self._disk_lock = threading.Lock()
+            self._disk_lock = threading.RLock()
         if not hasattr(self, '_write_lock'):
-            self._write_lock = threading.Lock()
+            self._write_lock = threading.RLock()
         if not hasattr(self, '_save_lock'):
-            self._save_lock = threading.Lock()
+            self._save_lock = threading.RLock()
         if not hasattr(self, '_objects'):
             self._objects = {}
         if not hasattr(self, '_dirty'):
@@ -607,7 +607,7 @@ class InstanceTrackingCache(Cache):
         if not hasattr(cls, '_INSTANCES'):
             cls._INSTANCES = collections.defaultdict(lambda: {})
             cls._REF_COUNTS = collections.defaultdict(lambda: 0)
-            cls._LOCKS = collections.defaultdict(lambda: threading.Lock())
+            cls._LOCKS = collections.defaultdict(lambda: threading.RLock())
 
         inst = super(InstanceTrackingCache, cls).__new__(cls, *args, **kwargs)
         inst_key = inst._get_inst_key(*args, **kwargs)
@@ -671,7 +671,7 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
     '''
 
     _CACHE_TIMESTAMP = "created_time_stamp"
-    _LIFE_SPAN_LOCK = threading.Lock()
+    _LIFE_SPAN_LOCK = threading.RLock()
 
     def __init__(self, tex_root):
         self.tex_root = tex_root

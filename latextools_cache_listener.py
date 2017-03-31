@@ -100,7 +100,7 @@ class LatextoolsCacheUpdateListener(
     _TEX_CACHES = {}
     _TEX_ROOT_REFS = collections.defaultdict(lambda: 0)
     _BIB_CACHES = {}
-    _UPDATING_DOCS_LOCK = threading.Lock()
+    _UPDATING_DOCS_LOCK = threading.RLock()
     _UPDATING_DOCS = set([])
 
     def on_load_async(self, view):
