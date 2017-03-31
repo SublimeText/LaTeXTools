@@ -221,8 +221,9 @@ def find_bib_files(root):
         doc = analysis.get_analysis(root)
         # we use ALL_COMMANDS here as any flag will filter some command
         # we want to support
+        flags = analysis.ALL_COMMANDS | analysis.ONLY_COMMANDS_WITH_ARGS
         for c in doc.filter_commands(
-            _bibfile_filter, flags=analysis.ALL_COMMANDS
+            _bibfile_filter, flags=flags
         ):
             # process the matching commands
             # \begin{refsection} / \newrefsection
@@ -234,7 +235,7 @@ def find_bib_files(root):
                 # for a bibliography defined elsewhere or a non-.bib file
                 # which we don't handle
                 resources.extend([
-                    s.strip() for s in c.optargs.split(',')
+                    s.strip() for s in (c.optargs or '').split(',')
                     if s.endswith('.bib')])
             # \bibliography / \nobibliography
             elif c.command in MULTI_BIBCOMMANDS:
