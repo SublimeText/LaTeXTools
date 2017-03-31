@@ -231,7 +231,7 @@ class LatexFillHelper(object):
 
             suffix_lines = view.lines(getRegion(end, view.size()))
             if len(suffix_lines) >= look_around:
-                suffix_end = suffix_lines[look_around].end()
+                suffix_end = suffix_lines[look_around - 1].end()
             else:
                 suffix_end = suffix_lines[-1].end()
 
