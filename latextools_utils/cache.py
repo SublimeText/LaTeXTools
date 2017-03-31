@@ -510,12 +510,12 @@ class GlobalCache(Cache):
     behaves as though there were a single object
     '''
 
-    __STATE = {}
-
     def __new__(cls, *args, **kwargs):
         # almost-singleton implementation; all instances share the same state
+        if not hasattr(cls, '_STATE'):
+            cls._STATE = {}
         inst = super(GlobalCache, cls).__new__(cls, *args, **kwargs)
-        inst.__dict__ = cls.__STATE
+        inst.__dict__ = cls._STATE
         return inst
 
     def invalidate(self, key):
@@ -580,6 +580,30 @@ class ValidatingCache(Cache):
     set.__doc__ = Cache.set.__doc__
 
 
+class InstanceReference(object):
+    '''
+    used by the InstanceTrackingCache to track a reference to different
+    instances that point to the same underlying data
+    '''
+    def __init__(self, *args, **kwargs):
+        self._instance_data = {}
+        self._ref_count = 0
+        self._lock = threading.RLock()
+
+    def add_ref(self):
+        with self._lock:
+            self._ref_count += 1
+            return self._ref_count
+
+    def dec_ref(self):
+        with self._lock:
+            self._ref_count -= 1
+            if self._ref_count <= 0:
+                return 0
+            else:
+                return self._ref_count
+
+
 class InstanceTrackingCache(Cache):
     '''
     an abstract class for caches that share state between different instances
@@ -596,25 +620,19 @@ class InstanceTrackingCache(Cache):
     subclasses MUST implement the _get_inst_key method
     '''
 
-    _CLASSES = set([])
-
     def __new__(cls, *args, **kwargs):
         if cls is InstanceTrackingCache:
             raise NotImplemented
 
-        InstanceTrackingCache._CLASSES.add(cls)
-
         if not hasattr(cls, '_INSTANCES'):
-            cls._INSTANCES = collections.defaultdict(lambda: {})
-            cls._REF_COUNTS = collections.defaultdict(lambda: 0)
-            cls._LOCKS = collections.defaultdict(lambda: threading.RLock())
+            cls._INSTANCES = collections.defaultdict(lambda: InstanceReference())
 
         inst = super(InstanceTrackingCache, cls).__new__(cls, *args, **kwargs)
         inst_key = inst._get_inst_key(*args, **kwargs)
 
-        with cls._LOCKS[inst_key]:
-            inst.__dict__ = cls._INSTANCES[inst_key]
-            cls._REF_COUNTS[inst_key] += 1
+        with cls._INSTANCES[inst_key]._lock:
+            inst.__dict__ = cls._INSTANCES[inst_key]._instance_data
+            cls._INSTANCES[inst_key].add_ref()
 
         return inst
 
@@ -642,22 +660,16 @@ class InstanceTrackingCache(Cache):
         '''
         raise NotImplemented
 
-    # ensure the cache is written to disk when LAST copy of this instance is
-    # removed
+    # ensure the cache is written to disk when the last copy of this instance
+    # is removed
     def __del__(self):
         inst_key = self._get_inst_key()
         if inst_key is None:
             return
 
-        with self._LOCKS[inst_key]:
-            ref_count = self._REF_COUNTS[inst_key]
-            ref_count -= 1
-            self._REF_COUNTS[inst_key] = ref_count
-
-            if ref_count <= 0:
-                self.save_async()
-                del self._REF_COUNTS[inst_key]
-                del self._INSTANCES[inst_key]
+        if self._INSTANCES[inst_key].dec_ref() == 0:
+            self.save_async()
+            del self._INSTANCES[inst_key]
 
 
 class LocalCache(ValidatingCache, InstanceTrackingCache):
