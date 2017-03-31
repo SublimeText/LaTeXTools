@@ -18,7 +18,7 @@ try:
     from .latextools_utils.cache import LocalCache
     from .latextools_utils.tex_directives import get_tex_root
     from .latextools_utils.progress_indicator import ProgressIndicator
-except:
+except (ValueError, ImportError):
     from latex_cite_completions import (
         find_bib_files, run_plugin_command
     )

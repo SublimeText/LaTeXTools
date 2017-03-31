@@ -85,7 +85,7 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
     def cache(self, func):
         try:
             return self.get()
-        except:
+        except cache.CacheMiss:
             result = func()
             self.set(result)
             return result
@@ -98,8 +98,9 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
 
         try:
             mtime = os.path.getmtime(self.bib_file)
-        except:
-            raise cache.CacheMiss()
+        except OSError as e:
+            # consider it a miss if we can't stat the actual bib file
+            raise cache.CacheMiss(str(e))
         else:
             if mtime > meta_data['cache_time']:
                 raise cache.CacheMiss('outdated formatted entries')
@@ -123,12 +124,15 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
 
     def _get_bib_cache(self):
         try:
-            cache_mtime = os.path.getmtime(
-                os.path.join(self.cache_path, self.cache_name))
+            # use the lock to not contend with writing the file
+            with self._disk_lock:
+                cache_mtime = os.path.getmtime(
+                    os.path.join(self.cache_path, self.cache_name))
 
             bib_mtime = os.path.getmtime(self.bib_file)
-        except:
-            raise cache.CacheMiss()
+        except OSError as e:
+            # either we can't read the cache or the bib file
+            raise cache.CacheMiss(str(e))
         else:
             if cache_mtime < bib_mtime:
                 raise cache.CacheMiss('outdated bib entry cache')

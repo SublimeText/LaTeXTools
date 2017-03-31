@@ -326,7 +326,7 @@ class Cache(object):
 
         try:
             return self.get(key)
-        except:
+        except CacheMiss:
             result = func()
             self.set(key, result)
             return result
@@ -343,7 +343,7 @@ class Cache(object):
         def _invalidate(key):
             try:
                 self._objects[key] = _invalid_object
-            except:
+            except Exception:
                 print('error occurred while invalidating {0}'.format(key))
                 traceback.print_exc()
 
