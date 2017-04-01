@@ -462,7 +462,10 @@ class Cache(object):
         '''
         an async version of save; does the save in a new thread
         '''
-        self._pool.apply_async(self.save, key)
+        try:
+            self._pool.apply_async(self.save, key)
+        except ValueError:
+            pass
 
     def _write(self, key, obj):
         try:

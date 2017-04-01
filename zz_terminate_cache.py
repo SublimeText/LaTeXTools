@@ -11,4 +11,14 @@ else:
     plugin_unloaded = _terminate_cache_threadpool
 
     if sublime.version() < '3000':
-        unload_handler = plugin_unloaded
+        import inspect
+
+        def unload_handler():
+            frame = inspect.currentframe()
+            try:
+                if frame.f_back.f_back.f_code.co_name == 'reload_plugin':
+                    return
+            finally:
+                del frame
+
+            _terminate_cache_threadpool()
