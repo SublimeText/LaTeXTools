@@ -625,7 +625,8 @@ class InstanceTrackingCache(Cache):
             raise NotImplemented
 
         if not hasattr(cls, '_INSTANCES'):
-            cls._INSTANCES = collections.defaultdict(lambda: InstanceReference())
+            cls._INSTANCES = collections.defaultdict(
+                lambda: InstanceReference())
 
         inst = super(InstanceTrackingCache, cls).__new__(cls, *args, **kwargs)
         inst_key = inst._get_inst_key(*args, **kwargs)
@@ -667,9 +668,12 @@ class InstanceTrackingCache(Cache):
         if inst_key is None:
             return
 
-        if self._INSTANCES[inst_key].dec_ref() == 0:
-            self.save_async()
-            del self._INSTANCES[inst_key]
+        try:
+            if self._INSTANCES[inst_key].dec_ref() == 0:
+                self.save_async()
+                del self._INSTANCES[inst_key]
+        except KeyError:
+            pass
 
 
 class LocalCache(ValidatingCache, InstanceTrackingCache):
