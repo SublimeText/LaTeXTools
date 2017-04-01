@@ -241,6 +241,8 @@ def find_bib_files(root):
             elif c.command in MULTI_BIBCOMMANDS:
                 for s in c.args.split(','):
                     s = s.strip()
+                    if not s:
+                        continue
                     if not s.endswith('.bib'):
                         s += '.bib'
                     resources.append(s)
