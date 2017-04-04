@@ -55,6 +55,15 @@ def find_labels_in_files(root, labels):
         labels.append(command.args)
 
 
+# grab labels from all open buffers too
+def find_labels_in_open_files(views, labels):
+    for view in views:
+        # XXX: Hardcoded to only look for tex files, so that it doesn't try 
+        # looking for label commands in support files
+        if view.file_name().endswith(".tex"):
+            view.find_all(r'\\label\{([^\{\}]+)\}', 0, '\\1', labels)
+
+
 # get_ref_completions forms the guts of the parsing shared by both the
 # autocomplete plugin and the quick panel command
 def get_ref_completions(view):
@@ -62,7 +71,13 @@ def get_ref_completions(view):
     # Check the file buffer first:
     #    1) in case there are unsaved changes
     #    2) if this file is unnamed and unsaved, get_tex_root will fail
-    view.find_all(r'\\label\{([^\{\}]+)\}', 0, '\\1', completions)
+    find_labels_in_open_files([view], completions)
+
+    # Check all other open buffers too:
+    #    1) for the same reasons as above
+    #    2) in case the project isn't set up to build in Sublime
+    for window in sublime.windows():
+        find_labels_in_open_files(window.views(), completions)
 
     root = getTeXRoot.get_tex_root(view)
     if root:
