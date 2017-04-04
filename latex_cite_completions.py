@@ -271,6 +271,23 @@ def find_bib_files(root):
     return cache.LocalCache(root).cache('bib_files', _find_bib_files)
 
 
+def find_open_bib_files(active_window_only=False):
+    # get list of windows we want to check for valid buffers
+    if active_window_only:
+        windows = [sublime.active_window()]
+    else:
+        windows = sublime.windows()
+
+    # find which buffers are .bib files
+    result = []
+    for window in windows:
+        result += [v.file_name() for v in window.views() if v.file_name().endswith(".bib")]
+    print("find_open_bib_files: windows = %d, result = %d" % (len(windows), len(result)))
+
+    # remove duplicates
+    return list(set(result))
+
+
 def run_plugin_command(command, *args, **kwargs):
     '''
     This function is intended to run a command against a user-configurable list
@@ -387,15 +404,18 @@ def run_plugin_command(command, *args, **kwargs):
 def get_cite_completions(view):
     root = getTeXRoot.get_tex_root(view)
 
-    if root is None:
-        # This is an unnamed, unsaved file
-        # FIXME: should probably search the buffer instead of giving up
-        raise NoBibFilesError()
-
-    print(u"TEX root: " + repr(root))
-    bib_files = find_bib_files(root)
-    print("Bib files found: ")
-    print(repr(bib_files))
+    if root is not None:
+        # Provided this isn't an unnamed and unsaved file...
+        print(u"TEX root: " + repr(root))
+        bib_files = find_bib_files(root)
+        print("Bib files found: ")
+        print(repr(bib_files))
+    
+    if not bib_files:
+        # Check theopen files, in case the current file is TEX root, but doesn't reference anything
+        bib_files = find_open_bib_files()
+        print("Open Bib files found: ")
+        print(repr(bib_files))
 
     if not bib_files:
         # sublime.error_message("No bib files found!") # here we can!
