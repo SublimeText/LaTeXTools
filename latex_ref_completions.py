@@ -60,7 +60,7 @@ def find_labels_in_open_files(views, labels):
     for view in views:
         # XXX: Hardcoded to only look for tex files, so that it doesn't try 
         # looking for label commands in support files
-        if view.file_name().endswith(".tex"):
+        if view.file_name() is None or view.file_name().endswith(".tex"):
             view.find_all(r'\\label\{([^\{\}]+)\}', 0, '\\1', labels)
 
 

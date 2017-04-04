@@ -281,8 +281,7 @@ def find_open_bib_files(active_window_only=False):
     # find which buffers are .bib files
     result = []
     for window in windows:
-        result += [v.file_name() for v in window.views() if v.file_name().endswith(".bib")]
-    print("find_open_bib_files: windows = %d, result = %d" % (len(windows), len(result)))
+        result += [v.file_name() for v in window.views() if (v.file_name() or '').endswith('.bib')]
 
     # remove duplicates
     return list(set(result))
@@ -404,15 +403,18 @@ def run_plugin_command(command, *args, **kwargs):
 def get_cite_completions(view):
     root = getTeXRoot.get_tex_root(view)
 
-    if root is not None:
-        # Provided this isn't an unnamed and unsaved file...
+    if root is None:
+        # This is an unnamed, unsaved file
+        bib_files = None
+    else:
         print(u"TEX root: " + repr(root))
         bib_files = find_bib_files(root)
         print("Bib files found: ")
         print(repr(bib_files))
     
     if not bib_files:
-        # Check theopen files, in case the current file is TEX root, but doesn't reference anything
+        # Check the open files, in case the current file is TEX root,
+        # but doesn't reference anything
         bib_files = find_open_bib_files()
         print("Open Bib files found: ")
         print(repr(bib_files))
