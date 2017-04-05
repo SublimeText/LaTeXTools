@@ -10,7 +10,7 @@ by Ian Bacher, Marciano Siniscalchi, and Richard Stein
 
 *Latest revision:* v3.13.5 (2017-03-31).
 
-[![Package Control](https://img.shields.io/packagecontrol/dm/LaTeXTools.svg?maxAge=2592000)]()
+[![Package Control](https://img.shields.io/packagecontrol/dm/LaTeXTools.svg?maxAge=2592000)](https://packagecontrol.io/packages/LaTeXTools)
 
 *Headline features*:
 
