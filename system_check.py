@@ -639,15 +639,15 @@ class SystemCheckThread(threading.Thread):
             ])
 
             table = [[u'LaTeX Output Setting', u'Value']]
-            output_directory = get_output_directory(tex_root)
+            output_directory = get_output_directory(view)
             if output_directory:
                 table.append(
                     ['output_directory', output_directory]
                 )
-            aux_directory = get_aux_directory(tex_root)
+            aux_directory = get_aux_directory(view)
             if aux_directory:
                 table.append(['aux_directory', aux_directory])
-            jobname = get_jobname(tex_root)
+            jobname = get_jobname(view)
             if jobname and jobname != os.path.splitext(
                 os.path.basename(tex_root)
             )[0]:

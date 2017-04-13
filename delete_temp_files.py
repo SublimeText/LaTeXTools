@@ -135,11 +135,11 @@ class DeleteTempFilesCommand(sublime_plugin.WindowCommand):
 			traceback.print_exc()
 
 		aux_directory, aux_directory_setting = get_aux_directory(
-			root_file, return_setting=True
+			view, return_setting=True
 		)
 
 		output_directory, output_directory_setting = get_output_directory(
-			root_file, return_setting=True
+			view, return_setting=True
 		)
 
 		if aux_directory is not None:

@@ -622,7 +622,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		output_view_settings.set("gutter", False)
 		output_view_settings.set("scroll_past_end", False)
 
-		if get_setting("highlight_build_panel", True):
+		if get_setting("highlight_build_panel", True, view=view):
 			self.output_view.set_syntax_file(
 				"Packages/LaTeXTools/LaTeXTools Console.hidden-tmLanguage"
 			)
@@ -638,7 +638,8 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# up as the result buffer
 		self.window.get_output_panel("latextools")
 
-		self.hide_panel_level = get_setting("hide_build_panel", "no_warnings")
+		self.hide_panel_level = get_setting(
+			"hide_build_panel", "no_warnings", view=view)
 		if self.hide_panel_level == "never":
 			self.show_output_panel(force=True)
 
@@ -654,13 +655,14 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			return
 
 		# Get platform settings, builder, and builder settings
-		platform_settings = get_setting(self.plat, {})
-		self.display_bad_boxes = get_setting("display_bad_boxes", False)
+		platform_settings = get_setting(self.plat, {}, view=view)
+		self.display_bad_boxes = get_setting(
+			"display_bad_boxes", False, view=view)
 
 		if builder is not None:
 			builder_name = builder
 		else:
-			builder_name = get_setting("builder", "traditional")
+			builder_name = get_setting("builder", "traditional", view=view)
 
 		# Default to 'traditional' builder
 		if builder_name in ['', 'default']:
@@ -670,7 +672,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		# to new style plugin names (a_really_long_name)
 		builder_name = _classname_to_internal_name(builder_name)
 
-		builder_settings = get_setting("builder_settings", {})
+		builder_settings = get_setting("builder_settings", {}, view=view)
 
 		# override the command
 		if command is not None:
@@ -715,8 +717,8 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			not opt.startswith('--jobname')
 		)]
 
-		self.aux_directory = get_aux_directory(self.file_name)
-		self.output_directory = get_output_directory(self.file_name)
+		self.aux_directory = get_aux_directory(view)
+		self.output_directory = get_output_directory(view)
 
 		# Read the env option (platform specific)
 		builder_platform_settings = builder_settings.get(self.plat, {})
@@ -734,7 +736,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			builder_path = None
 		else:
 			# relative to ST packages dir!
-			builder_path = get_setting("builder_path", "")
+			builder_path = get_setting("builder_path", "", view=view)
 
 		if builder_path:
 			bld_path = os.path.join(sublime.packages_path(), builder_path)
@@ -785,8 +787,8 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 
 		# setup the progress indicator
 		display_message_length = long(
-			get_setting('build_finished_message_length', 2.0) * 1000
-		)
+			get_setting(
+				'build_finished_message_length', 2.0, view=view) * 1000)
 		# NB CmdThread will change the success message
 		self.progress_indicator = ProgressIndicator(
 			thread, 'Building', 'Build failed',
@@ -867,7 +869,8 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			# if using output_directory, follow the copy_output_on_build setting
 			# files are copied to the same directory as the main tex file
 			if self.output_directory is not None:
-				copy_on_build = get_setting('copy_output_on_build', True)
+				copy_on_build = get_setting(
+					'copy_output_on_build', True, view=self.view)
 				if copy_on_build is None or copy_on_build is True:
 					shutil.copy2(
 						os.path.join(
@@ -886,7 +889,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 							os.path.dirname(self.file_name)
 						)
 
-			if get_setting('open_pdf_on_build', True):
+			if get_setting('open_pdf_on_build', True, view=self.view):
 				self.view.run_command("jump_to_pdf", {"from_keybinding": False})
 
 	if _HAS_PHANTOMS:
