@@ -1,6 +1,7 @@
 # Recommended Packages
 
-This sections is an overview of other packages, which have LaTeX or general text writing support and work together with LaTeXTools.
+This sections is an overview of other Sublime Text packages, which have LaTeX or general text writing support and work together with LaTeXTools.
+It is recommended to install the packages using [Package Control].
 This is neither a full list of all packages you may possible want to install. nor a list of "must have" packages. However they are a collection of packages useful for tex writing you may consider to install.
 
 *You think this section is missing a valuable package? Just create a PR to add the package.*
@@ -111,7 +112,7 @@ Example settings (Open *Preferences > Package Settings > Inc-Dec-Value > Setting
 
 [SideBarEnhancement] adds a lot of functionality to the side bar. However because there was a discussion about it collecting information for anonymous statistics there has been published a fork with a subset of the features called [SideBarTools].
 
-
+[Package Control]:https://packagecontrol.io/
 [LaTeX-cwl]:https://github.com/LaTeXing/LaTeX-cwl
 [Dictionaries]:https://github.com/titoBouzout/Dictionaries
 [LaTeXSmartQuotes]:https://github.com/r-stein/sublime-text-latex-smart-quotes
