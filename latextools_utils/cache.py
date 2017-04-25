@@ -383,6 +383,9 @@ class Cache(object):
             else:
                 self._objects[key] = self._read(key)
 
+        if key is not None:
+            return self._objects[key]
+
     def load_async(self, key=None):
         '''
         an async version of load; does the loading in a new thread
