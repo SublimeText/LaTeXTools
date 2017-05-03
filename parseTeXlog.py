@@ -493,7 +493,9 @@ def parse_tex_log(data, root_dir):
 				line_num += 1
 				debug("Over/underfull: skip " + line + " (%d) " % line_num)
 				# Sometimes it's " []" and sometimes it's "[]"...
-				if len(line)>0 and line[:3] == " []" or line[:2] == "[]":
+#				if len(line)>0 and line[:3] == " []" or line[:2] == "[]":
+				# NO, it really should be just " []"
+				if len(line)>0 and line == " []":
 					ou_processing = False
 				else:
 					current_badbox += line
