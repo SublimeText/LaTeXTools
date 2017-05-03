@@ -249,7 +249,7 @@ def _create_image(latex_program, latex_document, base_name, color,
         err_log.append("Failed to convert pdf to png to preview.")
 
     if err_log:
-        with open(err_file_path, "w") as f:
+        with open(err_file_path, "w", encoding="utf-8") as f:
             f.write("\n".join(err_log))
 
     # cleanup created files
