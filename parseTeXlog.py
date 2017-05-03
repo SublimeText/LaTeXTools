@@ -361,6 +361,9 @@ def parse_tex_log(data, root_dir):
 							extend_line = False
 				except StopIteration:
 					extend_line = False # end of file, so we must be done. This shouldn't happen, btw
+
+		# NOW WE GOT OUR EXTENDED LINE, SO START PROCESSING
+
 		# We may skip the above "if" because we are reprocessing a line, so reset flag:
 		reprocess_extra = False
 		# Check various states
