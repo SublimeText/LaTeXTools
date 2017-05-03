@@ -379,7 +379,11 @@ def parse_tex_log(data, root_dir):
 			if not err_match:
 				continue
 			# now we match!
-			state = STATE_NORMAL
+			# state = STATE_NORMAL
+			# TeX splits the error line in two, so we skip the
+			# second part. In the future we may want to capture that, too
+			# and figure out the column, perhaps.
+			state = STATE_SKIP 
 			err_line = err_match.group(1)
 			err_text = err_match.group(2)
 			# err_msg is set from last time
