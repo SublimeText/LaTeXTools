@@ -2,7 +2,7 @@
 
 This sections is an overview of other Sublime Text packages, which have LaTeX or general text writing support and work together with LaTeXTools.
 It is recommended to install the packages using [Package Control].
-This is neither a full list of all packages you may possible want to install. nor a list of "must have" packages. However they are a collection of packages useful for tex writing you may consider to install.
+This is neither a full list of all packages you may possible want to install nor a list of "must have" packages. However they are a collection of packages useful for tex writing you may consider to install.
 
 *You think this section is missing a valuable package? Just create a PR to add the package.*
 
