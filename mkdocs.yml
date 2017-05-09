@@ -8,6 +8,7 @@ pages:
   - "Settings": "settings.md"
   - "Available Builders": "available-builders.md"
   - "Available Viewers": "available-viewers.md"
+  - "Recommended Packages": "recommended-packages.md"
   - "Troubleshooting": "troubleshooting.md"
   - "About": "about.md"
 theme: readthedocs
