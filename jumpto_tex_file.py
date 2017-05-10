@@ -7,16 +7,9 @@ import traceback
 import sublime
 import sublime_plugin
 
-try:
-    _ST3 = True
-    from .getTeXRoot import get_tex_root
-    from .latextools_utils import analysis, get_setting, utils
-    from .latextools_utils.external_command import external_command
-except:
-    _ST3 = False
-    from getTeXRoot import get_tex_root
-    from latextools_utils import analysis, get_setting, utils
-    from latextools_utils.external_command import external_command
+from .getTeXRoot import get_tex_root
+from .latextools_utils import analysis, get_setting, utils
+from .latextools_utils.external_command import external_command
 
 
 INPUT_REG = re.compile(
@@ -116,8 +109,7 @@ def _jumpto_tex_file(view, window, tex_root, file_name,
     print("Open the file '{0}'".format(full_new_path))
 
     # await opening and move cursor to end of the new view
-    # (does not work on st2)
-    if _ST3 and auto_insert_root and is_root_inserted:
+    if auto_insert_root and is_root_inserted:
         cursor_pos = len(root_string)
         new_region = sublime.Region(cursor_pos, cursor_pos)
         utils.open_and_select_region(view, full_new_path, new_region)
@@ -165,8 +157,6 @@ def find_image(tex_root, file_name, tex_file_name=None):
 
 def open_image(window, file_path):
     def run_command(command):
-            if not _ST3:
-                command = str(command)
             command = shlex.split(command)
             # if $file is used, substitute it by the file path
             if "$file" in command:
