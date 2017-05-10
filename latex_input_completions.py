@@ -303,8 +303,8 @@ def parse_completions(view, line):
             else:
                 folders = [tex_base_path]
             for base_path in folders:
-                output_directory = get_output_directory(root)
-                aux_directory = get_aux_directory(root)
+                output_directory = get_output_directory(view)
+                aux_directory = get_aux_directory(view)
                 completions.extend(get_file_list(
                     root, entry["extensions"],
                     entry.get("strip_extensions", []),

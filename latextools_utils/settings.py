@@ -58,13 +58,13 @@ def _get_setting(setting, default=None, view=None):
             result
         ):
             # recursively load settings
-            update_setting(values, s)
+            _update_setting(values, s)
         result = values
 
     return result
 
 
-def update_setting(settings, values):
+def _update_setting(settings, values):
     for key in values:
         if (
             key in settings and (
@@ -72,7 +72,7 @@ def update_setting(settings, values):
                 isinstance(settings[key], sublime.Settings)
             )
         ):
-            update_setting(settings[key], values[key])
+            _update_setting(settings[key], values[key])
         else:
             settings[key] = values[key]
     return settings

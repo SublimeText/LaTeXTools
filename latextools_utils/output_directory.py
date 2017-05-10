@@ -51,8 +51,10 @@ def get_aux_directory(view_or_root, return_setting=False):
 
     root = get_root(view_or_root)
 
-    aux_directory = None
-    if root is not None:
+    aux_directory = get_directive(view_or_root, 'aux_directory')
+
+    if (aux_directory is None or aux_directory == '') and (
+            root is not None and view_or_root != root):
         aux_directory = get_directive(root, 'aux_directory')
 
     if aux_directory is not None and aux_directory != '':
@@ -115,8 +117,10 @@ def get_output_directory(view_or_root, return_setting=False):
 
     root = get_root(view_or_root)
 
-    output_directory = None
-    if root is not None:
+    output_directory = get_directive(view_or_root, 'output_directory')
+
+    if (output_directory is None or output_directory == '') and (
+            root is not None and view_or_root != root):
         output_directory = get_directive(root, 'output_directory')
 
     if output_directory is not None and output_directory != '':
@@ -173,16 +177,19 @@ def get_output_directory(view_or_root, return_setting=False):
 # Note: returns None if root is unsaved
 def get_jobname(view_or_root):
     root = get_root(view_or_root)
-
     if root is None:
         return None
 
+    # exit condition: texify and simple do not support jobname
+    # so always return the root path
     if using_texify_or_simple():
         return os.path.splitext(
             os.path.basename(root)
         )[0]
 
-    jobname = get_directive(root, 'jobname')
+    jobname = get_directive(view_or_root, 'jobname')
+    if (jobname is None or jobname == '') and view_or_root != root:
+        jobname = get_directive(root, 'jobname')
 
     if jobname is None or jobname == '':
         jobname = get_setting('jobname')
@@ -283,6 +290,7 @@ def resolve_to_absolute_path(root, value, root_path):
         result = os.path.realpath(result)
 
     return result
+
 
 if sublime.version() < '3000':
     def get_cache_directory():
