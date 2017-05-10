@@ -13,15 +13,39 @@ class LatextoolsWrapInText(sublime_plugin.TextCommand):
             return
 
         view = self.view
+        word_separators = view.settings().get(
+            'word_separators', sublime.load_settings(
+                'Preferences.sublime-settings').get('word_separators', ''))
+        word_separators_rx = re.compile(
+            '[' + re.escape(word_separators) + ']?\s')
+        sels = view.sel()
+
+        if len(sels) == 1:
+            replace_region = view.word(sels[0])
+            replace_selection = view.substr(replace_region)
+
+            if replace_region.empty() or (
+                    sels[0].empty() and
+                    word_separators_rx.match(replace_selection)):
+                print('Running snippet')
+                view.run_command(
+                    'insert_snippet',
+                    {'contents': '\\\\{command}{{$1}}$0'.format(
+                        **locals())})
+                return
 
         new_sels = []
-        for sel in view.sel():
+        for sel in sels:
             if sel.empty():
                 replace_region = view.word(sel)
             else:
                 replace_region = sel
 
             replace_selection = view.substr(replace_region)
+
+            if sel.empty() and word_separators_rx.match(replace_selection):
+                replace_selection = ''
+                replace_region = sel.begin()
 
             if sel.empty():
                 # view.word() captures surrounding whitespace if there is no
