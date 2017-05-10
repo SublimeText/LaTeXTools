@@ -261,7 +261,6 @@ class Analysis(object):
         self._all_commands = tuple(c for c in self._all_commands)
         self.__frozen = True
 
-
     def __copy__(self):
         return self
 
@@ -296,6 +295,7 @@ def get_analysis(tex_root):
 
     result = LocalCache(tex_root).cache(
         'analysis', partial(analyze_document, tex_root))
+    result._freeze()
     return result
 
 
