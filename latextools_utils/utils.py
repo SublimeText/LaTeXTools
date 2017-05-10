@@ -223,6 +223,7 @@ class ThreadPool(object):
     def __init__(self, max_processes=None):
         self._task_queue = Queue()
         self._result_queue = Queue()
+        self._has_task = threading.Event()
         # used to indicate if the ThreadPool should be stopped
         self._should_stop = threading.Event()
 
@@ -254,8 +255,11 @@ class ThreadPool(object):
         function.'''
         if self._should_stop.is_set():
             raise ValueError('Pool not running')
+
         job = next(self._job_counter)
         self._task_queue.put((job, (func, args, kwargs)), False)
+        self._has_task.set()
+
         return _ThreadPoolResult(job, self._result_cache)
 
     def is_running(self):
@@ -270,6 +274,7 @@ class ThreadPool(object):
         need to wait for the termination to complete, you should call join()
         after this.'''
         self._should_stop.set()
+        self._has_task.set()
 
     def join(self, timeout=None):
         self._supervisor.join(timeout)
@@ -281,6 +286,8 @@ class ThreadPool(object):
     # and start fresh workers
     def _maintain_pool(self):
         while self.is_running():
+            self._has_task.wait()
+
             for i in reversed(range(len(self._workers))):
                 w = self._workers[i]
                 if not w.is_alive():
@@ -299,7 +306,7 @@ class ThreadPool(object):
                 for _ in range(len(self._workers)):
                     self._task_queue.put(None, False)
 
-            time.sleep(0.1)
+            self._has_task.clear()
 
         # send sentinels to end threads
         for _ in range(len(self._workers)):
