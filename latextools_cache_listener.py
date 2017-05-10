@@ -211,9 +211,11 @@ class LatextoolsCacheUpdateListener(
             self.run_bib_cache(tex_root)
 
         with self._UPDATING_DOCS_LOCK:
-            self._UPDATING_DOCS.add(tex_root)
-        t = self.run_cache_update()
-        self._monitor_update_thread(t, tex_root)
+            if tex_root not in self._UPDATING_DOCS:
+                self._UPDATING_DOCS.add(tex_root)
+
+                t = self.run_cache_update()
+                self._monitor_update_thread(t, tex_root)
 
     if not _ST3:
         on_load = on_load_async
