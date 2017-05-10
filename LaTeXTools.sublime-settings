@@ -99,6 +99,13 @@
 	// "none"      to disable math live preview
 	"preview_math_mode": "selected",
 
+	// Change the scope selectors to preview math
+	// E.g. set it to "text.tex.latex meta.environment.math.block.be"
+	// to only preview math environment
+	// Set it to "text.tex.latex meta.environment.math"
+	// to preview every math command or environment
+	"preview_math_scope": "text.tex.latex meta.environment.math.block",
+
 	// The program to compile the latex template files, possible values are
 	// pdflatex, xelatex, lualatex, latex
 	// DON'T(!) use tex engines like pdftex
