@@ -361,6 +361,9 @@ def parse_tex_log(data, root_dir):
 							extend_line = False
 				except StopIteration:
 					extend_line = False # end of file, so we must be done. This shouldn't happen, btw
+
+		# NOW WE GOT OUR EXTENDED LINE, SO START PROCESSING
+
 		# We may skip the above "if" because we are reprocessing a line, so reset flag:
 		reprocess_extra = False
 		# Check various states
@@ -379,7 +382,11 @@ def parse_tex_log(data, root_dir):
 			if not err_match:
 				continue
 			# now we match!
-			state = STATE_NORMAL
+			# state = STATE_NORMAL
+			# TeX splits the error line in two, so we skip the
+			# second part. In the future we may want to capture that, too
+			# and figure out the column, perhaps.
+			state = STATE_SKIP 
 			err_line = err_match.group(1)
 			err_text = err_match.group(2)
 			# err_msg is set from last time
@@ -489,7 +496,9 @@ def parse_tex_log(data, root_dir):
 				line_num += 1
 				debug("Over/underfull: skip " + line + " (%d) " % line_num)
 				# Sometimes it's " []" and sometimes it's "[]"...
-				if len(line)>0 and line[:3] == " []" or line[:2] == "[]":
+#				if len(line)>0 and line[:3] == " []" or line[:2] == "[]":
+				# NO, it really should be just " []"
+				if len(line)>0 and line == " []":
 					ou_processing = False
 				else:
 					current_badbox += line
