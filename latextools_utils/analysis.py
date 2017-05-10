@@ -132,7 +132,6 @@ class Analysis(object):
 
         self._import_base_paths = {}
 
-        self.__finished = False
         self.__frozen = False
 
     def tex_root(self):
@@ -256,22 +255,11 @@ class Analysis(object):
             self._build_cache(flags)
         return self._command_cache[flags]
 
-    @property
-    def _finished(self):
-        return self.__finished
-
-    @_finished.setter
-    def _finished(self, value):
-        self.__finished = value
-        if value and not self.__frozen:
-            self._freeze()
-
     def _freeze(self):
         self._content = frozendict(**self._content)
         self._raw_content = frozendict(**self._raw_content)
         self._all_commands = tuple(c for c in self._all_commands)
         self.__frozen = True
-
 
     def __copy__(self):
         return self
@@ -307,6 +295,7 @@ def get_analysis(tex_root):
 
     result = LocalCache(tex_root).cache(
         'analysis', partial(analyze_document, tex_root))
+    result._freeze()
     return result
 
 
@@ -424,11 +413,6 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
                 tex_root, open_file, process_file_stack, ana,
                 import_path=next_import_path)
             process_file_stack.pop()
-
-        # don't parse further than \end{document}
-        if g("args") == "document" and g("command") == "end" or ana._finished:
-            ana._finished = True
-            break
 
     return ana
 
