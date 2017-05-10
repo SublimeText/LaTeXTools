@@ -10,6 +10,7 @@
 	{ "caption": "LaTeXTools: Search for commands in document", "command": "latex_search_command_input"},
 	{ "caption": "LaTeXTools: Reset user settings to default", "command": "latextools_migrate"},
 	{ "caption": "LaTeXTools: Create mousemap in user folder", "command": "latextools_create_mousemap"},
+	{ "caption": "LaTeXTools: Open Detexify", "command": "latextools_open_detexify"},
 	{ "caption": "LaTeXTools: View TeX package documentation", "command": "latex_pkg_doc"},
 	{ "caption": "LaTeXTools: Build cache of LaTeX packages", "command": "latex_gen_pkg_cache"},
 	{ "caption": "LaTeXTools: Update document analysis cache", "command": "latextools_analysis_update"},
