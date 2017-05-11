@@ -1,0 +1,75 @@
+[
+    {
+        "keys": ["<character>"],
+        "command": "latextools_math_popup_insert_char",
+        "context":
+        [
+            { "key": "latextools.math_popup.await_next_key" }
+        ]
+    },
+    {
+        "keys": ["?"],
+        "command": "latextools_math_popup_toggle_mode",
+        "context":
+        [
+            { "key": "latextools.math_popup.await_next_key" }
+        ]
+    },
+    {
+        "keys": ["backspace"],
+        "command": "latextools_math_popup_delete_char",
+        "context":
+        [
+            { "key": "latextools.math_popup.await_next_key" }
+        ]
+    },
+    {
+        "keys": ["up"],
+        "command": "latextools_math_popup_move_line",
+        "args": {
+            "forward": false
+        },
+        "context":
+        [
+            { "key": "latextools.math_popup.await_next_key" }
+        ]
+    },
+    {
+        "keys": ["down"],
+        "command": "latextools_math_popup_move_line",
+        "args": {
+            "forward": true
+        },
+        "context":
+        [
+            { "key": "latextools.math_popup.await_next_key" }
+        ]
+    },
+    {
+        "keys": [" "],
+        "command": "latextools_math_popup_commit",
+        "args": {
+            "insert_characters": " "
+        },
+        "context":
+        [
+            { "key": "latextools.math_popup.await_next_key" }
+        ]
+    },
+    {
+        "keys": ["tab"],
+        "command": "latextools_math_popup_commit",
+        "context":
+        [
+            { "key": "latextools.math_popup.await_next_key" }
+        ]
+    },
+    {
+        "keys": ["enter"],
+        "command": "latextools_math_popup_commit",
+        "context":
+        [
+            { "key": "latextools.math_popup.await_next_key" }
+        ]
+    },
+]

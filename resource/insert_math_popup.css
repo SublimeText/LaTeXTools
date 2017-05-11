@@ -1,0 +1,38 @@
+html {
+    background-color: #333333;
+    color: #CCCCCC;
+}
+a {
+    color: #cc0000;
+}
+a.entry {
+    color: #CCCCCC;
+    text-decoration: none;
+}
+.prefix_line {
+    background-color: #333399;
+}
+.prefix {
+    font-weight: bold;
+}
+.invalid_char {
+    color: red;
+}
+.selected {
+    background-color: #993300;
+    color: #FFFF00;
+    font-weight: bold;
+}
+.key {
+    width: 150px;
+}
+.common_prefix {
+    font-style: italic;
+    # font-weight: bold;
+}
+.pkg_missing {
+    color: red;
+}
+.pkg_available {
+    color: green;
+}

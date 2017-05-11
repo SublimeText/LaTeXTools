@@ -1,0 +1,325 @@
+# lower greek
+\alpha: α
+\beta: β
+\gamma: γ
+\delta: δ
+\epsilon: ε
+\zeta: ζ
+\eta: η
+\theta: θ
+\kappa: κ
+\lambda: λ
+\mu: μ
+\nu: ν
+\xi: ξ
+\pi: π
+\rho: ρ
+\sigma: σ
+\tau: τ
+\upsilon: υ
+\phi: ϕ
+\chi: χ
+\psi: ψ
+\omega: ω
+\varphi: φ
+
+# capital greek
+\Delta: Δ
+\Gamma: Γ
+\Theta: Θ
+\Lambda: Λ
+\Xi: Ξ
+\Pi: Π
+\Sigma: Σ
+\Upsilon: Υ
+\Phi: Φ
+\Psi: Ψ
+\Omega: Ω
+
+# special symbols
+\nabla: ∇
+\infty: ∞
+\forall: ∀
+\exists: ∃
+\sum: ∑
+\prod: Π
+\bot: ⊥
+\top: ⊤
+
+# simple arrows
+\rightarrow: →
+\leftarrow: ←
+\uparrow: ↑
+\downarrow: ↓
+\leftrightarrow: ↔
+\updownarrow: ↕
+
+\Rightarrow: ⇒
+\Leftarrow: ⇐
+\Uparrow: ⇑
+\Downarrow: ⇓
+\Leftrightarrow: ⇔
+\Updownarrow: ⇕
+
+\longrightarrow: ⟶
+\longleftarrow: ⟵
+\longuparrow: ↑
+\longdownarrow: ↓
+\longleftrightarrow: ⟷
+\longupdownarrow: ↕
+
+\Longrightarrow: ⟹
+\Longleftarrow: ⟸
+\Longuparrow: ⇑
+\Longdownarrow: ⇓
+\Longleftrightarrow: ⟺
+\Longupdownarrow: ⇕
+
+# binary relations
+\ne: ≠ 
+\neq: ≠ 
+\vdash: ⊢
+\dashv: ⊣
+\vDash: ⊨
+\models: ⊨
+\nvdash: ⊬
+\nvDash: ⊭
+\Vdash: ⊩
+\nVDash: ⊯
+\Vvdash: ⊪
+\multimap: ⊸
+\equiv: ≡
+\nequiv: ≢
+\coloneq: ':-'
+\eqcolon: '-:'
+\coloneqq: ≔
+\Coloneqq: ⩴
+\eqcolon: ≕
+\eqcirc: ≖
+\ni: ∋
+\in: ∈
+# \not\in: ∉ 
+
+\doteqdot: ≑
+\risingdotseq: ≓
+\fallingdotseq: ≒
+\tilde: '~'
+\sim: '~'
+\eqsim: ≂
+\nsimeq: ≄
+\backsimeq: ⋍
+\ncong: ≇
+\nsim: ≁
+\approx: ≈
+\napprox: ≉
+
+\bumpeq: ≏
+\Bumpeq: ≎
+
+\subset: ⊂
+\supset: ⊃
+\subseteq: ⊆
+\supseteq: ⊇
+
+\leq: ≤
+\geq: ≥
+\nless: ≮
+\ngtr: ≯
+\ll: ≪
+\gg: ≫
+\lll: ⋘
+\ggg: ⋙
+\nleqslant: ≰
+\leqslant: ≤
+\geqslant: ≥
+\ngeqslant: ≱
+\nlessgtr: ≸
+\ngtrless: ≹
+\lneqq: ≨
+\leqq: ≦
+\geqq: ≧
+\gneqq: ≩
+\lnsim: ⋦
+\lesssim: ≲
+\gtrsim: ≳
+\gnsim: ⋧
+\nprec: ⊀
+\nsucc: ⊁
+
+# operators
+\lnot: ¬
+\neg: ¬
+\not: /
+\in: ∈
+\backepsilon: ∍
+\times: ×
+\cdot: ∙
+\setminus: ∖
+\cup: ∪
+\cap: ∩
+\vee: ∨
+\wedge: ∧
+\lor: ∨
+\land: ∧
+\oplus: ⊕
+\odot: ⊙
+\dotplus: ∔
+\dotdiv: ∸
+\pm: ±
+\mp: ∓
+\mid: ∣
+
+# named functions
+\cos: cos
+\det: det
+\exp: exp
+\hat: '^'
+\inf: inf
+\lg: lg
+\lim: lim
+\liminf: liminf
+\limsup: limsup
+\ln: ln
+\log: log
+\min: min
+\max: max
+\sin: sin
+\sin: sin
+\sup: sup
+\tan: tan
+
+
+# advanced arrows
+\nleftarrow: ↚
+\nrightarrow: ↛
+\nleftrightarrow: ↮
+\lightning: ↯
+\nLeftrightarrow: ⇎
+\APLuparrowbox: ⍐
+\APLdownarrowbox: ⍗
+\APLleftarrowbox: ⍇
+\APLrightarrowbox: ⍈
+\pointer: ➪
+\nLeftarrow: ⇍
+\nRightarrow: ⇏
+\Lleftarrow: ⇚
+\Rrightarrow: ⇛
+\Lsh: ↰
+\Rsh: ↱
+\curvearrowleft: ↶
+\curvearrowright: ↷
+\leftrightarrows: ⇆
+\rightleftarrows: ⇄
+\upharpoonleft: ↿
+\downharpoonleft: ⇃
+\downharpoonright: ⇂
+\upharpoonright: ↾
+\leftarrowtobar: ⇤
+\rightarrowtobar: ⇥
+\leftrightharpoons: ⇋
+\leftleftharpoons: ⥢
+\rightrightharpoons: ⥤
+\Mapsfrom: ⇐|
+\Mapsto: '|⇒'
+\mapsto: ↦
+\mapsfrom: ↤
+\dashleftarrow: ⇠
+\upuparrows: ⇈
+\downdownarrows: ⇊
+\leftleftarrows: ⇇
+\rightrightarrows: ⇉
+\leftarrowtail: ↢
+\rightarrowtail: ↣
+\twoheadleftarrow: ↞
+\twoheadrightarrow: ↠
+\looparrowleft: ↫
+\looparrowright: ↬
+\nearrow: ↗
+
+# advanced operators/relations
+\triangleq: ≜
+\Corresponds: ≙
+\veebar: ⊻
+\barwedge: ⊼
+\doublebarwedge: ⌆
+\therefore: ∴
+\because: ∵
+\boxdot: ⊡
+\circledast: ⊛
+\circledcirc: ⊚
+\circleddash: ⊝
+\divideontimes: ⋇
+\ntriangleleft: ⋪
+\ntriangleright: ⋫
+\trianglelefteq: ⊴
+\trianglerighteq: ⊵
+\ntrianglelefteq: ⋬
+\ntrianglerighteq: ⋭
+\preccurlyeq: ≼
+\succcurlyeq: ≽
+\nsucccurlyeq: ⋡
+\precsim: ≾
+\succsim: ≿
+\succnsim: ⋩
+\lesseqgtr: ⋛
+\gtreqless: ⋚
+\gtreqqless: ⪌
+\lesseqqgtr: ⪋
+\gtrdot: ⋗
+\lessdot: ⋖
+\Subset: ⋐
+\Supset: ⋑
+\nsupset: ⊅
+\nsubseteq: ⊈
+\subseteqq: ⫅
+\supseteqq: ⫆
+\subsetneqq: ⫋
+\supsetneqq: ⫌
+\nsupseteq: ⊉
+\nsqsubset: ⊏̸
+\notni: ∌
+\pitchfork: ⋔
+\between: ≬
+\notslash: ⌿
+\notbackslash: ⍀
+\ltimes: ⋉
+\rtimes: ⋊
+\Cup: ⋓
+\Cap: ⋒
+\udot: ⊍
+
+# other
+\langle: ⟨
+\rangle: ⟩
+\emptyset: ∅
+\nabla: ∇
+\lozenge: ◊
+\male: ♂
+\mho: ℧
+\leftthreetimes: ⋋
+\rightthreetimes: ⋌
+\oiint: ∯
+\oiiint: ∰
+\ointclockwise: ∲
+\landupint: ∱
+\ointctrclockwise: ∳
+\iint: ∬
+\iiint: ∭
+\idotsint: ∫⋯∫
+\EUR: €
+\P: ¶
+\maltese: ✠
+\mercury: ☿
+\libra: ♎
+\neptune: ♆
+\Yup: ⅄
+
+
+# meta data
+':special_size:':
+  ⟶: 2
+  ⟵: 2
+  ⟷: 2
+  ⟹: 2
+  ⟸: 2
+  ⟺: 2
