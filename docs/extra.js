@@ -24,7 +24,7 @@
         observer.disconnect();
         var form = $('#rtd-search-form');
         form.empty();
-        form.attr( 'action', window.location.protocal + '//' +
+        form.attr( 'action', window.location.protocol + '//' +
           window.location.hostname + '/en/' + determineSelectedBranch() +
           '/search.html'
         );
