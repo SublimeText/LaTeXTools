@@ -6,42 +6,23 @@ import re
 import sys
 import traceback
 
-if sublime.version() < '3000':
-    # we are on ST2 and Python 2.X
-    _ST3 = False
-    from getRegion import getRegion
-    from latextools_plugin import (
-        get_plugins_by_type, _classname_to_internal_name
-    )
-    from latextools_utils import get_setting
-    from latextools_utils.internal_types import FillAllHelper
+# hack to ensure relative package imports work
+__package__ = 'LaTeXTools'
 
-    exec("""def reraise(tp, value, tb=None):
-    raise tp, value, tb
-""")
+from .getRegion import getRegion
+from .latextools_plugin import (
+    get_plugins_by_type, _classname_to_internal_name
+)
+from .latextools_utils import get_setting
+from .latextools_utils.internal_types import FillAllHelper
 
-    strbase = basestring
-else:
-    _ST3 = True
-    # hack to ensure relative package imports work
-    __package__ = 'LaTeXTools'
 
-    from .getRegion import getRegion
-    from .latextools_plugin import (
-        get_plugins_by_type, _classname_to_internal_name
-    )
-    from .latextools_utils import get_setting
-    from .latextools_utils.internal_types import FillAllHelper
-
-    def reraise(tp, value, tb=None):
-        if value is None:
-            value = tp()
-        if value.__traceback__ is not tb:
-            raise value.with_traceback(tb)
-        raise value
-
-    strbase = str
-    long = int
+def reraise(tp, value, tb=None):
+    if value is None:
+        value = tp()
+    if value.__traceback__ is not tb:
+        raise value.with_traceback(tb)
+    raise value
 
 
 class LatexFillHelper(object):
@@ -339,7 +320,7 @@ class LatexFillHelper(object):
         :param locations:
             either a list of points or a list of sublime.Regions
         '''
-        if type(locations[0]) is int or type(locations[0]) is long:
+        if type(locations[0]) is int or type(locations[0]) is int:
             locations = [getRegion(l, l) for l in locations]
 
         old_prefix = None
@@ -917,7 +898,7 @@ class LatexFillAllCommand(
                 return
 
         # if completion_type is a simple string, try to load it
-        if isinstance(completion_type, strbase):
+        if isinstance(completion_type, str):
             completion_type = self.get_completion_type(completion_type)
             if completion_type is None:
                 if not force:
@@ -1015,7 +996,7 @@ class LatexFillAllCommand(
 
             if (
                 completion_type is None or
-                isinstance(completion_type, strbase)
+                isinstance(completion_type, str)
             ):
                 message = \
                     'Cannot determine completion type for current selection'
