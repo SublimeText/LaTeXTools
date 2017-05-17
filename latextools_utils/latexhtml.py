@@ -54,11 +54,12 @@ def get_tag_map():
         "\\textbf": "b",
         "\\textit": "i",
         "\\textsl": "i",
+        "\\texttt": "tt",
         "\\emph": "em",
         "\\underline": "u",
-        "\\texttt": "code",
         "\\mathbf": "b",
         "\\mathit": "i",
+        "\\mathtt": "tt",
     }
     return tag_map
 
