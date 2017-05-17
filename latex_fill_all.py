@@ -15,6 +15,7 @@ from .latextools_plugin import (
 )
 from .latextools_utils import get_setting
 from .latextools_utils.internal_types import FillAllHelper
+from .latextools_utils.input_quickpanel import show_input_quick_panel
 
 
 def reraise(tp, value, tb=None):
@@ -1090,8 +1091,10 @@ class LatexFillAllCommand(
                 self.remove_regions(view, edit, remove_regions)
             self.clear_bracket_cache()
         else:
-            def on_done(i):
-                if i < 0:
+            def on_done(i, text=''):
+                if i is None:
+                    insert_text = text
+                elif i < 0:
                     view.run_command(
                         'latex_tools_fill_all_complete_bracket',
                         {
@@ -1101,12 +1104,14 @@ class LatexFillAllCommand(
                         }
                     )
                     return
+                else:
+                    insert_text = completions[i]
 
                 if force:
                     view.run_command(
                         'insert',
                         {
-                            'characters': completions[i]
+                            'characters': insert_text
                         }
                     )
                 else:
@@ -1114,13 +1119,14 @@ class LatexFillAllCommand(
                         'latex_tools_replace_word',
                         {
                             'insert_char': insert_char,
-                            'replacement': completions[i],
+                            'replacement': insert_text,
                             'remove_regions':
                                 self.regions_to_tuples(remove_regions)
                         }
                     )
 
-            view.window().show_quick_panel(formatted_completions, on_done)
+            show_input_quick_panel(
+                view.window(), formatted_completions, on_done)
             self.clear_bracket_cache()
 
 
