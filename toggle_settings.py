@@ -5,13 +5,19 @@ from .latextools_utils import get_setting
 
 
 def _make_panel_entry(t, prefix_map):
-    kbd = prefix_map.get(t[0], "")
+    entry_info = prefix_map.get(t[0], [])
+    kbd = next(iter(entry_info or []), "")
+    key_name = t[0].replace("_", " ")
+    default_value = "{0}  (default: {1})".format(t[1], t[2])
+    trigger = ("Trigger: C-l,t,{0}".format(",".join(kbd)) if kbd else "")
+    try:
+        description = entry_info[1][0]
+    except IndexError:
+        description = ""
     return [
-        t[0].replace("_", " "),
-        (
-            "{0}  (default: {1})".format(t[1], t[2]) +
-            ("; Trigger: C-l,t,{0}".format(",".join(kbd)) if kbd else "")
-        ),
+        key_name,
+        default_value + ("; " + trigger if trigger else ""),
+        description
     ]
 
 
@@ -26,11 +32,11 @@ def _toggle_setting(setting_name, view):
 def _show_toggle_overlay(window, view, prefix, setting_keys):
     default_settings = sublime.load_settings("LaTeXTools.sublime-settings")
     setting_keys = [t for t in setting_keys if t[1].startswith(prefix)]
-    prefix_map = {k: v for k, v in setting_keys}
+    prefix_map = {k: [v, rest] for k, v, *rest in setting_keys}
 
     current_settings = [
         [s, get_setting(s), default_settings.get(s)]
-        for s, _ in setting_keys
+        for s, *_ in setting_keys
     ]
 
     panel_entries = [
@@ -65,7 +71,7 @@ class LatextoolsToggleKeysCommand(sublime_plugin.WindowCommand):
         window = self.window
         view = window.active_view()
         setting_keys = get_setting("toggle_setting_keys", [], view={})
-        toggle_keys = {k: v for v, k in setting_keys}
+        toggle_keys = {k: v for v, k, *_ in setting_keys}
         if prefix:
             keys = {
                 k[len(prefix):]: v for k, v in toggle_keys.items()
