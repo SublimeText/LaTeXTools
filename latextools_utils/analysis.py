@@ -40,23 +40,39 @@ for each regex name:
 # compatibility
 # regex names are:
 # \command[optargs]{args}[optargs2][optargs2a]{args2}[optargs3]{args3}
-_RE_COMMAND = regex.compile(
-    r"""
-\\(?<command>[A-Za-z]+)(?<star>\*?)\s*? # The initial command
-(?:\[(?<optargs>(?:[^\[\]]++|\[(?&optargs)\])*)\])?\s*?
-(\{(?<args>(?:[^\{\}]++|\{(?&args)\})*)\}\s*?)?
-(?:\[(?<optargs2>(?:[^\[\]]++|\[(?&optargs2)\])*)\])?\s*?
-(?:\[(?<optargs2a>(?:[^\[\]]++|\[(?&optargs2a)\])*)\])?\s*?
-(?:\{(?<args2>(?:[^\{\}]++|\{(?&args2)\})*)\})?\s*?
-(?:\[(?<optargs3>(?:[^\[\]]++|\[(?&optargs3)\])*)\])?\s*?
-(?:\{(?<args3>(?:[^\{\}]++|\{(?&args3)\})*)\})?
-    """, regex.MULTILINE | regex.UNICODE | regex.VERBOSE
-)
-# the argument names
+# the argument names (in correct order!)
 _COMMAND_ARG_NAMES = (
     "optargs", "args",
     "optargs2", "optargs2a", "args2",
     "optargs3", "args3"
+)
+_RE_COMMAND = regex.compile(
+    r"\\(?<command>[A-Za-z]+)(?<star>\*?)" +  # The initial command
+    # build the rest from the command arg names
+    "\n".join(
+        r"""
+        (?:
+          [ \t]*\n?[ \t]*  # optional whitespaces
+          {open}
+            (?<{name}>
+              (?:
+                [^{open}{close}]++  # everything except recursive matches
+                |  # or
+                {open}
+                    (?&{name})  # match recursive
+                {close}
+              )*
+            )
+          {close}
+        )?
+        """.format(
+            name=name,
+            # optional arguments are [...], normal arguments are {...}
+            open=(r"\[" if name.startswith("opt") else r"\{"),
+            close=(r"\]" if name.startswith("opt") else r"\}"),
+        )
+        for name in _COMMAND_ARG_NAMES
+    ), regex.MULTILINE | regex.UNICODE | regex.VERBOSE
 )
 # this regex is used to remove comments
 _RE_COMMENT = regex.compile(
