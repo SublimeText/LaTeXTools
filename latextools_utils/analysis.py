@@ -7,30 +7,12 @@ import traceback
 
 import sublime
 
-if sublime.version() < '3000':
-    _ST3 = False
-    from latextools_utils import utils
-    from latextools_utils.cache import LocalCache
-    from external.frozendict import frozendict
-    from latextools_utils.six import strbase
-    from latextools_utils.tex_directives import get_tex_root
-else:
-    _ST3 = True
-    from . import utils
-    from .cache import LocalCache
-    from ..external.frozendict import frozendict
-    from .six import strbase
-    from .tex_directives import get_tex_root
+from . import utils
+from .cache import LocalCache
+from ..external.frozendict import frozendict
+from .six import strbase
+from .tex_directives import get_tex_root
 
-# because we cannot natively pickle sublime.Region in ST2
-# we provide the ability to pickle
-if not _ST3:
-    import copy_reg
-
-    def pickle_region(region):
-        return (sublime.Region, (region.a, region.b))
-
-    copy_reg.pickle(sublime.Region, pickle_region)
 
 # attributes of an entry (for documentation)
 """
@@ -86,10 +68,13 @@ _import_commands = [
 # FLAGS
 def _flag():
     """get the next free flag"""
-    current_flag = _flag.flag
+    try:
+        current_flag = _flag.flag
+    except AttributeError:
+        current_flag = _flag.flag = 1
     _flag.flag <<= 1
     return current_flag
-_flag.flag = 1
+
 
 # dummy for no flag
 ALL_COMMANDS = 0
