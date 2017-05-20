@@ -1,5 +1,8 @@
 {
     "*": {
+        ">=3000": [
+            "regex"
+        ],
         ">=3118": [
             "pygments",
             "python-markdown",
