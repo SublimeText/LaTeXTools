@@ -9,7 +9,6 @@ import traceback
 # hack to ensure relative package imports work
 __package__ = 'LaTeXTools'
 
-from .getRegion import getRegion
 from .latextools_plugin import (
     get_plugins_by_type, _classname_to_internal_name
 )
@@ -91,7 +90,8 @@ class LatexFillHelper(object):
                             new_regions.append(sel)
                         else:
                             new_point = sel.end() - 1
-                            new_regions.append(getRegion(new_point, new_point))
+                            new_regions.append(
+                                sublime.Region(new_point, new_point))
 
                     self.update_selections(view, new_regions)
                     return
@@ -111,16 +111,16 @@ class LatexFillHelper(object):
                         if sel.empty():
                             if word_region.empty():
                                 new_regions.append(
-                                    getRegion(
+                                    sublime.Region(
                                         word_region.end(), word_region.end()))
                             else:
                                 new_point = word_region.end() + len(
                                     close_bracket)
-                                new_regions.append(getRegion(
-                                    new_point, new_point))
+                                new_regions.append(
+                                    sublime.Region(new_point, new_point))
                         else:
                             new_regions.append(
-                                getRegion(
+                                sublime.Region(
                                     sel.begin(),
                                     word_region.end() + len(close_bracket)))
                     else:
@@ -200,23 +200,23 @@ class LatexFillHelper(object):
             start = end = sel
 
         if self.use_full_scan:
-            prefix = view.substr(getRegion(0, start))
+            prefix = view.substr(sublime.Region(0, start))
             prefix_start = 0
             suffix_end = view.size()
         else:
-            prefix_lines = view.lines(getRegion(0, start))
+            prefix_lines = view.lines(sublime.Region(0, start))
             if len(prefix_lines) >= look_around:
                 prefix_start = prefix_lines[-look_around].begin()
             else:
                 prefix_start = prefix_lines[0].begin()
 
-            suffix_lines = view.lines(getRegion(end, view.size()))
+            suffix_lines = view.lines(sublime.Region(end, view.size()))
             if len(suffix_lines) >= look_around:
                 suffix_end = suffix_lines[look_around - 1].end()
             else:
                 suffix_end = suffix_lines[-1].end()
 
-            prefix = view.substr(getRegion(prefix_start, start))
+            prefix = view.substr(sublime.Region(prefix_start, start))
 
         open_bracket, last_index = None, -1
         for char in self.MATCH_CHARS:
@@ -321,12 +321,12 @@ class LatexFillHelper(object):
             either a list of points or a list of sublime.Regions
         '''
         if type(locations[0]) is int or type(locations[0]) is int:
-            locations = [getRegion(l, l) for l in locations]
+            locations = [sublime.Region(l, l) for l in locations]
 
         old_prefix = None
         for location in locations:
             if location.empty():
-                word_region = getRegion(
+                word_region = sublime.Region(
                     self.get_current_word(view, location).begin(),
                     location.b
                 )
@@ -364,9 +364,7 @@ class LatexFillHelper(object):
                 continue
 
             new_prefix = view.substr(
-                getRegion(
-                    prefix_region.begin() + 1, prefix_region.end()
-                )
+                sublime.Region(prefix_region.begin() + 1, prefix_region.end())
             )
 
             remove_regions.append(prefix_region)
@@ -406,8 +404,8 @@ class LatexFillHelper(object):
         start_line = view.line(start)
         end_line = view.line(end)
         # inverse prefix so we search from the right-hand side
-        line_prefix = view.substr(getRegion(start_line.begin(), start))[::-1]
-        line_suffix = view.substr(getRegion(end, end_line.end()))
+        line_prefix = view.substr(sublime.Region(start_line.begin(), start))[::-1]
+        line_suffix = view.substr(sublime.Region(end, end_line.end()))
 
         # prefix is the characters before caret
         m = self.WORD_SEPARATOR_RX.search(line_prefix)
@@ -416,9 +414,7 @@ class LatexFillHelper(object):
         m = self.WORD_SEPARATOR_RX.search(line_suffix)
         suffix = m.group(1) if m else ''
 
-        return getRegion(
-            start - len(prefix), end + len(suffix)
-        )
+        return sublime.Region(start - len(prefix), end + len(suffix))
 
     def get_match_char(self, insert_char):
         return self.MATCH_CHARS.get(insert_char, '')
@@ -449,16 +445,14 @@ class LatexFillHelper(object):
 
         start_line = view.line(start)
         # inverse prefix so we search from the right-hand side
-        line_prefix = view.substr(getRegion(start_line.begin(), start))[::-1]
+        line_prefix = view.substr(
+            sublime.Region(start_line.begin(), start))[::-1]
 
         m = self.FANCY_PREFIX_RX.match(line_prefix)
         if not m:
-            return getRegion(start, start)
+            return sublime.Region(start, start)
 
-        return getRegion(
-            start - len(m.group(0)),
-            start - m.start()
-        )
+        return sublime.Region(start - len(m.group(0)), start - m.start())
 
     def insert_at_end(self, view, edit, value):
         '''
@@ -483,7 +477,7 @@ class LatexFillHelper(object):
                     new_start = sel.begin()
                     new_end = sel.end() + len(value)
 
-                new_regions.append(getRegion(new_start, new_end))
+                new_regions.append(sublime.Region(new_start, new_end))
             self.update_selections(view, new_regions)
 
     def replace_word(self, view, edit, value):
@@ -512,16 +506,13 @@ class LatexFillHelper(object):
                 start_point = word_region.begin()
                 end_point = word_region.end()
 
-            view.replace(
-                edit, getRegion(start_point, end_point),
-                value
-            )
+            view.replace(edit, sublime.Region(start_point, end_point), value)
 
             if sel.empty():
                 start_point = end_point = start_point + len(value)
             else:
                 end_point = start_point + len(value)
-            new_regions.append(getRegion(start_point, end_point))
+            new_regions.append(sublime.Region(start_point, end_point))
 
         self.update_selections(view, new_regions)
 
@@ -583,10 +574,10 @@ class LatexFillHelper(object):
             an iterable of two-element tuples to convert to sublime.Regions
         '''
         if type(tuples) == tuple:
-            return [getRegion(tuples[0], tuples[1])]
+            return [sublime.Region(tuples[0], tuples[1])]
 
         return [
-            getRegion(start, end)
+            sublime.Region(start, end)
             for start, end in tuples
         ]
 
@@ -707,7 +698,7 @@ class LatexFillAllEventListener(
 
         lines = [
             insert_char + view.substr(
-                getRegion(view.line(sel).begin(), sel.b)
+                sublime.Region(view.line(sel).begin(), sel.b)
             )[::-1]
             for sel in view.sel()
         ]
@@ -741,11 +732,11 @@ class LatexFillAllEventListener(
         if remove_regions:
             if remove_regions:
                 fancy_prefixed_line = view.substr(
-                    getRegion(view.line(locations[0]).begin(), locations[0])
+                    sublime.Region(view.line(locations[0]).begin(), locations[0])
                 )[::-1]
 
         line = view.substr(
-            getRegion(view.line(locations[0]).begin(), locations[0])
+            sublime.Region(view.line(locations[0]).begin(), locations[0])
         )[::-1]
 
         completion_type = None
@@ -929,12 +920,12 @@ class LatexFillAllCommand(
         fancy_prefixed_line = None
         if remove_regions:
             fancy_prefixed_line = view.substr(
-                getRegion(view.line(point).begin(), point)
+                sublime.Region(view.line(point).begin(), point)
             )[::-1]
 
         # normal line calculation
         line = (view.substr(
-            getRegion(view.line(point).begin(), point)
+            sublime.Region(view.line(point).begin(), point)
         ) + insert_char)[::-1]
 
         # handle a list of completion types
