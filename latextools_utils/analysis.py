@@ -335,14 +335,16 @@ def _generate_entries(m, file_name, offset=0):
     # recursively add commands, which are inside arguments
     for args_name in _COMMAND_ARG_NAMES:
         args_content = entryDict[args_name]
-        if args_content:
-            for em in _RE_COMMAND.finditer(args_content):
-                if em:
-                    try:
-                        offset = entryDict[args_name + "_region"].begin()
-                    except KeyError:
-                        continue
-                    yield from _generate_entries(em, file_name, offset=offset)
+        if not args_content:
+            continue
+        for em in _RE_COMMAND.finditer(args_content):
+            if not em:
+                continue
+            try:
+                offset = entryDict[args_name + "_region"].begin()
+            except KeyError:
+                continue
+            yield from _generate_entries(em, file_name, offset=offset)
 
 
 def analyze_document(tex_root):
