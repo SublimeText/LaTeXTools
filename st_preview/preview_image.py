@@ -48,9 +48,6 @@ def plugin_loaded():
     _lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
 
     temp_path = os.path.join(cache._global_cache_path(), _name)
-    # validate the temporary file directory is available
-    if not os.path.exists(temp_path):
-        os.makedirs(temp_path)
 
     # init all variables
     _on_setting_change()
@@ -120,6 +117,10 @@ def _append_image_job(image_path, thumbnail_path, width, height, cont):
 
 
 def _run_image_jobs():
+    # validate the temporary file directory is available
+    if not os.path.exists(temp_path):
+        os.makedirs(temp_path)
+
     if not pv_threading.has_function(_name):
         pv_threading.register_function(_name, lambda job: job())
     pv_threading.run_jobs(_name)
