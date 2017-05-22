@@ -114,7 +114,8 @@ def plugin_loaded():
             "regex": r'(?:\][^{}\[\]]*\[)?scihpargedulcni\\',
             "extensions": get_setting("image_types", [
                 "pdf", "png", "jpeg", "jpg", "eps"
-            ])
+            ]),
+            "folder": "${graphics_path:$base}"
         },
         # import/subimport
         {
@@ -284,10 +285,12 @@ def parse_completions(view, line):
         if root:
             ana = analysis.get_analysis(root)
             tex_base_path = ana.tex_base_path(view.file_name())
+            graphics_path = ";".join(ana.graphics_paths())
             completions = []
             sub = {
                 "root": root,
-                "base": tex_base_path
+                "base": tex_base_path,
+                "graphics_path": graphics_path,
             }
             if "post_regex" in entry:
                 m = re.search(entry["post_regex"], line[::-1])
@@ -297,9 +300,8 @@ def parse_completions(view, line):
             if "folder" in entry:
                 folders = []
                 for folder in entry["folder"].split(";"):
-                    import string
-                    temp = string.Template(folder)
-                    folders.append(temp.safe_substitute(sub))
+                    folder_path = sublime.expand_variables(folder, sub)
+                    folders.extend(f for f in folder_path.split(";") if f)
             else:
                 folders = [tex_base_path]
             for base_path in folders:

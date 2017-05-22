@@ -243,6 +243,26 @@ class Analysis(object):
         com = self._commands(flags)
         return tuple(filter(command_filter, com))
 
+    def graphics_paths(self):
+        try:
+            return self._graphics_path
+        except AttributeError:
+            pass
+        self._graphics_path = []
+        commands = self.filter_commands("graphicspath")
+        for com in commands:
+            base_path = os.path.join(self.tex_base_path(com.file_name))
+            paths = (p.rstrip("}") for p in com.args.split("{") if p)
+            self._graphics_path.extend(
+                os.path.normpath(
+                    p if os.path.isabs(p)
+                    else os.path.join(base_path, p)
+                )
+                for p in paths
+            )
+
+        return self._graphics_path
+
     def _add_command(self, command):
         self._all_commands.append(command)
 
