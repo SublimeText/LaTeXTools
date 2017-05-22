@@ -1,9 +1,9 @@
 import copy
-import os
-import re
 import itertools
-from functools import partial
+import os
+import regex
 import traceback
+from functools import partial
 
 import sublime
 
@@ -35,26 +35,49 @@ for each regex name:
 # usually it is \command[optargs]{args}
 # but it can be way more complicated, e.g.
 # \newenvironment{ENVIRONMENTNAME}[COUNT][OPTIONAL]{BEGIN}{END}
-# this regex does not capture all posibilities, but hopefully,
+# this regex does not capture all possibilities, but hopefully,
 # all we need and can obviously be extended without losing backward
 # compatibility
 # regex names are:
 # \command[optargs]{args}[optargs2][optargs2a]{args2}[optargs3]{args3}
-_RE_COMMAND = re.compile(
-    r"\\(?P<command>[A-Za-z]+)(?P<star>\*?)\s*?"
-    r"(?:\[(?P<optargs>[^\]]*)\])?\s*?"
-    r"(\{(?P<args>[^\}]*)\}\s*?)?"
-    r"(?:\[(?P<optargs2>[^\]]*)\])?\s*?"
-    r"(?:\[(?P<optargs2a>[^\]]*)\])?\s*?"
-    r"(?:\{(?P<args2>[^\}]*)\})?"
-    r"(?:\[(?P<optargs3>[^\]]*)\])?\s*?"
-    r"(?:\{(?P<args3>[^\}]*)\})?",
-    re.MULTILINE | re.UNICODE
+# the argument names (in correct order!)
+_COMMAND_ARG_NAMES = (
+    "optargs", "args",
+    "optargs2", "optargs2a", "args2",
+    "optargs3", "args3"
+)
+_RE_COMMAND = regex.compile(
+    r"\\(?<command>[A-Za-z]+)(?<star>\*?)" +  # The initial command
+    # build the rest from the command arg names
+    "\n".join(
+        r"""
+        (?:
+          [ \t]*\n?[ \t]*  # optional whitespaces
+          {open}
+            (?<{name}>
+              (?:
+                [^{open}{close}]++  # everything except recursive matches
+                |  # or
+                {open}
+                    (?&{name})  # match recursive
+                {close}
+              )*
+            )
+          {close}
+        )?
+        """.format(
+            name=name,
+            # optional arguments are [...], normal arguments are {...}
+            open=(r"\[" if name.startswith("opt") else r"\{"),
+            close=(r"\]" if name.startswith("opt") else r"\}"),
+        )
+        for name in _COMMAND_ARG_NAMES
+    ), regex.MULTILINE | regex.UNICODE | regex.VERBOSE
 )
 # this regex is used to remove comments
-_RE_COMMENT = re.compile(
+_RE_COMMENT = regex.compile(
     r"((?<=^)|(?<=[^\\]))%.*",
-    re.UNICODE
+    regex.UNICODE
 )
 # the analysis will walk recursively into the included files
 # i.e. the 'args' field of the command
@@ -223,6 +246,9 @@ class Analysis(object):
     def _add_command(self, command):
         self._all_commands.append(command)
 
+    def _extend_commands(self, commands):
+        self._all_commands.extend(commands)
+
     def _build_cache(self, flags):
         com = self._all_commands
         if flags & ONLY_PREAMBLE:
@@ -282,6 +308,43 @@ def get_analysis(tex_root):
         'analysis', partial(analyze_document, tex_root))
     result._freeze()
     return result
+
+
+def _generate_entries(m, file_name, offset=0):
+    # insert all relevant information into this dict, which is based
+    # on the group dict, i.e. all regex matches
+    entryDict = m.groupdict()
+
+    entryDict.update({
+        "file_name": file_name,
+        "text": m.group(0),
+        "start": offset + m.start(),
+        "end": offset + m.end(),
+        "region": sublime.Region(offset + m.start(), offset + m.end())
+    })
+    # insert the regions of the matches into the entry dict
+    for k in m.groupdict().keys():
+        region_name = k + "_region"
+        reg = m.regs[m.re.groupindex[k]]
+        entryDict[region_name] = sublime.Region(
+            offset + reg[0], offset + reg[1])
+    # create an object from the dict and insert it into the analysis
+    entry = objectview(frozendict(entryDict))
+    yield entry
+
+    # recursively add commands, which are inside arguments
+    for args_name in _COMMAND_ARG_NAMES:
+        args_content = entryDict[args_name]
+        if not args_content:
+            continue
+        for em in _RE_COMMAND.finditer(args_content):
+            if not em:
+                continue
+            try:
+                offset = entryDict[args_name + "_region"].begin()
+            except KeyError:
+                continue
+            yield from _generate_entries(em, file_name, offset=offset)
 
 
 def analyze_document(tex_root):
@@ -350,33 +413,17 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
     except:
         print('Error occurred while preprocessing {0}'.format(file_name))
         traceback.print_exc()
+        print('Continuing...')
         return ana
 
     ana._content[file_name] = content
     ana._raw_content[file_name] = raw_content
 
     for m in _RE_COMMAND.finditer(content):
+        ana._extend_commands(_generate_entries(m, file_name))
+
+        # TODO maybe also handle all generated entries
         g = m.group
-
-        # insert all relevant information into this dict, which is based
-        # on the group dict, i.e. all regex matches
-        entryDict = m.groupdict()
-        entryDict.update({
-            "file_name": file_name,
-            "text": g(0),
-            "start": m.start(),
-            "end": m.end(),
-            "region": sublime.Region(m.start(), m.end())
-        })
-        # insert the regions of the matches into the entry dict
-        for k in m.groupdict().keys():
-            region_name = k + "_region"
-            reg = m.regs[_RE_COMMAND.groupindex[k]]
-            entryDict[region_name] = sublime.Region(reg[0], reg[1])
-        # create an object from the dict and insert it into the analysis
-        entry = objectview(frozendict(entryDict))
-        ana._add_command(entry)
-
         # read child files if it is an input command
         if g("command") in _input_commands and g("args") is not None:
             process_file_stack.append(file_name)
