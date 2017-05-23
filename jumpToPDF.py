@@ -121,7 +121,7 @@ class JumpToPdf(sublime_plugin.TextCommand):
 			return
 
 		root = getTeXRoot.get_tex_root(view)
-		file_name = get_jobname(root)
+		file_name = get_jobname(view)
 
 		output_directory = get_output_directory(view)
 		if output_directory is None:
@@ -211,7 +211,7 @@ class ViewPdf(sublime_plugin.WindowCommand):
 			view = self.window.active_view()
 
 			root = getTeXRoot.get_tex_root(view)
-			file_name = get_jobname(root)
+			file_name = get_jobname(view)
 
 			output_directory = get_output_directory(view)
 			if output_directory is None:

@@ -16,9 +16,9 @@
                         "children":
                         [
                             {
-                                "command": "open_file",
-                                "args": {"file": "${packages}/LaTeXTools/README.markdown"},
-                                "caption": "README"
+                                "command": "open_url",
+                                "args": {"url": "https://latextools.readthedocs.io/"},
+                                "caption": "Documentation"
                             },
                             { "caption": "-" },
                             {

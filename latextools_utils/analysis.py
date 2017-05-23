@@ -1,33 +1,18 @@
-import os
-import re
+import copy
 import itertools
+import os
+import regex
 import traceback
+from functools import partial
 
 import sublime
 
-if sublime.version() < '3000':
-    _ST3 = False
-    from latextools_utils import cache, utils
-    from latextools_utils.tex_directives import get_tex_root
-else:
-    _ST3 = True
-    from . import cache, utils
-    from .tex_directives import get_tex_root
+from . import utils
+from .cache import LocalCache
+from ..external.frozendict import frozendict
+from .six import strbase
+from .tex_directives import get_tex_root
 
-if _ST3:
-    strbase = str
-else:
-    strbase = basestring
-
-# because we cannot natively pickle sublime.Region in ST2
-# we provide the ability to pickle
-if not _ST3:
-    import copy_reg
-
-    def pickle_region(region):
-        return (sublime.Region, (region.a, region.b))
-
-    copy_reg.pickle(sublime.Region, pickle_region)
 
 # attributes of an entry (for documentation)
 """
@@ -50,39 +35,69 @@ for each regex name:
 # usually it is \command[optargs]{args}
 # but it can be way more complicated, e.g.
 # \newenvironment{ENVIRONMENTNAME}[COUNT][OPTIONAL]{BEGIN}{END}
-# this regex does not capture all posibilities, but hopefully,
+# this regex does not capture all possibilities, but hopefully,
 # all we need and can obviously be extended without losing backward
 # compatibility
 # regex names are:
 # \command[optargs]{args}[optargs2][optargs2a]{args2}[optargs3]{args3}
-_RE_COMMAND = re.compile(
-    r"\\(?P<command>[A-Za-z]+)(?P<star>\*?)\s*?"
-    r"(?:\[(?P<optargs>[^\]]*)\])?\s*?"
-    r"(\{(?P<args>[^\}]*)\}\s*?)?"
-    r"(?:\[(?P<optargs2>[^\]]*)\])?\s*?"
-    r"(?:\[(?P<optargs2a>[^\]]*)\])?\s*?"
-    r"(?:\{(?P<args2>[^\}]*)\})?"
-    r"(?:\[(?P<optargs3>[^\]]*)\])?\s*?"
-    r"(?:\{(?P<args3>[^\}]*)\})?",
-    re.MULTILINE | re.UNICODE
+# the argument names (in correct order!)
+_COMMAND_ARG_NAMES = (
+    "optargs", "args",
+    "optargs2", "optargs2a", "args2",
+    "optargs3", "args3"
+)
+_RE_COMMAND = regex.compile(
+    r"\\(?<command>[A-Za-z]+)(?<star>\*?)" +  # The initial command
+    # build the rest from the command arg names
+    "\n".join(
+        r"""
+        (?:
+          [ \t]*\n?[ \t]*  # optional whitespaces
+          {open}
+            (?<{name}>
+              (?:
+                [^{open}{close}]++  # everything except recursive matches
+                |  # or
+                {open}
+                    (?&{name})  # match recursive
+                {close}
+              )*
+            )
+          {close}
+        )?
+        """.format(
+            name=name,
+            # optional arguments are [...], normal arguments are {...}
+            open=(r"\[" if name.startswith("opt") else r"\{"),
+            close=(r"\]" if name.startswith("opt") else r"\}"),
+        )
+        for name in _COMMAND_ARG_NAMES
+    ), regex.MULTILINE | regex.UNICODE | regex.VERBOSE
 )
 # this regex is used to remove comments
-_RE_COMMENT = re.compile(
+_RE_COMMENT = regex.compile(
     r"((?<=^)|(?<=[^\\]))%.*",
-    re.UNICODE
+    regex.UNICODE
 )
 # the analysis will walk recursively into the included files
 # i.e. the 'args' field of the command
 _input_commands = ["input", "include", "subfile", "loadglsentries"]
+_import_commands = [
+    "import", "subimport", "includefrom", "subincludefrom",
+    "inputfrom", "subinputfrom"
+]
 
 
 # FLAGS
 def _flag():
     """get the next free flag"""
-    current_flag = _flag.flag
+    try:
+        current_flag = _flag.flag
+    except AttributeError:
+        current_flag = _flag.flag = 1
     _flag.flag <<= 1
     return current_flag
-_flag.flag = 1
+
 
 # dummy for no flag
 ALL_COMMANDS = 0
@@ -113,7 +128,8 @@ class FileNotAnalyzed(Exception):
     pass
 
 
-class Analysis():
+class Analysis(object):
+
     def __init__(self, tex_root):
         self._tex_root = tex_root
         self._content = {}
@@ -122,11 +138,28 @@ class Analysis():
         self._all_commands = []
         self._command_cache = {}
 
-        self._finished = False
+        self._import_base_paths = {}
+
+        self.__frozen = False
 
     def tex_root(self):
         """The tex root of the analysis"""
         return self._tex_root
+
+    def tex_base_path(self, file_path):
+        """
+        The folder in which the file is seen by the latex compiler.
+        This is usually the folder of the tex root, but can change if
+        the import package is used.
+        Use this instead of the tex root path to implement functions
+        like the \input command completion.
+        """
+        file_path = os.path.normpath(file_path)
+        try:
+            base_path = self._import_base_paths[file_path]
+        except KeyError:
+            base_path, _ = os.path.split(self._tex_root)
+        return base_path
 
     def content(self, file_name):
         """
@@ -169,7 +202,7 @@ class Analysis():
         Returns:
         A list of all commands, which are preprocessed with the flags
         """
-        return _copy_entries(self._commands(flags))
+        return self._commands(flags)
 
     def filter_commands(self, how, flags=DEFAULT_FLAGS):
         """
@@ -208,10 +241,13 @@ class Analysis():
         else:
             raise Exception("Unsupported filter type: " + str(type(how)))
         com = self._commands(flags)
-        return _copy_entries(filter(command_filter, com))
+        return tuple(filter(command_filter, com))
 
     def _add_command(self, command):
         self._all_commands.append(command)
+
+    def _extend_commands(self, commands):
+        self._all_commands.extend(commands)
 
     def _build_cache(self, flags):
         com = self._all_commands
@@ -223,12 +259,21 @@ class Analysis():
             if flags & cflag:
                 f = _FLAG_FILTER[cflag]
                 com = filter(f, com)
-        self._command_cache[flags] = list(com)
+        self._command_cache[flags] = tuple(com)
 
     def _commands(self, flags):
         if flags not in self._command_cache:
             self._build_cache(flags)
         return self._command_cache[flags]
+
+    def _freeze(self):
+        self._content = frozendict(**self._content)
+        self._raw_content = frozendict(**self._raw_content)
+        self._all_commands = tuple(c for c in self._all_commands)
+        self.__frozen = True
+
+    def __copy__(self):
+        return self
 
 
 def get_analysis(tex_root):
@@ -252,14 +297,54 @@ def get_analysis(tex_root):
     """
     if tex_root is None:
         return
-    elif isinstance(tex_root, sublime.View):
+    if isinstance(tex_root, sublime.View):
         tex_root = get_tex_root(tex_root)
+        if tex_root is None:
+            return
     elif not isinstance(tex_root, strbase):
-        raise ValueError("tex_root must be a string or view")
+        raise TypeError("tex_root must be a string or view")
 
-    result = cache.cache(tex_root, "analysis",
-                         lambda: analyze_document(tex_root))
+    result = LocalCache(tex_root).cache(
+        'analysis', partial(analyze_document, tex_root))
+    result._freeze()
     return result
+
+
+def _generate_entries(m, file_name, offset=0):
+    # insert all relevant information into this dict, which is based
+    # on the group dict, i.e. all regex matches
+    entryDict = m.groupdict()
+
+    entryDict.update({
+        "file_name": file_name,
+        "text": m.group(0),
+        "start": offset + m.start(),
+        "end": offset + m.end(),
+        "region": sublime.Region(offset + m.start(), offset + m.end())
+    })
+    # insert the regions of the matches into the entry dict
+    for k in m.groupdict().keys():
+        region_name = k + "_region"
+        reg = m.regs[m.re.groupindex[k]]
+        entryDict[region_name] = sublime.Region(
+            offset + reg[0], offset + reg[1])
+    # create an object from the dict and insert it into the analysis
+    entry = objectview(frozendict(entryDict))
+    yield entry
+
+    # recursively add commands, which are inside arguments
+    for args_name in _COMMAND_ARG_NAMES:
+        args_content = entryDict[args_name]
+        if not args_content:
+            continue
+        for em in _RE_COMMAND.finditer(args_content):
+            if not em:
+                continue
+            try:
+                offset = entryDict[args_name + "_region"].begin()
+            except KeyError:
+                continue
+            yield from _generate_entries(em, file_name, offset=offset)
 
 
 def analyze_document(tex_root):
@@ -277,17 +362,19 @@ def analyze_document(tex_root):
     """
     if tex_root is None:
         return
-    elif isinstance(tex_root, sublime.View):
+    if isinstance(tex_root, sublime.View):
         tex_root = get_tex_root(tex_root)
+        if tex_root is None:
+            return
     elif not isinstance(tex_root, strbase):
-        raise ValueError("tex_root must be a string or view")
+        raise TypeError("tex_root must be a string or view")
 
     result = _analyze_tex_file(tex_root)
     return result
 
 
 def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
-                      ana=None):
+                      ana=None, import_path=None):
     # init ana and the file name
     if not ana:
         ana = Analysis(tex_root)
@@ -304,7 +391,21 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
         print(process_file_stack)
         return ana
 
-    base_path, _ = os.path.split(tex_root)
+    if not import_path:
+        base_path, _ = os.path.split(tex_root)
+    else:
+        base_path = import_path
+
+    # store import path at the base path, such that it can be accessed
+    if import_path:
+        if file_name in ana._import_base_paths:
+            if ana._import_base_paths[file_name] != import_path:
+                print(
+                    "Warning: '{0}' is imported twice. "
+                    "Cannot handle this correctly in the analysis."
+                )
+        else:
+            ana._import_base_paths[file_name] = base_path
 
     # read the content from the file
     try:
@@ -312,44 +413,38 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
     except:
         print('Error occurred while preprocessing {0}'.format(file_name))
         traceback.print_exc()
+        print('Continuing...')
         return ana
 
     ana._content[file_name] = content
     ana._raw_content[file_name] = raw_content
 
     for m in _RE_COMMAND.finditer(content):
+        ana._extend_commands(_generate_entries(m, file_name))
+
+        # TODO maybe also handle all generated entries
         g = m.group
-
-        # insert all relevant information into this dict, which is based
-        # on the group dict, i.e. all regex matches
-        entryDict = m.groupdict()
-        entryDict.update({
-            "file_name": file_name,
-            "text": g(0),
-            "start": m.start(),
-            "end": m.end(),
-            "region": sublime.Region(m.start(), m.end())
-        })
-        # insert the regions of the matches into the entry dict
-        for k in m.groupdict().keys():
-            region_name = k + "_region"
-            reg = m.regs[_RE_COMMAND.groupindex[k]]
-            entryDict[region_name] = sublime.Region(reg[0], reg[1])
-        # create an object from the dict and insert it into the analysis
-        entry = objectview(entryDict)
-        ana._add_command(entry)
-
         # read child files if it is an input command
         if g("command") in _input_commands and g("args") is not None:
             process_file_stack.append(file_name)
             open_file = os.path.join(base_path, g("args"))
             _analyze_tex_file(tex_root, open_file, process_file_stack, ana)
             process_file_stack.pop()
+        elif (g("command") in _import_commands and g("args") is not None and
+                g("args2") is not None):
+            if g("command").startswith("sub"):
+                next_import_path = os.path.join(base_path, g("args"))
+            else:
+                next_import_path = g("args")
+            # normalize the path
+            next_import_path = os.path.normpath(next_import_path)
+            open_file = os.path.join(next_import_path, g("args2"))
 
-        # don't parse further than \end{document}
-        if g("args") == "document" and g("command") == "end" or ana._finished:
-            ana._finished = True
-            break
+            process_file_stack.append(file_name)
+            _analyze_tex_file(
+                tex_root, open_file, process_file_stack, ana,
+                import_path=next_import_path)
+            process_file_stack.pop()
 
     return ana
 
@@ -359,7 +454,8 @@ def _preprocess_file(file_name):
     reads and preprocesses a file, return the raw content
     and the content without comments
     """
-    raw_content = utils.get_file_content(file_name, force_lf_endings=True)
+    raw_content = utils.run_on_main_thread(
+        partial(utils.get_file_content, file_name, force_lf_endings=True))
 
     # replace all comments with spaces to not change the position
     # of the rest
@@ -404,16 +500,28 @@ class objectview(object):
     Converts an dict into an object, such that every dict entry
     is an attribute of the object
     """
-    def __init__(self, d):
-        self.__dict__ = d
 
-    def copy(self):
-        return objectview(self.__dict__.copy())
+    def __init__(self, d):
+        self.__dict__['_d'] = d
+
+    def __getattr__(self, attr):
+        return self._d[attr]
+
+    def __setattr__(self, attr, value):
+        raise TypeError('cannot set value on an objectview')
+
+    def copy(self, **add_or_replace):
+        new_dict = self._d.copy()
+        if add_or_replace:
+            new_dict.update(**add_or_replace)
+        return objectview(new_dict)
+
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        result = cls.__new__(cls)
+        memo[id(self)] = result
+        result.__dict__['_d'] = copy.deepcopy(self.__dict__['_d'], memo)
+        return result
 
     def __repr__(self):
-        return repr(self.__dict__)
-
-
-def _copy_entries(arr):
-    """creates an array with a copy of each entry of arr"""
-    return [c.copy() for c in arr]
+        return repr(self._d)

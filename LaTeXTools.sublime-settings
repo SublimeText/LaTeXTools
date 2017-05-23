@@ -52,8 +52,8 @@
 	// Sync PDF to current editor position after building (true) or not
 	"forward_sync": true,
 
-	// Set this to false to disable the overwriting of the goto overlay for the hotkey `C-r`
-	// You can still access the "table of content quickpanel" via `C-l, C-r`
+	// Set this to false to disable the overwriting of the goto overlay for the hotkey `C-r` and `C-shift-r`
+	// You can still access the "table of content quickpanel" via `C-l, C-r` and  `C-shift-l, C-r`
 	"overwrite_goto_overlay": true,
 
 	// When to trigger cwl-command completion (requires the LaTeX-cwl package)
@@ -98,6 +98,13 @@
 	// "selected"  to show a phantom only for the currently selected math environment
 	// "none"      to disable math live preview
 	"preview_math_mode": "selected",
+
+	// Change the scope selectors to preview math
+	// E.g. set it to "text.tex.latex meta.environment.math.block.be"
+	// to only preview math environment
+	// Set it to "text.tex.latex meta.environment.math"
+	// to preview every math command or environment
+	"preview_math_scope": "text.tex.latex meta.environment.math.block",
 
 	// The program to compile the latex template files, possible values are
 	// pdflatex, xelatex, lualatex, latex
@@ -351,7 +358,7 @@
 	// "default" or ""	the default built-in build engine; currently
 	//					this is the same as "traditional"
 	//
-	// "basic"			invokes pdflatex / xelatex / lualates as
+	// "basic"			invokes pdflatex / xelatex / lualatex as
 	//					needed, then biber / bibtex and pdflatex /
 	//					xelatex / lualatex again if needed. Unlike
 	//					the "simple" builder this supports most of
@@ -540,35 +547,35 @@
 	// "traditional" 		the default, regex-based bibliography
 	//						parsing
 	//
-	// "new"				a newer parser which supports UTF-8 and
-	//						additional fields, but may be slower and
-	//						less well tested.
+	// "new"				a newer parser which supports more complex
+	//						formatting and additional fields, but may
+	//						be slower
 	"bibliography": "traditional",
 
-	/* This preference sets the format of the quick panel to select citations using wildcards.
-	The setting is a list with one or two string using wildcards for author, title, keyword etc.
+	// OPTION: "cite_panel_format"
+	// This preference sets the format of the quick panel to select citations using wildcards.
+	// The setting is a list with one or two string using wildcards for author, title, keyword etc.
 
-	Default setting: the traditional display, `["{title} ({keyword})","{author}"]`
-	Format:
-	Can quantum-mechanical description of physical reality be considered complete? This is an non-existing subtitle to illustrate (einstein1935quantum)
-	Albert Einstein and B Podolsky and N Rosen
+	// The traditional display: `["{title} ({keyword})","{author}"]`
+	// Format:
+	// Can quantum-mechanical description of physical reality be considered complete? This is an non-existing subtitle to illustrate (einstein1935quantum)
+	// Albert Einstein and B Podolsky and N Rosen
 
-	Richer alternative: ["{author_short} {year} - {title_short} ({keyword})","{title}"]
-	Format:
-	Einstein et al. 1935 - Can quantum-mechanical description of physical reality be considered complete (einstein1935quantum)
-	Can quantum-mechanical description of physical reality be considered complete? This is an non-existing subtitle to illustrate
+	// Richer alternative: ["{author_short} {year} - {title_short} ({keyword})","{title}"]
+	// Format:
+	// Einstein et al. 1935 - Can quantum-mechanical description of physical reality be considered complete (einstein1935quantum)
+	// Can quantum-mechanical description of physical reality be considered complete? This is an non-existing subtitle to illustrate
 
-	Another alternative: ["({keyword}) {author_short} - {year}","{title} - {journal}"]
-	Format:
-	(einstein1935quantum) Einstein et al. - 1935
-	Can quantum-mechanical description of physical reality be considered complete? - Physical Review
+	// Another alternative: ["({keyword}) {author_short} - {year}","{title} - {journal}"]
+	// Format:
+	// (einstein1935quantum) Einstein et al. - 1935
+	// Can quantum-mechanical description of physical reality be considered complete? - Physical Review
 
-	No-title alternative: ["{author_short} {year} ({keyword})"]
-	Format:
-	Einstein et al. 1935 (einstein1935quantum)
+	// No-title alternative: ["{author_short} {year} ({keyword})"]
+	// Format:
+	// Einstein et al. 1935 (einstein1935quantum)
 
-	Valid wildcards: keyword, title, author, year, author_short, title_short, journal
-	*/
+	// Valid wildcards: keyword, title, author, year, author_short, title_short, journal
 
 	// Uncomment or modify at will
 	"cite_panel_format": ["{author_short} {year} - {title_short} ({keyword})","{title}"],
@@ -587,6 +594,29 @@
 	// whether the local cache should be hidden in the sublime cache path (true)
 	// or in the same directory as the root file (false)
 	"hide_local_cache": true,
+
+	// settings for caches to update on load
+	// leaving these as `true` will ensure LaTeXTools pre-caches the appropriate
+	// data when a TeX document is loaded; setting these to `false` will
+	// cause the cache to be built when first needed
+	// "cache_on_load": {
+	// 	// analysis: the internal view that LaTeXTools has of your document
+	// 	"analysis": true,
+	// 	// bibliography: ensures the bibliography is parsed and cached
+	// 	"bibliography": true
+	// },
+
+	// settings to update caches when a document is saved
+	// leaving these as `true` will ensure LaTeXTools reloads the data on save,
+	// if necessary; setting these to `false` will cause the cache to be
+	// re-built according to its rules
+	// "cache_on_save": {
+	// 	// analysis: the internal view that LaTeXTools has of your document
+	// 	"analysis": true,
+	// 	// bibliography: ensures the bibliography is parsed and cached
+	// 	"bibliography": false
+	// },
+
 	/* The life-span of the local cache.
 	After this life-span the local cache will automatically be invalidated and refreshed.
 	You can invalidate the cache manually by removing all temporary files `C-l,backspace`.

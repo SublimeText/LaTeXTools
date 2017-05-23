@@ -1,0 +1,5 @@
+LaTeXTools Plugin version 3.13.1 (2017-03-22) changelog:
+
+Features:
+
+- Migrate documentation to readthedocs (https://latextools.readthedocs.io)

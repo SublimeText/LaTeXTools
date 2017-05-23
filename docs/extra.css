@@ -1,0 +1,15 @@
+.rst-content kbd {
+  font-size: 75%;
+  padding: 3px;
+  border: 1px solid #ccc;
+  background-color: #f6f6f6;
+  color: #333;
+  -moz-box-shadow: 0 1px 0 rgba(0,0,0,0.2),0 0 0 2px #fff inset;
+  -webkit-box-shadow: 0 1px 0 rgba(0,0,0,0.2),0 0 0 2px #fff inset;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.2),0 0 0 2px #fff inset;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  margin: 0 .1em;
+  text-shadow: 0 1px 0 #fff;
+}

@@ -249,7 +249,7 @@ def _create_image(latex_program, latex_document, base_name, color,
         err_log.append("Failed to convert pdf to png to preview.")
 
     if err_log:
-        with open(err_file_path, "w") as f:
+        with open(err_file_path, "w", encoding="utf-8") as f:
             f.write("\n".join(err_log))
 
     # cleanup created files
@@ -440,6 +440,10 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             },
             "background_color": {
                 "setting": "preview_math_background_color",
+                "call_after": self.reset_phantoms
+            },
+            "math_scope": {
+                "setting": "preview_math_scope",
                 "call_after": self.reset_phantoms
             },
             "packages": {
@@ -646,11 +650,9 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
                 return
             scopes = []
         elif self.visible_mode == "all":
-            scopes = view.find_by_selector(
-                "text.tex.latex meta.environment.math")
+            scopes = view.find_by_selector(self.math_scope)
         elif self.visible_mode == "selected":
-            math_scopes = view.find_by_selector(
-                "text.tex.latex meta.environment.math")
+            math_scopes = view.find_by_selector(self.math_scope)
             scopes = [scope for scope in math_scopes
                       if any(scope.contains(sel) for sel in view.sel())]
         else:
