@@ -115,3 +115,19 @@ class LatextoolsAutoInsertLabelCommand(sublime_plugin.TextCommand):
                     .format(**locals())
                 )
                 view.insert(edit, pos, content)
+
+
+class LatextoolsAutoInserLabelListener(sublime_plugin.EventListener):
+    def on_query_context(self, view, key, operator, operand, match_all):
+        if key != "latextools.setting.auto_label_auto_trigger":
+            return
+        result = get_setting("auto_label_auto_trigger", False)
+        if operator == sublime.OP_EQUAL:
+            result = result == operand
+        elif operator == sublime.OP_NOT_EQUAL:
+            result = result != operand
+        else:
+            raise Exception(
+                "latextools.setting.auto_label_auto_trigger; "
+                "Invalid operator must be EQUAL or NOT_EQUAL.")
+        return result

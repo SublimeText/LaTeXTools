@@ -182,8 +182,8 @@ LaTeX Package keymap for OS X
 		"context":
 		[
 			{ "key": "selector", "operand": "text.tex.latex" },
-			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\label$", "match_all": true }
-
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\label$", "match_all": true },
+			{ "key": "latextools.setting.auto_label_auto_trigger" }
 		]
 	},
 
