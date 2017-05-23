@@ -268,7 +268,15 @@ def find_bib_files(root):
         return list(set(result))
 
     # since the processing can be a bit intensive, cache the results
-    return cache.LocalCache(root).cache('bib_files', _find_bib_files)
+    result = cache.LocalCache(root).cache('bib_files', _find_bib_files)
+    # TODO temporary workaround to ensure the result is a sequence
+    if not hasattr(type(result), '__iter__'):
+        result = _find_bib_files()
+        try:
+            cache.LocalCache(root).set('bib_files', result)
+        except:
+            pass
+    return result
 
 
 def run_plugin_command(command, *args, **kwargs):
