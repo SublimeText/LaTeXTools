@@ -591,10 +591,6 @@
 // Cache options
 // ------------------------------------------------------------------
 
-	// whether the local cache should be hidden in the sublime cache path (true)
-	// or in the same directory as the root file (false)
-	"hide_local_cache": true,
-
 	// settings for caches to update on load
 	// leaving these as `true` will ensure LaTeXTools pre-caches the appropriate
 	// data when a TeX document is loaded; setting these to `false` will
