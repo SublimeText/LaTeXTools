@@ -39,6 +39,39 @@
 
 
 // ------------------------------------------------------------------
+// Auto-label config
+// ------------------------------------------------------------------
+	// A mapping from the commands to their abbreviation, i.e. \label{abbrv:text}
+	"auto_label_command_mapping": {
+		"part": "part",
+		"chapter": "cha",
+		"section": "sec",
+		"subsection": "sub",
+		"subsubsection": "ssub",
+		"paragraph": "par",
+	},
+
+	// A mapping from the environments to their abbreviation, i.e. \label{abbrv:text}
+	// This will be used if the command is \caption{...}
+	"auto_label_env_mapping": {
+		"figure": "fig",
+		"table": "tab",
+		"listing": "lst",
+	},
+
+	// A char replacement in the auto-label generation. This should contain a mapping
+	// for all characters outside the range A-Z, a-z, 0-9 (and map into that range).
+	// All other characters will be substituted by an underscore (_).
+	"auto_label_char_replace": {
+		"ü": "ue",
+		"ä": "ae",
+		"ö": "oe",
+		"ß": "ss",
+	},
+
+
+
+// ------------------------------------------------------------------
 // Opening files included into the tex source code
 // ------------------------------------------------------------------
 // the commands to open image files. The extensions will be matched from top to bottom.
