@@ -61,6 +61,7 @@
 		["env_auto_trigger", "ae"],
 		["glossary_auto_trigger", "ag"],
 		["tex_directive_auto_trigger", "ad"],
+		["auto_label_auto_trigger", "aa"],
 		["smart_bracket_auto_trigger", "ab"],
 	],
 
