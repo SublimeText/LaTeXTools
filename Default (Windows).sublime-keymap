@@ -187,32 +187,6 @@ LaTeX Package keymap for Windows
 		]
 	},
 
-	// Toggle autocomplete
-	{ 	"keys": ["ctrl+l","t","a", "r"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_auto", "args": {"which": "ref"}},
-	{ 	"keys": ["ctrl+l","t","a", "c"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_auto", "args": {"which": "cite"}},
-	{ 	"keys": ["ctrl+l","t","a", "f"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_auto", "args": {"which": "fill"}},
-	{ 	"keys": ["ctrl+l","t","a", "e"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_auto", "args": {"which": "env"}},
-	{ 	"keys": ["ctrl+l","t","a", "d"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_auto", "args": {"which": "tex_directive"}},
-	{ 	"keys": ["ctrl+l","t","a", "b"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_auto", "args": {"which": "smart_bracket"}},
-
 	// View PDF, jump to point, toggle editor/viewer focus
 	{ 	"keys": ["ctrl+l","v"],
 		"context":  [
@@ -222,22 +196,21 @@ LaTeX Package keymap for Windows
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "jump_to_pdf", "args": {"from_keybinding": true}},
-	{ 	"keys": ["ctrl+l","t","f"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_focus"},
-	{ 	"keys": ["ctrl+l","t","s"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_fwdsync"},
-	{ 	"keys": ["ctrl+l","t","v"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_view_on_build"},
-	{ 	"keys": ["ctrl+l","t","?"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_show"},
+	{
+		"keys": ["ctrl+l", "t", "<character>"], "command": "latextools_toggle_keys",
+		"context":
+		[
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+		],
+	},
+	{
+		"keys": ["ctrl+l", "t", "a", "<character>"], "command": "latextools_toggle_keys",
+		"args": {"prefix": "a"},
+		"context":
+		[
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+		],
+	},
 
 	// Jump to a tex file (will create the file if it does not exists)
 	{ "keys": ["ctrl+l", "ctrl+o"],

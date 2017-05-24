@@ -37,6 +37,34 @@
 		"label"
 	],
 
+	// This contains kbd-sequences to toggle settings. It is an array,
+	// which consists of 2/3-tuples.
+	// This first entry is the name of the settings and the second the
+	// key-sequence. The third is optional and contains a description
+	// of the setting. If the key-sequence consists of more than one
+	// character you need to add an extra keybinding with the prefix, e.g.:
+	// {
+	//   "keys": ["ctrl+l","t", "a", "b", "<character>"],
+	//   "command": "latextools_toggle_keys", "args": {"prefix": "ab"},
+	//   "context":
+	//   [
+	//     {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+	//   ]
+	// },
+	"toggle_setting_keys": [
+		["open_pdf_on_build", "v", "Open the PDF in the PDF viewer"],
+		["forward_sync", "s", "Jump to the position in the PDF viewer"],
+		["keep_focus", "f", "focus editor: True, focus PDF viewer: False"],
+		["ref_auto_trigger", "ar"],
+		["cite_auto_trigger", "ac"],
+		["fill_auto_trigger", "af"],
+		["env_auto_trigger", "ae"],
+		["glossary_auto_trigger", "ag"],
+		["tex_directive_auto_trigger", "ad"],
+		["smart_bracket_auto_trigger", "ab"],
+	],
+
+
 
 // ------------------------------------------------------------------
 // Auto-label config

@@ -187,32 +187,6 @@ LaTeX Package keymap for OS X
 		]
 	},
 
-	// Toggle autocomplete
-	{ 	"keys": ["super+l","t","a", "r"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_auto", "args": {"which": "ref"}},
-	{ 	"keys": ["super+l","t","a", "c"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_auto", "args": {"which": "cite"}},
-	{ 	"keys": ["super+l","t","a", "f"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_auto", "args": {"which": "fill"}},
-	{ 	"keys": ["super+l","t","a", "e"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_auto", "args": {"which": "env"}},
-	{ 	"keys": ["super+l","t","a", "d"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_auto", "args": {"which": "tex_directive"}},
-	{ 	"keys": ["super+l","t","a", "b"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_auto", "args": {"which": "smart_bracket"}},
-
 	// View PDF, jump to point, toggle editor/viewer focus
 	{ 	"keys": ["super+l","v"],
 		"context":  [
@@ -222,22 +196,21 @@ LaTeX Package keymap for OS X
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "jump_to_pdf", "args": {"from_keybinding": true}},
-	{ 	"keys": ["super+l","t","f"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_focus"},
-	{ 	"keys": ["super+l","t","s"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_fwdsync"},
-	{ 	"keys": ["super+l","t","v"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_view_on_build"},
-	{ 	"keys": ["super+l","t","?"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_show"},
+	{
+		"keys": ["super+l", "t", "<character>"], "command": "latextools_toggle_keys",
+		"context":
+		[
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+		],
+	},
+	{
+		"keys": ["super+l", "t", "a", "<character>"], "command": "latextools_toggle_keys",
+		"args": {"prefix": "a"},
+		"context":
+		[
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+		],
+	},
 
 	// Jump to a tex file (will create the file if it does not exists)
 	{ "keys": ["super+l", "super+o"],
