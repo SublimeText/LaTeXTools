@@ -1,13 +1,7 @@
 import sublime_plugin
 
-try:
-    _ST3 = True
-    from .getTeXRoot import get_tex_root
-    from .latextools_utils import analysis, ana_utils, quickpanel
-except:
-    _ST3 = False
-    from getTeXRoot import get_tex_root
-    from latextools_utils import analysis, ana_utils, quickpanel
+from .getTeXRoot import get_tex_root
+from .latextools_utils import analysis, ana_utils, quickpanel
 
 
 def _make_caption(ana, entry):

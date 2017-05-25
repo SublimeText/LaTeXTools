@@ -10,7 +10,6 @@ class ParserTest(unittest.TestCase):
     def setUp(self):
         self.parser = Parser(None)
 
-
 class TestValue(ParserTest):
 
     def test_value_with_identifier(self):

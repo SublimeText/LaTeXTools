@@ -1,0 +1,9 @@
+LaTeXTools Plugin version 3.14.0-rc (2017-05-23) changelog:
+
+Features:
+- Added a command to clear the LaTeXTools cache. This will remove all cache files and clear the local and bibliography cache.
+
+
+Bugfixes:
+- Improved the "new bibliography" parser to handle more keys (#1115)
+- Improved the error handling on an error, which disabled the `\cite{` command (#1081)
