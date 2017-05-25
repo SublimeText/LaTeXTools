@@ -183,13 +183,14 @@ def plugin_loaded():
         "(?:{0})".format("|".join(entry["regex"] for entry in _fillall_entries))
     )
 
+
 if not _ST3:
     plugin_loaded()
 
 
 # Get all file by types
-def get_file_list(root, types, filter_exts=[], base_path=None, output_directory=None,
-                  aux_directory=None):
+def get_file_list(root, types, filter_exts=[], base_path=None,
+                  output_directory=None, aux_directory=None):
     if not base_path:
         base_path = os.path.dirname(root)
 
@@ -230,7 +231,9 @@ def get_file_list(root, types, filter_exts=[], base_path=None, output_directory=
                 if f.endswith(ext):
                     f = f[:-len(ext)]
 
-            completions.append((os.path.relpath(dir_name, base_path), f))
+            completions.append(
+                (base_path, os.path.relpath(dir_name, base_path), f)
+            )
 
     return completions
 
@@ -378,7 +381,7 @@ class InputFillAllHelper(FillAllHelper):
                 os.path.normpath(
                     os.path.join(relpath, filename)
                 ).replace('\\', '/')
-                for relpath, filename in completions
+                for base_path, relpath, filename in completions
             ]
 
     def get_completions(self, view, prefix, line):
@@ -389,26 +392,16 @@ class InputFillAllHelper(FillAllHelper):
         elif not type(completions[0]) is tuple:
             return completions
         else:
-            tex_root = getTeXRoot.get_tex_root(view)
-            if tex_root:
-                root_path = os.path.dirname(tex_root)
-            else:
-                print(
-                    "Can't find TeXroot. "
-                    "Assuming current directory is {0}".format(os.curdir)
-                )
-                root_path = os.curdir
-
             formatted_completions = []
             normal_completions = []
-            for relpath, filename in completions:
+            for base_path, relpath, filename in completions:
                 latex_formatted = os.path.normpath(os.path.join(
                     relpath, filename)).replace('\\', '/')
 
                 formatted_completions.append([
                     latex_formatted,
                     os.path.normpath(os.path.join(
-                        root_path, relpath, filename)
+                        base_path, relpath, filename)
                     )
                 ])
 
