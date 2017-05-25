@@ -21,3 +21,7 @@ The following settings are provided to control LaTeXTools cwl behavior.
 	* `always`: always show cwl completions
 	* `never`: never display the popup
 * `env_auto_trigger`: if `true`, autocomplete environment names upon typing `\begin{` or `\end{` (default: `false`)
+
+## User defined completions
+
+LaTeXTools provides support for custom user-defined completions through modification of the `LaTeX.sublime-completions` file. The user modified version should be placed in your `User` directory, otherwise it will be overwritten by future updates.
