@@ -374,7 +374,7 @@ def analyze_document(tex_root):
 
 
 def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
-                      ana=None, import_path=None):
+                      ana=None, import_path=None, only_preamble=False):
     # init ana and the file name
     if not ana:
         ana = Analysis(tex_root)
@@ -420,15 +420,24 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
     ana._raw_content[file_name] = raw_content
 
     for m in _RE_COMMAND.finditer(content):
-        ana._extend_commands(_generate_entries(m, file_name))
-
         # TODO maybe also handle all generated entries
         g = m.group
+        # precancel if we only parse the preamble (for subfiles)
+        # TODO this does not escape if this file is included into the
+        #      main file
+        if (only_preamble and g("command") == "begin" and
+                g("args") == "document"):
+            return ana
+
+        ana._extend_commands(_generate_entries(m, file_name))
+
         # read child files if it is an input command
         if g("command") in _input_commands and g("args") is not None:
             process_file_stack.append(file_name)
             open_file = os.path.join(base_path, g("args"))
-            _analyze_tex_file(tex_root, open_file, process_file_stack, ana)
+            _analyze_tex_file(
+                tex_root, open_file, process_file_stack, ana,
+                only_preamble=only_preamble)
             process_file_stack.pop()
         elif (g("command") in _import_commands and g("args") is not None and
                 g("args2") is not None):
@@ -443,7 +452,17 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
             process_file_stack.append(file_name)
             _analyze_tex_file(
                 tex_root, open_file, process_file_stack, ana,
-                import_path=next_import_path)
+                import_path=next_import_path, only_preamble=only_preamble)
+            process_file_stack.pop()
+        # subfile support
+        elif g("command") == "documentclass" and g("args") == "subfiles":
+            main_file = g("optargs")
+            if not main_file:
+                continue
+            main_file = os.path.join(base_path, main_file)
+            process_file_stack.append(file_name)
+            _analyze_tex_file(main_file, main_file, process_file_stack, ana,
+                              import_path=None, only_preamble=True)
             process_file_stack.pop()
 
     return ana
