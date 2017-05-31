@@ -532,7 +532,7 @@ class SystemCheckThread(threading.Thread):
         # This really only works for the default template
         # Note that no attempt is made to find other packages that the
         # included package depends on
-        if (_HAS_PREVIEW and convert_installed() and
+        if (_HAS_PREVIEW and ghostscript_installed() and
                 get_setting('preview_math_template_file') is None and
                 get_setting("preview_math_mode", view=self.view) != "none"):
 
