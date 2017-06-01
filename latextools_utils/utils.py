@@ -1,6 +1,7 @@
 import sublime
 import codecs
 import itertools
+import os
 import sys
 import threading
 import time
@@ -10,10 +11,29 @@ try:
 except ImportError:
     try:
         from multiprocessing import cpu_count
-    # quickfix for ST2 compat
+    # ST2 compat where _multiprocessing isn't included
+    # Note: these implementations are not as fast or correct as the
+    # pre-compiled versions
     except ImportError:
-        def cpu_count():
-            return 1
+        if sublime.platform() == 'windows':
+            def cpu_count():
+                try:
+                    return int(os.environ['NUMBER_OF_PROCESSORS'])
+                except (ValueError, KeyError):
+                    return 0
+        elif sublime.platform() == 'osx':
+            def cpu_count():
+                try:
+                    with os.popen('/sbin/sysctl -n hw.cpu') as p:
+                        return int(p.read())
+                except ValueError:
+                    return 0
+        else:
+            def cpu_count():
+                try:
+                    return os.sysconf('SC_NPROCESSORS_ONLN')
+                except (ValueError, OSError, AttributeError):
+                    return 0
 
 try:
     from Queue import Queue
@@ -165,7 +185,10 @@ def run_on_main_thread(func, timeout=10, default_value=__sentinel__):
 
     def _get_result():
         with condition:
-            _get_result.result = func()
+            try:
+                _get_result.result = func()
+            except Exception:
+                _get_result.result = sys.exc_info()
             condition.notify()
 
     sublime.set_timeout(_get_result, 0)
@@ -178,6 +201,12 @@ def run_on_main_thread(func, timeout=10, default_value=__sentinel__):
         else:
             return default_value
 
+    # if the result is an exception, re-raise it
+    if (isinstance(_get_result.result, tuple) and
+        len(_get_result.result) == 3 and
+            issubclass(_get_result.result[0], BaseException)):
+        reraise(*_get_result.result)
+
     return _get_result.result
 
 
@@ -185,23 +214,25 @@ class ThreadPool(object):
     '''A relatively simple ThreadPool designed to maintain a number of thread
     workers
 
-    By default, each pool manages a number of processes equal to the number
-    of CPU cores. This can be adjusted by setting the processes parameter
-    when creating the pool.
+    By default, each pool manages a number of processes up to one less than
+    the number of CPU cores. This can be adjusted by setting the processes
+    parameter when creating the pool.
 
     Returned results are similar to multiprocessing.pool.AsyncResult'''
 
-    def __init__(self, processes=None):
+    def __init__(self, max_processes=None):
         self._task_queue = Queue()
         self._result_queue = Queue()
+        self._has_task = threading.Event()
         # used to indicate if the ThreadPool should be stopped
         self._should_stop = threading.Event()
 
-        # default value is two less than the number of CPU cores to handle
-        # the supervisor thread and result thread
-        self._processes = max(processes or (cpu_count() or 3) - 2, 1)
+        if max_processes and max_processes > 0:
+            self._max_processes = max_processes
+        else:
+            # defaults to one less than the number of CPU cores
+            self.max_processes = max(cpu_count() - 1, 1)
         self._workers = []
-        self._populate_pool()
 
         self._job_counter = itertools.count()
         self._result_cache = {}
@@ -218,11 +249,24 @@ class ThreadPool(object):
 
     # - Public API
     def apply_async(self, func, args=(), kwargs={}):
+        '''Similar to the built-in apply() function, but executed on a worker
+        thread rather than the calling thread. Returns a _ThreadPoolResult
+        object which can be used to obtain the results of the supplied
+        function.'''
+        if self._should_stop.is_set():
+            raise ValueError('Pool not running')
+
         job = next(self._job_counter)
-        self._task_queue.put((job, (func, args, kwargs)))
+        self._task_queue.put((job, (func, args, kwargs)), False)
+        self._has_task.set()
+
         return _ThreadPoolResult(job, self._result_cache)
 
     def is_running(self):
+        '''Returns whether or not the pool is actively running. Note that
+        a False result does not necessarily indicate that the pool has
+        stopped, only that it has been instructed to stop and no further tasks
+        will be accepted.'''
         return not self._should_stop.is_set()
 
     def terminate(self):
@@ -230,6 +274,7 @@ class ThreadPool(object):
         need to wait for the termination to complete, you should call join()
         after this.'''
         self._should_stop.set()
+        self._has_task.set()
 
     def join(self, timeout=None):
         self._supervisor.join(timeout)
@@ -241,18 +286,27 @@ class ThreadPool(object):
     # and start fresh workers
     def _maintain_pool(self):
         while self.is_running():
-            cleared_processes = False
+            self._has_task.wait()
+
             for i in reversed(range(len(self._workers))):
                 w = self._workers[i]
                 if not w.is_alive():
                     w.join()
-                    cleared_processes = True
                     del self._workers[i]
 
-            if cleared_processes:
-                self._populate_pool()
+            if not self._task_queue.empty():
+                if len(self._workers) < self._max_processes:
+                    w = _ThreadPoolWorker(
+                        self._task_queue,
+                        self._result_queue
+                    )
+                    self._workers.append(w)
+                    w.start()
+            else:
+                for _ in range(len(self._workers)):
+                    self._task_queue.put(None, False)
 
-            time.sleep(0.1)
+            self._has_task.clear()
 
         # send sentinels to end threads
         for _ in range(len(self._workers)):
@@ -280,15 +334,9 @@ class ThreadPool(object):
             finally:
                 self._result_queue.task_done()
 
-    # creates and adds worker threads
-    def _populate_pool(self):
-        for _ in range(self._processes - len(self._workers)):
-            w = _ThreadPoolWorker(self._task_queue, self._result_queue)
-            self._workers.append(w)
-            w.start()
-
 
 class _ThreadPoolWorker(threading.Thread):
+    '''Worker thread from the ThreadPool. Should not be used.'''
 
     def __init__(self, task_queue, result_queue, *args, **kwargs):
         super(_ThreadPoolWorker, self).__init__(*args, **kwargs)
@@ -319,6 +367,8 @@ class _ThreadPoolWorker(threading.Thread):
 
 
 class _ThreadPoolResult(object):
+    '''Class for obtaining results from worker threads. This is modeled
+    on multiprocessing.pool.AsyncResult.'''
 
     def __init__(self, job, result_cache):
         self._ready = threading.Event()
@@ -351,6 +401,7 @@ class _ThreadPoolResult(object):
     def then(self, callback, timeout=None):
         callback(self.get(timeout))
 
+    # - Internal API
     def _set_result(self, _value):
         self._value = _value
         self._ready.set()

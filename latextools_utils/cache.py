@@ -21,14 +21,14 @@ if sublime.version() < '3000':
     from external.frozendict import frozendict
     from latextools_utils.six import unicode, long, strbase
     from latextools_utils.system import make_dirs
-    from latextools_utils.utils import ThreadPool
+    from latextools_utils.utils import ThreadPool, cpu_count
 else:
     _ST3 = True
     from . import get_setting
     from ..external.frozendict import frozendict
     from .six import unicode, long, strbase
     from .system import make_dirs
-    from .utils import ThreadPool
+    from .utils import ThreadPool, cpu_count
 
 
 # the folder, if the local cache is not hidden, i.e. folder in the same
@@ -190,11 +190,29 @@ else:
             sublime.packages_path(), "User", ST2_GLOBAL_CACHE_FOLDER))
 
 
-# marker object for invalidated result
+# marker class for invalidated result
+class InvalidObject(object):
+    _HASH = hash("_LaTeXTools_InvalidObject")
+
+    def __eq__(self, other):
+        # in general, this is a bad pattern, since it will treat the
+        # literal string "_LaTeXTools_InvalidObject" as being an invalid
+        # object; nevertheless, we need an object identity that persists
+        # across reloads, and this seems to be the only way to guarantee
+        # that
+        return self._HASH == hash(other)
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __hash__(self):
+        return self._HASH
+
+
 try:
     _invalid_object
 except NameError:
-    _invalid_object = object()
+    _invalid_object = InvalidObject()
 
 
 class Cache(object):
@@ -203,6 +221,10 @@ class Cache(object):
 
     implements the shared functionality between the various caches
     '''
+
+    # these threads are used for IO, so having too many is probably OK
+    # NB: This pool is shared by all caches
+    _pool = ThreadPool(max(min(cpu_count() - 1, 4), 1))
 
     def __new__(cls, *args, **kwargs):
         # don't allow this class to be instantiated directly
@@ -214,19 +236,17 @@ class Cache(object):
     def __init__(self):
         # initialize state but ONLY if it hasn't already been initialized
         if not hasattr(self, '_disk_lock'):
-            self._disk_lock = threading.Lock()
+            self._disk_lock = threading.RLock()
         if not hasattr(self, '_write_lock'):
-            self._write_lock = threading.Lock()
+            self._write_lock = threading.RLock()
         if not hasattr(self, '_save_lock'):
-            self._save_lock = threading.Lock()
+            self._save_lock = threading.RLock()
         if not hasattr(self, '_objects'):
             self._objects = {}
         if not hasattr(self, '_dirty'):
             self._dirty = False
         if not hasattr(self, '_save_queue'):
             self._save_queue = []
-        if not hasattr(self, '_pool'):
-            self._pool = ThreadPool(2)
 
         self.cache_path = self._get_cache_path()
 
@@ -248,7 +268,7 @@ class Cache(object):
             # note: will raise CacheMiss if can't be found
             result = self.load(key)
 
-        if result is _invalid_object:
+        if result == _invalid_object:
             raise CacheMiss('{0} is invalid'.format(key))
 
         # return a copy of any objects
@@ -272,8 +292,7 @@ class Cache(object):
 
         return (
             key in self._objects and
-            self._objects[key] is not _invalid_object
-        )
+            self._objects[key] != _invalid_object)
 
     def set(self, key, obj):
         '''
@@ -323,7 +342,7 @@ class Cache(object):
 
         try:
             return self.get(key)
-        except:
+        except CacheMiss:
             result = func()
             self.set(key, result)
             return result
@@ -340,7 +359,7 @@ class Cache(object):
         def _invalidate(key):
             try:
                 self._objects[key] = _invalid_object
-            except:
+            except Exception:
                 print('error occurred while invalidating {0}'.format(key))
                 traceback.print_exc()
 
@@ -416,17 +435,21 @@ class Cache(object):
         with self._disk_lock:
             # operate on a stable copy of the object
             with self._write_lock:
-                _objs = copy.deepcopy(self._objects)
+                _objs = pickle.loads(pickle.dumps(self._objects, protocol=-1))
                 self._dirty = False
 
             if key is None:
                 # remove all InvalidObjects
                 delete_keys = [
-                    k for k in _objs if _objs[k] is _invalid_object
-                ]
+                    k for k in _objs if _objs[k] == _invalid_object]
 
                 for k in delete_keys:
                     del _objs[k]
+                    file_path = os.path.join(self.cache_path, key)
+                    try:
+                        os.path.remove(file_path)
+                    except:
+                        pass
 
                 if _objs:
                     make_dirs(self.cache_path)
@@ -444,7 +467,7 @@ class Cache(object):
                             'error while deleting {0}'.format(self.cache_path))
                         traceback.print_exc()
             elif key in _objs:
-                if _objs[key] is _invalid_object:
+                if _objs[key] == _invalid_object:
                     file_path = os.path.join(self.cache_path, key)
                     try:
                         os.path.remove(file_path)
@@ -459,7 +482,10 @@ class Cache(object):
         '''
         an async version of save; does the save in a new thread
         '''
-        self._pool.apply_async(self.save, key)
+        try:
+            self._pool.apply_async(self.save, key)
+        except ValueError:
+            pass
 
     def _write(self, key, obj):
         try:
@@ -491,7 +517,6 @@ class Cache(object):
     # ensure cache is saved to disk when removed from memory
     def __del__(self):
         self.save_async()
-        self._pool.terminate()
 
 
 class GlobalCache(Cache):
@@ -505,12 +530,12 @@ class GlobalCache(Cache):
     behaves as though there were a single object
     '''
 
-    __STATE = {}
-
     def __new__(cls, *args, **kwargs):
         # almost-singleton implementation; all instances share the same state
+        if not hasattr(cls, '_STATE'):
+            cls._STATE = {}
         inst = super(GlobalCache, cls).__new__(cls, *args, **kwargs)
-        inst.__dict__ = cls.__STATE
+        inst.__dict__ = cls._STATE
         return inst
 
     def invalidate(self, key):
@@ -575,6 +600,30 @@ class ValidatingCache(Cache):
     set.__doc__ = Cache.set.__doc__
 
 
+class InstanceReference(object):
+    '''
+    used by the InstanceTrackingCache to track a reference to different
+    instances that point to the same underlying data
+    '''
+    def __init__(self, *args, **kwargs):
+        self._instance_data = {}
+        self._ref_count = 0
+        self._lock = threading.RLock()
+
+    def add_ref(self):
+        with self._lock:
+            self._ref_count += 1
+            return self._ref_count
+
+    def dec_ref(self):
+        with self._lock:
+            self._ref_count -= 1
+            if self._ref_count <= 0:
+                return 0
+            else:
+                return self._ref_count
+
+
 class InstanceTrackingCache(Cache):
     '''
     an abstract class for caches that share state between different instances
@@ -591,25 +640,20 @@ class InstanceTrackingCache(Cache):
     subclasses MUST implement the _get_inst_key method
     '''
 
-    _CLASSES = set([])
-
     def __new__(cls, *args, **kwargs):
         if cls is InstanceTrackingCache:
             raise NotImplemented
 
-        InstanceTrackingCache._CLASSES.add(cls)
-
         if not hasattr(cls, '_INSTANCES'):
-            cls._INSTANCES = collections.defaultdict(lambda: {})
-            cls._REF_COUNTS = collections.defaultdict(lambda: 0)
-            cls._LOCKS = collections.defaultdict(lambda: threading.Lock())
+            cls._INSTANCES = collections.defaultdict(
+                lambda: InstanceReference())
 
         inst = super(InstanceTrackingCache, cls).__new__(cls, *args, **kwargs)
         inst_key = inst._get_inst_key(*args, **kwargs)
 
-        with cls._LOCKS[inst_key]:
-            inst.__dict__ = cls._INSTANCES[inst_key]
-            cls._REF_COUNTS[inst_key] += 1
+        with cls._INSTANCES[inst_key]._lock:
+            inst.__dict__ = cls._INSTANCES[inst_key]._instance_data
+            cls._INSTANCES[inst_key].add_ref()
 
         return inst
 
@@ -637,23 +681,19 @@ class InstanceTrackingCache(Cache):
         '''
         raise NotImplemented
 
-    # ensure the cache is written to disk when LAST copy of this instance is
-    # removed
+    # ensure the cache is written to disk when the last copy of this instance
+    # is removed
     def __del__(self):
         inst_key = self._get_inst_key()
         if inst_key is None:
             return
 
-        with self._LOCKS[inst_key]:
-            ref_count = self._REF_COUNTS[inst_key]
-            ref_count -= 1
-            self._REF_COUNTS[inst_key] = ref_count
-
-            if ref_count <= 0:
+        try:
+            if self._INSTANCES[inst_key].dec_ref() == 0:
                 self.save_async()
-                self._pool.terminate()
-                del self._REF_COUNTS[inst_key]
                 del self._INSTANCES[inst_key]
+        except KeyError:
+            pass
 
 
 class LocalCache(ValidatingCache, InstanceTrackingCache):
@@ -667,7 +707,7 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
     '''
 
     _CACHE_TIMESTAMP = "created_time_stamp"
-    _LIFE_SPAN_LOCK = threading.Lock()
+    _LIFE_SPAN_LOCK = threading.RLock()
 
     def __init__(self, tex_root):
         self.tex_root = tex_root
@@ -677,10 +717,11 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
         try:
             cache_time = Cache.get(self, self._CACHE_TIMESTAMP)
         except:
-            raise ValueError('cannot load created timestamp')
+            raise CacheMiss('cannot load created timestamp')
         else:
             if not self.is_up_to_date(key, cache_time):
-                raise ValueError('value outdated')
+                self.invalidate()
+                raise CacheMiss('value outdated')
 
     def validate_on_set(self, key, obj):
         if not self.has(self._CACHE_TIMESTAMP):
@@ -749,3 +790,11 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
             cls._PREV_LIFE_SPAN_STR = life_span_string
             cls._PREV_LIFE_SPAN = life_span = __parse_life_span_string()
             return life_span
+
+
+# terminates the cache threadpool
+def _terminate_cache_threadpool():
+    try:
+        Cache._pool.terminate()
+    except Exception:
+        traceback.print_exc()

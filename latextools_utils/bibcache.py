@@ -19,6 +19,13 @@ else:
 _VERSION = 2
 
 
+def _list_to_tuple(v):
+    if isinstance(v, list):
+        return tuple(v)
+    else:
+        return v
+
+
 class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
     '''
     implements a cache for a bibliography file
@@ -85,10 +92,10 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
     def cache(self, func):
         try:
             return self.get()
-        except:
+        except cache.CacheMiss:
             result = func()
             self.set(result)
-            return result
+            return self._objects[self.formatted_cache_name]
 
     def validate_on_get(self, obj):
         if obj is None:
@@ -98,14 +105,15 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
 
         try:
             mtime = os.path.getmtime(self.bib_file)
-        except:
-            raise cache.CacheMiss()
+        except OSError as e:
+            # consider it a miss if we can't stat the actual bib file
+            raise cache.CacheMiss(str(e))
         else:
             if mtime > meta_data['cache_time']:
                 raise cache.CacheMiss('outdated formatted entries')
 
         if _VERSION != meta_data['version'] or any(
-            meta_data[s] != get_setting("cite_" + s)
+            meta_data[s] != _list_to_tuple(get_setting("cite_" + s))
             for s in ["panel_format", "autocomplete_format"]
         ):
             return self._get_bib_cache()[1]
@@ -127,8 +135,9 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
                 os.path.join(self.cache_path, self.cache_name))
 
             bib_mtime = os.path.getmtime(self.bib_file)
-        except:
-            raise cache.CacheMiss()
+        except OSError as e:
+            # either we can't read the cache or the bib file
+            raise cache.CacheMiss(str(e))
         else:
             if cache_mtime < bib_mtime:
                 raise cache.CacheMiss('outdated bib entry cache')
