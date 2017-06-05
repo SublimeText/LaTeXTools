@@ -1,19 +1,8 @@
 import re
 
-import sublime
-
-
-_ST3 = sublime.version() >= "3000"
-
-if _ST3:
-    from .latex_fill_all import FillAllHelper
-    from .latextools_utils import analysis, cache, get_setting
-    from .latextools_utils.tex_directives import get_tex_root
-
-else:
-    from latextools_utils.internal_types import FillAllHelper
-    from latextools_utils import analysis, cache, get_setting
-    from latextools_utils.tex_directives import get_tex_root
+from .latex_fill_all import FillAllHelper
+from .latextools_utils import analysis, cache, get_setting, pgf
+from .latextools_utils.tex_directives import get_tex_root
 
 
 GLO_LINE_RE = re.compile(
@@ -22,6 +11,12 @@ GLO_LINE_RE = re.compile(
 ACR_LINE_RE = re.compile(
     r"([^{}\[\]]*)\{(?:lluf|gnol|trohs)rca\\"
 )
+
+
+def _create_glo_desc(a):
+    name = pgf.get_pgfkeys_value(a.args2, "name", strip=True) or ""
+    desc = pgf.get_pgfkeys_value(a.args2, "description", strip=True) or ""
+    return "{name} - {desc}".format(**locals())
 
 
 def _get_glo_completions(ana, prefix, ac):
@@ -33,7 +28,7 @@ def _get_glo_completions(ana, prefix, ac):
     else:
         glo_commands = [a for a in glo_commands if a.args.startswith(prefix)]
         comp = [
-            [a.args]
+            [a.args, _create_glo_desc(a)]
             for a in glo_commands
         ], [
             a.args for a in glo_commands

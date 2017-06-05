@@ -142,6 +142,10 @@ class Analysis(object):
 
         self.__frozen = False
 
+        # This state is used to hold the state during the analysis
+        # and will be deleted afterwards
+        self._state = {}
+
     def tex_root(self):
         """The tex root of the analysis"""
         return self._tex_root
@@ -243,6 +247,26 @@ class Analysis(object):
         com = self._commands(flags)
         return tuple(filter(command_filter, com))
 
+    def graphics_paths(self):
+        try:
+            return self._graphics_path
+        except AttributeError:
+            pass
+        self._graphics_path = []
+        commands = self.filter_commands("graphicspath")
+        for com in commands:
+            base_path = os.path.join(self.tex_base_path(com.file_name))
+            paths = (p.rstrip("}") for p in com.args.split("{") if p)
+            self._graphics_path.extend(
+                os.path.normpath(
+                    p if os.path.isabs(p)
+                    else os.path.join(base_path, p)
+                )
+                for p in paths
+            )
+
+        return self._graphics_path
+
     def _add_command(self, command):
         self._all_commands.append(command)
 
@@ -271,6 +295,10 @@ class Analysis(object):
         self._raw_content = frozendict(**self._raw_content)
         self._all_commands = tuple(c for c in self._all_commands)
         self.__frozen = True
+        try:
+            del self._state
+        except AttributeError:
+            pass
 
     def __copy__(self):
         return self
@@ -374,7 +402,7 @@ def analyze_document(tex_root):
 
 
 def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
-                      ana=None, import_path=None):
+                      ana=None, import_path=None, only_preamble=False):
     # init ana and the file name
     if not ana:
         ana = Analysis(tex_root)
@@ -420,16 +448,28 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
     ana._raw_content[file_name] = raw_content
 
     for m in _RE_COMMAND.finditer(content):
-        ana._extend_commands(_generate_entries(m, file_name))
-
         # TODO maybe also handle all generated entries
         g = m.group
+
+        # precancel if we only parse the preamble (for subfiles)
+        if (only_preamble and g("command") == "begin" and
+                g("args") == "document"):
+            ana._state["preamble_finished"] = True
+            return ana
+
+        ana._extend_commands(_generate_entries(m, file_name))
+
         # read child files if it is an input command
         if g("command") in _input_commands and g("args") is not None:
             process_file_stack.append(file_name)
             open_file = os.path.join(base_path, g("args"))
-            _analyze_tex_file(tex_root, open_file, process_file_stack, ana)
+            _analyze_tex_file(
+                tex_root, open_file, process_file_stack, ana,
+                only_preamble=only_preamble)
             process_file_stack.pop()
+            # check that we still need to analyze
+            if only_preamble and ana._state.get("preamble_finished", False):
+                return ana
         elif (g("command") in _import_commands and g("args") is not None and
                 g("args2") is not None):
             if g("command").startswith("sub"):
@@ -443,8 +483,29 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
             process_file_stack.append(file_name)
             _analyze_tex_file(
                 tex_root, open_file, process_file_stack, ana,
-                import_path=next_import_path)
+                import_path=next_import_path, only_preamble=only_preamble)
             process_file_stack.pop()
+            # check that we still need to analyze
+            if only_preamble and ana._state.get("preamble_finished", False):
+                return ana
+        # subfile support:
+        # if we are not in the root file (i.e. not call from included files)
+        # and have the command \documentclass[main.tex]{subfiles}
+        # analyze the root file
+        elif (tex_root != file_name and g("command") == "documentclass" and
+                g("args") == "subfiles"):
+            main_file = g("optargs")
+            if not main_file:
+                continue
+            main_file = os.path.join(base_path, main_file)
+            process_file_stack.append(file_name)
+            _analyze_tex_file(main_file, main_file, process_file_stack, ana,
+                              import_path=None, only_preamble=True)
+            process_file_stack.pop()
+            try:
+                del ana._state["preamble_finished"]
+            except KeyError:
+                pass
 
     return ana
 
