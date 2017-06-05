@@ -100,13 +100,11 @@ def _update_gs_version():
             m = _GS_VERSION_REGEX.search(raw_version)
             if m:
                 _GS_VERSION = tuple(int(x) for x in m.groups())
-        except OSError:
+        except Exception:
             print('Error finding Ghostscript version for {0}'.format(
                 _GS_COMMAND))
             traceback.print_exc()
-        except Exception:
-            traceback.print_exc()
-
+            
 
 # broken out to be called from system_check
 def __get_gs_command():
@@ -170,7 +168,7 @@ def _get_gs_exe_from_registry():
                 for i in range(winreg.QueryInfoKey(hndl)[0]):
                     version = winreg.EnumKey(hndl, i)
                     try:
-                        major, minor = version.split('.')
+                        major, minor = map(int, version.split('.'))
                         if (
                             major > major_version or
                             (
