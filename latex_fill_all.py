@@ -1,10 +1,9 @@
-from __future__ import print_function
-
-import sublime
-import sublime_plugin
 import re
 import sys
 import traceback
+
+import sublime
+import sublime_plugin
 
 # hack to ensure relative package imports work
 __package__ = 'LaTeXTools'

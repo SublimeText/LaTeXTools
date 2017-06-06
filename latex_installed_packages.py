@@ -1,8 +1,4 @@
 # -*- coding:utf-8 -*-
-from __future__ import print_function
-import sublime
-import sublime_plugin
-
 import os
 import json
 
@@ -12,21 +8,12 @@ from functools import partial
 import threading
 import traceback
 
-if sublime.version() < '3000':
-    # we are on ST2 and Python 2.X
-    _ST3 = False
-    strbase = basestring
+import sublime
+import sublime_plugin
 
-    from latextools_utils.external_command import (
-        check_output, CalledProcessError
-    )
-else:
-    _ST3 = True
-    strbase = str
-
-    from .latextools_utils.external_command import (
-        check_output, CalledProcessError
-    )
+from .latextools_utils.external_command import (
+    check_output, CalledProcessError
+)
 
 __all__ = ['LatexGenPkgCacheCommand']
 
@@ -68,7 +55,7 @@ def _get_tex_searchpath(file_type):
 
 
 def _get_files_matching_extensions(paths, extensions=[]):
-    if isinstance(extensions, strbase):
+    if isinstance(extensions, str):
         extensions = [extensions]
 
     matched_files = defaultdict(lambda: [])
@@ -95,8 +82,10 @@ def _get_files_matching_extensions(paths, extensions=[]):
                 for f in files:
                     matched_files['*'].append(os.path.splitext(f)[0])
 
-    matched_files = dict([(key, sorted(set(value), key=lambda s: s.lower()))
-        for key, value in matched_files.items()])
+    matched_files = dict([
+        (key, sorted(set(value), key=lambda s: s.lower()))
+        for key, value in matched_files.items()
+    ])
 
     return matched_files
 
@@ -122,24 +111,14 @@ def _generate_package_cache():
     # For ST3, put the cache files in cache dir
     # and for ST2, put it in the user packages dir
     # and change the name
-    if _ST3:
-        cache_path = os.path.normpath(
-            os.path.join(
-                sublime.cache_path(),
-                "LaTeXTools"
-            ))
-    else:
-        cache_path = os.path.normpath(
-            os.path.join(
-                sublime.packages_path(),
-                "User"
-            ))
+    cache_path = os.path.normpath(
+        os.path.join(sublime.cache_path(), "LaTeXTools"))
 
     if not os.path.exists(cache_path):
         os.makedirs(cache_path)
 
     pkg_cache_file = os.path.normpath(
-        os.path.join(cache_path, 'pkg_cache.cache' if _ST3 else 'latextools_pkg_cache.cache'))
+        os.path.join(cache_path, 'pkg_cache.cache'))
 
     with open(pkg_cache_file, 'w+') as f:
         json.dump(pkg_cache, f)

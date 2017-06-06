@@ -1,37 +1,19 @@
 # -*- coding:utf-8 -*-
-# ST2/ST3 compat
-from __future__ import print_function
-import sublime
-import sublime_plugin
-
+import json
 import os
 import re
-import json
 
-try:
-    from latex_fill_all import FillAllHelper
-    from latextools_utils import analysis
-    from latextools_utils.is_tex_file import get_tex_extensions
-    from latextools_utils.output_directory import (
-        get_aux_directory, get_output_directory
-    )
-except ImportError:
-    from .latex_fill_all import FillAllHelper
-    from .latextools_utils import analysis
-    from .latextools_utils.is_tex_file import get_tex_extensions
-    from .latextools_utils.output_directory import (
-        get_aux_directory, get_output_directory
-    )
+import sublime
 
-if sublime.version() < '3000':
-    # we are on ST2 and Python 2.X
-    _ST3 = False
-    import getTeXRoot
-    from latextools_utils import get_setting
-else:
-    _ST3 = True
-    from . import getTeXRoot
-    from .latextools_utils import get_setting
+from .latex_fill_all import FillAllHelper
+from .latextools_utils import analysis
+from .latextools_utils.is_tex_file import get_tex_extensions
+from .latextools_utils.output_directory import (
+    get_aux_directory, get_output_directory
+)
+
+from . import getTeXRoot
+from .latextools_utils import get_setting
 
 
 def _filter_invalid_entries(entries):
@@ -184,10 +166,6 @@ def plugin_loaded():
     )
 
 
-if not _ST3:
-    plugin_loaded()
-
-
 # Get all file by types
 def get_file_list(root, types, filter_exts=[], base_path=None,
                   output_directory=None, aux_directory=None):
@@ -337,16 +315,11 @@ def parse_completions(view, line):
 
 
 def _get_cache():
-    if _ST3:
-        cache_path = os.path.normpath(
-            os.path.join(sublime.cache_path(), "LaTeXTools"))
-    else:
-        cache_path = os.path.normpath(
-            os.path.join(sublime.packages_path(), "User"))
+    cache_path = os.path.normpath(
+        os.path.join(sublime.cache_path(), "LaTeXTools"))
 
     pkg_cache_file = os.path.normpath(
-        os.path.join(cache_path, 'pkg_cache.cache'
-                     if _ST3 else 'latextools_pkg_cache.cache'))
+        os.path.join(cache_path, 'pkg_cache.cache'))
 
     cache = None
     if not os.path.exists(pkg_cache_file):

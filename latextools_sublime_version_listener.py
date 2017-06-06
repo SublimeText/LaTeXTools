@@ -1,10 +1,8 @@
-from __future__ import print_function
+import operator as opi
+import re
 
 import sublime
 import sublime_plugin
-
-import operator as opi
-import re
 
 VERSION = sublime.version()
 

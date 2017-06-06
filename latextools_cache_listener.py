@@ -1,33 +1,21 @@
 from __future__ import unicode_literals, print_function
 
-import sublime
-import sublime_plugin
-
 import collections
 from functools import partial
 import threading
 import traceback
 
-try:
-    from .latex_cite_completions import (
-        find_bib_files, run_plugin_command
-    )
-    from .latextools_utils import analysis, get_setting
-    from .latextools_utils.bibcache import BibCache
-    from .latextools_utils.cache import LocalCache
-    from .latextools_utils.tex_directives import get_tex_root
-    from .latextools_utils.progress_indicator import ProgressIndicator
-except:
-    from latex_cite_completions import (
-        find_bib_files, run_plugin_command
-    )
-    from latextools_utils import analysis, get_setting
-    from latextools_utils.bibcache import BibCache
-    from latextools_utils.cache import LocalCache
-    from latextools_utils.tex_directives import get_tex_root
-    from latextools_utils.progress_indicator import ProgressIndicator
+import sublime
+import sublime_plugin
 
-_ST3 = sublime.version() >= '3000'
+from .latex_cite_completions import (
+    find_bib_files, run_plugin_command
+)
+from .latextools_utils import analysis, get_setting
+from .latextools_utils.bibcache import BibCache
+from .latextools_utils.cache import LocalCache
+from .latextools_utils.tex_directives import get_tex_root
+from .latextools_utils.progress_indicator import ProgressIndicator
 
 
 class LatextoolsCacheUpdater(object):
@@ -192,10 +180,6 @@ class LatextoolsCacheUpdateListener(
             self.run_bib_cache(tex_root)
 
         self.run_cache_update()
-
-    if not _ST3:
-        on_load = on_load_async
-        on_post_save = on_post_save_async
 
 
 class LatextoolsCacheUpdateCommand(object):
