@@ -1,31 +1,15 @@
-import sublime
 import codecs
 import itertools
 import sys
 import threading
 import time
 
-try:
-    from os import cpu_count
-except ImportError:
-    try:
-        from multiprocessing import cpu_count
-    # quickfix for ST2 compat
-    except ImportError:
-        def cpu_count():
-            return 1
+from os import cpu_count
+from queue import Queue
 
-try:
-    from Queue import Queue
-except ImportError:
-    from queue import Queue
+import sublime
 
-if sublime.version() < '3000':
-    _ST3 = False
-    from latextools_utils.six import reraise
-else:
-    _ST3 = True
-    from .six import reraise
+from .six import reraise
 
 
 def run_after_loading(view, func):
@@ -69,13 +53,9 @@ def read_file_unix_endings(file_name, encoding="utf8", ignore=True):
     the same string positions as in ST, because the length of ST line endings
     is 1 and the length if CRLF line endings is 2.
     """
-    if _ST3:
-        errors = "ignore" if ignore else "strict"
-        with open(file_name, "rt", encoding=encoding, errors=errors) as f:
-            file_content = f.read()
-    else:
-        file_content = _read_file_content(file_name, encoding, ignore)
-        file_content = file_content.replace("\r\n", "\n")
+    errors = "ignore" if ignore else "strict"
+    with open(file_name, "rt", encoding=encoding, errors=errors) as f:
+        file_content = f.read()
     return file_content
 
 
@@ -157,28 +137,7 @@ def run_on_main_thread(func, timeout=10, default_value=__sentinel__):
     from the main thread.
     """
     # quick exit condition: we are on ST3 or the main thread
-    if _ST3 or threading.current_thread().getName() == 'MainThread':
-        return func()
-
-    condition = threading.Condition()
-    condition.acquire()
-
-    def _get_result():
-        with condition:
-            _get_result.result = func()
-            condition.notify()
-
-    sublime.set_timeout(_get_result, 0)
-
-    condition.wait(timeout)
-
-    if not hasattr(_get_result, 'result'):
-        if default_value is __sentinel__:
-            raise TimeoutError('Timeout while waiting for {0}'.format(func))
-        else:
-            return default_value
-
-    return _get_result.result
+    return func()
 
 
 class ThreadPool(object):

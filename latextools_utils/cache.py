@@ -2,33 +2,20 @@ import collections
 import copy
 import hashlib
 import os
+import pickle
 import re
 import shutil
-import time
 import threading
+import time
 import traceback
-
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
 
 import sublime
 
-if sublime.version() < '3000':
-    _ST3 = False
-    from latextools_utils import get_setting
-    from external.frozendict import frozendict
-    from latextools_utils.six import unicode, long, strbase
-    from latextools_utils.system import make_dirs
-    from latextools_utils.utils import ThreadPool
-else:
-    _ST3 = True
-    from . import get_setting
-    from ..external.frozendict import frozendict
-    from .six import unicode, long, strbase
-    from .system import make_dirs
-    from .utils import ThreadPool
+from . import get_setting
+from ..external.frozendict import frozendict
+from .six import unicode, long, strbase
+from .system import make_dirs
+from .utils import ThreadPool
 
 
 # the folder, if the local cache is not hidden, i.e. folder in the same
@@ -180,14 +167,10 @@ cache = cache_local
 write = write_local
 read = read_local
 
-if _ST3:
-    def _global_cache_path():
-        return os.path.normpath(os.path.join(
-            sublime.cache_path(), "LaTeXTools", "internal"))
-else:
-    def _global_cache_path():
-        return os.path.normpath(os.path.join(
-            sublime.packages_path(), "User", ST2_GLOBAL_CACHE_FOLDER))
+
+def _global_cache_path():
+    return os.path.normpath(os.path.join(
+        sublime.cache_path(), "LaTeXTools", "internal"))
 
 
 # marker object for invalidated result

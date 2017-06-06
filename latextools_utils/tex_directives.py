@@ -1,23 +1,13 @@
-from __future__ import print_function
-
 import codecs
 import os
 import re
-import sublime
-import sys
 import traceback
 
-try:
-    from latextools_utils.is_tex_file import is_tex_file
-    from latextools_utils.sublime_utils import get_project_file_name
-except ImportError:
-    from .is_tex_file import is_tex_file
-    from .sublime_utils import get_project_file_name
+import sublime
 
-if sys.version_info < (3, 0):
-    strbase = basestring
-else:
-    strbase = str
+from .is_tex_file import is_tex_file
+from .sublime_utils import get_project_file_name
+
 
 TEX_DIRECTIVE = re.compile(
     r'%+\s*!(?:T|t)(?:E|e)(?:X|x)\s+([\w-]+)\s*=\s*' +
@@ -59,7 +49,7 @@ def parse_tex_directives(view_or_path, multi_values=[], key_maps={},
     if isinstance(view_or_path, sublime.View):
         lines = view_or_path.substr(
             sublime.Region(0, view_or_path.size())).split('\n')
-    elif isinstance(view_or_path, strbase):
+    elif isinstance(view_or_path, str):
         try:
             lines = codecs.open(view_or_path, "r", "utf-8", "ignore")
         except IOError:
