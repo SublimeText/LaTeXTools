@@ -114,7 +114,10 @@ class TimeoutError(Exception):
     pass
 
 
-__sentinel__ = object()
+try:
+    __sentinel__
+except NameError:
+    __sentinel__ = object()
 
 
 def run_on_main_thread(func, timeout=10, default_value=__sentinel__):
