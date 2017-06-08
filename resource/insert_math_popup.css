@@ -1,38 +1,37 @@
-html {
-    background-color: #333333;
-    color: #CCCCCC;
-}
 a {
-    color: #cc0000;
+    color: var(--foreground);
 }
+
+a.button {
+    color: var(--redish);
+}
+
 a.entry {
-    color: #CCCCCC;
     text-decoration: none;
 }
 .prefix_line {
-    background-color: #333399;
+    background-color: var(--bluish);
+    color: yellow;
 }
 .prefix {
     font-weight: bold;
 }
+
 .invalid_char {
-    color: red;
+    color: var(--redish);
 }
+
 .selected {
-    background-color: #993300;
-    color: #FFFF00;
+    background-color: var(--pinkish);
+}
+.selected a.entry {
+    color: var(--yellowish);
     font-weight: bold;
 }
 .key {
     width: 150px;
 }
+
 .common_prefix {
     font-style: italic;
-    # font-weight: bold;
-}
-.pkg_missing {
-    color: red;
-}
-.pkg_available {
-    color: green;
 }

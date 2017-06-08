@@ -127,11 +127,13 @@ def _imake_html(entries, do_search, prefix, invalid_char, index):
         yield "({0})".format(_escape_html(invalid_char))
         yield "</span>"
     yield "</div>"
-    yield '<a href="toggle_search">'
+    yield '<div class="button-line">'
+    yield '<a class="button" href="toggle_search">'
     yield "(Toggle Mode)"
     yield "</a>"
     yield "&nbsp;"
-    yield '<a href="options">(Options)</a>'
+    yield '<a class="button" href="options">(Options)</a>'
+    yield '</div>'
 
     def high_common_prefix(s):
         pre = "\\" + prefix if do_search else prefix
