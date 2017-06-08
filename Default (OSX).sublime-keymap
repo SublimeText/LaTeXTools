@@ -164,6 +164,29 @@ LaTeX Package keymap for OS X
 			{"key": "lt_fill_all_directive.equal_sign", "operator": "equal", "match_all": true, "operand": true}],
 		"command": "latex_fill_all", "args": {"completion_type": "directive", "insert_char": "="}},
 
+	// add a keybinding to auto-insert labels similar to the fill-all helper
+	{
+		"keys": ["super+l","super+f"],
+		"command": "latextools_auto_insert_label",
+		"context":
+		[
+			{ "key": "selector", "operand": "text.tex.latex" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\label\\{$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_match", "operand": "\\}", "match_all": true }
+
+		]
+	},
+	{
+		"keys": ["{"],
+		"command": "latextools_auto_insert_label",
+		"context":
+		[
+			{ "key": "selector", "operand": "text.tex.latex" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\label$", "match_all": true },
+			{ "key": "latextools.setting.auto_label_auto_trigger" }
+		]
+	},
+
 	// View PDF, jump to point, toggle editor/viewer focus
 	{ 	"keys": ["super+l","v"],
 		"context":  [
