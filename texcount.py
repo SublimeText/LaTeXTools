@@ -1,24 +1,13 @@
-from __future__ import print_function
+import os
 
 import sublime
 import sublime_plugin
 
-import os
-
-if sublime.version() < '3000':
-    _ST3 = False
-    from latextools_utils import get_setting
-    from latextools_utils.external_command import (
-        check_output, CalledProcessError
-    )
-    from getTeXRoot import get_tex_root
-else:
-    _ST3 = True
-    from .latextools_utils import get_setting
-    from .latextools_utils.external_command import (
-        check_output, CalledProcessError
-    )
-    from .getTeXRoot import get_tex_root
+from .latextools_utils import get_setting
+from .latextools_utils.external_command import (
+    check_output, CalledProcessError
+)
+from .getTeXRoot import get_tex_root
 
 
 class TexcountCommand(sublime_plugin.TextCommand):

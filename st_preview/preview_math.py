@@ -94,9 +94,6 @@ def plugin_loaded():
     _lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
 
     temp_path = os.path.join(cache._global_cache_path(), _name)
-    # validate the temporary file directory is available
-    if not os.path.exists(temp_path):
-        os.makedirs(temp_path)
 
     # init all variables
     _on_setting_change()
@@ -295,6 +292,10 @@ def _extend_image_jobs(vid, latex_program, jobs):
 
 
 def _run_image_jobs():
+    # validate the temporary file directory is available
+    if not os.path.exists(temp_path):
+        os.makedirs(temp_path)
+
     if not pv_threading.has_function(_name):
         pv_threading.register_function(_name, _execute_job)
     pv_threading.run_jobs(_name)

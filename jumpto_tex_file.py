@@ -128,6 +128,21 @@ def _jumpto_bib_file(view, window, tex_root, file_name,
                      auto_create_missing_folders, False)
 
 
+def _validate_image(file_path, image_types):
+    _, extension = os.path.splitext(file_path)
+    extension = extension[1:]  # strip the leading point
+    if extension:
+        if os.path.exists(file_path):
+            return file_path
+    else:
+        for ext in image_types:
+            test_path = file_path + "." + ext
+            print("Test file: '{0}'".format(test_path))
+            if os.path.exists(test_path):
+                print("Found file: '{0}'".format(test_path))
+                return test_path
+
+
 def find_image(tex_root, file_name, tex_file_name=None):
     ana = analysis.get_analysis(tex_root)
     base_path = ana.tex_base_path(tex_file_name)
@@ -137,22 +152,13 @@ def find_image(tex_root, file_name, tex_file_name=None):
             "png", "pdf", "jpg", "jpeg", "eps"
         ])
 
-    file_path = os.path.normpath(
-        os.path.join(base_path, file_name))
-    _, extension = os.path.splitext(file_path)
-    extension = extension[1:]  # strip the leading point
-    if not extension:
-        for ext in image_types:
-            test_path = file_path + "." + ext
-            print("Test file: '{0}'".format(test_path))
-            if os.path.exists(test_path):
-                extension = ext
-                file_path = test_path
-                print("Found file: '{0}'".format(test_path))
-                break
-    if not os.path.exists(file_path):
-        return None
-    return file_path
+    for graphics_path in [base_path] + ana.graphics_paths():
+        file_path = _validate_image(
+            os.path.normpath(os.path.join(graphics_path, file_name)),
+            image_types
+        )
+        if file_path:
+            return file_path
 
 
 def open_image(window, file_path):
@@ -166,7 +172,7 @@ def open_image(window, file_path):
             else:
                 command.append(file_path)
 
-            external_command(command)
+            external_command(command, shell=True)
 
     _, extension = os.path.splitext(file_path)
     extension = extension[1:]  # strip the leading point
@@ -191,8 +197,7 @@ def open_image(window, file_path):
                 continue
             # check whether the extension matches
             if "extension" in d:
-                if extension == d["extension"] or\
-                        extension in d["extension"]:
+                if extension == d["extension"] or extension in d["extension"]:
                     run_command(d["command"])
                     break
             # if no extension matches always run the command

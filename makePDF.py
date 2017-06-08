@@ -120,7 +120,7 @@ class LatextoolsBuildSelector(sublime_plugin.WindowCommand):
 		# find all .sublime-build files
 		if _ST3:
 			sublime_build_files = sublime.find_resources('*.sublime-build')
-			project_settings = self.window.project_data()
+			project_settings = self.window.project_data() or {}
 		else:
 			sublime_build_files = glob.glob(os.path.join(
 				sublime.packages_path(), '*', '*.sublime-build'
@@ -143,7 +143,8 @@ class LatextoolsBuildSelector(sublime_plugin.WindowCommand):
 		):
 			if (
 				'selector' not in build_system or
-				view.score_selector(0, project_settings['selector']) > 0
+				view.score_selector(
+					0, project_settings.get('selector', 'text.tex.latex')) > 0
 			):
 				try:
 					build_system['name']

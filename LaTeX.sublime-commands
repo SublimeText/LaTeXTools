@@ -1,6 +1,7 @@
 [
 	{ "caption": "LaTeXTools: Check system", "command": "latextools_system_check"},
 	{ "caption": "LaTeXTools: Delete temporary files", "command": "delete_temp_files"},
+	{ "caption": "LaTeXTools: Clear cache", "command": "latextools_clear_cache"},
 	{ "caption": "LaTeXTools: Clear document cache", "command": "clear_local_latex_cache"},
 	{ "caption": "LaTeXTools: Clear current bibliography cache", "command": "clear_bibliography_cache"},
 	{ "caption": "LaTeXTools: View PDF", "command": "view_pdf"},

@@ -2,40 +2,26 @@ import collections
 import copy
 import hashlib
 import os
+import pickle
 import re
 import shutil
-import time
 import threading
+import time
 import traceback
-
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
 
 import sublime
 
-if sublime.version() < '3000':
-    _ST3 = False
-    from latextools_utils import get_setting
-    from external.frozendict import frozendict
-    from latextools_utils.six import unicode, long, strbase
-    from latextools_utils.system import make_dirs
-    from latextools_utils.utils import ThreadPool
-else:
-    _ST3 = True
-    from . import get_setting
-    from ..external.frozendict import frozendict
-    from .six import unicode, long, strbase
-    from .system import make_dirs
-    from .utils import ThreadPool
+from . import get_setting
+from ..external.frozendict import frozendict
+from .six import unicode, long, strbase
+from .system import make_dirs
+from .utils import ThreadPool
 
 
 # the folder, if the local cache is not hidden, i.e. folder in the same
 # folder as the tex root
-LOCAL_CACHE_FOLDER = ".st_lt_cache"
 # folder to store all hidden local caches in the cache path
-HIDDEN_LOCAL_CACHE_FOLDER = "local_cache"
+LOCAL_CACHE_FOLDER = "local_cache"
 # global cache folder for ST2, this folder will be created inside the User
 # folder to store the global and the local cache
 ST2_GLOBAL_CACHE_FOLDER = ".lt_cache"
@@ -181,14 +167,10 @@ cache = cache_local
 write = write_local
 read = read_local
 
-if _ST3:
-    def _global_cache_path():
-        return os.path.normpath(os.path.join(
-            sublime.cache_path(), "LaTeXTools"))
-else:
-    def _global_cache_path():
-        return os.path.normpath(os.path.join(
-            sublime.packages_path(), "User", ST2_GLOBAL_CACHE_FOLDER))
+
+def _global_cache_path():
+    return os.path.normpath(os.path.join(
+        sublime.cache_path(), "LaTeXTools", "internal"))
 
 
 # marker object for invalidated result
@@ -672,9 +654,6 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
 
     def __init__(self, tex_root):
         self.tex_root = tex_root
-        # although this could change, currently only the value when the
-        # cache is created is relevant
-        self.hide_cache = get_setting('hide_local_cache', True)
         super(LocalCache, self).__init__()
 
     def validate_on_get(self, key):
@@ -699,14 +678,9 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
             return self.tex_root
 
     def _get_cache_path(self):
-        if self.hide_cache:
-            cache_path = super(LocalCache, self)._get_cache_path()
-            root_hash = hash_digest(self.tex_root)
-            return os.path.join(
-                cache_path, HIDDEN_LOCAL_CACHE_FOLDER, root_hash)
-        else:
-            root_folder = os.path.dirname(self.tex_root)
-            return os.path.join(root_folder, LOCAL_CACHE_FOLDER)
+        cache_path = super(LocalCache, self)._get_cache_path()
+        root_hash = hash_digest(self.tex_root)
+        return os.path.join(cache_path, LOCAL_CACHE_FOLDER, root_hash)
 
     def is_up_to_date(self, key, timestamp):
         if timestamp is None:

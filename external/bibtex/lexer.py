@@ -79,10 +79,10 @@ class Lexer(object):
                         self.whitespace_token()     or
                         self.comma_token()          or
                         self.key_token()            or
-                        self.identifier_token()     or
-                        self.number_token()         or
                         self.value_token()          or
                         self.quoted_string_token()  or
+                        self.identifier_token()     or
+                        self.number_token()         or
                         self.hash_token()           or
                         self.entry_end_token()      or
                         self.token_error()
@@ -342,7 +342,7 @@ STRING              = re.compile(r'@(string)\s*\{', re.UNICODE | re.IGNORECASE)
 COMMENT             = re.compile(r'@(comment)[^\n]+', re.UNICODE | re.IGNORECASE)
 ENTRY_START         = re.compile(r'@(?=[^\W][^,\s]*\s*\{)', re.UNICODE)
 ENTRY_TYPE          = re.compile(r'([^\W\d_][^,\s]*)\s*\{', re.UNICODE)
-IDENTIFIER          = re.compile(r'[^\W][^,\s}#]*(?=\s*[,]|\s*#\s*|\s*\}?(?:\n|$))', re.UNICODE)
+IDENTIFIER          = re.compile(r'[^,\s}#]+(?=\s*[,]|\s*#\s*|\s*\}?(?:\n|$))', re.UNICODE)
 NUMBER              = re.compile(r'\d+', re.UNICODE)
 KEY                 = re.compile(r'([^\W\d][^,\s=]*)\s*=\s*', re.UNICODE)
 

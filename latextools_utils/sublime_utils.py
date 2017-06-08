@@ -1,32 +1,19 @@
 # This module provides some functions that handle differences between ST2 and
 # ST3. For the most part, they provide ST2-compatible functionality that is
 # already available in ST3.
-from __future__ import print_function
-
 import codecs
 import json
 import os
 import re
-import sublime
 import sys
 
-try:
-    from latextools_utils.external_command import (
-        check_output, external_command
-    )
-    from latextools_utils.settings import get_setting
-    from latextools_utils.system import which
-except ImportError:
-    from .external_command import check_output, external_command
-    from .settings import get_setting
-    from .system import which
+import sublime
 
-_ST3 = sublime.version() >= '3000'
-
+from .external_command import check_output, external_command
+from .settings import get_setting
+from .system import which
 
 __all__ = ['normalize_path', 'get_project_file_name']
-
-_ST3 = sublime.version() >= '3000'
 
 # used by get_sublime_exe()
 SUBLIME_VERSION = re.compile(r'Build (\d{4})', re.UNICODE)
@@ -389,10 +376,7 @@ def _parse_json_with_comments(filename):
     return json.loads(''.join(new_content))
 
 
-if _ST3:
-    def parse_json_with_comments(filename):
-        with codecs.open(filename, 'r', 'utf-8', 'ignore') as f:
-            content = f.read()
-        return sublime.decode_value(content)
-else:
-    parse_json_with_comments = _parse_json_with_comments
+def parse_json_with_comments(filename):
+    with codecs.open(filename, 'r', 'utf-8', 'ignore') as f:
+        content = f.read()
+    return sublime.decode_value(content)
