@@ -26,7 +26,6 @@ def _get_command_entries():
     except (OSError, ValueError):
         return []
     return _get_command_entries.result
-    pass
 
 
 def _get_css():
@@ -349,3 +348,39 @@ class LatextoolsMathPopupContextListener(sublime_plugin.EventListener):
             return True
         _cleanup(view)
         return False
+
+
+class LatextoolsMathPopupPostfixInsertCommand(sublime_plugin.TextCommand):
+    """
+    Insert the entry from the math popup based on the text before the
+    caret.
+    """
+
+    def run(self, edit):
+        view = self.view
+        command_entries = {k: v for k, v, *_ in _get_command_entries()}
+        for sel in view.sel():
+            # get the word and the key from the view
+            word = sublime.Region(view.word(sel.b).a, sel.b)
+            insert_key = view.substr(word)
+
+            # strip the key
+            # these characters are stripped and hence can't be used in
+            # the sequence
+            strip_chars = " \n{}_^"
+            insert_key = insert_key.lstrip(strip_chars)
+            len_strip_delta = len(word) - len(insert_key)
+            if len_strip_delta > 0:
+                word = sublime.Region(word.a + len_strip_delta, word.b)
+
+            # retrieve and insert the value for the key
+            try:
+                insert_value = command_entries[insert_key]
+            except KeyError:
+                message = "No math insertion key for '{}'".format(insert_key)
+                print(message)
+                sublime.status_message(message)
+                return
+
+            # insert the value and replace the prefix sequence
+            view.replace(edit, word, insert_value)
