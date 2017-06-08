@@ -1,4 +1,5 @@
 import html
+import os
 
 import sublime
 import sublime_plugin
@@ -32,11 +33,41 @@ def _get_css():
     if hasattr(_get_css, "result"):
         return _get_css.result
     try:
-        _get_css.result = sublime.load_resource(
-            "Packages/LaTeXTools/resource/insert_math_popup.css")
+        default_css = _get_css.default_css
+    except AttributeError:
+        try:
+            default_css = _get_css.default_css = sublime.load_resource(
+                "Packages/LaTeXTools/resource/insert_math_popup.css")
+        except OSError:
+            return ".selected { background-color: #FFFF00; }"
+    try:
+        user_css = sublime.load_resource("Packages/User/insert_math_popup.css")
+        result = default_css + "\n" + user_css
     except OSError:
-        return ".selected { background-color: #FFFF00; }"
+        result = default_css
+
+    _get_css.result = result
+
     return _get_css.result
+
+
+class _CssInvalidateListener(sublime_plugin.EventListener):
+    """This listener invalidates the saves user css if you save the file"""
+
+    def on_post_save_async(self, view):
+        if not view.score_selector(0, "source.css"):
+            return
+        try:
+            self.user_popup_path
+        except AttributeError:
+            self.user_popup_path = os.path.normpath(os.path.join(
+                sublime.packages_path(), "User/insert_math_popup.css"))
+        if view.file_name() == self.user_popup_path:
+            print("Invalidate LaTeXTools math popup user css.")
+            try:
+                del _get_css.result
+            except Exception:
+                pass
 
 
 _html_options = """

@@ -94,7 +94,15 @@
                                 },
                                 "caption": "Key Bindings – User"
                             },
-                            { "caption": "-" }
+                            { "caption": "-" },
+                            {
+                                "command": "edit_settings", "args":
+                                {
+                                    "base_file": "${packages}/LaTeXTools/resource/insert_math_popup.css",
+                                    "default": "\n"
+                                },
+                                "caption": "Edit Math Popup CSS"
+                            },
                         ]
                     }
                 ]
