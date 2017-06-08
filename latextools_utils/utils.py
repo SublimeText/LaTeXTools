@@ -4,7 +4,10 @@ import sys
 import threading
 import time
 
-from os import cpu_count
+try:
+    from os import cpu_count
+except ImportError:
+    from multiprocessing import cpu_count
 from queue import Queue
 
 import sublime
