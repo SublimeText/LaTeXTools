@@ -86,6 +86,7 @@
 		"figure": "fig",
 		"table": "tab",
 		"listing": "lst",
+		"<math>": "eq",
 	},
 
 	// A char replacement in the auto-label generation. This should contain a mapping

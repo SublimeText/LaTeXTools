@@ -67,6 +67,11 @@ def _find_label_content(view, pos, find_region):
             label_type = command_mapping.get(command_name, label_type)
     else:
         label_content = "label"
+    # change the label if we are inside a equation and it is not set already
+    if (label_type == "???" and
+            view.score_selector(pos, "meta.environment.math")):
+        env_mapping = get_setting("auto_label_env_mapping", {})
+        label_type = env_mapping.get("<math>", "eq")
 
     return label_type, label_content
 
