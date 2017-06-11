@@ -556,6 +556,15 @@
 	//						be slower
 	"bibliography": "traditional",
 
+
+	// OPTION: "additional_bibliography_file"
+	// With this setting you can add the path to one or more additional
+	// bibliography files. You can either pass a string containing the path
+	// to the additional bibliography file or an array with several paths.
+	// The path can either be absolute or relative from the tex root.
+	// Set it to "" if you don't have an additional bibliography file.
+	"additional_bibliography_file": "",
+
 	// OPTION: "cite_panel_format"
 	// This preference sets the format of the quick panel to select citations using wildcards.
 	// The setting is a list with one or two string using wildcards for author, title, keyword etc.
