@@ -12,15 +12,6 @@ from Default.open_context_url import rex as url_regex
 from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
 
-template = """
-\\begin{figure}
-\\centering
-\\includegraphics[$2]{<<image_name>>}
-\\caption{$1}
-\\label{fig:${1/([0-9a-zA-Z_])|([^0-9a-zA-Z_]+)/\\L\\1(?2:_:)/g}}
-\\end{figure}
-"""
-
 
 class LatextoolsDownloadInsertImageHelperCommand(sublime_plugin.TextCommand):
     @staticmethod
@@ -60,6 +51,7 @@ class LatextoolsDownloadInsertImageHelperCommand(sublime_plugin.TextCommand):
             image_path += image_ext
 
         pos = view.sel()[0].b + 1
+        template = "\n".join(get_setting("smart_paste_image_snippet", []))
         contents = template.replace("<<image_name>>", image_name)
         self.view.run_command("insert_snippet", {"contents": contents})
 

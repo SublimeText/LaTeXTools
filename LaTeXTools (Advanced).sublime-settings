@@ -68,6 +68,25 @@
 
 
 // ------------------------------------------------------------------
+// Smart-paste config
+// ------------------------------------------------------------------
+
+	// This is the snippet, which will be used by smart paste.
+	// The strings in the array will be joined by a newline.
+	// You can change it as a usual Sublime Text snippet, but need to add
+	// <<image_name>> at the position where the path to the image should be
+	// inserted
+	"smart_paste_image_snippet": [
+		"\\begin{figure}",
+		"\\centering",
+		"\\includegraphics[$2]{<<image_name>>}",
+		"\\caption{$1}",
+		"\\label{fig:${1/([0-9a-zA-Z_])|([^0-9a-zA-Z_]+)/\\L\\1(?2:_:)/g}}",
+		"\\end{figure}",
+	],
+
+
+// ------------------------------------------------------------------
 // Auto-label config
 // ------------------------------------------------------------------
 	// A mapping from the commands to their abbreviation, i.e. \label{abbrv:text}
