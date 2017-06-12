@@ -280,10 +280,10 @@ def find_bib_files(root):
     additional_file = get_setting("additional_bibliography_file")
     if additional_file:
         def _make_abs_path(file_path):
-            root_folder, _ = os.path.split(root)
             if not file_path.endswith(".bib"):
                 file_path += ".bib"
             if not os.path.isabs(file_path):
+                root_folder, _ = os.path.split(root)
                 file_path = os.path.join(root_folder, file_path)
             return os.path.normpath(file_path)
         if isinstance(additional_file, str):
