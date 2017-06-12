@@ -9,6 +9,7 @@ import sublime_plugin
 
 from Default.open_context_url import rex as url_regex
 
+from .latextools_utils import analysis
 from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
 
@@ -40,19 +41,23 @@ class LatextoolsDownloadInsertImageHelperCommand(sublime_plugin.TextCommand):
         tex_root = get_tex_root(view)
         if not tex_root:
             return
-        root_dir, _ = os.path.split(tex_root)
+        ana = analysis.get_analysis(tex_root)
+        graphics_paths = ana.graphics_paths()
+        if graphics_paths:
+            base_dir = graphics_paths[0]
+        else:
+            base_dir = ana.tex_base_path(view.file_name())
         if os.path.isabs(image_name):
             image_path = image_name
         else:
-            image_path = os.path.join(root_dir, image_name)
+            image_path = os.path.join(base_dir, image_name)
         image_path = os.path.normpath(image_path)
         image_ext = "." + image_ext
         if not image_path.endswith(image_ext):
             image_path += image_ext
 
         pos = view.sel()[0].b + 1
-        template = "\n".join(get_setting("smart_paste_image_snippet", []))
-        contents = template.replace("<<image_name>>", image_name)
+        contents = _create_image_snippet(image_name)
         self.view.run_command("insert_snippet", {"contents": contents})
 
         if offline:
@@ -75,6 +80,12 @@ class LatextoolsDownloadInsertImageHelperCommand(sublime_plugin.TextCommand):
                 target=self._download,
                 args=(image_path, image_url, on_done)
             ).start()
+
+
+def _create_image_snippet(image_name):
+    template = "\n".join(get_setting("smart_paste_image_snippet", []))
+    contents = template.replace("<<image_name>>", image_name)
+    return contents
 
 
 def download_insert_image(window, view, image_url, offline=False):
@@ -100,16 +111,20 @@ def download_insert_image(window, view, image_url, offline=False):
         window.run_command("latextools_download_insert_image_helper", kwargs)
 
     # if the image is offline check whether it is in a subdirectory
-    # if the root folder. If so just include it directly
+    # of the root folder or the graphics path. If so just include it directly
     if offline:
-        root_dir, _ = os.path.split(tex_root)
+        ana = analysis.get_analysis(tex_root)
+        graphics_paths = ana.graphics_paths()
         image_dir = os.path.normpath(os.path.split(image_url)[0])
-        if image_dir.startswith(root_dir):
-            image_insert = os.path.relpath(image_url, root_dir)
-            image_insert = image_insert.replace("\\", "/")
-            contents = template.replace("<<image_name>>", image_insert)
-            view.run_command("insert_snippet", {"contents": contents})
-            return
+        if not graphics_paths:
+            graphics_paths = [ana.tex_base_path(view.file_name())]
+        for graphics_path in graphics_paths:
+            if image_dir.startswith(graphics_path):
+                image_name = os.path.relpath(image_url, graphics_path)
+                image_name = image_name.replace("\\", "/")
+                contents = _create_image_snippet(image_name)
+                view.run_command("insert_snippet", {"contents": contents})
+                return
 
     example_name = ""
     if not offline:
