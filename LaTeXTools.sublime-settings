@@ -60,6 +60,12 @@
 	// You can still access the "table of content quickpanel" via `C-l, C-r` and  `C-shift-l, C-r`
 	"overwrite_goto_overlay": true,
 
+	// If the smart paste is enabled LaTeXTools will overwrite the C-v command and
+	// analyze the clipboard content to check whether it should execute an action.
+	// So you can just paste image urls or paths into Sublime Text and it will automatically
+	// download the image and create a figure environment.
+	"enable_smart_paste": true,
+
 	// When to trigger cwl-command completion (requires the LaTeX-cwl package)
 	// possible values are:
 	// "always" (always show command completions)
