@@ -56,6 +56,13 @@ class LatextoolsDownloadInsertImageHelperCommand(sublime_plugin.TextCommand):
         if not image_path.endswith(image_ext):
             image_path += image_ext
 
+        if os.path.exists(image_path):
+            ok = sublime.ok_cancel_dialog(
+                "Target image does already exist. Overwrite?",
+                "Overwrite!")
+            if not ok:
+                return
+
         pos = view.sel()[0].b + 1
         contents = _create_image_snippet(image_name)
         self.view.run_command("insert_snippet", {"contents": contents})
@@ -88,7 +95,7 @@ def _create_image_snippet(image_name):
     return contents
 
 
-def download_insert_image(window, view, image_url, offline=False):
+def _download_insert_image(window, view, image_url, offline=False):
     tex_root = get_tex_root(view)
     if not tex_root:
         window.run_command("paste")
@@ -157,9 +164,9 @@ class LatextoolsSmartPasteCommand(sublime_plugin.WindowCommand):
 
         maybe_image = _is_possible_image_path(content)
         if maybe_image and url_regex.match(content):
-            download_insert_image(window, view, content)
+            _download_insert_image(window, view, content)
         elif maybe_image and os.path.isfile(content):
-            download_insert_image(window, view, content, offline=True)
+            _download_insert_image(window, view, content, offline=True)
         else:
             window.run_command("paste")
 
