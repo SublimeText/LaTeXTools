@@ -93,7 +93,7 @@ def download_insert_image(window, view, image_url, offline=False):
             "Need to save the view before downloading image.")
         return
     ext = image_url.split(".")[-1]
-    caption = "Image name (.{})".format(ext)
+    caption = "Include graphics path (.{})".format(ext)
 
     def on_cancel():
         window.run_command("paste")
