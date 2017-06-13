@@ -16,6 +16,16 @@ LaTeX Package keymap for Windows
 		"command": "latextools_build_selector",
 			"args": {"select": true}},
 
+	{
+		"keys": ["ctrl+v"],
+		"command": "latextools_smart_paste",
+		"context":
+		[
+			{ "key": "selector", "operand": "text.tex.latex" },
+			{ "key": "latextools.setting.enable_smart_paste" },
+		],
+	},
+
 	// New-style keybindings use "ctrl+l" as a prefix
 	// This overrides "extend selection to line", which is remapped to
 	// "ctrl+l","ctrl+l" [?]
