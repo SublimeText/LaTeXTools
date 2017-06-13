@@ -1,10 +1,4 @@
-from __future__ import print_function
-
-import sublime
-import sublime_plugin
-
 import copy
-from functools import partial
 import os
 import re
 import signal
@@ -13,6 +7,7 @@ import sys
 import textwrap
 import threading
 import traceback
+from functools import partial
 
 try:
     from io import StringIO
@@ -20,80 +15,48 @@ except ImportError:
     # support ST2 on Linux
     from StringIO import StringIO
 
-try:
-    from latextools_plugin import (
-        add_plugin_path, get_plugin, NoSuchPluginException,
-        _classname_to_internal_name
-    )
-    from latextools_utils import get_setting
-    from latextools_utils.distro_utils import using_miktex
-    from latextools_utils.external_command import check_output
-    from latextools_utils.output_directory import (
-        get_aux_directory, get_output_directory, get_jobname
-    )
-    from latextools_utils.progress_indicator import ProgressIndicator
-    from latextools_utils.system import which
-    from latextools_utils.tex_directives import parse_tex_directives
-    from latextools_utils.sublime_utils import get_sublime_exe
-    from latextools_utils.utils import run_on_main_thread
-    from jumpToPDF import DEFAULT_VIEWERS
-    from getTeXRoot import get_tex_root
-except ImportError:
-    from .latextools_plugin import (
-        add_plugin_path, get_plugin, NoSuchPluginException,
-        _classname_to_internal_name
-    )
-    from .latextools_utils import get_setting
-    from .latextools_utils.distro_utils import using_miktex
-    from .latextools_utils.external_command import check_output
-    from .latextools_utils.output_directory import (
-        get_aux_directory, get_output_directory, get_jobname
-    )
-    from .latextools_utils.progress_indicator import ProgressIndicator
-    from .latextools_utils.system import which
-    from .latextools_utils.tex_directives import parse_tex_directives
-    from .latextools_utils.sublime_utils import get_sublime_exe
-    from .latextools_utils.utils import run_on_main_thread
-    from .jumpToPDF import DEFAULT_VIEWERS
-    from .getTeXRoot import get_tex_root
+import sublime
+import sublime_plugin
 
-_HAS_PREVIEW = sublime.version() >= '3118'
-if _HAS_PREVIEW:
-    from .st_preview.preview_utils import (
-        convert_installed, ghostscript_installed,
-        __get_gs_command as get_gs_command
-    )
+from .latextools_plugin import (
+    add_plugin_path, get_plugin, NoSuchPluginException,
+    _classname_to_internal_name
+)
+from .latextools_utils import get_setting
+from .latextools_utils.distro_utils import using_miktex
+from .latextools_utils.external_command import check_output
+from .latextools_utils.output_directory import (
+    get_aux_directory, get_output_directory, get_jobname
+)
+from .latextools_utils.progress_indicator import ProgressIndicator
+from .latextools_utils.system import which
+from .latextools_utils.tex_directives import parse_tex_directives
+from .latextools_utils.sublime_utils import get_sublime_exe
+from .latextools_utils.utils import run_on_main_thread
+from .jumpToPDF import DEFAULT_VIEWERS
+from .getTeXRoot import get_tex_root
 
-if sys.version_info >= (3,):
-    unicode = str
+from .st_preview.preview_utils import (
+    convert_installed, ghostscript_installed,
+    __get_gs_command as get_gs_command
+)
 
-    def expand_vars(texpath):
-        return os.path.expandvars(texpath)
 
-    def update_environment(old, new):
-        old.update(new.items())
+def expand_vars(texpath):
+    return os.path.expandvars(texpath)
 
-    # reraise implementation from 6
-    def reraise(tp, value, tb=None):
-        if value is None:
-            value = tp()
-        if value.__traceback__ is not tb:
-            raise value.with_traceback(tb)
-        raise value
-else:
-    def expand_vars(texpath):
-        return os.path.expandvars(texpath).encode(sys.getfilesystemencoding())
 
-    def update_environment(old, new):
-        old.update(dict(
-            (k.encode(sys.getfilesystemencoding()), v)
-            for (k, v) in new.items()
-        ))
+def update_environment(old, new):
+    old.update(new.items())
 
-    # reraise implementation from 6
-    exec("""def reraise(tp, value, tb=None):
-    raise tp, value, tb
-""")
+
+# reraise implementation from 6
+def reraise(tp, value, tb=None):
+    if value is None:
+        value = tp()
+    if value.__traceback__ is not tb:
+        raise value.with_traceback(tb)
+    raise value
 
 
 def _get_texpath(view):
@@ -291,7 +254,7 @@ def kpsewhich(file):
 
 
 def get_max_width(table, column):
-    return max(len(unicode(row[column])) for row in table)
+    return max(len(str(row[column])) for row in table)
 
 
 def tabulate(table, wrap_column=0, output=sys.stdout):
@@ -329,7 +292,7 @@ def tabulate(table, wrap_column=0, output=sys.stdout):
 
     for i in range(len(headers)):
         padding = 2 if i < len(headers) - 1 else 0
-        output.write(unicode(headers[i]).ljust(column_widths[i] + padding))
+        output.write(str(headers[i]).ljust(column_widths[i] + padding))
     output.write(u'\n')
 
     for i in range(len(headers)):
@@ -346,7 +309,7 @@ def tabulate(table, wrap_column=0, output=sys.stdout):
     for j, row in enumerate(table):
         for i in range(len(row)):
             padding = 2 if i < len(row) - 1 else 0
-            column = unicode(row[i])
+            column = str(row[i])
             if wrap_column is not None and wrap_column != 0 and \
                     len(column) > wrap_column:
                 wrapped = textwrap.wrap(column, wrap_column)
@@ -454,9 +417,8 @@ class SystemCheckThread(threading.Thread):
             'xelatex', 'lualatex', 'biber', 'bibtex', 'bibtex8', 'kpsewhich'
         ]
 
-        if _HAS_PREVIEW:
-            # ImageMagick requires gs to work with PDFs
-            programs += [['magick', 'convert']]
+        # ImageMagick requires gs to work with PDFs
+        programs += [['magick', 'convert']]
 
         for program in programs:
             if isinstance(program, list):
@@ -517,7 +479,7 @@ class SystemCheckThread(threading.Thread):
             else u'missing'
         )
 
-        if available and _HAS_PREVIEW and not ghostscript_installed():
+        if available and not ghostscript_installed():
             available_str = u'restart required'
 
         table.append([
@@ -532,7 +494,7 @@ class SystemCheckThread(threading.Thread):
         # This really only works for the default template
         # Note that no attempt is made to find other packages that the
         # included package depends on
-        if (_HAS_PREVIEW and ghostscript_installed() and
+        if (ghostscript_installed() and
                 get_setting('preview_math_template_file') is None and
                 get_setting("preview_math_mode", view=self.view) != "none"):
 

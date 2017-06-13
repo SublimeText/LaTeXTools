@@ -4,10 +4,7 @@ import sublime
 
 from functools import partial
 
-try:
-    from .utils import run_on_main_thread
-except:
-    from latextools_utils.utils import run_on_main_thread
+from .utils import run_on_main_thread
 
 __all__ = ['get_setting']
 

@@ -246,7 +246,7 @@ def find_bib_files(root):
                     if not s.endswith('.bib'):
                         s += '.bib'
                     resources.append(s)
-            # standard biblatex ocmmands
+            # standard biblatex commands
             else:
                 # bib file must be followed by .bib
                 if c.args.endswith('.bib'):
@@ -276,6 +276,21 @@ def find_bib_files(root):
             cache.LocalCache(root).set('bib_files', result)
         except:
             pass
+    # if a an additional_file is set append it to the result
+    additional_file = get_setting("additional_bibliography_file")
+    if additional_file:
+        def _make_abs_path(file_path):
+            if not file_path.endswith(".bib"):
+                file_path += ".bib"
+            if not os.path.isabs(file_path):
+                root_folder, _ = os.path.split(root)
+                file_path = os.path.join(root_folder, file_path)
+            return os.path.normpath(file_path)
+        if isinstance(additional_file, str):
+            additional_file = [additional_file]
+        additional_file = map(_make_abs_path, additional_file)
+        additional_file = filter(os.path.isfile, additional_file)
+        result = list(additional_file) + list(result)
     return result
 
 

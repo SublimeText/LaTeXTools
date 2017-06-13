@@ -45,6 +45,10 @@
 	// You can also use the toggle C-l,t,a,b
 	"smart_bracket_auto_trigger": true,
 
+	// Controls whether the labels should automatically filled with a suggestion based
+	// on the section command.
+	"auto_label_auto_trigger": true,
+
 	// Keep focus on Sublime Text after building (true) or switch to PDF viewer (false)
 	// If you are on Windows or Linux and using ST2, you may need to set the
 	// "sublime_executable" setting for this to work in your platform settings.
@@ -55,6 +59,12 @@
 	// Set this to false to disable the overwriting of the goto overlay for the hotkey `C-r` and `C-shift-r`
 	// You can still access the "table of content quickpanel" via `C-l, C-r` and  `C-shift-l, C-r`
 	"overwrite_goto_overlay": true,
+
+	// If smart paste is enabled LaTeXTools will overwrite the C-v command and
+	// analyze the clipboard content to check whether it should execute an action.
+	// So you can just paste image urls or paths into Sublime Text and it will automatically
+	// download the image and create a figure environment.
+	"enable_smart_paste": true,
 
 	// When to trigger cwl-command completion (requires the LaTeX-cwl package)
 	// possible values are:
@@ -551,6 +561,15 @@
 	//						formatting and additional fields, but may
 	//						be slower
 	"bibliography": "traditional",
+
+
+	// OPTION: "additional_bibliography_file"
+	// With this setting you can add the path to one or more additional
+	// bibliography files. You can either pass a string containing the path
+	// to the additional bibliography file or an array with several paths.
+	// The path can either be absolute or relative from the tex root.
+	// Set it to "" if you don't have an additional bibliography file.
+	"additional_bibliography_file": "",
 
 	// OPTION: "cite_panel_format"
 	// This preference sets the format of the quick panel to select citations using wildcards.

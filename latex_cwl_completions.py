@@ -1,46 +1,25 @@
 # -*- coding:utf-8 -*-
-from __future__ import unicode_literals, print_function
-
-import sublime
-import sublime_plugin
 import glob
 import os
 import re
 import threading
 
-if sublime.version() < '3000':
-    # we are on ST2 and Python 2.X
-    _ST3 = False
-    from latex_cite_completions import (
-        OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX, match
-    )
-    from latex_ref_completions import (
-        OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
-    )
-    import latex_input_completions
-    from latex_own_command_completions import (
-        get_own_command_completion, get_own_env_completion
-    )
-    from getRegion import getRegion
-    from getTeXRoot import get_tex_root
-    from latextools_utils import get_setting, analysis, utils
-    from latextools_utils.parser_utils import command_to_snippet
-else:
-    _ST3 = True
-    from .latex_cite_completions import (
-        OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX, match
-    )
-    from .latex_ref_completions import (
-        OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
-    )
-    from . import latex_input_completions
-    from .latex_own_command_completions import (
-        get_own_command_completion, get_own_env_completion
-    )
-    from .getRegion import getRegion
-    from .getTeXRoot import get_tex_root
-    from .latextools_utils import get_setting, analysis, utils
-    from .latextools_utils.parser_utils import command_to_snippet
+import sublime
+import sublime_plugin
+
+from .latex_cite_completions import (
+    OLD_STYLE_CITE_REGEX, NEW_STYLE_CITE_REGEX, match
+)
+from .latex_ref_completions import (
+    OLD_STYLE_REF_REGEX, NEW_STYLE_REF_REGEX
+)
+from . import latex_input_completions
+from .latex_own_command_completions import (
+    get_own_command_completion, get_own_env_completion
+)
+from .getTeXRoot import get_tex_root
+from .latextools_utils import get_setting, analysis, utils
+from .latextools_utils.parser_utils import command_to_snippet
 
 __all__ = ['get_cwl_completions', 'is_cwl_available']
 
@@ -247,10 +226,11 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
             return []
 
         point_before = point - len(prefix)
-        char_before = view.substr(getRegion(point_before - 1, point_before))
+        char_before = view.substr(
+            sublime.Region(point_before - 1, point_before))
         is_prefixed = char_before == "\\"
 
-        line = view.substr(getRegion(view.line(point).begin(), point))
+        line = view.substr(sublime.Region(view.line(point).begin(), point))
         line = line[::-1]
         is_env = bool(BEGIN_END_BEFORE_REGEX.match(line))
 
@@ -331,9 +311,6 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
 
         CWL_COMPLETIONS.load_completions()
 
-    if not _ST3:
-        on_activated = on_activated_async
-
 
 # -- Internal API --
 # run to see if cwl completions should be enabled
@@ -343,11 +320,10 @@ CWL_PACKAGE_PATHS = []
 def _create_cwl_packages_paths():
     global CWL_PACKAGE_PATHS
     CWL_PACKAGE_PATHS = [os.path.join(sublime.packages_path(), 'LaTeX-cwl')]
-    if _ST3:
-        # add to the front as this is most likely to exist
-        CWL_PACKAGE_PATHS.insert(0, os.path.join(
-            sublime.installed_packages_path(), 'LaTeX-cwl.sublime-package'
-        ))
+    # add to the front as this is most likely to exist
+    CWL_PACKAGE_PATHS.insert(0, os.path.join(
+        sublime.installed_packages_path(), 'LaTeX-cwl.sublime-package'
+    ))
     CWL_PACKAGE_PATHS.append(
         os.path.join(sublime.packages_path(), 'User', 'cwl'))
 
@@ -452,25 +428,13 @@ def cwl_parsing_handler(callback):
 # sublime-package file or an exploded directory; returns a tuple
 # consisting of the list of cwl files and a boolean indicating
 # whether it is in a .sublime-package file or an expanded directory
-if _ST3:
-    def get_cwl_package_files():
-        results = [
-            r for r in sublime.find_resources('*.cwl')
-            if (r.startswith('Packages/User/cwl/') or
-                r.startswith('Packages/LaTeX-cwl/'))
-        ]
-        return(results, True) if results else ([], False)
-else:
-    def get_cwl_package_files():
-        results = [
-            glob.glob(os.path.join(p, '*.cwl'))
-            for p in CWL_PACKAGE_PATHS
-        ]
-
-        # flatten the results
-        results = [i for sublist in results for i in sublist]
-
-        return (results, False)
+def get_cwl_package_files():
+    results = [
+        r for r in sublime.find_resources('*.cwl')
+        if (r.startswith('Packages/User/cwl/') or
+            r.startswith('Packages/LaTeX-cwl/'))
+    ]
+    return(results, True) if results else ([], False)
 
 
 def parse_line_as_environment(line):
@@ -541,6 +505,3 @@ def plugin_loaded():
     _create_cwl_packages_paths()
     if CWL_COMPLETIONS is None:
         CWL_COMPLETIONS = CwlCompletions()
-
-if not _ST3:
-    plugin_loaded()

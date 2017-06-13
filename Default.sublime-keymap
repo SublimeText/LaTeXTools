@@ -1,0 +1,11 @@
+[
+    {
+        "keys": ["tab"],
+        "command": "latextools_confirm_quickpanel",
+        "context":
+        [
+            { "key": "overlay_visible" },
+            { "key": "latextools.input_overlay_visible" },
+        ],
+    },
+]

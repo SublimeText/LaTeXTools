@@ -1,14 +1,7 @@
-import sublime
 import sublime_plugin
 
-_ST3 = sublime.version() >= '3000'
-
-if _ST3:
-    from .getTeXRoot import get_tex_root
-    from .latextools_utils import analysis, get_setting, quickpanel
-else:
-    from getTeXRoot import get_tex_root
-    from latextools_utils import analysis, get_setting, quickpanel
+from .getTeXRoot import get_tex_root
+from .latextools_utils import analysis, get_setting, quickpanel
 
 
 def _make_caption(toc_indentations, com, indent_offset):

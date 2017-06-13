@@ -94,7 +94,8 @@
 	"v3.13.5": "messages/v3.13.5.txt",
 	"v3.13.6": "messages/v3.13.6.txt",
 	"v3.14.0": "messages/v3.14.0.txt",
-	"st2-3.14.1": "messages/v3.14.1.txt",
-	"st3until3125-3.14.1": "messages/v3.14.1.txt",
-	"st3-3.14.1": "messages/v3.14.1.txt"
+	"st3-3.14.1": "messages/v3.14.1.txt",
+	"st3-4.0.0-alpha.0": "messages/st3-4.0.0-alpha.0.txt",
+	"st3-4.0.0-alpha.1": "messages/st3-4.0.0-alpha.1.txt",
+	"st3-4.0.0-alpha.2": "messages/st3-4.0.0-alpha.2.txt"
 }

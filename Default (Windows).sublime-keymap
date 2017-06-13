@@ -16,6 +16,16 @@ LaTeX Package keymap for Windows
 		"command": "latextools_build_selector",
 			"args": {"select": true}},
 
+	{
+		"keys": ["ctrl+v"],
+		"command": "latextools_smart_paste",
+		"context":
+		[
+			{ "key": "selector", "operand": "text.tex.latex" },
+			{ "key": "latextools.setting.enable_smart_paste" },
+		],
+	},
+
 	// New-style keybindings use "ctrl+l" as a prefix
 	// This overrides "extend selection to line", which is remapped to
 	// "ctrl+l","ctrl+l" [?]
@@ -23,7 +33,7 @@ LaTeX Package keymap for Windows
 	// pollute the standard bindings
 
 	// Reassign expand_selection to ctrl+l, ctrl+l
-	{ 	"keys": ["ctrl+l","ctrl+l"], 
+	{ 	"keys": ["ctrl+l","ctrl+l"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "expand_selection", "args": {"to": "line"} },
@@ -40,7 +50,7 @@ LaTeX Package keymap for Windows
 	},
 
 	// Insert latex command or environment, and close current environment
-	{ 	"keys": ["ctrl+l","c"], 
+	{ 	"keys": ["ctrl+l","c"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "latexcmd"},
@@ -48,7 +58,7 @@ LaTeX Package keymap for Windows
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "latexenv"},
-	{ 	"keys": ["ctrl+l","."], 
+	{ 	"keys": ["ctrl+l","."],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "latex_env_closer"},
@@ -67,11 +77,11 @@ LaTeX Package keymap for Windows
 		"command": "latex_fill_all", "args": {"completion_type": ["cite", "ref"]}},
 
 	// Fill helper command
-	{	"keys": ["ctrl+l","ctrl+f"], 
+	{	"keys": ["ctrl+l","ctrl+f"],
 		"context": [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "latex_fill_all"},
-	{	"keys": ["ctrl+l","ctrl+alt+f"], 
+	{	"keys": ["ctrl+l","ctrl+alt+f"],
 		"context": [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "latex_fill_all", "args": {"overwrite": true}},
@@ -164,57 +174,53 @@ LaTeX Package keymap for Windows
 			{"key": "lt_fill_all_directive.equal_sign", "operator": "equal", "match_all": true, "operand": true}],
 		"command": "latex_fill_all", "args": {"completion_type": "directive", "insert_char": "="}},
 
-	// Toggle autocomplete
-	{ 	"keys": ["ctrl+l","t","a", "r"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_auto", "args": {"which": "ref"}},
-	{ 	"keys": ["ctrl+l","t","a", "c"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_auto", "args": {"which": "cite"}},
-	{ 	"keys": ["ctrl+l","t","a", "f"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_auto", "args": {"which": "fill"}},
-	{ 	"keys": ["ctrl+l","t","a", "e"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_auto", "args": {"which": "env"}},
-	{ 	"keys": ["ctrl+l","t","a", "d"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_auto", "args": {"which": "tex_directive"}},
-	{ 	"keys": ["ctrl+l","t","a", "b"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_auto", "args": {"which": "smart_bracket"}},
+	// add a keybinding to auto-insert labels similar to the fill-all helper
+	{
+		"keys": ["ctrl+l","ctrl+f"],
+		"command": "latextools_auto_insert_label",
+		"context":
+		[
+			{ "key": "selector", "operand": "text.tex.latex" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\label\\{$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_match", "operand": "\\}", "match_all": true }
+
+		]
+	},
+	{
+		"keys": ["{"],
+		"command": "latextools_auto_insert_label",
+		"context":
+		[
+			{ "key": "selector", "operand": "text.tex.latex" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\label$", "match_all": true },
+			{ "key": "latextools.setting.auto_label_auto_trigger" }
+		]
+	},
 
 	// View PDF, jump to point, toggle editor/viewer focus
 	{ 	"keys": ["ctrl+l","v"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "view_pdf"},
-	{ 	"keys": ["ctrl+l","j"], 
+	{ 	"keys": ["ctrl+l","j"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "jump_to_pdf", "args": {"from_keybinding": true}},
-	{ 	"keys": ["ctrl+l","t","f"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_focus"},
-	{ 	"keys": ["ctrl+l","t","s"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_fwdsync"},
-	{ 	"keys": ["ctrl+l","t","v"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_view_on_build"},
-	{ 	"keys": ["ctrl+l","t","?"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "toggle_show"},
+	{
+		"keys": ["ctrl+l", "t", "<character>"], "command": "latextools_toggle_keys",
+		"context":
+		[
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+		],
+	},
+	{
+		"keys": ["ctrl+l", "t", "a", "<character>"], "command": "latextools_toggle_keys",
+		"args": {"prefix": "a"},
+		"context":
+		[
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+		],
+	},
 
 	// Jump to a tex file (will create the file if it does not exists)
 	{ "keys": ["ctrl+l", "ctrl+o"],
@@ -230,15 +236,15 @@ LaTeX Package keymap for Windows
 		"command": "jumpto_tex_anywhere"},
 
 	// Wrap selected text in command or environment
-	{ "keys": ["ctrl+l","ctrl+c"], 
+	{ "keys": ["ctrl+l","ctrl+c"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Wrap in command.sublime-snippet"}},
-	{ "keys": ["ctrl+l","ctrl+n"],  
+	{ "keys": ["ctrl+l","ctrl+n"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Wrap in environment.sublime-snippet"}},
-	{ "keys": ["ctrl+l","ctrl+n"],  
+	{ "keys": ["ctrl+l","ctrl+n"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true}],
@@ -250,24 +256,24 @@ LaTeX Package keymap for Windows
 		"command": "latex_change_environment"},
 
 	// Wrap selected text in emph, bold or underline
-	{ "keys": ["ctrl+l","ctrl+e"],  
+	{ "keys": ["ctrl+l","ctrl+e"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text emphasize.sublime-snippet"}},
-	{ "keys": ["ctrl+l","ctrl+b"],  
+	{ "keys": ["ctrl+l","ctrl+b"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text boldface.sublime-snippet"}},
-	{ "keys": ["ctrl+l","ctrl+u"],  
+	{ "keys": ["ctrl+l","ctrl+u"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text underline.sublime-snippet"}},
-	{ "keys": ["ctrl+l","ctrl+t"],  
+	{ "keys": ["ctrl+l","ctrl+t"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text monospace.sublime-snippet"}},
 
-	// Replace the `C-r` overlay and the `C-shift-r` overlay with a 
+	// Replace the `C-r` overlay and the `C-shift-r` overlay with a
 	// whole document overlay as opt-out
 	// Also add these overlays to `C-l, C-r` and `C-l, C-shift-r`
 	{ "keys": ["ctrl+r"], "command": "latex_toc_quickpanel",
@@ -304,8 +310,8 @@ LaTeX Package keymap for Windows
 		// Lifted from default file
 	// insert matching $
 	// note the "key": "selector" line!
-	{ "keys": ["$"], "command": "insert_snippet", "args": {"contents": "\\$$0\\$"}, 
-	"context":  
+	{ "keys": ["$"], "command": "insert_snippet", "args": {"contents": "\\$$0\\$"},
+	"context":
 		[
 			{ "key": "setting.command_mode", "operator": "equal", "operand": false },
 			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex" },
@@ -316,13 +322,13 @@ LaTeX Package keymap for Windows
 			// don't insert, it inside math environments
 			{ "key": "selector", "operator": "not_equal", "operand": "meta.environment.math, string.other.math", "match_all": true },
 			// don't insert, if there is an open dollar math environment at the end of the line
-			{ "key": "eol_selector", "operator": "not_equal", 
+			{ "key": "eol_selector", "operator": "not_equal",
 			  "operand": "meta.environment.math.inline.dollar - punctuation.definition.string.end, string.other.math - punctuation.definition.string.end",
 			  "match_all": true }
-		] 
+		]
 	},
 	// fully close $$ environments
-	{ "keys": ["$"], "command": "insert", "args": {"characters": "$$"}, 
+	{ "keys": ["$"], "command": "insert", "args": {"characters": "$$"},
 	"context":
 		[
 			{ "key": "setting.command_mode", "operator": "equal", "operand": false },
@@ -344,7 +350,7 @@ LaTeX Package keymap for Windows
 	},
 	// move over closing $
 	{ "keys": ["$"], "command": "move", "args": {"by": "characters", "forward": true}, "context":
-		[	
+		[
 			{ "key": "setting.command_mode", "operator": "equal", "operand": false },
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
@@ -365,8 +371,8 @@ LaTeX Package keymap for Windows
 
 		// overlay specifications (Tobias Schmidt)
 	// FIXME: the scope for the four following should actually be text.tex.latex.beamer, but for some reason this does not seem to work
-	{ "keys": ["<"], "command": "insert_snippet", "args": {"contents": "<${1:+-}>$0"}, 
-	"context":  
+	{ "keys": ["<"], "command": "insert_snippet", "args": {"contents": "<${1:+-}>$0"},
+	"context":
 		[
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - (string.other.math, meta.environment.math)"},
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
@@ -384,7 +390,7 @@ LaTeX Package keymap for Windows
 	},
 	// move over closing >
 	{ "keys": [">"], "command": "move", "args": {"by": "characters", "forward": true}, "context":
-		[	
+		[
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
@@ -452,8 +458,8 @@ LaTeX Package keymap for Windows
 
 	// shift+super+{up,down} for super/subscripts with braces
 	// (courtesy of Tobias Schmidt; I only changed the keybindings)
-	{ "keys": ["shift+super+down"], "command": "insert_snippet", "args": {"contents": "_{$1}$0"}, 
-	"context":  
+	{ "keys": ["shift+super+down"], "command": "insert_snippet", "args": {"contents": "_{$1}$0"},
+	"context":
 		[
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex string.other.math"},
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
@@ -461,8 +467,8 @@ LaTeX Package keymap for Windows
 		]
 	},
 
-	{ "keys": ["shift+super+up"], "command": "insert_snippet", "args": {"contents": "^{$1}$0"}, 
-	"context":  
+	{ "keys": ["shift+super+up"], "command": "insert_snippet", "args": {"contents": "^{$1}$0"},
+	"context":
 		[
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex string.other.math"},
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
@@ -472,12 +478,12 @@ LaTeX Package keymap for Windows
 
 
 	// ctrl+l,backspace to remove temporary files
-	{ 	"keys": ["ctrl+l","backspace"], 
+	{ 	"keys": ["ctrl+l","backspace"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "delete_temp_files"},
 	// Delete/clear local Cache
-	{ 	"keys": ["ctrl+l","ctrl+d","ctrl+c"], 
+	{ 	"keys": ["ctrl+l","ctrl+d","ctrl+c"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "clear_local_latex_cache"},
