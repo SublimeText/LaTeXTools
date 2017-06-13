@@ -877,8 +877,7 @@ class LatexFillAllCommand(
     '''
 
     def is_visible(self, *args):
-        view = self.window.active_view()
-        return bool(view.score_selector(0, "text.tex.latex"))
+        return bool(self.view.score_selector(0, "text.tex.latex"))
 
     def run(
         self, edit, completion_type=None, insert_char="", overwrite=False,
