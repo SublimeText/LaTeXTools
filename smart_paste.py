@@ -162,10 +162,14 @@ class LatextoolsSmartPasteCommand(sublime_plugin.WindowCommand):
         if sublime.platform() == "windows":
             content = content.strip('"')
 
+        is_empty_line = all(
+            view.substr(not view.line(sel.b)).strip()
+            for sel in view.sel())
         maybe_image = _is_possible_image_path(content)
-        if maybe_image and url_regex.match(content):
+
+        if is_empty_line and maybe_image and url_regex.match(content):
             _download_insert_image(window, view, content)
-        elif maybe_image and os.path.isfile(content):
+        elif is_empty_line and maybe_image and os.path.isfile(content):
             _download_insert_image(window, view, content, offline=True)
         else:
             window.run_command("paste")
