@@ -882,8 +882,8 @@ class LatexFillAllCommand(
         force the completion for some specific scope as `input` or `cite`.
         Therefore we must to ignore the multi selection, otherwise it will
         ignore the input scope specified
-        the accepted values start on 0 for the first selection, 1 for the second
-        and etc. They must to be lower then the maximum selections, otherwise
+        the accepted values start on 1 for the first selection, 2 for the second
+        and etc. They must to be lower then the maximum selections + 1, otherwise
         this setting will be ignored.
     '''
 
@@ -903,11 +903,13 @@ class LatexFillAllCommand(
             return
 
         # initialize the `point` variable to a proper value, to be used later
-        if single_selection and single_selection > -1 and single_selection < selections_len:
-            point = selections[single_selection].b
-            if not view.score_selector(point, "text.tex.latex"):
-                self.complete_brackets(view, edit, insert_char)
-                return
+        if single_selection:
+            single_selection -= 1
+            if single_selection > -1 and single_selection < selections_len:
+                point = selections[single_selection].b
+                if not view.score_selector(point, "text.tex.latex"):
+                    self.complete_brackets(view, edit, insert_char)
+                    return
         else:
             for sel in selections:
                 point = sel.b
