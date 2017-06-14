@@ -876,11 +876,15 @@ class LatexFillAllCommand(
         is disabled
 
     :param single_selection:
-        boolean indicating whether or not to ignore multiple cursors/carets on
-        the text. This is useful when creating a snippet which defaults to
-        creating multiple carets/cursors and want to force the completion for
-        some specific scope as `input` or `cite`. Therefore we must to ignore
-        the multi selection, otherwise it will ignore the input scope specified
+        positive integer indicating to ignore multiple cursors/carets on the
+        text and use one specific selection point. This is useful when creating
+        a snippet which defaults to creating multiple carets/cursors and want to
+        force the completion for some specific scope as `input` or `cite`.
+        Therefore we must to ignore the multi selection, otherwise it will
+        ignore the input scope specified
+        the accepted values start on 0 for the first selection, 1 for the second
+        and etc. They must to be lower then the maximum selections, otherwise
+        this setting will be ignored.
     '''
 
     def is_visible(self, *args):
@@ -888,21 +892,25 @@ class LatexFillAllCommand(
 
     def run(
         self, edit, completion_type=None, insert_char="", overwrite=False,
-        force=False, single_selection=False
+        force=False, single_selection=-1
     ):
         view = self.view
         selections = view.sel()
+        selections_len = len(selections)
 
         # initialize the `point` variable to a proper value, to be used later
-        if len( selections ):
-            for sel in selections:
-                point = sel.b
+        if selections_len:
+            if single_selection > -1 and single_selection < selections_len:
+                point = selections[single_selection].b
                 if not view.score_selector(point, "text.tex.latex"):
                     self.complete_brackets(view, edit, insert_char)
                     return
-
-                if single_selection:
-                    break
+            else:
+                for sel in selections:
+                    point = sel.b
+                    if not view.score_selector(point, "text.tex.latex"):
+                        self.complete_brackets(view, edit, insert_char)
+                        return
         else:
             # No selections? What?
             return
