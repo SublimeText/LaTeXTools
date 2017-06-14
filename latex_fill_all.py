@@ -892,28 +892,28 @@ class LatexFillAllCommand(
 
     def run(
         self, edit, completion_type=None, insert_char="", overwrite=False,
-        force=False, single_selection=-1
+        force=False, single_selection=None
     ):
         view = self.view
         selections = view.sel()
         selections_len = len(selections)
 
+        # No selections? What?
+        if not selections_len:
+            return
+
         # initialize the `point` variable to a proper value, to be used later
-        if selections_len:
-            if single_selection > -1 and single_selection < selections_len:
-                point = selections[single_selection].b
+        if single_selection and single_selection > -1 and single_selection < selections_len:
+            point = selections[single_selection].b
+            if not view.score_selector(point, "text.tex.latex"):
+                self.complete_brackets(view, edit, insert_char)
+                return
+        else:
+            for sel in selections:
+                point = sel.b
                 if not view.score_selector(point, "text.tex.latex"):
                     self.complete_brackets(view, edit, insert_char)
                     return
-            else:
-                for sel in selections:
-                    point = sel.b
-                    if not view.score_selector(point, "text.tex.latex"):
-                        self.complete_brackets(view, edit, insert_char)
-                        return
-        else:
-            # No selections? What?
-            return
 
         # if completion_type is a simple string, try to load it
         if isinstance(completion_type, str):
