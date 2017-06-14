@@ -874,6 +874,13 @@ class LatexFillAllCommand(
         insert an entry; if force is true, completion_type must be a string;
         if force is true, the bracket matching and word overwriting behaviour
         is disabled
+
+    :param single_selection:
+        boolean indicating whether or not to ignore multiple cursors/carets on
+        the text. This is useful when creating a snippet which defaults to
+        creating multiple carets/cursors and want to force the completion for
+        some specific scope as `input` or `cite`. Therefore we must to ignore
+        the multi selection, otherwise it will ignore the input scope specified
     '''
 
     def is_visible(self, *args):
@@ -881,15 +888,24 @@ class LatexFillAllCommand(
 
     def run(
         self, edit, completion_type=None, insert_char="", overwrite=False,
-        force=False
+        force=False, single_selection=False
     ):
         view = self.view
+        selections = view.sel()
 
-        for sel in view.sel():
-            point = sel.b
-            if not view.score_selector(point, "text.tex.latex"):
-                self.complete_brackets(view, edit, insert_char)
-                return
+        # initialize the `point` variable to a proper value, to be used later
+        if len( selections ):
+            for sel in selections:
+                point = sel.b
+                if not view.score_selector(point, "text.tex.latex"):
+                    self.complete_brackets(view, edit, insert_char)
+                    return
+
+                if single_selection:
+                    break
+        else:
+            # No selections? What?
+            return
 
         # if completion_type is a simple string, try to load it
         if isinstance(completion_type, str):
