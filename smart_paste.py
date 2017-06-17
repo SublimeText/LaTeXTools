@@ -167,7 +167,7 @@ class LatextoolsSmartPasteCommand(sublime_plugin.WindowCommand):
             content = content.strip('"')
 
         is_empty_line = all(
-            view.substr(not view.line(sel.b)).strip()
+            not view.substr(view.line(sel.b)).strip()
             for sel in view.sel())
         maybe_image = _is_possible_image_path(content)
 
