@@ -19,6 +19,20 @@ operator_map = {
 
 
 class LatextoolsContextListener(sublime_plugin.EventListener):
+    """
+    Central context provider for latextools.-contexts
+    each context method is prefixed with _ctx_contextname where
+    contextname comes from latextools.contextname[.keys]
+
+    The method can have the fields:
+    foreach (false):
+        whether the method should be called for each sel
+    consume_operand (false):
+        whether the method should be compared the operand or True
+        Nonetheless it will be compared to the string of the operator is
+        "equal" or "not equal"
+    """
+
     def on_query_context(self, view, key, operator, operand, match_all):
         if not key.startswith("latextools."):
             return
@@ -39,26 +53,60 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
         try:
             foreach = context_method.foreach
         except AttributeError:
-            foreach = True
+            foreach = False
 
-        op = operator_map[operator]
+        consume_operand = False
+        if operator in (sublime.OP_EQUAL, sublime.OP_NOT_EQUAL):
+            try:
+                consume_operand = context_method.consume_operand
+            except AttributeError:
+                pass
+
         keys = key_array[2:]
-        if foreach:
+        op = operator_map[operator]
+        kwargs = {
+            "view": view,
+            "operator": operator,
+            "operand": operand,
+            "keys": keys,
+            "consume_operand": consume_operand,
+        }
+        compare_operand = operand if not consume_operand else True
+        if not foreach:
+            result = op(compare_operand, context_method(**kwargs))
+        else:
             quantor = all if match_all else any
             result = quantor(
-                op(operand, context_method(view, sel, keys))
+                op(compare_operand, context_method(sel=sel, **kwargs))
                 for sel in view.sel()
             )
-        else:
-            result = op(operand, context_method(view, keys))
 
-        return result
+        return bool(result)
 
-    def _ctx_setting(self, view, keys, *args, **kwargs):
+    def _ctx_setting(self, view, keys, **kwargs):
         return get_setting(keys[0], view=view)
-    _ctx_setting.foreach = False
 
-    def _ctx_documentclass(self, view, *args, **kwargs):
+    def _ctx_st_version(self, operand, consume_operand, **kwargs):
+        st_version = sublime.version()
+        if not consume_operand:
+            return st_version
+
+        if operand[0:1] in "<>=":
+            i = 1 if operand[1:2] != "=" else 2
+            comp_str, operand = operand[:i], operand[i:]
+            compare = {
+                "<": opi.lt,
+                ">": opi.gt,
+                "<=": opi.le,
+                ">=": opi.ge
+            }.get(comp_str, opi.eq)
+        else:
+            compare = opi.eq
+        result = compare(st_version, operand.strip())
+        return result
+    _ctx_st_version.consume_operand = True
+
+    def _ctx_documentclass(self, view, **kwargs):
         cache_key = "latextools.context.documentclass"
         doc_class = view.settings().get(cache_key)
         if not doc_class:
@@ -70,12 +118,11 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
             if doc_class:
                 view.settings().set(cache_key, doc_class)
         return doc_class
-    _ctx_documentclass.foreach = False
 
-    def _ctx_usepackage(self, *args, **kwargs):
+    def _ctx_usepackage(self, **kwargs):
         print("LaTeXTools context 'usedpackage' not implemented")
         pass
 
-    def _ctx_env_selector(self, view, sel, keys, *args, **kwargs):
+    def _ctx_env_selector(self, view, sel, keys, **kwargs):
         print("LaTeXTools context 'env_selector' not implemented")
         pass
