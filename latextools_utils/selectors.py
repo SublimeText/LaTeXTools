@@ -69,6 +69,7 @@ class _Operator():
         return "[{}]".format(self._symbol)
 
 
+# format - symbol: (precedence, is_right_assoc, evaluation_function)
 _operators = {
     ",": (200, False, lambda left, right: left() or right()),
     "|": (200, False, lambda left, right: left() or right()),
