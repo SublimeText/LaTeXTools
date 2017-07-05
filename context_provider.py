@@ -142,21 +142,29 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
         search_end = pos
         for env in reversed(envs):
             # create the search regex
-            add_star = not env.endswith("!")
+            star = {
+                env.endswith("!"): "",
+                env.endswith("*"): r"\*",
+            }.get(True, r"\*?")
             env = env.rstrip("*!")
-            benv = (
-                r"\\begin(?:\[[^\]]\])?{{{}{}}}"
-                .format(env, r"\*?" if add_star else "")
-            )
+            benv = r"\\begin(?:\[[^\]]\])?{{{}{}}}".format(env, star)
+            eenv = r"\\end{{{}{}}}".format(env, star)
+
             # search for the regions in the document
-            regions = view.find_all(benv)
-            # update the end of the search to the begin of this
-            # environment. If there is not such a position return
-            # False to indicate that the environment does not match
-            try:
-                search_end = max(r.a for r in regions if r.a < search_end)
-            except ValueError:
+            regions = [r.a for r in view.find_all(benv) if r.b < search_end]
+            # if there is no \begin we are not inside the environment
+            if not regions:
                 return False
+            closed_regions = len(
+                r for r in view.find_all(eenv) if r.b < search_end)
+            # if we have closed as many (or more?) environments as we opened
+            # we are not inside the environment
+            if len(regions) <= closed_regions:
+                return False
+
+            # update the end if the search to the start of the closest
+            # environment
+            search_end = regions[-1]
         # if this position is reaching each environment has been found
         # -> return True to indicate that it matches
         return True
