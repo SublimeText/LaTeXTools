@@ -1,3 +1,4 @@
+from functools import partial
 import operator as opi
 import re
 
@@ -6,6 +7,7 @@ import sublime_plugin
 
 from .latextools_utils import analysis
 from .latextools_utils.settings import get_setting
+from .latextools_utils.selectors import build_ast, match_selector
 
 
 operator_map = {
@@ -70,6 +72,7 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
             "operand": operand,
             "keys": keys,
             "consume_operand": consume_operand,
+            "state": {},
         }
         compare_operand = operand if not consume_operand else True
         if not foreach:
@@ -123,6 +126,37 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
         print("LaTeXTools context 'usedpackage' not implemented")
         pass
 
-    def _ctx_env_selector(self, view, sel, keys, **kwargs):
-        print("LaTeXTools context 'env_selector' not implemented")
-        pass
+    def _ctx_env_selector(self, view, sel, operand, state, **kwargs):
+        # we use the state to store the ast
+        try:
+            ast = state["ast"]
+        except KeyError:
+            ast = state["ast"] = build_ast(operand)
+        res = match_selector(ast, partial(self._inside_envs, view, sel.b))
+        return res
+    _ctx_env_selector.consume_operand = True
+    _ctx_env_selector.foreach = True
+
+    def _inside_envs(self, view, pos, envs):
+        # for each environment search for the closest begin command
+        search_end = pos
+        for env in reversed(envs):
+            # create the search regex
+            add_star = not env.endswith("!")
+            env = env.rstrip("*!")
+            benv = (
+                r"\\begin(?:\[[^\]]\])?{{{}{}}}"
+                .format(env, r"\*?" if add_star else "")
+            )
+            # search for the regions in the document
+            regions = view.find_all(benv)
+            # update the end of the search to the begin of this
+            # environment. If there is not such a position return
+            # False to indicate that the environment does not match
+            try:
+                search_end = max(r.a for r in regions if r.a < search_end)
+            except ValueError:
+                return False
+        # if this position is reaching each environment has been found
+        # -> return True to indicate that it matches
+        return True
