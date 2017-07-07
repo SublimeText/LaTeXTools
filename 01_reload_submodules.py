@@ -129,6 +129,8 @@ def plugin_unloaded():
         mod = MOD_PREFIX + module
         try:
             sys.modules[mod].plugin_unloaded()
+        except KeyError:
+            pass
         except AttributeError:
             pass
 

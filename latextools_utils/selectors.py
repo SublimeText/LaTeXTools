@@ -29,7 +29,8 @@ import string
 
 
 class Ast():
-    pass
+    def __ne__(self, other):
+        return not self == other
 
 
 class AstNode(Ast):
@@ -38,6 +39,11 @@ class AstNode(Ast):
         self.left = left
         self.right = right
 
+    def __eq__(self, other):
+        return (
+            isinstance(other, self.__class__) and self.op == other.op and
+            self.left == other.left and self.right == other.right)
+
     def __repr__(self):
         return "({op} {left} {right})".format(**self.__dict__)
 
@@ -45,6 +51,9 @@ class AstNode(Ast):
 class AstLeaf(Ast):
     def __init__(self, value):
         self.value = value
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.value == other.value
 
     def __repr__(self):
         return self.value
@@ -98,14 +107,16 @@ def _parse_selector(selector):
     last_was_normal = False
 
     token = lex.get_token()
+    last_token = None
     while token:
         is_normal = is_normal_token(token)
         if last_was_normal and is_normal:
             tokens.append(" ")
-        elif not last_was_normal and is_operator(token):
+        elif last_token in (None, "(") and is_operator(token):
             tokens.append("")
         tokens.append(token)
         last_was_normal = is_normal
+        last_token = token
         token = lex.get_token()
     return tokens
 
@@ -160,7 +171,9 @@ def _build_ast(postfix_list):
 
 def build_ast(selector):
     tokens = _parse_selector(selector)
+    print("tokens:", tokens)
     postfix_list = _convert_infix_to_postfix(tokens)
+    print("postfix_list:", postfix_list)
     ast = _build_ast(postfix_list)
     return ast
 
