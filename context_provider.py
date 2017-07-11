@@ -114,6 +114,8 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
         doc_class = view.settings().get(cache_key)
         if not doc_class:
             ana = analysis.get_analysis(view)
+            if not ana:
+                return ""
             com = ana.filter_commands("documentclass")
             if not com:
                 return ""
@@ -155,8 +157,8 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
             # if there is no \begin we are not inside the environment
             if not regions:
                 return False
-            closed_regions = len(
-                r for r in view.find_all(eenv) if r.b < search_end)
+            closed_regions = len(list(
+                r for r in view.find_all(eenv) if r.b < search_end))
             # if we have closed as many (or more?) environments as we opened
             # we are not inside the environment
             if len(regions) <= closed_regions:
