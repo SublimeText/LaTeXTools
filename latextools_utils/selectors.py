@@ -98,26 +98,33 @@ def _parse_selector(selector):
         return token in _op_map
 
     def is_normal_token(token):
+        if token is None:
+            return False
         return _RE_IS_NORMAL.match(token)
 
     lex = shlex.shlex(selector)
     lex.wordchars = _WORDCHARS
 
     tokens = []
-    last_was_normal = False
 
     token = lex.get_token()
     last_token = None
     while token:
-        is_normal = is_normal_token(token)
-        if last_was_normal and is_normal:
+        # if two normal tokens are behind each other add a " "-operator
+        if is_normal_token(last_token) and is_normal_token(token):
             tokens.append(" ")
-        elif last_token in (None, "(") and is_operator(token):
+        # if a operator is missing its lhs add an empty-token
+        elif ((last_token in (None, "(") or is_operator(last_token)) and
+                (is_operator(token) or token == ")")):
             tokens.append("")
         tokens.append(token)
-        last_was_normal = is_normal
         last_token = token
         token = lex.get_token()
+    # if no token was given we add an empty token
+    if not tokens:
+        tokens = [""]
+    elif is_operator(tokens[-1]):
+        tokens.append("")
     return tokens
 
 

@@ -13,6 +13,11 @@ class BuildAstTest(TestCase):
     def tearDown(self):
         pass
 
+    def test_empty(self):
+        selector = ""
+        ast = Leaf("")
+        self.assertEqual(ast, build_ast(selector))
+
     def test_simple(self):
         selector = "equation"
         ast = Leaf("equation")
@@ -36,6 +41,75 @@ class BuildAstTest(TestCase):
                 " ",
                 Leaf("list"),
                 Leaf("equation")
+            )
+        )
+        self.assertEqual(ast, build_ast(selector))
+
+    def test_fill_empty1(self):
+        selector = "- test"
+        ast = Node(
+            "-",
+            Leaf(""),
+            Leaf("test")
+        )
+        self.assertEqual(ast, build_ast(selector))
+
+    def test_fill_empty2(self):
+        selector = "- (- b)"
+        ast = Node(
+            "-",
+            Leaf(""),
+            Node(
+                "-",
+                Leaf(""),
+                Leaf("b")
+            )
+        )
+        self.assertEqual(ast, build_ast(selector))
+
+    def test_fill_empty3(self):
+        selector = "a, - b"
+        ast = Node(
+            ",",
+            Leaf("a"),
+            Node(
+                "-",
+                Leaf(""),
+                Leaf("b")
+            )
+        )
+        self.assertEqual(ast, build_ast(selector))
+
+    def test_fill_empty4(self):
+        selector = "a, &"
+        ast = Node(
+            ",",
+            Leaf("a"),
+            Node(
+                "&",
+                Leaf(""),
+                Leaf("")
+            )
+        )
+        self.assertEqual(ast, build_ast(selector))
+
+    def test_fill_empty5(self):
+        selector = "a, - b & (d, )"
+        ast = Node(
+            ",",
+            Leaf("a"),
+            Node(
+                "&",
+                Node(
+                    "-",
+                    Leaf(""),
+                    Leaf("b")
+                ),
+                Node(
+                    ",",
+                    Leaf("d"),
+                    Leaf("")
+                )
             )
         )
         self.assertEqual(ast, build_ast(selector))
