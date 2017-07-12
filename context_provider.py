@@ -138,14 +138,15 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
             return ",".join(packages)
     _ctx_usepackage.consume_operand = True
 
-    def _ctx_env_selector(self, view, sel, operand, state, **kwargs):
+    def _ctx_env_selector(self, view, sel, operand, **kwargs):
         # we use the state to store the ast
         try:
-            ast = state["ast"]
+            ast = self._env_ast_cache[operand]
         except KeyError:
-            ast = state["ast"] = build_ast(operand)
+            ast = self._env_ast_cache[operand] = build_ast(operand)
         res = match_selector(ast, partial(self._inside_envs, view, sel.b))
         return res
+    _env_ast_cache = {}
     _ctx_env_selector.consume_operand = True
     _ctx_env_selector.foreach = True
 
