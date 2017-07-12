@@ -56,10 +56,32 @@ class ContextTest(TestCase):
     def test_documentclass(self):
         ctx = "latextools.documentclass"
         self.set_content("\\documentclass{article}")
-        # self.assertTrue(self.query_context(
-        #     ctx, operator=sublime.OP_REGEX_MATCH, operand="article|beamer"))
-        # self.assertTrue(self.query_context(ctx, operand="article"))
+        self.assertTrue(self.query_context(
+            ctx, operator=sublime.OP_REGEX_MATCH, operand="article|beamer"))
+        self.assertTrue(self.query_context(ctx, operand="article"))
         self.assertFalse(self.query_context(ctx, operand="beamer"))
+
+    def test_usepackage(self):
+        ctx = "latextools.usepackage"
+        content = sublime.load_resource(
+            "Packages/LaTeXTools/tests/test_context_document.tex")
+        self.set_content(content)
+        self.assertTrue(self.query_context(ctx, operand="babel"))
+        self.assertTrue(self.query_context(ctx, operand="amsmath"))
+        self.assertFalse(self.query_context(ctx, operand="amsfonts"))
+
+        operand = "\\b(mathtools|amsmath)\\b"
+        self.assertTrue(self.query_context(
+            ctx, operator=sublime.OP_REGEX_CONTAINS, operand=operand))
+
+        self.assertTrue(self.query_context(ctx, operand="xcolor"))
+        self.assertFalse(self.query_context(ctx, operand="color"))
+        operand = "\\bx?color\\b"
+        self.assertTrue(self.query_context(
+            ctx, operator=sublime.OP_REGEX_CONTAINS, operand=operand))
+        operand = "\\bx?color\\b"
+        self.assertFalse(self.query_context(
+            ctx, operator=sublime.OP_NOT_REGEX_CONTAINS, operand=operand))
 
     def test_env_selector(self):
         ctx = "latextools.env_selector"
