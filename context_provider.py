@@ -110,18 +110,13 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
     _ctx_st_version.consume_operand = True
 
     def _ctx_documentclass(self, view, **kwargs):
-        cache_key = "latextools.context.documentclass"
-        doc_class = view.settings().get(cache_key)
-        if not doc_class:
-            ana = analysis.get_analysis(view)
-            if not ana:
-                return ""
-            com = ana.filter_commands("documentclass")
-            if not com:
-                return ""
-            doc_class = com[0].args
-            if doc_class:
-                view.settings().set(cache_key, doc_class)
+        ana = analysis.get_analysis(view)
+        if not ana:
+            return ""
+        com = ana.filter_commands("documentclass")
+        if not com:
+            return ""
+        doc_class = com[0].args
         return doc_class
 
     def _ctx_usepackage(self, view, consume_operand, operand, **kwargs):
