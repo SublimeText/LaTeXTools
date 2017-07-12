@@ -124,9 +124,24 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
                 view.settings().set(cache_key, doc_class)
         return doc_class
 
-    def _ctx_usepackage(self, **kwargs):
-        print("LaTeXTools context 'usedpackage' not implemented")
-        pass
+    def _ctx_usepackage(self, view, consume_operand, operand, **kwargs):
+        falsity = False if consume_operand else ""
+        ana = analysis.get_analysis(view)
+        if not ana:
+            return falsity
+        com = ana.filter_commands("usepackage")
+        if not com:
+            return falsity
+        packages = [
+            p.strip()
+            for c in com
+            for p in c.args.split(",")
+        ]
+        if consume_operand:
+            return operand in packages
+        else:
+            return ",".join(packages)
+    _ctx_usepackage.consume_operand = True
 
     def _ctx_env_selector(self, view, sel, operand, state, **kwargs):
         # we use the state to store the ast

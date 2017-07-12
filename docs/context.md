@@ -32,14 +32,18 @@ You can use the key `latextools.setting.setting_name` to check for a setting set
 This can be used to check the version of Sublime Text in the `"operand"`, e.g. `"<=3114"`. This is mainly internally used to keep backward compatibility.
 
 
-## `documentclass` 
+## `documentclass`
 
 You can use the documentclass context to check the for the documentclass of your current document. You can pass the class as the `"operand"`. However if you want to check for different classes you can also use regular expressions.
 E.g. `"operator": "regex_match"` and `"operand": "^(scrartcl|article)$"` to have either the class scrartcl or article.
 
 
-## `env_selector`
+## `usepackage`
 
+The usepackage context can be used to check for the used packages in the document. Just use the package name as operand, e.g. `"operand": "amsmath"`. If you want to check several packages at once you can just use a regex, e.g. `"operator": "regex_contains"` and `"operand": "\\b(amsmath|mathtools)\\b"` to check for either the package amsmath or mathtools.
+
+
+## `env_selector`
 
 Have you ever thought: "The scope selectors are nice, but I would like to have the same for arbitrary LaTeX environment"? With the `latextools.env_selector` context you can use the same syntax for environment. As with `selector` you can define the environment (instead of the scopes) in the operand and combine them with operators (increasing precedence):
 
