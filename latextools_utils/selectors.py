@@ -89,7 +89,7 @@ _operators = {
 _op_map = {k: _Operator(k, *v[:2]) for k, v in _operators.items()}
 _eval_map = {k: v[2] for k, v in _operators.items() if v[2] is not None}
 
-_WORDCHARS = string.ascii_lowercase + ".*!"
+_WORDCHARS = string.ascii_lowercase + ".*!^$_"
 _RE_IS_NORMAL = re.compile(r"^[" + re.escape(_WORDCHARS) + r"]+$")
 
 

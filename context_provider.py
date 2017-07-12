@@ -144,6 +144,10 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
         search_end = pos
         for env in reversed(envs):
             # create the search regex
+            only_nearest = False
+            if env.endswith("^"):
+                env = env[:-1]
+                only_nearest = True
             star = {
                 env.endswith("!"): "",
                 env.endswith("*"): r"\*",
@@ -152,8 +156,13 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
             benv = r"\\begin(?:\[[^\]]\])?{{{}{}}}".format(env, star)
             eenv = r"\\end{{{}{}}}".format(env, star)
 
+            if only_nearest:
+                real_benv = benv
+                benv = r"\\begin(?:\[[^\]]\])?{[^\}]+}"
+                eenv = r"\\end{[^\}]+}"
+
             # search for the regions in the document
-            regions = [r.a for r in view.find_all(benv) if r.b < search_end]
+            regions = [r for r in view.find_all(benv) if r.b < search_end]
             # if there is no \begin we are not inside the environment
             if not regions:
                 return False
@@ -164,9 +173,15 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
             if len(regions) <= closed_regions:
                 return False
 
+            # if we only have the nearest environment check that the
+            # nearest environment is the correct one
+            if (only_nearest and
+                    not re.match(real_benv, view.substr(regions[-1]))):
+                return False
+
             # update the end if the search to the start of the closest
             # environment
-            search_end = regions[-1]
+            search_end = regions[-1].a
         # if this position is reaching each environment has been found
         # -> return True to indicate that it matches
         return True

@@ -70,6 +70,8 @@ class ContextTest(TestCase):
         self.assertTrue(self.query_context(ctx, operand=""))
         self.assertTrue(self.query_context(ctx, operand=", none"))
         self.assertTrue(self.query_context(ctx, operand="document"))
+        self.assertTrue(self.query_context(ctx, operand="document!"))
+        self.assertTrue(self.query_context(ctx, operand="document^"))
         self.assertTrue(self.query_context(ctx, operand="-(align, equation)"))
 
         self.set_sel(self.view.find(r"<2>", 0))
@@ -89,6 +91,17 @@ class ContextTest(TestCase):
         self.assertFalse(self.query_context(ctx, operand=operand))
         operand = "document itemize env, itemize itemize - enumerate itemize"
         self.assertTrue(self.query_context(ctx, operand=operand))
+
+        operand = "description^"
+        self.assertTrue(self.query_context(ctx, operand=operand))
+        operand = "description!^"
+        self.assertTrue(self.query_context(ctx, operand=operand))
+        operand = "document enumerate^ description^"
+        self.assertTrue(self.query_context(ctx, operand=operand))
+        operand = "itemize^ enumerate"
+        self.assertTrue(self.query_context(ctx, operand=operand))
+        operand = "itemize^ enumerate^"
+        self.assertFalse(self.query_context(ctx, operand=operand))
 
         self.set_sel(self.view.find(r"<1>", 0))
         self.view.sel().add(self.view.find(r"<2>", 0))

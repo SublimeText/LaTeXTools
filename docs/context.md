@@ -49,6 +49,6 @@ Have you ever thought: "The scope selectors are nice, but I would like to have t
 - `-` "without" The caret must be inside the left, but not inside the right environment/selector
 - ` ` (whitespace) "nested and" The caret must be inside the left and the right environment with the same order. For technical reasons you must use environment as lhs and rhs and can't use parens at that position
 
-You can add a `*` to an environment to indicate that the star must be present and a `!` to indicate, that it must not be present.
+You can add a `*` to an environment to indicate that the star must be present and a `!` to indicate, that it must not be present. In addition you can add an `^` anchor to indicate that an environment should be the closest one.
 
-E.g. You can create a keybinding, which is valid inside a `list` or `mylist` environment, but not if there is an additional surrounding `enumerate` environment: `(list, mylist) - enumerate`
+E.g. You can create a keybinding, which is valid inside a `list` or `mylist` environment, but not if there is an additional surrounding `enumerate` environment close to the caret: `(list, mylist) - enumerate^`
