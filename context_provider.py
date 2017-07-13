@@ -196,3 +196,66 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
         # if this position is reaching each environment has been found
         # -> return True to indicate that it matches
         return True
+
+    def _ctx_command_selector(self, view, sel, operand, **kwargs):
+        # we use the state to store the ast
+        try:
+            ast = self._command_ast_cache[operand]
+        except KeyError:
+            ast = self._command_ast_cache[operand] = build_ast(operand)
+        res = match_selector(ast, partial(self._inside_coms, view, sel.b))
+        return res
+    _command_ast_cache = {}
+    _ctx_command_selector.consume_operand = True
+    _ctx_command_selector.foreach = True
+
+    def _inside_coms(self, view, pos, coms):
+        # TODO threshold?
+        command_re = analysis._RE_COMMAND
+        args_index = command_re.groupindex["args"]
+        text = view.substr(sublime.Region(0, view.size()))
+        inside_commands = []
+
+        # get all surrounding commands (search for commands in the args)
+        text_pos = pos
+        while text:
+            try:
+                command_match = next(
+                    c for c in command_re.finditer(text)
+                    if c.start() < text_pos and text_pos < c.end()
+                )
+            except StopIteration:
+                break
+            command = command_match.group("command")
+            text = command_match.group(args_index)
+            text_pos = pos - command_match.regs[args_index][0]
+            has_star = bool(command_match.group("star"))
+            # append the command name to the surrounding commands
+            inside_commands.append((command, has_star))
+
+        # goto over all search commands
+        for com in reversed(coms):
+            only_nearest = False
+            if com.endswith("^"):
+                com = com[:-1]
+                only_nearest = True
+            star = {
+                com.endswith("!"): False,
+                com.endswith("*"): True,
+            }.get(True, None)
+            com = com.rstrip("*!^")
+            # go over all surrounding commands and search for the command
+            while inside_commands:
+                head, has_star = inside_commands.pop()
+                # stop the search if the head matches
+                if head == com and (star is None or has_star is star):
+                    break
+                # if we only search for the nearest command the head
+                # must match
+                elif only_nearest:
+                    return False
+            # if we iterated over all commands, but found none return False
+            else:
+                return False
+        # return True if all commands are processed successfully
+        return True

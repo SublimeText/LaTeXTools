@@ -56,3 +56,8 @@ Have you ever thought: "The scope selectors are nice, but I would like to have t
 You can add a `*` to an environment to indicate that the star must be present and a `!` to indicate, that it must not be present. In addition you can add an `^` anchor to indicate that an environment should be the closest one.
 
 E.g. You can create a keybinding, which is valid inside a `list` or `mylist` environment, but not if there is an additional surrounding `enumerate` environment close to the caret: `(list, mylist) - enumerate^`
+
+## `command_selector`
+
+This is the same as `env_selector`, but for commands. So you can create a keybinding, which is only valid inside the `\graphicspath` command. The selector syntax is the same as in env_selector. You can also add `*` to ensure it is a star-command or `!` to ensure it is not a star command. In addition you can ensure the command is the neared one with the `^` anchor.
+E.g. you can use `ensuremath!^` to ensure you are directly inside an `\ensuremath` command and it does not have a star (as in `\ensuremath*`).

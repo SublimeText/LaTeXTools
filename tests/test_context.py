@@ -131,3 +131,42 @@ class ContextTest(TestCase):
             ctx, operand="document itemize", match_all=False))
         self.assertFalse(self.query_context(
             ctx, operand="document itemize", match_all=True))
+
+    def test_command_selector(self):
+        ctx = "latextools.command_selector"
+        content = sublime.load_resource(
+            "Packages/LaTeXTools/tests/test_context_document.tex")
+        self.set_content(content)
+        self.set_sel(self.view.find(r"<c1>", 0))
+        self.assertTrue(self.query_context(ctx, operand=""))
+        self.assertTrue(self.query_context(ctx, operand=", none"))
+        self.assertTrue(self.query_context(ctx, operand="first"))
+        self.assertTrue(self.query_context(ctx, operand="first second"))
+        self.assertTrue(self.query_context(ctx, operand="second^"))
+        self.assertTrue(self.query_context(ctx, operand="first^ second^"))
+
+        self.set_sel(self.view.find(r"<c2>", 0))
+        self.assertTrue(self.query_context(ctx, operand="first second^"))
+
+        self.set_sel(self.view.find(r"<c3>", 0))
+        self.assertTrue(self.query_context(ctx, operand="graphicspath"))
+
+        self.set_sel(self.view.find(r"<c4>", 0))
+        self.assertTrue(self.query_context(ctx, operand="ensuremath"))
+        self.assertFalse(self.query_context(
+            ctx, operand="ensuremath - textnormal"))
+
+        self.set_sel(self.view.find(r"<c5>", 0))
+        self.assertTrue(self.query_context(ctx, operand="starcommand"))
+        self.assertTrue(self.query_context(ctx, operand="starcommand second"))
+        self.assertTrue(self.query_context(ctx, operand="starcommand*"))
+        self.assertFalse(self.query_context(ctx, operand="starcommand!"))
+
+        self.set_sel(self.view.find(r"<c6>", 0))
+        self.assertTrue(self.query_context(ctx, operand="cmd"))
+        self.assertTrue(self.query_context(ctx, operand="cmd cmd"))
+        self.assertTrue(self.query_context(ctx, operand="cmd*"))
+        self.assertTrue(self.query_context(ctx, operand="cmd!"))
+        self.assertTrue(self.query_context(ctx, operand="cmd!^"))
+        self.assertFalse(self.query_context(ctx, operand="cmd*^"))
+        self.assertTrue(self.query_context(ctx, operand="cmd*^ cmd!^"))
