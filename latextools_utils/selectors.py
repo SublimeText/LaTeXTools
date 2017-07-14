@@ -80,11 +80,11 @@ class _Operator():
 
 # format - symbol: (precedence, is_right_assoc, evaluation_function)
 _operators = {
-    ",": (200, False, lambda left, right: left() or right()),
-    "|": (200, False, lambda left, right: left() or right()),
-    "&": (250, False, lambda left, right: left() and right()),
-    "-": (300, False, lambda left, right: left() and not right()),
-    " ": (500, False, None),
+    ",": (1, False, lambda left, right: left() or right()),
+    "|": (1.1, False, lambda left, right: left() or right()),
+    "&": (2, False, lambda left, right: left() and right()),
+    "-": (3, False, lambda left, right: left() and not right()),
+    " ": (4, False, None),
 }
 _op_map = {k: _Operator(k, *v[:2]) for k, v in _operators.items()}
 _eval_map = {k: v[2] for k, v in _operators.items() if v[2] is not None}
