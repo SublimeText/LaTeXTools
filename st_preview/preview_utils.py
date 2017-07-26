@@ -104,7 +104,7 @@ def _update_gs_version():
             print('Error finding Ghostscript version for {0}'.format(
                 _GS_COMMAND))
             traceback.print_exc()
-            
+
 
 # broken out to be called from system_check
 def __get_gs_command():
@@ -316,12 +316,12 @@ def try_delete_temp_files(key, temp_path):
         last_try = _last_delete_try[key]
     except KeyError:
         try:
-            last_try = cache.read_global("preview_image_temp_delete")
+            last_try = cache.read_global(key + "_temp_delete")
         except:
             last_try = 0
-        _last_delete_try[key] = last_try
+        _last_delete_try[key] = time.time()
 
-    max_remaining_size = get_setting(key + "_temp_size", 50, view={})
+    cache_size = get_setting(key + "_temp_size", 50, view={})
     period = get_setting("preview_temp_delete_period", 24, view={})
 
     # if the period is negative don't clear automatically
@@ -329,18 +329,19 @@ def try_delete_temp_files(key, temp_path):
         return
 
     # convert the units
-    max_remaining_size *= 10**6  # MB -> B
+    cache_size *= 10**6  # MB -> B
     period *= 60 * 60  # h -> s
 
     # the remaining size as tenth of the cache size
-    max_remaining_size /= 10.
+    max_remaining_size = cache_size / 10.
 
     if time.time() <= last_try + period:
         return
     cache.write_global(key + "_temp_delete", last_try)
 
     tr = threading.Thread(
-        target=lambda: delete_temp_files(temp_path, max_remaining_size))
+        target=lambda: delete_temp_files(
+            temp_path, cache_size, max_remaining_size))
     tr.start()
 
 
@@ -361,11 +362,11 @@ def _modified_time(file_path):
     return mtime
 
 
-def delete_temp_files(temp_path, max_remaining_size, total_size=None,
-                      delete_all=False):
+def delete_temp_files(temp_path, cache_size, max_remaining_size,
+                      total_size=None, delete_all=False):
     if total_size is None and not delete_all:
         total_size = _temp_folder_size(temp_path)
-    if total_size <= max_remaining_size:
+    if total_size <= cache_size:
         return
 
     del_files = [
