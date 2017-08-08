@@ -445,6 +445,11 @@ class Cache(object):
 
                 for k in delete_keys:
                     del _objs[k]
+                    file_path = os.path.join(self.cache_path, key)
+                    try:
+                        os.path.remove(file_path)
+                    except OSError:
+                        pass
 
                 if _objs:
                     make_dirs(self.cache_path)
