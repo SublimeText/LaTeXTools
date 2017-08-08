@@ -190,11 +190,29 @@ else:
             sublime.packages_path(), "User", ST2_GLOBAL_CACHE_FOLDER))
 
 
-# marker object for invalidated result
+# marker class for invalidated result
+class InvalidObject(object):
+    _HASH = hash("_LaTeXTools_InvalidObject")
+
+    def __eq__(self, other):
+        # in general, this is a bad pattern, since it will treat the
+        # literal string "_LaTeXTools_InvalidObject" as being an invalid
+        # object; nevertheless, we need an object identity that persists
+        # across reloads, and this seems to be the only way to guarantee
+        # that
+        return self._HASH == hash(other)
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __hash__(self):
+        return self._HASH
+
+
 try:
     _invalid_object
 except NameError:
-    _invalid_object = object()
+    _invalid_object = InvalidObject()
 
 
 class Cache(object):
@@ -248,7 +266,7 @@ class Cache(object):
             # note: will raise CacheMiss if can't be found
             result = self.load(key)
 
-        if result is _invalid_object:
+        if result == _invalid_object:
             raise CacheMiss('{0} is invalid'.format(key))
 
         # return a copy of any objects
@@ -272,7 +290,7 @@ class Cache(object):
 
         return (
             key in self._objects and
-            self._objects[key] is not _invalid_object
+            self._objects[key] != _invalid_object
         )
 
     def set(self, key, obj):
@@ -422,7 +440,7 @@ class Cache(object):
             if key is None:
                 # remove all InvalidObjects
                 delete_keys = [
-                    k for k in _objs if _objs[k] is _invalid_object
+                    k for k in _objs if _objs[k] == _invalid_object
                 ]
 
                 for k in delete_keys:
@@ -444,7 +462,7 @@ class Cache(object):
                             'error while deleting {0}'.format(self.cache_path))
                         traceback.print_exc()
             elif key in _objs:
-                if _objs[key] is _invalid_object:
+                if _objs[key] == _invalid_object:
                     file_path = os.path.join(self.cache_path, key)
                     try:
                         os.path.remove(file_path)
