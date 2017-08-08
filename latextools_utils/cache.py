@@ -434,7 +434,7 @@ class Cache(object):
         with self._disk_lock:
             # operate on a stable copy of the object
             with self._write_lock:
-                _objs = copy.deepcopy(self._objects)
+                _objs = pickle.loads(pickle.dumps(self._objects, protocol=-1))
                 self._dirty = False
 
             if key is None:
