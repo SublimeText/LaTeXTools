@@ -28,9 +28,9 @@ These packages are created especially for LaTeX.
 
 The only purpose of [LaTeXSmartQuotes] is to improve and handle quotations inside tex files. It is very handy if you switch between English, German, and French, because it auto-detect the used language. However if you only use English it will still be helpful, because it inserts the quotes you most likely want to use at that position.
 
-### LaTeXZeta
+### LaTeXYZ
 
-The [LaTeXZeta] package adds and changes features to Sublime Text you may want to use, but are missing in LaTeXTools. It is especially designed to work with LaTeXTools and enrich it with features. **Be aware that after the installation some hotkeys behave different.**
+The [LaTeXYZ] package adds and changes features to Sublime Text you may want to use, but are missing in LaTeXTools. It is especially designed to work with LaTeXTools and enrich it with features. **Be aware that after the installation some hotkeys behave different.**
 
 
 ## Packages with LaTeX support
