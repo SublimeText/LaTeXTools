@@ -7,6 +7,9 @@ class LatexChangeEnvironmentCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         view = self.view
         new_regions = _find_env_regions(view)
+        if not new_regions:
+            return
+
         view.sel().clear()
         for r in new_regions:
             view.sel().add(r)
@@ -15,12 +18,14 @@ class LatexToggleEnvironmentStarCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         view = self.view
         new_regions = _find_env_regions(view)
-        # 
-        if view.substr(new_regions[0])[-1] == '*':
-            for r in reversed(new_regions):
+        if not new_regions:
+            return
+
+        # replace '*' with '' or vice versa for each region
+        for r in reversed(new_regions):
+            if view.substr(r).endswith('*'):
                 view.replace(edit, r, view.substr(r)[:-1])
-        else:
-            for r in reversed(new_regions):
+            else:
                 view.replace(edit, r, view.substr(r) + "*")
 
 def _find_env_regions(view):
@@ -91,7 +96,7 @@ def _find_env_regions(view):
             )
     if not new_regions:
         sublime.status_message("Environment detection failed")
-        return []
+
     return new_regions
 
 
