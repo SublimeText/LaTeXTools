@@ -91,6 +91,8 @@ class LatexFillHelper(object):
         :param insert_char:
             the character to try to automatch
         '''
+
+        print("complete_auto_match")
         if sublime.load_settings('Preferences.sublime-settings').get(
             'auto_match_enabled', True
         ):
@@ -125,6 +127,7 @@ class LatexFillHelper(object):
                     # we should close the bracket
                     if close_bracket:
                         # insert the closing bracket
+                        print(view.file_name())
                         view.insert(edit, word_region.end(), close_bracket)
 
                         if sel.empty():
@@ -686,7 +689,7 @@ class LatexFillAllEventListener(
             return None
         for sel in view.sel():
             point = sel.b
-            if not view.score_selector(point, "text.tex.latex"):
+            if not view.score_selector(point, "text.tex.latex | text.html.markdown"):
                 return None
 
         # load the plugins
@@ -740,8 +743,9 @@ class LatexFillAllEventListener(
         return result if operator == sublime.OP_EQUAL else not result
 
     def on_query_completions(self, view, prefix, locations):
+        print("on query completion")
         for location in locations:
-            if not view.score_selector(location, "text.tex.latex"):
+            if not view.score_selector(location, "text.tex.latex  | text.html.markdown"):
                 return
 
         completion_types = self.get_completion_types()
@@ -909,10 +913,11 @@ class LatexFillAllCommand(
         force=False
     ):
         view = self.view
-
+        print("run0-")
+        print(view.file_name())
         for sel in view.sel():
             point = sel.b
-            if not view.score_selector(point, "text.tex.latex"):
+            if not view.score_selector(point, "text.tex.latex | text.html.markdown"):
                 self.complete_brackets(view, edit, insert_char)
                 return
 
@@ -1162,6 +1167,7 @@ class LatexToolsReplaceWord(sublime_plugin.TextCommand, LatexFillHelper):
     '''
 
     def run(self, edit, replacement='', insert_char='', remove_regions=[]):
+        print("LatexToolsReplaceWord")
         view = self.view
         if insert_char:
             insert_text = (

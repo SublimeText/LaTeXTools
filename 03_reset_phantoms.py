@@ -8,7 +8,7 @@ import sublime_plugin
 if sublime.version() > '3118' and sublime_plugin.api_ready:
     for w in sublime.windows():
         for v in w.views():
-            if v.score_selector(0, 'text.tex.latex') == 0:
+            if v.score_selector(0, 'text.tex.latex | text.html.markdown') == 0:
                 continue
             v.erase_phantoms('preview_math')
             v.erase_phantoms('preview_image')

@@ -17,6 +17,8 @@ def get_tex_extensions():
     return [s.lower() for s in set(tex_file_exts)]
 
 def is_tex_file(file_name):
+    print(file_name)
+    print("is tex file")
     if not isinstance(file_name, strbase):
         raise TypeError('file_name must be a string')
 
