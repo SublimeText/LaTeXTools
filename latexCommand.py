@@ -17,7 +17,7 @@ import re
 class latexcmdCommand(sublime_plugin.TextCommand):
 	def run(self, edit, **args):
 		view = self.view
-
+		print("latexcmdCommand")
 		# Workaround: env* and friends trip ST2 up because * is a word boundary,
 		# so we search for a word boundary
 

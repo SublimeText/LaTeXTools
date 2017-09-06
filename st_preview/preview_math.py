@@ -529,9 +529,11 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
     def is_applicable(cls, settings):
         try:
             view = inspect.currentframe().f_back.f_locals['view']
-            return view.score_selector(0, 'text.tex.latex') > 0
+            return view.score_selector(0, 'text.tex.latex | text.html.markdown') > 0
         except KeyError:
             syntax = settings.get('syntax')
+            # print("KeyError")
+            # print(syntax == 'Packages/LaTeX/LaTeX.sublime-syntax')
             return syntax == 'Packages/LaTeX/LaTeX.sublime-syntax'
 
     @classmethod
@@ -629,6 +631,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
 
         view = self.view
         window = view.window()
+
 
         # see #980; in any case window is None only for newly created views
         # where there isn't much point in running the phantom update.

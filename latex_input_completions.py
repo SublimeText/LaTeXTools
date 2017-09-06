@@ -247,6 +247,8 @@ def _get_dyn_entries():
 
 
 def parse_completions(view, line):
+    # print("parse_completions")
+    # print(view.file_name())
     # reverse line, copied from latex_cite_completions, very cool :)
     line = line[::-1]
 

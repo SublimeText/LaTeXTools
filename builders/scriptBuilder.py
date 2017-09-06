@@ -117,6 +117,7 @@ class ScriptBuilder(PdfBuilder):
 
 	def substitute(self, command):
 		replaced_var = False
+		# print("substitude")
 		if self.CONTAINS_VARIABLE.search(command):
 			replaced_var = True
 

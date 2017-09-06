@@ -16,6 +16,7 @@ import sublime_plugin
 
 class latex_env_closerCommand(sublime_plugin.TextCommand):
 	def run(self, edit, **args):
+		print("latex_env_closerCommand")
 		view = self.view
 		pattern = r'\\(begin|end)\{[^\}]+\}'
 		b = []
