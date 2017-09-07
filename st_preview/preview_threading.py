@@ -161,8 +161,7 @@ def start_threads(name, thread_id):
             except KeyError:
                 continue
 
-            threading.Thread(
-                target=lambda: try_delete_temp_files(name, temp_path))
+            try_delete_temp_files(name, temp_path)
 
 
 def run_jobs(name):

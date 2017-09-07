@@ -28,9 +28,9 @@ These packages are created especially for LaTeX.
 
 The only purpose of [LaTeXSmartQuotes] is to improve and handle quotations inside tex files. It is very handy if you switch between English, German, and French, because it auto-detect the used language. However if you only use English it will still be helpful, because it inserts the quotes you most likely want to use at that position.
 
-### LaTeXZeta
+### LaTeXYZ
 
-The [LaTeXZeta] package adds and changes features to Sublime Text you may want to use, but are missing in LaTeXTools. It is especially designed to work with LaTeXTools and enrich it with features. **Be aware that after the installation some hotkeys behave different.**
+The [LaTeXYZ] package adds and changes features to Sublime Text you may want to use, but are missing in LaTeXTools. It is especially designed to work with LaTeXTools and enrich it with features. **Be aware that after the installation some hotkeys behave different.**
 
 
 ## Packages with LaTeX support
@@ -108,19 +108,20 @@ Example settings (Open *Preferences > Package Settings > Inc-Dec-Value > Setting
 }
 ```
 
-### SideBarTools / SideBarEnhancement
+### FileManager / SideBarTools / SideBarEnhancement
 
-[SideBarEnhancement] adds a lot of functionality to the side bar. However because there was a discussion about it collecting information for anonymous statistics there has been published a fork with a subset of the features called [SideBarTools].
+The packages [FileManager], [SideBarTools], and [SideBarEnhancement] all add features to manipulate files and the corresponding entries to the side bar and the quickpanel. Since there was a discussion about SideBarEnhancement violating the users privacy by collection anonymized statistics, there there has been published a fork with a subset of the features called SideBarTools. In addition to these FileManager is an additonal package with a similar feature set. If you are unsure which package you want to use you may start with FileManager.
 
 [Package Control]:https://packagecontrol.io/
 [LaTeX-cwl]:https://github.com/LaTeXing/LaTeX-cwl
 [Dictionaries]:https://github.com/titoBouzout/Dictionaries
 [LaTeXSmartQuotes]:https://github.com/r-stein/sublime-text-latex-smart-quotes
-[LaTeXZeta]:https://github.com/randy3k/LaTeXZeta
+[LaTeXYZ]:https://github.com/randy3k/LaTeXYZ
 [BracketHighlighter]:https://github.com/facelessuser/BracketHighlighter
 [ExpandRegion]:https://github.com/aronwoost/sublime-expand-region
 [MultiEditUtils]:https://github.com/philippotto/Sublime-MultiEditUtils
 [AlignTab]:https://github.com/randy3k/AlignTab
 [Inc-Dec-Value]:https://github.com/rmaksim/Sublime-Text-2-Inc-Dec-Value
+[FileManager]:https://github.com/math2001/FileManager
 [SideBarTools]:https://github.com/braver/SideBarTools
 [SideBarEnhancement]:https://github.com/SideBarEnhancements-org/SideBarEnhancements

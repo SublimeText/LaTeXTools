@@ -254,6 +254,11 @@ LaTeX Package keymap for OS X
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "latex_change_environment"},
+	// Toggle the starred version of environment
+	{ "keys": ["super+l", "shift+super+8"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "latex_toggle_environment_star"},
 
 	// Wrap selected text in emph, bold or underline
 	{ "keys": ["super+l","super+e"],
