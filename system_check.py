@@ -65,6 +65,7 @@ if _HAS_PREVIEW:
     )
 
 if sys.version_info >= (3,):
+    strbase = str
     unicode = str
 
     def expand_vars(texpath):
@@ -81,6 +82,7 @@ if sys.version_info >= (3,):
             raise value.with_traceback(tb)
         raise value
 else:
+    strbase = basestring
     def expand_vars(texpath):
         return os.path.expandvars(texpath).encode(sys.getfilesystemencoding())
 
@@ -658,6 +660,10 @@ class SystemCheckThread(threading.Thread):
 
             options = get_setting('builder_settings', {}, self.view).\
                 get('options', [])
+
+            if isinstance(options, strbase):
+                options = [options]
+
             options.extend(tex_directives.get('options', []))
 
             if len(options) > 0:
