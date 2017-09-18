@@ -35,7 +35,7 @@ def _get_selected_arg(view, com_reg, pos):
         # only one arg => return it
         return args
     args_region = com_reg.regs[COMMAND_REG.groupindex["args"]]
-    cursor = pos - args_region[0]
+    cursor = com_reg.start() + pos - args_region[0]
 
     if cursor < 0 or len(args) < cursor:
         # need to explicit select the argument

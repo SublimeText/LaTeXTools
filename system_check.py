@@ -620,6 +620,10 @@ class SystemCheckThread(threading.Thread):
 
             options = get_setting('builder_settings', {}, self.view).\
                 get('options', [])
+
+            if isinstance(options, strbase):
+                options = [options]
+
             options.extend(tex_directives.get('options', []))
 
             if len(options) > 0:

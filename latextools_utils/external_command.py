@@ -133,7 +133,7 @@ def external_command(command, cwd=None, shell=False, env=None,
         if sys.version_info < (3,):
             command = str(command)
 
-        command = split(command)
+        command = split(command, False, False)
 
         if sys.version_info < (3,):
             command = [unicode(c) for c in command]
