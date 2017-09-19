@@ -5,6 +5,7 @@ import re
 import sys
 import os.path
 
+from collections import deque
 
 # To accommodate both Python 2 and 3
 if sys.version_info >= (3,):
@@ -227,6 +228,8 @@ def parse_tex_log(data, root_dir):
 	STATE_REPORT_WARNING = 3
 	
 	state = STATE_NORMAL
+	last_log_lines = ""
+	last_iteration_lines = deque([],7)
 
 	# Use our own iterator instead of for loop
 	log_iterator = log.__iter__()
@@ -253,6 +256,7 @@ def parse_tex_log(data, root_dir):
 			try:
 				line, linelen = advance_iterator(log_iterator) # will fail when no more lines
 				line_num += 1
+				last_iteration_lines.append(prev_line)
 			except StopIteration:
 				break
 		# Now we deal with TeX's decision to truncate all log lines at 79 characters
@@ -430,6 +434,7 @@ def parse_tex_log(data, root_dir):
 
 		# Are we done? Get rid of extra spaces, just in case (we may have extended a line, etc.)
 		if line.strip() == "Here is how much of TeX's memory you used:":
+			last_log_lines = '\n'.join(last_iteration_lines)
 			if len(files)>0:
 				if emergency_stop or incomplete_if:
 					debug("Done processing, files on stack due to known conditions (all is fine!)")
@@ -458,6 +463,7 @@ def parse_tex_log(data, root_dir):
 		if "==> Fatal error occurred," in line:
 			debug("Fatal error detected")
 			if errors == []:
+				errors.append(last_log_lines)
 				errors.append("TeX STOPPED: fatal errors occurred. Check the TeX log file for details")
 			continue
 
