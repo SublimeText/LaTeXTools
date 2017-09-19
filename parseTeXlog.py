@@ -1,5 +1,5 @@
 # ST2/ST3 compat
-from __future__ import print_function 
+from __future__ import print_function
 
 import re
 import sys
@@ -153,7 +153,7 @@ def parse_tex_log(data, root_dir):
 	# NOTES:
 	# 1. we capture the initial and ending " if there is one; we'll need to remove it later
 	# 2. we define the basic filename parsing regex so we can recycle it
-	# 3. we allow for any character besides "(" before a file name starts. This gives a lot of 
+	# 3. we allow for any character besides "(" before a file name starts. This gives a lot of
 	#	 false positives but we kill them with os.path.isfile
 	file_basic = r"\"?(?:[a-zA-Z]\:)?(?:\.|(?:\.\./)|(?:\.\.\\))*.+?\.[^\s\"\)\.]+\"?"
 	file_rx = re.compile(r"[^\(]*?\((" + file_basic + r")(\s|\"|\)|$)(.*)")
@@ -172,7 +172,7 @@ def parse_tex_log(data, root_dir):
 
 	warning_rx = re.compile(r"^(.*?) Warning: (.+)") # Warnings, first line
 	line_rx_latex_warn = re.compile(r"input line (\d+)\..*") # Warnings, line number
-	
+
 	badbox_rx = re.compile(r"^(.*?)Overfull (.*)")  # Bad box warning
 	line_rx_latex_badbox = re.compile(r"lines (\d+)--(.*?)")   # Bad box lines
 	matched_parens_rx = re.compile(r"\([^()]*\)") # matched parentheses, to be deleted (note: not if nested)
@@ -193,7 +193,7 @@ def parse_tex_log(data, root_dir):
 			parsing.append("PERR [handle_warning no files] " + l)
 			debug("PERR [handle_warning no files] (%d)" % (line_num,))
 		else:
-			location = files[-1]		
+			location = files[-1]
 
 		warn_match_line = line_rx_latex_warn.search(l)
 
@@ -210,7 +210,7 @@ def parse_tex_log(data, root_dir):
 			parsing.append("PERR [handle_badbox no files] " + l)
 			debug("PERR [handle_badbox no files] (%d)" % (line_num,))
 		else:
-			location = files[-1]		
+			location = files[-1]
 
 		badbox_match_line = line_rx_latex_badbox.search(l)
 
@@ -219,13 +219,13 @@ def parse_tex_log(data, root_dir):
 			badboxes.append(location + ":" + badbox_line + ": " + l)
 		else:
 			badboxes.append(location + ": " + l)
-	
+
 	# State definitions
 	STATE_NORMAL = 0
 	STATE_SKIP = 1
 	STATE_REPORT_ERROR = 2
 	STATE_REPORT_WARNING = 3
-	
+
 	state = STATE_NORMAL
 
 	# Use our own iterator instead of for loop
@@ -237,7 +237,7 @@ def parse_tex_log(data, root_dir):
 	recycle_extra = False		# Should we add extra to newly read line?
 	reprocess_extra = False		# Should we reprocess extra, without reading a new line?
 	emergency_stop = False		# If TeX stopped processing, we can't pop all files
-	incomplete_if = False  		# Ditto if some \if... statement is not complete	
+	incomplete_if = False  		# Ditto if some \if... statement is not complete
 
 	while True:
 		# first of all, see if we have a line to recycle (see heuristic for "l.<nn>" lines)
@@ -266,7 +266,7 @@ def parse_tex_log(data, root_dir):
 		# also, the **<file name> line may be long, but we skip it, too (to avoid edge cases)
 		# We make sure we are NOT reprocessing a line!!!
 		# Also, we make sure we do not have a filename match, or it would be clobbered by exending!
-		if (not reprocess_extra) and line_num > 1 and linelen >= 79 and line[0:2] != "**": 
+		if (not reprocess_extra) and line_num > 1 and linelen >= 79 and line[0:2] != "**":
 			debug ("Line %d is %d characters long; last char is %s" % (line_num, len(line), line[-1]))
 			# HEURISTICS HERE
 			extend_line = True
@@ -386,7 +386,7 @@ def parse_tex_log(data, root_dir):
 			# TeX splits the error line in two, so we skip the
 			# second part. In the future we may want to capture that, too
 			# and figure out the column, perhaps.
-			state = STATE_SKIP 
+			state = STATE_SKIP
 			err_line = err_match.group(1)
 			err_text = err_match.group(2)
 			# err_msg is set from last time
@@ -396,7 +396,7 @@ def parse_tex_log(data, root_dir):
 				debug("PERR [STATE_REPORT_ERROR no files] (%d)" % (line_num,))
 			else:
 				location = files[-1]
-			debug("Found error: " + err_msg)		
+			debug("Found error: " + err_msg)
 			errors.append(location + ":" + err_line + ": " + err_msg + " [" + err_text + "]")
 			continue
 		if state == STATE_REPORT_WARNING:
@@ -437,7 +437,7 @@ def parse_tex_log(data, root_dir):
 					parsing.append("PERR [files on stack (xypic)] " + ";".join(files))
 				else:
 					parsing.append("PERR [files on stack] " + ";".join(files))
-				files=[]			
+				files=[]
 			# break
 			# We cannot stop here because pdftex may yet have errors to report.
 
@@ -530,8 +530,8 @@ def parse_tex_log(data, root_dir):
 			f = files.pop()
 			debug(u"Popped file: {0} ({1})".format(f, line_num))
 			continue
-		
-		# Special case: the comment package, which puts ")" at the end of a 
+
+		# Special case: the comment package, which puts ")" at the end of a
 		# line beginning with "Excluding comment 'something'"
 		# Since I'm not sure, we match "Excluding comment 'something'" and recycle the rest
 		comment_match = comment_rx.match(line)
@@ -552,7 +552,7 @@ def parse_tex_log(data, root_dir):
 			debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
 			f = files.pop()
 			debug(u"Popped file: {0} ({1})".format(f, line_num))
-			continue	
+			continue
 
 		# Special case: xypic's "loaded)" at the BEGINNING of a line. Will check later
 		# for matches AFTER other text.
@@ -616,7 +616,7 @@ def parse_tex_log(data, root_dir):
 
 		# Useless file matches: {filename.ext} or <filename.ext>. We just throw it out
 		file_useless_match = file_useless1_rx.match(line) or file_useless2_rx.match(line)
-		if file_useless_match: 
+		if file_useless_match:
 			extra = file_useless_match.group(1)
 			debug("Useless file: " + line)
 			debug("Reprocessing " + extra)
@@ -700,7 +700,7 @@ def parse_tex_log(data, root_dir):
 			# If it's a pdftex error, it's on the current line, so report it
 			if "pdfTeX error" in line:
 				err_msg = line[1:].strip() # remove '!' and possibly spaces
-				# This may or may not have a file location associated with it. 
+				# This may or may not have a file location associated with it.
 				# Be conservative and do not try to report one.
 				errors.append(err_msg)
 				errors.append("Check the TeX log file for more information")
@@ -715,7 +715,7 @@ def parse_tex_log(data, root_dir):
 				errors.append("TeX STOPPED: " + line[1:].strip())
 				errors.append("TeX reports the error was in file:" + file_name)
 				continue
-			# Now it's a regular TeX error 
+			# Now it's a regular TeX error
 			err_msg = line[2:] # skip "! "
 			# next time around, err_msg will be set and we'll extract all info
 			state = STATE_REPORT_ERROR
@@ -730,7 +730,7 @@ def parse_tex_log(data, root_dir):
 			extra = pagenum_begin_match.group(1)
 			debug("Reprocessing " + extra)
 			reprocess_extra = True
-			continue		
+			continue
 
 		warning_match = warning_rx.match(line)
 		if warning_match:
