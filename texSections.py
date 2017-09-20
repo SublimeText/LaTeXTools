@@ -1,5 +1,5 @@
 # ST2/ST3 compat
-from __future__ import print_function 
+from __future__ import print_function
 import sublime
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
@@ -17,7 +17,7 @@ spaces = {'part' : '', 'chapter' : '  ', 'section' : '    ',
 		  'subsubsubsection' : '          '}
 
 # ST2 note: we must keep the NamingConventionCommand style in the Python code,
-# but the key bindings need "command": "naming_convention" 
+# but the key bindings need "command": "naming_convention"
 #
 # Also, for now must explicitly add key bindings in Preferences | User Key Bindings
 
@@ -73,7 +73,7 @@ class TexSectionsCommand(sublime_plugin.TextCommand):
 					secTitle = secTitle[:-1]
 				return spaces[m.group(1)]+secTitle
 		prettySecs = [prettify(self.view.substr(reg)) for reg in secRegions]
-		
+
 		def onSelect(i):
 			#print view.substr(secRegions[i])
 			self.view.show(secRegions[i])

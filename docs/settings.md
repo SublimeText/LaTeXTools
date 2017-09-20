@@ -2,7 +2,7 @@
 
 LaTeXTools supports user-defined settings. The settings file is called `LaTeXTools.sublime-settings`. A default version resides in the LaTeXTools plugin directory and **must not be edited** (any edits you make to this file will be overwritten when the package is upgraded). This contains default settings that will work in many cases for standard configurations of TeX distros and PDF viewers.
 
-You can however create another settings file in your `User` directory which can override any of the default settings. You can create and edit such a file manually. However, the *simplest way to create a settings file* is to open the **Preferences | Package Settings | LaTeXTools** submenu and select the **Settings - User** option. If you do not currently have a `LaTeXTools.sublime-settings` settings file in your `User` directory (e.g., if you are installing LaTeXTools for the first time), you will be given the option to create one. The newly created settings file can be an exact copy of the default one, and will open in a tab for you to customize. 
+You can however create another settings file in your `User` directory which can override any of the default settings. You can create and edit such a file manually. However, the *simplest way to create a settings file* is to open the **Preferences | Package Settings | LaTeXTools** submenu and select the **Settings - User** option. If you do not currently have a `LaTeXTools.sublime-settings` settings file in your `User` directory (e.g., if you are installing LaTeXTools for the first time), you will be given the option to create one. The newly created settings file can be an exact copy of the default one, and will open in a tab for you to customize.
 
 If you *do* already have an existing `LaTeXTools.sublime-settings` file in your `User` directory, the **Settings - User** option will open that file in a tab for you to further customize. Similarly, the **Settings - Default** option will open the default settings file in a tab, in *read-only mode*. This may be useful for you to copy from, or if you want to see what other options may be available without consulting this README file.
 
@@ -18,7 +18,7 @@ If at any time you wish to erase your customizations and start afresh, you can s
 * `env_auto_trigger` (`true`): ditto, but for environment completions
 * `glossary_auto_trigger` (`true`): ditto, but for glossary completions
 * `tex_directive_auto_trigger` (`true`): ditto, but for tex directive completions
-* `cwl_autoload` (`true`): whether to load cwl completions based on packages (see the LaTeX-cwl feature) 
+* `cwl_autoload` (`true`): whether to load cwl completions based on packages (see the LaTeX-cwl feature)
 * `cwl_completion` (`prefixed`): when to activate the cwl completion poput (see LaTeX-cwl feature above)
 * `cwl_list` (`["latex-document.cwl", "tex.cwl", "latex-dev", "latex-209.cwl", "latex-l2tabu.cwl", "latex-mathsymbols.cwl"]`): list of cwl files to load
 * `keep_focus` (`true`): if `true`, after compiling a tex file, ST retains the focus; if `false`, the PDF viewer gets the focus. Also note that you can *temporarily* toggle this behavior with `C-l,t,f`.This can also be overridden via a key-binding by passing a `keep_focus` argument to `jump_to_pdf`.

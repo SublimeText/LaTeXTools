@@ -59,7 +59,7 @@ Or:
 {
 	"builder_settings": {
 		"osx": {
-			"script_commands": 
+			"script_commands":
 				[["pdflatex", "-synctex=1 -interaction=nonstopmode"]]
 		}
 	}
@@ -85,7 +85,7 @@ More interestingly, the main list can be used to supply a series of commands. Fo
 
 Note, however, that the script builder is quite unintelligent in handling such cases. It will not note any failures nor only execute the rest of the sequence if required. It will simply continue to execute commands until it hits the end of the chain of commands. This means, in the above example, it will run `bibtex` regardless of whether there are any citations.
 
-It is especially important to ensure that, in case of errors, TeX and friends do not stop for user input. For example, if you use `pdflatex` on either TeXLive or MikTeX, pass the `-interaction=nonstopmode` option. 
+It is especially important to ensure that, in case of errors, TeX and friends do not stop for user input. For example, if you use `pdflatex` on either TeXLive or MikTeX, pass the `-interaction=nonstopmode` option.
 
 Each command can use the following variables which will be expanded before it is executed:
 
@@ -107,7 +107,7 @@ For example:
 	"builder_settings": {
 		"osx": {
 			"script_commands": [[
-				"pdflatex", 
+				"pdflatex",
 				"-synctex=1"
 				"-interaction=nonstopmode",
 				"$file_base_name"

@@ -310,7 +310,7 @@ class CmdThread ( threading.Thread ):
 				else:
 					# don't know what the command is
 					continue
-				
+
 				# Now actually invoke the command, making sure we allow for killing
 				# First, save process handle into caller; then communicate (which blocks)
 				with self.caller.proc_lock:
@@ -318,7 +318,7 @@ class CmdThread ( threading.Thread ):
 				out, err = proc.communicate()
 				self.caller.builder.set_output(out.decode(self.caller.encoding,"ignore"))
 
-				
+
 				# Here the process terminated, but it may have been killed. If so, stop and don't read log
 				# Since we set self.caller.proc above, if it is None, the process must have been killed.
 				# TODO: clean up?
@@ -984,7 +984,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 						html_text = html.escape(text, quote=False)
 						phantom_content = """
 							<body id="inline-error">
-								{stylesheet} 
+								{stylesheet}
 								<div class="lt-error {error_class}">
 									<span class="message">{html_text}</span>
 									<a href="hide">{cancel_char}</a>

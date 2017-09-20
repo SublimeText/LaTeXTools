@@ -136,8 +136,8 @@ class TraditionalBuilder(PdfBuilder):
 
 		self.display("done.\n")
 
-		# This is for debugging purposes 
+		# This is for debugging purposes
 		if self.display_log:
 			self.display("\nCommand results:\n")
 			self.display(self.out)
-			self.display("\n\n")	
+			self.display("\n\n")

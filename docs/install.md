@@ -58,7 +58,7 @@ You can use the **LaTeXTools: Check System** command to verify that these are in
 
 ### Configure LaTeXTools Settings
 
-To edit the LaTeXTools user settings, select **Preferences | Package Settings | LaTeXTools | Settings – User** from the ST menu and scroll down to the  section titled **Platform settings** and find the **osx** block. 
+To edit the LaTeXTools user settings, select **Preferences | Package Settings | LaTeXTools | Settings – User** from the ST menu and scroll down to the  section titled **Platform settings** and find the **osx** block.
 
 Within that block, verify that the `"texpath"` setting is correct. This setting is use by LaTeXTools to determine the `PATH` used for running TeX and friends which, because of how LaunchControl works will differ from your path on the shell. The default value should work with MacTeX installed in the normal way, but you will want to verify that this setting is correct. Note that your `"texpath"` **must** include `$PATH`.
 
@@ -85,12 +85,12 @@ We recommend that you also install the [Sumatra PDF viewer](http://www.sumatrapd
 
 Once you've installed SumatraPDF, its a good idea to add it to your `PATH` so that LaTeXTools can easily find it. To do this, find the folder you installed SumatraPDF to (usually `C:\Program Files\SumatraPDF`). Once you have this, open the command line (`cmd.exe`) and run `setx PATH %PATH%;C:\Program Files\SumatraPDF`, changing the `C:\Program Files\SumatraPDF` depending on where you actually installed it.
 
-You now need to set up inverse search in Sumatra PDF. However, the GUI for doing this is hidden in Sumatra until you open a PDF file that has actual synchronization information (that is, an associated `.synctex.gz` file). See [this forum post](http://forums.fofou.org/sumatrapdf/topic?id=2026321) for details. 
+You now need to set up inverse search in Sumatra PDF. However, the GUI for doing this is hidden in Sumatra until you open a PDF file that has actual synchronization information (that is, an associated `.synctex.gz` file). See [this forum post](http://forums.fofou.org/sumatrapdf/topic?id=2026321) for details.
 
 If you have a PDF file with a corresponding `.synctex.gz` file, then open it in Sumatra and go to **Settings | Options**, and enter:
 
  * (ST3) `"C:\Program Files\Sublime Text 3\sublime_text.exe" "%f:%l"`
- * (ST2) `"C:\Program Files\Sublime Text 2\sublime_text.exe" "%f:%l"` 
+ * (ST2) `"C:\Program Files\Sublime Text 2\sublime_text.exe" "%f:%l"`
 
 as the inverse-search command line (in the text-entry field at the bottom of the options dialog). You may need to modify these paths depending on where you installed ST.
 

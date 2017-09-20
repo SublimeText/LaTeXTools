@@ -1,6 +1,6 @@
 import sublime, sublime_plugin
 
-macros = { 
+macros = {
 'a' : '\\alpha',
 'b' : '\\beta',
 'c' : '\\chi',

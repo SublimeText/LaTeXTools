@@ -10,7 +10,7 @@
                 { "trigger": "\\delta", "contents": "\\partial" },
                 //{ "trigger": "partial", "contents": "delta" },  # can't have trigger as it conflicts with p -> \pi
 		{ "trigger": "e", "contents": "\\epsilon" },
-		{ "trigger": "\\epsilon", "contents": "\\varepsilon" }, 
+		{ "trigger": "\\epsilon", "contents": "\\varepsilon" },
                 /* toggle the two! */
 		{ "trigger": "\\varepsilon", "contents": "\\epsilon" },
 		{ "trigger": "z", "contents": "\\zeta"},
@@ -28,9 +28,9 @@
                 { "trigger": "r", "contents": "\\rho" },
                 { "trigger": "s", "contents": "\\sigma" },
                 { "trigger": "t", "contents": "\\tau" },
-                { "trigger": "u", "contents": "\\upsilon" },        
+                { "trigger": "u", "contents": "\\upsilon" },
                 { "trigger": "f", "contents": "\\phi" },
-                { "trigger": "\\phi", "contents": "\\varphi" }, 
+                { "trigger": "\\phi", "contents": "\\varphi" },
                 { "trigger": "\\varphi", "contents": "\\phi" },
                 { "trigger": "c", "contents": "\\chi" },
                 { "trigger": "y", "contents": "\\psi" },
@@ -100,8 +100,8 @@
 		{ "trigger": "iff", "contents": "\\Leftrightarrow"},
 		{ "trigger": "leftrightarrow", "contents": "leftrightarrow"},
 		{ "trigger": "Leftrightarrow", "contents": "Leftrightarrow"},
-		{ "trigger": "longleftrightarrow", "contents": "longleftrightarrow"}, 
-		{ "trigger": "Longleftrightarrow", "contents": "Longleftrightarrow"}, 
+		{ "trigger": "longleftrightarrow", "contents": "longleftrightarrow"},
+		{ "trigger": "Longleftrightarrow", "contents": "Longleftrightarrow"},
                 { "trigger": "up", "contents": "\\uparrow"},
 		{ "trigger": "do", "contents": "\\downarrow"},
 

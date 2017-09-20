@@ -20,13 +20,13 @@ Marciano's blog:
  * Ulrich Gabor (tex engine selection and cleaning aux files)
  * Wes Campaigne and 'jlegewie' (ref/cite completion 2.0!).
  * **Huge** thanks to Daniel Shannon (aka phyllisstein) who first ported LaTeXTools to ST3
- * Also thanks for Charley Peng, who has been assisting users and generating great pull requests; I'll merge them as soon as possible. 
+ * Also thanks for Charley Peng, who has been assisting users and generating great pull requests; I'll merge them as soon as possible.
  * William Ledoux (various Windows fixes, env support)
  * Sean Zhu (find Skim.app in non-standard locations)
  * Maximilian Berger (new center/table snippet)
  * Lucas Nanni (recursively delete temp files)
  * Sergey Slipchenko (`$` auto-pairing with Vintage)
- * btstream (original fill-all command; LaTeX-cwl support) 
+ * btstream (original fill-all command; LaTeX-cwl support)
  * Dan Schrage (nobibliography command)
  * PoByBolek (more biblatex command)
  * Rafael Lerm (support for multiple lines in `\bibliography` commands)

@@ -12,10 +12,10 @@ Bugs fixed:
 
 - Fixed issue with mixed-case bibtex entry keys
 - pdfTeX error parsing (these were ignored before)
-- More friendly reporting of log parsing issues; these now *never* block 
+- More friendly reporting of log parsing issues; these now *never* block
   previewing (unless of course an error has been detected in the document)
   and are only reported in the console, as debug output.
 
 
 
-  
+

@@ -104,7 +104,7 @@ def _update_gs_version():
             print('Error finding Ghostscript version for {0}'.format(
                 _GS_COMMAND))
             traceback.print_exc()
-            
+
 
 # broken out to be called from system_check
 def __get_gs_command():

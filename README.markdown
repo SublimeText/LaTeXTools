@@ -23,7 +23,7 @@ by Ian Bacher, Marciano Siniscalchi, and Richard Stein
 
 ## Prereleases
 
-LaTeXTools uses pre-releases to beta test new features and improve the stability of releases. If you also want to get the newest features and help us testing them. Just open *Preferences > Package Settings > Package Control > Settings - User* and insert at a reasonable (correct JSON syntax) position: 
+LaTeXTools uses pre-releases to beta test new features and improve the stability of releases. If you also want to get the newest features and help us testing them. Just open *Preferences > Package Settings > Package Control > Settings - User* and insert at a reasonable (correct JSON syntax) position:
 
 ``` js
     "install_prereleases": ["LaTeXTools"],

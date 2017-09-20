@@ -139,7 +139,7 @@ class _unlatex(object):
     def __init__(self, tex):
         """Create a new token converter from a string."""
         self.tex = tuple(_tokenize(tex))  # turn tokens into indexable list
-        self.pos = 0                      # index of first unprocessed token 
+        self.pos = 0                      # index of first unprocessed token
         self.lastoutput = 'x'             # lastoutput must always be nonempty string
 
     def __iter__(self):

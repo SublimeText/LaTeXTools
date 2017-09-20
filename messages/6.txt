@@ -14,11 +14,11 @@ Bugs fixed:
 - Robustified get_tex_root
 
 - Cite completion: old-style edge case ("cite" without "_") invoked with old-
-  style keybinding led to weird editor behavior. 
+  style keybinding led to weird editor behavior.
 
 - Display error dialog if no bib file found, when cite completion is invoked
   using the new-style keybinding (can't do it for old-style keybindings).
 
-- Display error dialog if ref/cite command cannot be properly dispatched 
+- Display error dialog if ref/cite command cannot be properly dispatched
   using the new-style keybindings; this is when the user enters "ref" or "cite"
   without "_".

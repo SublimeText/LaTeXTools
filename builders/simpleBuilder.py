@@ -1,5 +1,5 @@
 # ST2/ST3 compat
-from __future__ import print_function 
+from __future__ import print_function
 import sublime
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
@@ -49,12 +49,12 @@ class SimpleBuilder(PdfBuilder):
 
 		# We have commands in our PATH, and are in the same dir as the master file
 
-		# This is for debugging purposes 
+		# This is for debugging purposes
 		def display_results(n):
 			if self.display_log:
 				self.display("Command results, run %d:\n" % (n,) )
 				self.display(self.out)
-				self.display("\n")	
+				self.display("\n")
 
 		run = 1
 		brun = 0
@@ -96,7 +96,7 @@ class SimpleBuilder(PdfBuilder):
 			display_results(run)
 
 		self.display("done.\n")
-			
+
 
 
 

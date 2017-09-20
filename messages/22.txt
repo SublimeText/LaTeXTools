@@ -1,6 +1,6 @@
 LaTeXTools Plugin version 2015-11-22 changelog:
 
-This release 
+This release
 
 New features (Ian Bacher, btstream):
 
@@ -12,4 +12,4 @@ Bugs fixed:
 
 - Further jump-to-file fixes
 
-  
+

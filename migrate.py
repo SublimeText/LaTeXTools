@@ -1,5 +1,5 @@
 # ST2/ST3 compat
-from __future__ import print_function 
+from __future__ import print_function
 import sublime
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
@@ -54,7 +54,7 @@ settings = [	{"key": "cite_auto_trigger", "type": "bool", "line": -1, "tabs": 1,
 class latextoolsMigrateCommand(sublime_plugin.ApplicationCommand):
 
 	def run(self):
-		
+
 		# First of all, try to load new settings
 		# If they exist, either the user copied them manually, or we already did this
 		# Hence, quit
@@ -76,7 +76,7 @@ class latextoolsMigrateCommand(sublime_plugin.ApplicationCommand):
 			if not killall:
 				sublime.message_dialog("OK, I will preserve your existing settings.")
 				return
-		
+
 		with codecs.open(default_file,'r','UTF-8') as def_fp:
 			def_lines = def_fp.readlines()
 

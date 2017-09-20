@@ -4,7 +4,7 @@ This is one BIG update!
 
 New features:
 
-- Major revamping of ref/cite completions, thanks to work by westacular and jlewegie! 
+- Major revamping of ref/cite completions, thanks to work by westacular and jlewegie!
   Check the README for details.
 
 Bugs fixed:
@@ -13,4 +13,4 @@ Bugs fixed:
 
 
 
-  
+

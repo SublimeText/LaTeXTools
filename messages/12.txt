@@ -12,4 +12,4 @@ Bugs fixed:
 - Updated README to reflect the new Skim preset for ST2. Yay!
 - Fixed sections regexp so \section* etc. is captured (P. Kazmierczak)
 
-  
+

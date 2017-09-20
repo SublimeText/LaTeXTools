@@ -5,7 +5,7 @@ Features:
 - Hover over included graphics to show them in a popup (only applies to versions >= 3118)
 - LaTeX build variants (`C-shift-b`) now supports alternative and more flexible builders
 - Jump to label usages are added to jump-to-anywhere
-- Added a command to search for LaTeX-commands in the whole document 
+- Added a command to search for LaTeX-commands in the whole document
 - Added support for the glossary package
 - Improvements in CWL completions for environments
 

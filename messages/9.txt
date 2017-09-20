@@ -8,4 +8,4 @@ Bugs fixed:
 
 - A ton of work robustifying the log parser. Check the README for details (especially
   the troubleshooting section).
-  
+

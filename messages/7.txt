@@ -12,7 +12,7 @@ New features:
 
 Bugs fixed:
 
-- Robustified command and environment insertion (C-l,c and C-l,e) so starred versions 
+- Robustified command and environment insertion (C-l,c and C-l,e) so starred versions
   of commands/environments are OK
 
 - Fixed command/env insertion (C-l,c and C-l,e) so { is recognized as a cmd/env boundary
