@@ -414,7 +414,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             if isinstance(self.preamble, str):
                 self.preamble_str = self.preamble
             else:
-                self.preamble_str = hasattr(self.preamble, "__iter__") if "\n".join(self.preamble) else ""
+                self.preamble_str = "\n".join(self.preamble) if hasattr(self.preamble, "__iter__") else ""
 
             if not init:
                 self.reset_phantoms()
