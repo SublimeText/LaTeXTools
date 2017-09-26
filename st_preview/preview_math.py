@@ -404,7 +404,9 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
     def _init_watch_settings(self):
         # listen to setting changes to update the phantoms
         def update_packages_str(init=False):
-            self.packages_str = "\n".join(self.packages)
+            # TypeError: can only join an iterable
+            # https://github.com/SublimeText/LaTeXTools/issues/1235
+            self.packages_str = "\n".join(self.packages) if hasattr(self.packages, "__iter__") else ""
             if not init:
                 self.reset_phantoms()
 
@@ -412,7 +414,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             if isinstance(self.preamble, str):
                 self.preamble_str = self.preamble
             else:
-                self.preamble_str = "\n".join(self.preamble)
+                self.preamble_str = hasattr(self.preamble, "__iter__") if "\n".join(self.preamble) else ""
 
             if not init:
                 self.reset_phantoms()
