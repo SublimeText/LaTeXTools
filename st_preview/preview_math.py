@@ -652,9 +652,9 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             if not self.phantoms:
                 return
             scopes = []
-        elif self.visible_mode == "all":
+        elif self.math_scope and self.visible_mode == "all":
             scopes = view.find_by_selector(self.math_scope)
-        elif self.visible_mode == "selected":
+        elif self.math_scope and self.visible_mode == "selected":
             math_scopes = view.find_by_selector(self.math_scope)
             scopes = [scope for scope in math_scopes
                       if any(scope.contains(sel) for sel in view.sel())]
