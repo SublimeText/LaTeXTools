@@ -4,6 +4,7 @@
             "regex"
         ],
         ">=3118": [
+            "bs4",
             "pygments",
             "python-markdown",
             "mdpopups",
