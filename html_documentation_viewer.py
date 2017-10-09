@@ -21,7 +21,7 @@ class _show_documentation_popup():
         self.doc = doc
         self.pos = pos
         self.history = ([], [])
-        self._show_popup(on_hover=True)
+        self._show_popup(initial=True)
 
     def _command_close(self):
         self.view.hide_popup()
@@ -44,6 +44,19 @@ class _show_documentation_popup():
         self.history[0].append(doc)
         self._show_popup()
 
+    def _command_show_in_browser(self):
+        if not self.doc:
+            return
+        re_name = re.compile(
+            r'<a\s+name="([^"]+)"></a>'
+        )
+        m = re_name.search(self.doc)
+        if not m:
+            return
+        href = m.group(1).lstrip("#")
+        href = '{}#{}'.format(latex2e_html.get_doc_path(), href)
+        webbrowser.open(href)
+
     def _follow_doc_href(self, href):
         # save the previous document in the history
         self.history[0].append(self.doc)
@@ -53,7 +66,6 @@ class _show_documentation_popup():
         self._show_popup()
 
     def _open_url_in_browser(self, href):
-        pass
         answer = sublime.ok_cancel_dialog(
             "Do you want to open '{href}' in your browser?".format(href=href))
         if answer == sublime.DIALOG_YES:
@@ -73,33 +85,40 @@ class _show_documentation_popup():
         else:
             self._follow_doc_href(href)
 
-    def _show_popup(self, on_hover=False):
+    def _show_popup(self, initial=False):
         symbols = {
-            "cancel_char": "×",
-            "backward_char": "←",
-            "forward_char": "→",
+            "cancel_btn": "×",
+            "backward_btn": "←",
+            "forward_btn": "→",
+            "show_in_browser_btn": "(show in browser)",
         }
         html_head = "".join([
             '<p>',
-            '<a href="command-close">{cancel_char}</a> '.format(**symbols),
+            '<a href="command-close">{cancel_btn}</a> '.format(**symbols),
             (
-                '<a href="command-go_backward">{backward_char}</a> '
+                '<a href="command-go_backward">{backward_btn}</a> '
                 .format(**symbols)
                 if self.history[0] else
-                '{backward_char} '.format(**symbols)
+                '{backward_btn} '.format(**symbols)
             ),
             (
-                '<a href="command-go_forward">{forward_char}</a> '
+                '<a href="command-go_forward">{forward_btn}</a> '
                 .format(**symbols)
                 if self.history[1] else
-                '{forward_char} '.format(**symbols)
+                '{forward_btn} '.format(**symbols)
+            ),
+            (
+                '<a href="command-show_in_browser">{show_in_browser_btn}</a> '
+                .format(**symbols)
+                if self.doc and '<a name="' in self.doc else
+                ''
             ),
             '</p>',
         ])
         html_content = html_head + (self.doc or "No documentation found.")
         mdpopups.show_popup(
             self.view, html_content, md=False, location=self.pos,
-            flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY if on_hover else 0,
+            flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY if initial else 0,
             on_navigate=self._open_href
         )
 
