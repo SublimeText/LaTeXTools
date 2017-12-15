@@ -50,6 +50,8 @@ IMAGE_REG = re.compile(
 
 def _jumpto_tex_file(view, window, tex_root, file_name,
                      auto_create_missing_folders, auto_insert_root):
+    file_name = file_name.strip('"')
+    
     root_base_path, root_base_name = os.path.split(tex_root)
 
     ana = analysis.get_analysis(tex_root)
