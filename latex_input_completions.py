@@ -271,8 +271,12 @@ def parse_completions(view, line):
             sub = {
                 "root": root,
                 "base": tex_base_path,
-                "graphics_path": graphics_path,
             }
+
+            # only set graphics_path if one exists
+            if graphics_path != '':
+                sub['graphics_path'] = graphics_path
+
             if "post_regex" in entry:
                 m = re.search(entry["post_regex"], line[::-1])
                 if m:

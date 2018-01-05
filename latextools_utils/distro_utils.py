@@ -8,6 +8,6 @@ def using_miktex():
     distro = platform_settings.get('distro', '')
 
     if sublime.platform() == 'windows':
-        return distro in ['miktex', '']
+        return distro != 'texlive'
     else:
         return distro == 'miktex'

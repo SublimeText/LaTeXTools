@@ -11,8 +11,6 @@ import sublime_plugin
 
 from .latextools_utils import is_bib_buffer, is_biblatex_buffer
 
-_ST3 = sublime.version() >= '3000'
-
 __dir__ = os.path.dirname(__file__)
 if __dir__ == '.':
     __dir__ = os.path.join(sublime.packages_path(), 'LaTeXTools')

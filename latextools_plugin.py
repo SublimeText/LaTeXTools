@@ -273,88 +273,45 @@ def get_plugins_by_type(cls):
 
     return plugins
 
+
 # -- Private API --#
-if sys.version_info < (3, 0):
-    exec("""def reraise(tp, value, tb=None):
-    raise tp, value, tb
-""")
+from importlib.machinery import PathFinder, SourceFileLoader
+from . import latextools_plugin_internal as internal
 
-    import imp
 
-    def _load_module(module_name, filename, *paths):
-        name, ext = os.path.splitext(filename)
+# WARNING:
+# imp module is deprecated in 3.x, unfortunately, importlib does not seem
+# to have a stable API, as in 3.4, `find_module` is deprecated in favour of
+# `find_spec` and discussions of how best to provide access to the import
+# internals seem to be on-going
+def _load_module(module_name, filename, *paths):
+    name, ext = os.path.splitext(filename)
 
-        if ext in ('.py', ''):
-            f, path, description = imp.find_module(name, list(paths))
-            try:
-                module = imp.load_module(module_name, f, path, description)
-            finally:
-                if f:
-                    f.close()
-        else:
-            module = None
-            exc_info = None
+    if ext in ('.py', ''):
+        loader = PathFinder.find_module(name, path=paths)
+        if loader is None:
+            loader = PathFinder.find_module(name)
+        if loader is None:
+            raise ImportError(
+                'Could not find module {} on path {} or sys.path'.format(
+                    name, paths))
+    else:
+        loader = None
+        for path in paths:
+            p = os.path.normpath(os.path.join(path, filename))
+            if os.path.exists(p):
+                loader = SourceFileLoader(module_name, p)
 
-            for path in paths:
-                p = os.path.normpath(os.path.join(path, filename))
-                if os.path.exists(p):
-                    try:
-                        module = imp.load_source(module_name, filename)
-                    except ImportError:
-                        exc_info = sys.exc_info()
-            if not module and exc_info:
-                reraise(*exc_info)
+        if loader is None:
+            raise ImportError(
+                'Could not find module {} on path {}'.format(name, paths))
 
-        return module
+    loader.name = module_name
+    return loader.load_module()
 
-    strbase = basestring
-    FileNotFoundError = IOError
-else:
-    from importlib.machinery import PathFinder, SourceFileLoader
-    from imp import reload
 
-    # WARNING:
-    # imp module is deprecated in 3.x, unfortunately, importlib does not seem
-    # to have a stable API, as in 3.4, `find_module` is deprecated in favour of
-    # `find_spec` and discussions of how best to provide access to the import
-    # internals seem to be on-going
-    def _load_module(module_name, filename, *paths):
-        name, ext = os.path.splitext(filename)
-
-        if ext in ('.py', ''):
-            loader = PathFinder.find_module(name, path=paths)
-            if loader is None:
-                loader = PathFinder.find_module(name)
-            if loader is None:
-                raise ImportError(
-                    'Could not find module {} on path {} or sys.path'.format(
-                        name, paths))
-        else:
-            loader = None
-            for path in paths:
-                p = os.path.normpath(os.path.join(path, filename))
-                if os.path.exists(p):
-                    loader = SourceFileLoader(module_name, p)
-
-            if loader is None:
-                raise ImportError(
-                    'Could not find module {} on path {}'.format(name, paths))
-
-        loader.name = module_name
-        return loader.load_module()
-
-    strbase = str
-
-if sublime.version() < '3000':
-    import latextools_plugin_internal as internal
-
-    def _get_sublime_module_name(_, module):
-        return module
-else:
-    from . import latextools_plugin_internal as internal
-
-    def _get_sublime_module_name(directory, module):
-        return '{0}.{1}'.format(os.path.basename(directory), module)
+def _get_sublime_module_name(directory, module):
+    return '{0}.{1}'.format(os.path.basename(directory), module)
 
 
 class LaTeXToolsPluginRegistry(MutableMapping):
@@ -414,11 +371,6 @@ def _load_plugin(filename, *paths):
     if module_name in sys.modules:
         try:
             return sys.modules[module_name]
-        except ImportError:
-            # On ST2, this appears to be triggered on the initial reload and
-            # fails, so instead of reloading just continue to run the loading
-            # code
-            pass
         except FileNotFoundError:
             # A previous plugin has been moved or removed, so just reload it
             pass
@@ -444,7 +396,7 @@ def _load_plugins():
         return path
 
     for path in _get_plugin_paths():
-        if type(path) == strbase:
+        if isinstance(path, str):
             add_plugin_path(_resolve_plugin_path(path))
         else:
             try:
@@ -545,8 +497,3 @@ def _plugin_loaded():
 
     for path, glob in internal._REGISTERED_PATHS_TO_LOAD:
         add_plugin_path(path, glob)
-
-
-# ensure plugin_loaded() called on ST2
-if sublime.version() < '3000' and internal._REGISTRY is None:
-    plugin_loaded()

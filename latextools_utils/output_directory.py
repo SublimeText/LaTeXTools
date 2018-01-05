@@ -8,7 +8,6 @@ from . import get_setting
 from .distro_utils import using_miktex
 from .tex_directives import get_tex_root, parse_tex_directives
 from .sublime_utils import get_project_file_name
-from .system import make_dirs
 
 
 __all__ = [
@@ -264,7 +263,7 @@ def resolve_to_absolute_path(root, value, root_path):
             return None
 
         # create the directory
-        make_dirs(result)
+        os.makedirs(result, exist_ok=True)
 
         return result
 
@@ -309,7 +308,7 @@ def _get_tmp_dir():
         # unfortunately, there is no reliable way to do clean-up on exit
         # see https://github.com/SublimeTextIssues/Core/issues/10
         cache_dir = get_cache_directory()
-        make_dirs(cache_dir)
+        os.makedirs(cache_dir, exist_ok=True)
 
         temporary_output_dirs = os.path.join(
             cache_dir,

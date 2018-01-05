@@ -4,8 +4,6 @@ import traceback
 
 from . import bibformat, cache, get_setting
 from ..external.frozendict import frozendict
-from .six import long
-from .system import make_dirs
 
 _VERSION = 2
 
@@ -57,7 +55,7 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
                 traceback.print_exc()
             else:
                 with self._disk_lock:
-                    make_dirs(self.cache_path)
+                    os.makedirs(self.cache_path, exist_ok=True)
                     self._write(
                         self.cache_name,
                         {self.cache_name: bib_entries}
@@ -139,7 +137,7 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
         panel_format = get_setting("cite_panel_format")
 
         meta_data = frozendict(
-            cache_time=long(time.time()),
+            cache_time=int(time.time()),
             version=_VERSION,
             autocomplete_format=autocomplete_format,
             panel_format=panel_format

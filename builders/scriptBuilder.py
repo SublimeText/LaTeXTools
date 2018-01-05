@@ -4,20 +4,13 @@ import sublime
 import os
 import re
 import subprocess
-import sys
 
+from shlex import quote
 from string import Template
 
 from latextools_utils.external_command import (
 	external_command, get_texpath, update_env
 )
-
-if sys.version_info < (3, 0):
-	strbase = basestring
-	from pipes import quote
-else:
-	strbase = str
-	from shlex import quote
 
 _ST3 = sublime.version() >= '3000'
 
@@ -71,12 +64,12 @@ class ScriptBuilder(PdfBuilder):
 			# I'm not sure this is the best way to handle things...
 			raise StopIteration()
 
-		if isinstance(self.cmd, strbase):
+		if isinstance(self.cmd, str):
 			self.cmd = [self.cmd]
 
 		for cmd in self.cmd:
 			replaced_var = False
-			if isinstance(cmd, strbase):
+			if isinstance(cmd, str):
 				cmd, replaced_var = self.substitute(cmd)
 			else:
 				for i, component in enumerate(cmd):
@@ -84,12 +77,12 @@ class ScriptBuilder(PdfBuilder):
 					replaced_var = replaced_var or replaced
 
 			if not replaced_var:
-				if isinstance(cmd, strbase):
+				if isinstance(cmd, str):
 					cmd += ' ' + self.base_name
 				else:
 					cmd.append(self.base_name)
 
-			if not isinstance(cmd, strbase):
+			if not isinstance(cmd, str):
 				self.display("Invoking '{0}'... ".format(
 					u' '.join([quote(s) for s in cmd])
 				))
