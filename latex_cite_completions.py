@@ -15,33 +15,17 @@ At present, there is one supported method on custom plugins.
     can override this behaviour, however, by explicitly setting a value for
     whatever key they like.
 '''
-# ST2/ST3 compat
-from __future__ import print_function
 import sublime
-if sublime.version() < '3000':
-    # we are on ST2 and Python 2.X
-    _ST3 = False
-    import getTeXRoot
-    from kpsewhich import kpsewhich
-    from latextools_utils import (
-        analysis, bibformat, cache, get_setting
-    )
-    from latextools_utils.internal_types import FillAllHelper
-    from latextools_utils.six import strbase, reraise
-    import latextools_plugin
-else:
-    _ST3 = True
-    from . import getTeXRoot
-    from .kpsewhich import kpsewhich
-    from .latex_fill_all import FillAllHelper
-    from .latextools_utils import (
-        analysis, bibformat, cache, get_setting
-    )
-    from .latextools_utils.six import strbase, reraise
-    from . import latextools_plugin
+
+from . import getTeXRoot
+from .kpsewhich import kpsewhich
+from .latex_fill_all import FillAllHelper
+from .latextools_utils import (
+    analysis, bibformat, cache, get_setting
+)
+from . import latextools_plugin
 
 import os
-import sys
 import re
 
 import traceback
@@ -364,7 +348,7 @@ def run_plugin_command(command, *args, **kwargs):
                 print(error_message)
                 raise BibPluginError(error_message)
             else:
-                reraise(*sys.exc_info())
+                raise e
         except AttributeError as e:
             if "'{0}'".format(command) in str(e):
                 error_message = '{0} does not implement `{1}`'.format(
@@ -372,7 +356,7 @@ def run_plugin_command(command, *args, **kwargs):
                 print(error_message)
                 raise BibPluginError(error_message)
             else:
-                reraise(*sys.exc_info())
+                raise e
         except NotImplementedError:
             return None
 
@@ -384,7 +368,7 @@ def run_plugin_command(command, *args, **kwargs):
         plugins = 'traditional'
 
     result = None
-    if isinstance(plugins, strbase):
+    if isinstance(plugins, str):
         if not plugins.endswith('_bibliography'):
             plugins = '{0}_bibliography'.format(plugins)
         result = _run_command(plugins)
@@ -573,9 +557,3 @@ def plugin_loaded():
     latextools_plugin.add_plugin_path(
         os_path.join(
             sublime.packages_path(), 'LaTeXTools', 'bibliography_plugins'))
-
-
-
-# ensure plugin_loaded() called on ST2
-if not _ST3:
-    plugin_loaded()

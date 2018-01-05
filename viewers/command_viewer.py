@@ -9,19 +9,6 @@ import re
 import shlex
 import sublime
 import string
-import sys
-
-try:
-    from shlex import quote
-except ImportError:
-    from pipes import quote
-
-if sys.version_info >= (3, 0):
-    PY2 = False
-    strbase = str
-else:
-    PY2 = True
-    strbase = basestring
 
 
 WINDOWS_SHELL = re.compile(r'\b(?:cmd|powershell)(?:.exe)?\b', re.UNICODE)
@@ -33,7 +20,7 @@ class CommandViewer(BaseViewer):
     CONTAINS_VARIABLE = re.compile(
         r'\$(?:(?:pdf|src)_file(?:_(?:name|ext|base_name|path))?'
         r'|sublime_binary|src_file_rel_path|line|col)\b',
-        re.IGNORECASE | re.UNICODE
+        re.IGNORECASE
     )
 
     def _replace_vars(self, s, pdf_file, tex_file=None, line='', col=''):
@@ -111,14 +98,8 @@ class CommandViewer(BaseViewer):
         ), True)
 
     def _run_command(self, command, pdf_file, tex_file=None, line='', col=''):
-        if isinstance(command, strbase):
-            if PY2:
-                command = str(command)
-
+        if isinstance(command, str):
             command = shlex.split(command)
-
-            if PY2:
-                command = [unicode(c) for c in command]
 
         substitution_made = False
         for i, component in enumerate(command):

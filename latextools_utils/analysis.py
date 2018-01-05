@@ -10,7 +10,6 @@ import sublime
 from . import utils
 from .cache import LocalCache
 from ..external.frozendict import frozendict
-from .six import strbase
 from .tex_directives import get_tex_root
 
 
@@ -233,7 +232,7 @@ class Analysis(object):
         A list of all commands, which are preprocessed with the flags
         """
         # convert the filter into a function
-        if isinstance(how, strbase):
+        if isinstance(how, str):
             def command_filter(c):
                 return c.command == how
         elif type(how) is list:
@@ -329,7 +328,7 @@ def get_analysis(tex_root):
         tex_root = get_tex_root(tex_root)
         if tex_root is None:
             return
-    elif not isinstance(tex_root, strbase):
+    elif not isinstance(tex_root, str):
         raise TypeError("tex_root must be a string or view")
 
     result = LocalCache(tex_root).cache(
@@ -394,7 +393,7 @@ def analyze_document(tex_root):
         tex_root = get_tex_root(tex_root)
         if tex_root is None:
             return
-    elif not isinstance(tex_root, strbase):
+    elif not isinstance(tex_root, str):
         raise TypeError("tex_root must be a string or view")
 
     result = _analyze_tex_file(tex_root)
@@ -515,8 +514,7 @@ def _preprocess_file(file_name):
     reads and preprocesses a file, return the raw content
     and the content without comments
     """
-    raw_content = utils.run_on_main_thread(
-        partial(utils.get_file_content, file_name, force_lf_endings=True))
+    raw_content = utils.get_file_content(file_name, force_lf_endings=True)
 
     # replace all comments with spaces to not change the position
     # of the rest

@@ -11,6 +11,6 @@ def using_miktex():
 
     try:
         distro = platform_settings.get('distro', 'miktex')
-        return distro in ['miktex', '']
+        return distro != 'texlive'
     except KeyError:
         return True

@@ -1,23 +1,10 @@
-# ST2/ST3 compat
-from __future__ import print_function
 import sublime
-if sublime.version() < '3000':
-	_ST3 = False
-	# we are on ST2 and Python 2.X
-	import getTeXRoot
-	from latextools_utils import cache, get_setting, is_bib_buffer
-	from latextools_utils.output_directory import (
-		get_aux_directory, get_output_directory
-	)
-	from latextools_utils.six import get_self
-else:
-	_ST3 = True
-	from . import getTeXRoot
-	from .latextools_utils import cache, get_setting, is_bib_buffer
-	from .latextools_utils.output_directory import (
-		get_aux_directory, get_output_directory
-	)
-	from .latextools_utils.six import get_self
+
+from . import getTeXRoot
+from .latextools_utils import cache, get_setting, is_bib_buffer
+from .latextools_utils.output_directory import (
+	get_aux_directory, get_output_directory
+)
 
 import sublime_plugin
 import os
@@ -89,7 +76,7 @@ class ClearBibliographyCacheCommand(sublime_plugin.WindowCommand):
 		cache_listener = None
 		for callback in sublime_plugin.all_callbacks['on_close']:
 			try:
-				instance = get_self(callback)
+				instance = callback.__self__
 			except:
 				continue
 

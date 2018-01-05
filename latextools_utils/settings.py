@@ -2,24 +2,11 @@ from __future__ import print_function
 
 import sublime
 
-from functools import partial
-
-from .utils import run_on_main_thread
 
 __all__ = ['get_setting']
 
 
 def get_setting(setting, default=None, view=None):
-    if default is not None:
-        return run_on_main_thread(
-            partial(_get_setting, setting, default, view),
-            default_value=default)
-    else:
-        return run_on_main_thread(
-            partial(_get_setting, setting, view=view))
-
-
-def _get_setting(setting, default=None, view=None):
     advanced_settings = sublime.load_settings(
         'LaTeXTools (Advanced).sublime-settings')
     global_settings = sublime.load_settings('LaTeXTools.sublime-settings')

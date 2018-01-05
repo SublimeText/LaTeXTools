@@ -4,15 +4,9 @@ import re
 import sublime
 import sublime_plugin
 
-
-try:
-    from external.bibtex.names import Name
-    from external.bibtex.tex import tokenize_list
-    from latextools_utils import is_bib_buffer
-except ImportError:
-    from .external.bibtex.names import Name
-    from .external.bibtex.tex import tokenize_list
-    from .latextools_utils import is_bib_buffer
+from .external.bibtex.names import Name
+from .external.bibtex.tex import tokenize_list
+from .latextools_utils import is_bib_buffer
 
 
 NAME_FIELDS = Name.NAME_FIELDS
@@ -28,7 +22,7 @@ VALUE_REGEX = r'[\s~]*(?P<ENTRIES>(?:dna[\s~]+.+)+)?[\s~]*' \
 
 ON_NAME_FIELD_REGEX = re.compile(
     VALUE_REGEX + r'(?:' + r'|'.join((s[::-1] for s in NAME_FIELDS)) + r')\b',
-    re.IGNORECASE | re.UNICODE
+    re.IGNORECASE
 )
 
 
@@ -49,7 +43,8 @@ def _get_replacement(matcher, key):
 
         return u'{0}{1}{2}'.format(
             u'' if equals else u'= ' if match.startswith(u' ') else u' = ',
-            u'' if matcher.group('OPEN') else u'{' if not equals or match.startswith(u' ') else u' {',
+            u'' if matcher.group('OPEN') else
+            u'{' if not equals or match.startswith(u' ') else u' {',
             key
         )
 
@@ -63,9 +58,10 @@ def _get_replacement(matcher, key):
             key
         )
 
+
 NAME_FIELD_REGEX = re.compile(
     r'(?:^|[\s~]+)(?:' + r'|'.join(NAME_FIELDS) + ')\s*=\s*\{',
-    re.IGNORECASE | re.UNICODE
+    re.IGNORECASE
 )
 
 
@@ -76,7 +72,8 @@ def get_names_from_view(view):
 
 def get_names(contents):
     u'''
-    Work-horse function to extract all the names defined in the current bib file.
+    Work-horse function to extract all the names defined in the current bib
+    file.
     '''
     names = []
 
