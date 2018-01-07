@@ -6,6 +6,8 @@ import traceback
 
 import sublime
 
+from shutil import which
+
 if sublime.platform() == 'windows':
     import winreg
     import ctypes
@@ -22,8 +24,6 @@ from ..latextools_utils.distro_utils import using_miktex
 from ..latextools_utils.external_command import (
     get_texpath, execute_command, check_output, __sentinel__
 )
-from ..latextools_utils.system import which
-
 
 _lt_settings = {}
 
