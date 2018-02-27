@@ -468,6 +468,9 @@ class CmdThread ( threading.Thread ):
 						else:
 							content[-1] = content[-1] + " No bad boxes."
 
+				content.append("")
+				content.append(self.caller.tex_base + ".log:1: Here is the logfile.")
+
 				show_panel = {
 					"always": False,
 					"no_errors": bool(errors),
