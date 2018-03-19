@@ -469,7 +469,7 @@ class CmdThread ( threading.Thread ):
 							content[-1] = content[-1] + " No bad boxes."
 
 				content.append("")
-				content.append(self.caller.tex_base + ".log:1: Here is the logfile.")
+				content.append(log_file + ":1: Click here to open the full log.")
 
 				show_panel = {
 					"always": False,
