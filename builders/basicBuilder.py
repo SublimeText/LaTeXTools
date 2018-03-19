@@ -33,7 +33,7 @@ from latextools_utils.external_command import external_command, get_texpath
 
 # Standard LaTeX warning
 CITATIONS_REGEX = re.compile(
-    r"Warning: Citation [`|'].+' (on page \d+)? undefined")
+    r"Warning: Citation [`|'].+' (?:on page \d+ )?undefined")
 # Capture which program to run for BibLaTeX
 BIBLATEX_REGEX = re.compile(
     r"Package biblatex Warning: Please \(re\)run (\S*)")
