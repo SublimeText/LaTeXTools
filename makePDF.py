@@ -468,6 +468,9 @@ class CmdThread ( threading.Thread ):
 						else:
 							content[-1] = content[-1] + " No bad boxes."
 
+				content.append("")
+				content.append(log_file + ":1: Click here to open the full log.")
+
 				show_panel = {
 					"always": False,
 					"no_errors": bool(errors),
