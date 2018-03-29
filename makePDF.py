@@ -469,7 +469,7 @@ class CmdThread ( threading.Thread ):
 							content[-1] = content[-1] + " No bad boxes."
 
 				content.append("")
-				content.append(log_file + ":1: Click here to open the full log.")
+				content.append(log_file + ":1: Double-click here to open the full log.")
 
 				show_panel = {
 					"always": False,
