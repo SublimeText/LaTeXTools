@@ -305,7 +305,6 @@ class CmdThread ( threading.Thread ):
 					break
 
 				if isinstance(cmd, strbase) or isinstance(cmd, list):
-					print(cmd)
 					# Now create a Popen object
 					try:
 						proc = external_command(
