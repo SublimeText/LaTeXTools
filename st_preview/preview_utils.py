@@ -142,6 +142,7 @@ def _get_tl_gs_path(texpath):
         os.path.dirname(pdflatex),
         '..', '..', 'tlpkg', 'tlgs', 'bin'
     ))
+
     return (
         which('gswin32c', path=tlgs_path) or
         which('gswin64c', path=tlgs_path)
