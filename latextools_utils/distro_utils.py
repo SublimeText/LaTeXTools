@@ -7,13 +7,10 @@ except ImportError:
 
 
 def using_miktex():
-    if sublime.platform() != 'windows':
-        return False
-
     platform_settings = get_setting(sublime.platform(), {})
+    distro = platform_settings.get('distro', '')
 
-    try:
-        distro = platform_settings.get('distro', 'miktex')
+    if sublime.platform() == 'windows':
         return distro in ['miktex', '']
-    except KeyError:
-        return True
+    else:
+        return distro == 'miktex'
