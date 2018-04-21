@@ -99,7 +99,7 @@ class SumatraViewer(BaseViewer):
         try:
             external_command(
                 [sumatra_binary] + commands,
-                use_texpath=False, show_window=True
+                use_texpath=False
             )
         except OSError:
             exc_info = sys.exc_info()
@@ -109,7 +109,7 @@ class SumatraViewer(BaseViewer):
                 try:
                     external_command(
                         [sumatra_exe] + commands,
-                        use_texpath=False, show_window=True
+                        use_texpath=False
                     )
                 except OSError:
                     traceback.print_exc()
