@@ -112,7 +112,7 @@ class CommandViewer(BaseViewer):
             if PY2:
                 command = str(command)
 
-            command = shlex.split(command)
+            command = shlex.split(command, False, False)
 
             if PY2:
                 command = [unicode(c) for c in command]
