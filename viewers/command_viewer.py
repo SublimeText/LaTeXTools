@@ -11,11 +11,6 @@ import sublime
 import string
 import sys
 
-try:
-    from shlex import quote
-except ImportError:
-    from pipes import quote
-
 if sys.version_info >= (3, 0):
     PY2 = False
     strbase = str
