@@ -11,20 +11,12 @@ import sublime
 import string
 import sys
 
-try:
-    from shlex import quote
-except ImportError:
-    from pipes import quote
-
 if sys.version_info >= (3, 0):
     PY2 = False
     strbase = str
 else:
     PY2 = True
     strbase = basestring
-
-
-WINDOWS_SHELL = re.compile(r'\b(?:cmd|powershell)(?:.exe)?\b', re.UNICODE)
 
 
 # a viewer that runs a user-specified command
@@ -115,7 +107,7 @@ class CommandViewer(BaseViewer):
             if PY2:
                 command = str(command)
 
-            command = shlex.split(command)
+            command = shlex.split(command, False, False)
 
             if PY2:
                 command = [unicode(c) for c in command]
@@ -131,11 +123,7 @@ class CommandViewer(BaseViewer):
 
         external_command(
             command,
-            cwd=os.path.split(pdf_file)[0],
-            # show the Window if not using a Windows shell, i.e., powershell or
-            # cmd
-            show_window=not bool(WINDOWS_SHELL.match(command[0]))
-            if sublime.platform() == 'windows' else False
+            cwd=os.path.split(pdf_file)[0]
         )
 
     def forward_sync(self, pdf_file, tex_file, line, col, **kwargs):

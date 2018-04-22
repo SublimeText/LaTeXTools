@@ -54,7 +54,6 @@ else:
 	long = int
 
 import sublime_plugin
-import sys
 import os
 import signal
 import threading
@@ -78,14 +77,37 @@ if _HAS_PHANTOMS:
 
 # The actual work is done by builders, loaded on-demand from prefs
 
+
 # Encoding: especially useful for Windows
 # TODO: counterpart for OSX? Guess encoding of files?
+# Hopefully with Python 3.6+ this is unnecessary
 def getOEMCP():
+	if hasattr(getOEMCP, '_result'):
+		return getOEMCP._result
+
 	# Windows OEM/Ansi codepage mismatch issue.
 	# We need the OEM cp, because texify and friends are console programs
 	import ctypes
-	codepage = ctypes.windll.kernel32.GetOEMCP()
-	return str(codepage)
+	import codecs
+
+	codepage = str(ctypes.windll.kernel32.GetOEMCP())
+
+	# codepage should be an integer value, some of which are mapped
+	# by Python's default encodings, if that's the case, just use the
+	# provided encoding
+	try:
+		codecs.lookup(codepage)
+	except LookupError:
+		# otherwise, preprend cp to it to get, e.g. cp850
+		codepage = 'cp' + codepage
+		try:
+			codecs.lookup(codepage)
+		except LookupError:
+			# if the codepage can't be determined, default to utf-8
+			codepage = 'utf-8'
+
+	getOEMCP._result = codepage
+	return codepage
 
 
 class LatextoolsBuildSelector(sublime_plugin.WindowCommand):
@@ -283,7 +305,6 @@ class CmdThread ( threading.Thread ):
 					break
 
 				if isinstance(cmd, strbase) or isinstance(cmd, list):
-					print(cmd)
 					# Now create a Popen object
 					try:
 						proc = external_command(
@@ -467,6 +488,9 @@ class CmdThread ( threading.Thread ):
 							content.append("No bad boxes.")
 						else:
 							content[-1] = content[-1] + " No bad boxes."
+
+				content.append("")
+				content.append(log_file + ":1: Double-click here to open the full log.")
 
 				show_panel = {
 					"always": False,

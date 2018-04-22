@@ -41,6 +41,8 @@ from .st_preview.preview_utils import (
     __get_gs_command as get_gs_command
 )
 
+if sublime.platform() == 'windows':
+    from .st_preview.preview_utils import get_system_root
 
 def expand_vars(texpath):
     return os.path.expandvars(texpath)
@@ -432,6 +434,15 @@ class SystemCheckThread(threading.Thread):
                         break
             else:
                 location = which(program, path=texpath)
+
+            # convert.exe on Windows can refer to %sysroot%\convert.exe,
+            # which should not be used; in that case, simple report magick.exe
+            # as not existing
+            if program == 'convert' and sublime.platform() == 'windows':
+                system_root = get_system_root().lower()
+                if location.lower().startswith(system_root):
+                    program = 'magick'
+                    location = None
 
             available = location is not None
 

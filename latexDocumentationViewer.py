@@ -14,7 +14,7 @@ def _view_texdoc(file):
         raise TypeError('File must be a string')
 
     command = ['texdoc']
-    if sublime.platform() == 'windows' and using_miktex():
+    if using_miktex():
         command.append('--view')
     command.append(file)
 
