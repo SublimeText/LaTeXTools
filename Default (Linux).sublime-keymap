@@ -460,7 +460,7 @@ LaTeX Package keymap for Linux
 	{ "keys": ["shift+super+down"], "command": "insert_snippet", "args": {"contents": "_{$1}$0"}, 
 	"context":  
 		[
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex string.other.math"},
+			{"key": "selector", "operator": "equal", "operand": "ttext.tex.latex meta.environment.math"},
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
 		]
@@ -469,7 +469,7 @@ LaTeX Package keymap for Linux
 	{ "keys": ["shift+super+up"], "command": "insert_snippet", "args": {"contents": "^{$1}$0"}, 
 	"context":  
 		[
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex string.other.math"},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex meta.environment.math"},
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
 		]
