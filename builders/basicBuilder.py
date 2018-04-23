@@ -98,7 +98,7 @@ class BasicBuilder(PdfBuilder):
         for option in self.options:
             latex.append(option)
 
-        latex.append(self.base_name)
+        latex.append(self.tex_name)
 
         # Check if any subfolders need to be created
         # this adds a number of potential runs as LaTeX treats being unable
