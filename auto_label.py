@@ -72,6 +72,8 @@ def _find_label_content(view, pos, find_region):
             view.score_selector(pos, "meta.environment.math")):
         env_mapping = get_setting("auto_label_env_mapping", {})
         label_type = env_mapping.get("<math>", "eq")
+    elif label_type == "???":
+        label_type = _find_label_type_by_env(view, pos) or label_type
 
     return label_type, label_content
 
