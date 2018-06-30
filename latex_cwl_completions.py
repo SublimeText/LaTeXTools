@@ -7,6 +7,7 @@ import glob
 import os
 import re
 import threading
+from sys import exc_info
 
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
@@ -423,6 +424,13 @@ def cwl_parsing_handler(callback):
                     )
                 )
                 continue
+            except UnicodeDecodeError:
+                print(
+                    u'{0}: {1}'.format(
+                        cwl_file, exc_info()[1]
+                    )
+                )
+                continue
         else:
             if not os.path.isabs(cwl_file) and cwl_file.startswith('Package'):
                 cwl_file = os.path.normpath(
@@ -435,6 +443,13 @@ def cwl_parsing_handler(callback):
                 print(
                     u'{0} does not exist or could not be accessed'.format(
                         cwl_file
+                    )
+                )
+                continue
+            except UnicodeDecodeError:
+                print(
+                    u'{0}: {1}'.format(
+                        cwl_file, exc_info()[1]
                     )
                 )
                 continue
