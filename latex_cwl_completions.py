@@ -94,6 +94,7 @@ def get_cwl_file_name(package):
         cwl_file = '{0}.cwl'.format(package)
     return cwl_file
 
+
 # returns the cwl completions instances
 def get_cwl_completions():
     plugin_loaded()
@@ -231,6 +232,7 @@ class CwlCompletions(object):
     # hack to display the autocompletions once they are available
     def _hack(self):
         sublime.active_window().run_command("hide_auto_complete")
+
         def hack2():
             sublime.active_window().active_view().run_command("auto_complete")
         sublime.set_timeout(hack2, 1)
@@ -578,6 +580,7 @@ def plugin_loaded():
     _create_cwl_packages_paths()
     if CWL_COMPLETIONS is None:
         CWL_COMPLETIONS = CwlCompletions()
+
 
 if not _ST3:
     plugin_loaded()
