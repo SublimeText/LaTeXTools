@@ -4,8 +4,12 @@
 	{ "caption": "LaTeXTools: Clear cache", "command": "latextools_clear_cache"},
 	{ "caption": "LaTeXTools: Clear document cache", "command": "clear_local_latex_cache"},
 	{ "caption": "LaTeXTools: Clear current bibliography cache", "command": "clear_bibliography_cache"},
+	{ "caption": "LaTeXTools: Fill All Helper", "command": "latex_fill_all"},
 	{ "caption": "LaTeXTools: View PDF", "command": "view_pdf"},
 	{ "caption": "LaTeXTools: Jump to PDF", "command": "jump_to_pdf"},
+	{ "caption": "LaTeXTools: Reveal Aux Directory", "command": "latextools_reveal_aux_directory"},
+	{ "caption": "LaTeXTools: Reveal Output Directory", "command": "latextools_reveal_output_directory"},
+	{ "caption": "LaTeXTools: Reveal TeX Root Directory", "command": "latextools_reveal_tex_root_directory"},
 	{ "caption": "LaTeXTools: Show word count", "command": "texcount"},
 	{ "caption": "LaTeXTools: Show toggles", "command": "toggle_show"},
 	{ "caption": "LaTeXTools: Search for commands in document", "command": "latex_search_command_input"},
@@ -15,5 +19,6 @@
 	{ "caption": "LaTeXTools: View TeX package documentation", "command": "latex_pkg_doc"},
 	{ "caption": "LaTeXTools: Build cache of LaTeX packages", "command": "latex_gen_pkg_cache"},
 	{ "caption": "LaTeXTools: Update document analysis cache", "command": "latextools_analysis_update"},
-	{ "caption": "LaTeXTools: Update bibliography cache", "command": "latextools_bib_update"}
+	{ "caption": "LaTeXTools: Update bibliography cache", "command": "latextools_bib_update"},
+	{ "caption": "LaTeXTools: Paste Image from Clipboard", "command": "latextools_smart_paste"}
 ]

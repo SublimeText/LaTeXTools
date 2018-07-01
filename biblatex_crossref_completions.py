@@ -1,20 +1,9 @@
-from __future__ import print_function
+import re
 
 import sublime
 import sublime_plugin
 
-import re
-import sys
-
-try:
-    from latextools_utils import is_bib_buffer, is_biblatex_buffer
-except ImportError:
-    from .latextools_utils import is_bib_buffer, is_biblatex_buffer
-
-if sys.version_info > (3, 0):
-    strbase = str
-else:
-    strbase = basestring
+from .latextools_utils import is_bib_buffer, is_biblatex_buffer
 
 # Regexes to detect the various types of crossref fields
 # Expected field in the format:
@@ -49,13 +38,14 @@ XDATA_REGEX = re.compile(
 # set indicating entries that have their own special handling...
 SPECIAL_ENTRIES = set(['@xdata', '@set'])
 
+
 def _get_keys_by_type(view, valid_types):
     if not valid_types:
         return []
 
     if callable(valid_types):
         validator = valid_types
-    elif type(valid_types) == strbase:
+    elif type(valid_types) == str:
         def validator(s):
             return s == valid_types
     else:
@@ -74,6 +64,7 @@ def _get_keys_by_type(view, valid_types):
             keys.append(key)
 
     return keys
+
 
 # BibLaTeX supports custom user-defined keys specified in the `id` field
 def _get_keys_from_id_field(view):
@@ -95,23 +86,29 @@ def _get_keys_from_id_field(view):
 
     return keys
 
+
 def _get_cite_keys_validator(s):
     return s not in SPECIAL_ENTRIES
+
 
 def get_cite_keys(view):
     return _get_keys_by_type(view, _get_cite_keys_validator) + \
         _get_keys_from_id_field(view)
 
+
 def get_xdata_keys(view):
     return _get_keys_by_type(view, '@xdata')
 
+
 def get_entryset_keys(view):
     return _get_keys_by_type(view, '@set')
+
 
 def get_text_to_cursor(view):
     cursor = view.sel()[0].b
     current_region = sublime.Region(0, cursor)
     return view.substr(current_region)
+
 
 # builds the replacement string depending on the current context of the line
 def _get_replacement(matcher, key):
@@ -128,15 +125,21 @@ def _get_replacement(matcher, key):
         key
     )
 
+
 def get_completions_if_matches(regex, line, get_key_list_func, view):
     matcher = regex.match(line)
     if matcher:
-        return ([(key, _get_replacement(matcher, key))
-                for key in sorted(set(get_key_list_func(view)))],
-                sublime.INHIBIT_WORD_COMPLETIONS |
-                sublime.INHIBIT_EXPLICIT_COMPLETIONS)
+        return (
+            [
+                (key, _get_replacement(matcher, key))
+                for key in sorted(set(get_key_list_func(view)))
+            ],
+            sublime.INHIBIT_WORD_COMPLETIONS |
+            sublime.INHIBIT_EXPLICIT_COMPLETIONS
+        )
     else:
         return []
+
 
 class BiblatexCrossrefCompletions(sublime_plugin.EventListener):
     def on_query_completions(self, view, prefix, locations):
@@ -157,10 +160,12 @@ class BiblatexCrossrefCompletions(sublime_plugin.EventListener):
         if not is_biblatex_buffer(view):
             return []
 
-        return get_completions_if_matches(
-                    BIBLATEX_REGEX, current_line, get_cite_keys, view) or \
+        return (
             get_completions_if_matches(
-                    XDATA_REGEX, current_line, get_xdata_keys, view) or \
+                BIBLATEX_REGEX, current_line, get_cite_keys, view) or
             get_completions_if_matches(
-                    ENTRY_SET_REGEX, current_line, get_entryset_keys, view) or \
+                XDATA_REGEX, current_line, get_xdata_keys, view) or
+            get_completions_if_matches(
+                ENTRY_SET_REGEX, current_line, get_entryset_keys, view) or
             []
+        )

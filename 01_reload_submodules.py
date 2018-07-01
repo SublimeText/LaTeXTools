@@ -86,6 +86,7 @@ if sublime.version() > '3118':
     ]
 
     EXPORT_MODULES += [
+        'latextools_utils.input_quickpanel',
         'st_preview.preview_math',
         'st_preview.preview_image'
     ]
@@ -128,6 +129,8 @@ def plugin_unloaded():
         mod = MOD_PREFIX + module
         try:
             sys.modules[mod].plugin_unloaded()
+        except KeyError:
+            pass
         except AttributeError:
             pass
 

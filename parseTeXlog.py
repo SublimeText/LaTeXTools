@@ -708,6 +708,16 @@ def parse_tex_log(data, root_dir):
 				errors.append(err_msg)
 				errors.append("Check the TeX log file for more information")
 				continue
+			#special: all text was ignored after line
+			if "all text was ignored after line" in line:
+				# we may be unable to report a file by popping it, so HACK HACK HACK
+				file_name, linelen = advance_iterator(log_iterator) # <inserted text>
+				file_name, linelen = advance_iterator(log_iterator) #      \fi
+				file_name, linelen = advance_iterator(log_iterator)
+				file_name = file_name[3:] # here is the file name with <*> in front
+				errors.append("TeX STOPPED: " + line[1:].strip())
+				errors.append("TeX reports the error was in file:" + file_name)
+				continue
 			# Now it's a regular TeX error 
 			err_msg = line[2:] # skip "! "
 			# next time around, err_msg will be set and we'll extract all info

@@ -4,20 +4,11 @@ import os
 import sublime
 import tempfile
 
-try:
-    from latextools_utils import get_setting
-    from latextools_utils.distro_utils import using_miktex
-    from latextools_utils.tex_directives import (
-        get_tex_root, parse_tex_directives
-    )
-    from latextools_utils.sublime_utils import get_project_file_name
-    from latextools_utils.system import make_dirs
-except ImportError:
-    from . import get_setting
-    from .distro_utils import using_miktex
-    from .tex_directives import get_tex_root, parse_tex_directives
-    from .sublime_utils import get_project_file_name
-    from .system import make_dirs
+from . import get_setting
+from .distro_utils import using_miktex
+from .tex_directives import get_tex_root, parse_tex_directives
+from .sublime_utils import get_project_file_name
+from .system import make_dirs
 
 
 __all__ = [

@@ -1,37 +1,19 @@
 # -*- coding:utf-8 -*-
-# ST2/ST3 compat
-from __future__ import print_function
-import sublime
-import sublime_plugin
-
+import json
 import os
 import re
-import json
 
-try:
-    from latex_fill_all import FillAllHelper
-    from latextools_utils import analysis
-    from latextools_utils.is_tex_file import get_tex_extensions
-    from latextools_utils.output_directory import (
-        get_aux_directory, get_output_directory
-    )
-except ImportError:
-    from .latex_fill_all import FillAllHelper
-    from .latextools_utils import analysis
-    from .latextools_utils.is_tex_file import get_tex_extensions
-    from .latextools_utils.output_directory import (
-        get_aux_directory, get_output_directory
-    )
+import sublime
 
-if sublime.version() < '3000':
-    # we are on ST2 and Python 2.X
-    _ST3 = False
-    import getTeXRoot
-    from latextools_utils import get_setting
-else:
-    _ST3 = True
-    from . import getTeXRoot
-    from .latextools_utils import get_setting
+from .latex_fill_all import FillAllHelper
+from .latextools_utils import analysis
+from .latextools_utils.is_tex_file import get_tex_extensions
+from .latextools_utils.output_directory import (
+    get_aux_directory, get_output_directory
+)
+
+from . import getTeXRoot
+from .latextools_utils import get_setting
 
 
 def _filter_invalid_entries(entries):
@@ -114,7 +96,8 @@ def plugin_loaded():
             "regex": r'(?:\][^{}\[\]]*\[)?scihpargedulcni\\',
             "extensions": get_setting("image_types", [
                 "pdf", "png", "jpeg", "jpg", "eps"
-            ])
+            ]),
+            "folder": "${graphics_path:$base}"
         },
         # import/subimport
         {
@@ -182,13 +165,10 @@ def plugin_loaded():
         "(?:{0})".format("|".join(entry["regex"] for entry in _fillall_entries))
     )
 
-if not _ST3:
-    plugin_loaded()
-
 
 # Get all file by types
-def get_file_list(root, types, filter_exts=[], base_path=None, output_directory=None,
-                  aux_directory=None):
+def get_file_list(root, types, filter_exts=[], base_path=None,
+                  output_directory=None, aux_directory=None):
     if not base_path:
         base_path = os.path.dirname(root)
 
@@ -229,7 +209,9 @@ def get_file_list(root, types, filter_exts=[], base_path=None, output_directory=
                 if f.endswith(ext):
                     f = f[:-len(ext)]
 
-            completions.append((os.path.relpath(dir_name, base_path), f))
+            completions.append(
+                (base_path, os.path.relpath(dir_name, base_path), f)
+            )
 
     return completions
 
@@ -284,10 +266,12 @@ def parse_completions(view, line):
         if root:
             ana = analysis.get_analysis(root)
             tex_base_path = ana.tex_base_path(view.file_name())
+            graphics_path = ";".join(ana.graphics_paths())
             completions = []
             sub = {
                 "root": root,
-                "base": tex_base_path
+                "base": tex_base_path,
+                "graphics_path": graphics_path,
             }
             if "post_regex" in entry:
                 m = re.search(entry["post_regex"], line[::-1])
@@ -297,9 +281,8 @@ def parse_completions(view, line):
             if "folder" in entry:
                 folders = []
                 for folder in entry["folder"].split(";"):
-                    import string
-                    temp = string.Template(folder)
-                    folders.append(temp.safe_substitute(sub))
+                    folder_path = sublime.expand_variables(folder, sub)
+                    folders.extend(f for f in folder_path.split(";") if f)
             else:
                 folders = [tex_base_path]
             for base_path in folders:
@@ -332,16 +315,11 @@ def parse_completions(view, line):
 
 
 def _get_cache():
-    if _ST3:
-        cache_path = os.path.normpath(
-            os.path.join(sublime.cache_path(), "LaTeXTools"))
-    else:
-        cache_path = os.path.normpath(
-            os.path.join(sublime.packages_path(), "User"))
+    cache_path = os.path.normpath(
+        os.path.join(sublime.cache_path(), "LaTeXTools"))
 
     pkg_cache_file = os.path.normpath(
-        os.path.join(cache_path, 'pkg_cache.cache'
-                     if _ST3 else 'latextools_pkg_cache.cache'))
+        os.path.join(cache_path, 'pkg_cache.cache'))
 
     cache = None
     if not os.path.exists(pkg_cache_file):
@@ -376,7 +354,7 @@ class InputFillAllHelper(FillAllHelper):
                 os.path.normpath(
                     os.path.join(relpath, filename)
                 ).replace('\\', '/')
-                for relpath, filename in completions
+                for base_path, relpath, filename in completions
             ]
 
     def get_completions(self, view, prefix, line):
@@ -387,26 +365,16 @@ class InputFillAllHelper(FillAllHelper):
         elif not type(completions[0]) is tuple:
             return completions
         else:
-            tex_root = getTeXRoot.get_tex_root(view)
-            if tex_root:
-                root_path = os.path.dirname(tex_root)
-            else:
-                print(
-                    "Can't find TeXroot. "
-                    "Assuming current directory is {0}".format(os.curdir)
-                )
-                root_path = os.curdir
-
             formatted_completions = []
             normal_completions = []
-            for relpath, filename in completions:
+            for base_path, relpath, filename in completions:
                 latex_formatted = os.path.normpath(os.path.join(
                     relpath, filename)).replace('\\', '/')
 
                 formatted_completions.append([
                     latex_formatted,
                     os.path.normpath(os.path.join(
-                        root_path, relpath, filename)
+                        base_path, relpath, filename)
                     )
                 ])
 

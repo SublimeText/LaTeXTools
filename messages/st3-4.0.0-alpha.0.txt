@@ -1,0 +1,7 @@
+LaTeXTools Plugin version 4.0.0-alpha.0 (2017-06-05) changelog:
+
+Features:
+- Improved support for the subfiles package. Now the preamble of the root file will be taken into account in the document analysis (and hence in fill-all helper/cwl completions/...).
+- Added support for the \graphicspath{...} command.
+- Improved toggle settings command (C-l, t, ?). This will called if you use an unknown toggle and can be edited via the settings.
+- Improve fill-all helper support for glossary completions to show more information in the overlay.

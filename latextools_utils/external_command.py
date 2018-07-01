@@ -33,65 +33,40 @@
 # on external_command() accept a `use_texpath` parameter which indicates
 # whether or not to run the executable with the PATH set to the current value
 # of texpath.
-
-import sublime
-
 import os
-import re
 import sys
+import re
 from shlex import split
 
 import subprocess
 from subprocess import Popen, PIPE, STDOUT, CalledProcessError
 
-try:
-    from latextools_utils.settings import get_setting
-    from latextools_utils.system import which
-    from latextools_utils.utils import run_on_main_thread
-except ImportError:
-    from .settings import get_setting
-    from .system import which
-    from .utils import run_on_main_thread
+import sublime
 
-if sys.version_info < (3,):
-    from pipes import quote
+from .settings import get_setting
+from .system import which
+from .utils import run_on_main_thread
 
-    def expand_vars(texpath):
-        return os.path.expandvars(texpath).encode(sys.getfilesystemencoding())
+from imp import reload
+from shlex import quote
 
-    def update_env(old_env, new_env):
-        encoding = sys.getfilesystemencoding()
-        old_env.update(
-            dict((k.encode(encoding), v) for (k, v) in new_env.items())
-        )
 
-    # reraise implementation from 6
-    exec("""def reraise(tp, value, tb=None):
-    raise tp, value, tb
-""")
+def expand_vars(texpath):
+    return os.path.expandvars(texpath)
 
-    strbase = basestring
-else:
-    from imp import reload
-    from shlex import quote
 
-    def expand_vars(texpath):
-        return os.path.expandvars(texpath)
+def update_env(old_env, new_env):
+    old_env.update(new_env)
 
-    def update_env(old_env, new_env):
-        old_env.update(new_env)
 
-    # reraise implementation from 6
-    def reraise(tp, value, tb=None):
-        if value is None:
-            value = tp()
-        if value.__traceback__ is not tb:
-            raise value.with_traceback(tb)
-        raise value
+# reraise implementation from 6
+def reraise(tp, value, tb=None):
+    if value is None:
+        value = tp()
+    if value.__traceback__ is not tb:
+        raise value.with_traceback(tb)
+    raise value
 
-    strbase = str
-
-_ST3 = sublime.version() >= '3000'
 
 __all__ = ['external_command', 'execute_command', 'check_call', 'check_output',
            'get_texpath', 'update_env']
@@ -153,7 +128,7 @@ def external_command(command, cwd=None, shell=False, env=None,
     # unless shell is set to True on a non-Windows platform
     if (
         (shell is False or sublime.platform() == 'windows') and
-        isinstance(command, strbase)
+        isinstance(command, str)
     ):
         if sys.version_info < (3,):
             command = str(command)
@@ -185,12 +160,6 @@ def external_command(command, cwd=None, shell=False, env=None,
 
             if _command:
                 command[0] = _command
-
-        # encode cwd in the file system encoding; this is necessary to support
-        # some non-ASCII paths; see PR #878. Thanks to anamewing for the
-        # suggested fix
-        if not _ST3 and cwd:
-            cwd = cwd.encode(sys.getfilesystemencoding())
 
     if stdin is __sentinel__:
         stdin = None

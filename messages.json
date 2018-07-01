@@ -107,5 +107,13 @@
 	"v3.15.1": "messages/v3.15.1.txt",
 	"st2-3.15.1": "messages/v3.15.1.txt",
 	"st3until3125-3.15.1": "messages/v3.15.1.txt",
-	"st3-3.15.1": "messages/v3.15.1.txt"
+	"st3-3.15.1": "messages/v3.15.1.txt",
+	"st3-4.0.0-alpha.0": "messages/st3-4.0.0-alpha.0.txt",
+	"st3-4.0.0-alpha.1": "messages/st3-4.0.0-alpha.1.txt",
+	"st3-4.0.0-alpha.2": "messages/st3-4.0.0-alpha.2.txt",
+	"st3-4.0.0-alpha.3": "messages/st3-4.0.0-alpha.3.txt",
+	"st3-4.0.0-alpha.4": "messages/st3-4.0.0-alpha.4.txt",
+	"st3-4.0.0-alpha.5": "messages/st3-4.0.0-alpha.5.txt",
+	"st3-4.0.0-alpha.6": "messages/st3-4.0.0-alpha.6.txt",
+	"st3-4.0.0-alpha.7": "messages/st3-4.0.0-alpha.7.txt"
 }

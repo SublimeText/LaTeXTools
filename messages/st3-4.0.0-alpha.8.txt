@@ -1,0 +1,5 @@
+LaTeXTools Plugin version st3-4.0.0-alpha.8 (2018-XX-XX) changelog:
+
+Features:
+
+- Add auto-paring for \(, \[, \{, \left\{, \left(, and \left[

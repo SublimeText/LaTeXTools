@@ -37,6 +37,88 @@
 		"label"
 	],
 
+	// This contains kbd-sequences to toggle settings. It is an array,
+	// which consists of 2/3-tuples.
+	// This first entry is the name of the settings and the second the
+	// key-sequence. The third is optional and contains a description
+	// of the setting. If the key-sequence consists of more than one
+	// character you need to add an extra keybinding with the prefix, e.g.:
+	// {
+	//   "keys": ["ctrl+l","t", "a", "b", "<character>"],
+	//   "command": "latextools_toggle_keys", "args": {"prefix": "ab"},
+	//   "context":
+	//   [
+	//     {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+	//   ]
+	// },
+	"toggle_setting_keys": [
+		["open_pdf_on_build", "v", "Open the PDF in the PDF viewer"],
+		["forward_sync", "s", "Jump to the position in the PDF viewer"],
+		["keep_focus", "f", "focus editor: True, focus PDF viewer: False"],
+		["ref_auto_trigger", "ar"],
+		["cite_auto_trigger", "ac"],
+		["fill_auto_trigger", "af"],
+		["env_auto_trigger", "ae"],
+		["glossary_auto_trigger", "ag"],
+		["tex_directive_auto_trigger", "ad"],
+		["auto_label_auto_trigger", "aa"],
+		["smart_bracket_auto_trigger", "ab"],
+	],
+
+
+
+// ------------------------------------------------------------------
+// Smart-paste config
+// ------------------------------------------------------------------
+
+	// This is the snippet, which will be used by smart paste.
+	// The strings in the array will be joined by a newline.
+	// You can change it as a usual Sublime Text snippet, but need to add
+	// <<image_name>> at the position where the path to the image should be
+	// inserted
+	"smart_paste_image_snippet": [
+		"\\begin{figure}",
+		"\\centering",
+		"\\includegraphics[$2]{<<image_name>>}",
+		"\\caption{$1}",
+		"\\label{fig:${1/([0-9a-zA-Z_])|([^0-9a-zA-Z_]+)/\\L\\1(?2:_:)/g}}",
+		"\\end{figure}",
+	],
+
+
+// ------------------------------------------------------------------
+// Auto-label config
+// ------------------------------------------------------------------
+	// A mapping from the commands to their abbreviation, i.e. \label{abbrv:text}
+	"auto_label_command_mapping": {
+		"part": "part",
+		"chapter": "cha",
+		"section": "sec",
+		"subsection": "sub",
+		"subsubsection": "ssub",
+		"paragraph": "par",
+	},
+
+	// A mapping from the environments to their abbreviation, i.e. \label{abbrv:text}
+	// This will be used if the command is \caption{...}
+	"auto_label_env_mapping": {
+		"figure": "fig",
+		"table": "tab",
+		"listing": "lst",
+		"<math>": "eq",
+	},
+
+	// A char replacement in the auto-label generation. This should contain a mapping
+	// for all characters outside the range A-Z, a-z, 0-9 (and map into that range).
+	// All other characters will be substituted by an underscore (_).
+	"auto_label_char_replace": {
+		"ü": "ue",
+		"ä": "ae",
+		"ö": "oe",
+		"ß": "ss",
+	},
+
+
 
 // ------------------------------------------------------------------
 // Opening files included into the tex source code

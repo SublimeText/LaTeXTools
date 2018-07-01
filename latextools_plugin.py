@@ -110,9 +110,6 @@ API:
     available or expose an already available module to plugins under a
     different name.
 '''
-from __future__ import print_function
-
-import sublime
 
 import glob as _glob
 import os
@@ -125,12 +122,10 @@ from contextlib import contextmanager
 
 from collections import MutableMapping
 
-try:
-    from latextools_utils import get_setting
-    import latextools_plugin_internal as internal
-except ImportError:
-    from .latextools_utils import get_setting
-    from . import latextools_plugin_internal as internal
+import sublime
+
+from .latextools_utils import get_setting
+from . import latextools_plugin_internal as internal
 
 __all__ = [
     'LaTeXToolsPlugin', 'get_plugin', 'get_plugins_by_type',

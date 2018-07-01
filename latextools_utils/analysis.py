@@ -1,36 +1,18 @@
 import copy
-import os
-import re
 import itertools
-from functools import partial
+import os
+import regex
 import traceback
+from functools import partial
 
 import sublime
 
-if sublime.version() < '3000':
-    _ST3 = False
-    from latextools_utils import utils
-    from latextools_utils.cache import LocalCache
-    from external.frozendict import frozendict
-    from latextools_utils.six import strbase
-    from latextools_utils.tex_directives import get_tex_root
-else:
-    _ST3 = True
-    from . import utils
-    from .cache import LocalCache
-    from ..external.frozendict import frozendict
-    from .six import strbase
-    from .tex_directives import get_tex_root
+from . import utils
+from .cache import LocalCache
+from ..external.frozendict import frozendict
+from .six import strbase
+from .tex_directives import get_tex_root
 
-# because we cannot natively pickle sublime.Region in ST2
-# we provide the ability to pickle
-if not _ST3:
-    import copy_reg
-
-    def pickle_region(region):
-        return (sublime.Region, (region.a, region.b))
-
-    copy_reg.pickle(sublime.Region, pickle_region)
 
 # attributes of an entry (for documentation)
 """
@@ -53,26 +35,49 @@ for each regex name:
 # usually it is \command[optargs]{args}
 # but it can be way more complicated, e.g.
 # \newenvironment{ENVIRONMENTNAME}[COUNT][OPTIONAL]{BEGIN}{END}
-# this regex does not capture all posibilities, but hopefully,
+# this regex does not capture all possibilities, but hopefully,
 # all we need and can obviously be extended without losing backward
 # compatibility
 # regex names are:
 # \command[optargs]{args}[optargs2][optargs2a]{args2}[optargs3]{args3}
-_RE_COMMAND = re.compile(
-    r"\\(?P<command>[A-Za-z]+)(?P<star>\*?)\s*?"
-    r"(?:\[(?P<optargs>[^\]]*)\])?\s*?"
-    r"(\{(?P<args>[^\}]*)\}\s*?)?"
-    r"(?:\[(?P<optargs2>[^\]]*)\])?\s*?"
-    r"(?:\[(?P<optargs2a>[^\]]*)\])?\s*?"
-    r"(?:\{(?P<args2>[^\}]*)\})?"
-    r"(?:\[(?P<optargs3>[^\]]*)\])?\s*?"
-    r"(?:\{(?P<args3>[^\}]*)\})?",
-    re.MULTILINE | re.UNICODE
+# the argument names (in correct order!)
+_COMMAND_ARG_NAMES = (
+    "optargs", "args",
+    "optargs2", "optargs2a", "args2",
+    "optargs3", "args3"
+)
+_RE_COMMAND = regex.compile(
+    r"\\(?<command>[A-Za-z]+)(?<star>\*?)" +  # The initial command
+    # build the rest from the command arg names
+    "\n".join(
+        r"""
+        (?:
+          [ \t]*\n?[ \t]*  # optional whitespaces
+          {open}
+            (?<{name}>
+              (?:
+                [^{open}{close}]++  # everything except recursive matches
+                |  # or
+                {open}
+                    (?&{name})  # match recursive
+                {close}
+              )*
+            )
+          {close}
+        )?
+        """.format(
+            name=name,
+            # optional arguments are [...], normal arguments are {...}
+            open=(r"\[" if name.startswith("opt") else r"\{"),
+            close=(r"\]" if name.startswith("opt") else r"\}"),
+        )
+        for name in _COMMAND_ARG_NAMES
+    ), regex.MULTILINE | regex.UNICODE | regex.VERBOSE
 )
 # this regex is used to remove comments
-_RE_COMMENT = re.compile(
+_RE_COMMENT = regex.compile(
     r"((?<=^)|(?<=[^\\]))%.*",
-    re.UNICODE
+    regex.UNICODE
 )
 # the analysis will walk recursively into the included files
 # i.e. the 'args' field of the command
@@ -86,10 +91,13 @@ _import_commands = [
 # FLAGS
 def _flag():
     """get the next free flag"""
-    current_flag = _flag.flag
+    try:
+        current_flag = _flag.flag
+    except AttributeError:
+        current_flag = _flag.flag = 1
     _flag.flag <<= 1
     return current_flag
-_flag.flag = 1
+
 
 # dummy for no flag
 ALL_COMMANDS = 0
@@ -133,6 +141,10 @@ class Analysis(object):
         self._import_base_paths = {}
 
         self.__frozen = False
+
+        # This state is used to hold the state during the analysis
+        # and will be deleted afterwards
+        self._state = {}
 
     def tex_root(self):
         """The tex root of the analysis"""
@@ -235,8 +247,31 @@ class Analysis(object):
         com = self._commands(flags)
         return tuple(filter(command_filter, com))
 
+    def graphics_paths(self):
+        try:
+            return self._graphics_path
+        except AttributeError:
+            pass
+        self._graphics_path = []
+        commands = self.filter_commands("graphicspath")
+        for com in commands:
+            base_path = os.path.join(self.tex_base_path(com.file_name))
+            paths = (p.rstrip("}") for p in com.args.split("{") if p)
+            self._graphics_path.extend(
+                os.path.normpath(
+                    p if os.path.isabs(p)
+                    else os.path.join(base_path, p)
+                )
+                for p in paths
+            )
+
+        return self._graphics_path
+
     def _add_command(self, command):
         self._all_commands.append(command)
+
+    def _extend_commands(self, commands):
+        self._all_commands.extend(commands)
 
     def _build_cache(self, flags):
         com = self._all_commands
@@ -260,6 +295,10 @@ class Analysis(object):
         self._raw_content = frozendict(**self._raw_content)
         self._all_commands = tuple(c for c in self._all_commands)
         self.__frozen = True
+        try:
+            del self._state
+        except AttributeError:
+            pass
 
     def __copy__(self):
         return self
@@ -299,6 +338,43 @@ def get_analysis(tex_root):
     return result
 
 
+def _generate_entries(m, file_name, offset=0):
+    # insert all relevant information into this dict, which is based
+    # on the group dict, i.e. all regex matches
+    entryDict = m.groupdict()
+
+    entryDict.update({
+        "file_name": file_name,
+        "text": m.group(0),
+        "start": offset + m.start(),
+        "end": offset + m.end(),
+        "region": sublime.Region(offset + m.start(), offset + m.end())
+    })
+    # insert the regions of the matches into the entry dict
+    for k in m.groupdict().keys():
+        region_name = k + "_region"
+        reg = m.regs[m.re.groupindex[k]]
+        entryDict[region_name] = sublime.Region(
+            offset + reg[0], offset + reg[1])
+    # create an object from the dict and insert it into the analysis
+    entry = objectview(frozendict(entryDict))
+    yield entry
+
+    # recursively add commands, which are inside arguments
+    for args_name in _COMMAND_ARG_NAMES:
+        args_content = entryDict[args_name]
+        if not args_content:
+            continue
+        for em in _RE_COMMAND.finditer(args_content):
+            if not em:
+                continue
+            try:
+                offset = entryDict[args_name + "_region"].begin()
+            except KeyError:
+                continue
+            yield from _generate_entries(em, file_name, offset=offset)
+
+
 def analyze_document(tex_root):
     """
     Analyzes the document
@@ -326,7 +402,7 @@ def analyze_document(tex_root):
 
 
 def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
-                      ana=None, import_path=None):
+                      ana=None, import_path=None, only_preamble=False):
     # init ana and the file name
     if not ana:
         ana = Analysis(tex_root)
@@ -365,39 +441,35 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
     except:
         print('Error occurred while preprocessing {0}'.format(file_name))
         traceback.print_exc()
+        print('Continuing...')
         return ana
 
     ana._content[file_name] = content
     ana._raw_content[file_name] = raw_content
 
     for m in _RE_COMMAND.finditer(content):
+        # TODO maybe also handle all generated entries
         g = m.group
 
-        # insert all relevant information into this dict, which is based
-        # on the group dict, i.e. all regex matches
-        entryDict = m.groupdict()
-        entryDict.update({
-            "file_name": file_name,
-            "text": g(0),
-            "start": m.start(),
-            "end": m.end(),
-            "region": sublime.Region(m.start(), m.end())
-        })
-        # insert the regions of the matches into the entry dict
-        for k in m.groupdict().keys():
-            region_name = k + "_region"
-            reg = m.regs[_RE_COMMAND.groupindex[k]]
-            entryDict[region_name] = sublime.Region(reg[0], reg[1])
-        # create an object from the dict and insert it into the analysis
-        entry = objectview(frozendict(entryDict))
-        ana._add_command(entry)
+        # precancel if we only parse the preamble (for subfiles)
+        if (only_preamble and g("command") == "begin" and
+                g("args") == "document"):
+            ana._state["preamble_finished"] = True
+            return ana
+
+        ana._extend_commands(_generate_entries(m, file_name))
 
         # read child files if it is an input command
         if g("command") in _input_commands and g("args") is not None:
             process_file_stack.append(file_name)
             open_file = os.path.join(base_path, g("args"))
-            _analyze_tex_file(tex_root, open_file, process_file_stack, ana)
+            _analyze_tex_file(
+                tex_root, open_file, process_file_stack, ana,
+                only_preamble=only_preamble)
             process_file_stack.pop()
+            # check that we still need to analyze
+            if only_preamble and ana._state.get("preamble_finished", False):
+                return ana
         elif (g("command") in _import_commands and g("args") is not None and
                 g("args2") is not None):
             if g("command").startswith("sub"):
@@ -411,8 +483,29 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
             process_file_stack.append(file_name)
             _analyze_tex_file(
                 tex_root, open_file, process_file_stack, ana,
-                import_path=next_import_path)
+                import_path=next_import_path, only_preamble=only_preamble)
             process_file_stack.pop()
+            # check that we still need to analyze
+            if only_preamble and ana._state.get("preamble_finished", False):
+                return ana
+        # subfile support:
+        # if we are not in the root file (i.e. not call from included files)
+        # and have the command \documentclass[main.tex]{subfiles}
+        # analyze the root file
+        elif (tex_root != file_name and g("command") == "documentclass" and
+                g("args") == "subfiles"):
+            main_file = g("optargs")
+            if not main_file:
+                continue
+            main_file = os.path.join(base_path, main_file)
+            process_file_stack.append(file_name)
+            _analyze_tex_file(main_file, main_file, process_file_stack, ana,
+                              import_path=None, only_preamble=True)
+            process_file_stack.pop()
+            try:
+                del ana._state["preamble_finished"]
+            except KeyError:
+                pass
 
     return ana
 

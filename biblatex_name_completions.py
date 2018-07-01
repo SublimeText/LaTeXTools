@@ -1,12 +1,9 @@
 # coding=utf-8
-
-from __future__ import print_function
+import re
 
 import sublime
 import sublime_plugin
 
-import re
-import sys
 
 try:
     from external.bibtex.names import Name
@@ -17,11 +14,6 @@ except ImportError:
     from .external.bibtex.tex import tokenize_list
     from .latextools_utils import is_bib_buffer
 
-if sys.version_info > (3, 0):
-    strbase = str
-    unicode = str
-else:
-    strbase = basestring
 
 NAME_FIELDS = Name.NAME_FIELDS
 
@@ -118,7 +110,7 @@ def get_names(contents):
                 chars.append(c)
 
             names.extend([
-                unicode(Name(s)) for s in tokenize_list(u''.join(chars))
+                str(Name(s)) for s in tokenize_list(u''.join(chars))
             ])
 
             pos += len(chars)
