@@ -492,10 +492,14 @@ class LatexFillHelper(object):
         :param value:
             the string to insert
         '''
+        cmd_mode = view.settings().get('command_mode', False)
         if value:
             new_regions = []
             for sel in view.sel():
-                view.insert(edit, sel.end(), value)
+                if cmd_mode and view.substr(sel.end()+1) == '\n':
+                    view.insert(edit, sel.end()+1, value)
+                else:
+                    view.insert(edit, sel.end(), value)
                 if sel.empty():
                     new_start = new_end = sel.end() + len(value)
                 else:
