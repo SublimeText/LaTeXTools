@@ -1,0 +1,13 @@
+LaTeXTools Plugin version 3.8.0 (2016-06-18) changelog:
+
+Features:
+
+- Support for output directory and aux directory
+- Support for editing BibTeX and BibLaTeX files
+- Improved environment and command completions
+- Viewer for Zathura (#468)
+- New, Improved README format
+
+Bugfixes:
+
+- Various minor bugs and improvements

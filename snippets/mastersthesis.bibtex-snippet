@@ -1,0 +1,14 @@
+<snippet>
+	<content><![CDATA[
+% Optional fields: type, address, month, note
+@MASTERSTHESIS{${1:Key},
+	author = {${2:Author/Editor}},
+	title = {${3:Title}},
+	school = {${4:School}},
+	year = {${5:Year}}
+}
+]]></content>
+	<tabTrigger>mastersthesis</tabTrigger>
+	<description>BibTeX Master Thesis</description>
+	<scope>text.bibtex</scope>
+</snippet>

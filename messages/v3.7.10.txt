@@ -1,0 +1,12 @@
+LaTeXTools Plugin version 3.7.10 (2016-05-12) changelog:
+
+Features:
+
+- Updated Evince scripts to run on Python3 and try to autodetect Python version (#721, #333, #400)
+- Support for multiple cursors with \input, \include and environment completions (#691)
+- Ref commands run with only a single label will automatically be completed
+- keep_focus and forward_sync can be set via arguments to the jump_to_pdf command (#680)
+
+Bugfixes:
+
+- Improve author_short (#691)

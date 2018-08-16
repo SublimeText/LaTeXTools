@@ -1,0 +1,4 @@
+LaTeXTools Plugin version 3.12.11 (2016-12-04) changelog:
+
+Bugfixes:
+- Fixed a bug which caused plugins to be unavailable on reload (#973)

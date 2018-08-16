@@ -1,12 +1,5 @@
 # ST2/ST3 compat
 from __future__ import print_function 
-import sublime
-if sublime.version() < '3000':
-    # we are on ST2 and Python 2.X
-    _ST3 = False
-else:
-    _ST3 = True
-
 
 import re
 import sys
@@ -14,12 +7,12 @@ import os.path
 
 
 # To accommodate both Python 2 and 3
-def advance_iterator(it):
-	if not _ST3:
+if sys.version_info >= (3,):
+	advance_iterator = next
+else:
+	def _advance_iterator(it):
 		return it.next()
-	else:
-		return next(it)
-
+	advance_iterator = _advance_iterator
 
 print_debug = False
 interactive = False
@@ -27,7 +20,7 @@ extra_file_ext = []
 
 def debug(s):
 	if print_debug:
-		print ("parseTeXlog: " + s.encode('UTF-8')) # I think the ST2 console wants this
+		print(u"parseTeXlog: {0}".format(s))
 
 # The following function is only used when debugging interactively.
 #
@@ -39,20 +32,24 @@ def debug(s):
 # Return value: the question is, "Should I skip this file?" Hence:
 # 	True means YES, DO SKIP IT, IT IS NOT A FILE
 #	False means NO, DO NOT SKIP IT, IT IS A FILE
-def debug_skip_file(f):
+def debug_skip_file(f, root_dir):
 	# If we are not debugging, then it's not a file for sure, so skip it
-	if not (print_debug and interactive):
+	# if not (print_debug or interactive):
+	if not (interactive or print_debug):
 		return True
 	debug("debug_skip_file: " + f)
 	f_ext = os.path.splitext(f)[1].lower()[1:]
 	# Heuristic: TeXlive on Mac or Linux (well, Ubuntu at least) or Windows / MiKTeX
 	# Known file extensions:
-	known_file_exts = ['tex','sty','cls','cfg','def','mkii','fd','map','clo', 'dfu', \
-						'ldf', 'bdf', 'bbx','cbx','lbx']
+	known_file_exts = ['tex','sty','cls','cfg','def','mkii','fd','map','clo', 'dfu',
+						'ldf', 'bdf', 'bbx','cbx','lbx','dict']
 	if (f_ext in known_file_exts) and \
 	   (("/usr/local/texlive/" in f) or ("/usr/share/texlive/" in f) or ("Program Files\\MiKTeX" in f) \
-	   	or re.search(r"\\MiKTeX\\\d\.\d+\\tex",f)) or ("\\MiKTeX\\tex\\" in f):
+	   	or re.search(r"\\MiKTeX(?:\\| )\d\.\d+\\tex",f)) or ("\\MiKTeX\\tex\\" in f):
 		print ("TeXlive / MiKTeX FILE! Don't skip it!")
+		return False
+	if (f_ext in known_file_exts and re.search(r'(\\|/)texmf\1', f, re.I)):
+		print ("File in TEXMF tree! Don't skip it!")
 		return False
 	# Heuristic: "version 2010.12.02"
 	if re.match(r"version \d\d\d\d\.\d\d\.\d\d", f):
@@ -75,11 +72,34 @@ def debug_skip_file(f):
 		print ("Skip it!")
 		return True
 	# Heuristic: file in local directory with .tex ending
-	file_exts = extra_file_ext + ['tex', 'aux', 'bbl', 'cls', 'sty','out']
-	if f[0:2] in ['./', '.\\', '..'] and f_ext in file_exts:
+	file_exts = extra_file_ext + ['tex', 'aux', 'bbl', 'cls', 'sty', 'out', 'toc', 'dbx']
+	if (f.startswith(root_dir) or f[0:2] in ['./', '.\\', '..']) and f_ext in file_exts:
 		print ("File! Don't skip it")
 		return False
-	if raw_input() == "":
+
+	# Heuristic: absolute path that looks like home directory
+	if f[0] == '/':
+		if f.split('/')[1] in ['home', 'Users']:
+			print("Assuming home directory file. Don't skip!")
+			return False
+	# N.B. this is not a good technique for detecting the user folder
+	# on Windows, but is hopefully "good enough" for the common configuration
+	# (given that this will not usually be run on the computer that generated
+	# the log)
+	elif re.match(r'^[A-Z]:\\(?:Documents and Settings|Users)\\', f):
+		print("Assuming home directory file. Don't skip!")
+		return False
+
+	if not interactive:
+		print("Automatically skipping")
+		return True
+
+	if sys.version_info < (3,):
+		choice = raw_input()
+	else:
+		choice = input()
+
+	if choice == "":
 		print ("Skip it")
 		return True
 	else:
@@ -91,10 +111,11 @@ def debug_skip_file(f):
 # Input: tex log file, read in **binary** form, unprocessed
 # Output: content to be displayed in output panel, split into lines
 
-def parse_tex_log(data):
+def parse_tex_log(data, root_dir):
 	debug("Parsing log file")
 	errors = []
 	warnings = []
+	badboxes = []
 	parsing = []
 
 	guessed_encoding = 'UTF-8' # for now
@@ -111,7 +132,7 @@ def parse_tex_log(data):
 		debug("log file not in UTF-8 encoding!")
 		errors.append("ERROR: your log file is not in UTF-8 encoding.")
 		errors.append("Sorry, I can't process this file")
-		return (errors, warnings)
+		return (errors, warnings, badboxes)
 
 	# loop over all log lines; construct error message as needed
 	# This will be useful for multi-file documents
@@ -142,10 +163,18 @@ def parse_tex_log(data):
 	file_useless1_rx = re.compile(r"\{\"?(?:\.|\.\./)*[^\.]+\.[^\{\}]*\"?\}(.*)")
 	# Useless file #2: <filename.ext>; capture subsequent text
 	file_useless2_rx = re.compile(r"<\"?(?:\.|\.\./)*[^\.]+\.[^>]*\"?>(.*)")
+	# attempt to filter out log messages like this:
+	#  (package)          continued warning...
+	# from being considered files
+	file_badmatch_rx = re.compile(r"^\s*\([a-zA-Z]+\)\s{4,}.+")
 	pagenum_begin_rx = re.compile(r"\s*\[\d*(.*)")
-	line_rx = re.compile(r"^l\.(\d+)\s(.*)")		# l.nn <text>
+	line_rx = re.compile(r"^l\.(\d+)\s(.*)")  # l.nn <text>
+
 	warning_rx = re.compile(r"^(.*?) Warning: (.+)") # Warnings, first line
-	line_rx_latex_warn = re.compile(r"input line (\d+)\.$") # Warnings, line number
+	line_rx_latex_warn = re.compile(r"input line (\d+)\..*") # Warnings, line number
+	
+	badbox_rx = re.compile(r"^(.*?)Overfull (.*)")  # Bad box warning
+	line_rx_latex_badbox = re.compile(r"lines (\d+)--(.*?)")   # Bad box lines
 	matched_parens_rx = re.compile(r"\([^()]*\)") # matched parentheses, to be deleted (note: not if nested)
 	assignment_rx = re.compile(r"\\[^=]*=")	# assignment, heuristics for line merging
 	# Special case: the xy package, which reports end of processing with "loaded)" or "not reloaded)"
@@ -159,20 +188,37 @@ def parse_tex_log(data):
 
 	# Support function to handle warnings
 	def handle_warning(l):
-
 		if files==[]:
 			location = "[no file]"
 			parsing.append("PERR [handle_warning no files] " + l)
+			debug("PERR [handle_warning no files] (%d)" % (line_num,))
 		else:
 			location = files[-1]		
 
 		warn_match_line = line_rx_latex_warn.search(l)
+
 		if warn_match_line:
 			warn_line = warn_match_line.group(1)
 			warnings.append(location + ":" + warn_line + ": " + l)
 		else:
 			warnings.append(location + ": " + l)
 
+	# Support function to handle bad boxes
+	def handle_badbox(l):
+		if files==[]:
+			location = "[no file]"
+			parsing.append("PERR [handle_badbox no files] " + l)
+			debug("PERR [handle_badbox no files] (%d)" % (line_num,))
+		else:
+			location = files[-1]		
+
+		badbox_match_line = line_rx_latex_badbox.search(l)
+
+		if badbox_match_line:
+			badbox_line = badbox_match_line.group(1)
+			badboxes.append(location + ":" + badbox_line + ": " + l)
+		else:
+			badboxes.append(location + ": " + l)
 	
 	# State definitions
 	STATE_NORMAL = 0
@@ -184,7 +230,7 @@ def parse_tex_log(data):
 
 	# Use our own iterator instead of for loop
 	log_iterator = log.__iter__()
-	line_num=0
+	line_num = 0
 	line = ""
 	linelen = 0
 
@@ -198,7 +244,7 @@ def parse_tex_log(data):
 		if recycle_extra:
 			line, linelen = extra, extralen
 			recycle_extra = False
-			line_num +=1
+			line_num += 1
 		elif reprocess_extra:
 			line = extra # NOTE: we must remember that we are reprocessing. See long-line heuristics
 		else: # we read a new line
@@ -220,7 +266,7 @@ def parse_tex_log(data):
 		# also, the **<file name> line may be long, but we skip it, too (to avoid edge cases)
 		# We make sure we are NOT reprocessing a line!!!
 		# Also, we make sure we do not have a filename match, or it would be clobbered by exending!
-		if (not reprocess_extra) and line_num>1 and linelen>=79 and line[0:2] != "**": 
+		if (not reprocess_extra) and line_num > 1 and linelen >= 79 and line[0:2] != "**": 
 			debug ("Line %d is %d characters long; last char is %s" % (line_num, len(line), line[-1]))
 			# HEURISTICS HERE
 			extend_line = True
@@ -229,16 +275,29 @@ def parse_tex_log(data):
 			# A bit inefficient as we duplicate some of the code below for filename matching
 			file_match = file_rx.match(line)
 			if file_match:
+				if line.startswith('runsystem') or file_badmatch_rx.match(line):
+					debug("Ignoring possible file: " + line)
+					file_match = False
+
+			if file_match:
 				debug("MATCHED (long line)")
 				file_name = file_match.group(1)
-				file_extra = file_match.group(2) + file_match.group(3) # don't call it "extra"
+
 				# remove quotes if necessary, but first save the count for a later check
 				quotecount = file_name.count("\"")
 				file_name = file_name.replace("\"", "")
+
+				# Normalize the file path
+				file_name = os.path.normpath(file_name)
+				if not os.path.isabs(file_name):
+					file_name = os.path.normpath(os.path.join(root_dir, file_name))
+
+				file_extra = file_match.group(2) + file_match.group(3) # don't call it "extra"
+				
 				# NOTE: on TL201X pdftex sometimes writes "pdfTeX warning" right after file name
 				# This may or may not be a stand-alone long line, but in any case if we
 				# extend, the file regex will fire regularly
-				if file_name[-6:]=="pdfTeX" and file_extra[:8]==" warning":
+				if file_name[-6:] == "pdfTeX" and file_extra[:8] == " warning":
 					debug("pdfTeX appended to file name, extending")
 				# Else, if the extra stuff is NOT ")" or "", we have more than a single
 				# file name, so again the regular regex will fire
@@ -250,7 +309,7 @@ def parse_tex_log(data):
 					debug("only one quote, extending")
 				# Now we have a long line consisting of a potential file name alone
 				# Check if it really is a file name
-				elif (not os.path.isfile(file_name)) and debug_skip_file(file_name):
+				elif (not os.path.isfile(file_name)) and debug_skip_file(file_name, root_dir):
 					debug("Not a file name")
 				else:
 					debug("IT'S A (LONG) FILE NAME WITH NO EXTRA TEXT")
@@ -266,9 +325,15 @@ def parse_tex_log(data):
 					# HEURISTIC: if extra line begins with "Package:" "File:" "Document Class:",
 					# or other "well-known markers",
 					# we just had a long file name, so do not add
-					if extralen>0 and \
-					   (extra[0:5]=="File:" or extra[0:8]=="Package:" or extra[0:15]=="Document Class:") or \
-					   (extra[0:9]=="LaTeX2e <") or assignment_rx.match(extra):
+					if extralen > 0 and (
+						extra[0:5] == "File:" or
+						extra[0:8] == "Package:" or
+						extra[0:11] == "Dictionary:" or
+						extra[0:15] == "Document Class:"
+					) or (
+						extra[0:9] == "LaTeX2e <" or
+						assignment_rx.match(extra)
+					):
 						extend_line = False
 						# no need to recycle extra, as it's nothing we are interested in
 					# HEURISTIC: when TeX reports an error, it prints some surrounding text
@@ -279,6 +344,18 @@ def parse_tex_log(data):
 						debug("Found [...]")
 						extend_line = False
 						recycle_extra = True # make sure we process the "l.<nn>" line!
+					# unsure about this...
+					# if the "extra" (next line) starts with a ( and we already have a
+					# valid file, this likely starts something else we need to
+					# process as a file, so add a space...
+					elif extralen > 0 and extra[0] == '(' and (
+						os.path.isfile(file_name) or not debug_skip_file(file_name, root_dir)
+					):
+						line += " " + extra
+						debug("Extended: " + line)
+						linelen += extralen + 1
+						if extralen < 79:
+							extend_line = False
 					else:
 						line += extra
 						debug("Extended: " + line)
@@ -287,6 +364,9 @@ def parse_tex_log(data):
 							extend_line = False
 				except StopIteration:
 					extend_line = False # end of file, so we must be done. This shouldn't happen, btw
+
+		# NOW WE GOT OUR EXTENDED LINE, SO START PROCESSING
+
 		# We may skip the above "if" because we are reprocessing a line, so reset flag:
 		reprocess_extra = False
 		# Check various states
@@ -305,22 +385,27 @@ def parse_tex_log(data):
 			if not err_match:
 				continue
 			# now we match!
-			state = STATE_NORMAL
+			# state = STATE_NORMAL
+			# TeX splits the error line in two, so we skip the
+			# second part. In the future we may want to capture that, too
+			# and figure out the column, perhaps.
+			state = STATE_SKIP 
 			err_line = err_match.group(1)
 			err_text = err_match.group(2)
 			# err_msg is set from last time
 			if files==[]:
 				location = "[no file]"
 				parsing.append("PERR [STATE_REPORT_ERROR no files] " + line)
+				debug("PERR [STATE_REPORT_ERROR no files] (%d)" % (line_num,))
 			else:
 				location = files[-1]
 			debug("Found error: " + err_msg)		
 			errors.append(location + ":" + err_line + ": " + err_msg + " [" + err_text + "]")
 			continue
-		if state==STATE_REPORT_WARNING:
+		if state == STATE_REPORT_WARNING:
 			# add current line and check if we are done or not
 			current_warning += line
-			if line[-1]=='.':
+			if len(line) == 0 or line[-1] == '.':
 				handle_warning(current_warning)
 				current_warning = None
 				state = STATE_NORMAL # otherwise the state stays at REPORT_WARNING
@@ -336,9 +421,14 @@ def parse_tex_log(data):
 			debug(line)
 
 		# Skip things that are clearly not file names, though they may trigger false positives
-		if len(line)>0 and \
-			(line[0:5]=="File:" or line[0:8]=="Package:" or line[0:15]=="Document Class:") or \
-			(line[0:9]=="LaTeX2e <"):
+		if len(line) > 0 and (
+			line[0:5] == "File:" or
+			line[0:8] == "Package:" or
+			line[0:11] == "Dictionary:" or
+			line[0:15 ] == "Document Class:"
+		) or (
+			line[0:9] == "LaTeX2e <" or assignment_rx.match(line)
+		):
 			continue
 
 		# Are we done? Get rid of extra spaces, just in case (we may have extended a line, etc.)
@@ -393,8 +483,12 @@ def parse_tex_log(data):
 		# skip everything for now
 		# Over/underfull messages end with [] so look for that
 		if line[0:8] == "Overfull" or line[0:9] == "Underfull":
+
+			current_badbox = line;
 			if line[-2:]=="[]": # one-line over/underfull message
+				handle_badbox(current_badbox)
 				continue
+
 			ou_processing = True
 			while ou_processing:
 				try:
@@ -405,13 +499,19 @@ def parse_tex_log(data):
 				line_num += 1
 				debug("Over/underfull: skip " + line + " (%d) " % line_num)
 				# Sometimes it's " []" and sometimes it's "[]"...
-				if len(line)>0 and line in [" []", "[]"]:
+#				if len(line)>0 and line[:3] == " []" or line[:2] == "[]":
+				# NO, it really should be just " []"
+				if len(line)>0 and line == " []":
 					ou_processing = False
+				else:
+					current_badbox += line
+
 			if ou_processing:
 				warnings.append("Malformed LOG file: over/underfull")
 				warnings.append("Please let me know via GitHub")
 				break
 			else:
+				handle_badbox(current_badbox)
 				continue
 
 		# Special case: the bibgerm package, which has comments starting and ending with
@@ -420,7 +520,8 @@ def parse_tex_log(data):
 						and files and "bibgerm" in files[-1]:
 			debug("special case: bibgerm")
 			debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
-			files.pop()
+			f = files.pop()
+			debug(u"Popped file: {0} ({1})".format(f, line_num))
 			continue
 
 		# Special case: the relsize package, which puts ")" at the end of a
@@ -429,7 +530,8 @@ def parse_tex_log(data):
 						and files and  "relsize" in files[-1]:
 			debug("special case: relsize")
 			debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
-			files.pop()
+			f = files.pop()
+			debug(u"Popped file: {0} ({1})".format(f, line_num))
 			continue
 		
 		# Special case: the comment package, which puts ")" at the end of a 
@@ -451,7 +553,8 @@ def parse_tex_log(data):
 						and files and "numprint" in files[-1]:
 			debug("special case: numprint")
 			debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
-			files.pop()
+			f = files.pop()
+			debug(u"Popped file: {0} ({1})".format(f, line_num))
 			continue	
 
 		# Special case: xypic's "loaded)" at the BEGINNING of a line. Will check later
@@ -463,7 +566,8 @@ def parse_tex_log(data):
 			# likely to be an xypic file? Look for xypic in the file name
 			if files and "xypic" in files[-1]:
 				debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
-				files.pop()
+				f = files.pop()
+				debug(u"Popped file: {0} ({1})".format(f, line_num))
 				extra = xypic_match.group(1)
 				debug("Reprocessing " + extra)
 				reprocess_extra = True
@@ -471,19 +575,27 @@ def parse_tex_log(data):
 			else:
 				debug("Found loaded) but top file name doesn't have xy")
 
+		# mostly these are caused by hyperref and re-using internal identifiers
+		if "pdfTeX warning (ext4): destination with the same identifier" in line:
+			# add warning
+			handle_warning(line[line.find("destination with the same identifier"):])
+			continue
 
 		line = line.strip() # get rid of initial spaces
 		# note: in the next line, and also when we check for "!", we use the fact that "and" short-circuits
-		if len(line)>0 and line[0]==')': # denotes end of processing of current file: pop it from stack
+		# denotes end of processing of current file: pop it from stack
+		if len(line) > 0 and line[0] == ')':
 			if files:
 				debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
-				files.pop()
+				f = files.pop()
+				debug(u"Popped file: {0} ({1})".format(f, line_num))
 				extra = line[1:]
 				debug("Reprocessing " + extra)
 				reprocess_extra = True
 				continue
 			else:
 				parsing.append("PERR [')' no files]")
+				debug("PERR [')' no files] (%d)" % (line_num,))
 				break
 
 		# Opening page indicators: skip and reprocess
@@ -525,8 +637,18 @@ def parse_tex_log(data):
 		debug("FILE? Line:" + line)
 		file_match = file_rx.match(line)
 		if file_match:
+			if line.startswith('runsystem') or file_badmatch_rx.match(line):
+				debug("Ignoring possible file: " + line)
+				file_match = False
+
+		if file_match:
 			debug("MATCHED")
 			file_name = file_match.group(1)
+			file_name = os.path.normpath(file_name.strip('"'))
+
+			if not os.path.isabs(file_name):
+				file_name = os.path.normpath(os.path.join(root_dir, file_name))
+
 			extra = file_match.group(2) + file_match.group(3)
 			# remove quotes if necessary
 			file_name = file_name.replace("\"", "")
@@ -538,7 +660,7 @@ def parse_tex_log(data):
 				file_name = file_name[:-6]
 				extra = "pdfTeX" + extra
 			# This kills off stupid matches
-			if (not os.path.isfile(file_name)) and debug_skip_file(file_name):
+			if (not os.path.isfile(file_name)) and debug_skip_file(file_name, root_dir):
 				#continue
 				# NOTE BIG CHANGE HERE: CONTINUE PROCESSING IF NO MATCH
 				pass
@@ -567,7 +689,8 @@ def parse_tex_log(data):
 			# likely to be an xypic file? Look for xypic in the file name
 			if files and "xypic" in files[-1]:
 				debug(" "*len(files) + files[-1] + " (%d)" % (line_num,))
-				files.pop()
+				f = files.pop()
+				debug(u"Popped file: {0} ({1})".format(f, line_num))
 				extra = xypic_match.group(1)
 				debug("Reprocessing " + extra)
 				reprocess_extra = True
@@ -602,7 +725,6 @@ def parse_tex_log(data):
 			reprocess_extra = True
 			continue		
 
-
 		warning_match = warning_rx.match(line)
 		if warning_match:
 			# if last character is a dot, it's a single line
@@ -620,7 +742,7 @@ def parse_tex_log(data):
 		print_debug = True
 		for l in parsing:
 			debug(l)
-	return (errors, warnings)
+	return (errors, warnings, badboxes)
 
 
 # If invoked from the command line, parse provided log file
@@ -630,22 +752,23 @@ if __name__ == '__main__':
 	interactive = True
 	try:
 		logfilename = sys.argv[1]
-		# logfile = open(logfilename, 'r') \
-		# 		.read().decode(enc, 'ignore') \
-		# 		.encode(enc, 'ignore').splitlines()
 		if len(sys.argv) == 3:
 			extra_file_ext = sys.argv[2].split(" ")
-		data = open(logfilename,'r').read()
-		(errors,warnings) = parse_tex_log(data)
-		print ("")
+		data = open(logfilename, 'rb').read()
+		root_dir = os.path.dirname(logfilename)
+		errors, warnings, badboxes = parse_tex_log(data, logfilename)
+		print("")
+		print("Errors:")
+		for err in errors:
+			print(err)
+		print("")
 		print ("Warnings:")
 		for warn in warnings:
-			print (warn.encode('UTF-8'))
-		print ("")
-		print ("Errors:")
-		for err in errors:
-			print (err.encode('UTF-8'))
-
+			print(warn)
+		print("")
+		print("Bad boxes:")
+		for box in badboxes:
+			print(box)
 	except Exception as e:
 		import traceback
 		traceback.print_exc()

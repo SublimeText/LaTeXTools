@@ -1,0 +1,4 @@
+LaTeXTools Plugin version 3.12.13 (2017-01-06) changelog:
+
+Bugfixes:
+- Fixed a bug, which disabled the build command (#994)

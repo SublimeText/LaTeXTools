@@ -1,0 +1,6 @@
+LaTeXTools Plugin version 3.7.11 (2016-05-14) changelog:
+
+Bugfixes:
+
+- Allow SumatraPDF.exe to be run from PATH (#724)
+- Honor python2 setting in Evince

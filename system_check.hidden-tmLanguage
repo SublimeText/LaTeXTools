@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>fileTypes</key>
+	<array>
+		<string>latextools-system-check</string>
+	</array>
+	<key>name</key>
+	<string>LaTeXTools System Check</string>
+	<key>hidden</key>
+	<true/>
+	<key>patterns</key>
+	<array>
+		<dict>
+			<key>match</key>
+			<string>-{3,}</string>
+			<key>name</key>
+			<string>comment.other.latextools-system-check.header</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>^(?:Variable|Program\s+Location|Builder|Viewer|LaTeX Output Setting)\s+.+$</string>
+			<key>name</key>
+			<string>comment.other.latextools-system-check.header</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>^(?:TeX Root|LaTeX Engine|LaTeX Options)\s*$</string>
+			<key>name</key>
+			<string>comment.other.latextools-system-check.header</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\bavailable\b</string>
+			<key>name</key>
+			<string>markup.inserted.latextools-system-check.available</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\bmissing\b</string>
+			<key>name</key>
+			<string>keyword.control.latextools-system-check.available</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\restart required\b</string>
+			<key>name</key>
+			<string>keyword.control.latextools-system-check.restart-required</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\bunavailable\b</string>
+			<key>name</key>
+			<string>keyword.control.latextools-system-check.available</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>True|False</string>
+			<key>name</key>
+			<string>constant.language.latextools-system-check.available</string>
+		</dict>
+	</array>
+	<key>scopeName</key>
+	<string>text.latextools-system-check</string>
+</dict>
+</plist>

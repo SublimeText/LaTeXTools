@@ -30,11 +30,14 @@ class latexcmdCommand(sublime_plugin.TextCommand):
 		expr = re.match(rex, line)
 		if expr:
 			command = expr.group(1)[::-1]
-			command_region = sublime.Region(point-len(command),point)
-			view.erase(edit, command_region)
-			# Be forgiving and skip \ if the user provided one (by mistake...)
-			bslash = "" if command[0] == '\\' else "\\\\" 
-			snippet = bslash + command + "{$1} $0"
+			if command:
+				command_region = sublime.Region(point-len(command),point)
+				view.erase(edit, command_region)
+				# Be forgiving and skip \ if the user provided one (by mistake...)
+				bslash = "" if command[0] == '\\' else "\\\\"
+				snippet = bslash + command + "{$1} $0"
+			else:
+				snippet = "\\\\$1{$2} $0"
 			view.run_command("insert_snippet", {'contents': snippet})
 		else:
 			sublime.status_message("LATEXTOOLS INTERNAL ERROR: could not find command to expand")

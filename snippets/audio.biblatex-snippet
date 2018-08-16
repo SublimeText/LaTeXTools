@@ -1,0 +1,11 @@
+<snippet>
+	<content><![CDATA[
+% Optional fields: author, title, subtitle, titleaddon, language, howpublished, type, version, note, organization, location, date, month, year, addendum, pubstate, doi, eprint, eprintclass, eprinttype, url, urldate
+@audio{${1:Key},
+    ${2}
+}
+]]></content>
+	<tabTrigger>audio</tabTrigger>
+	<description>BibLaTeX Audio</description>
+	<scope>text.biblatex</scope>
+</snippet>

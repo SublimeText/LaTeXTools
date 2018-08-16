@@ -1,0 +1,8 @@
+LaTeXTools Plugin version 3.12.12 (2017-01-06) changelog:
+
+Bugfixes:
+- Fix forward search in Okular 1.0 (#989)
+- Fix an issue that caused SumatraPDF to crash (#937)
+- Fix an issue that broke latexmk on windows (#861)
+- Improve clarity of equation previews (#982)
+- More intelligent handling of window visible when using the command viewer on Windows (#986)

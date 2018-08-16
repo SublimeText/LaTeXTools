@@ -16,19 +16,34 @@
                         "children":
                         [
                             {
-                                "command": "open_file",
-                                "args": {"file": "${packages}/LaTeXTools/README.markdown"},
-                                "caption": "README"
+                                "command": "open_url",
+                                "args": {"url": "https://latextools.readthedocs.io/"},
+                                "caption": "Documentation"
                             },
                             { "caption": "-" },
                             {
-                                "command": "open_file",
-                                "args": {"file": "${packages}/User/LaTeXTools.sublime-settings"},
+                                "command": "latextools_system_check",
+                                "caption": "Check System"
+                            },
+                            { "caption": "-" },
+                            {
+                                "command": "open_latextools_default_settings",
+                                "caption": "Settings – Default (read-only)"
+                            },
+                            {
+                                "command": "open_latextools_default_settings",
+                                "args": {
+                                    "file": "LaTeXTools (Advanced).sublime-settings"
+                                },
+                                "caption": "Settings – Advanced (read-only)"
+                            },
+                            {
+                                "command": "open_latextools_user_settings",
                                 "caption": "Settings – User"
                             },
                             {
                                 "command": "latextools_migrate",
-                                "caption": "Reconfigure LaTeXTools and migrate settings"
+                                "caption": "Reset user settings to default"
                             },
                             { "caption": "-" },
                             {

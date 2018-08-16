@@ -1,0 +1,14 @@
+LaTeXTools Plugin version 3.13.0 (2017-03-22) changelog:
+
+Features:
+
+- Support for the import package
+- TOC quickpanel now shows just the current document when using (`C-r`)
+- Uses analysis for ref / cite commands and better caching
+- Improved fill all completions for large files
+- %!TEX directives now override settings in all circumstances
+
+Bugfixes:
+
+- Improved display of available executables in system check
+- Numerous small issues have been fixed

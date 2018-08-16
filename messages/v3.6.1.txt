@@ -1,0 +1,21 @@
+LaTeXTools Plugin version 3.6.1 (2016-01-01) changelog:
+
+The main user-visible change is the way settings are managed. Please see the 
+README for details. Among other things, this removes the need to reconfigure
+or migrate settings when new features are added!
+
+New features:
+
+- Default and User settings (see above)
+- (minor:) better ')' handling in ref completion (details in README)
+
+Bugfixes:
+
+- Fixed multi-document forward sync on Windows and other platforms
+- Jump to image fixes
+- SumatraPDF and jumpToPDF fixes
+- Save document before attempting to find TeX root
+
+
+
+  

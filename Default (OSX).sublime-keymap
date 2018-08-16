@@ -2,6 +2,19 @@
 LaTeX Package keymap for OS X
 */
 [
+	// these also override ST3 commands, but we simply run the same commands
+	// it is necessary so on ST2 we can implement our build selector
+	{	"keys": ["super+b"],
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "latextools.st_version", "operator": "equal", "operand": "<3080"}],
+		"command": "latextools_build_selector"},
+	{	"keys": ["super+shift+b"],
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "latextools.st_version", "operator": "equal", "operand": "<3080"}],
+		"command": "latextools_build_selector",
+			"args": {"select": true}},
 
 	// New-style keybindings use "cmd+l" as a prefix
 	// This overrides "extend selection to line", which is remapped to
@@ -14,6 +27,17 @@ LaTeX Package keymap for OS X
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "expand_selection", "args": {"to": "line"} },
+
+	// Avoid weird brace-matching behavior with indented text
+	{ "keys": ["{"], "command": "insert_snippet", "args": {"contents": "{$0}"}, "context":
+		[
+			{ "key": "indented_block", "match_all": true },
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
+			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
+			{ "key": "following_text", "operator": "regex_match", "operand": "^$", "match_all": true }
+		]
+	},
 
 	// Insert latex command or environment, and close current environment
 	{ 	"keys": ["super+l","c"], 
@@ -29,35 +53,116 @@ LaTeX Package keymap for OS X
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "latex_env_closer"},
 
-	// Complete reference or citation
+	// Bindings for completions
 	// cmd+l,ctrl+space suggests ST2's standard autocompletion keybinding, but for LaTeX;
 	// cmd+l,x suggests "cross" references, which both cites and refs are 
+	// TODO: remove cmd+l,ctrl+space
 	{ 	"keys": ["super+l","ctrl+space"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latex_ref_cite"},
+		"command": "latex_fill_all"},
 	{ 	"keys": ["super+l","x"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latex_ref_cite"},
+		"command": "latex_fill_all", "args": {"completion_type": ["cite", "ref"]}},
+	{	"keys": ["super+l","alt+x","c"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "latex_fill_all", "args": {"completion_type": "cite", "force": true}},
+	{	"keys": ["super+l","alt+x","r"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "latex_fill_all", "args": {"completion_type": "ref", "force": true}},
+
+	// Fill helper command	
+	{	"keys": ["super+l","super+f"],
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "latex_fill_all"},
+	{	"keys": ["super+l","super+alt+f"], 
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "latex_fill_all", "args": {"overwrite": true}},
 
 	{	"keys": ["{"],
 		"context":  [
 			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
-			{"key": "preceding_text", "operator": "regex_contains",
-				"operand": "\\\\(((eq|page|v|V|auto|name|c|C|cpage)?ref)|(cite([a-zX*]*?)(\\[.*?\\]){0,2}))$", "match_all": true}],
-		"command": "latex_ref_cite", "args": {"insert_char": "{"}},
+			{"key": "lt_fill_all_ref.open_curly", "operator": "equal", "match_all": true, "operand": true}],
+		"command": "latex_fill_all", "args": {"completion_type": "ref", "insert_char": "{"}},
+
+	{	"keys": ["{"],
+		"context":  [
+			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
+			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
+			{"key": "lt_fill_all_cite.open_curly", "operator": "equal", "match_all": true, "operand": true}],
+		"command": "latex_fill_all", "args": {"completion_type": "cite", "insert_char": "{"}},
 
 	{	"keys": [","],
 		"context":  [
 			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
-			{"key": "preceding_text", "operator": "regex_contains",
-				"operand": "\\\\cite([a-zX*]*?)(\\[.*?\\]){0,2}\\{(?:[^{},]*,)*[^{},]+$", "match_all": true}],
-		"command": "latex_ref_cite", "args": {"insert_char": ","}},
+			{"key": "lt_fill_all_cite.comma", "operator": "equal", "match_all": true, "operand": true}],
+		"command": "latex_fill_all", "args": {"completion_type": "cite", "insert_char": ","}},
+
+	{	"keys": [","],
+		"context":  [
+			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
+			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
+			{"key": "lt_fill_all_ref.comma", "operator": "equal", "match_all": true, "operand": true}],
+		"command": "latex_fill_all", "args": {"completion_type": "ref", "insert_char": ","}},
+
+	{	"keys": ["["],
+		"context":  [
+			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
+			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
+			{"key": "lt_fill_all_cite.open_square", "operator": "equal", "match_all": true, "operand": true}],
+		"command": "latex_fill_all", "args": {"completion_type": "cite", "insert_char": "["}},
+
+	{	"keys": ["{"],
+		"context":  [
+			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
+			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
+			{"key": "lt_fill_all_input.open_curly", "operator": "equal", "operand": true, "match_all": true}],
+		"command": "latex_fill_all", "args": {"completion_type": "input", "insert_char": "{"}},
+
+	{	"keys": [","],
+		"context":  [
+			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
+			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
+			{"key": "lt_fill_all_input.comma", "operator": "equal", "operand": true, "match_all": true}],
+		"command": "latex_fill_all", "args": {"completion_type": "input", "insert_char": ","}},
+
+	{	"keys": ["{"],
+		"context":  [
+			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
+			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
+			{"key": "lt_fill_all_env.open_curly", "operator": "equal", "operand": true, "match_all": true}],
+		"command": "latex_fill_all", "args": {"completion_type": "env", "insert_char": "{"}},
+
+	{	"keys": ["{"],
+		"context":  [
+			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
+			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
+			{"key": "lt_fill_all_glossary.open_curly", "operator": "equal", "operand": true, "match_all": true}],
+		"command": "latex_fill_all", "args": {"completion_type": "glossary", "insert_char": "{"}},
+
+	{	"keys": ["="],
+		"context":  [
+			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex comment.line.percentage"},
+			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
+			{"key": "lt_fill_all_directive.equal_sign", "operator": "equal", "match_all": true, "operand": true}],
+		"command": "latex_fill_all", "args": {"completion_type": "directive", "insert_char": "="}},
 
 	// Toggle autocomplete
 	{ 	"keys": ["super+l","t","a", "r"],
@@ -68,8 +173,22 @@ LaTeX Package keymap for OS X
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "toggle_auto", "args": {"which": "cite"}},
-
-
+	{ 	"keys": ["super+l","t","a", "f"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "toggle_auto", "args": {"which": "fill"}},
+	{ 	"keys": ["super+l","t","a", "e"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "toggle_auto", "args": {"which": "env"}},
+	{ 	"keys": ["super+l","t","a", "d"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "toggle_auto", "args": {"which": "tex_directive"}},
+	{ 	"keys": ["super+l","t","a", "b"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "toggle_auto", "args": {"which": "smart_bracket"}},
 
 	// View PDF, jump to point, toggle editor/viewer focus
 	{ 	"keys": ["super+l","v"],
@@ -88,10 +207,27 @@ LaTeX Package keymap for OS X
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "toggle_fwdsync"},
+	{ 	"keys": ["super+l","t","v"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "toggle_view_on_build"},
 	{ 	"keys": ["super+l","t","?"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "toggle_show"},
+
+	// Jump to a tex file (will create the file if it does not exists)
+	{ "keys": ["super+l", "super+o"],
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "jumpto_tex_file", "args": {"auto_create_missing_folders": true, "auto_insert_root": true}},
+	// Jump to anywhere
+	// This will select the executed jump according to the context,
+	// e.g. if the cursor is inside a ref command it will jump to the corresponding label
+	{ "keys": ["super+l", "super+j"],
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "jumpto_tex_anywhere"},
 
 	// Wrap selected text in command or environment
 	{ "keys": ["super+l","super+c"], 
@@ -102,6 +238,21 @@ LaTeX Package keymap for OS X
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Wrap in environment.sublime-snippet"}},
+	{ "keys": ["super+l","super+n"],  
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true}],
+		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Insert environment.sublime-snippet"}},
+	// Change the surrounding environment
+	{ "keys": ["super+l", "shift+super+n"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "latex_change_environment"},
+	// Toggle the starred version of environment
+	{ "keys": ["super+l", "shift+super+8"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "latex_toggle_environment_star"},
 
 	// Wrap selected text in emph, bold or underline
 	{ "keys": ["super+l","super+e"],  
@@ -121,9 +272,38 @@ LaTeX Package keymap for OS X
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text monospace.sublime-snippet"}},
 
+	// Replace the `C-r` overlay and the `C-shift-r` overlay with a 
+	// whole document overlay as opt-out
+	// Also add these overlays to `C-l, C-r` and `C-l, C-shift-r`
+	{ "keys": ["super+r"], "command": "latex_toc_quickpanel",
+		"args": {"only_current_file": true},
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex"},
+			{"key": "overwrite_goto_overlay"}]
+	},
+	{ "keys": ["super+shift+r"], "command": "latex_toc_quickpanel",
+		"args": {"only_current_file": false},
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex"},
+			{"key": "overwrite_goto_overlay"}]
+	},
+	{ "keys": ["super+l","super+r"],
+		"args": {"only_current_file": true},
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex"}],
+		"command": "latex_toc_quickpanel"},
+	{ "keys": ["super+l","super+shift+r"], "command": "latex_toc_quickpanel",
+		"args": {"only_current_file": false},
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex"}],
+		"command": "latex_toc_quickpanel"},
 
-
-
+	// Show panel
+	{ "keys": ["shift+escape"],
+		"context": [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{"key": "panel_visible", "operator": "equal", "operand": false }],
+		"command": "show_panel", "args": {"panel": "output.latextools"}},
 
 		// Auto-pair ``$''
 		// Lifted from default file
@@ -132,17 +312,36 @@ LaTeX Package keymap for OS X
 	{ "keys": ["$"], "command": "insert_snippet", "args": {"contents": "\\$$0\\$"}, 
 	"context":  
 		[
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
+			{ "key": "setting.command_mode", "operator": "equal", "operand": false },
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex" },
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
-			/*{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\t| |\\)|])", "match_all": true },*/
-			{ "key": "preceding_text", "operator": "not_regex_contains", "operand": "[\"a-zA-Z0-9_]$", "match_all": true },
-			{ "key": "eol_selector", "operator": "not_equal", "operand": "string.quoted.double", "match_all": true }
+			// do not insert this if it is escaped
+			{ "key": "preceding_text", "operator": "not_regex_contains", "operand": "(?:\\\\\\\\)*(?:\\\\|\\$)$", "match_all": true },
+			// don't insert, it inside math environments
+			{ "key": "selector", "operator": "not_equal", "operand": "meta.environment.math, string.other.math", "match_all": true },
+			// don't insert, if there is an open dollar math environment at the end of the line
+			{ "key": "eol_selector", "operator": "not_equal", 
+			  "operand": "meta.environment.math.inline.dollar - punctuation.definition.string.end, string.other.math - punctuation.definition.string.end",
+			  "match_all": true }
 		] 
+	},
+	// fully close $$ environments
+	{ "keys": ["$"], "command": "insert", "args": {"characters": "$$"}, 
+	"context":
+		[
+			{ "key": "setting.command_mode", "operator": "equal", "operand": false },
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex meta.environment.math.block.dollar" },
+			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
+			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
+			// do not insert this if it is escaped
+			{ "key": "preceding_text", "operator": "not_regex_contains", "operand": "(?:\\\\\\\\)*(?:\\\\|\\$)$", "match_all": true }
+		]
 	},
 	// wrap in $
 	{ "keys": ["$"], "command": "insert_snippet", "args": {"contents": "\\$${0:$SELECTION}\\$"}, "context":
 		[
+			{ "key": "setting.command_mode", "operator": "equal", "operand": false },
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": false, "match_all": true }
@@ -151,6 +350,7 @@ LaTeX Package keymap for OS X
 	// move over closing $
 	{ "keys": ["$"], "command": "move", "args": {"by": "characters", "forward": true}, "context":
 		[	
+			{ "key": "setting.command_mode", "operator": "equal", "operand": false },
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
@@ -173,13 +373,10 @@ LaTeX Package keymap for OS X
 	{ "keys": ["<"], "command": "insert_snippet", "args": {"contents": "<${1:+-}>$0"}, 
 	"context":  
 		[
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{"key": "selector", "operator": "not_equal", "operand": "string.other.math.tex"},
-			{"key": "selector", "operator": "not_equal", "operand": "string.other.math.latex"},
-			{"key": "selector", "operator": "not_equal", "operand": "string.other.math.block.tex"},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - (string.other.math, meta.environment.math)"},
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
-			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\item|only|textbf|color|onslide|only|uncover|visible|invisible|alt|temporal$", "match_all": true }
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\(?:item|only|textbf|color|onslide|only|uncover|visible|invisible|alt|temporal)$", "match_all": true }
 		]
 	},
 	// wrap in <>
@@ -241,11 +438,18 @@ LaTeX Package keymap for OS X
 		]
 	},
 	// automatic addition of new \items when hitting Shift+Enter in a list environment
- 	{ "keys": ["shift+enter"], "command": "insert_snippet", "args": {"contents": "\n\\item $0"}, 
- 	"context":  
-	 	[
-			{"key": "selector", "operator": "equal", "operand": "meta.function.environment.list.latex"},
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
+	{ "keys": ["shift+enter"], "command": "insert_snippet", "args": {"contents": "\n\\item $0"},
+	"context":
+		[
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex meta.environment.list, meta.function.environment.list.latex"},
+			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
+		]
+	},
+	// create a \item[] in a description environment
+	{ "keys": ["shift+enter"], "command": "insert_snippet", "args": {"contents": "\n\\item[$1] $0"},
+	"context":
+		[
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex meta.environment.list.description"},
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
 		]
 	},
@@ -256,7 +460,7 @@ LaTeX Package keymap for OS X
 	{ "keys": ["shift+super+down"], "command": "insert_snippet", "args": {"contents": "_{$1}$0"}, 
 	"context":  
 		[
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex string.other.math"},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex meta.environment.math"},
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
 		]
@@ -265,7 +469,7 @@ LaTeX Package keymap for OS X
 	{ "keys": ["shift+super+up"], "command": "insert_snippet", "args": {"contents": "^{$1}$0"}, 
 	"context":  
 		[
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex string.other.math"},
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex meta.environment.math"},
 			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
 			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
 		]
@@ -277,16 +481,15 @@ LaTeX Package keymap for OS X
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "delete_temp_files"},
+	// Delete/clear local Cache
+	{ 	"keys": ["super+l","super+d","super+c"], 
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "clear_local_latex_cache"},
 
-
-	// Avoid weird brace-matching behavior with indented text
-	{ "keys": ["{"], "command": "insert_snippet", "args": {"contents": "{$0}"}, "context":
-		[
-			{ "key": "indented_block", "match_all": true },
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
-			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
-			{ "key": "following_text", "operator": "regex_match", "operand": "^$", "match_all": true }
-		]
-	}
+	// super+l,w to display word count
+	{	"keys": ["super+l", "w"],
+		"context":  [
+			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
+		"command": "texcount" }
 ]

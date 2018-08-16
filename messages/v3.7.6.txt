@@ -1,0 +1,5 @@
+LaTeXTools Plugin version 3.7.6 (2016-04-20) changelog:
+
+Bugfix:
+
+- Fix support for alphanumeric identifiers starting with a number

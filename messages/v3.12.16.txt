@@ -1,0 +1,4 @@
+LaTeXTools Plugin version 3.12.16 (2017-02-08) changelog:
+
+Bugfixes:
+- Fixed a too large math preview, if the installed ghostscript version is older than 9.14 (#999)

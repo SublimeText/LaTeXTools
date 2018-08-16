@@ -1,0 +1,15 @@
+<snippet>
+	<content><![CDATA[
+% Optional fields: editor, volume/number, series, type, chapter, pages, address, edition, month, note
+@incollection{${1:Key},
+	author = {${2:Author/Editor}},
+	title = {${3:Title}},
+	booktitle = {${4:Booktitle}}
+	publisher = {${5:Publisher}},
+	year = {${6:Year}}
+}
+]]></content>
+	<tabTrigger>incollection</tabTrigger>
+	<description>BibTeX Incollection</description>
+	<scope>text.bibtex</scope>
+</snippet>

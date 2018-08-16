@@ -1,0 +1,17 @@
+[
+    {
+        "button": "button1",
+        "modifiers": ["ctrl", "alt"],
+        "press_command": "drag_select",
+        "command": "jumpto_tex_anywhere_by_mouse",
+        "args": {
+            // change this to the command to the command,
+            // that will be executed
+            // if your mouse click is not inside a tex-file
+            "fallback_command": "",
+            // (ST3 only) If you set set_caret to true it will set the caret
+            // to the clicked position before calling the command
+            "set_caret": false
+        }
+    }
+]

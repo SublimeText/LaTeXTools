@@ -1,0 +1,19 @@
+site_name: LaTeXTools
+pages:
+  - "Home": "index.md"
+  - "Installation": "install.md"
+  - "Features": "features.md"
+  - "Keybindings": "keybindings.md"
+  - "Completions": "completions.md"
+  - "Settings": "settings.md"
+  - "Available Builders": "available-builders.md"
+  - "Available Viewers": "available-viewers.md"
+  - "Recommended Packages": "recommended-packages.md"
+  - "Troubleshooting": "troubleshooting.md"
+  - "About": "about.md"
+theme: readthedocs
+extra_javascript:
+  - extra.js
+extra_css:
+  - extra.css
+repo_url: https://github.com/SublimeText/LaTeXTools

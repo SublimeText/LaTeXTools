@@ -1,0 +1,9 @@
+LaTeXTools Plugin version 3.12.3 (2016-11-01) changelog:
+
+Features:
+- Phantoms now use magick command if its available
+- Improved detection of Ghostscript
+
+Bugfixes:
+- Fixed a typo which caused convert not to properly work with included images
+- Fix extra \ introduced by CWL completions (#888)

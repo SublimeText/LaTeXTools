@@ -1,0 +1,10 @@
+<snippet>
+	<content><![CDATA[
+@xdata{${1:Key},
+    ${2}
+}
+]]></content>
+	<tabTrigger>xdata</tabTrigger>
+	<description>BibLaTeX Xdata</description>
+	<scope>text.biblatex</scope>
+</snippet>

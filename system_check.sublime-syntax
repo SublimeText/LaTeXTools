@@ -1,0 +1,26 @@
+%YAML 1.2
+---
+# http://www.sublimetext.com/docs/3/syntax.html
+name: LaTeXTools System Check
+file_extensions:
+  - latextools-system-check
+hidden: true
+scope: text.latextools-system-check
+contexts:
+  main:
+    - match: "-{3,}"
+      scope: comment.other.latextools-system-check.header
+    - match: ^(?:Variable|Program\s+Location|Builder|Viewer|LaTeX Output Setting|Packages for)\s+.+$
+      scope: comment.other.latextools-system-check.header
+    - match: ^(?:TeX Root|LaTeX Engine|LaTeX Options)\s*$
+      scope: comment.other.latextools-system-check.header
+    - match: \bavailable\b
+      scope: markup.inserted.latextools-system-check.available
+    - match: \bmissing\b
+      scope: keyword.control.latextools-system-check.available
+    - match: \bunavailable\b
+      scope: keyword.control.latextools-system-check.available
+    - match: \restart required\b
+      scope: keyword.control.latextools-system-check.restart-required
+    - match: True|False
+      scope: constant.language.latextools-system-check.available

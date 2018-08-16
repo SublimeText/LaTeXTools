@@ -1,0 +1,4 @@
+LaTeXTools Plugin version 3.13.3 (2017-03-23) changelog:
+
+Bugfixes:
+- Disabled cache_on_load and cache_on_save by default (#1056, #1056)
