@@ -646,7 +646,8 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
 
         new_phantoms = []
         job_args = []
-        if not _IS_ENABLED or self.visible_mode == "none":
+        if (not _IS_ENABLED or self.visible_mode == "none" or
+                self.math_scope is None):
             if not self.phantoms:
                 return
             scopes = []
