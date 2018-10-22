@@ -1,5 +1,6 @@
-LaTeXTools Plugin version st3-4.0.0-alpha.8 (2018-XX-XX) changelog:
+LaTeXTools Plugin version st3-4.0.0-alpha.8 (2018-10-21) changelog:
 
 Features:
 
 - Add auto-paring for \(, \[, \{, \left\{, \left(, and \left[
+- Better handling for large equations in phantom previews
