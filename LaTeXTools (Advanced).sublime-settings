@@ -209,9 +209,32 @@
 	// exceed the size images will be deleted until the folders are 10% of that size.
 	"preview_math_temp_size": 50,
 	"preview_image_temp_size": 30,
+
 	// The duration in which this exceeding will be checked in hours.
 	// Use -1 to not automatically delete the files.
 	"preview_temp_delete_period": 24,
+
+	// --- Settings for Ghostscript conversion to PNG ---
+	// The density of the preview image. The higher the density the larger the phantom.
+	"preview_math_density": 150,
+	// If the image is not sharp enough increase this scale to get a better resolution.
+	// However also change the density by the same factor to keep the size the
+	// same.
+	"preview_math_scale_quotient": 1,
+	// If this is true, the image will be rendered at a higher resolution and
+	// then scaled down. This generally results in a clearer image.
+	"preview_math_hires": true,
+
+	// These settings control the amount of memory used by Ghostscript
+	// when converting a PDF to PNG. You may want to adjust them if you
+	// use complex equations. The defaults for both of these values are the
+	// Ghostscript defaults.
+	// 
+	// Controls the maximum size of the image stored in memory
+	"preview_math_max_bitmap": 1000000,
+	// Controls the maximum buffer space for images that do not fit
+	// in the `preview_math_max_bitmap` space
+	"preview_math_bufferspace": 4000000,
 
 
 // ------------------------------------------------------------------
