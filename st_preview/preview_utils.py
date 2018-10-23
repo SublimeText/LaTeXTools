@@ -69,17 +69,29 @@ def run_convert_command(args):
 
 
 _GS_COMMAND = None
+# on recent versions of TeXLive on Windows, the included Ghostscript
+# is compiled without the necessary initiation files, so we need to make
+# Ghostscript aware of the appropriate paths. This variable is used to do
+# this, Any paths added to this variable will be added to the GS command
+# (if GS_LIB is not set) as -I <path>
+_GS_EXTRA_LIBRARY_PATHS = []
 _GS_VERSION_LOCK = threading.Lock()
 _GS_VERSION = None
 _GS_VERSION_REGEX = re.compile(r'Ghostscript (?P<major>\d+)\.(?P<minor>\d{2})')
 
 
 def _get_gs_command():
-    global _GS_COMMAND
+    global _GS_COMMAND, _GS_EXTRA_LIBRARY_PATHS
     if _GS_COMMAND is not None:
         return _GS_COMMAND
 
+    # reset _GS_EXTRA_LIBRARY_PATHS as we only want to use thi
+    # in limited cases
+    _GS_EXTRA_LIBRARY_PATHS = []
     _GS_COMMAND = __get_gs_command()
+
+    if _GS_COMMAND is None:
+        return None
 
     # load the GS version on a background thread
     t = threading.Thread(target=_update_gs_version)
@@ -95,6 +107,9 @@ def _update_gs_version():
         if _GS_VERSION is not None:
             return
 
+        if _GS_COMMAND is None:
+            return None
+
         try:
             raw_version = check_output([_GS_COMMAND, '-version'])
             m = _GS_VERSION_REGEX.search(raw_version)
@@ -104,6 +119,7 @@ def _update_gs_version():
             print('Error finding Ghostscript version for {0}'.format(
                 _GS_COMMAND))
             traceback.print_exc()
+            return None
 
 
 # broken out to be called from system_check
@@ -124,6 +140,17 @@ def __get_gs_command():
         # try to find Ghostscript from the registry
         if result is None:
             result = _get_gs_exe_from_registry()
+
+        if result is not None and 'texlive' in result.lower():
+            global _GS_EXTRA_LIBRARY_PATHS
+
+            _tlgs_path = os.path.normpath(os.path.join(
+                os.path.dirname(result), '..'))
+
+            _GS_EXTRA_LIBRARY_PATHS = [
+                os.path.join(_tlgs_path, 'Resource', 'Init'),
+                os.path.join(_tlgs_path, 'kanji')
+            ]
     else:
         result = which('gs', path=texpath)
 
@@ -142,6 +169,9 @@ def _get_tl_gs_path(texpath):
         os.path.dirname(pdflatex),
         '..', '..', 'tlpkg', 'tlgs', 'bin'
     ))
+
+    if not os.path.exists(tlgs_path):
+        return None
 
     return (
         which('gswin32c', path=tlgs_path) or
@@ -197,13 +227,12 @@ def _get_gs_exe_from_registry():
 
             try:
                 gs_path = os.path.dirname(
-                    winreg.QueryValue(hndl, 'GS_DLL')
-                )
+                    winreg.QueryValue(hndl, 'GS_DLL'))
 
-                result = (
-                    which('gswin32c', path=gs_path) or
-                    which('gswin64c', path=gs_path)
-                )
+                if gs_path is not None:
+                    result = (
+                        which('gswin32c', path=gs_path) or
+                        which('gswin64c', path=gs_path))
             finally:
                 winreg.CloseKey(hndl)
         except OSError:
@@ -235,6 +264,12 @@ def run_ghostscript_command(args, stdout=__sentinel__, stderr=__sentinel__):
 
     # add some default args to run in quiet batch mode
     args.insert(0, _get_gs_command())
+    # if there are any extra library paths to add; however, we do not want
+    # to override the GS_LIB environment variable
+    if 'GS_LIB' not in os.environ:
+        for p in _GS_EXTRA_LIBRARY_PATHS:
+            args.insert(1, p)
+            args.insert(1, '-I')
     args.insert(1, '-q')
     args.insert(1, '-dQUIET')
     args.insert(1, '-dNOPROMPT')
@@ -266,8 +301,7 @@ class SettingsListener(object):
         if not isinstance(_lt_settings, sublime.Settings):
             try:
                 _lt_settings = sublime.load_settings(
-                    "LaTeXTools.sublime-settings"
-                )
+                    "LaTeXTools.sublime-settings")
             except Exception:
                 traceback.print_exc()
 
@@ -318,7 +352,7 @@ def try_delete_temp_files(key, temp_path):
     except KeyError:
         try:
             last_try = cache.read_global(key + "_temp_delete")
-        except:
+        except Exception:
             last_try = 0
         _last_delete_try[key] = time.time()
 
@@ -358,7 +392,7 @@ def _temp_folder_size(temp_path):
 def _modified_time(file_path):
     try:
         mtime = os.path.getmtime(file_path)
-    except:
+    except Exception:
         mtime = 0
     return mtime
 
