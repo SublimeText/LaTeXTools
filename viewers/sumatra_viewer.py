@@ -11,7 +11,7 @@ import traceback
 if sys.version_info < (3, 0):
     try:
         import _winreg as winreg
-    except:
+    except Exception:
         # not on Windows
         pass
 
@@ -21,7 +21,7 @@ if sys.version_info < (3, 0):
 else:
     try:
         import winreg
-    except:
+    except Exception:
         # not on Windows
         pass
 
@@ -101,7 +101,7 @@ class SumatraViewer(BaseViewer):
                 [sumatra_binary] + commands,
                 use_texpath=False, show_window=True
             )
-        except OSError:
+        except Exception:
             exc_info = sys.exc_info()
 
             sumatra_exe = self._find_sumatra_exe()
@@ -111,7 +111,7 @@ class SumatraViewer(BaseViewer):
                         [sumatra_exe] + commands,
                         use_texpath=False, show_window=True
                     )
-                except OSError:
+                except Exception:
                     traceback.print_exc()
                     _no_binary()
                     return
