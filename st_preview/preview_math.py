@@ -12,6 +12,8 @@ import types
 import sublime
 import sublime_plugin
 
+from .. import getTeXRoot
+
 from ..parseTeXlog import parse_tex_log
 
 from ..latextools_utils import cache, get_setting
@@ -110,12 +112,20 @@ def plugin_unloaded():
     _lt_settings.clear_on_change("lt_preview_math_main")
 
 
-def _create_image(latex_program, latex_document, base_name, color,
+def _create_image(latex_program, latex_document, base_name, color, root,
                   **kwargs):
     """Create an image for a latex document."""
     rel_source_path = base_name + ".tex"
     pdf_path = os.path.join(temp_path, base_name + ".pdf")
     image_path = os.path.join(temp_path, base_name + _IMAGE_EXTENSION)
+
+    texinputs = {}
+    try:
+        root = os.path.split(root)[0] + ":"
+        texinputs = {"TEXINPUTS": root + os.environ.get("TEXINPUTS","")}
+    except Exception as e:
+        pass
+
 
     # do nothing if the pdf already exists
     if os.path.exists(pdf_path):
@@ -129,7 +139,7 @@ def _create_image(latex_program, latex_document, base_name, color,
     # compile the latex document to a pdf
     execute_command([
         latex_program, '-interaction=nonstopmode', rel_source_path
-    ], cwd=temp_path)
+    ], cwd=temp_path, env=texinputs)
 
     pdf_exists = os.path.exists(pdf_path)
     if not pdf_exists:
@@ -755,7 +765,8 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
                 "color": color,
                 "p": p,
                 "cont": self._make_cont(
-                    p, image_path, time.time(), style_kwargs)
+                    p, image_path, time.time(), style_kwargs),
+                "root": getTeXRoot.get_tex_root(view)
             })
 
             new_phantoms.append(p)
