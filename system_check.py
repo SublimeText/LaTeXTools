@@ -44,6 +44,7 @@ from .st_preview.preview_utils import (
 if sublime.platform() == 'windows':
     from .st_preview.preview_utils import get_system_root
 
+
 def expand_vars(texpath):
     return os.path.expandvars(texpath)
 
