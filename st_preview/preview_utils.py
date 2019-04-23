@@ -130,27 +130,28 @@ def __get_gs_command():
         result = (
             which('gswin32c', path=texpath) or
             which('gswin64c', path=texpath) or
-            which('mgs', path=texpath) or
             which('gs', path=texpath)
         )
-
-        if result is None and not using_miktex():
-            result = _get_tl_gs_path(texpath)
 
         # try to find Ghostscript from the registry
         if result is None:
             result = _get_gs_exe_from_registry()
 
-        if result is not None and 'texlive' in result.lower():
-            global _GS_EXTRA_LIBRARY_PATHS
+        if result is None:
+            if using_miktex():
+                result = which('mgs', path=texpath)
+            else:
+                result = _get_tl_gs_path(texpath)
+                if result is not None:
+                    global _GS_EXTRA_LIBRARY_PATHS
 
-            _tlgs_path = os.path.normpath(os.path.join(
-                os.path.dirname(result), '..'))
+                    _tlgs_path = os.path.normpath(os.path.join(
+                        os.path.dirname(result), '..'))
 
-            _GS_EXTRA_LIBRARY_PATHS = [
-                os.path.join(_tlgs_path, 'Resource', 'Init'),
-                os.path.join(_tlgs_path, 'kanji')
-            ]
+                    _GS_EXTRA_LIBRARY_PATHS = [
+                        os.path.join(_tlgs_path, 'Resource', 'Init'),
+                        os.path.join(_tlgs_path, 'kanji')
+                    ]
     else:
         result = which('gs', path=texpath)
 
