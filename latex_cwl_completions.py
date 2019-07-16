@@ -3,6 +3,7 @@ import glob
 import os
 import re
 import threading
+from sys import exc_info
 
 import sublime
 import sublime_plugin
@@ -65,6 +66,14 @@ def is_cwl_available(view=None):
     return CWL_COMPLETION_ENABLED
 
 
+def get_cwl_file_name(package):
+    if package.endswith('.cwl'):
+        cwl_file = package
+    else:
+        cwl_file = '{0}.cwl'.format(package)
+    return cwl_file
+
+
 # returns the cwl completions instances
 def get_cwl_completions():
     plugin_loaded()
@@ -101,10 +110,7 @@ class CwlCompletions(object):
                     return []
 
                 for package in packages:
-                    if package.endswith('.cwl'):
-                        cwl_file = package
-                    else:
-                        cwl_file = '{0}.cwl'.format(package)
+                    cwl_file = get_cwl_file_name(package)
 
                     # some hacks for particular packages that do not match
                     # the standard pattern
@@ -169,6 +175,17 @@ class CwlCompletions(object):
                         analysis.ONLY_COMMANDS_WITH_ARGS
                     )
                 ])
+
+                packages = [get_cwl_file_name(package) for package in packages]
+
+                flag = True
+                while flag:
+                    packages_set = set(packages)
+                    for package in packages:
+                        packages_set = packages_set.union(set(self._dependencies.get(package, [])))
+                    flag = len(packages_set) > len(packages)
+                    packages = list(packages_set)
+
             # TODO - Attempt to read current buffer
 
         return packages
@@ -194,15 +211,17 @@ class CwlCompletions(object):
     # hack to display the autocompletions once they are available
     def _hack(self):
         sublime.active_window().run_command("hide_auto_complete")
+
         def hack2():
             sublime.active_window().active_view().run_command("auto_complete")
         sublime.set_timeout(hack2, 1)
 
     # callback when completions are loaded
-    def _on_completions(self, completions, environment_completions):
+    def _on_completions(self, completions, environment_completions, dependencies):
         with self._WLOCK:
             self._completions = completions
             self._environment_completions = environment_completions
+            self._dependencies = dependencies
             self._started = False
             self._completed = True
 
@@ -384,6 +403,7 @@ def _check_if_cwl_enabled(view=None):
 def cwl_parsing_handler(callback):
     completion_results = {}
     environment_results = {}
+    dependencies_result = {}
     cwl_files, use_package = get_cwl_package_files()
 
     for cwl_file in cwl_files:
@@ -396,6 +416,13 @@ def cwl_parsing_handler(callback):
                 print(
                     u'{0} does not exist or could not be accessed'.format(
                         cwl_file
+                    )
+                )
+                continue
+            except UnicodeDecodeError:
+                print(
+                    u'{0}: {1}'.format(
+                        cwl_file, exc_info()[1]
                     )
                 )
                 continue
@@ -414,14 +441,20 @@ def cwl_parsing_handler(callback):
                     )
                 )
                 continue
+            except UnicodeDecodeError:
+                print(
+                    u'{0}: {1}'.format(
+                        cwl_file, exc_info()[1]
+                    )
+                )
+                continue
 
-        completions = parse_cwl_file(base_name, s)
+        completions, environments, dependencies = parse_cwl_file(base_name, s)
         completion_results[base_name] = completions
-
-        environments = parse_cwl_file(base_name, s, parse_line_as_environment)
         environment_results[base_name] = environments
+        dependencies_result[base_name] = dependencies
 
-    callback(completion_results, environment_results)
+    callback(completion_results, environment_results, dependencies_result)
 
 
 # gets a list of all cwl package files available, whether in the
@@ -450,8 +483,11 @@ def parse_line_as_command(line):
 
 
 # actually does the parsing of the cwl files
-def parse_cwl_file(cwl, s, parse_line=parse_line_as_command):
-    completions = []
+def parse_cwl_file(cwl, s):
+    parse_lines = {"completions": parse_line_as_command, "environments": parse_line_as_environment}
+    results = {"completions": list(), "environments": list()}
+    dependencies = []
+
     method = os.path.splitext(cwl)[0]
 
     # we need some state tracking to ignore keyval data
@@ -467,6 +503,8 @@ def parse_cwl_file(cwl, s, parse_line=parse_line_as_command):
                 KEYVAL = True
             if line.startswith('#endkeyvals') or line.startswith('#endif'):
                 KEYVAL = False
+            if line.startswith('#include:') and not KEYVAL:
+                dependencies.append(get_cwl_file_name(line[len('#include:'):]))
 
             continue
 
@@ -483,19 +521,20 @@ def parse_cwl_file(cwl, s, parse_line=parse_line_as_command):
         # a # char
         line = line.rstrip()
 
-        result = parse_line(line)
-        if result is None:
-            continue
-        keyword, insertion = result
+        for (key, parse_line) in parse_lines.items():
+            result = parse_line(line)
+            if result is None:
+                continue
+            keyword, insertion = result
 
-        # pad the keyword with spaces; this is to keep the size of the
-        # autocompletions consistent regardless of the returned results
-        keyword = keyword.ljust(50)
+            # pad the keyword with spaces; this is to keep the size of the
+            # autocompletions consistent regardless of the returned results
+            keyword = keyword.ljust(50)
 
-        item = (u'%s\t%s' % (keyword, method), insertion)
-        completions.append(item)
+            item = (u'%s\t%s' % (keyword, method), insertion)
+            results[key].append(item)
 
-    return completions
+    return results["completions"], results["environments"], dependencies
 
 
 # ensure that CWL_COMPLETIONS has a value
