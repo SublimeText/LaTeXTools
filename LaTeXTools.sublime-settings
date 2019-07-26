@@ -197,10 +197,15 @@
 		".lof",".toc",".fls",".fdb_latexmk",".pdfsync",".synctex.gz",
 		".ind",".ilg",".idx"
 	],
+
 	// Folders that are not traversed when deleting temp files
 	"temp_files_ignored_folders": [
 		".git", ".svn", ".hg"
 	],
+
+	// If true, deleting temporary files will display an
+	// "Are you sure" prompt
+	"temp_files_prompt_on_delete": false,
 
 // ------------------------------------------------------------------
 // Platform settings: adapt as needed for your machine
@@ -209,8 +214,6 @@
 	"osx": 	{
 		// Path used when invoking tex & friends; MUST include $PATH
 		"texpath" : "$PATH:/Library/TeX/texbin:/usr/texbin:/usr/local/bin:/opt/local/bin"
-		// Path to PDF viewer, if needed
-		// TODO think about it. Also, maybe configure it here!
 	},
 
 

@@ -27,15 +27,16 @@ import traceback
 
 
 class LatextoolsClearCacheCommand(sublime_plugin.WindowCommand):
+
 	def run(self):
 		try:
 			shutil.rmtree(cache._global_cache_path())
-		except:
+		except Exception:
 			print('Error while trying to delete global cache')
 			traceback.print_exc()
 			try:
 				shutil.rmtree(cache._local_cache_path())
-			except:
+			except Exception:
 				print('Error while trying to delete local cache')
 				traceback.print_exc()
 		window = self.window
@@ -61,7 +62,7 @@ class ClearLocalLatexCacheCommand(sublime_plugin.WindowCommand):
 			# clear the cache
 			try:
 				cache.LocalCache(tex_root).invalidate()
-			except:
+			except Exception:
 				print('Error while trying to delete local cache')
 				traceback.print_exc()
 
@@ -90,7 +91,7 @@ class ClearBibliographyCacheCommand(sublime_plugin.WindowCommand):
 		for callback in sublime_plugin.all_callbacks['on_close']:
 			try:
 				instance = get_self(callback)
-			except:
+			except Exception:
 				continue
 
 			if instance.__class__.__name__ == 'LatextoolsCacheUpdateListener':
@@ -148,7 +149,7 @@ class DeleteTempFilesCommand(sublime_plugin.WindowCommand):
 		# clear the cache
 		try:
 			cache.LocalCache(root_file).invalidate()
-		except:
+		except Exception:
 			print('Error while trying to delete local cache')
 			traceback.print_exc()
 
@@ -160,6 +161,8 @@ class DeleteTempFilesCommand(sublime_plugin.WindowCommand):
 			view, return_setting=True
 		)
 
+		deleted = True
+
 		if aux_directory is not None:
 			# we cannot delete the output directory on Windows in case
 			# Sumatra is holding a reference to it
@@ -170,7 +173,7 @@ class DeleteTempFilesCommand(sublime_plugin.WindowCommand):
 				if aux_directory_setting.startswith('<<'):
 					self._rmtree(aux_directory)
 				else:
-					self.delete_temp_files(aux_directory)
+					deleted = self.delete_temp_files(aux_directory)
 
 		if output_directory is not None:
 			if output_directory_setting.startswith('<<'):
@@ -181,13 +184,14 @@ class DeleteTempFilesCommand(sublime_plugin.WindowCommand):
 				else:
 					self._rmtree(output_directory)
 			else:
-				self.delete_temp_files(output_directory)
+				deleted = self.delete_temp_files(output_directory)
 		else:
 			# if there is no output directory, we may need to clean files
 			# in the main directory, even if aux_directory is used
-			self.delete_temp_files(os.path.dirname(root_file))
+			deleted = self.delete_temp_files(os.path.dirname(root_file))
 
-		sublime.status_message("Deleted temp files")
+		if deleted:
+			sublime.status_message("Deleted temp files")
 
 	def delete_temp_files(self, path):
 		# Load the files to delete from the settings
@@ -205,14 +209,27 @@ class DeleteTempFilesCommand(sublime_plugin.WindowCommand):
 
 		ignored_folders = set(ignored_folders)
 
+		files = []
 		for dir_path, dir_names, file_names in os.walk(path):
 			dir_names[:] = [d for d in dir_names if d not in ignored_folders]
 			for file_name in file_names:
 				for ext in temp_files_exts:
 					if file_name.endswith(ext):
-						self._rmfile(os.path.join(dir_path, file_name))
-						# exit extension
-						break
+						files.append(os.path.join(dir_path, file_name))
+
+		if not files:
+			return False
+
+		if get_setting("temp_files_prompt_on_delete", False):
+			msg = "Are you sure you want to delete the following files?\n"
+			msg = "{0}\n{1}".format(msg, "".join(["\n{0}".format(f) for f in files]))
+			if not sublime.ok_cancel_dialog(msg):
+				return False
+
+		for file in files:
+			self._rmfile(file)
+
+		return True
 
 	def _rmtree(self, path):
 		if os.path.exists(path):
