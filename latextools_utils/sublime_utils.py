@@ -79,8 +79,8 @@ def focus_st():
             def keep_focus():
                 external_command([sublime_command], use_texpath=False)
 
-        if hasattr(sublime, 'set_async_timeout'):
-            sublime.set_async_timeout(keep_focus, int(wait_time * 1000))
+        if hasattr(sublime, 'set_timeout_async'):
+            sublime.set_timeout_async(keep_focus, int(wait_time * 1000))
         else:
             sublime.set_timeout(keep_focus, int(wait_time * 1000))
 
