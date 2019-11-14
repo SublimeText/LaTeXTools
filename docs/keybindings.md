@@ -6,7 +6,7 @@ Keybindings have been chosen to make them easier to remember, and also to minimi
 
 * **Compilation** uses the standard ST "build" keybinding, i.e. <kbd>Ctrl+b</kbd> on Windows and Linux and <kbd>⌘</kbd>+<kbd>b</kbd> on OS X. So does the **GoTo Anything** facility.
 
-For example, to jump to the point in the PDF file corresponding to the current cursor position, use <kbd>Ctrl+l</kbd>, <kbd>j</kbd>: that is, hit <kbd>Ctrl+l</kbd>, then release both the <kbd>Ctrl</kbd> and the <kbd>l</kbd> keys, and quickly type the <kbd>j</kbd> key (OS X users: replace <kbd>Ctrl</kbd> with <kbd>⌘</kbd>). To wrap the selected text in an `\emph{}` command, use <kbd>Ctrl+l</kbd>, <kbd>Ctrl+e</kbd>: that is, hit <kbd>Ctrl+l</kbd>, release both keys, then hit <kbd>Ctrl+e</kbd> (OS X users hit <kbd>⌘+l</kbd> and then <kbd>⌘+e</kbd>). 
+For example, to jump to the point in the PDF file corresponding to the current cursor position, use <kbd>Ctrl+l</kbd>, <kbd>j</kbd>: that is, hit <kbd>Ctrl+l</kbd>, then release both the <kbd>Ctrl</kbd> and the <kbd>l</kbd> keys, and quickly type the <kbd>j</kbd> key (OS X users: replace <kbd>Ctrl</kbd> with <kbd>⌘</kbd>). To wrap the selected text in an `\emph{}` command, use <kbd>Ctrl+l</kbd>, <kbd>Ctrl+e</kbd>: that is, hit <kbd>Ctrl+l</kbd>, release both keys, then hit <kbd>Ctrl+e</kbd> (OS X users hit <kbd>⌘+l</kbd> and then <kbd>⌘+e</kbd>).
 
 <kbd>Ctrl+l</kbd> (<kbd>⌘+l</kbd> on OS X) is the standard ST keybinding for **Expand selection to line**; for LaTeX documents when LaTeXTools is active, this is **remapped** to <kbd>Ctrl+l</kbd>,<kbd>Ctrl+l</kbd> (<kbd>⌘+l</kbd>,<kbd>⌘+l</kbd> on OS X). This is the *only* standard ST keybinding that is affected by the plugin---an advantage of new-style keybindings.
 
@@ -114,13 +114,13 @@ This will open the PDF document corresponding to the current TeX file in your co
 
 **Keybinding:** *autotriggered* by default (see below). Otherwise, <kbd>C+l</kbd>,<kbd>x</kbd> for 'cross-reference,' <kbd>C+l</kbd>,<kbd>C+f</kbd>, or <kbd>C+l</kbd>,<kbd>C+Alt+f</kbd> (via the [Fill Helper facility](#fill-helper); see below). These are fully equivalent ways of invoking ref/cite completions.
 
-The basic idea is to help you insert labels in `\ref{}` commands and bibtex keys in `\cite{}` commands. The appropriate key combination shows a list of available labels or keys, and you can easily select the appropriate one. Full filtering facilities are provided. 
+The basic idea is to help you insert labels in `\ref{}` commands and bibtex keys in `\cite{}` commands. The appropriate key combination shows a list of available labels or keys, and you can easily select the appropriate one. Full filtering facilities are provided.
 
-**Notes**: 
+**Notes**:
 
 1. In order to find all applicable labels and bibtex keys, the plugin looks at the **saved** file. So, if you invoke this command and do not see the label or key you just entered, perhaps you haven't saved the file.
 
-2. Only bibliographies in external `.bib` files are supported: no `\bibitem...`. Sorry. It's hard as it is. 
+2. Only bibliographies in external `.bib` files are supported: no `\bibitem...`. Sorry. It's hard as it is.
 
 3. Multi-file documents are fully supported.
 
@@ -134,7 +134,7 @@ One often needs to enter **multiple citations**, as e.g. in `\cite{paper1,paper2
 
 LaTeXTools currently provides support for a range of referencing facilities, including those provided by the **cleveref**, **fancyref**, and **varioref** packages in addition to the standard, built-in reference commands. However, if you are using a reference command that LaTeXTools doesn't recognize, you can use the key combination <kbd>C+l</kbd>,<kbd>Alt+x</kbd>,<kbd>r</kbd> to display the quick-panel and insert a label anywhere.
 
-Similarly, LaTeXTools provides support for a range of bibliography referencing programs, including **biblatex** and **natbib** in addition to the default `\cite{}` command. Similarly to references, if you come across a command that requires a citation and LaTeXTools doesn't currently support it, you can use the key combination <kbd>C+l</kbd>,<kbd>Alt+x</kbd>,<kbd>c</kbd> to display the quick-panel of all ciations and insert the bibkey.
+Similarly, LaTeXTools provides support for a range of bibliography referencing programs, including **biblatex** and **natbib** in addition to the default `\cite{}` command. Similarly to references, if you come across a command that requires a citation and LaTeXTools doesn't currently support it, you can use the key combination <kbd>C+l</kbd>,<kbd>Alt+x</kbd>,<kbd>c</kbd> to display the quick-panel of all citations and insert the bibkey.
 
 The display of bibliographic entries is *customizable*. There is a setting, `cite-panel-format`, that controls exactly what to display in each of the two lines each entry gets in the citation quick panel. Options include author, title, short title, year, bibtex key, and journal. This is useful because people may prefer to use different strategies to refer to papers---author-year, short title-year, bibtex key (!), etc. Since only the first line in each quick panel entry is searchable, how you present the information matters. The default should be useful for most people; if you wish to change the format, check the `LaTeXTools.sublime-settings` file for detailed information. (As usual, copy that file to the `User` directory and edit your copy, not the original).
 
@@ -164,7 +164,7 @@ To toggle autocompletion on or off, use the `fill_auto_trigger` setting, or the 
 
 In order for package autocomplete to work, you need to create a cache first. You can do it using the Command Palette: select `LaTeXTools: Build cache for LaTeX packages`.
 
-The `C-l,C-f` keyboard shortcut also works for `\ref` and `\cite` completion. Basically, wherever you can use `C-l,x`, you can also use `C-l,C-f`. 
+The `C-l,C-f` keyboard shortcut also works for `\ref` and `\cite` completion. Basically, wherever you can use `C-l,x`, you can also use `C-l,C-f`.
 
 The `C-l,C-alt-f` keyboard shortcut is identical to the `C-l,C-f` shortcut, except that it ensures that the current word that the cursor is within is replaced. This is useful for, e.g., switching one citation for another or one label for another.
 
@@ -238,7 +238,7 @@ Similarly, typing <kbd>C+l</kbd>,<kbd>e</kbd> gives you an environment: e.g. `te
 
 	\end{test}
 
-and the cursor is placed inside the environment thus created. Again, Tab exits the environment. 
+and the cursor is placed inside the environment thus created. Again, Tab exits the environment.
 
 Note that all these commands are undoable: thus, if e.g. you accidentally hit <kbd>C+l</kbd>,<kbd>c</kbd> but you really meant <kbd>C+l</kbd>,<kbd>e</kbd>, a quick <kbd>C+z</kbd> (undo), followed by <kbd>C+l</kbd>,<kbd>e</kbd>, will fix things.
 

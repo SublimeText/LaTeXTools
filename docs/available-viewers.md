@@ -47,7 +47,7 @@ Using the command viewer requires that you configure the command(s) to be run in
 
 Of these, on `view_command` needs to be specified, though you will not have forward search capabilities unless you specify a `forward_sync_command` as well.
 
-The following variables will be substitued with appropriate values inside your commands:
+The following variables will be substituted with appropriate values inside your commands:
 
 |Variable|Description|
 |---------------------|--------------------------------------------------------|
