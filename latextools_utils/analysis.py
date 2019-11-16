@@ -395,15 +395,15 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
         # read child files if it is an input command
         if g("command") in _input_commands and g("args") is not None:
             process_file_stack.append(file_name)
-            open_file = os.path.join(base_path, g("args"))
+            open_file = os.path.join(base_path, g("args").strip('"'))
             _analyze_tex_file(tex_root, open_file, process_file_stack, ana)
             process_file_stack.pop()
         elif (g("command") in _import_commands and g("args") is not None and
                 g("args2") is not None):
             if g("command").startswith("sub"):
-                next_import_path = os.path.join(base_path, g("args"))
+                next_import_path = os.path.join(base_path, g("args").strip('"'))
             else:
-                next_import_path = g("args")
+                next_import_path = g("args").strip('"')
             # normalize the path
             next_import_path = os.path.normpath(next_import_path)
             open_file = os.path.join(next_import_path, g("args2"))
