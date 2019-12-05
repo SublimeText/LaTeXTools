@@ -305,7 +305,10 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
         #
         # NB this may not work if there are other punctuation marks in the
         # completion
-        if is_prefixed:
+
+        # this workaround is no longer needed in st4
+
+        if sublime.version() < '4058' and is_prefixed:
             completions = [
                 (c[0], c[1][1:]) if c[1].startswith("\\") else c
                 for c in completions
