@@ -494,8 +494,14 @@ class LatexFillHelper(object):
         '''
         if value:
             new_regions = []
+            cmd_mode = view.settings().get('command_mode', False)
             for sel in view.sel():
-                view.insert(edit, sel.end(), value)
+               # Workaround for Issue 1329 (based on @dhelonious)
+                if(cmd_mode and view.substr(sel.end()+1).strip() in ('', '\x00')
+                   and not view.substr(sel.end()) in '.|,|;|?|!|\'|"|(|)|[|]|{|}'.split('|')):
+                    view.insert(edit, sel.end()+1, value)
+                else:
+                   view.insert(edit, sel.end(), value)
                 if sel.empty():
                     new_start = new_end = sel.end() + len(value)
                 else:
