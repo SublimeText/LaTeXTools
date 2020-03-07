@@ -23,7 +23,7 @@ def _make_panel_entry(t, prefix_map):
 
 def _toggle_setting(setting_name, view):
     new_value = not get_setting(setting_name, True, view=view)
-    view.settings().set(setting_name, new_value)
+    view.settings().set("latextools.{}".format(setting_name), new_value)
     message = "Set '{0}' to '{1}'.".format(setting_name, new_value)
     sublime.status_message(message)
     print(message)
@@ -52,7 +52,7 @@ def _show_toggle_overlay(window, view, prefix, setting_keys):
         print(message)
         sublime.status_message(message)
         current_settings[index][1] = new_value
-        view.settings().set(name, new_value)
+        view.settings().set("latextools.{}".format(name), new_value)
         panel_entries[index] = _make_panel_entry(
             current_settings[index], prefix_map)
 
