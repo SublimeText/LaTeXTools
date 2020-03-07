@@ -91,3 +91,33 @@ def deprecate(module, old_classname, NewClass):
         (LatextoolsDeprecatedCommand, ParentClass),
         {"new_classname": new_classname}
     )
+
+
+class LatextoolsFindDeprecatedCommandsCommand(sublime_plugin.TextCommand):
+    def is_visible(self):
+        view = self.view
+        return bool(view.score_selector(0, 'source.json.sublime'))
+
+    def run(self, edit):
+        view = self.view
+
+        regex = '"(:?{})"'.format('|'.join(deprecated_commands.keys()))
+        all_deprecated_commands = view.find_all(regex)
+        if not all_deprecated_commands:
+            sublime.message_dialog(
+                'No deprecated commands found in this view.'
+            )
+        for region in reversed(all_deprecated_commands):
+            view.show_at_center(region)
+
+            old_command = view.substr(region)[1:-1]
+            new_command = deprecated_commands[old_command]
+            r = sublime.yes_no_cancel_dialog(
+                'Replace {} with {}?'.format(old_command, new_command),
+                'Replace!', 'Next'
+            )
+            if r == sublime.DIALOG_CANCEL:
+                return
+            elif r == sublime.DIALOG_NO:
+                continue
+            view.replace(edit, region, '"{}"'.format(new_command))

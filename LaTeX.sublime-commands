@@ -20,5 +20,6 @@
 	{ "caption": "LaTeXTools: Build cache of LaTeX packages", "command": "latex_gen_pkg_cache"},
 	{ "caption": "LaTeXTools: Update document analysis cache", "command": "latextools_analysis_update"},
 	{ "caption": "LaTeXTools: Update bibliography cache", "command": "latextools_bib_update"},
-	{ "caption": "LaTeXTools: Paste Image from Clipboard", "command": "latextools_smart_paste"}
+	{ "caption": "LaTeXTools: Paste Image from Clipboard", "command": "latextools_smart_paste"},
+	{ "caption": "LaTeXTools: Find deprecated commands", "command": "latextools_find_deprecated_commands"}
 ]
