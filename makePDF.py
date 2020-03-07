@@ -862,7 +862,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 		        == sublime.Region(self.output_view.size()))
 		self.output_view.set_read_only(False)
 		# Move this to a TextCommand for compatibility with ST3
-		self.output_view.run_command("do_output_edit", {"data": strdata, "selection_was_at_end": selection_was_at_end})
+		self.output_view.run_command("latextools_do_output_edit", {"data": strdata, "selection_was_at_end": selection_was_at_end})
 		# edit = self.output_view.begin_edit()
 		# self.output_view.insert(edit, self.output_view.size(), strdata)
 		# if selection_was_at_end:
@@ -886,7 +886,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 		sublime.set_timeout(functools.partial(self.do_finish, can_switch_to_pdf), 0)
 
 	def do_finish(self, can_switch_to_pdf):
-		self.output_view.run_command("do_finish_edit")
+		self.output_view.run_command("latextools_do_finish_edit")
 
 		if _HAS_PHANTOMS and self.show_errors_inline:
 			self.create_errs_by_file()
@@ -918,7 +918,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 						)
 
 			if get_setting('open_pdf_on_build', True, view=self.view):
-				self.view.run_command("jump_to_pdf", {"from_keybinding": False})
+				self.view.run_command("latextools_jump_to_pdf", {"from_keybinding": False})
 
 	if _HAS_PHANTOMS:
 		def _find_errors(self, errors, error_class):
@@ -1060,7 +1060,7 @@ if _HAS_PHANTOMS:
 				return
 			w = view.window()
 			if w is not None:
-				w.run_command("make_pdf", {"update_phantoms_only": True})
+				w.run_command("latextools_make_pdf", {"update_phantoms_only": True})
 
 
 def plugin_loaded():

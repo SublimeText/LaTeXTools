@@ -185,7 +185,7 @@ def _jumpto_pkg_doc(view, com_reg, pos):
         message = "Try opening documentation for package '{0}'".format(package)
         print(message)
         sublime.status_message(message)
-        view.window().run_command("latex_view_doc", {"file": package})
+        view.window().run_command("latextools_view_doc", {"file": package})
 
     package_name = _get_selected_arg(view, com_reg, pos)
     if package_name:
@@ -315,7 +315,7 @@ class LatextoolsJumptoAnywhereCommand(sublime_plugin.TextCommand):
             }
             if pos is not None:
                 kwargs.update({"position": position})
-            view.run_command("jumpto_tex_file", kwargs)
+            view.run_command("latextools_jumpto_file", kwargs)
         elif command in ["usepackage", "Requirepackage"]:
             _jumpto_pkg_doc(view, com_reg, pos)
         else:
@@ -344,7 +344,7 @@ class LatextoolsJumptoAnywhereByMouseCommand(sublime_plugin.WindowCommand):
         if score_selector("text.tex.latex"):
             print("Jump in tex file.")
             pos = view.window_to_text((event["x"], event["y"]))
-            view.run_command("jumpto_tex_anywhere", {"position": pos})
+            view.run_command("latextools_jumpto_anywhere", {"position": pos})
         elif fallback_command:
             if set_caret:
                 self._set_caret(view, event)

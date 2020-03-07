@@ -66,7 +66,7 @@ class LatextoolsOpenUserSettingsCommand(sublime_plugin.WindowCommand):
             sublime.set_timeout(self.set_content, 1)
             return
 
-        self.view.run_command('create_empty_user_file')
+        self.view.run_command('latextools_create_empty_user_settings_file')
 
 
 class LatextoolsCreateEmptyUserSettingsFileCommand(sublime_plugin.TextCommand):

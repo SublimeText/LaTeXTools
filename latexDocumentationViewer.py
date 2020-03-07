@@ -38,7 +38,7 @@ class LatextoolsPkgDocCommand(sublime_plugin.WindowCommand):
                 isinstance(file, str) and
                 file != ''
             ):
-                window.run_command('latex_view_doc', {'file': file})
+                window.run_command('latextools_view_doc', {'file': file})
 
         window.show_input_panel(
             'View documentation for which package?',

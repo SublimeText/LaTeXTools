@@ -42,7 +42,7 @@ class LatextoolsSearchCommandInputCommand(sublime_plugin.WindowCommand):
                 "commands": commands,
                 "only_current_file": only_current_file
             }
-            window.run_command("latex_search_command", kwargs)
+            window.run_command("latextools_search_command", kwargs)
 
         def do_nothing(text):
             pass

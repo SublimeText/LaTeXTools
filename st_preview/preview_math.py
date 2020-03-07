@@ -640,7 +640,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             _IS_ENABLED = False
             self.update_phantoms()
             if answer == sublime.DIALOG_YES:
-                self.view.window().run_command("open_latextools_user_settings")
+                self.view.window().run_command("latextools_open_user_settings")
         elif href.startswith("report-"):
             file_path = href[len("report-"):]
             if not os.path.exists(file_path):

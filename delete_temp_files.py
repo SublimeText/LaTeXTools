@@ -43,8 +43,8 @@ class LatextoolsClearCacheCommand(sublime_plugin.WindowCommand):
 				traceback.print_exc()
 		window = self.window
 		if window.active_view().score_selector(0, "text.tex.latex"):
-			window.run_command("clear_local_latex_cache")
-			window.run_command("clear_bibliography_cache")
+			window.run_command("latextools_clear_local_cache")
+			window.run_command("latextools_clear_bibliography_cache")
 
 
 class LatextoolsClearLocalCacheCommand(sublime_plugin.WindowCommand):
