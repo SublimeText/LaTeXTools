@@ -4,7 +4,8 @@ import re
 
 from .deprecated_command import deprecate
 
-class LatexChangeEnvironmentCommand(sublime_plugin.TextCommand):
+
+class LatextoolsChangeEnvironmentCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         view = self.view
         new_regions = _find_env_regions(view)
@@ -15,7 +16,8 @@ class LatexChangeEnvironmentCommand(sublime_plugin.TextCommand):
         for r in new_regions:
             view.sel().add(r)
 
-class LatexToggleEnvironmentStarCommand(sublime_plugin.TextCommand):
+
+class LatextoolsToggleEnvironmentStarCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         view = self.view
         new_regions = _find_env_regions(view)

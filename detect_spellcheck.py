@@ -9,6 +9,8 @@ try:  # check whether the dictionaries package is installed
 except:
     _DICT_INSTALLED = False
 
+from .deprecated_command import deprecate
+
 
 class DictMissing(Exception):
     pass
@@ -154,7 +156,7 @@ def update_dict_language(view, extract_from_root):
     print("Changed dictionary to '{0}'".format(dict_path))
 
 
-class LatexAutoDetectSpellcheckListener(sublime_plugin.EventListener):
+class LatextoolsAutoDetectSpellcheckListener(sublime_plugin.EventListener):
     def on_post_save(self, view):
         if not view.score_selector(0, "text.tex.latex"):
             return
@@ -167,7 +169,9 @@ class LatexAutoDetectSpellcheckListener(sublime_plugin.EventListener):
     on_load_async = on_load_event
 
 
-class LatexDetectSpellcheckCommand(sublime_plugin.WindowCommand):
+class LatextoolsDetectSpellcheckCommand(sublime_plugin.WindowCommand):
     def run(self):
         view = self.window.active_view()
         update_dict_language(view)
+
+deprecate(globals(), 'LatexDetectSpellcheckCommand', LatextoolsDetectSpellcheckCommand)

@@ -3,6 +3,7 @@ import traceback
 import sublime
 import sublime_plugin
 
+from .deprecated_command import deprecate
 from .latextools_utils.distro_utils import using_miktex
 from .latextools_utils.external_command import external_command
 
@@ -27,7 +28,7 @@ def _view_texdoc(file):
             'is configured correctly in the LaTeXTools settings.')
 
 
-class LatexPkgDocCommand(sublime_plugin.WindowCommand):
+class LatextoolsPkgDocCommand(sublime_plugin.WindowCommand):
     def run(self):
         window = self.window
 
@@ -48,9 +49,13 @@ class LatexPkgDocCommand(sublime_plugin.WindowCommand):
         )
 
 
-class LatexViewDocCommand(sublime_plugin.WindowCommand):
+class LatextoolsViewDocCommand(sublime_plugin.WindowCommand):
     def run(self, file):
         _view_texdoc(file)
 
     def is_visible(self):
         return False  # hide this from menu
+
+
+deprecate(globals(), 'LatexPkgDocCommand', LatextoolsPkgDocCommand)
+deprecate(globals(), 'LatexViewDocCommand', LatextoolsViewDocCommand)

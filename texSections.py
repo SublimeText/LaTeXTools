@@ -1,5 +1,5 @@
 # ST2/ST3 compat
-from __future__ import print_function 
+from __future__ import print_function
 import sublime
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
@@ -10,6 +10,8 @@ else:
 
 import sublime_plugin, os, os.path, re
 
+from .deprecated_command import deprecate
+
 # References and citations
 
 spaces = {'part' : '', 'chapter' : '  ', 'section' : '    ',
@@ -17,12 +19,12 @@ spaces = {'part' : '', 'chapter' : '  ', 'section' : '    ',
 		  'subsubsubsection' : '          '}
 
 # ST2 note: we must keep the NamingConventionCommand style in the Python code,
-# but the key bindings need "command": "naming_convention" 
+# but the key bindings need "command": "naming_convention"
 #
 # Also, for now must explicitly add key bindings in Preferences | User Key Bindings
 
 
-class TexSectionsCommand(sublime_plugin.TextCommand):
+class LatextoolsTexSectionsCommand(sublime_plugin.TextCommand):
 	# ST2 note: (0) import sublime_plugin, not sublimeplugin
 	#			(1) second arg is Edit, not View
 	#               to get view, use self.view (?)
@@ -73,7 +75,7 @@ class TexSectionsCommand(sublime_plugin.TextCommand):
 					secTitle = secTitle[:-1]
 				return spaces[m.group(1)]+secTitle
 		prettySecs = [prettify(self.view.substr(reg)) for reg in secRegions]
-		
+
 		def onSelect(i):
 			#print view.substr(secRegions[i])
 			self.view.show(secRegions[i])
@@ -84,3 +86,6 @@ class TexSectionsCommand(sublime_plugin.TextCommand):
 
 		print (prettySecs)
 		#self.view.window().show_select_panel(prettySecs, onSelect, None, 0)
+
+
+deprecate(globals(), 'TexSectionsCommand', LatextoolsTexSectionsCommand)

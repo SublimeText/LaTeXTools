@@ -429,7 +429,7 @@ def get_cite_completions(view):
     return completions
 
 
-# called by LatexFillAllCommand; provides citations for cite commands
+# called by LatextoolsFillAllCommand; provides citations for cite commands
 class CiteFillAllHelper(FillAllHelper):
 
     def get_auto_completions(self, view, prefix, line):

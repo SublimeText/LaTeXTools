@@ -72,6 +72,9 @@ _HAS_PHANTOMS = sublime.version() >= "3118"
 if _HAS_PHANTOMS:
 	import html
 
+from .deprecated_command import deprecate
+
+
 # Compile current .tex file to pdf
 # Allow custom scripts and build engines!
 
@@ -331,7 +334,7 @@ class CmdThread ( threading.Thread ):
 				else:
 					# don't know what the command is
 					continue
-				
+
 				# Now actually invoke the command, making sure we allow for killing
 				# First, save process handle into caller; then communicate (which blocks)
 				with self.caller.proc_lock:
@@ -339,7 +342,7 @@ class CmdThread ( threading.Thread ):
 				out, err = proc.communicate()
 				self.caller.builder.set_output(out.decode(self.caller.encoding,"ignore"))
 
-				
+
 				# Here the process terminated, but it may have been killed. If so, stop and don't read log
 				# Since we set self.caller.proc above, if it is None, the process must have been killed.
 				# TODO: clean up?
@@ -557,7 +560,7 @@ class CmdThread ( threading.Thread ):
 
 # Actual Command
 
-class make_pdfCommand(sublime_plugin.WindowCommand):
+class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
 	errs_by_file = {}
 	phantom_sets_by_buffer = {}
@@ -1008,7 +1011,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 						html_text = html.escape(text, quote=False)
 						phantom_content = """
 							<body id="inline-error">
-								{stylesheet} 
+								{stylesheet}
 								<div class="lt-error {error_class}">
 									<span class="message">{html_text}</span>
 									<a href="hide">{cancel_char}</a>
@@ -1036,14 +1039,14 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			self.hide_phantoms()
 
 
-class DoOutputEditCommand(sublime_plugin.TextCommand):
+class LatextoolsDoOutputEditCommand(sublime_plugin.TextCommand):
     def run(self, edit, data, selection_was_at_end):
         self.view.insert(edit, self.view.size(), data)
         if selection_was_at_end:
             self.view.show(self.view.size())
 
 
-class DoFinishEditCommand(sublime_plugin.TextCommand):
+class LatextoolsDoFinishEditCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         self.view.sel().clear()
         reg = sublime.Region(0)
@@ -1071,3 +1074,8 @@ def plugin_loaded():
 
 if not _ST3:
 	plugin_loaded()
+
+
+deprecate(globals(), 'make_pdfCommand', LatextoolsMakePdfCommand)
+deprecate(globals(), 'DoOutputEditCommand', LatextoolsDoOutputEditCommand)
+deprecate(globals(), 'DoFinishEditCommand', LatextoolsDoFinishEditCommand)

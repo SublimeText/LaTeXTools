@@ -2,10 +2,11 @@ import os
 import sublime
 import sublime_plugin
 
+from .deprecated_command import deprecate
 
-class OpenLatextoolsDefaultSettingsCommand(sublime_plugin.WindowCommand):
+class LatextoolsOpenDefaultSettingsCommand(sublime_plugin.WindowCommand):
     def __init__(self, *args, **kwargs):
-        super(OpenLatextoolsDefaultSettingsCommand, self).__init__(*args, **kwargs)
+        super(LatextoolsOpenDefaultSettingsCommand, self).__init__(*args, **kwargs)
         self.view = None
 
     def run(self, **args):
@@ -29,9 +30,9 @@ class OpenLatextoolsDefaultSettingsCommand(sublime_plugin.WindowCommand):
         self.view.set_read_only(True)
 
 
-class OpenLatextoolsUserSettingsCommand(sublime_plugin.WindowCommand):
+class LatextoolsOpenUserSettingsCommand(sublime_plugin.WindowCommand):
     def __init__(self, *args, **kwargs):
-        super(OpenLatextoolsUserSettingsCommand, self).__init__(*args, **kwargs)
+        super(LatextoolsOpenUserSettingsCommand, self).__init__(*args, **kwargs)
         self.view = None
 
     def run(self):
@@ -68,7 +69,7 @@ class OpenLatextoolsUserSettingsCommand(sublime_plugin.WindowCommand):
         self.view.run_command('create_empty_user_file')
 
 
-class CreateEmptyUserFile(sublime_plugin.TextCommand):
+class LatextoolsCreateEmptyUserSettingsFileCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         self.view.insert(edit, 0, '{\n\t\n}\n')
         self.view.run_command('save')
@@ -80,3 +81,8 @@ class CreateEmptyUserFile(sublime_plugin.TextCommand):
 
     def is_visible(self):
         return False
+
+
+deprecate(globals(), 'OpenLatextoolsDefaultSettingsCommand', LatextoolsOpenDefaultSettingsCommand)
+deprecate(globals(), 'OpenLatextoolsUserSettingsCommand', LatextoolsOpenUserSettingsCommand)
+deprecate(globals(), 'CreateEmptyUserFile', LatextoolsCreateEmptyUserSettingsFileCommand)

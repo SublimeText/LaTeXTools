@@ -6,7 +6,7 @@ except ImportError:
 
 class FillAllHelper(LaTeXToolsPlugin):
     '''
-    Interface for LatexFillAllCommand plugins
+    Interface for LatextoolsFillAllCommand plugins
     '''
 
     def get_auto_completions(self, view, prefix, line):

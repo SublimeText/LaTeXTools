@@ -4,7 +4,7 @@ import sublime_plugin
 _setting_name = 'compatibility_enable_version3_commands'
 
 
-class LatexToolsDeprecatedCommand(object):
+class LatextoolsDeprecatedCommand(object):
     # every subclass should overwrite this attribute
     new_classname = ''
 
@@ -33,18 +33,18 @@ class LatexToolsDeprecatedCommand(object):
             'Dear LaTeXTools user,\n\n you have called the command "{}", '
             'which has been deprecated during a major refactoring '
             'and is now called "{}" and will be removed in the future.\n'
-            'Please refactor your keybindings accordingly. '
+            'Please update your keybindings accordingly. '
             'Until then you can active the old commands during this session.\n'
             'To disable this dialog you can set the setting '
             '"{}" in LaTeXTools user settings to true (not recommended).'
             .format(name, new_name, _setting_name),
-            'Activate deprecated commands, I will refactor later'
+            'Activate deprecated commands (I will update the bindings later)'
         )
         return activate_commands
 
     def _run_new_command(self, kwargs):
         new_name = self.new_name()
-        print('running {}'.format(new_name))
+        print('Running {} instead of {}'.format(new_name, self.name()))
         if isinstance(self, sublime_plugin.TextCommand) and self.view:
             self.view.run_command(new_name, kwargs)
         elif isinstance(self, sublime_plugin.WindowCommand) and self.window:
@@ -56,28 +56,38 @@ class LatexToolsDeprecatedCommand(object):
 
     def new_name(self):
         clsname = self.new_classname
-        name = clsname[0].lower()
-        last_upper = False
-        for c in clsname[1:]:
-            if c.isupper() and not last_upper:
-                name += '_'
-                name += c.lower()
-            else:
-                name += c
-            last_upper = c.isupper()
-        if name.endswith("_command"):
-            name = name[0:-8]
-        return name
+        return _convert_name(clsname)
 
 
-def deprecate(module, oldClassName, NewClass):
+def _convert_name(clsname):
+    name = clsname[0].lower()
+    last_upper = False
+    for c in clsname[1:]:
+        if c.isupper() and not last_upper:
+            name += '_'
+            name += c.lower()
+        else:
+            name += c
+        last_upper = c.isupper()
+    if name.endswith("_command"):
+        name = name[0:-8]
+    return name
+
+
+if 'deprecated_commands' not in globals():
+    deprecated_commands = {}
+
+
+def deprecate(module, old_classname, NewClass):
     if issubclass(NewClass, sublime_plugin.TextCommand):
         ParentClass = sublime_plugin.TextCommand
     else:
         ParentClass = sublime_plugin.WindowCommand
 
-    module[oldClassName] = type(
-        oldClassName,
-        (LatexToolsDeprecatedCommand, ParentClass),
-        {"new_classname": NewClass.__name__}
+    new_classname = NewClass.__name__
+    deprecated_commands[_convert_name(old_classname)] = _convert_name(new_classname)
+    module[old_classname] = type(
+        old_classname,
+        (LatextoolsDeprecatedCommand, ParentClass),
+        {"new_classname": new_classname}
     )

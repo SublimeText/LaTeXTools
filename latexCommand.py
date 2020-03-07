@@ -1,5 +1,5 @@
 # ST2/ST3 compat
-from __future__ import print_function 
+from __future__ import print_function
 import sublime
 if sublime.version() < '3000':
     # we are on ST2 and Python 2.X
@@ -10,11 +10,12 @@ else:
 import sublime_plugin
 import re
 
+from .deprecated_command import deprecate
 
 # Insert LaTeX command based on current word
 # Position cursor inside braces
 
-class latexcmdCommand(sublime_plugin.TextCommand):
+class LatextoolsLatexCmdCommand(sublime_plugin.TextCommand):
 	def run(self, edit, **args):
 		view = self.view
 
@@ -42,3 +43,5 @@ class latexcmdCommand(sublime_plugin.TextCommand):
 		else:
 			sublime.status_message("LATEXTOOLS INTERNAL ERROR: could not find command to expand")
 
+
+deprecate(globals(), 'latexcmdCommand', LatextoolsLatexCmdCommand)
