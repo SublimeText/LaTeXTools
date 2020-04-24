@@ -117,7 +117,7 @@ class JumpToPdf(sublime_plugin.TextCommand):
 		if not is_tex_file(view.file_name()):
 			sublime.error_message(
 				"%s is not a TeX source file: cannot jump." %
-				(os.path.basename(view.fileName()),))
+				(os.path.basename(view.file_name()),))
 			return
 
 		root = getTeXRoot.get_tex_root(view)
