@@ -1,5 +1,5 @@
 # ST2/ST3 compat
-from __future__ import print_function 
+from __future__ import print_function
 import sublime
 import sublime_plugin
 
@@ -72,8 +72,6 @@ def get_viewer():
 				'Please check your LaTeXTools Preferences.')
 			raise NoViewerException()
 
-	print(repr(viewer))
-
 	# assume no-args constructor
 	viewer = viewer()
 
@@ -110,7 +108,6 @@ class JumpToPdf(sublime_plugin.TextCommand):
 		from_keybinding = args.pop("from_keybinding", False)
 		if from_keybinding:
 			forward_sync = True
-		print(from_keybinding, keep_focus, forward_sync)
 
 		view = self.view
 
@@ -148,7 +145,6 @@ class JumpToPdf(sublime_plugin.TextCommand):
 		pdffile = os.path.realpath(pdffile)
 
 		(line, col) = self.view.rowcol(self.view.sel()[0].end())
-		print("Jump to: ", line, col)
 		# column is actually ignored up to 0.94
 		# HACK? It seems we get better results incrementing line
 		line += 1
