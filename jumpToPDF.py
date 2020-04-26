@@ -109,33 +109,40 @@ class JumpToPdf(sublime_plugin.TextCommand):
 		if from_keybinding:
 			forward_sync = True
 
-		view = self.view
+		file_name = self.view.file_name()
+		if not is_tex_file(file_name):
+			# If invoked from keybinding, this is an impossible request
+			if from_keybinding:
+				sublime.error_message(
+					"%s is not a TeX source file: cannot jump." %
+					(os.path.basename(file_name),))
+				return
+			# If not invoked from keybinding, it is invoked by the
+			# compilation process. Then, we should go forward with
+			# viewing the newly compiled PDF, but not try to sync
+			# forward (since that would be impossible).
+			else:
+				forward_sync = False
 
-		if not is_tex_file(view.file_name()):
-			sublime.error_message(
-				"%s is not a TeX source file: cannot jump." %
-				(os.path.basename(view.file_name()),))
-			return
+		root = getTeXRoot.get_tex_root(self.view)
+		jobname = get_jobname(self.view)
 
-		root = getTeXRoot.get_tex_root(view)
-		file_name = get_jobname(view)
-
-		output_directory = get_output_directory(view)
+		output_directory = get_output_directory(self.view)
 		if output_directory is None:
 			pdffile = os.path.join(
 				os.path.dirname(root),
-				file_name + u'.pdf'
+				jobname + u'.pdf'
 			)
 		else:
 			pdffile = os.path.join(
 				output_directory,
-				file_name + u'.pdf'
+				jobname + u'.pdf'
 			)
 
 			if not os.path.exists(pdffile):
 				pdffile = os.path.join(
 					os.path.dirname(root),
-					file_name + u'.pdf'
+					jobname + u'.pdf'
 				)
 
 		if not os.path.exists(pdffile):
