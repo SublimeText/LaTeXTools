@@ -44,7 +44,7 @@ class UnsavedFileException(Exception):
 # return_setting indicates that the raw setting should be returned
 # as well as the auxiliary directory
 def get_aux_directory(view_or_root, return_setting=False):
-    # not supported using texify or the simple builder
+    # not supported the Tex Live distro or using texify or the simple builder
     if not using_miktex() or using_texify_or_simple():
         if return_setting:
             return (None, None)
