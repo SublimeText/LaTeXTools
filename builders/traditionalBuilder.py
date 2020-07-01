@@ -12,12 +12,16 @@ else:
 from pdfBuilder import PdfBuilder
 import shlex
 
+if sublime.platform() == 'windows':
+	from latextools_utils.perl_installed import perl_installed
+	from latextools_utils.distro_utils import using_miktex
+
 DEBUG = False
 
 DEFAULT_COMMAND_LATEXMK = ["latexmk", "-cd", "-f", "-%E",
 					"-interaction=nonstopmode", "-synctex=1"]
 
-DEFAULT_COMMAND_WINDOWS_MIKTEX = ["texify", "-b", "-p", "--engine=%E",
+DEFAULT_COMMAND_WINDOWS_MIKTEX_TEXIFY = ["texify", "-b", "-p", "--engine=%E",
 					"--tex-option=\"--synctex=1\""]
 
 
@@ -36,17 +40,14 @@ class TraditionalBuilder(PdfBuilder):
 		self.name = "Traditional Builder"
 		# Display output?
 		self.display_log = self.builder_settings.get("display_log", False)
+
 		# Build command, with reasonable defaults
-		plat = sublime.platform()
-		# Figure out which distro we are using
-		distro = self.platform_settings.get(
-			"distro",
-			"miktex" if plat == "windows" else "texlive"
-		)
-		if distro in ["miktex", ""]:
-			default_command = DEFAULT_COMMAND_WINDOWS_MIKTEX
-		else:  # osx, linux, windows/texlive, everything else really!
-			default_command = DEFAULT_COMMAND_LATEXMK
+		# osx, linux, windows/texlive, miktex(having perl) everything else really!
+		default_command = DEFAULT_COMMAND_LATEXMK
+		# When windows/miktex missing perl, the `texify` compiler driver will be used.
+		if sublime.platform() == 'windows':
+			if using_miktex() and not perl_installed():
+				default_command = DEFAULT_COMMAND_WINDOWS_MIKTEX_TEXIFY
 
 		self.cmd = self.builder_settings.get("command", default_command)
 		if isinstance(self.cmd, strbase):
