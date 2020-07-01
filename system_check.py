@@ -454,10 +454,17 @@ class SystemCheckThread(threading.Thread):
 
         # a list of programs, each program is either a string or a list
         # of alternatives (e.g. 32/64 bit version)
-        programs = [
-            'latexmk' if not self.uses_miktex else 'texify', 'pdflatex',
-            'xelatex', 'lualatex', 'biber', 'bibtex', 'bibtex8', 'kpsewhich'
-        ]
+        # Add check "perl" and "texify" when Windows/Miktex
+        if sublime.platform() == 'windows' and self.uses_miktex:
+            programs = [
+                'latexmk', 'perl', 'texify', 'pdflatex',
+                'xelatex', 'lualatex', 'biber', 'bibtex', 'bibtex8', 'kpsewhich'
+            ]
+        else:
+            programs = [
+                'latexmk', 'pdflatex',
+                'xelatex', 'lualatex', 'biber', 'bibtex', 'bibtex8', 'kpsewhich'
+            ]
 
         if _HAS_PREVIEW:
             # ImageMagick requires gs to work with PDFs
