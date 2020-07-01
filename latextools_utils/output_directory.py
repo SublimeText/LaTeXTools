@@ -7,6 +7,7 @@ import tempfile
 try:
     from latextools_utils import get_setting
     from latextools_utils.distro_utils import using_miktex
+    from latextools_utils.perl_installed import perl_installed
     from latextools_utils.tex_directives import (
         get_tex_root, parse_tex_directives
     )
@@ -15,6 +16,7 @@ try:
 except ImportError:
     from . import get_setting
     from .distro_utils import using_miktex
+    from .perl_installed import perl_installed
     from .tex_directives import get_tex_root, parse_tex_directives
     from .sublime_utils import get_project_file_name
     from .system import make_dirs
@@ -203,10 +205,12 @@ def get_jobname(view_or_root):
 
 
 def using_texify_or_simple():
-    if using_miktex():
-        builder = get_setting('builder', 'traditional')
-        if builder in ['', 'default', 'traditional', 'simple']:
-            return True
+    builder = get_setting('builder', None)
+    if (builder == 'simple' or (
+            sublime.platform() == 'windows' and
+            using_miktex() and not perl_installed())
+    ):
+        return True
     return False
 
 
