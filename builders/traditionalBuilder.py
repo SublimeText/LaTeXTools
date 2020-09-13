@@ -45,9 +45,8 @@ class TraditionalBuilder(PdfBuilder):
 		# osx, linux, windows/texlive, miktex(having perl) everything else really!
 		default_command = DEFAULT_COMMAND_LATEXMK
 		# When windows/miktex missing perl, the `texify` compiler driver will be used.
-		if sublime.platform() == 'windows':
-			if using_miktex() and not perl_installed():
-				default_command = DEFAULT_COMMAND_WINDOWS_MIKTEX_TEXIFY
+		if sublime.platform() == 'windows' and using_miktex() and not perl_installed():
+			default_command = DEFAULT_COMMAND_WINDOWS_MIKTEX_TEXIFY
 
 		self.cmd = self.builder_settings.get("command", default_command)
 		if isinstance(self.cmd, strbase):
