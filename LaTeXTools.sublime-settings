@@ -207,7 +207,9 @@
 
 	"osx": 	{
 		// Path used when invoking tex & friends; MUST include $PATH
-		"texpath" : "$PATH:/Library/TeX/texbin:/usr/texbin:/usr/local/bin:/opt/local/bin"
+		"texpath" : "$PATH:/Library/TeX/texbin:/usr/texbin:/usr/local/bin:/opt/local/bin",
+		// TeX distro: "miktex" or "texlive"
+		"distro" : "texlive"
 		// Path to PDF viewer, if needed
 		// TODO think about it. Also, maybe configure it here!
 	},
@@ -234,6 +236,8 @@
 	"linux" : {
 		// Path used when invoking tex & friends; MUST include $PATH
 		"texpath" : "$PATH:/usr/texbin",
+		// TeX distro: "miktex" or "texlive"
+		"distro" : "texlive",
 		// Command to invoke Python. Useful if you have Python installed in a
 		// non-standard location or want to use a particular version of python.
 		// Both Python2 and Python3 are supported, but must have the DBus bindings
