@@ -207,7 +207,10 @@
 
 	"osx": 	{
 		// Path used when invoking tex & friends; MUST include $PATH
+		// For TeXlive 2011 (or other years) use
 		"texpath" : "$PATH:/Library/TeX/texbin:/usr/texbin:/usr/local/bin:/opt/local/bin",
+		// For MiKTeX
+		// "texpath" : "$PATH:/usr/local/bin:$HOME/bin",
 		// TeX distro: "miktex" or "texlive"
 		"distro" : "texlive"
 		// Path to PDF viewer, if needed
@@ -235,7 +238,10 @@
 
 	"linux" : {
 		// Path used when invoking tex & friends; MUST include $PATH
+		// For TeXlive 2011 (or other years) use
 		"texpath" : "$PATH:/usr/texbin",
+		// For MiKTeX
+		// "texpath" : "$PATH:/usr/local/bin:$HOME/bin",
 		// TeX distro: "miktex" or "texlive"
 		"distro" : "texlive",
 		// Command to invoke Python. Useful if you have Python installed in a
