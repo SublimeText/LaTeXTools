@@ -18,9 +18,16 @@ If you are running LaTeXTools for the first time, you may want to run the **LaTe
 
 ### Distribution
 
-On **OSX**, you need to be running the [MacTeX](https://www.tug.org/mactex/) distribution (which is pretty much the only one available on the Mac anyway). Just download and install it in the usual way. We have tested MacTeX versions 2010--2016, both 32 and 64 bits; these work fine. MacTeX 2008 does *not* seem to work out of the box, so please upgrade.
+On **OSX**, both [MacTeX](https://www.tug.org/mactex/) and [MiKTeX](http://www.miktex.org/) (since version 2.9.6300) are supported. Pick one and install it following the relevant documentation. We have tested MacTeX versions 2010--2016, both 32 and 64 bits; these work fine. MacTeX 2008 does *not* seem to work out of the box, so please upgrade. The MiKTeX has recommended to install the latest version.
 
-If you don't want to install the entire MacTeX distribution—which is pretty big—[BasicTeX](https://www.tug.org/mactex/morepackages.html) will also work, though you may need to spend more time ensuring all the packages you need are installed! One such package that is missing is `latexmk`, which is a script for building LaTeX documents, which LaTeXTools uses by default. You can either choose to install `latexmk` or [change the builder](#builder.md) to use a builder that does not require `latexmk`. To install `latexmk`, you can either use the **TeX Live Utility** (assuming you are using a recent version of BasicTeX) or from the **Terminal** type `sudo tlmgr install latexmk`, which will prompt you for your password and install the `latexmk` package.
+- MacTeX
+  If you don't want to install the entire MacTeX distribution—which is pretty big—[BasicTeX](https://www.tug.org/mactex/morepackages.html) will also work, though you may need to spend more time ensuring all the packages you need are installed! One such package that is missing is `latexmk`, which is a script for building LaTeX documents, which LaTeXTools uses by default. You can either choose to install `latexmk` or [change the builder](#builder.md) to use a builder that does not require `latexmk`. To install `latexmk`, you can either use the **TeX Live Utility** (assuming you are using a recent version of BasicTeX) or from the **Terminal** type `sudo tlmgr install latexmk`, which will prompt you for your password and install the `latexmk` package.
+
+- MiKTeX
+  MiKTeX adopts a rolling update mechanism to always keep up-to-date, and based on the on-the-fly package management mechanism, it asks users if they want to automatically install missing components from the Internet, if required. This allows you to reduce TeX installations as much as possible.
+
+  We recommend following the [official guidelines](https://miktex.org/howto/install-miktex-mac) for installation and update, and turn on the auto-install feature. One such package that is missing is `latexmk`, which is a script for building LaTeX documents, which LaTeXTools uses by default. You can either choose to install `latexmk` or [change the builder](#builder.md) to use a builder that does not require `latexmk`. To install `latexmk`, you can either use the **MiKTeX Console** or from the **Terminal** type `sudo mpm --admin --install latexmk` or `mpm --install latexmk`, which will prompt you for your password and install the `latexmk` package.
+
 
 ### Setup Skim
 
@@ -77,7 +84,16 @@ Sorry for the complications. It's not my fault.
 
 ### Distribution
 
-On **Windows**, both [MiKTeX](http://www.miktex.org/) and [TeXLive](https://www.tug.org/texlive/) are supported. Pick one and install it following the relevant documentation.
+On **Windows**, both [MiKTeX](http://miktex.org/) and [TeXLive](https://www.tug.org/texlive/) are supported. Pick one and install it following the relevant documentation.
+
+### Setup Perl
+
+If you are using `latexmk` with MiKTeX, you will need to install both the `latexmk` MiKTeX package and a `Perl` interpreter. We recommend the following Perl distributions:
+
+- [Strawberry Perl](http://strawberryperl.com/)
+- [ActiveState Perl](http://www.activestate.com/activeperl/downloads)
+
+First of all, download and install a Perl distribution. Then start the **MiKTeX Console**, and install the `latexmk` package. Make sure the Perl binaries added to your `PATH` system variable or to the `texpath` when setting up LaTeXTools.
 
 ### Setup Sumatra
 
@@ -136,9 +152,13 @@ Finally, you need to ensure that the `distro` setting is correct. The possible v
 
 ### Distribution
 
-You need to install TeXLive.
+On **Linux**, both [TeXLive](https://www.tug.org/texlive/) and [MiKTeX](http://miktex.org/) (since version 2.9.6300) are supported.
 
-We highly recommend installing the version directly from TUG, which can be found [here](https://www.tug.org/texlive/acquire-netinstall.html) rather than the version included with your distribution, as TeXLive is generally updated more regularly and tends to include more features. In particular, if you are on Ubuntu, note that `apt-get install texlive` will get you a working but incomplete setup. For example, it will *not* install `latexmk`, which is essential to LaTeXTools. You need to install it via `apt-get install latexmk`. However, as long as the expected binaries are available on your system, LaTeXTools should generally work.
+- TeXLive
+  We highly recommend installing the version directly from TUG, which can be found [here](https://www.tug.org/texlive/acquire-netinstall.html) rather than the version included with your distribution, as TeXLive is generally updated more regularly and tends to include more features. In particular, if you are on Ubuntu, note that `apt-get install texlive` will get you a working but incomplete setup. For example, it will *not* install `latexmk`, which is essential to LaTeXTools. You need to install it via `apt-get install latexmk`. However, as long as the expected binaries are available on your system, LaTeXTools should generally work.
+
+- MiKTeX
+  We recommend following the [Official Guide](https://miktex.org/download#unx) to install, initialize, update, etc., and turn on automatic installation. One such package that is missing is `latexmk`, which is a script for building LaTeX documents, which LaTeXTools uses by default. You can either choose to install `latexmk` or [change the builder](#builder.md) to use a builder that does not require `latexmk`. To install `latexmk`, you can either use the **MiKTeX Console** or from the **Terminal** type `sudo mpm --admin --install latexmk` or `mpm --install latexmk`, which will prompt you for your password and install the `latexmk` package.
 
 You can use the **LaTeXTools: Check System** command to ensure that the expected binaries are found.
 

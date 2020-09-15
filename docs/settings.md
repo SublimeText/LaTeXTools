@@ -68,11 +68,12 @@ This section refers to setting that can be found in a platform-specific block fo
 
 ### All Platforms
 
+  * `distro` (`texlive`): either `miktex` or `texlive` (include MacTeX), depending on your TeX distribution.
   * `texpath` (varies): the path to TeX & friends. Note that this should always include `$PATH` to ensure the default path is loaded as well.
 
 ### Windows
 
-  * `distro` (`miktex`): either `miktex` or `texlive`, depending on your TeX distribution
+  * `distro` (`miktex`): either `miktex` or `texlive`, depending on your TeX distribution.
   * `sumatra` (`""`): leave blank or omit if the SumatraPDF executable is in your `PATH` and is called `SumatraPDF.exe`, as in a default installation; otherwise, specify the *full path and file name* of the SumatraPDF executable.
   * `sublime_executable` (`""`): this is used if `keep_focus` is set to true and the path to your sublime_text executable cannot be discovered automatically. It should point to the full path to your executable `sublime_text.exe`.
   * `keep_focus_delay` (`0.5`): this is used if `keep_focus` is set to true. It controls how long (in seconds) the delay is between the completion of the `jump_to_pdf` command and the attempt to refocus on Sublime Text. This may need to be adjusted depending on your machine or configuration.
@@ -99,7 +100,7 @@ This section refers to setting that can be found in a platform-specific block fo
 **Note:** Since the build system is meant to be fully customizable, if you use a third-party builder (which hopefully will become available!), you need to refer to its documentation.
 
 * `builder` (`"traditional"`): the builder you want to use. Possible values:
-	* `"default"` or `""` or `"traditional"`: this is the standard LaTeXTools builder, which builds the document using `texify` on MiKTeX or `latexmk` on TeXLive or MacTeX. The majority of the documentation is written assuming you are using this builder.
+	* `"default"` or `""` or `"traditional"`: this is the standard LaTeXTools builder, which builds the document using `texify` on Windows/MiKTeX that is missing `Perl` interpreter, using `latexmk` on MiKTeX or TeXLive (include MacTeX). The majority of the documentation is written assuming you are using this builder.
 	* `"basic"`: invokes `pdflatex` / `xelatex` / `lualatex` to build the document. If the log indicates it is necessary, it then runs  `biber` or `bibtex` and then two additional runs of `pdflatex` / `xelatex` / `lualatex`. Mostly supports the same features as the `traditional` builder.
 	* `"script"`: invokes the set of commands specified in the `"script_commands"` setting in the platform-specific part of the `"builder_settings"`. See [the documentation](available-builders.md#script-builder) for details.
 	* `"simple"`: invokes `pdflatex` 1x or 2x as needed, then `bibtex` and `pdflatex` again if needed; intended mainly as a simple example for people writing their own build engines.
@@ -111,8 +112,8 @@ This section refers to setting that can be found in a platform-specific block fo
 	For the `default`/`traditional` builder, the following settings are useful:
 		* `program` (unset): one of `pdflatex` (the default), `xelatex` or `lualatex`. This selects the TeX engine.
 		* `command` (unset): the precise `latexmk` or `texify` command to be invoked. This  must be a list of strings. The defaults (hardcoded, not shown in the settings file) are:
-			* (TeXLive): `["latexmk", "-cd", "-e", "-f", "-%E", "-interaction=nonstopmode", "-synctex=1"]`
-			* (MiKTeX): `["texify", "-b", "-p", "--engine=%E", "--tex-option=\"--synctex=1\""]`
+			* (MiKTeX and TeXLive): `["latexmk", "-cd", "-e", "-f", "-%E", "-interaction=nonstopmode", "-synctex=1"]`
+			* (MiKTeX/Windows is missing Perl interpreter): `["texify", "-b", "-p", "--engine=%E", "--tex-option=\"--synctex=1\""]`
 		* `options` (unset): allows you to specify a TeX option, such as `--shell-escape`. This must be a tuple: that is, use `options: ["--shell-escape"]`
 	The `basic` builder also supports the `program` and `options` options.
 	For the script builder, the following setting is **required**:
