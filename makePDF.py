@@ -906,13 +906,15 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 					)
 				elif isinstance(copy_on_build, list):
 					for ext in copy_on_build:
-						shutil.copy2(
-							os.path.join(
-								self.output_directory,
-								self.tex_base + ext
-							),
-							os.path.dirname(self.file_name)
+						copy_file = os.path.join(
+							self.output_directory,
+							self.tex_base + ext
 						)
+						if os.path.isfile(copy_file):
+							shutil.copy2(
+								copy_file,
+								os.path.dirname(self.file_name)
+							)
 
 			if get_setting('open_pdf_on_build', True, view=self.view):
 				self.view.run_command("jump_to_pdf", {"from_keybinding": False})
