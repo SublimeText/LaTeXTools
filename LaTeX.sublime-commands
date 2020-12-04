@@ -15,5 +15,6 @@
 	{ "caption": "LaTeXTools: View TeX package documentation", "command": "latex_pkg_doc"},
 	{ "caption": "LaTeXTools: Build cache of LaTeX packages", "command": "latex_gen_pkg_cache"},
 	{ "caption": "LaTeXTools: Update document analysis cache", "command": "latextools_analysis_update"},
-	{ "caption": "LaTeXTools: Update bibliography cache", "command": "latextools_bib_update"}
+	{ "caption": "LaTeXTools: Update bibliography cache", "command": "latextools_bib_update"},
+	{ "caption": "LatexTools: Set Current File as \"TEXroot\" of Project", "command": "set_file_as_project_texroot",},
 ]
