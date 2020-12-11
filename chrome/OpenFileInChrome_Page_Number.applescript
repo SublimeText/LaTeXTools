@@ -29,5 +29,8 @@ on run argv
 	end tell
 	if not found then
 		do shell script defaultCmd
+		log defaultCmd
 	end if
 end run
+
+

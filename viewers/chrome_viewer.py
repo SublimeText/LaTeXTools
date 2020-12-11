@@ -30,6 +30,7 @@ class ChromeViewer(BaseViewer):
             'POSIX path of '
             '(path to app id "com.google.Chrome")'
         ], use_texpath=False)
+        viewer_location = viewer_location.replace(" ","\\ ")
         if escaped:
             return "{viewer_location}Contents/MacOS/Google\\ Chrome".format(viewer_location=viewer_location)
         return "{viewer_location}Contents/MacOS/Google Chrome".format(viewer_location=viewer_location)
@@ -67,11 +68,11 @@ class ChromeViewer(BaseViewer):
         quotedPDFName = quote(pdf_filename)
         scriptName= "{}/OpenFileInChrome_Page_Number.applescript".format(self._get_applescript_folder())
         chrome_dir = self._get_chrome_dir(escaped=True)
-        defaultCmd = "{chrome_dir} '{finalDestination}'".format(chrome_dir=chrome_dir,finalDestination=finalDestination)
+        defaultCmd = "{chrome_dir} {finalDestination}".format(chrome_dir=chrome_dir,finalDestination=finalDestination)
         cmd = ['osascript', scriptName, finalDestination,quotedPDFName,defaultCmd]
         return cmd
 
-
+        # osascript '/Users/zach/Library/Application Support/Sublime Text/Packages/LaTeXTools/chrome/OpenFileInChrome_Page_Number.applescript' 'file:///Users/zach/Documents/UCLA_classes/stats203/project/presentation/presentation.pdf#page=33&view=FitH,28.346443' '/Users/zach/Documents/UCLA_classes/stats203/project/presentation/presentation.pdf' '/Applications/Google Chrome.app/Contents/MacOS/Google\ Chrome file:///Users/zach/Documents/UCLA_classes/stats203/project/presentation/presentation.pdf#page=33&view=FitH,28.346443'
 
     def forward_sync(self, pdf_file, tex_file, line, col, **kwargs):
         cmd = self._get_run_command(pdf_file,tex_file,line,col)
