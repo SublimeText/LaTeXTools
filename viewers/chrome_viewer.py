@@ -6,7 +6,7 @@ import os
 from base_viewer import BaseViewer
 from latextools_utils import get_setting
 from latextools_utils.external_command import external_command, check_output
-
+# from delete_temp_files import DeleteTempFilesCommand
 ## TODO: remove defaultCmd from applescript - just return True or False, then run that default command from Python.
 ## TODO: GET CHROME PATH
 ## TODO: GET CURRENT FOLDER PATH (for osascript command)
@@ -39,8 +39,7 @@ class ChromeViewer(BaseViewer):
     def _get_browser_filepath(self,tex_line_no,tex_col_no,tex_filename,pdf_filename,zoom=100):
         try:
             synctex_loc = '{tex_line_no}:{tex_col_no}:{tex_filename}'.format(tex_line_no=tex_line_no,tex_col_no=tex_col_no,tex_filename=tex_filename)
-            cmd = ['/Library/TeX/texbin/synctex', 'view', '-i', synctex_loc, '-o', pdf_filename]
-            # output_text = sp.run(cmd,capture_output=True,text=True).stdout.split("\n")
+            cmd = ['/Library/TeX/texbin/synctex', 'view', '-i', synctex_loc, '-o', pdf_filename, '-d','aux']
             stdout = check_output(cmd)
             output_text = stdout.split("\n")
             page_no = next((e.lstrip('Page:') for e in output_text if e.startswith('Page:')), 1)
@@ -49,10 +48,22 @@ class ChromeViewer(BaseViewer):
         except Exception as e:
             print("ERROR IN SYNCTEX")
             print(e)
-            page_no = 1
-            line_no = 1
-            col_no = 0
+            try:
+                synctex_loc = '{tex_line_no}:{tex_col_no}:{tex_filename}'.format(tex_line_no=tex_line_no,tex_col_no=tex_col_no,tex_filename=tex_filename)
+                cmd = ['/Library/TeX/texbin/synctex', 'view', '-i', synctex_loc, '-o', pdf_filename]
+                stdout = check_output(cmd)
+                output_text = stdout.split("\n")
+                page_no = next((e.lstrip('Page:') for e in output_text if e.startswith('Page:')), 1)
+                line_no = next((e.lstrip('x:') for e in output_text if e.startswith('x:')), 1)
+                col_no = next((e.lstrip('y:') for e in output_text if e.startswith('y:')), 1)
+            except Exception as ee:
+                print("ANOTHER ERROR IN SYNCTEX")
+                print(ee)
+                page_no = 1
+                line_no = 1
+                col_no = 0
         # print(f"{page_no = }, {line_no = }, {col_no = }")
+
 
         return "file://{pdf_filename}#page={page_no}&view=FitH,{line_no}".format(pdf_filename=pdf_filename,page_no=page_no,line_no=line_no)
 
@@ -62,13 +73,14 @@ class ChromeViewer(BaseViewer):
             chrome_dir = self._get_chrome_dir()
             basic_cmd =  [chrome_dir,pdf_filename]
             return basic_cmd
-        # pdf_filename = tex_filename.rsplit(".",1)[0] + ".pdf"
+        pdf_filename = tex_filename.rsplit(".",1)[0] + ".pdf"
 
         finalDestination = self._get_browser_filepath(tex_line_no,tex_col_no,tex_filename,pdf_filename)
         quotedPDFName = quote(pdf_filename)
         scriptName= "{}/OpenFileInChrome_Page_Number.applescript".format(self._get_applescript_folder())
         chrome_dir = self._get_chrome_dir(escaped=True)
-        defaultCmd = "{chrome_dir} {finalDestination}".format(chrome_dir=chrome_dir,finalDestination=finalDestination)
+        defaultCmd = "{chrome_dir} '{finalDestination}'".format(chrome_dir=chrome_dir,finalDestination=finalDestination)
+        # defaultCmd = "{chrome_dir} {quotedPDFName}".format(chrome_dir=chrome_dir,finalDestination=finalDestination)
         cmd = ['osascript', scriptName, finalDestination,quotedPDFName,defaultCmd]
         return cmd
 
@@ -79,6 +91,8 @@ class ChromeViewer(BaseViewer):
         print("FORWARD SYNCING CHROME COMMAND IS:")
         print(cmd)
         external_command(cmd, use_texpath=True)
+        # df = DeleteTempFilesCommand()
+        # df.run()
 
     def view_file(self, pdf_file, **kwargs):
         tex_filename = pdf_file.rsplit(".",1)[0] + ".pdf"
