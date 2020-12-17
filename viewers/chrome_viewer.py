@@ -38,9 +38,15 @@ class ChromeViewer(BaseViewer):
 
     def _get_browser_filepath(self,tex_line_no,tex_col_no,tex_filename,pdf_filename,zoom=100):
         try:
-            synctex_loc = '{tex_line_no}:{tex_col_no}:{tex_filename}'.format(tex_line_no=tex_line_no,tex_col_no=tex_col_no,tex_filename=tex_filename)
             relative_outputdir = os.path.relpath(get_output_directory(tex_filename),os.path.dirname(tex_filename))
-            cmd = ['/Library/TeX/texbin/synctex', 'view', '-i', synctex_loc, '-o', pdf_filename, '-d',relative_outputdir]
+            outputdir_command = ['-d',relative_outputdir]
+        except Exception as e:
+            print("ERROR GETTING 'output_directory'")
+            print(e)
+            outputdir_command = []
+        synctex_loc = '{tex_line_no}:{tex_col_no}:{tex_filename}'.format(tex_line_no=tex_line_no,tex_col_no=tex_col_no,tex_filename=tex_filename)
+        cmd = ['/Library/TeX/texbin/synctex', 'view', '-i', synctex_loc, '-o', pdf_filename] + outputdir_command
+        try:
             stdout = check_output(cmd)
             output_text = stdout.split("\n")
             page_no = next((e.lstrip('Page:') for e in output_text if e.startswith('Page:')), 1)
@@ -49,23 +55,9 @@ class ChromeViewer(BaseViewer):
         except Exception as e:
             print("ERROR IN SYNCTEX")
             print(e)
-            try:
-                synctex_loc = '{tex_line_no}:{tex_col_no}:{tex_filename}'.format(tex_line_no=tex_line_no,tex_col_no=tex_col_no,tex_filename=tex_filename)
-                cmd = ['/Library/TeX/texbin/synctex', 'view', '-i', synctex_loc, '-o', pdf_filename]
-                stdout = check_output(cmd)
-                output_text = stdout.split("\n")
-                page_no = next((e.lstrip('Page:') for e in output_text if e.startswith('Page:')), 1)
-                line_no = next((e.lstrip('x:') for e in output_text if e.startswith('x:')), 1)
-                col_no = next((e.lstrip('y:') for e in output_text if e.startswith('y:')), 1)
-            except Exception as ee:
-                print("ANOTHER ERROR IN SYNCTEX")
-                print(ee)
-                page_no = 1
-                line_no = 1
-                col_no = 0
-        # print(f"{page_no = }, {line_no = }, {col_no = }")
-
-
+            page_no = 1
+            line_no = 1
+            col_no = 0
         return "file://{pdf_filename}#page={page_no}&view=FitH,{line_no}".format(pdf_filename=pdf_filename,page_no=page_no,line_no=line_no)
 
 
