@@ -5,6 +5,7 @@ import os
 
 from base_viewer import BaseViewer
 from latextools_utils import get_setting
+from latextools_utils.output_directory import get_output_directory
 from latextools_utils.external_command import external_command, check_output
 # from delete_temp_files import DeleteTempFilesCommand
 ## TODO: remove defaultCmd from applescript - just return True or False, then run that default command from Python.
@@ -22,7 +23,6 @@ class ChromeViewer(BaseViewer):
                 'chrome'
             )
         )
-
     def _get_chrome_dir(self,escaped=False):
         viewer_location = check_output([
             'osascript',
@@ -39,7 +39,8 @@ class ChromeViewer(BaseViewer):
     def _get_browser_filepath(self,tex_line_no,tex_col_no,tex_filename,pdf_filename,zoom=100):
         try:
             synctex_loc = '{tex_line_no}:{tex_col_no}:{tex_filename}'.format(tex_line_no=tex_line_no,tex_col_no=tex_col_no,tex_filename=tex_filename)
-            cmd = ['/Library/TeX/texbin/synctex', 'view', '-i', synctex_loc, '-o', pdf_filename, '-d','aux']
+            relative_outputdir = os.path.relpath(get_output_directory(tex_filename),os.path.dirname(tex_filename))
+            cmd = ['/Library/TeX/texbin/synctex', 'view', '-i', synctex_loc, '-o', pdf_filename, '-d',relative_outputdir]
             stdout = check_output(cmd)
             output_text = stdout.split("\n")
             page_no = next((e.lstrip('Page:') for e in output_text if e.startswith('Page:')), 1)
