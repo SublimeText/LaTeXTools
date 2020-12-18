@@ -48,10 +48,13 @@ class ChromeViewer(BaseViewer):
         cmd = ['/Library/TeX/texbin/synctex', 'view', '-i', synctex_loc, '-o', pdf_filename] + outputdir_command
         try:
             stdout = check_output(cmd)
+            with open('/Users/zach/Desktop/latexoutput','w') as f:
+                f.write(stdout)
             output_text = stdout.split("\n")
             page_no = next((e.lstrip('Page:') for e in output_text if e.startswith('Page:')), 1)
-            line_no = next((e.lstrip('x:') for e in output_text if e.startswith('x:')), 1)
-            col_no = next((e.lstrip('y:') for e in output_text if e.startswith('y:')), 1)
+            # page_no = int(page_no) + 1 #offset, see `synctex view help`
+            col_no = next((e.lstrip('x:') for e in output_text if e.startswith('x:')), 1)
+            line_no = next((e.lstrip('y:') for e in output_text if e.startswith('y:')), 1)
         except Exception as e:
             print("ERROR IN SYNCTEX")
             print(e)
