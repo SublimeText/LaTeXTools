@@ -48,8 +48,6 @@ class ChromeViewer(BaseViewer):
         cmd = ['/Library/TeX/texbin/synctex', 'view', '-i', synctex_loc, '-o', pdf_filename] + outputdir_command
         try:
             stdout = check_output(cmd)
-            with open('/Users/zach/Desktop/latexoutput','w') as f:
-                f.write(stdout)
             output_text = stdout.split("\n")
             page_no = next((e.lstrip('Page:') for e in output_text if e.startswith('Page:')), 1)
             # page_no = int(page_no) + 1 #offset, see `synctex view help`
