@@ -21,7 +21,7 @@ VALUE_REGEX = (
 
 CROSSREF_REGEX = re.compile(
     VALUE_REGEX + r'crossref'[::-1] + r'\b',
-    re.IGNORECASEE
+    re.IGNORECASE
 )
 
 BIBLATEX_REGEX = re.compile(
