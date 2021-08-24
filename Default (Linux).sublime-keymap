@@ -2,20 +2,7 @@
 LaTeX Package keymap for Linux
 */
 [
-	// these also override ST3 commands, but we simply run the same commands
-	// it is necessary so on ST2 we can implement our build selector
-	{	"keys": ["ctrl+b"],
-		"context": [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{"key": "latextools.st_version", "operator": "equal", "operand": "<3080"}],
-		"command": "latextools_build_selector"},
-	{	"keys": ["ctrl+shift+b"],
-		"context": [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{"key": "latextools.st_version", "operator": "equal", "operand": "<3080"}],
-		"command": "latextools_build_selector",
-			"args": {"select": true}},
-
+	// these also override ST3 commands
 	{
 		"keys": ["ctrl+v"],
 		"command": "latextools_smart_paste",

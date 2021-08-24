@@ -207,7 +207,7 @@ class DirectiveFillAllHelper(FillAllHelper):
         try:
             comp = globals().get(function)(view, value, ac)
         except:
-            comp = []
+            return []
 
         if not ac and not prefix and m.group("spaces"):
             comp = comp[0], [" " + c for c in comp[1]]

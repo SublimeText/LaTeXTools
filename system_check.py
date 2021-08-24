@@ -7,13 +7,9 @@ import sys
 import textwrap
 import threading
 import traceback
-from functools import partial
 
-try:
-    from io import StringIO
-except ImportError:
-    # support ST2 on Linux
-    from StringIO import StringIO
+from io import StringIO
+from shutil import which
 
 import sublime
 import sublime_plugin
@@ -29,10 +25,8 @@ from .latextools_utils.output_directory import (
     get_aux_directory, get_output_directory, get_jobname
 )
 from .latextools_utils.progress_indicator import ProgressIndicator
-from .latextools_utils.system import which
 from .latextools_utils.tex_directives import parse_tex_directives
 from .latextools_utils.sublime_utils import get_sublime_exe
-from .latextools_utils.utils import run_on_main_thread
 from .jumpToPDF import DEFAULT_VIEWERS
 from .getTeXRoot import get_tex_root
 
@@ -51,15 +45,6 @@ def expand_vars(texpath):
 
 def update_environment(old, new):
     old.update(new.items())
-
-
-# reraise implementation from 6
-def reraise(tp, value, tb=None):
-    if value is None:
-        value = tp()
-    if value.__traceback__ is not tb:
-        raise value.with_traceback(tb)
-    raise value
 
 
 def _get_texpath(view):
@@ -114,7 +99,7 @@ class SubprocessTimeoutThread(threading.Thread):
         except Exception as e:
             # just in case...
             self.kill_process()
-            reraise(e)
+            raise e
 
     def start(self):
         super(SubprocessTimeoutThread, self).start()
@@ -542,7 +527,7 @@ class SystemCheckThread(threading.Thread):
 
                 results.append(table)
 
-        run_on_main_thread(partial(self._on_main_thread, results), timeout=30)
+        self._on_main_thread(results)
 
     def _on_main_thread(self, results):
         builder_name = get_setting(

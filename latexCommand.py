@@ -1,12 +1,5 @@
 # ST2/ST3 compat
-from __future__ import print_function
 import sublime
-if sublime.version() < '3000':
-    # we are on ST2 and Python 2.X
-    _ST3 = True
-else:
-    _ST3 = False
-
 import sublime_plugin
 import re
 
@@ -32,7 +25,7 @@ class LatextoolsLatexCmdCommand(sublime_plugin.TextCommand):
 		if expr:
 			command = expr.group(1)[::-1]
 			if command:
-				command_region = sublime.Region(point-len(command),point)
+				command_region = sublime.Region(point - len(command), point)
 				view.erase(edit, command_region)
 				# Be forgiving and skip \ if the user provided one (by mistake...)
 				bslash = "" if command[0] == '\\' else "\\\\"
@@ -41,7 +34,8 @@ class LatextoolsLatexCmdCommand(sublime_plugin.TextCommand):
 				snippet = "\\\\$1{$2} $0"
 			view.run_command("insert_snippet", {'contents': snippet})
 		else:
-			sublime.status_message("LATEXTOOLS INTERNAL ERROR: could not find command to expand")
+			sublime.status_message(
+				"LATEXTOOLS INTERNAL ERROR: could not find command to expand")
 
 
 deprecate(globals(), 'latexcmdCommand', LatextoolsLatexCmdCommand)

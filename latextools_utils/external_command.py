@@ -36,7 +36,9 @@
 import os
 import sys
 import re
-from shlex import split
+from imp import reload
+from shlex import split, quote
+from shutil import which
 
 import subprocess
 from subprocess import Popen, PIPE, STDOUT, CalledProcessError
@@ -44,11 +46,6 @@ from subprocess import Popen, PIPE, STDOUT, CalledProcessError
 import sublime
 
 from .settings import get_setting
-from .system import which
-from .utils import run_on_main_thread
-
-from imp import reload
-from shlex import quote
 
 
 def expand_vars(texpath):
@@ -76,23 +73,19 @@ def get_texpath():
     '''
     Returns the texpath setting with any environment variables expanded
     '''
-    def _get_texpath():
+    try:
+        texpath = get_setting(sublime.platform(), {}).get('texpath')
+    except AttributeError:
+        # hack to reload this module in case the calling module was
+        # reloaded
+        exc_info = sys.exc_info
         try:
+            reload(sys.modules[get_texpath.__module__])
             texpath = get_setting(sublime.platform(), {}).get('texpath')
-        except AttributeError:
-            # hack to reload this module in case the calling module was
-            # reloaded
-            exc_info = sys.exc_info
-            try:
-                reload(sys.modules[get_texpath.__module__])
-                texpath = get_setting(sublime.platform(), {}).get('texpath')
-            except:
-                reraise(*exc_info)
+        except:
+            reraise(*exc_info)
 
-        return expand_vars(texpath) if texpath is not None else None
-
-    # ensure _get_texpath() is run in a thread-safe manner
-    return run_on_main_thread(_get_texpath, default_value=None)
+    return expand_vars(texpath) if texpath is not None else None
 
 
 # marker object used to indicate default behaviour
@@ -130,13 +123,7 @@ def external_command(command, cwd=None, shell=False, env=None,
         (shell is False or sublime.platform() == 'windows') and
         isinstance(command, str)
     ):
-        if sys.version_info < (3,):
-            command = str(command)
-
         command = split(command, False, False)
-
-        if sys.version_info < (3,):
-            command = [unicode(c) for c in command]
     elif (
         shell is True and sublime.platform() != 'windows' and
         (isinstance(command, list) or isinstance(command, tuple))
@@ -170,13 +157,17 @@ def external_command(command, cwd=None, shell=False, env=None,
     if stderr is __sentinel__:
         stderr = None
 
-    try:
-        print(u'Running "{0}"'.format(u' '.join([quote(s) for s in command])))
-    except UnicodeError:
+    if isinstance(command, str):
+        print(u'Running "{0}"'.format(command))
+    else:
         try:
-            print(u'Running "{0}"'.format(command))
-        except:
-            pass
+            print(u'Running "{0}"'.format(u' '.join(
+                [quote(s) for s in command])))
+        except UnicodeError:
+            try:
+                print(u'Running "{0}"'.format(command))
+            except:
+                pass
 
     p = Popen(
         command,

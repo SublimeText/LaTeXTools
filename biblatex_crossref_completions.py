@@ -14,25 +14,30 @@ from .latextools_utils import is_bib_buffer, is_biblatex_buffer
 # constructing them here
 #
 # VALUE_REGEX is a common suffix to hand the `= {<value>,<value>}` part
-VALUE_REGEX = r'(?!.*\})\s*(?P<ENTRIES>(?:,[^,]*)+\b)?\s*(?P<OPEN>\{)?(?P<EQUALS>\s*=\s*)?'
+VALUE_REGEX = (
+    r'(?!.*\})\s*(?P<ENTRIES>(?:,[^,]*)+\b)?\s*(?P<OPEN>\{)?'
+    r'(?P<EQUALS>\s*=\s*)?'
+)
+
 CROSSREF_REGEX = re.compile(
     VALUE_REGEX + r'crossref'[::-1] + r'\b',
-    re.IGNORECASE | re.UNICODE
+    re.IGNORECASE
 )
 
 BIBLATEX_REGEX = re.compile(
-    VALUE_REGEX + r'(?:' + r'|'.join((s[::-1] for s in ('xref', 'related'))) + r')' + r'\b',
-    re.IGNORECASE | re.UNICODE
+    VALUE_REGEX +
+    r'(?:' + r'|'.join((s[::-1] for s in ('xref', 'related'))) + r')' + r'\b',
+    re.IGNORECASE
 )
 
 ENTRY_SET_REGEX = re.compile(
     VALUE_REGEX + r'entryset'[::-1] + r'\b',
-    re.IGNORECASE | re.UNICODE
+    re.IGNORECASE
 )
 
 XDATA_REGEX = re.compile(
     VALUE_REGEX + r'xdata'[::-1] + r'\b',
-    re.IGNORECASE | re.UNICODE
+    re.IGNORECASE
 )
 
 # set indicating entries that have their own special handling...
@@ -58,7 +63,7 @@ def _get_keys_by_type(view, valid_types):
     for entry_type, key in re.findall(
         r'(@(?!preamble|comment|string)[a-zA-Z]+)\s*\{\s*([^,]+)\b',
         contents,
-        re.IGNORECASE | re.UNICODE
+        re.IGNORECASE
     ):
         if validator(entry_type):
             keys.append(key)

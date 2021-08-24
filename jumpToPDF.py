@@ -1,5 +1,4 @@
 # ST2/ST3 compat
-from __future__ import print_function
 import sublime
 import sublime_plugin
 
@@ -7,33 +6,17 @@ import os
 import traceback
 import re
 
-if sublime.version() < '3000':
-	# we are on ST2 and Python 2.X
-	_ST3 = False
-	import getTeXRoot
-	from latextools_utils.is_tex_file import is_tex_file
-	from latextools_utils import get_setting
-	from latextools_utils.output_directory import (
-		get_output_directory, get_jobname
-	)
-	from latextools_utils.sublime_utils import focus_st
-	from latextools_plugin import (
-		get_plugin, add_plugin_path, NoSuchPluginException,
-		add_whitelist_module
-	)
-else:
-	_ST3 = True
-	from . import getTeXRoot
-	from .latextools_utils.is_tex_file import is_tex_file
-	from .latextools_utils import get_setting
-	from .latextools_utils.output_directory import (
-		get_output_directory, get_jobname
-	)
-	from .latextools_utils.sublime_utils import focus_st
-	from .latextools_plugin import (
-		get_plugin, add_plugin_path, NoSuchPluginException,
-		add_whitelist_module
-	)
+from . import getTeXRoot
+from .latextools_utils.is_tex_file import is_tex_file
+from .latextools_utils import get_setting
+from .latextools_utils.output_directory import (
+	get_output_directory, get_jobname
+)
+from .latextools_utils.sublime_utils import focus_st
+from .latextools_plugin import (
+	get_plugin, add_plugin_path, NoSuchPluginException,
+	add_whitelist_module
+)
 
 from .deprecated_command import deprecate
 
@@ -277,10 +260,6 @@ def plugin_loaded():
 	# as plugins
 	add_plugin_path(os.path.join(viewers_path, 'base_viewer.py'))
 	add_plugin_path(viewers_path)
-
-
-if not _ST3:
-	plugin_loaded()
 
 deprecate(globals(), 'JumpToPdf', LatextoolsJumpToPdfCommand)
 deprecate(globals(), 'ViewPdf', LatextoolsViewPdfCommand)

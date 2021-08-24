@@ -8,29 +8,11 @@ import sublime
 import sys
 import traceback
 
-if sys.version_info < (3, 0):
-    try:
-        import _winreg as winreg
-    except Exception:
-        # not on Windows
-        pass
-
-    exec("""def reraise(tp, value, tb=None):
-    raise tp, value, tb
-""")
-else:
-    try:
-        import winreg
-    except Exception:
-        # not on Windows
-        pass
-
-    def reraise(tp, value, tb=None):
-        if value is None:
-            value = tp()
-        if value.__traceback__ is not tb:
-            raise value.with_traceback(tb)
-        raise value
+try:
+    import winreg
+except ImportError:
+    # not on Windows
+    pass
 
 
 class SumatraViewer(BaseViewer):
