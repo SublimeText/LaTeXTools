@@ -25,6 +25,8 @@ import shutil
 
 import traceback
 
+from .deprecated_command import deprecate
+
 
 class LatextoolsClearCacheCommand(sublime_plugin.WindowCommand):
 
@@ -41,11 +43,11 @@ class LatextoolsClearCacheCommand(sublime_plugin.WindowCommand):
 				traceback.print_exc()
 		window = self.window
 		if window.active_view().score_selector(0, "text.tex.latex"):
-			window.run_command("clear_local_latex_cache")
-			window.run_command("clear_bibliography_cache")
+			window.run_command("latextools_clear_local_cache")
+			window.run_command("latextools_clear_bibliography_cache")
 
 
-class ClearLocalLatexCacheCommand(sublime_plugin.WindowCommand):
+class LatextoolsClearLocalCacheCommand(sublime_plugin.WindowCommand):
 
 	def is_visible(self, *args):
 		view = self.window.active_view()
@@ -67,7 +69,7 @@ class ClearLocalLatexCacheCommand(sublime_plugin.WindowCommand):
 				traceback.print_exc()
 
 
-class ClearBibliographyCacheCommand(sublime_plugin.WindowCommand):
+class LatextoolsClearBibliographyCacheCommand(sublime_plugin.WindowCommand):
 
 	def is_visible(self, *args):
 		view = self.window.active_view()
@@ -120,7 +122,7 @@ class ClearBibliographyCacheCommand(sublime_plugin.WindowCommand):
 						bib_cache.invalidate()
 
 
-class DeleteTempFilesCommand(sublime_plugin.WindowCommand):
+class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
 
 	def is_visible(self, *args):
 		view = self.window.active_view()
@@ -257,3 +259,8 @@ class DeleteTempFilesCommand(sublime_plugin.WindowCommand):
 				self._rmtree(os.path.join(root, directory))
 			for file_name in file_names:
 				self._rmfile(os.path.join(root, file_name))
+
+
+deprecate(globals(), 'ClearLocalLatexCacheCommand', LatextoolsClearLocalCacheCommand)
+deprecate(globals(), 'ClearBibliographyCacheCommand', LatextoolsClearBibliographyCacheCommand)
+deprecate(globals(), 'DeleteTempFilesCommand', LatextoolsDeleteTempFilesCommand)

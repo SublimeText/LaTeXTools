@@ -11,11 +11,12 @@ import traceback
 import sublime
 import sublime_plugin
 
+from .deprecated_command import deprecate
 from .latextools_utils.external_command import (
     check_output, CalledProcessError
 )
 
-__all__ = ['LatexGenPkgCacheCommand']
+__all__ = ['LatexGenPkgCacheCommand', 'LatextoolsGenPkgCacheCommand']
 
 
 def _get_tex_searchpath(file_type):
@@ -135,10 +136,12 @@ def _generate_package_cache():
 # Generates a cache for installed latex packages, classes and bst.
 # Used for fill all command for \documentclass, \usepackage and
 # \bibliographystyle envrioments
-class LatexGenPkgCacheCommand(sublime_plugin.WindowCommand):
+class LatextoolsGenPkgCacheCommand(sublime_plugin.WindowCommand):
 
     def run(self):
         # use a separate thread to update cache
         thread = threading.Thread(target=_generate_package_cache)
         thread.daemon = True
         thread.start()
+
+deprecate(globals(), 'LatexGenPkgCacheCommand', LatextoolsGenPkgCacheCommand)

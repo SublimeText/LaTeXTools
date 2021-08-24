@@ -53,15 +53,15 @@ LaTeX Package keymap for Linux
 	{ 	"keys": ["ctrl+l","c"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latexcmd"},
+		"command": "latextools_latex_cmd"},
 	{ 	"keys": ["ctrl+l","e"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latexenv"},
+		"command": "latextools_latex_env"},
 	{ 	"keys": ["ctrl+l","."],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latex_env_closer"},
+		"command": "latextools_latex_env_closer"},
 
 	// Bindings for completions
 	// ctrl+l,alt+/ suggests ST2's standard autocompletion keybinding, but for LaTeX;
@@ -70,29 +70,29 @@ LaTeX Package keymap for Linux
 	{ 	"keys": ["ctrl+l","alt+/"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latex_fill_all"},
+		"command": "latextools_fill_all"},
 	{ 	"keys": ["ctrl+l","x"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latex_fill_all", "args": {"completion_type": ["cite", "ref"]}},
+		"command": "latextools_fill_all", "args": {"completion_type": ["cite", "ref"]}},
 
 	// Fill helper command
 	{	"keys": ["ctrl+l","ctrl+f"],
 		"context": [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latex_fill_all"},
+		"command": "latextools_fill_all"},
 	{	"keys": ["ctrl+l","ctrl+alt+f"],
 		"context": [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latex_fill_all", "args": {"overwrite": true}},
+		"command": "latextools_fill_all", "args": {"overwrite": true}},
 	{	"keys": ["ctrl+l","alt+x","c"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latex_fill_all", "args": {"completion_type": "cite", "force": true}},
+		"command": "latextools_fill_all", "args": {"completion_type": "cite", "force": true}},
 	{	"keys": ["ctrl+l","alt+x","r"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latex_fill_all", "args": {"completion_type": "ref", "force": true}},
+		"command": "latextools_fill_all", "args": {"completion_type": "ref", "force": true}},
 
 	{	"keys": ["{"],
 		"context":  [
@@ -100,7 +100,7 @@ LaTeX Package keymap for Linux
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "lt_fill_all_ref.open_curly", "operator": "equal", "match_all": true, "operand": true}],
-		"command": "latex_fill_all", "args": {"completion_type": "ref", "insert_char": "{"}},
+		"command": "latextools_fill_all", "args": {"completion_type": "ref", "insert_char": "{"}},
 
 	{	"keys": ["{"],
 		"context":  [
@@ -108,7 +108,7 @@ LaTeX Package keymap for Linux
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "lt_fill_all_cite.open_curly", "operator": "equal", "match_all": true, "operand": true}],
-		"command": "latex_fill_all", "args": {"completion_type": "cite", "insert_char": "{"}},
+		"command": "latextools_fill_all", "args": {"completion_type": "cite", "insert_char": "{"}},
 
 	{	"keys": [","],
 		"context":  [
@@ -116,7 +116,7 @@ LaTeX Package keymap for Linux
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "lt_fill_all_cite.comma", "operator": "equal", "match_all": true, "operand": true}],
-		"command": "latex_fill_all", "args": {"completion_type": "cite", "insert_char": ","}},
+		"command": "latextools_fill_all", "args": {"completion_type": "cite", "insert_char": ","}},
 
 	{	"keys": [","],
 		"context":  [
@@ -124,7 +124,7 @@ LaTeX Package keymap for Linux
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "lt_fill_all_ref.comma", "operator": "equal", "match_all": true, "operand": true}],
-		"command": "latex_fill_all", "args": {"completion_type": "ref", "insert_char": ","}},
+		"command": "latextools_fill_all", "args": {"completion_type": "ref", "insert_char": ","}},
 
 	{	"keys": ["["],
 		"context":  [
@@ -132,7 +132,7 @@ LaTeX Package keymap for Linux
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "lt_fill_all_cite.open_square", "operator": "equal", "match_all": true, "operand": true}],
-		"command": "latex_fill_all", "args": {"completion_type": "cite", "insert_char": "["}},
+		"command": "latextools_fill_all", "args": {"completion_type": "cite", "insert_char": "["}},
 
 	{	"keys": ["{"],
 		"context":  [
@@ -140,7 +140,7 @@ LaTeX Package keymap for Linux
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "lt_fill_all_input.open_curly", "operator": "equal", "operand": true, "match_all": true}],
-		"command": "latex_fill_all", "args": {"completion_type": "input", "insert_char": "{"}},
+		"command": "latextools_fill_all", "args": {"completion_type": "input", "insert_char": "{"}},
 
 	{	"keys": [","],
 		"context":  [
@@ -148,7 +148,7 @@ LaTeX Package keymap for Linux
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "lt_fill_all_input.comma", "operator": "equal", "operand": true, "match_all": true}],
-		"command": "latex_fill_all", "args": {"completion_type": "input", "insert_char": ","}},
+		"command": "latextools_fill_all", "args": {"completion_type": "input", "insert_char": ","}},
 
 	{	"keys": ["{"],
 		"context":  [
@@ -156,7 +156,7 @@ LaTeX Package keymap for Linux
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "lt_fill_all_env.open_curly", "operator": "equal", "operand": true, "match_all": true}],
-		"command": "latex_fill_all", "args": {"completion_type": "env", "insert_char": "{"}},
+		"command": "latextools_fill_all", "args": {"completion_type": "env", "insert_char": "{"}},
 
 	{	"keys": ["{"],
 		"context":  [
@@ -164,7 +164,7 @@ LaTeX Package keymap for Linux
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "lt_fill_all_glossary.open_curly", "operator": "equal", "operand": true, "match_all": true}],
-		"command": "latex_fill_all", "args": {"completion_type": "glossary", "insert_char": "{"}},
+		"command": "latextools_fill_all", "args": {"completion_type": "glossary", "insert_char": "{"}},
 
 	{	"keys": ["="],
 		"context":  [
@@ -172,7 +172,7 @@ LaTeX Package keymap for Linux
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex comment.line.percentage"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
 			{"key": "lt_fill_all_directive.equal_sign", "operator": "equal", "match_all": true, "operand": true}],
-		"command": "latex_fill_all", "args": {"completion_type": "directive", "insert_char": "="}},
+		"command": "latextools_fill_all", "args": {"completion_type": "directive", "insert_char": "="}},
 
 	// add a keybinding to auto-insert labels similar to the fill-all helper
 	{
@@ -201,11 +201,11 @@ LaTeX Package keymap for Linux
 	{ 	"keys": ["ctrl+l","v"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "view_pdf"},
+		"command": "latextools_view_pdf"},
 	{ 	"keys": ["ctrl+l","j"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "jump_to_pdf", "args": {"from_keybinding": true}},
+		"command": "latextools_jump_to_pdf", "args": {"from_keybinding": true}},
 	{
 		"keys": ["ctrl+l", "t", "<character>"], "command": "latextools_toggle_keys",
 		"context":
@@ -226,14 +226,14 @@ LaTeX Package keymap for Linux
 	{ "keys": ["ctrl+l", "ctrl+o"],
 		"context": [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "jumpto_tex_file", "args": {"auto_create_missing_folders": true, "auto_insert_root": true}},
+		"command": "latextools_jumpto_file", "args": {"auto_create_missing_folders": true, "auto_insert_root": true}},
 	// Jump to anywhere
 	// This will select the executed jump according to the context,
 	// e.g. if the cursor is inside a ref command it will jump to the corresponding label
 	{ "keys": ["ctrl+l", "ctrl+j"],
 		"context": [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "jumpto_tex_anywhere"},
+		"command": "latextools_jumpto_anywhere"},
 
 	// Wrap selected text in command or environment
 	{ "keys": ["ctrl+l","ctrl+c"],
@@ -253,12 +253,12 @@ LaTeX Package keymap for Linux
 	{ "keys": ["ctrl+l", "ctrl+shift+n"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latex_change_environment"},
+		"command": "latextools_change_environment"},
 	// Toggle the starred version of environment
 	{ "keys": ["ctrl+l", "ctrl+shift+8"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latex_toggle_environment_star"},
+		"command": "latextools_toggle_environment_star"},
 
 	// Wrap selected text in emph, bold or underline
 	{ "keys": ["ctrl+l","ctrl+e"],
@@ -281,13 +281,13 @@ LaTeX Package keymap for Linux
 	// Replace the `C-r` overlay and the `C-shift-r` overlay with a
 	// whole document overlay as opt-out
 	// Also add these overlays to `C-l, C-r` and `C-l, C-shift-r`
-	{ "keys": ["ctrl+r"], "command": "latex_toc_quickpanel",
+	{ "keys": ["ctrl+r"], "command": "latextools_toc_quickpanel",
 		"args": {"only_current_file": true},
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex"},
 			{"key": "overwrite_goto_overlay"}]
 	},
-	{ "keys": ["ctrl+shift+r"], "command": "latex_toc_quickpanel",
+	{ "keys": ["ctrl+shift+r"], "command": "latextools_toc_quickpanel",
 		"args": {"only_current_file": false},
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex"},
@@ -297,12 +297,12 @@ LaTeX Package keymap for Linux
 		"args": {"only_current_file": true},
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex"}],
-		"command": "latex_toc_quickpanel"},
-	{ "keys": ["ctrl+l","ctrl+shift+r"], "command": "latex_toc_quickpanel",
+		"command": "latextools_toc_quickpanel"},
+	{ "keys": ["ctrl+l","ctrl+shift+r"], "command": "latextools_toc_quickpanel",
 		"args": {"only_current_file": false},
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex"}],
-		"command": "latex_toc_quickpanel"},
+		"command": "latextools_toc_quickpanel"},
 
 	// Show panel
 	{ "keys": ["shift+escape"],
@@ -486,16 +486,16 @@ LaTeX Package keymap for Linux
 	{ 	"keys": ["ctrl+l","backspace"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "delete_temp_files"},
+		"command": "latextools_delete_temp_files"},
 	// Delete/clear local Cache
 	{ 	"keys": ["ctrl+l","ctrl+d","ctrl+c"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "clear_local_latex_cache"},
+		"command": "latextools_clear_local_cache"},
 
 	// ctrl+l,w to display word count
 	{	"keys": ["ctrl+l", "w"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "texcount" }
+		"command": "latextools_texcount" }
 ]

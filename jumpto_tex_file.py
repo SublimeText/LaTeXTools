@@ -7,6 +7,7 @@ import traceback
 import sublime
 import sublime_plugin
 
+from .deprecated_command import deprecate
 from .getTeXRoot import get_tex_root
 from .latextools_utils import analysis, get_setting, utils
 from .latextools_utils.external_command import external_command
@@ -229,7 +230,7 @@ def _split_bib_args(bib_args):
     return file_names
 
 
-class JumptoTexFileCommand(sublime_plugin.TextCommand):
+class LatextoolsJumptoFileCommand(sublime_plugin.TextCommand):
 
     def run(self, edit, auto_create_missing_folders=True,
             auto_insert_root=True, position=None):
@@ -284,3 +285,6 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
                 file_name = g.group("file")
                 print("Jumpto image file '{0}'".format(file_name))
                 _jumpto_image_file(view, window, tex_root, file_name)
+
+deprecate(globals(), 'JumptoTexFileCommand', LatextoolsJumptoFileCommand)
+

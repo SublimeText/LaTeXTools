@@ -229,7 +229,7 @@
 		// Command to invoke Sublime Text. Used if the keep_focus toggle is true.
 		// If blank, "subl.exe" or "sublime_text.exe" will be used.
 		"sublime_executable": "",
-		// how long (in seconds) to wait after the jump_to_pdf command completes
+		// how long (in seconds) to wait after the latextools_jump_to_pdf command completes
 		// before switching focus back to Sublime Text. This may need to be
 		// adjusted depending on your machine and configuration.
 		"keep_focus_delay": 0.5
@@ -255,7 +255,7 @@
 		// Command to invoke Sublime Text. Used if the keep_focus toggle is true.
 		// If blank, "subl" or "sublime_text" will be used.
 		"sublime_executable": "",
-		// how long (in ms) to wait after the jump_to_pdf command completes
+		// how long (in ms) to wait after the latextools_jump_to_pdf command completes
 		// before switching focus back to Sublime Text. This may need to be
 		// adjusted depending on your machine and configuration.
 		"keep_focus_delay": 0.5

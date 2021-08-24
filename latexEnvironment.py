@@ -1,10 +1,12 @@
 import sublime, sublime_plugin
 import re
 
+from .deprecated_command import deprecate
+
 # Insert LaTeX environment based on current word
 # Position cursor inside environment
 
-class latexenvCommand(sublime_plugin.TextCommand):
+class LatextoolsLatexEnvCommand(sublime_plugin.TextCommand):
 	def run(self, edit, **args):
 		view = self.view
 
@@ -29,3 +31,5 @@ class latexenvCommand(sublime_plugin.TextCommand):
 		else:
 			sublime.status_message("LATEXTOOLS INTERNAL ERROR: could not find environment to expand")
 
+
+deprecate(globals(), 'latexenvCommand', LatextoolsLatexEnvCommand)

@@ -3,6 +3,7 @@ import os
 import sublime
 import sublime_plugin
 
+from .deprecated_command import deprecate
 from .latextools_utils import get_setting
 from .latextools_utils.external_command import (
     check_output, CalledProcessError
@@ -10,7 +11,7 @@ from .latextools_utils.external_command import (
 from .getTeXRoot import get_tex_root
 
 
-class TexcountCommand(sublime_plugin.TextCommand):
+class LatextoolsTexcountCommand(sublime_plugin.TextCommand):
     """
     Simple TextCommand to run TeXCount against the current document
     """
@@ -63,3 +64,6 @@ class TexcountCommand(sublime_plugin.TextCommand):
     def is_visible(self, *args):
         view = self.view
         return bool(view.score_selector(0, 'text.tex.latex'))
+
+
+deprecate(globals(), 'TexcountCommand', LatextoolsTexcountCommand)

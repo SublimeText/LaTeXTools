@@ -75,7 +75,8 @@ def get_ref_completions(view):
     return completions
 
 
-# called by LatexFillAllCommand; provides a list of labels for any ref commands
+# called by LatextoolsFillAllCommand; provides a list of labels
+# for any ref commands
 class RefFillAllHelper(FillAllHelper):
 
     def get_auto_completions(self, view, prefix, line):
