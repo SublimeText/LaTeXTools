@@ -4,32 +4,15 @@ import re
 import sublime
 import sublime_plugin
 
-try:
-    _ST3 = True
-    from .getTeXRoot import get_tex_root
-    from .latextools_utils import analysis, ana_utils, quickpanel, utils
-    from .latextools_utils.tex_directives import TEX_DIRECTIVE
-    from .latex_cite_completions import NEW_STYLE_CITE_REGEX
-    from .latex_glossary_completions import ACR_LINE_RE, GLO_LINE_RE
-    from .latex_ref_completions import NEW_STYLE_REF_REGEX
-    from .jumpto_tex_file import INPUT_REG, IMPORT_REG, BIB_REG, IMAGE_REG
-    from . import jumpto_tex_file
-except:
-    _ST3 = False
-    from getTeXRoot import get_tex_root
-    from latextools_utils import analysis, ana_utils, quickpanel, utils
-    from latextools_utils.tex_directives import TEX_DIRECTIVE
-    from latex_cite_completions import NEW_STYLE_CITE_REGEX
-    from latex_glossary_completions import ACR_LINE_RE, GLO_LINE_RE
-    from latex_ref_completions import NEW_STYLE_REF_REGEX
-    from jumpto_tex_file import INPUT_REG, IMPORT_REG, BIB_REG, IMAGE_REG
-    import jumpto_tex_file
-
-# we need a filter as iterator
-if not _ST3:
-    from itertools import ifilter
-else:
-    ifilter = filter
+from .deprecated_command import deprecate
+from .getTeXRoot import get_tex_root
+from .latextools_utils import analysis, ana_utils, quickpanel, utils
+from .latextools_utils.tex_directives import TEX_DIRECTIVE
+from .latex_cite_completions import NEW_STYLE_CITE_REGEX
+from .latex_glossary_completions import ACR_LINE_RE, GLO_LINE_RE
+from .latex_ref_completions import NEW_STYLE_REF_REGEX
+from .jumpto_tex_file import INPUT_REG, IMPORT_REG, BIB_REG, IMAGE_REG
+from . import jumpto_tex_file
 
 INPUT_REG_EXPS = [INPUT_REG, IMPORT_REG, BIB_REG, IMAGE_REG]
 
@@ -202,7 +185,7 @@ def _jumpto_pkg_doc(view, com_reg, pos):
         message = "Try opening documentation for package '{0}'".format(package)
         print(message)
         sublime.status_message(message)
-        view.window().run_command("latex_view_doc", {"file": package})
+        view.window().run_command("latextools_view_doc", {"file": package})
 
     package_name = _get_selected_arg(view, com_reg, pos)
     if package_name:
@@ -247,8 +230,8 @@ def _opt_jumpto_self_def_command(view, com_reg):
     ana = analysis.analyze_document(tex_root)
     new_commands = ana.filter_commands(newcommand_keywords)
     try:
-        new_com_def = next(ifilter(lambda c: c.args == command,
-                                   new_commands))
+        new_com_def = next(filter(
+            lambda c: c.args == command, new_commands))
     except:
         message = "Command not self defined '{0}'".format(command)
         print(message)
@@ -263,7 +246,7 @@ def _opt_jumpto_self_def_command(view, com_reg):
     return True
 
 
-class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
+class LatextoolsJumptoAnywhereCommand(sublime_plugin.TextCommand):
     def run(self, edit, position=None):
         view = self.view
         if position is None:
@@ -286,7 +269,7 @@ class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
             return reg[0] <= sel.begin() - b and sel.end() - b <= reg[1]
 
         try:
-            com_reg = next(ifilter(is_inside, COMMAND_REG.finditer(line)))
+            com_reg = next(filter(is_inside, COMMAND_REG.finditer(line)))
         except:
             # since the magic comment will not match the command, do this here
             if view.file_name():
@@ -332,7 +315,7 @@ class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
             }
             if pos is not None:
                 kwargs.update({"position": position})
-            view.run_command("jumpto_tex_file", kwargs)
+            view.run_command("latextools_jumpto_file", kwargs)
         elif command in ["usepackage", "Requirepackage"]:
             _jumpto_pkg_doc(view, com_reg, pos)
         else:
@@ -346,7 +329,7 @@ class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
                 _opt_jumpto_self_def_command(view, com_reg)
 
 
-class JumptoTexAnywhereByMouseCommand(sublime_plugin.WindowCommand):
+class LatextoolsJumptoAnywhereByMouseCommand(sublime_plugin.WindowCommand):
     def want_event(self):
         return True
 
@@ -360,11 +343,8 @@ class JumptoTexAnywhereByMouseCommand(sublime_plugin.WindowCommand):
 
         if score_selector("text.tex.latex"):
             print("Jump in tex file.")
-            if _ST3:
-                pos = view.window_to_text((event["x"], event["y"]))
-            else:
-                pos = view.sel()[0].b
-            view.run_command("jumpto_tex_anywhere", {"position": pos})
+            pos = view.window_to_text((event["x"], event["y"]))
+            view.run_command("latextools_jumpto_anywhere", {"position": pos})
         elif fallback_command:
             if set_caret:
                 self._set_caret(view, event)
@@ -372,9 +352,9 @@ class JumptoTexAnywhereByMouseCommand(sublime_plugin.WindowCommand):
             window.run_command(fallback_command)
 
     def _set_caret(self, view, event):
-        # this is not supported for ST2
-        if not _ST3:
-            return
         pos = view.window_to_text((event["x"], event["y"]))
         view.sel().clear()
         view.sel().add(sublime.Region(pos, pos))
+
+deprecate(globals(), 'JumptoTexAnywhereCommand', LatextoolsJumptoAnywhereCommand)
+deprecate(globals(), 'JumptoTexAnywhereByMouseCommand', LatextoolsJumptoAnywhereByMouseCommand)

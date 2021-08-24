@@ -15,33 +15,17 @@ At present, there is one supported method on custom plugins.
     can override this behaviour, however, by explicitly setting a value for
     whatever key they like.
 '''
-# ST2/ST3 compat
-from __future__ import print_function
 import sublime
-if sublime.version() < '3000':
-    # we are on ST2 and Python 2.X
-    _ST3 = False
-    import getTeXRoot
-    from kpsewhich import kpsewhich
-    from latextools_utils import (
-        analysis, bibformat, cache, get_setting
-    )
-    from latextools_utils.internal_types import FillAllHelper
-    from latextools_utils.six import strbase, reraise
-    import latextools_plugin
-else:
-    _ST3 = True
-    from . import getTeXRoot
-    from .kpsewhich import kpsewhich
-    from .latex_fill_all import FillAllHelper
-    from .latextools_utils import (
-        analysis, bibformat, cache, get_setting
-    )
-    from .latextools_utils.six import strbase, reraise
-    from . import latextools_plugin
+
+from . import getTeXRoot
+from .kpsewhich import kpsewhich
+from .latex_fill_all import FillAllHelper
+from .latextools_utils import (
+    analysis, bibformat, cache, get_setting
+)
+from . import latextools_plugin
 
 import os
-import sys
 import re
 
 import traceback
@@ -246,7 +230,7 @@ def find_bib_files(root):
                     if not s.endswith('.bib'):
                         s += '.bib'
                     resources.append(s)
-            # standard biblatex ocmmands
+            # standard biblatex commands
             else:
                 # bib file must be followed by .bib
                 if c.args.endswith('.bib'):
@@ -276,6 +260,21 @@ def find_bib_files(root):
             cache.LocalCache(root).set('bib_files', result)
         except:
             pass
+    # if a an additional_file is set append it to the result
+    additional_file = get_setting("additional_bibliography_file")
+    if additional_file:
+        def _make_abs_path(file_path):
+            if not file_path.endswith(".bib"):
+                file_path += ".bib"
+            if not os.path.isabs(file_path):
+                root_folder, _ = os.path.split(root)
+                file_path = os.path.join(root_folder, file_path)
+            return os.path.normpath(file_path)
+        if isinstance(additional_file, str):
+            additional_file = [additional_file]
+        additional_file = map(_make_abs_path, additional_file)
+        additional_file = filter(os.path.isfile, additional_file)
+        result = list(additional_file) + list(result)
     return result
 
 
@@ -349,7 +348,7 @@ def run_plugin_command(command, *args, **kwargs):
                 print(error_message)
                 raise BibPluginError(error_message)
             else:
-                reraise(*sys.exc_info())
+                raise e
         except AttributeError as e:
             if "'{0}'".format(command) in str(e):
                 error_message = '{0} does not implement `{1}`'.format(
@@ -357,7 +356,7 @@ def run_plugin_command(command, *args, **kwargs):
                 print(error_message)
                 raise BibPluginError(error_message)
             else:
-                reraise(*sys.exc_info())
+                raise e
         except NotImplementedError:
             return None
 
@@ -369,7 +368,7 @@ def run_plugin_command(command, *args, **kwargs):
         plugins = 'traditional'
 
     result = None
-    if isinstance(plugins, strbase):
+    if isinstance(plugins, str):
         if not plugins.endswith('_bibliography'):
             plugins = '{0}_bibliography'.format(plugins)
         result = _run_command(plugins)
@@ -414,7 +413,7 @@ def get_cite_completions(view):
     return completions
 
 
-# called by LatexFillAllCommand; provides citations for cite commands
+# called by LatextoolsFillAllCommand; provides citations for cite commands
 class CiteFillAllHelper(FillAllHelper):
 
     def get_auto_completions(self, view, prefix, line):
@@ -558,9 +557,3 @@ def plugin_loaded():
     latextools_plugin.add_plugin_path(
         os_path.join(
             sublime.packages_path(), 'LaTeXTools', 'bibliography_plugins'))
-
-
-
-# ensure plugin_loaded() called on ST2
-if not _ST3:
-    plugin_loaded()

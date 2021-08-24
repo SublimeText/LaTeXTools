@@ -1,13 +1,8 @@
 import sublime_plugin
 
-try:
-    _ST3 = True
-    from .getTeXRoot import get_tex_root
-    from .latextools_utils import analysis, ana_utils, quickpanel
-except:
-    _ST3 = False
-    from getTeXRoot import get_tex_root
-    from latextools_utils import analysis, ana_utils, quickpanel
+from .deprecated_command import deprecate
+from .getTeXRoot import get_tex_root
+from .latextools_utils import analysis, ana_utils, quickpanel
 
 
 def _make_caption(ana, entry):
@@ -16,7 +11,7 @@ def _make_caption(ana, entry):
     return "{text} ({file_pos_str})".format(**locals())
 
 
-class LatexSearchCommandCommand(sublime_plugin.WindowCommand):
+class LatextoolsSearchCommandCommand(sublime_plugin.WindowCommand):
     def run(self, commands, only_current_file=False):
         window = self.window
         view = window.active_view()
@@ -33,7 +28,7 @@ class LatexSearchCommandCommand(sublime_plugin.WindowCommand):
         quickpanel.show_quickpanel(captions, entries)
 
 
-class LatexSearchCommandInputCommand(sublime_plugin.WindowCommand):
+class LatextoolsSearchCommandInputCommand(sublime_plugin.WindowCommand):
     def is_visible(self, *args):
         view = self.window.active_view()
         return bool(view.score_selector(0, "text.tex"))
@@ -47,9 +42,13 @@ class LatexSearchCommandInputCommand(sublime_plugin.WindowCommand):
                 "commands": commands,
                 "only_current_file": only_current_file
             }
-            window.run_command("latex_search_command", kwargs)
+            window.run_command("latextools_search_command", kwargs)
 
         def do_nothing(text):
             pass
         caption = "Search for commands in a comma (,) separated list"
         window.show_input_panel(caption, "", on_done, do_nothing, do_nothing)
+
+
+deprecate(globals(), 'LatexSearchCommandCommand', LatextoolsSearchCommandCommand)
+deprecate(globals(), 'LatexSearchCommandInputCommand', LatextoolsSearchCommandInputCommand)

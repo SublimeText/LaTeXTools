@@ -110,6 +110,13 @@ Not all PDF viewers have support for forward or inverse search. In those cases, 
 
 This will open the PDF document corresponding to the current TeX file in your configured viewer. Note that opening the PDF using this does *not* do a forward search.
 
+## Smart Paste
+
+**Keybinding:** <kbd>C+v</kbd>
+
+The smart paste functionality overwrites the default paste function and analysis the keyboard content to behave smart if possible.
+So you can easily paste image paths or urls into the LaTeX document and it will automatically create the figure environment and download or copy the image to the corresponding folder. You can disable this keybinding with the `enable_smart_paste` setting.
+
 ## References and Citations
 
 **Keybinding:** *autotriggered* by default (see below). Otherwise, <kbd>C+l</kbd>,<kbd>x</kbd> for 'cross-reference,' <kbd>C+l</kbd>,<kbd>C+f</kbd>, or <kbd>C+l</kbd>,<kbd>C+Alt+f</kbd> (via the [Fill Helper facility](#fill-helper); see below). These are fully equivalent ways of invoking ref/cite completions.

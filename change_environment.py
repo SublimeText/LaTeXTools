@@ -2,8 +2,10 @@ import sublime
 import sublime_plugin
 import re
 
+from .deprecated_command import deprecate
 
-class LatexChangeEnvironmentCommand(sublime_plugin.TextCommand):
+
+class LatextoolsChangeEnvironmentCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         view = self.view
         new_regions = _find_env_regions(view)
@@ -14,7 +16,8 @@ class LatexChangeEnvironmentCommand(sublime_plugin.TextCommand):
         for r in new_regions:
             view.sel().add(r)
 
-class LatexToggleEnvironmentStarCommand(sublime_plugin.TextCommand):
+
+class LatextoolsToggleEnvironmentStarCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         view = self.view
         new_regions = _find_env_regions(view)
@@ -27,6 +30,7 @@ class LatexToggleEnvironmentStarCommand(sublime_plugin.TextCommand):
                 view.replace(edit, r, view.substr(r)[:-1])
             else:
                 view.replace(edit, r, view.substr(r) + "*")
+
 
 def _find_env_regions(view):
     """returns the regions corresponding to nearest matching environments"""
@@ -156,3 +160,6 @@ def _get_closest_end(end_after, begin_after):
         if not e.begin() > b.begin():
             break
     return e
+
+deprecate(globals(), 'LatexChangeEnvironmentCommand', LatextoolsChangeEnvironmentCommand)
+deprecate(globals(), 'LatexToggleEnvironmentStarCommand', LatextoolsToggleEnvironmentStarCommand)

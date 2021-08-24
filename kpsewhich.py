@@ -1,18 +1,10 @@
-from __future__ import print_function
-
-import sublime
 import traceback
 
-if sublime.version() < '3000':
-    _ST3 = False
-    from latextools_utils.external_command import (
-        check_output, CalledProcessError
-    )
-else:
-    _ST3 = True
-    from .latextools_utils.external_command import (
-        check_output, CalledProcessError
-    )
+import sublime
+
+from .latextools_utils.external_command import (
+    check_output, CalledProcessError
+)
 
 __all__ = ['kpsewhich']
 

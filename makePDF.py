@@ -1,57 +1,21 @@
-	# ST2/ST3 compat
-from __future__ import print_function
-
 import sublime
-if sublime.version() < '3000':
-	# we are on ST2 and Python 2.X
-	_ST3 = False
-	import getTeXRoot
-	import parseTeXlog
-	from latextools_plugin import (
-		add_plugin_path, get_plugin, NoSuchPluginException,
-		_classname_to_internal_name
-	)
-	from latextools_utils.is_tex_file import is_tex_file
-	from latextools_utils import get_setting
-	from latextools_utils.tex_directives import parse_tex_directives
-	from latextools_utils.external_command import (
-		execute_command, external_command, get_texpath, update_env
-	)
-	from latextools_utils.output_directory import (
-		get_aux_directory, get_output_directory, get_jobname
-	)
-	from latextools_utils.progress_indicator import ProgressIndicator
-	from latextools_utils.sublime_utils import (
-		get_project_file_name, parse_json_with_comments
-	)
-	from latextools_utils.utils import run_on_main_thread
 
-	strbase = basestring
-else:
-	_ST3 = True
-	from . import getTeXRoot
-	from . import parseTeXlog
-	from .latextools_plugin import (
-		add_plugin_path, get_plugin, NoSuchPluginException,
-		_classname_to_internal_name
-	)
-	from .latextools_utils.is_tex_file import is_tex_file
-	from .latextools_utils import get_setting
-	from .latextools_utils.tex_directives import parse_tex_directives
-	from .latextools_utils.external_command import (
-		execute_command, external_command, get_texpath, update_env
-	)
-	from .latextools_utils.output_directory import (
-		get_aux_directory, get_output_directory, get_jobname
-	)
-	from .latextools_utils.progress_indicator import ProgressIndicator
-	from .latextools_utils.sublime_utils import (
-		get_project_file_name, parse_json_with_comments
-	)
-	from .latextools_utils.utils import run_on_main_thread
-
-	strbase = str
-	long = int
+from . import getTeXRoot
+from . import parseTeXlog
+from .latextools_plugin import (
+	add_plugin_path, get_plugin, NoSuchPluginException,
+	_classname_to_internal_name
+)
+from .latextools_utils.is_tex_file import is_tex_file
+from .latextools_utils import get_setting
+from .latextools_utils.tex_directives import parse_tex_directives
+from .latextools_utils.external_command import (
+	execute_command, external_command, get_texpath, update_env
+)
+from .latextools_utils.output_directory import (
+	get_aux_directory, get_output_directory, get_jobname
+)
+from .latextools_utils.progress_indicator import ProgressIndicator
 
 import sublime_plugin
 import os
@@ -59,10 +23,8 @@ import signal
 import threading
 import functools
 import subprocess
-import types
 import traceback
 import shutil
-import glob
 import re
 
 DEBUG = False
@@ -71,6 +33,9 @@ _HAS_PHANTOMS = sublime.version() >= "3118"
 
 if _HAS_PHANTOMS:
 	import html
+
+from .deprecated_command import deprecate
+
 
 # Compile current .tex file to pdf
 # Allow custom scripts and build engines!
@@ -110,175 +75,18 @@ def getOEMCP():
 	return codepage
 
 
-class LatextoolsBuildSelector(sublime_plugin.WindowCommand):
-
-	# stores last settings for build
-	WINDOWS = {}
-
-	if _ST3:
-		def load_build_system(self, build_system):
-			build_system = sublime.load_resource(build_system)
-	else:
-		def load_build_system(self, build_system):
-			build_system = os.path.normpath(
-				build_system.replace('Packages', sublime.packages_path())
-			)
-
-			return self.parse_json_with_comments(build_system)
-
-	def run(self, select=False):
-		select = False if select not in (True, False) else select
-		view = self.view = self.window.active_view()
-		if not select:
-			window_settings = self.WINDOWS.get(self.window.id(), {})
-			build_system = window_settings.get('build_system')
-
-			if build_system:
-				build_variant = window_settings.get('build_variant', '')
-				self.run_build(build_system, build_variant)
-				return
-
-		# no previously selected build system or select is True
-		# find all .sublime-build files
-		if _ST3:
-			sublime_build_files = sublime.find_resources('*.sublime-build')
-			project_settings = self.window.project_data() or {}
-		else:
-			sublime_build_files = glob.glob(os.path.join(
-				sublime.packages_path(), '*', '*.sublime-build'
-			))
-			project_file_name = get_project_file_name(view)
-			if project_file_name is not None:
-				try:
-					project_settings = \
-						parse_json_with_comments(project_file_name)
-				except:
-					print('Error parsing project file')
-					traceback.print_exc()
-					project_settings = {}
-			else:
-				project_settings = {}
-
-		builders = []
-		for i, build_system in enumerate(
-			project_settings.get('build_systems', [])
-		):
-			if (
-				'selector' not in build_system or
-				view.score_selector(
-					0, project_settings.get('selector', 'text.tex.latex')) > 0
-			):
-				try:
-					build_system['name']
-				except:
-					print('Could not determine name for build system {0}'.format(
-						build_system
-					))
-					continue
-
-				build_system['index'] = i
-				builders.append(build_system)
-
-		for filename in sublime_build_files:
-			try:
-				sublime_build = parse_json_with_comments(filename)
-			except:
-				print(u'Error parsing file {0}'.format(filename))
-				continue
-
-			if (
-				'selector' not in sublime_build or
-				view.score_selector(0, sublime_build['selector']) > 0
-			):
-				sublime_build['file'] = filename.replace(
-					sublime.packages_path(), 'Packages', 1
-				).replace(os.path.sep, '/')
-
-				sublime_build['name'] = os.path.splitext(
-					os.path.basename(sublime_build['file'])
-				)[0]
-
-				builders.append(sublime_build)
-
-		formatted_entries = []
-		build_system_variants = []
-		for builder in builders:
-			build_system_name = builder['name']
-			build_system_internal_name = builder.get(
-				'index', builder.get('file')
-			)
-
-			formatted_entries.append(build_system_name)
-			build_system_variants.append((build_system_internal_name, ''))
-
-			for variant in builder.get('variants', []):
-				try:
-					formatted_entries.append(
-						"{0} - {1}".format(
-							build_system_name,
-							variant['name']
-						)
-					)
-				except KeyError:
-					continue
-
-				build_system_variants.append(
-					(build_system_internal_name, variant['name'])
-				)
-
-		entries = len(formatted_entries)
-		if entries == 0:
-			self.window.run_command('build')
-		elif entries == 1:
-			build_system, build_variant = build_system_variants[0]
-			self.WINDOWS[self.window.id()] = {
-				'build_system': build_system,
-				'build_variant': build_variant
-			}
-			self.run_build(build_system, build_variant)
-		else:
-			def on_done(index):
-				# cancel
-				if index == -1:
-					return
-
-				build_system, build_variant = build_system_variants[index]
-				self.WINDOWS[self.window.id()] = {
-					'build_system': build_system,
-					'build_variant': build_variant
-				}
-				self.run_build(build_system, build_variant)
-
-			self.window.show_quick_panel(formatted_entries, on_done)
-
-	def run_build(self, build_system, build_variant):
-		if build_system.isdigit():
-			self.window.run_command(
-				'set_build_system', {'index': int(build_system)}
-			)
-		else:
-			self.window.run_command(
-				'set_build_system', {'file': build_system}
-			)
-
-		if build_variant:
-			self.window.run_command('build', {'variant': build_variant})
-		else:
-			self.window.run_command('build')
-
-
 # First, define thread class for async processing
 
-class CmdThread ( threading.Thread ):
+class CmdThread(threading.Thread):
 
 	# Use __init__ to pass things we need
 	# in particular, we pass the caller in teh main thread, so we can display stuff!
 	def __init__ (self, caller):
 		self.caller = caller
-		threading.Thread.__init__ ( self )
+		threading.Thread.__init__(self)
 
-	def run ( self ):
-		print ("Welcome to thread " + self.getName())
+	def run(self):
+		print("Welcome to thread " + self.getName())
 		self.caller.output("[Compiling " + self.caller.file_name + "]")
 
 		env = dict(os.environ)
@@ -304,7 +112,8 @@ class CmdThread ( threading.Thread ):
 				if cmd == "":
 					break
 
-				if isinstance(cmd, strbase) or isinstance(cmd, list):
+				if isinstance(cmd, str) or isinstance(cmd, list):
+					print(cmd)
 					# Now create a Popen object
 					try:
 						proc = external_command(
@@ -331,7 +140,7 @@ class CmdThread ( threading.Thread ):
 				else:
 					# don't know what the command is
 					continue
-				
+
 				# Now actually invoke the command, making sure we allow for killing
 				# First, save process handle into caller; then communicate (which blocks)
 				with self.caller.proc_lock:
@@ -339,7 +148,7 @@ class CmdThread ( threading.Thread ):
 				out, err = proc.communicate()
 				self.caller.builder.set_output(out.decode(self.caller.encoding,"ignore"))
 
-				
+
 				# Here the process terminated, but it may have been killed. If so, stop and don't read log
 				# Since we set self.caller.proc above, if it is None, the process must have been killed.
 				# TODO: clean up?
@@ -556,8 +365,7 @@ class CmdThread ( threading.Thread ):
 			self.caller.finish(len(errors) == 0)
 
 # Actual Command
-
-class make_pdfCommand(sublime_plugin.WindowCommand):
+class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
 	errs_by_file = {}
 	phantom_sets_by_buffer = {}
@@ -728,7 +536,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			engine = 'pdflatex'
 
 		options = builder_settings.get("options", [])
-		if isinstance(options, strbase):
+		if isinstance(options, str):
 			options = [options]
 
 		if 'options' in tex_directives:
@@ -811,7 +619,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		print(threading.active_count())
 
 		# setup the progress indicator
-		display_message_length = long(
+		display_message_length = int(
 			get_setting(
 				'build_finished_message_length', 2.0, view=view) * 1000)
 		# NB CmdThread will change the success message
@@ -829,26 +637,9 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		sublime.set_timeout(functools.partial(self.do_output, data), 0)
 
 	def do_output(self, data):
-        # if proc != self.proc:
-        #     # a second call to exec has been made before the first one
-        #     # finished, ignore it instead of intermingling the output.
-        #     if proc:
-        #         proc.kill()
-        #     return
-
-		# try:
-		#     str = data.decode(self.encoding)
-		# except:
-		#     str = "[Decode error - output not " + self.encoding + "]"
-		#     proc = None
-
 		# decoding in thread, so we can pass coded and decoded data
 		# handle both lists and strings
-		# Need different handling for python 2 and 3
-		if not _ST3:
-			strdata = data if isinstance(data, types.StringTypes) else "\n".join(data)
-		else:
-			strdata = data if isinstance(data, str) else "\n".join(data)
+		strdata = data if isinstance(data, str) else "\n".join(data)
 
 		# Normalize newlines, Sublime Text always uses a single \n separator
 		# in memory.
@@ -859,7 +650,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		        == sublime.Region(self.output_view.size()))
 		self.output_view.set_read_only(False)
 		# Move this to a TextCommand for compatibility with ST3
-		self.output_view.run_command("do_output_edit", {"data": strdata, "selection_was_at_end": selection_was_at_end})
+		self.output_view.run_command("latextools_do_output_edit", {"data": strdata, "selection_was_at_end": selection_was_at_end})
 		# edit = self.output_view.begin_edit()
 		# self.output_view.insert(edit, self.output_view.size(), strdata)
 		# if selection_was_at_end:
@@ -869,11 +660,8 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 
 	def show_output_panel(self, force=False):
 		if force or self.hide_panel_level != 'always':
-			f = functools.partial(
-				self.window.run_command,
-				"show_panel", {"panel": "output.latextools"}
-			)
-			run_on_main_thread(f, default_value=None)
+			self.window.run_command(
+				"show_panel", {"panel": "output.latextools"})
 
 	# Also from exec.py
 	# Set the selection to the start of the output panel, so next_result works
@@ -883,7 +671,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		sublime.set_timeout(functools.partial(self.do_finish, can_switch_to_pdf), 0)
 
 	def do_finish(self, can_switch_to_pdf):
-		self.output_view.run_command("do_finish_edit")
+		self.output_view.run_command("latextools_do_finish_edit")
 
 		if _HAS_PHANTOMS and self.show_errors_inline:
 			self.create_errs_by_file()
@@ -917,7 +705,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 							)
 
 			if get_setting('open_pdf_on_build', True, view=self.view):
-				self.view.run_command("jump_to_pdf", {"from_keybinding": False})
+				self.view.run_command("latextools_jump_to_pdf", {"from_keybinding": False})
 
 	if _HAS_PHANTOMS:
 		def _find_errors(self, errors, error_class):
@@ -1010,7 +798,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 						html_text = html.escape(text, quote=False)
 						phantom_content = """
 							<body id="inline-error">
-								{stylesheet} 
+								{stylesheet}
 								<div class="lt-error {error_class}">
 									<span class="message">{html_text}</span>
 									<a href="hide">{cancel_char}</a>
@@ -1038,14 +826,14 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			self.hide_phantoms()
 
 
-class DoOutputEditCommand(sublime_plugin.TextCommand):
+class LatextoolsDoOutputEditCommand(sublime_plugin.TextCommand):
     def run(self, edit, data, selection_was_at_end):
         self.view.insert(edit, self.view.size(), data)
         if selection_was_at_end:
             self.view.show(self.view.size())
 
 
-class DoFinishEditCommand(sublime_plugin.TextCommand):
+class LatextoolsDoFinishEditCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         self.view.sel().clear()
         reg = sublime.Region(0)
@@ -1059,7 +847,7 @@ if _HAS_PHANTOMS:
 				return
 			w = view.window()
 			if w is not None:
-				w.run_command("make_pdf", {"update_phantoms_only": True})
+				w.run_command("latextools_make_pdf", {"update_phantoms_only": True})
 
 
 def plugin_loaded():
@@ -1070,6 +858,6 @@ def plugin_loaded():
 	add_plugin_path(os.path.join(ltt_path, 'pdfBuilder.py'))
 	add_plugin_path(ltt_path)
 
-
-if not _ST3:
-	plugin_loaded()
+deprecate(globals(), 'make_pdfCommand', LatextoolsMakePdfCommand)
+deprecate(globals(), 'DoOutputEditCommand', LatextoolsDoOutputEditCommand)
+deprecate(globals(), 'DoFinishEditCommand', LatextoolsDoFinishEditCommand)

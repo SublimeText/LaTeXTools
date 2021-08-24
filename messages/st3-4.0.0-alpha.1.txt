@@ -1,0 +1,5 @@
+LaTeXTools Plugin version 4.0.0-alpha.1 (2017-06-08) changelog:
+
+Features:
+- Auto-label: The label content is automatically provided based on the section names.
+- Fill-All helper can additionally input the written text (via `tab`) instead of just the select entry.

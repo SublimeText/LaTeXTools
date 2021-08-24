@@ -1,11 +1,15 @@
 {
     "*": {
+        ">=3000": [
+            "regex"
+        ],
         ">=3118": [
             "pygments",
             "python-markdown",
             "mdpopups",
             "python-jinja2",
-            "markupsafe"
+            "markupsafe",
+            "regex"
         ]
     }
 }

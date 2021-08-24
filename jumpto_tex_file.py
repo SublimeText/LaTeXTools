@@ -7,16 +7,10 @@ import traceback
 import sublime
 import sublime_plugin
 
-try:
-    _ST3 = True
-    from .getTeXRoot import get_tex_root
-    from .latextools_utils import analysis, get_setting, utils
-    from .latextools_utils.external_command import external_command
-except:
-    _ST3 = False
-    from getTeXRoot import get_tex_root
-    from latextools_utils import analysis, get_setting, utils
-    from latextools_utils.external_command import external_command
+from .deprecated_command import deprecate
+from .getTeXRoot import get_tex_root
+from .latextools_utils import analysis, get_setting, utils
+from .latextools_utils.external_command import external_command
 
 
 INPUT_REG = re.compile(
@@ -116,8 +110,7 @@ def _jumpto_tex_file(view, window, tex_root, file_name,
     print("Open the file '{0}'".format(full_new_path))
 
     # await opening and move cursor to end of the new view
-    # (does not work on st2)
-    if _ST3 and auto_insert_root and is_root_inserted:
+    if auto_insert_root and is_root_inserted:
         cursor_pos = len(root_string)
         new_region = sublime.Region(cursor_pos, cursor_pos)
         utils.open_and_select_region(view, full_new_path, new_region)
@@ -136,6 +129,21 @@ def _jumpto_bib_file(view, window, tex_root, file_name,
                      auto_create_missing_folders, False)
 
 
+def _validate_image(file_path, image_types):
+    _, extension = os.path.splitext(file_path)
+    extension = extension[1:]  # strip the leading point
+    if extension:
+        if os.path.exists(file_path):
+            return file_path
+    else:
+        for ext in image_types:
+            test_path = file_path + "." + ext
+            print("Test file: '{0}'".format(test_path))
+            if os.path.exists(test_path):
+                print("Found file: '{0}'".format(test_path))
+                return test_path
+
+
 def find_image(tex_root, file_name, tex_file_name=None):
     ana = analysis.get_analysis(tex_root)
     base_path = ana.tex_base_path(tex_file_name)
@@ -145,28 +153,17 @@ def find_image(tex_root, file_name, tex_file_name=None):
             "png", "pdf", "jpg", "jpeg", "eps"
         ])
 
-    file_path = os.path.normpath(
-        os.path.join(base_path, file_name))
-    _, extension = os.path.splitext(file_path)
-    extension = extension[1:]  # strip the leading point
-    if not extension:
-        for ext in image_types:
-            test_path = file_path + "." + ext
-            print("Test file: '{0}'".format(test_path))
-            if os.path.exists(test_path):
-                extension = ext
-                file_path = test_path
-                print("Found file: '{0}'".format(test_path))
-                break
-    if not os.path.exists(file_path):
-        return None
-    return file_path
+    for graphics_path in [base_path] + ana.graphics_paths():
+        file_path = _validate_image(
+            os.path.normpath(os.path.join(graphics_path, file_name)),
+            image_types
+        )
+        if file_path:
+            return file_path
 
 
 def open_image(window, file_path):
     def run_command(command):
-            if not _ST3:
-                command = str(command)
             command = shlex.split(command)
             # if $file is used, substitute it by the file path
             if "$file" in command:
@@ -176,7 +173,7 @@ def open_image(window, file_path):
             else:
                 command.append(file_path)
 
-            external_command(command)
+            external_command(command, shell=True)
 
     _, extension = os.path.splitext(file_path)
     extension = extension[1:]  # strip the leading point
@@ -201,8 +198,7 @@ def open_image(window, file_path):
                 continue
             # check whether the extension matches
             if "extension" in d:
-                if extension == d["extension"] or\
-                        extension in d["extension"]:
+                if extension == d["extension"] or extension in d["extension"]:
                     run_command(d["command"])
                     break
             # if no extension matches always run the command
@@ -234,7 +230,7 @@ def _split_bib_args(bib_args):
     return file_names
 
 
-class JumptoTexFileCommand(sublime_plugin.TextCommand):
+class LatextoolsJumptoFileCommand(sublime_plugin.TextCommand):
 
     def run(self, edit, auto_create_missing_folders=True,
             auto_insert_root=True, position=None):
@@ -289,3 +285,6 @@ class JumptoTexFileCommand(sublime_plugin.TextCommand):
                 file_name = g.group("file")
                 print("Jumpto image file '{0}'".format(file_name))
                 _jumpto_image_file(view, window, tex_root, file_name)
+
+deprecate(globals(), 'JumptoTexFileCommand', LatextoolsJumptoFileCommand)
+
