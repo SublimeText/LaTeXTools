@@ -154,7 +154,7 @@ def get_version_info(executable, env=None):
             return None
 
         return re.split(
-            r'\r?\n', stdout.decode('utf-8').strip(), 1
+            r'\r?\n', stdout.decode(encoding='utf-8', errors='ignore').strip(), 1
         )[0].lstrip('Version: ')
     except:
         return None

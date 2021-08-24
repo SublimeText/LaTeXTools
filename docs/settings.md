@@ -131,7 +131,7 @@ This section refers to setting that can be found in a platform-specific block fo
 	* `"no_warnings"`: only hide the panel if no warnings occur
 	* `"no_badboxes"`: only hide the panel if no warnings or badbox messages occur; this only differs from `no_warnings` if `display_bad_boxes` is set to `true`.
 	* `"never"`: never hide the build panel
-Any other value will be interpretted as the default.
+Any other value will be interpreted as the default.
 * `display_bad_boxes` (`false`): if `true` LaTeXTools will display any bad boxes encountered after a build. Note that this is disabled by default.
 * `show_error_phantoms` (`"warnings"`): **ST3 Build 3118 or newer only** controls which errors are displayed via phantoms. Possible values:
 	 * `"none"`: never show any phantoms at all
