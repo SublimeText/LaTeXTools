@@ -22,7 +22,7 @@ def get_setting(setting, default=None, view=None):
         # no view defined or view invalid
         view_settings = {}
 
-    result = view_settings.get(setting)
+    result = view_settings.get('latextools.{}'.format(setting))
 
     if result is None:
         result = global_settings.get(setting)
@@ -38,7 +38,7 @@ def get_setting(setting, default=None, view=None):
         for s in (
             advanced_settings.get(setting, {}),
             global_settings.get(setting, {}),
-            view_settings.get(setting, {}),
+            view_settings.get('latextools.{}'.format(setting), {}),
             result
         ):
             # recursively load settings

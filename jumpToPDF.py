@@ -18,6 +18,8 @@ from .latextools_plugin import (
 	add_whitelist_module
 )
 
+from .deprecated_command import deprecate
+
 SUBLIME_VERSION = re.compile(r'Build (\d{4})', re.UNICODE)
 DEFAULT_VIEWERS = {
 	'linux': 'evince',
@@ -71,7 +73,7 @@ def get_viewer():
 
 # Jump to current line in PDF file
 # NOTE: must be called with {"from_keybinding": <boolean>} as arg
-class JumpToPdf(sublime_plugin.TextCommand):
+class LatextoolsJumpToPdfCommand(sublime_plugin.TextCommand):
 
 	def is_visible(self, *args):
 		view = sublime.active_window().active_view()
@@ -180,7 +182,7 @@ class JumpToPdf(sublime_plugin.TextCommand):
 			focus_st()
 
 
-class ViewPdf(sublime_plugin.WindowCommand):
+class LatextoolsViewPdfCommand(sublime_plugin.WindowCommand):
 
 	def is_visible(self, *args):
 		view = self.window.active_view()
@@ -258,3 +260,6 @@ def plugin_loaded():
 	# as plugins
 	add_plugin_path(os.path.join(viewers_path, 'base_viewer.py'))
 	add_plugin_path(viewers_path)
+
+deprecate(globals(), 'JumpToPdf', LatextoolsJumpToPdfCommand)
+deprecate(globals(), 'ViewPdf', LatextoolsViewPdfCommand)

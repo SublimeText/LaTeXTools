@@ -335,7 +335,7 @@ def _get_cache():
         )
 
         if gen_cache:
-            sublime.active_window().run_command("latex_gen_pkg_cache")
+            sublime.active_window().run_command("latextools_gen_pkg_cache")
     else:
         with open(pkg_cache_file) as f:
             cache = json.load(f)

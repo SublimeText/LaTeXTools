@@ -34,6 +34,9 @@ _HAS_PHANTOMS = sublime.version() >= "3118"
 if _HAS_PHANTOMS:
 	import html
 
+from .deprecated_command import deprecate
+
+
 # Compile current .tex file to pdf
 # Allow custom scripts and build engines!
 
@@ -137,7 +140,7 @@ class CmdThread(threading.Thread):
 				else:
 					# don't know what the command is
 					continue
-				
+
 				# Now actually invoke the command, making sure we allow for killing
 				# First, save process handle into caller; then communicate (which blocks)
 				with self.caller.proc_lock:
@@ -145,7 +148,7 @@ class CmdThread(threading.Thread):
 				out, err = proc.communicate()
 				self.caller.builder.set_output(out.decode(self.caller.encoding,"ignore"))
 
-				
+
 				# Here the process terminated, but it may have been killed. If so, stop and don't read log
 				# Since we set self.caller.proc above, if it is None, the process must have been killed.
 				# TODO: clean up?
@@ -362,8 +365,7 @@ class CmdThread(threading.Thread):
 			self.caller.finish(len(errors) == 0)
 
 # Actual Command
-
-class MakePdfCommand(sublime_plugin.WindowCommand):
+class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
 	errs_by_file = {}
 	phantom_sets_by_buffer = {}
@@ -648,7 +650,7 @@ class MakePdfCommand(sublime_plugin.WindowCommand):
 		        == sublime.Region(self.output_view.size()))
 		self.output_view.set_read_only(False)
 		# Move this to a TextCommand for compatibility with ST3
-		self.output_view.run_command("do_output_edit", {"data": strdata, "selection_was_at_end": selection_was_at_end})
+		self.output_view.run_command("latextools_do_output_edit", {"data": strdata, "selection_was_at_end": selection_was_at_end})
 		# edit = self.output_view.begin_edit()
 		# self.output_view.insert(edit, self.output_view.size(), strdata)
 		# if selection_was_at_end:
@@ -669,7 +671,7 @@ class MakePdfCommand(sublime_plugin.WindowCommand):
 		sublime.set_timeout(functools.partial(self.do_finish, can_switch_to_pdf), 0)
 
 	def do_finish(self, can_switch_to_pdf):
-		self.output_view.run_command("do_finish_edit")
+		self.output_view.run_command("latextools_do_finish_edit")
 
 		if _HAS_PHANTOMS and self.show_errors_inline:
 			self.create_errs_by_file()
@@ -701,7 +703,7 @@ class MakePdfCommand(sublime_plugin.WindowCommand):
 						)
 
 			if get_setting('open_pdf_on_build', True, view=self.view):
-				self.view.run_command("jump_to_pdf", {"from_keybinding": False})
+				self.view.run_command("latextools_jump_to_pdf", {"from_keybinding": False})
 
 	if _HAS_PHANTOMS:
 		def _find_errors(self, errors, error_class):
@@ -794,7 +796,7 @@ class MakePdfCommand(sublime_plugin.WindowCommand):
 						html_text = html.escape(text, quote=False)
 						phantom_content = """
 							<body id="inline-error">
-								{stylesheet} 
+								{stylesheet}
 								<div class="lt-error {error_class}">
 									<span class="message">{html_text}</span>
 									<a href="hide">{cancel_char}</a>
@@ -822,14 +824,14 @@ class MakePdfCommand(sublime_plugin.WindowCommand):
 			self.hide_phantoms()
 
 
-class DoOutputEditCommand(sublime_plugin.TextCommand):
+class LatextoolsDoOutputEditCommand(sublime_plugin.TextCommand):
     def run(self, edit, data, selection_was_at_end):
         self.view.insert(edit, self.view.size(), data)
         if selection_was_at_end:
             self.view.show(self.view.size())
 
 
-class DoFinishEditCommand(sublime_plugin.TextCommand):
+class LatextoolsDoFinishEditCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         self.view.sel().clear()
         reg = sublime.Region(0)
@@ -843,7 +845,7 @@ if _HAS_PHANTOMS:
 				return
 			w = view.window()
 			if w is not None:
-				w.run_command("make_pdf", {"update_phantoms_only": True})
+				w.run_command("latextools_make_pdf", {"update_phantoms_only": True})
 
 
 def plugin_loaded():
@@ -853,3 +855,7 @@ def plugin_loaded():
 	# will not be registered as plugins
 	add_plugin_path(os.path.join(ltt_path, 'pdfBuilder.py'))
 	add_plugin_path(ltt_path)
+
+deprecate(globals(), 'make_pdfCommand', LatextoolsMakePdfCommand)
+deprecate(globals(), 'DoOutputEditCommand', LatextoolsDoOutputEditCommand)
+deprecate(globals(), 'DoFinishEditCommand', LatextoolsDoFinishEditCommand)

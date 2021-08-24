@@ -3,11 +3,12 @@ import sublime
 import sublime_plugin
 import re
 
+from .deprecated_command import deprecate
 
 # Insert LaTeX command based on current word
 # Position cursor inside braces
 
-class LatexcmdCommand(sublime_plugin.TextCommand):
+class LatextoolsLatexCmdCommand(sublime_plugin.TextCommand):
 	def run(self, edit, **args):
 		view = self.view
 
@@ -36,3 +37,5 @@ class LatexcmdCommand(sublime_plugin.TextCommand):
 			sublime.status_message(
 				"LATEXTOOLS INTERNAL ERROR: could not find command to expand")
 
+
+deprecate(globals(), 'latexcmdCommand', LatextoolsLatexCmdCommand)

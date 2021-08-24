@@ -15,6 +15,8 @@ from .latextools_utils import get_setting
 from .latextools_utils.internal_types import FillAllHelper
 from .latextools_utils.input_quickpanel import show_input_quick_panel
 
+from .deprecated_command import deprecate
+
 
 def reraise(tp, value, tb=None):
     if value is None:
@@ -841,7 +843,7 @@ class LatexFillAllEventListener(
         )
 
 
-class LatexFillAllCommand(
+class LatextoolsFillAllCommand(
     sublime_plugin.TextCommand, LatexFillHelper, LatexFillAllPluginConsumer
 ):
     '''
@@ -1178,3 +1180,6 @@ class LatexToolsFillAllCompleteBracket(
             self.view, edit, insert_char,
             self.tuples_to_regions(remove_regions)
         )
+
+
+deprecate(globals(), 'LatexFillAllCommand', LatextoolsFillAllCommand)

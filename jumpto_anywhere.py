@@ -4,6 +4,7 @@ import re
 import sublime
 import sublime_plugin
 
+from .deprecated_command import deprecate
 from .getTeXRoot import get_tex_root
 from .latextools_utils import analysis, ana_utils, quickpanel, utils
 from .latextools_utils.tex_directives import TEX_DIRECTIVE
@@ -184,7 +185,7 @@ def _jumpto_pkg_doc(view, com_reg, pos):
         message = "Try opening documentation for package '{0}'".format(package)
         print(message)
         sublime.status_message(message)
-        view.window().run_command("latex_view_doc", {"file": package})
+        view.window().run_command("latextools_view_doc", {"file": package})
 
     package_name = _get_selected_arg(view, com_reg, pos)
     if package_name:
@@ -245,7 +246,7 @@ def _opt_jumpto_self_def_command(view, com_reg):
     return True
 
 
-class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
+class LatextoolsJumptoAnywhereCommand(sublime_plugin.TextCommand):
     def run(self, edit, position=None):
         view = self.view
         if position is None:
@@ -314,7 +315,7 @@ class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
             }
             if pos is not None:
                 kwargs.update({"position": position})
-            view.run_command("jumpto_tex_file", kwargs)
+            view.run_command("latextools_jumpto_file", kwargs)
         elif command in ["usepackage", "Requirepackage"]:
             _jumpto_pkg_doc(view, com_reg, pos)
         else:
@@ -328,7 +329,7 @@ class JumptoTexAnywhereCommand(sublime_plugin.TextCommand):
                 _opt_jumpto_self_def_command(view, com_reg)
 
 
-class JumptoTexAnywhereByMouseCommand(sublime_plugin.WindowCommand):
+class LatextoolsJumptoAnywhereByMouseCommand(sublime_plugin.WindowCommand):
     def want_event(self):
         return True
 
@@ -343,7 +344,7 @@ class JumptoTexAnywhereByMouseCommand(sublime_plugin.WindowCommand):
         if score_selector("text.tex.latex"):
             print("Jump in tex file.")
             pos = view.window_to_text((event["x"], event["y"]))
-            view.run_command("jumpto_tex_anywhere", {"position": pos})
+            view.run_command("latextools_jumpto_anywhere", {"position": pos})
         elif fallback_command:
             if set_caret:
                 self._set_caret(view, event)
@@ -354,3 +355,6 @@ class JumptoTexAnywhereByMouseCommand(sublime_plugin.WindowCommand):
         pos = view.window_to_text((event["x"], event["y"]))
         view.sel().clear()
         view.sel().add(sublime.Region(pos, pos))
+
+deprecate(globals(), 'JumptoTexAnywhereCommand', LatextoolsJumptoAnywhereCommand)
+deprecate(globals(), 'JumptoTexAnywhereByMouseCommand', LatextoolsJumptoAnywhereByMouseCommand)

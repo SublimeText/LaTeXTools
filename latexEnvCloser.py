@@ -1,14 +1,13 @@
 import sublime
-
-
 import sublime_plugin
 
+from .deprecated_command import deprecate
 
 # Insert environment closer
 # this only looks at the LAST \begin{...}
 # need to extend to allow for nested \begin's
 
-class LatexEnvCloserCommand(sublime_plugin.TextCommand):
+class LatextoolsLatexEnvCloserCommand(sublime_plugin.TextCommand):
 	def run(self, edit, **args):
 		view = self.view
 		pattern = r'\\(begin|end)\{[^\}]+\}'
@@ -40,3 +39,6 @@ class LatexEnvCloserCommand(sublime_plugin.TextCommand):
 			view.run_command(
 				"insert_snippet",
 				{'contents': "\\\\end" + b[-1] + "\n"})
+
+
+deprecate(globals(), 'latex_env_closerCommand', LatextoolsLatexEnvCloserCommand)

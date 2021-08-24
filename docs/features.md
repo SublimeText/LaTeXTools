@@ -6,21 +6,21 @@
 
 ## Multi-file documents
 
-**Multi-file documents** are supported as follows. If the first line in the current file consists of the text `%!TEX root = <master file name>`, then tex & friends are invoked on the specified master file, instead of the current one. Note: the only file that gets saved automatically is the current one. Also, the master file name **must** have a valid tex extension (i.e., one configured in the `tex_file_exts` settings), or it won't be recognized. 
+**Multi-file documents** are supported as follows. If the first line in the current file consists of the text `%!TEX root = <master file name>`, then tex & friends are invoked on the specified master file, instead of the current one. Note: the only file that gets saved automatically is the current one. Also, the master file name **must** have a valid tex extension (i.e., one configured in the `tex_file_exts` settings), or it won't be recognized.
 
-As an alternative, to using the `%!TEX root = <master file name>` syntax, if you use a Sublime project, you can set the `TEXroot` option (under `settings`):
-	
+As an alternative, to using the `%!TEX root = <master file name>` syntax, if you use a Sublime project, you can set the `latextools.tex_root` option (under `settings`):
+
 ```json
 {
 	... <folder-related settings> ...
 
 	"settings": {
-		"TEXroot": "yourfilename.tex"
+		"latextools.tex_root": "yourfilename.tex"
 	}
 }
 ```
 
-Note that if you specify a relative path as the `TEXroot` in the project file, the path is determined *relative to the location of the project file itself*. It may be less ambiguous to specify an absolute path to the `TEXroot` if possible.
+Note that if you specify a relative path as the `latextools.tex_root` in the project file, the path is determined *relative to the location of the project file itself*. It may be less ambiguous to specify an absolute path to the `latextools.tex_root` if possible.
 
 ## Previewing
 

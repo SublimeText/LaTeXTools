@@ -138,7 +138,7 @@ def get_tex_root(view):
 
 
 def get_tex_root_from_settings(view):
-    root = view.settings().get('TEXroot', None)
+    root = view.settings().get('latextools.tex_root', None)
 
     if root is not None:
         if os.path.isabs(root):

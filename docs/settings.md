@@ -2,7 +2,7 @@
 
 LaTeXTools supports user-defined settings. The settings file is called `LaTeXTools.sublime-settings`. A default version resides in the LaTeXTools plugin directory and **must not be edited** (any edits you make to this file will be overwritten when the package is upgraded). This contains default settings that will work in many cases for standard configurations of TeX distros and PDF viewers.
 
-You can however create another settings file in your `User` directory which can override any of the default settings. You can create and edit such a file manually. However, the *simplest way to create a settings file* is to open the **Preferences | Package Settings | LaTeXTools** submenu and select the **Settings - User** option. If you do not currently have a `LaTeXTools.sublime-settings` settings file in your `User` directory (e.g., if you are installing LaTeXTools for the first time), you will be given the option to create one. The newly created settings file can be an exact copy of the default one, and will open in a tab for you to customize. 
+You can however create another settings file in your `User` directory which can override any of the default settings. You can create and edit such a file manually. However, the *simplest way to create a settings file* is to open the **Preferences | Package Settings | LaTeXTools** submenu and select the **Settings - User** option. If you do not currently have a `LaTeXTools.sublime-settings` settings file in your `User` directory (e.g., if you are installing LaTeXTools for the first time), you will be given the option to create one. The newly created settings file can be an exact copy of the default one, and will open in a tab for you to customize.
 
 If you *do* already have an existing `LaTeXTools.sublime-settings` file in your `User` directory, the **Settings - User** option will open that file in a tab for you to further customize. Similarly, the **Settings - Default** option will open the default settings file in a tab, in *read-only mode*. This may be useful for you to copy from, or if you want to see what other options may be available without consulting this README file.
 
@@ -18,13 +18,13 @@ If at any time you wish to erase your customizations and start afresh, you can s
 * `env_auto_trigger` (`true`): ditto, but for environment completions
 * `glossary_auto_trigger` (`true`): ditto, but for glossary completions
 * `tex_directive_auto_trigger` (`true`): ditto, but for tex directive completions
-* `cwl_autoload` (`true`): whether to load cwl completions based on packages (see the LaTeX-cwl feature) 
+* `cwl_autoload` (`true`): whether to load cwl completions based on packages (see the LaTeX-cwl feature)
 * `cwl_completion` (`prefixed`): when to activate the cwl completion poput (see LaTeX-cwl feature above)
 * `cwl_list` (`["latex-document.cwl", "tex.cwl", "latex-dev", "latex-209.cwl", "latex-l2tabu.cwl", "latex-mathsymbols.cwl"]`): list of cwl files to load
-* `keep_focus` (`true`): if `true`, after compiling a tex file, ST retains the focus; if `false`, the PDF viewer gets the focus. Also note that you can *temporarily* toggle this behavior with `C-l,t,f`.This can also be overridden via a key-binding by passing a `keep_focus` argument to `jump_to_pdf`.
+* `keep_focus` (`true`): if `true`, after compiling a tex file, ST retains the focus; if `false`, the PDF viewer gets the focus. Also note that you can *temporarily* toggle this behavior with `C-l,t,f`.This can also be overridden via a key-binding by passing a `keep_focus` argument to `latextools_jump_to_pdf`.
  **Note**: In general, `keep_focus` set to `true` tries to mean "do not *change* the focus". This isn't always possible, since several of the viewers will steal focus by default. In those circumstances, LaTeXTools tries to actively return the focus to Sublime. To disable this, set the `disable_focus_hack` setting to `true`.
  **Note**: If you are on either Windows or Linux you may need to adjust the `sublime_executable` setting for this to work properly. See the [Platform settings](#platform-specific-settings) below.
-* `forward_sync` (`true`): if `true`, after compiling a tex file, the PDF viewer is asked to sync to the position corresponding to the current cursor location in ST. You can also *temporarily* toggle this behavior with `C-l,t,s`. This can also be overridden via a key-binding by passing a `forward_sync` argument to `jump_to_pdf`.
+* `forward_sync` (`true`): if `true`, after compiling a tex file, the PDF viewer is asked to sync to the position corresponding to the current cursor location in ST. You can also *temporarily* toggle this behavior with `C-l,t,s`. This can also be overridden via a key-binding by passing a `forward_sync` argument to `latextools_jump_to_pdf`.
 * `tex_file_exts` (`['.tex']`): a list of extensions that should be considered TeX documents. Any extensions in this list will be treated exactly the same as `.tex` files. See the section on [Support for non-`.tex` files](#support-for-non-tex-files).
 * `latextools_set_syntax` (`true`): if `true` LaTeXTools will automatically set the syntax to `LaTeX` when opening or saving any file with an extension in the `tex_file_exts` list.
 * `overwrite_goto_overlay` (`true`): Set this to `false` to disable the overwriting of the goto overlay for the hotkey `C-r` and `C-shift-r` You can still access the "table of content quickpanel" via `C-l, C-r` and `C-shift-l, C-r
@@ -76,14 +76,14 @@ This section refers to setting that can be found in a platform-specific block fo
   * `distro` (`miktex`): either `miktex` or `texlive`, depending on your TeX distribution
   * `sumatra` (`""`): leave blank or omit if the SumatraPDF executable is in your `PATH` and is called `SumatraPDF.exe`, as in a default installation; otherwise, specify the *full path and file name* of the SumatraPDF executable.
   * `sublime_executable` (`""`): this is used if `keep_focus` is set to true and the path to your sublime_text executable cannot be discovered automatically. It should point to the full path to your executable `sublime_text.exe`.
-  * `keep_focus_delay` (`0.5`): this is used if `keep_focus` is set to true. It controls how long (in seconds) the delay is between the completion of the `jump_to_pdf` command and the attempt to refocus on Sublime Text. This may need to be adjusted depending on your machine or configuration.
+  * `keep_focus_delay` (`0.5`): this is used if `keep_focus` is set to true. It controls how long (in seconds) the delay is between the completion of the `latextools_jump_to_pdf` command and the attempt to refocus on Sublime Text. This may need to be adjusted depending on your machine or configuration.
 
 ### Linux
   * `python` (`""`, i.e. empty string): name of the Python executable. This is useful if you've installed Python in a non-standard location or want to ensure that LaTeXTools uses a particular Python version. Note that the Python interpreter you select must have the DBus bindings installed.
   * `sublime` (`sublime-text`): name of the ST executable. Ubuntu supports both `sublime-text` and `subl`; other distros may vary.
   * `sync_wait` (1.0): when you ask LaTeXTools to do a forward search, and the PDF file is not yet open (for example, right after compiling a tex file for the first time), LaTeXTools first launches evince, then waits a bit for it to come up, and then it performs the forward search. This parameter controls how long LaTeXTools should wait. If you notice that your machine opens the PDF, then sits there doing nothing, and finally performs the search, you can decrease this value to 1.0 or 0.5; if instead the PDF file comes up but the forward search does not seem to happen, increase it to 2.0.
   * `sublime_executable`: this is used if `keep_focus` is set to true and the path to your sublime_text executable cannot be discovered automatically. It should point to the full path to your executable `sublime_text`.
-  * `keep_focus_delay`: this is used if `keep_focus` is set to true. It controls how long (in seconds) the delay is between the completion of the `jump_to_pdf` command and the attempt to refocus on Sublime Text. This may need to be adjusted depending on your machine or configuration.
+  * `keep_focus_delay`: this is used if `keep_focus` is set to true. It controls how long (in seconds) the delay is between the completion of the `latextools_jump_to_pdf` command and the attempt to refocus on Sublime Text. This may need to be adjusted depending on your machine or configuration.
 
 ## Output Directory Settings
 
@@ -182,18 +182,18 @@ Other example formats are provided in the settings file.
 
 ## Project-Specific Settings
 
-Any settings can be overridden on a project-specific basis if you are using SublimeText's [project system](https://www.sublimetext.com/docs/3/projects.html). In addition, you can use the `TEXroot` setting in the project file only to specify the master tex file instead of using `%!TEX root =` magic comments. If specified in the project file, the `TEXroot` will be resolved relative to the location of your `.sublime-project` file. Similarly, if you use `output_directory` or `aux_directory` in the project file, they will be resolved relative to the location of the project file.
+Any settings can be overridden on a project-specific basis if you are using SublimeText's [project system](https://www.sublimetext.com/docs/3/projects.html). In addition, you can use the `tex_root` setting in the project file only to specify the master tex file instead of using `%!TEX root =` magic comments. If specified in the project file, the `tex_root` will be resolved relative to the location of your `.sublime-project` file. Similarly, if you use `output_directory` or `aux_directory` in the project file, they will be resolved relative to the location of the project file.
 
-To use project-specific settings, simply create a [`"settings"` section in your project file](http://docs.sublimetext.info/en/latest/file_management/file_management.html#the-sublime-project-format). The structure and format is the same as for the `LaTeXTools.sublime-settings` file. Here is an example:
+To use project-specific settings, simply create a [`"settings"` section in your project file](http://docs.sublimetext.info/en/latest/file_management/file_management.html#the-sublime-project-format). The structure and format is the same as for the `LaTeXTools.sublime-settings` file, but the first level settings are prefixed with `latextools.` to avoid collisions with other packages. Here is an example:
 
 ```json
 {
 	... <folder-related options here> ...
 
 	"settings" : {
-		"TEXroot": "main.tex",
-		"tex_file_exts": [".tex", ".tikz"],
-		"builder_settings": {
+		"latextools.tex_root": "main.tex",
+		"latextools.tex_file_exts": [".tex", ".tikz"],
+		"latextools.builder_settings": {
 			"program": "xelatex",
 			"options": "--shell-escape"
 		}

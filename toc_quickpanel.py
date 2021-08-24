@@ -1,5 +1,6 @@
 import sublime_plugin
 
+from .deprecated_command import deprecate
 from .getTeXRoot import get_tex_root
 from .latextools_utils import analysis, get_setting, quickpanel
 
@@ -110,7 +111,7 @@ def show_commands(captions, entries, show_cancel=True):
     Quickpanel(captions, entries).show_quickpanel()
 
 
-class LatexTocQuickpanelCommand(sublime_plugin.WindowCommand):
+class LatextoolsTocQuickpanelCommand(sublime_plugin.WindowCommand):
     def run(self, only_current_file=False):
         view = self.window.active_view()
         tex_root = get_tex_root(view)
@@ -122,9 +123,11 @@ class LatexTocQuickpanelCommand(sublime_plugin.WindowCommand):
         show_toc_quickpanel(ana, only_file=only_file)
 
 
-class LatexTocQuickpanelContext(sublime_plugin.EventListener):
+class LatextoolsTocQuickpanelContext(sublime_plugin.EventListener):
     def on_query_context(self, view, key, *args):
         if (key != "overwrite_goto_overlay" or
                 not view.score_selector(0, "text.tex.latex")):
             return None
         return get_setting("overwrite_goto_overlay")
+
+deprecate(globals(), 'LatexTocQuickpanelCommand', LatextoolsTocQuickpanelCommand)
