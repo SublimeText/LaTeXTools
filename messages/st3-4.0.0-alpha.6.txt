@@ -1,0 +1,11 @@
+LaTeXTools Plugin version st3-4.0.0-alpha.6 (2018-04-22) changelog:
+
+Features:
+
+- Cache uses constant for _invalid_object. This should fix many issues the cache sometimes causes, but requires cache to be cleared by running the **LaTeXTools: Clear cache** command.
+
+- Better support for non-Latin-1 codepages on Windows.
+
+- Added a link to open the full log file to the builder output.
+
+N.B. This is an update of the v4 preview to match the features added to v3.15.0

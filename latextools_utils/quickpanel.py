@@ -24,12 +24,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 import sublime
 
-_ST3 = sublime.version() >= '3000'
-
-if _ST3:
-    from .utils import run_after_loading
-else:
-    from latextools_utils.utils import run_after_loading
+from .utils import run_after_loading
 
 # positions to add items
 AT_START, AT_END = -1, -2
@@ -132,13 +127,10 @@ class EntriesQuickpanel(object):
         """
         Opens a quickpanel based on the initialized data
         """
-        if _ST3:
-            flags = {
-                "selected_index": selected_index,
-                "on_highlight": self._on_changed
-            }
-        else:
-            flags = {}
+        flags = {
+            "selected_index": selected_index,
+            "on_highlight": self._on_changed
+        }
         self.window.show_quick_panel(self.captions, self._on_done, **flags)
 
     def _remove_highlight(self, view=None):

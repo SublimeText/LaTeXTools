@@ -1,10 +1,13 @@
-import sublime, sublime_plugin
+import sublime
+import sublime_plugin
 import re
+
+from .deprecated_command import deprecate
 
 # Insert LaTeX environment based on current word
 # Position cursor inside environment
 
-class latexenvCommand(sublime_plugin.TextCommand):
+class LatextoolsLatexEnvCommand(sublime_plugin.TextCommand):
 	def run(self, edit, **args):
 		view = self.view
 
@@ -20,12 +23,15 @@ class latexenvCommand(sublime_plugin.TextCommand):
 		if expr:
 			environment = expr.group(1)[::-1]
 			if environment:
-				environment_region = sublime.Region(point-len(environment),point)
+				environment_region = sublime.Region(point - len(environment), point)
 				view.erase(edit, environment_region)
 				snippet = "\\\\begin{" + environment + "}\n$1\n\\\\end{" + environment + "}$0"
 			else:
 				snippet = "\\\\begin{${1:env}}\n$2\n\end{$1}$0"
-			view.run_command("insert_snippet", {'contents' : snippet})
+			view.run_command("insert_snippet", {'contents': snippet})
 		else:
-			sublime.status_message("LATEXTOOLS INTERNAL ERROR: could not find environment to expand")
+			sublime.status_message(
+				"LATEXTOOLS INTERNAL ERROR: could not find environment to expand")
 
+
+deprecate(globals(), 'latexenvCommand', LatextoolsLatexEnvCommand)

@@ -1,6 +1,8 @@
 import sublime, sublime_plugin
 
-macros = { 
+from .deprecated_command import deprecate
+
+macros = {
 'a' : '\\alpha',
 'b' : '\\beta',
 'c' : '\\chi',
@@ -73,7 +75,7 @@ macros = {
 'rbr' : '\\right\}'
 }
 
-class tex_macroCommand(sublime_plugin.TextCommand):
+class LatextoolsTexMacroCommand(sublime_plugin.TextCommand):
 	def run(self, edit, **args):
 		currsel = self.view.sel()[0]
 		currword = self.view.word(currsel)
@@ -82,3 +84,6 @@ class tex_macroCommand(sublime_plugin.TextCommand):
 			self.view.replace(edit, currword, macros[k])
 		else:
 			sublime.error_message("%s is not a valid TeX symbol shortcut" % (k,))
+
+
+deprecate(globals(), 'tex_macroCommand', LatextoolsTexMacroCommand)

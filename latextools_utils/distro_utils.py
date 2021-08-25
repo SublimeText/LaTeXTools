@@ -1,9 +1,6 @@
 import sublime
 
-try:
-    from latextools_utils import get_setting
-except ImportError:
-    from . import get_setting
+from . import get_setting
 
 
 def using_miktex():
@@ -11,6 +8,6 @@ def using_miktex():
     distro = platform_settings.get('distro', '')
 
     if sublime.platform() == 'windows':
-        return distro in ['miktex', '']
+        return distro != 'texlive'
     else:
         return distro == 'miktex'
