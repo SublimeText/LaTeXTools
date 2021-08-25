@@ -1,12 +1,7 @@
-from __future__ import print_function
-
 import sublime
 import sublime_plugin
 
-try:
-    from latextools_utils import is_bib_buffer, is_biblatex_buffer
-except ImportError:
-    from .latextools_utils import is_bib_buffer, is_biblatex_buffer
+from .latextools_utils import is_bib_buffer, is_biblatex_buffer
 
 bibtex_fields = [
     ('address', 'address = {${1:Address}},'),
@@ -184,6 +179,7 @@ biblatex_fields = [
     ('year', 'year = {${1:Year}},')
 ]
 
+
 class FieldNameCompletions(sublime_plugin.EventListener):
     def on_query_completions(self, view, prefix, locations):
         if not is_bib_buffer(view):
@@ -196,7 +192,8 @@ class FieldNameCompletions(sublime_plugin.EventListener):
             return []
 
         # do not autocomplete when cursor is in the citekey field
-        if view.score_selector(cursor_point, 'entity.name.type.entry-key.bibtex') > 0:
+        if view.score_selector(
+                cursor_point, 'entity.name.type.entry-key.bibtex') > 0:
             return []
 
         # do not autocomplete if we are already inside a field

@@ -1,5 +1,3 @@
-# ST2/ST3 compat
-from __future__ import print_function
 import sublime
 import sublime_plugin
 
@@ -7,33 +5,19 @@ import os
 import traceback
 import re
 
-if sublime.version() < '3000':
-	# we are on ST2 and Python 2.X
-	_ST3 = False
-	import getTeXRoot
-	from latextools_utils.is_tex_file import is_tex_file
-	from latextools_utils import get_setting
-	from latextools_utils.output_directory import (
-		get_output_directory, get_jobname
-	)
-	from latextools_utils.sublime_utils import focus_st
-	from latextools_plugin import (
-		get_plugin, add_plugin_path, NoSuchPluginException,
-		add_whitelist_module
-	)
-else:
-	_ST3 = True
-	from . import getTeXRoot
-	from .latextools_utils.is_tex_file import is_tex_file
-	from .latextools_utils import get_setting
-	from .latextools_utils.output_directory import (
-		get_output_directory, get_jobname
-	)
-	from .latextools_utils.sublime_utils import focus_st
-	from .latextools_plugin import (
-		get_plugin, add_plugin_path, NoSuchPluginException,
-		add_whitelist_module
-	)
+from . import getTeXRoot
+from .latextools_utils.is_tex_file import is_tex_file
+from .latextools_utils import get_setting
+from .latextools_utils.output_directory import (
+	get_output_directory, get_jobname
+)
+from .latextools_utils.sublime_utils import focus_st
+from .latextools_plugin import (
+	get_plugin, add_plugin_path, NoSuchPluginException,
+	add_whitelist_module
+)
+
+from .deprecated_command import deprecate
 
 SUBLIME_VERSION = re.compile(r'Build (\d{4})', re.UNICODE)
 DEFAULT_VIEWERS = {
@@ -72,6 +56,8 @@ def get_viewer():
 				'Please check your LaTeXTools Preferences.')
 			raise NoViewerException()
 
+	print(repr(viewer))
+
 	# assume no-args constructor
 	viewer = viewer()
 
@@ -86,7 +72,7 @@ def get_viewer():
 
 # Jump to current line in PDF file
 # NOTE: must be called with {"from_keybinding": <boolean>} as arg
-class JumpToPdf(sublime_plugin.TextCommand):
+class LatextoolsJumpToPdfCommand(sublime_plugin.TextCommand):
 
 	def is_visible(self, *args):
 		view = sublime.active_window().active_view()
@@ -108,11 +94,13 @@ class JumpToPdf(sublime_plugin.TextCommand):
 		from_keybinding = args.pop("from_keybinding", False)
 		if from_keybinding:
 			forward_sync = True
+		print(from_keybinding, keep_focus, forward_sync)
 
-		file_name = self.view.file_name()
+		view = self.view
+
+    file_name = view.file_name()
 		if not is_tex_file(file_name):
-			# If invoked from keybinding, this is an impossible request
-			if from_keybinding:
+      if from_keybinding:
 				sublime.error_message(
 					"%s is not a TeX source file: cannot jump." %
 					(os.path.basename(file_name),))
@@ -124,25 +112,25 @@ class JumpToPdf(sublime_plugin.TextCommand):
 			else:
 				forward_sync = False
 
-		root = getTeXRoot.get_tex_root(self.view)
-		jobname = get_jobname(self.view)
+		root = getTeXRoot.get_tex_root(view)
+		file_name = get_jobname(view)
 
-		output_directory = get_output_directory(self.view)
+		output_directory = get_output_directory(view)
 		if output_directory is None:
 			pdffile = os.path.join(
 				os.path.dirname(root),
-				jobname + u'.pdf'
+				file_name + u'.pdf'
 			)
 		else:
 			pdffile = os.path.join(
 				output_directory,
-				jobname + u'.pdf'
+				file_name + u'.pdf'
 			)
 
 			if not os.path.exists(pdffile):
 				pdffile = os.path.join(
 					os.path.dirname(root),
-					jobname + u'.pdf'
+					file_name + u'.pdf'
 				)
 
 		if not os.path.exists(pdffile):
@@ -152,6 +140,7 @@ class JumpToPdf(sublime_plugin.TextCommand):
 		pdffile = os.path.realpath(pdffile)
 
 		(line, col) = self.view.rowcol(self.view.sel()[0].end())
+		print("Jump to: ", line, col)
 		# column is actually ignored up to 0.94
 		# HACK? It seems we get better results incrementing line
 		line += 1
@@ -200,7 +189,7 @@ class JumpToPdf(sublime_plugin.TextCommand):
 			focus_st()
 
 
-class ViewPdf(sublime_plugin.WindowCommand):
+class LatextoolsViewPdfCommand(sublime_plugin.WindowCommand):
 
 	def is_visible(self, *args):
 		view = self.window.active_view()
@@ -279,6 +268,5 @@ def plugin_loaded():
 	add_plugin_path(os.path.join(viewers_path, 'base_viewer.py'))
 	add_plugin_path(viewers_path)
 
-
-if not _ST3:
-	plugin_loaded()
+deprecate(globals(), 'JumpToPdf', LatextoolsJumpToPdfCommand)
+deprecate(globals(), 'ViewPdf', LatextoolsViewPdfCommand)

@@ -2,27 +2,11 @@ from __future__ import print_function
 
 import sublime
 
-from functools import partial
-
-try:
-    from .utils import run_on_main_thread
-except:
-    from latextools_utils.utils import run_on_main_thread
 
 __all__ = ['get_setting']
 
 
 def get_setting(setting, default=None, view=None):
-    if default is not None:
-        return run_on_main_thread(
-            partial(_get_setting, setting, default, view),
-            default_value=default)
-    else:
-        return run_on_main_thread(
-            partial(_get_setting, setting, view=view))
-
-
-def _get_setting(setting, default=None, view=None):
     advanced_settings = sublime.load_settings(
         'LaTeXTools (Advanced).sublime-settings')
     global_settings = sublime.load_settings('LaTeXTools.sublime-settings')
@@ -38,7 +22,7 @@ def _get_setting(setting, default=None, view=None):
         # no view defined or view invalid
         view_settings = {}
 
-    result = view_settings.get(setting)
+    result = view_settings.get('latextools.{}'.format(setting))
 
     if result is None:
         result = global_settings.get(setting)
@@ -54,7 +38,7 @@ def _get_setting(setting, default=None, view=None):
         for s in (
             advanced_settings.get(setting, {}),
             global_settings.get(setting, {}),
-            view_settings.get(setting, {}),
+            view_settings.get('latextools.{}'.format(setting), {}),
             result
         ):
             # recursively load settings

@@ -1,17 +1,11 @@
 from latextools_plugin import LaTeXToolsPlugin
 
-try:
-    from LaTeXTools.external.bibtex import Parser
-    from LaTeXTools.external.bibtex.names import Name
-    from LaTeXTools.external.bibtex.tex import tokenize_list
+from LaTeXTools.external.bibtex import Parser
+from LaTeXTools.external.bibtex.names import Name
+from LaTeXTools.external.bibtex.tex import tokenize_list
 
-    from LaTeXTools.external import latex_chars
-except ImportError:
-    from external.bibtex import Parser
-    from external.bibtex.names import Name
-    from external.bibtex.tex import tokenize_list
+from LaTeXTools.external import latex_chars
 
-    from external import latex_chars
 from latextools_utils import bibcache
 
 import codecs
@@ -24,7 +18,7 @@ latex_chars.register()
 
 if sublime.version() < '3000':
     def _get_people_long(people):
-        return u' and '.join([unicode(x) for x in people])
+        return u' and '.join([str(x) for x in people])
 else:
     def _get_people_long(people):
         return u' and '.join([str(x) for x in people])
@@ -139,7 +133,7 @@ class NewBibliographyPlugin(LaTeXToolsPlugin):
             else:
                 bib_data = parser.parse(bibf.read())
 
-                print ('Loaded %d bibitems' % (len(bib_data)))
+                print('Loaded %d bibitems' % (len(bib_data)))
 
                 bib_entries = []
                 for key in bib_data:

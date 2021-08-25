@@ -4,37 +4,23 @@ import re
 import sublime
 import sublime_plugin
 
-if sublime.version() < '3000':
-    _ST3 = False
-else:
-    _ST3 = True
-
 
 _OVERWRITE, _CHANGE, _CANCEL = 0, 1, 2
-if _ST3:
-    def _user_permission_dialog():
-        message = ("Mousemap already exists. "
-                   "Do you want to overwrite or change it?")
-        answer = sublime.yes_no_cancel_dialog(message, "Overwrite",
-                                              "Change existing mousemap")
-        if answer == sublime.DIALOG_YES:
-            result = _OVERWRITE
-        elif answer == sublime.DIALOG_NO:
-            result = _CHANGE
-        else:
-            result = _CANCEL
-        return result
-else:
-    def _user_permission_dialog():
-        message = "Mousemap already exists. Do you want to overwrite it?"
-        ok = sublime.ok_cancel_dialog(message, "Overwrite")
-        if ok:
-            result = _OVERWRITE
-        else:
-            message = "Do you want me to change it?"
-            ok = sublime.ok_cancel_dialog(message, "Change existing mousemap")
-            result = _CHANGE if ok else _CANCEL
-        return result
+
+
+def _user_permission_dialog():
+    message = (
+        "Mousemap already exists. "
+        "Do you want to overwrite or change it?")
+    answer = sublime.yes_no_cancel_dialog(
+        message, "Overwrite", "Change existing mousemap")
+    if answer == sublime.DIALOG_YES:
+        result = _OVERWRITE
+    elif answer == sublime.DIALOG_NO:
+        result = _CHANGE
+    else:
+        result = _CANCEL
+    return result
 
 
 class LatextoolsCreateMousemapCommand(sublime_plugin.WindowCommand):

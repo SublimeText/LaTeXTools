@@ -1,26 +1,6 @@
-# ST2/ST3 compat
-from __future__ import print_function 
 import sublime
-if sublime.version() < '3000':
-    # we are on ST2 and Python 2.X
-	_ST3 = False
-	import getTeXRoot
-	import parseTeXlog
-else:
-	_ST3 = True
-	from . import getTeXRoot
-	from . import parseTeXlog
-
 import sublime_plugin
-#import sys
-#import imp
-import os, os.path
-import shutil
-#import threading
-#import functools
-#import subprocess
-#import types
-import re
+import os
 import codecs
 
 DEBUG = False
@@ -51,10 +31,10 @@ settings = [	{"key": "cite_auto_trigger", "type": "bool", "line": -1, "tabs": 1,
 				{"key": "cite_autocomplete_format", "type": "string", "line": -1, "tabs": 1, "last": True}
 				]
 
-class latextoolsMigrateCommand(sublime_plugin.ApplicationCommand):
+class LatextoolsMigrateCommand(sublime_plugin.ApplicationCommand):
 
 	def run(self):
-		
+
 		# First of all, try to load new settings
 		# If they exist, either the user copied them manually, or we already did this
 		# Hence, quit
@@ -76,7 +56,7 @@ class latextoolsMigrateCommand(sublime_plugin.ApplicationCommand):
 			if not killall:
 				sublime.message_dialog("OK, I will preserve your existing settings.")
 				return
-		
+
 		with codecs.open(default_file,'r','UTF-8') as def_fp:
 			def_lines = def_fp.readlines()
 
@@ -144,7 +124,7 @@ class latextoolsMigrateCommand(sublime_plugin.ApplicationCommand):
 		# Modify text saying "don't touch this!" in the default file
 		def_lines[0] = '// LaTeXTools Preferences\n'
 		def_lines[2] = '// Keep in the User directory. Personalize as needed\n'
-		for i in range(3,10):
+		for i in range(3, 10):
 			def_lines.pop(3) # Must be 3: 4 becomes 3, then 5 becomes 3...
 
 		with codecs.open(user_file,'w','UTF-8') as user_fp:

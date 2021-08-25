@@ -1,0 +1,6 @@
+LaTeXTools Plugin version 4.0.0-alpha.2 (2017-06-13) changelog:
+
+Features:
+- Smart-paste: It is now possible to create figure environments and download images by pasting the url or file path via C-v (#1154)
+- Add commands to reveal the root, output, and aux directory (#1147)
+- Added a setting to define additional bib files (#472)

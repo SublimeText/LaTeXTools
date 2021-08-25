@@ -177,7 +177,7 @@ At a minimum, your `.sublime-build` file must have the following elements:
 
 ```json
 {
-	"target": "make_pdf",
+	"target": "latextools_make_pdf",
 	"selector": "text.tex.latex",
 
 	"osx":

@@ -2,33 +2,18 @@ import collections
 import copy
 import hashlib
 import os
+import pickle
 import re
 import shutil
-import time
 import threading
+import time
 import traceback
-
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
 
 import sublime
 
-if sublime.version() < '3000':
-    _ST3 = False
-    from latextools_utils import get_setting
-    from external.frozendict import frozendict
-    from latextools_utils.six import unicode, long, strbase
-    from latextools_utils.system import make_dirs
-    from latextools_utils.utils import ThreadPool
-else:
-    _ST3 = True
-    from . import get_setting
-    from ..external.frozendict import frozendict
-    from .six import unicode, long, strbase
-    from .system import make_dirs
-    from .utils import ThreadPool
+from . import get_setting
+from ..external.frozendict import frozendict
+from .utils import ThreadPool
 
 
 # the folder, if the local cache is not hidden, i.e. folder in the same
@@ -180,14 +165,10 @@ cache = cache_local
 write = write_local
 read = read_local
 
-if _ST3:
-    def _global_cache_path():
-        return os.path.normpath(os.path.join(
-            sublime.cache_path(), "LaTeXTools", "internal"))
-else:
-    def _global_cache_path():
-        return os.path.normpath(os.path.join(
-            sublime.packages_path(), "User", ST2_GLOBAL_CACHE_FOLDER))
+
+def _global_cache_path():
+    return os.path.normpath(os.path.join(
+        sublime.cache_path(), "LaTeXTools", "internal"))
 
 
 # marker class for invalidated result
@@ -367,7 +348,7 @@ class Cache(object):
                 for k in self._objects.keys():
                     _invalidate(k)
             else:
-                if isinstance(key, strbase):
+                if isinstance(key, str):
                     _invalidate(key)
                 else:
                     for k in key:
@@ -452,7 +433,7 @@ class Cache(object):
                         pass
 
                 if _objs:
-                    make_dirs(self.cache_path)
+                    os.makedirs(self.cache_path, exist_ok=True)
                     for k in _objs.keys():
                         try:
                             self._write(k, _objs)
@@ -475,7 +456,7 @@ class Cache(object):
                         print('error while deleting {0}'.format(file_path))
                         traceback.print_exc()
                 else:
-                    make_dirs(self.cache_path)
+                    os.makedirs(self.cache_path, exist_ok=True)
                     self._write(key, _objs)
 
     def save_async(self, key=None):
@@ -584,7 +565,7 @@ class ValidatingCache(Cache):
             self.validate_on_get(key)
         except ValueError as e:
             self.invalidate()
-            raise CacheMiss(unicode(e))
+            raise CacheMiss(str(e))
 
         return super(ValidatingCache, self).get(key)
 
@@ -710,7 +691,7 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
 
     def validate_on_set(self, key, obj):
         if not self.has(self._CACHE_TIMESTAMP):
-            Cache.set(self, self._CACHE_TIMESTAMP, long(time.time()))
+            Cache.set(self, self._CACHE_TIMESTAMP, int(time.time()))
 
     def _get_inst_key(self, *args, **kwargs):
         if not hasattr(self, 'tex_root'):
@@ -731,7 +712,7 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
 
         cache_life_span = LocalCache._get_cache_life_span()
 
-        current_time = long(time.time())
+        current_time = int(time.time())
         if timestamp + cache_life_span < current_time:
             return False
 
@@ -748,7 +729,7 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
         '''
         def __parse_life_span_string():
             try:
-                return long(life_span_string)
+                return int(life_span_string)
             except ValueError:
                 try:
                     (d, h, m, s) = TIME_RE.match(life_span_string).groups()
@@ -756,7 +737,7 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
                     times = [(s, 1), (m, 60), (h, 3600), (d, 86400)]
                     # sum the converted times
                     # if not specified (None) use 0
-                    return sum(long(t[0] or 0) * t[1] for t in times)
+                    return sum(int(t[0] or 0) * t[1] for t in times)
                 except:
                     print('error parsing life_span_string {0}'.format(
                         life_span_string))
