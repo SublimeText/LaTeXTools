@@ -6,7 +6,7 @@ import tempfile
 
 from . import get_setting
 from .distro_utils import using_miktex
-from .perl_installed import perl_installed
+from .perl_latexmk_installed import perl_latexmk_installed
 from .tex_directives import get_tex_root, parse_tex_directives
 from .sublime_utils import get_project_file_name
 
@@ -194,12 +194,10 @@ def get_jobname(view_or_root):
 
 
 def using_texify_or_simple():
-    builder = get_setting('builder', None)
-    if (builder == 'simple' or (
-            sublime.platform() == 'windows' and
-            using_miktex() and not perl_installed())
-    ):
-        return True
+    if using_miktex():
+        builder = get_setting('builder', 'traditional')
+        if (builder == 'simple' or not perl_latexmk_installed()):
+            return True
     return False
 
 

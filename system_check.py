@@ -400,8 +400,8 @@ class SystemCheckThread(threading.Thread):
 
         # a list of programs, each program is either a string or a list
         # of alternatives (e.g. 32/64 bit version)
-        # Add check "perl" and "texify" when Windows/Miktex
-        if sublime.platform() == 'windows' and self.uses_miktex:
+        # Add check "perl" and "latexmk" when Miktex
+        if self.uses_miktex:
             programs = [
                 'latexmk', 'perl', 'texify', 'pdflatex',
                 'xelatex', 'lualatex', 'biber', 'bibtex', 'bibtex8', 'kpsewhich'
