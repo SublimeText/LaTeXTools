@@ -218,6 +218,7 @@
 		// For MiKTeX
 		// "texpath" : "$PATH:/usr/local/bin:$HOME/bin",
 		// TeX distro: "miktex" or "texlive"
+		"distro" : "texlive"
 	},
 
 
