@@ -487,7 +487,7 @@ def parse_tex_log(data, root_dir):
 				# Sometimes it's " []" and sometimes it's "[]"...
 #				if len(line)>0 and line[:3] == " []" or line[:2] == "[]":
 				# NO, it really should be just " []"
-				if len(line)>0 and line == " []":
+				if len(line)>0 and line[-3:] == " []":
 					ou_processing = False
 				else:
 					current_badbox += line
