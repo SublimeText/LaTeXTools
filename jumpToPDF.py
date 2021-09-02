@@ -98,9 +98,9 @@ class LatextoolsJumpToPdfCommand(sublime_plugin.TextCommand):
 
 		view = self.view
 
-    file_name = view.file_name()
+		file_name = view.file_name()
 		if not is_tex_file(file_name):
-      if from_keybinding:
+			if from_keybinding:
 				sublime.error_message(
 					"%s is not a TeX source file: cannot jump." %
 					(os.path.basename(file_name),))
