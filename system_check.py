@@ -400,10 +400,17 @@ class SystemCheckThread(threading.Thread):
 
         # a list of programs, each program is either a string or a list
         # of alternatives (e.g. 32/64 bit version)
-        programs = [
-            'latexmk' if not self.uses_miktex else 'texify', 'pdflatex',
-            'xelatex', 'lualatex', 'biber', 'bibtex', 'bibtex8', 'kpsewhich'
-        ]
+        # Add check "perl" and "latexmk" when Miktex
+        if self.uses_miktex:
+            programs = [
+                'latexmk', 'perl', 'texify', 'pdflatex',
+                'xelatex', 'lualatex', 'biber', 'bibtex', 'bibtex8', 'kpsewhich'
+            ]
+        else:
+            programs = [
+                'latexmk', 'pdflatex',
+                'xelatex', 'lualatex', 'biber', 'bibtex', 'bibtex8', 'kpsewhich'
+            ]
 
         # ImageMagick requires gs to work with PDFs
         programs += [['magick', 'convert']]

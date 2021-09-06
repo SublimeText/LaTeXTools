@@ -6,6 +6,7 @@ import tempfile
 
 from . import get_setting
 from .distro_utils import using_miktex
+from .perl_latexmk_installed import perl_latexmk_installed
 from .tex_directives import get_tex_root, parse_tex_directives
 from .sublime_utils import get_project_file_name
 
@@ -32,7 +33,7 @@ class UnsavedFileException(Exception):
 # return_setting indicates that the raw setting should be returned
 # as well as the auxiliary directory
 def get_aux_directory(view_or_root, return_setting=False):
-    # not supported using texify or the simple builder
+    # not supported the Tex Live distro or using texify or the simple builder
     if not using_miktex() or using_texify_or_simple():
         if return_setting:
             return (None, None)
@@ -195,7 +196,7 @@ def get_jobname(view_or_root):
 def using_texify_or_simple():
     if using_miktex():
         builder = get_setting('builder', 'traditional')
-        if builder in ['', 'default', 'traditional', 'simple']:
+        if (builder == 'simple' or not perl_latexmk_installed()):
             return True
     return False
 

@@ -213,7 +213,12 @@
 
 	"osx": 	{
 		// Path used when invoking tex & friends; MUST include $PATH
-		"texpath" : "$PATH:/Library/TeX/texbin:/usr/texbin:/usr/local/bin:/opt/local/bin"
+		// For TeXlive 2011 (or other years) use
+		"texpath" : "$PATH:/Library/TeX/texbin:/usr/texbin:/usr/local/bin:/opt/local/bin",
+		// For MiKTeX
+		// "texpath" : "$PATH:/usr/local/bin:$HOME/bin",
+		// TeX distro: "miktex" or "texlive"
+		"distro" : "texlive"
 	},
 
 
@@ -237,7 +242,12 @@
 
 	"linux" : {
 		// Path used when invoking tex & friends; MUST include $PATH
+		// For TeXlive 2011 (or other years) use
 		"texpath" : "$PATH:/usr/texbin",
+		// For MiKTeX
+		// "texpath" : "$PATH:/usr/local/bin:$HOME/bin",
+		// TeX distro: "miktex" or "texlive"
+		"distro" : "texlive",
 		// Command to invoke Python. Useful if you have Python installed in a
 		// non-standard location or want to use a particular version of python.
 		// Both Python2 and Python3 are supported, but must have the DBus bindings
@@ -379,7 +389,8 @@
 	//					people writing their own build engines.
 	//
 	// "traditional"	replicates the 'old' system based on
-	//					latexmk (TeXLive) / texify (MiKTeX)
+	//					latexmk (TeXLive, MiKTeX) / texify
+	//					(MiKTeX, missing `Perl` interpreter and `latexmk` MiKTeX package)
 	//
 	// custom name		you can also use third-party build engines;
 	//					if so, set the "builder_path" option below
