@@ -1,4 +1,3 @@
-# ST2/ST3 compat
 import sublime
 import sublime_plugin
 
@@ -99,11 +98,19 @@ class LatextoolsJumpToPdfCommand(sublime_plugin.TextCommand):
 
 		view = self.view
 
-		if not is_tex_file(view.file_name()):
-			sublime.error_message(
-				"%s is not a TeX source file: cannot jump." %
-				(os.path.basename(view.fileName()),))
-			return
+    file_name = view.file_name()
+		if not is_tex_file(file_name):
+      if from_keybinding:
+				sublime.error_message(
+					"%s is not a TeX source file: cannot jump." %
+					(os.path.basename(file_name),))
+				return
+			# If not invoked from keybinding, it is invoked by the
+			# compilation process. Then, we should go forward with
+			# viewing the newly compiled PDF, but not try to sync
+			# forward (since that would be impossible).
+			else:
+				forward_sync = False
 
 		root = getTeXRoot.get_tex_root(view)
 		file_name = get_jobname(view)
