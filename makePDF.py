@@ -565,7 +565,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
 		# Safety check: if we are using a built-in builder, disregard
 		# builder_path, even if it was specified in the pref file
-		if builder_name in ['simple', 'traditional', 'script', 'basic']:
+		if builder_name in ['simple', 'traditional', 'script', 'basic','autolatex']:
 			builder_path = None
 		else:
 			# relative to ST packages dir!
