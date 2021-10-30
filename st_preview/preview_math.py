@@ -577,7 +577,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
     def is_applicable(cls, settings):
         try:
             view = inspect.currentframe().f_back.f_locals['view']
-            return view.score_selector(0, 'text.tex.latex') > 0
+            return len(view.find_by_selector('text.tex.latex')) > 0
         except KeyError:
             syntax = settings.get('syntax')
             return syntax == 'Packages/LaTeX/LaTeX.sublime-syntax'
