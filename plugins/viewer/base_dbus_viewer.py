@@ -1,12 +1,13 @@
-from base_viewer import BaseViewer
-
-from latextools_utils import get_setting
-from latextools_utils.external_command import external_command, check_call
-from latextools_utils.sublime_utils import get_sublime_exe
-
+from __future__ import annotations
 import os
-import sublime
 import shutil
+import sublime
+
+from ...latextools.utils.external_command import external_command, check_call
+from ...latextools.utils.settings import get_setting
+from ...latextools.utils.sublime_utils import get_sublime_exe
+
+from base_viewer import BaseViewer
 
 
 class BaseDBusViewer(BaseViewer):
@@ -17,10 +18,10 @@ class BaseDBusViewer(BaseViewer):
         self._app_command = shutil.which(app_command)
         self._monitor_processes = {}
 
-    def should_bring_viewer_forward(self):
+    def should_bring_viewer_forward(self) -> bool:
         raise NotImplementedError()
 
-    def launch_bring_viewer_forward(self, pdf_file):
+    def launch_bring_viewer_forward(self, pdf_file) -> None:
         check_call([self._app_command, pdf_file], shell=False, stdin=None, stdout=None, stderr=None, use_texpath=False)
 
     @classmethod
