@@ -22,7 +22,13 @@ Evince is the default viewer on Linux. On most installs that include the Gnome D
 
 There is one feature unique to Evince. If the `bring_evince_forward` setting in the `viewer_settings` block is set to `true` and `keep_focus` remains set to `true`, Evince will first be brought to the foreground and then focus will be returned ST.
 
-Evince is the default viewer since Gnome appears to be the most widely-used Linux desktop. However, LaTeXTools offers support for both [Okular](#okular) and [Zathura](#zathura). Additional viewers can be suppored use the [Command Viewer](#command-viewer).
+Evince is the default viewer since Gnome appears to be the most widely-used Linux desktop. However, LaTeXTools offers support for [Okular](#okular), [Zathura](#zathura) and [XReader](#xreader). Additional viewers can be suppored use the [Command Viewer](#command-viewer).
+
+## XReader
+
+XReader is the default viewer on Linux Mint. Like Evince, it should work out of the box, but some distributions do not install some of the needed files. In particular, you will need to ensure that your system Python install has the bindings for `dbus` and one or both of `python-gobject` or `python-gi` (the Python Gnome interface).
+
+Like Evince, if the `bring_forward` setting in the `viewer_settings` block is set to `true` and `keep_focus` remains set to `true`, XReader will first be brought to the foreground and then focus will be returned ST.
 
 ## Okular
 
