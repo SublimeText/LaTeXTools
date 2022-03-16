@@ -1,6 +1,9 @@
 from base_dbus_viewer import BaseDBusViewer
 from latextools_utils import get_setting
 
+import shutil
+import os
+
 
 class EvinceViewer(BaseDBusViewer):
     def should_bring_viewer_forward(self):
@@ -8,4 +11,14 @@ class EvinceViewer(BaseDBusViewer):
         return viewer_settings.get('bring_forward', viewer_settings.get('bring_evince_forward', False))
 
     def __init__(self):
-        super(EvinceViewer, self).__init__('org.gnome.evince', 'evince')
+        # On Mint /usr/bin/evince symlinks to xreader; in that case we need to use the right dbus name
+        dbus_name = 'org.gnome.evince'
+
+        evince_exe_name = shutil.which('evince')
+        if evince_exe_name is not None:
+            evince_exe_name = os.path.basename(os.path.realpath(evince_exe_name))
+            if evince_exe_name == 'xreader':
+                print('On this platform, Xreader provides Evince, will use Xreader DBus name')
+                dbus_name = 'org.x.reader'
+
+        super(EvinceViewer, self).__init__(dbus_name, 'evince')
