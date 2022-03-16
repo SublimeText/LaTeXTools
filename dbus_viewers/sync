@@ -1,0 +1,419 @@
+#!/usr/bin/env python3
+import subprocess
+import time
+
+import dbus
+import dbus.mainloop.glib
+import sys
+import urllib.parse
+import shutil
+import threading
+from typing import Optional, Callable, Tuple, List, Union
+try:
+    from typing import TypeAlias
+except ImportError:
+    from typing import Any as TypeAlias
+
+DBusName: TypeAlias = str
+LineCol: TypeAlias = Tuple[int, int]
+
+try:
+    from gobject import MainLoop
+except ImportError:
+    try:
+        from gi.repository import GLib
+        MainLoop = GLib.MainLoop
+    except ImportError:
+        print('Could not import MainLoop from neither gobject or gi.repository.GLib!', file=sys.stderr)
+        sys.exit(1)
+
+
+def file_path_to_document_uri(path: str):
+    # The document file name MUST be URI-encoded
+    # RFC 1738: unreserved = alpha | digit | safe | extra
+    #           safe       = "$" | "-" | "_" | "." | "+"
+    #           extra      = "!" | "*" | "'" | "(" | ")" | ","
+    return 'file://' + urllib.parse.quote(path, "/$+!*'(),@=~")
+
+
+def document_uri_to_file_path(uri: str):
+    return urllib.parse.unquote(urllib.parse.urlparse(uri).path)
+
+
+class SignalReceiver:
+    """
+    Context-managed signal handling. It will call `dbus.SessionBus.add_signal_receiver` and
+    `dbus.SessionBus.remove_signal_receiver` upon entrance and exit.
+    A DBus loop (e.g. `DBusLoop`) must be running for the events to be received.
+    """
+    def __init__(self, bus: dbus.SessionBus, signal_name: str, handler: Callable,
+                 name_and_path: Optional[Union[Tuple[DBusName, str], dbus.proxies.ProxyObject]] = None,
+                 dbus_interface: Optional[DBusName] = None,
+                 byte_arrays: bool = False,
+                 sender_keyword: Optional[str] = None,
+                 destination_keyword: Optional[str] = None,
+                 interface_keyword: Optional[str] = None,
+                 member_keyword: Optional[str] = None,
+                 path_keyword: Optional[str] = None,
+                 message_keyword: Optional[str] = None):
+        """
+        :param bus: The `dbus.SessionBus` to attach signal to
+        :param signal_name: Signal name
+        :param handler: Handler function for the signal
+        :param name_and_path: An optional pair of strings (the first being a name, the second a path, for example
+            `('org.x.reader.Window', '/org/x/reader/Window/0')`), or an equivalent proxy object that provies both.
+            Specifying `None` means that any sender and any object path will be matched.
+        :param dbus_interface: See `dbus.SessionBus.add_signal_handler` for the meaning of this parm.
+        :param byte_arrays: See `dbus.SessionBus.add_signal_handler` for the meaning of this parm.
+        :param sender_keyword: See `dbus.SessionBus.add_signal_handler` for the meaning of this parm.
+        :param destination_keyword: See `dbus.SessionBus.add_signal_handler` for the meaning of this parm.
+        :param interface_keyword: See `dbus.SessionBus.add_signal_handler` for the meaning of this parm.
+        :param member_keyword: See `dbus.SessionBus.add_signal_handler` for the meaning of this parm.
+        :param path_keyword: See `dbus.SessionBus.add_signal_handler` for the meaning of this parm.
+        :param message_keyword: See `dbus.SessionBus.add_signal_handler` for the meaning of this parm.
+        """
+        self._bus = bus
+        bus_name: Optional[DBusName] = None
+        path: Optional[str] = None
+        if name_and_path is not None:
+            if isinstance(name_and_path, dbus.proxies.ProxyObject):
+                bus_name, path = name_and_path.bus_name, name_and_path.object_path
+            else:
+                bus_name, path = name_and_path
+        self._signal_name = signal_name
+        self._handler = handler
+        self._active = False
+        self._kwargs = {
+            'dbus_interface': dbus_interface,
+            'bus_name': bus_name,
+            'path': path,
+            'byte_arrays': byte_arrays,
+            'sender_keyword': sender_keyword,
+            'destination_keyword': destination_keyword,
+            'interface_keyword': interface_keyword,
+            'member_keyword': member_keyword,
+            'path_keyword': path_keyword,
+            'message_keyword': message_keyword
+        }
+
+    @property
+    def is_active(self) -> bool:
+        return self._active
+
+    def __enter__(self):
+        if not self.is_active:
+            self._active = True
+            self._bus.add_signal_receiver(self._handler, self._signal_name, **self._kwargs)
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.is_active:
+            self._active = False
+            self._bus.remove_signal_receiver(self._handler, self._signal_name, **self._kwargs)
+
+
+class DBusLoop:
+    """
+    Runs a DBus loop (either a `gobject.MainLoop` or `gi.repository.GLib.MainLoop` on separate, contextually managed,
+    thread.
+    """
+    def __init__(self):
+        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+        self._loop = MainLoop()
+        self._loop_thread = threading.Thread(target=self._loop.run, name='DBus Loop')
+
+    def __enter__(self):
+        if not self.is_active:
+            self._loop_thread.start()
+        return self
+
+    @property
+    def is_active(self) -> bool:
+        return self._loop_thread.is_alive()
+
+    def join(self, timeout_secs: Optional[float] = None):
+        """
+        Waits until the loop is stopped. It will timeout after `timeout_secs`, if specified (see
+        `threading.Thread.join`).
+        """
+        if self.is_active:
+            self._loop_thread.join(timeout_secs)
+
+    def cancel(self):
+        """
+        Cancels the current loop (but does not wait to join it).
+        """
+        if self.is_active:
+            self._loop.quit()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.cancel()
+
+
+class ViewerDBusInterface:
+    """
+    Interfaces to a generic document viewer, like Evince or XReader, via DBus.
+    """
+    _SENDER_KW = 'sender'
+
+    def __init__(self, app_bus_name: str, follow_name_owner_changes: bool = False):
+        """
+        :param app_bus_name: Bus name of the app, like `org.x.reader` or `org.gnome.evince`.
+        :param follow_name_owner_changes: Set to True if you are going to watch signals with `watch_document_loaded`
+            or with `watch_sync_source`
+        """
+        self._app_bus_name = app_bus_name
+        self._daemon_name: DBusName = f'{self._app_bus_name}.Daemon'
+        self._window_name: DBusName = f'{self._app_bus_name}.Window'
+        self._daemon_path = '/' + self._daemon_name.replace('.', '/')
+        self._window_path = '/' + self._window_name.replace('.', '/') + '/0'
+        self._bus = dbus.SessionBus()
+        self._daemon = self._bus.get_object(self._daemon_name, self._daemon_path,
+                                            follow_name_owner_changes=follow_name_owner_changes)
+
+    def watch_document_loaded(self, handler: Callable[[str, DBusName], None]) -> SignalReceiver:
+        """
+        Returns a `SignalReceiver` instance set up to react to a `DocumentLoaded` event from the viewer.
+        A DBus loop (e.g. `DBusLoop`) must be running for the events to be received.
+        :param handler: A function taking two arguments, the path of the document opened, and the DBus name of the
+            sender, as in `def handler(document: str, sender: DBusName): pass`.
+        """
+        def _doc_loaded_wrapper(document_uri: str, *_, **kwargs):
+            handler(document_uri_to_file_path(document_uri), kwargs.get(self._SENDER_KW, ''))
+        return SignalReceiver(self._bus, 'DocumentLoaded', _doc_loaded_wrapper, dbus_interface=self._window_name,
+                              sender_keyword=self._SENDER_KW)
+
+    def watch_sync_source(self, handler: Callable[[str, LineCol, DBusName], None],
+                          window: Optional[dbus.proxies.ProxyObject] = None) -> SignalReceiver:
+        """
+        Returns a `SignalReceiver` instance set up to react to a `SyncSource` (Ctrl+click) event from the viewer.
+        A DBus loop (e.g. `DBusLoop`) must be running for the events to be received.
+        :param handler: A function taking three arguments, the path of the source code file, the line and column of the
+            clicked point, and the DBus name of the sender, as in
+            `def handler(source: str, link: LineCol, sender: DBusName): pass`
+        :param window: Optional window to filter the events. If specified, only events coming from this window will be
+            handled.
+        """
+        def _sync_src_wrapper(source_uri: str, link: LineCol, *_, **kwargs):
+            handler(document_uri_to_file_path(source_uri), link, kwargs.get(self._SENDER_KW, ''))
+        return SignalReceiver(self._bus, 'SyncSource', _sync_src_wrapper, name_and_path=window,
+                              dbus_interface=self._window_name,
+                              sender_keyword=self._SENDER_KW)
+
+    def forward_sync(self, window_or_doc_name: Union[dbus.proxies.ProxyObject, DBusName], source: str, link: LineCol):
+        """
+        Calls a `SyncView` method through DBus.
+        :param window_or_doc_name: Document window to target with the command, you can get one with `get_main_window`,
+            or the document DBus name (in that case, the method calls `get_main_window` by itself, but might raise
+            a `RuntimeError` if the window is not found.
+        :param source: Path to the source code file.
+        :param link: Line and column in the source code file.
+        """
+        if isinstance(window_or_doc_name, DBusName):
+            window_or_doc_name = self.get_main_window(window_or_doc_name)
+            if window_or_doc_name is None:
+                raise RuntimeError('Could not find window.')
+        # GDK_CURRENT_TIME constant -------- -----v
+        window_or_doc_name.SyncView(source, link, 0, dbus_interface=self._window_name)
+
+    def get_main_window(self, document_name: DBusName) -> Optional[dbus.proxies.ProxyObject]:
+        """
+        Attempts at getting the main window (the first window) associated to the given `document_name`.
+        """
+        try:
+            return self._bus.get_object(document_name, self._window_path)
+        except dbus.exceptions.DBusException:
+            pass
+
+    def find_document(self, document: str, spawn: bool = False) -> Optional[DBusName]:
+        """
+        Tries to find the document DBus name for `document` if it is open, and optionally opens it.
+        :param document: Path to the document to open.
+        :param spawn: If True and the document is not opened, it will be opened.
+        """
+        document_uri = file_path_to_document_uri(document)
+        try:
+            document_name: DBusName = self._daemon.FindDocument(document_uri, spawn, dbus_interface=self._daemon_name)
+            return document_name if document_name is not None and document_name != '' else None
+        except dbus.exceptions.DBusException:
+            pass
+
+
+class SyncSourceMonitor:
+    """
+    Watches for a `SyncSource` signals and calls back the editor with the source file, line and column.
+    A DBus loop (e.g. `DBusLoop`) must be running for the events to be received.
+    """
+    def __init__(self, app_bus_name: str, document: str, editor_command: List[str], spawn: bool = False):
+        """
+        :param app_bus_name: Bus name of the app, like `org.x.reader` or `org.gnome.evince`.
+        :param document: Path to the document to open
+        :param editor_command: Editor command to launch. Occurrences of `%f`, `%l`, `%c` will be replaced with the
+            source code file path, line number, and column number respectively.
+        :param spawn: If True, the document will be opened if it is not already.
+        """
+        self.interface = ViewerDBusInterface(app_bus_name, follow_name_owner_changes=True)
+        self._document = document
+        self._editor_command = editor_command
+        self._spawn = spawn
+        self._doc_loaded_receiver = self.interface.watch_document_loaded(self._on_document_loaded)
+        self._sync_source_receiver: Optional[SignalReceiver] = None
+
+    @staticmethod
+    def get_editor_command(editor_command: List[str], source: str, link: LineCol) -> List[str]:
+        """
+        Assembles the editor command by replacing `%f`, `%l`, `%c` with the source code file path, line number, and
+        column number respectively, and resolving the first item of `editor_command` with `shutil.which`.
+        """
+        def _replace_flc(s: str):
+            return s.replace('%f', str(source)).replace('%l', str(link[0])).replace('%c', str(link[1]))
+        editor_command = list(map(_replace_flc, editor_command))
+        candidate_exe = shutil.which(editor_command[0])
+        if candidate_exe is not None:
+            editor_command[0] = candidate_exe
+        return editor_command
+
+    def _on_document_loaded(self, document: str, sender: DBusName):
+        if document == self._document:
+            self._register_sync_source_signal(sender)
+
+    def _on_sync_source(self, source: str, link: LineCol, _: DBusName):
+        command = self.get_editor_command(self._editor_command, source, link)
+        subprocess.call(command, shell=False)
+
+    def _register_sync_source_signal(self, document_name: DBusName):
+        window = self.interface.get_main_window(document_name)
+        if window is None:
+            return
+        do_activate = self._doc_loaded_receiver.is_active
+        if do_activate and self._sync_source_receiver is not None:
+            self._sync_source_receiver.__exit__(None, None, None)
+        self._sync_source_receiver = self.interface.watch_sync_source(self._on_sync_source, window=window)
+        if do_activate:
+            self._sync_source_receiver.__enter__()
+
+    def __enter__(self):
+        self._doc_loaded_receiver.__enter__()
+        # Find the document if it exists. This has to happen upon entrance because if we spawn, we need to be able
+        # to catch the event
+        document_name = self.interface.find_document(self._document, spawn=self._spawn)
+        if document_name:
+            self._register_sync_source_signal(document_name)
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self._sync_source_receiver is not None:
+            self._sync_source_receiver.__exit__(exc_type, exc_val, exc_tb)
+            self._sync_source_receiver = None
+        self._doc_loaded_receiver.__exit__(exc_type, exc_val, exc_tb)
+
+
+def main(args):
+    def _attempt_forward_sync(interface: ViewerDBusInterface) -> bool:
+        sync_successful = threading.Event()
+        did_handle_document_loaded = threading.Event()
+        source: str = args.forward[0]
+        link: LineCol = (args.forward[1] if args.forward[1] is not None else 1,
+                         args.forward[2] if args.forward[2 ] is not None else 1)
+
+        def _handle_document_loaded(loaded_document: str, document_name: DBusName):
+            if loaded_document == args.document:
+                # Make sure to wait a bit until the doc is set up
+                time.sleep(args.sync_wait)
+                try:
+                    interface.forward_sync(document_name, source, link)
+                    sync_successful.set()
+                except RuntimeError:
+                    print('The document was loaded but no window was available.', file=sys.stderr)
+                except dbus.DBusException:
+                    print('Unable to communicate with the viewer through DBus.', file=sys.stderr)
+                # Signal the forward sync is done anyways
+                did_handle_document_loaded.set()
+
+        try:
+            # Register to DocumentLoaded events in case we need to spawn the document ourselves:
+            with interface.watch_document_loaded(_handle_document_loaded):
+                maybe_document_name = interface.find_document(args.document, spawn=False)
+                if maybe_document_name is not None:
+                    # Trigger the forward sync manually
+                    interface.forward_sync(maybe_document_name, source, link)
+                    return True
+                elif args.spawn:
+                    # Let the spawning handle that
+                    interface.find_document(args.document, spawn=True)
+                    did_handle_document_loaded.wait()
+                    return sync_successful.is_set()
+        except RuntimeError:
+            print('The document was loaded but no window was available.', file=sys.stderr)
+        except dbus.DBusException:
+            print('Unable to communicate with the viewer through DBus.', file=sys.stderr)
+        return False
+
+    with DBusLoop() as loop:
+        if args.backward is not None:
+            # Setup a waiting instance. Only spawn if we require to do so but don't specify any forward sync
+            with SyncSourceMonitor(args.dbus_name, args.document, args.backward,
+                                   spawn=args.spawn and args.forward is None) as monitor:
+                if args.forward is not None:
+                    if not _attempt_forward_sync(monitor.interface):
+                        print('Cannot do forward synchronization because the document is not open.', file=sys.stderr)
+                try:
+                    loop.join()
+                except KeyboardInterrupt:
+                    pass
+                except (RuntimeError, dbus.DBusException):
+                    sys.exit(1)
+                finally:
+                    loop.cancel()
+        elif args.forward is not None:
+            # Setup just a dbus interface
+            if not _attempt_forward_sync(ViewerDBusInterface(args.dbus_name, follow_name_owner_changes=True)):
+                sys.exit(1)
+        else:
+            # Just find the document if it exists, and return accordingly
+            try:
+                doc_dbus_name = ViewerDBusInterface(args.dbus_name).find_document(args.document, args.spawn)
+            except (RuntimeError, dbus.DBusException):
+                doc_dbus_name = None
+            if doc_dbus_name is None:
+                sys.exit(1)
+
+
+if __name__ == '__main__':
+    from argparse import ArgumentParser
+    import re
+
+    _RGX_LN_COL = re.compile(r'^(.+?)(:\d+)?(:\d+)?$')
+
+    def _parse_source_link(s: str) -> Tuple[str, Optional[int], Optional[int]]:
+        m = _RGX_LN_COL.match(s)
+        if m is None:
+            raise TypeError(f'Unable to get line and column from {repr(s)}')
+        line = int(m.group(2)[1:]) if m.group(2) is not None else None
+        col = int(m.group(3)[1:]) if m.group(3) is not None else None
+        return m.group(1), line, col
+
+    _parser = ArgumentParser(description='Synchronizes source code and viewer via DBus.')
+    _parser.add_argument('--dbus-name', default='org.gnome.evince',
+                         help='DBus name to target, e.g. org.gnome.evince (default), org.x.reader.')
+    _parser.add_argument('--spawn', action='store_true', default=False,
+                         help='Opens the document if it is not open already. By default, this does not happen.')
+    _parser.add_argument('--sync-wait', type=float, default=0.2,
+                         help='Seconds to wait after opening the document before sending a sync command in forward '
+                              'synchronization. Default to 0.2.')
+    _parser.add_argument('--document', required=True,
+                         help='Document to visualize, e.g. the PDF file path.')
+    _parser.add_argument('--forward', metavar='SOURCE_FILE[:LINE[:COLUMN]]', required=False, type=_parse_source_link,
+                         help='Triggers source code to viewer synchronization to the specified source file and line.')
+    _parser.add_argument('--backward', metavar='EDITOR_CMD', required=False, nargs='+',
+                         help='Watches for synchronize source (Ctrl+Click) events on the viewer and calls the editor '
+                              'with this command line. All occurrences of %%f, %%l, %%c are replaced with the source '
+                              'code file, line and column respectively.')
+
+    _args = _parser.parse_args()
+    try:
+        main(_args)
+    except KeyboardInterrupt:
+        pass
+    except (dbus.DBusException, RuntimeError) as e:
+        sys.exit(1)
