@@ -60,7 +60,7 @@ You can use the **LaTeXTools: Check System** command to verify that these are in
 
 To edit the LaTeXTools user settings, select **Preferences | Package Settings | LaTeXTools | Settings – User** from the ST menu and scroll down to the  section titled **Platform settings** and find the **osx** block. 
 
-Within that block, verify that the `"texpath"` setting is correct. This setting is use by LaTeXTools to determine the `PATH` used for running TeX and friends which, because of how LaunchControl works will differ from your path on the shell. The default value should work with MacTeX installed in the normal way, but you will want to verify that this setting is correct. Note that your `"texpath"` **must** include `$PATH`.
+Within that block, verify that the `"texpath"` setting is correct. This setting is used by LaTeXTools to determine the `PATH` used for running TeX and friends which, because of how LaunchControl works will differ from your path on the shell. The default value should work with MacTeX installed in the normal way, but you will want to verify that this setting is correct. Note that your `"texpath"` **must** include `$PATH`.
 
 <!-- TODO: does this belong here? -->
 ### El Capitan
