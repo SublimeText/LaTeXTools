@@ -161,7 +161,7 @@ class BasicBuilder(PdfBuilder):
             'Package natbib Warning: There were undefined citations'
                 in self.out):
             run_bibtex = True
-        elif ('LaTeX Warning: There were undefined references.' in self.out) || ('Package biblatex Warning: Please (re)run Biber on the file' in self.out):
+        elif ('LaTeX Warning: There were undefined references.' in self.out) && ('Package biblatex Warning: Please (re)run Biber on the file' in self.out):
             run_bibtext = True
 
         if run_bibtex:
