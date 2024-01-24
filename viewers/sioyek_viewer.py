@@ -123,7 +123,6 @@ class SioyekViewer(BaseViewer):
     def forward_sync(self, pdf_file, tex_file, line, col, **kwargs):
         src_file = tex_file
         self._run_with_sioyek_exe([
-            '--reuse-instance',
             '--forward-search-file',
             src_file,
             '--forward-search-line',
