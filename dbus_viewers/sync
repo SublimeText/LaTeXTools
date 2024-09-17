@@ -266,7 +266,10 @@ class SyncSourceMonitor:
         column number respectively, and resolving the first item of `editor_command` with `shutil.which`.
         """
         def _replace_flc(s: str):
-            return s.replace('%f', str(source)).replace('%l', str(link[0])).replace('%c', str(link[1]))
+            line, col = link
+            line = max(0, line)
+            col = max(0, col)
+            return s.replace('%f', str(source)).replace('%l', str(line)).replace('%c', str(col))
         editor_command = list(map(_replace_flc, editor_command))
         candidate_exe = shutil.which(editor_command[0])
         if candidate_exe is not None:
