@@ -11,16 +11,16 @@ import sublime_plugin
 
 from .latextools_utils import is_bib_buffer, is_biblatex_buffer
 
-__dir__ = os.path.dirname(__file__)
-if __dir__ == '.':
-    __dir__ = os.path.join(sublime.packages_path(), 'LaTeXTools')
+__dir = os.path.dirname(__file__)
+if __dir == '.':
+    __dir = os.path.join(sublime.packages_path(), 'LaTeXTools')
 
 
 def _get_completions(ext):
     completions = []
 
     for root, dirs, files in os.walk(
-            os.path.join(__dir__, 'snippets')):
+            os.path.join(__dir, 'snippets')):
         files = [f for f in files if f.endswith(ext)]
 
         for f in files:
