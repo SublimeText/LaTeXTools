@@ -2,7 +2,7 @@
 	<content><![CDATA[
 \begin{table}[${1:tb}]
 	\caption{${2:caption here}}
-	\label{${3:tab:tablename}}
+	\label{tab:${3:tablename}}
 	\centering
 
 	\begin{tabular}{${4:l|cc}}
