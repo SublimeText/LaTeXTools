@@ -21,7 +21,7 @@ from .getTeXRoot import get_tex_root
 from .latextools_utils import get_setting, analysis, utils
 from .latextools_utils.parser_utils import command_to_snippet
 
-__all__ = ['get_cwl_completions', 'is_cwl_available']
+__all__ = ['get_cwl_completions', 'is_cwl_available', 'LatexCwlCompletion']
 
 # Do not do completions in these environments
 ENV_DONOT_AUTO_COM = [
