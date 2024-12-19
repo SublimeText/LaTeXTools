@@ -104,9 +104,9 @@ def _generate_package_cache():
 
     # create the cache object
     pkg_cache = {
-        'pkg': installed_tex_items['sty'],
-        'bst': installed_bst['bst'],
-        'cls': installed_tex_items['cls']
+        'pkg': installed_tex_items.get('sty', []),
+        'bst': installed_bst.get('bst', []),
+        'cls': installed_tex_items.get('cls', [])
     }
 
     # For ST3, put the cache files in cache dir
