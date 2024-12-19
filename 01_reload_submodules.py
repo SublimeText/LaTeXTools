@@ -9,7 +9,12 @@ import sublime
 import sys
 import traceback
 
-from imp import reload
+try:
+    # python 3.8+
+    from importlib import reload
+except ImportError:
+    # python 3.3
+    from imp import reload
 
 
 def _load_module_exports(module):

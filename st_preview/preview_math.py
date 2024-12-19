@@ -413,6 +413,14 @@ def _generate_html(view, image_path, style_kwargs):
     return html_content
 
 
+class PhantomNamepace(types.SimpleNamespace):
+    """
+    A hashable SimpleNamespace required for python 3.8 compatibility
+    """
+    def __hash__(self):
+        return self.id
+
+
 class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
                                  preview_utils.SettingsListener):
     key = "preview_math"
@@ -757,7 +765,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
                 p.content = content
                 p.layout = layout
             except Exception:
-                p = types.SimpleNamespace(
+                p = PhantomNamepace(
                     id=None,
                     region=region,
                     content=content,
