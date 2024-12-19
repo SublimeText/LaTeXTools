@@ -76,14 +76,14 @@ macros = {
 }
 
 class LatextoolsTexMacroCommand(sublime_plugin.TextCommand):
-	def run(self, edit, **args):
-		currsel = self.view.sel()[0]
-		currword = self.view.word(currsel)
-		k = self.view.substr(currword)
-		if macros.has_key(k):
-			self.view.replace(edit, currword, macros[k])
-		else:
-			sublime.error_message("%s is not a valid TeX symbol shortcut" % (k,))
+    def run(self, edit, **args):
+        currsel = self.view.sel()[0]
+        currword = self.view.word(currsel)
+        k = self.view.substr(currword)
+        if macros.has_key(k):
+            self.view.replace(edit, currword, macros[k])
+        else:
+            sublime.error_message("%s is not a valid TeX symbol shortcut" % (k,))
 
 
 deprecate(globals(), 'tex_macroCommand', LatextoolsTexMacroCommand)
