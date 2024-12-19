@@ -559,26 +559,4 @@ class objectview(object):
     """
 
     def __init__(self, d):
-        self.__dict__['_d'] = d
-
-    def __getattr__(self, attr):
-        return self._d[attr]
-
-    def __setattr__(self, attr, value):
-        raise TypeError('cannot set value on an objectview')
-
-    def copy(self, **add_or_replace):
-        new_dict = self._d.copy()
-        if add_or_replace:
-            new_dict.update(**add_or_replace)
-        return objectview(new_dict)
-
-    def __deepcopy__(self, memo):
-        cls = self.__class__
-        result = cls.__new__(cls)
-        memo[id(self)] = result
-        result.__dict__['_d'] = copy.deepcopy(self.__dict__['_d'], memo)
-        return result
-
-    def __repr__(self):
-        return repr(self._d)
+        self.__dict__.update(d)
