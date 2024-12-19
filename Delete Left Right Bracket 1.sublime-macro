@@ -1,0 +1,20 @@
+[
+    // extra char
+    { "command": "left_delete" },
+    // the word \left
+    { "command": "left_delete" },
+    { "command": "left_delete" },
+    { "command": "left_delete" },
+    { "command": "left_delete" },
+    { "command": "left_delete" },
+
+    // the word \right
+    { "command": "right_delete" },
+    { "command": "right_delete" },
+    { "command": "right_delete" },
+    { "command": "right_delete" },
+    { "command": "right_delete" },
+    { "command": "right_delete" },
+    // extra char
+    { "command": "right_delete" },
+]

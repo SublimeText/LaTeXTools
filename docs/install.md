@@ -60,7 +60,7 @@ You can use the **LaTeXTools: Check System** command to verify that these are in
 
 To edit the LaTeXTools user settings, select **Preferences | Package Settings | LaTeXTools | Settings – User** from the ST menu and scroll down to the  section titled **Platform settings** and find the **osx** block. 
 
-Within that block, verify that the `"texpath"` setting is correct. This setting is use by LaTeXTools to determine the `PATH` used for running TeX and friends which, because of how LaunchControl works will differ from your path on the shell. The default value should work with MacTeX installed in the normal way, but you will want to verify that this setting is correct. Note that your `"texpath"` **must** include `$PATH`.
+Within that block, verify that the `"texpath"` setting is correct. This setting is used by LaTeXTools to determine the `PATH` used for running TeX and friends which, because of how LaunchControl works will differ from your path on the shell. The default value should work with MacTeX installed in the normal way, but you will want to verify that this setting is correct. Note that your `"texpath"` **must** include `$PATH`.
 
 <!-- TODO: does this belong here? -->
 ### El Capitan
@@ -169,6 +169,6 @@ Unlike other viewers and platforms, Evince forward and backward search should wo
 
 To edit the LaTeXTools user settings, select **Preferences | Package Settings | LaTeXTools | Settings – User** from the ST menu and scroll down to the  section titled **Platform settings** and find the **linux** block.
 
-Within that block, verify that the `"texpath"` setting is correct. This setting is use by LaTeXTools to determine the `PATH` used for running TeX and friends. Please note that if you use Unity (the default launcher on Ubuntu), ST can end up "seeing" a different `PATH` then you will in the terminal. This is because Unity inherits its environment from `/bin/sh` rather than `/bin/bash`, `/bin/zsh`, `/bin/fish`, etc. This means that you may need to add the path to TeX and friends to your `"texpath"` for LaTeXTools to work.
+Within that block, verify that the `"texpath"` setting is correct. This setting is used by LaTeXTools to determine the `PATH` used for running TeX and friends. Please note that if you use Unity (the default launcher on Ubuntu), ST can end up "seeing" a different `PATH` than you will in the terminal. This is because Unity inherits its environment from `/bin/sh` rather than `/bin/bash`, `/bin/zsh`, `/bin/fish`, etc. This means that you may need to add the path to TeX and friends to your `"texpath"` for LaTeXTools to work.
 
 If your `PATH` contains a Python distribution that is not the default Python distribution, it may be necessary to configure the `"python"` setting to point to the system Python distribution. There have been reports of issues using `dbus` and `gobject` on **conda** and similar Python releases.

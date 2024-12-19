@@ -1,0 +1,6 @@
+LaTeXTools Plugin version 4.0.0-alpha.3 (2017-06-XX) changelog:
+
+Features:
+
+Bugfixes:
+- Fixed a bug, which disabled smart-paste for images

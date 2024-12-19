@@ -45,6 +45,10 @@
 	// You can also use the toggle C-l,t,a,b
 	"smart_bracket_auto_trigger": true,
 
+	// Controls whether the labels should automatically filled with a suggestion based
+	// on the section command.
+	"auto_label_auto_trigger": true,
+
 	// Keep focus on Sublime Text after building (true) or switch to PDF viewer (false)
 	// If you are on Windows or Linux and using ST2, you may need to set the
 	// "sublime_executable" setting for this to work in your platform settings.
@@ -55,6 +59,12 @@
 	// Set this to false to disable the overwriting of the goto overlay for the hotkey `C-r` and `C-shift-r`
 	// You can still access the "table of content quickpanel" via `C-l, C-r` and  `C-shift-l, C-r`
 	"overwrite_goto_overlay": true,
+
+	// If smart paste is enabled LaTeXTools will overwrite the C-v command and
+	// analyze the clipboard content to check whether it should execute an action.
+	// So you can just paste image urls or paths into Sublime Text and it will automatically
+	// download the image and create a figure environment.
+	"enable_smart_paste": true,
 
 	// When to trigger cwl-command completion (requires the LaTeX-cwl package)
 	// possible values are:
@@ -148,15 +158,6 @@
 	// therefore you can create a blacklist of such environments here.
 	"preview_math_no_star_envs": ["displaymath"],
 
-	// The density of the preview image. The higher the density the bigger the phantom.
-	"preview_math_density": 150,
-	// If the image is not sharp enough increase this scale to get a better resolution.
-	// However also change the density by the same factor to keep the size.
-	"preview_math_scale_quotient": 1,
-	// If this is true, the image will be rendered at a higher resolution and
-	// then scaled down. This generally results in a clearer image.
-	"preview_math_hires": true,
-
 	// IMAGE PREVIEW
 
 	// The preview mode for image preview, possible values are:
@@ -196,10 +197,15 @@
 		".lof",".toc",".fls",".fdb_latexmk",".pdfsync",".synctex.gz",
 		".ind",".ilg",".idx"
 	],
+
 	// Folders that are not traversed when deleting temp files
 	"temp_files_ignored_folders": [
 		".git", ".svn", ".hg"
 	],
+
+	// If true, deleting temporary files will display an
+	// "Are you sure" prompt
+	"temp_files_prompt_on_delete": false,
 
 // ------------------------------------------------------------------
 // Platform settings: adapt as needed for your machine
@@ -208,8 +214,6 @@
 	"osx": 	{
 		// Path used when invoking tex & friends; MUST include $PATH
 		"texpath" : "$PATH:/Library/TeX/texbin:/usr/texbin:/usr/local/bin:/opt/local/bin"
-		// Path to PDF viewer, if needed
-		// TODO think about it. Also, maybe configure it here!
 	},
 
 
@@ -225,7 +229,7 @@
 		// Command to invoke Sublime Text. Used if the keep_focus toggle is true.
 		// If blank, "subl.exe" or "sublime_text.exe" will be used.
 		"sublime_executable": "",
-		// how long (in seconds) to wait after the jump_to_pdf command completes
+		// how long (in seconds) to wait after the latextools_jump_to_pdf command completes
 		// before switching focus back to Sublime Text. This may need to be
 		// adjusted depending on your machine and configuration.
 		"keep_focus_delay": 0.5
@@ -251,7 +255,7 @@
 		// Command to invoke Sublime Text. Used if the keep_focus toggle is true.
 		// If blank, "subl" or "sublime_text" will be used.
 		"sublime_executable": "",
-		// how long (in ms) to wait after the jump_to_pdf command completes
+		// how long (in ms) to wait after the latextools_jump_to_pdf command completes
 		// before switching focus back to Sublime Text. This may need to be
 		// adjusted depending on your machine and configuration.
 		"keep_focus_delay": 0.5
@@ -551,6 +555,15 @@
 	//						formatting and additional fields, but may
 	//						be slower
 	"bibliography": "traditional",
+
+
+	// OPTION: "additional_bibliography_file"
+	// With this setting you can add the path to one or more additional
+	// bibliography files. You can either pass a string containing the path
+	// to the additional bibliography file or an array with several paths.
+	// The path can either be absolute or relative from the tex root.
+	// Set it to "" if you don't have an additional bibliography file.
+	"additional_bibliography_file": "",
 
 	// OPTION: "cite_panel_format"
 	// This preference sets the format of the quick panel to select citations using wildcards.

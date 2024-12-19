@@ -9,7 +9,7 @@
 
 {
 
-	"target": "make_pdf",
+	"target": "latextools_make_pdf",
 	"selector": "text.tex.latex",
 
 	"osx":

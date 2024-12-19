@@ -1,6 +1,6 @@
 from latextools_plugin import LaTeXToolsPlugin
 
-from external import latex_chars
+from LaTeXTools.external import latex_chars
 from latextools_utils import bibcache
 
 import codecs
@@ -8,7 +8,7 @@ import re
 import sublime
 import traceback
 
-kp = re.compile(r'@[^\{]+\{\s*(.+)\s*,', re.UNICODE)
+kp = re.compile(r'@[^\{]+\{\s*(.+)\s*,')
 # new and improved regex
 # we must have "title" then "=", possibly with spaces
 # then either {, maybe repeated twice, or "
@@ -31,7 +31,7 @@ kp = re.compile(r'@[^\{]+\{\s*(.+)\s*,', re.UNICODE)
 multip = re.compile(
     r'\b(author|title|year|editor|journal|eprint)\s*=\s*'
     r'(?:\{|"|\b)(.+?)(?:\}+|"|\b)\s*,?\s*\Z',
-    re.IGNORECASE | re.UNICODE
+    re.IGNORECASE
 )
 
 # LaTeX -> Unicode decoder
@@ -107,7 +107,7 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                 if 'keyword' in entry:
                     bib_entries.append(entry)
 
-                print ('Loaded %d bibitems' % (len(bib_entries)))
+                print('Loaded %d bibitems' % (len(bib_entries)))
 
                 try:
                     bib_cache.set(bib_entries)

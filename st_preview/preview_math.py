@@ -16,6 +16,7 @@ from ..parseTeXlog import parse_tex_log
 
 from ..latextools_utils import cache, get_setting
 from ..latextools_utils.external_command import execute_command
+from ..latextools_utils.utils import cpu_count
 from . import preview_utils
 from .preview_utils import (
     ghostscript_installed, get_ghostscript_version, run_ghostscript_command)
@@ -38,10 +39,10 @@ try:
     def get_color(view):
         try:
             color = mdpopups.scope2style(view, "").get("color", "#CCCCCC")
-        except:
+        except Exception:
             color = "#CCCCCC"
         return color
-except:
+except Exception:
     def get_color(view):
         return "#CCCCCC"
 
@@ -72,17 +73,23 @@ _ERROR_EXTENSION = ".err"
 _scale_quotient = 1
 _density = 150
 _hires = True
+# these are the default values derived from gxdevice.h in the
+# Ghostscript source code
+_max_bitmap = 1000000
+_bufferspace = 4000000
 _lt_settings = {}
 
 _name = "preview_math"
 
 
 def _on_setting_change():
-    global _density, _scale_quotient, _hires
+    global _density, _scale_quotient, _hires, _max_bitmap, _bufferspace
     _scale_quotient = _lt_settings.get(
         "preview_math_scale_quotient", _scale_quotient)
     _density = _lt_settings.get("preview_math_density", _density)
     _hires = _lt_settings.get("preview_math_hires", _hires)
+    _max_bitmap = _lt_settings.get("preview_math_max_bitmap", _max_bitmap)
+    _bufferspace = _lt_settings.get("preview_math_bufferspace", _bufferspace)
     max_threads = get_setting(
         "preview_max_convert_threads", default=None, view={})
     if max_threads is not None:
@@ -117,9 +124,12 @@ def _create_image(latex_program, latex_document, base_name, color,
     pdf_path = os.path.join(temp_path, base_name + ".pdf")
     image_path = os.path.join(temp_path, base_name + _IMAGE_EXTENSION)
 
-    # do nothing if the pdf already exists
-    if os.path.exists(pdf_path):
+    # do nothing if the image already exists
+    if os.path.exists(image_path):
         return
+
+    err_log = []
+    gs_error_occurred = False
 
     # write the latex document
     source_path = os.path.join(temp_path, rel_source_path)
@@ -165,13 +175,21 @@ def _create_image(latex_program, latex_document, base_name, color,
         scale_factor = \
             8 if _hires and get_ghostscript_version() >= (9, 14) else 1
 
+        # allow Ghostscript to use multiple CPUs, up to two less than the
+        # total number (so that sublime_text and plugin_host are minimally
+        # affected)
+        cpus = max(cpu_count() - 2, 1)
+
         # convert the pdf to a png image
         command = [
             '-sDEVICE=pngalpha', '-dLastPage=1',
             '-sOutputFile={image_path}'.format(image_path=image_path),
             '-r{density}'.format(density=_density * scale_factor),
             '-dDownScaleFactor={0}'.format(scale_factor),
-            '-dTextAlphaBits=4', '-dGraphicsAlphaBits=4'
+            '-dTextAlphaBits=4', '-dGraphicsAlphaBits=4',
+            '-dNumRenderingThreads={0}'.format(cpus),
+            '-dMaxBitmap={0}'.format(_max_bitmap),
+            '-dBufferSpace={0}'.format(_bufferspace)
         ]
 
         # calculate and apply cropping boundaries, if we have them
@@ -197,10 +215,29 @@ def _create_image(latex_program, latex_document, base_name, color,
 
         command.append(pdf_path)
 
-        run_ghostscript_command(command)
+        rc, output, _ = run_ghostscript_command(
+            command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
 
-    err_file_path = image_path + _ERROR_EXTENSION
-    err_log = []
+        if rc != 0:
+            gs_error_occurred = True
+            err_log.append(
+                'Error while running Ghostscript. {0}'.format(output))
+
+        # Ghostscript will output a 0 byte sized image if certain issues
+        # occur. Deal with this here.
+        if os.path.exists(image_path) and os.path.getsize(image_path) < 1:
+            os.remove(image_path)
+            gs_error_occurred = True
+            err_log.append(
+                'Ghostscript could not produce an image. '
+                'Please try changing the preview_math_bufferspace setting '
+                'to a larger value. Currently: {0}. '.format(_bufferspace) +
+                'This setting can be found in the LaTeXTools (Advanced) '
+                'settings file.')
+
+        if gs_error_occurred:
+            err_log.append('')
+
     if not pdf_exists:
         err_log.append(
             "Failed to run '{latex_program}' to create pdf to preview."
@@ -217,11 +254,13 @@ def _create_image(latex_program, latex_document, base_name, color,
         else:
             with open(log_file, "rb") as f:
                 log_data = f.read()
+
             try:
                 errors, warnings, _ = parse_tex_log(log_data, temp_path)
-            except:
-                err_log.append("Error while parsing log file.")
+            except Exception as e:
+                err_log.append("Error while parsing log file: {0}".format(e))
                 errors = warnings = []
+
             if errors:
                 err_log.append("Errors:")
                 err_log.extend(errors)
@@ -242,10 +281,11 @@ def _create_image(latex_program, latex_document, base_name, color,
             err_log.append("-----BEGIN LOG-----")
             err_log.append(log_content)
             err_log.append("-----END LOG-----")
-    elif not os.path.exists(image_path):
+    elif not gs_error_occurred and not os.path.exists(image_path):
         err_log.append("Failed to convert pdf to png to preview.")
 
     if err_log:
+        err_file_path = image_path + _ERROR_EXTENSION
         with open(err_file_path, "w", encoding="utf-8") as f:
             f.write("\n".join(err_log))
 
@@ -476,6 +516,14 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             "_watch_hires": {
                 "setting": "preview_math_hires",
                 "call_after": self.reset_phantoms
+            },
+            "_watch_max_bitmap": {
+                "setting": "preview_math_max_bitmap",
+                "call_after": self.reset_phantoms
+            },
+            "_watch_bufferspace": {
+                "setting": "preview_math_bufferspace",
+                "call_after": self.reset_phantoms
             }
         }
         for attr_name, d in watch_attr.items():
@@ -502,7 +550,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
                     old_mtime = self.template_mtime[self.latex_template_file]
                     if old_mtime == mtime:
                         return
-                except:
+                except Exception:
                     return
 
             mtime = 0
@@ -529,7 +577,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
     def is_applicable(cls, settings):
         try:
             view = inspect.currentframe().f_back.f_locals['view']
-            return view.score_selector(0, 'text.tex.latex') > 0
+            return len(view.find_by_selector('text.tex.latex')) > 0
         except KeyError:
             syntax = settings.get('syntax')
             return syntax == 'Packages/LaTeX/LaTeX.sublime-syntax'
@@ -592,7 +640,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             _IS_ENABLED = False
             self.update_phantoms()
             if answer == sublime.DIALOG_YES:
-                self.view.window().run_command("open_latextools_user_settings")
+                self.view.window().run_command("latextools_open_user_settings")
         elif href.startswith("report-"):
             file_path = href[len("report-"):]
             if not os.path.exists(file_path):
@@ -646,7 +694,8 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
 
         new_phantoms = []
         job_args = []
-        if not _IS_ENABLED or self.visible_mode == "none":
+        if (not _IS_ENABLED or self.visible_mode == "none" or
+                self.math_scope is None):
             if not self.phantoms:
                 return
             scopes = []
@@ -707,7 +756,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
                 # update the content and the layout
                 p.content = content
                 p.layout = layout
-            except:
+            except Exception:
                 p = types.SimpleNamespace(
                     id=None,
                     region=region,
@@ -825,7 +874,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             latex_template = self.template_contents[self.latex_template_file]
             if not latex_template:
                 raise Exception("Template must not be empty!")
-        except:
+        except Exception:
             latex_template = default_latex_template
 
         if color.startswith("#"):

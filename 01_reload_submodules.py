@@ -9,10 +9,7 @@ import sublime
 import sys
 import traceback
 
-if sys.version_info >= (3,):
-    from imp import reload
-
-_ST3 = sublime.version() >= '3000'
+from imp import reload
 
 
 def _load_module_exports(module):
@@ -27,28 +24,24 @@ def _load_module_exports(module):
                     .format(name, module.__name__))
 
 
-MOD_PREFIX = ''
-
-if _ST3:
-    MOD_PREFIX = 'LaTeXTools.' + MOD_PREFIX
+MOD_PREFIX = 'LaTeXTools.'
 
 # these modules must be specified in the order they depend on one another
 LOAD_ORDER = [
     'external.latex_chars',
+
+    'latextools_plugin_internal',
 
     # reloaded here so that makePDF imports the current version
     'parseTeXlog',
 
     'latextools_utils',
 
-    'latextools_utils.six',
-
     # no internal dependencies
     'latextools_utils.bibformat',
     'latextools_utils.settings',
     'latextools_utils.utils',
     'latextools_utils.tex_directives',
-    'latextools_utils.system',
     'latextools_utils.internal_types',
 
     # depend on previous only
@@ -73,9 +66,6 @@ LOAD_ORDER = [
     'latex_fill_all'
 ]
 
-if _ST3:
-    LOAD_ORDER.insert(1, 'latextools_plugin_internal')
-
 # modules which should be scanned for any exports to be hoisted to this
 # module's context
 EXPORT_MODULES = []
@@ -86,6 +76,7 @@ if sublime.version() > '3118':
     ]
 
     EXPORT_MODULES += [
+        'latextools_utils.input_quickpanel',
         'st_preview.preview_math',
         'st_preview.preview_image'
     ]
@@ -128,9 +119,7 @@ def plugin_unloaded():
         mod = MOD_PREFIX + module
         try:
             sys.modules[mod].plugin_unloaded()
+        except KeyError:
+            pass
         except AttributeError:
             pass
-
-
-if not _ST3:
-    plugin_loaded()

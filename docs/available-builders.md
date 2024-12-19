@@ -6,7 +6,7 @@ By default, LaTeXTools uses the `traditional` builder, which is designed to work
 
 When you are using MiKTeX, the `traditional` builder defaults to using the MiKTeX compiler driver [`texify`](http://docs.miktex.org/manual/texifying.html), which automatically runs PDFLaTeX / XeLaTeX / LuaLaTeX as many times as necessary to generate a document. Note that because of certain limitations of `texify`, some features, such as support for output directory, auxiliary directory, jobname, etc. are unavailable when using the traditional builder. You can change this by installing `latexmk` and changing the `command` setting in the `builder_settings` block to `"latexmk -cd -f -%E -interaction=nonstopmode -synctex=1"`, in which case the `traditional` builder will run `latexmk` instead of `texify`
 
-When you are using any other setup (MacTeX or TeXLive on Linux or Windows), the `traditional` builder uses [`latexmk`](http://www.ctan.org/pkg/latexmk/), which supports all the documentated features for the builder.
+When you are using any other setup (MacTeX or TeXLive on Linux or Windows), the `traditional` builder uses [`latexmk`](http://www.ctan.org/pkg/latexmk/), which supports all the documented features for the builder.
 
 ## Basic Builder
 
@@ -59,7 +59,7 @@ Or:
 {
 	"builder_settings": {
 		"osx": {
-			"script_commands": 
+			"script_commands":
 				[["pdflatex", "-synctex=1 -interaction=nonstopmode"]]
 		}
 	}
@@ -85,7 +85,7 @@ More interestingly, the main list can be used to supply a series of commands. Fo
 
 Note, however, that the script builder is quite unintelligent in handling such cases. It will not note any failures nor only execute the rest of the sequence if required. It will simply continue to execute commands until it hits the end of the chain of commands. This means, in the above example, it will run `bibtex` regardless of whether there are any citations.
 
-It is especially important to ensure that, in case of errors, TeX and friends do not stop for user input. For example, if you use `pdflatex` on either TeXLive or MikTeX, pass the `-interaction=nonstopmode` option. 
+It is especially important to ensure that, in case of errors, TeX and friends do not stop for user input. For example, if you use `pdflatex` on either TeXLive or MikTeX, pass the `-interaction=nonstopmode` option.
 
 Each command can use the following variables which will be expanded before it is executed:
 
@@ -107,7 +107,7 @@ For example:
 	"builder_settings": {
 		"osx": {
 			"script_commands": [[
-				"pdflatex", 
+				"pdflatex",
 				"-synctex=1"
 				"-interaction=nonstopmode",
 				"$file_base_name"
@@ -125,7 +125,7 @@ Commands are executed in the same path as `$file_path`, i.e. the folder containi
 
 If you are using LaTeXTools output and auxiliary directory behavior there are some caveats to be aware of. First, it is, of course, your responsibility to ensure that the approrpiate variables are passed to the appropriate commands in your script. Second, `pdflatex` and friends do not create output directories as needed. Therefore, at the very least, your script must start with either `"mkdir $output_directory"` (Windows) or `"mkdir -p $output_directory"` and a corresponding command if using a separate `$aux_directory`. Note that if you `\include` (or otherwise attempt anything that will `\@openout` a file in a subfolder), you will need to ensure the subfolder exists. Otherwise, your run of `pdflatex` will fail.
 
-Finally, unlike Biber, bibtex (and bibtex8) does not support an output directory parameter, which can make it difficult to use if you are using the LaTeXTools output directory behavior. The following work-arounds can be used to get BibTeX to do the right thing.
+Finally, unlike Biber, bibtex (and bibtex8) does not support an output directory parameter, which can make it difficult to use if you are using the LaTeXTools output directory behavior. The following workarounds can be used to get BibTeX to do the right thing.
 
 On Windows, run BibTeX like so:
 
@@ -177,7 +177,7 @@ At a minimum, your `.sublime-build` file must have the following elements:
 
 ```json
 {
-	"target": "make_pdf",
+	"target": "latextools_make_pdf",
 	"selector": "text.tex.latex",
 
 	"osx":

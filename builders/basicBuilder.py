@@ -33,7 +33,7 @@ from latextools_utils.external_command import external_command, get_texpath
 
 # Standard LaTeX warning
 CITATIONS_REGEX = re.compile(
-    r"Warning: Citation [`|'].+' on page \d+ undefined")
+    r"Warning: Citation [`|'].+' (?:on page \d+ )?undefined")
 # Capture which program to run for BibLaTeX
 BIBLATEX_REGEX = re.compile(
     r"Package biblatex Warning: Please \(re\)run (\S*)")
@@ -98,7 +98,7 @@ class BasicBuilder(PdfBuilder):
         for option in self.options:
             latex.append(option)
 
-        latex.append(self.base_name)
+        latex.append(self.tex_name)
 
         # Check if any subfolders need to be created
         # this adds a number of potential runs as LaTeX treats being unable

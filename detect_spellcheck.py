@@ -1,21 +1,15 @@
-import sublime
 import sublime_plugin
 
-if sublime.version() < '3000':
-    # we are on ST2 and Python 2.X
-    _ST3 = False
-    from latextools_utils import settings, tex_directives
-    from getTeXRoot import get_tex_root
-else:
-    _ST3 = True
-    from .latextools_utils import settings, tex_directives
-    from .getTeXRoot import get_tex_root
+from .latextools_utils import settings, tex_directives
+from .getTeXRoot import get_tex_root
 
 try:  # check whether the dictionaries package is installed
     import Dictionaries
     _DICT_INSTALLED = True
 except:
     _DICT_INSTALLED = False
+
+from .deprecated_command import deprecate
 
 
 class DictMissing(Exception):
@@ -25,6 +19,7 @@ class DictMissing(Exception):
 def normalize_locale(loc):
     """normalizes the locale into the used format"""
     return loc.lower().replace("_", "-")
+
 
 if _DICT_INSTALLED:
     # mapping from the locales to the names in the dictionary package
@@ -161,7 +156,7 @@ def update_dict_language(view, extract_from_root):
     print("Changed dictionary to '{0}'".format(dict_path))
 
 
-class LatexAutoDetectSpellcheckListener(sublime_plugin.EventListener):
+class LatextoolsAutoDetectSpellcheckListener(sublime_plugin.EventListener):
     def on_post_save(self, view):
         if not view.score_selector(0, "text.tex.latex"):
             return
@@ -171,13 +166,12 @@ class LatexAutoDetectSpellcheckListener(sublime_plugin.EventListener):
         if not view.score_selector(0, "text.tex.latex"):
             return
         update_dict_language(view, True)
-    if _ST3:  # update the dict asynchronous in ST3
-        on_load_async = on_load_event
-    else:
-        on_load = on_load_event
+    on_load_async = on_load_event
 
 
-class LatexDetectSpellcheckCommand(sublime_plugin.WindowCommand):
+class LatextoolsDetectSpellcheckCommand(sublime_plugin.WindowCommand):
     def run(self):
         view = self.window.active_view()
         update_dict_language(view)
+
+deprecate(globals(), 'LatexDetectSpellcheckCommand', LatextoolsDetectSpellcheckCommand)

@@ -1,6 +1,6 @@
 # Recommended Packages
 
-This sections is an overview of other Sublime Text packages, which have LaTeX or general text writing support and work together with LaTeXTools.
+This section is an overview of other Sublime Text packages, which have LaTeX or general text writing support and work together with LaTeXTools.
 It is recommended to install the packages using [Package Control].
 This is neither a full list of all packages you may possible want to install nor a list of "must have" packages. However they are a collection of packages useful for tex writing you may consider to install.
 
@@ -110,7 +110,7 @@ Example settings (Open *Preferences > Package Settings > Inc-Dec-Value > Setting
 
 ### FileManager / SideBarTools / SideBarEnhancement
 
-The packages [FileManager], [SideBarTools], and [SideBarEnhancement] all add features to manipulate files and the corresponding entries to the side bar and the quickpanel. Since there was a discussion about SideBarEnhancement violating the users privacy by collection anonymized statistics, there there has been published a fork with a subset of the features called SideBarTools. In addition to these FileManager is an additonal package with a similar feature set. If you are unsure which package you want to use you may start with FileManager.
+The packages [FileManager], [SideBarTools], and [SideBarEnhancement] all add features to manipulate files and the corresponding entries to the side bar and the quickpanel. Since there was a discussion about SideBarEnhancement violating the users privacy by collection anonymised statistics, there there has been published a fork with a subset of the features called SideBarTools. In addition to these FileManager is an additional package with a similar feature set. If you are unsure which package you want to use you may start with FileManager.
 
 [Package Control]:https://packagecontrol.io/
 [LaTeX-cwl]:https://github.com/LaTeXing/LaTeX-cwl
