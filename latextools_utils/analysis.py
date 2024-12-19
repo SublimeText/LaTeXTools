@@ -46,14 +46,14 @@ _COMMAND_ARG_NAMES = (
     "optargs3", "args3"
 )
 _RE_COMMAND = regex.compile(
-    r"\\(?<command>[A-Za-z]+)(?<star>\*?)" +  # The initial command
+    r"\\(?P<command>[A-Za-z]+)(?P<star>\*?)" +  # The initial command
     # build the rest from the command arg names
     "\n".join(
         r"""
         (?:
           [ \t]*\n?[ \t]*  # optional whitespaces
           {open}
-            (?<{name}>
+            (?P<{name}>
               (?:
                 [^{open}{close}]++  # everything except recursive matches
                 |  # or
