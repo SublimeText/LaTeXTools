@@ -120,6 +120,7 @@ class CmdThread(threading.Thread):
                             cmd,
                             env=env,
                             use_texpath=False,
+                            stdin=subprocess.PIPE,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT,
                             preexec_fn=os.setsid if self.caller.plat != 'windows' else None,
