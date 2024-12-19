@@ -457,8 +457,9 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         output_view_settings.set("scroll_past_end", False)
 
         if get_setting("highlight_build_panel", True, view=view):
-            self.output_view.set_syntax_file(
-                "Packages/LaTeXTools/LaTeXTools Console.hidden-tmLanguage"
+            output_view_settings.set(
+                "syntax",
+                "Packages/LaTeXTools/LaTeXTools Console.sublime-syntax"
             )
             output_view_settings.set(
                 "color_scheme",

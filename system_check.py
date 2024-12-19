@@ -736,21 +736,14 @@ class LatextoolsSystemCheckCommand(sublime_plugin.ApplicationCommand):
 
             new_view = sublime.active_window().new_file()
             new_view.set_scratch(True)
-            new_view.settings().set('word_wrap', False)
-            new_view.settings().set('line_numbers', False)
-            new_view.settings().set('gutter', False)
             new_view.set_name('LaTeXTools System Check')
-            if sublime.version() < '3103':
-                new_view.settings().set(
-                    'syntax',
-                    'Packages/LaTeXTools/system_check.hidden-tmLanguage'
-                )
-            else:
-                new_view.settings().set(
-                    'syntax', 'Packages/LaTeXTools/system_check.sublime-syntax'
-                )
-
             new_view.set_encoding('UTF-8')
+
+            settings = new_view.settings()
+            settings.set('word_wrap', False)
+            settings.set('line_numbers', False)
+            settings.set('gutter', False)
+            settings.set('syntax', 'Packages/LaTeXTools/system_check.sublime-syntax')
 
             new_view.run_command(
                 'latextools_insert_text',
