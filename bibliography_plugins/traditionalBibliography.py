@@ -82,9 +82,9 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                         if kp_match:
                             entry['keyword'] = kp_match.group(1)
                         else:
-                            print(u"Cannot process this @ line: " + line)
+                            print("Cannot process this @ line: " + line)
                             print(
-                                u"Previous keyword (if any): " +
+                                "Previous keyword (if any): " +
                                 entry.get('keyword', '')
                             )
                         continue

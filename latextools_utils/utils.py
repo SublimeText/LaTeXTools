@@ -148,12 +148,12 @@ class ThreadPool(object):
 
         self._result_handler = threading.Thread(target=self._handle_results)
         self._result_handler.daemon = True
-        self._result_handler.name = u'{0!r} handler'.format(self)
+        self._result_handler.name = '{0!r} handler'.format(self)
         self._result_handler.start()
 
         self._supervisor = threading.Thread(target=self._maintain_pool)
         self._supervisor.daemon = True
-        self._supervisor.name = u'{0!r} supervisor'.format(self)
+        self._supervisor.name = '{0!r} supervisor'.format(self)
         self._supervisor.start()
 
     # - Public API

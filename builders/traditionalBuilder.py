@@ -1,16 +1,6 @@
-# ST2/ST3 compat
-from __future__ import print_function
-import sublime
-if sublime.version() < '3000':
-    # we are on ST2 and Python 2.X
-    _ST3 = False
-    strbase = basestring
-else:
-    _ST3 = True
-    strbase = str
-
-from pdfBuilder import PdfBuilder
 import shlex
+import sublime
+from pdfBuilder import PdfBuilder
 
 DEBUG = False
 
@@ -49,7 +39,7 @@ class TraditionalBuilder(PdfBuilder):
             default_command = DEFAULT_COMMAND_LATEXMK
 
         self.cmd = self.builder_settings.get("command", default_command)
-        if isinstance(self.cmd, strbase):
+        if isinstance(self.cmd, str):
             self.cmd = shlex.split(self.cmd)
 
     #

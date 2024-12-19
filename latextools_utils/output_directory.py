@@ -255,7 +255,7 @@ def resolve_to_absolute_path(root, value, root_path):
                 root_hash
             )
         else:
-            print(u'unrecognized special value: {0}'.format(value))
+            print('unrecognized special value: {0}'.format(value))
 
             # NOTE this assumes that the value provided is a typo, etc.
             # and tries not to do anything harmful. This may not be the

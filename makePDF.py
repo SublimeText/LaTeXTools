@@ -689,7 +689,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
                     shutil.copy2(
                         os.path.join(
                             self.output_directory,
-                            self.tex_base + u'.pdf'
+                            self.tex_base + '.pdf'
                         ),
                         os.path.dirname(self.file_name)
                     )

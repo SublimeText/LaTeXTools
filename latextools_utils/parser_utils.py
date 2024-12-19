@@ -22,10 +22,10 @@ def command_to_snippet(keyword):
         replace_braces.index += 1
         if matchobj.group(1) is not None:
             word = matchobj.group(1)
-            return u'{${%d:%s}}' % (replace_braces.index, word)
+            return '{${%d:%s}}' % (replace_braces.index, word)
         else:
             word = matchobj.group(2)
-            return u'[${%d:%s}]' % (replace_braces.index, word)
+            return '[${%d:%s}]' % (replace_braces.index, word)
 
     replace_braces.index = 0
 
@@ -38,7 +38,7 @@ def command_to_snippet(keyword):
         # \begin{}, no environment
         if not name:
             replace, n = BRACES_MATCH_RX.subn(replace_braces, keyword)
-            final = replace + u'\n${0}\n\\end{{$1}}$0'.format(
+            final = replace + '\n${0}\n\\end{{$1}}$0'.format(
                 replace_braces.index + 1
             )
 
@@ -49,12 +49,12 @@ def command_to_snippet(keyword):
             remainder = m.group('remainder1') or m.group('remainder2') or ''
             replace, n = BRACES_MATCH_RX.subn(replace_braces, remainder)
 
-            final = u'\\begin{{{0}}}{1}\n'.format(name, replace or '')
+            final = '\\begin{{{0}}}{1}\n'.format(name, replace or '')
             if item:
-                final += u'\\item ${0}\n'.format(replace_braces.index + 1)
+                final += '\\item ${0}\n'.format(replace_braces.index + 1)
             else:
-                final += u'${0}\n'.format(replace_braces.index + 1)
-            final += u'\\end{{{0}}}$0'.format(name)
+                final += '${0}\n'.format(replace_braces.index + 1)
+            final += '\\end{{{0}}}$0'.format(name)
 
             # having \item at the end of the display value messes with
             # completions thus, we cut the \item off the end

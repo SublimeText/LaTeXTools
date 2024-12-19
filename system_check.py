@@ -186,7 +186,7 @@ def get_tex_path_variable_texlive(variable, env=None):
         if stdout is None:
             return None
 
-        return u'\n'.join(re.split(r'\r?\n', stdout.decode('utf-8').strip()))
+        return '\n'.join(re.split(r'\r?\n', stdout.decode('utf-8').strip()))
     except:
         return None
 
@@ -226,7 +226,7 @@ def get_tex_path_variable_miktex(variable, env=None):
         if stdout is None:
             return None
 
-        output = u'\n'.join(re.split(r'\r?\n', stdout.decode('utf-8').strip()))
+        output = '\n'.join(re.split(r'\r?\n', stdout.decode('utf-8').strip()))
         return os.pathsep.join([
             os.path.normpath(p) for p in output.split(os.pathsep)
         ])
@@ -281,17 +281,17 @@ def tabulate(table, wrap_column=0, output=sys.stdout):
     for i in range(len(headers)):
         padding = 2 if i < len(headers) - 1 else 0
         output.write(str(headers[i]).ljust(column_widths[i] + padding))
-    output.write(u'\n')
+    output.write('\n')
 
     for i in range(len(headers)):
         padding = 2 if i < len(headers) - 1 else 0
         if headers[i]:
             output.write(
-                (u'-' * len(headers[i])).ljust(column_widths[i] + padding)
+                ('-' * len(headers[i])).ljust(column_widths[i] + padding)
             )
         else:
-            output.write(u''.ljust(column_widths[i] + padding))
-    output.write(u'\n')
+            output.write(''.ljust(column_widths[i] + padding))
+    output.write('\n')
 
     added_row = False
     for j, row in enumerate(table):
@@ -302,20 +302,20 @@ def tabulate(table, wrap_column=0, output=sys.stdout):
                     len(column) > wrap_column:
                 wrapped = textwrap.wrap(column, wrap_column)
                 column = wrapped.pop(0)
-                lines = u''.join(wrapped)
+                lines = ''.join(wrapped)
 
                 if added_row:
                     table[j + 1][i] = lines
                 else:
-                    table.insert(j + 1, [u''] * len(row))
+                    table.insert(j + 1, [''] * len(row))
                     table[j + 1][i] = lines
                     added_row = True
 
             output.write(column.ljust(column_widths[i] + padding))
 
         added_row = False
-        output.write(u'\n')
-    output.write(u'\n')
+        output.write('\n')
+    output.write('\n')
 
 
 class SystemCheckThread(threading.Thread):
@@ -392,10 +392,10 @@ class SystemCheckThread(threading.Thread):
 
             table.append([
                 'sublime',
-                sublime_exe if available and version_info is not None else u'',
-                (u'available'
-                    if available and version_info is not None else u'missing'),
-                version_info if version_info is not None else u'unavailable'
+                sublime_exe if available and version_info is not None else '',
+                ('available'
+                    if available and version_info is not None else 'missing'),
+                version_info if version_info is not None else 'unavailable'
             ])
 
         # a list of programs, each program is either a string or a list
@@ -442,19 +442,19 @@ class SystemCheckThread(threading.Thread):
             ) if available else None
 
             available_str = (
-                u'available' if available and version_info is not None
-                else u'missing'
+                'available' if available and version_info is not None
+                else 'missing'
             )
 
             if (available and program in ['magick', 'convert'] and
                     not convert_installed()):
-                available_str = u'restart required'
+                available_str = 'restart required'
 
             table.append([
                 program,
-                location if available and version_info is not None else u'',
+                location if available and version_info is not None else '',
                 available_str,
-                version_info if version_info is not None else u'unavailable'
+                version_info if version_info is not None else 'unavailable'
             ])
 
         program = 'ghostscript'
@@ -472,18 +472,18 @@ class SystemCheckThread(threading.Thread):
         ) if available else None
 
         available_str = (
-            u'available' if available and version_info is not None
-            else u'missing'
+            'available' if available and version_info is not None
+            else 'missing'
         )
 
         if available and not ghostscript_installed():
-            available_str = u'restart required'
+            available_str = 'restart required'
 
         table.append([
             program,
-            location if available and version_info is not None else u'',
+            location if available and version_info is not None else '',
             available_str,
-            version_info if version_info is not None else u'unavailable'
+            version_info if version_info is not None else 'unavailable'
         ])
 
         results.append(table)
@@ -515,14 +515,14 @@ class SystemCheckThread(threading.Thread):
                             packages.append(pkg + ".sty")
 
             if packages:
-                table = [[u'Packages for equation preview', u'Status']]
+                table = [['Packages for equation preview', 'Status']]
 
                 for package in packages:
                     available = kpsewhich(package) is not None
                     package_name = package.split(".")[0]
                     table.append([
                         package_name,
-                        (u'available' if available else u'missing')
+                        ('available' if available else 'missing')
                     ])
 
                 results.append(table)
@@ -556,18 +556,18 @@ class SystemCheckThread(threading.Thread):
             builder_available = False
 
         results.append([
-            [u'Builder', u'Status'],
+            ['Builder', 'Status'],
             [
                 builder_name,
-                u'available' if builder_available else u'missing'
+                'available' if builder_available else 'missing'
             ]
         ])
 
         if builder_path:
-            results.append([[u'Builder Path'], [builder_path]])
+            results.append([['Builder Path'], [builder_path]])
 
         if builder_settings is not None:
-            table = [[u'Builder Setting', u'Value']]
+            table = [['Builder Setting', 'Value']]
             for key in sorted(builder_settings.keys()):
                 value = builder_settings[key]
                 table.append([key, value])
@@ -583,10 +583,10 @@ class SystemCheckThread(threading.Thread):
                 key_maps={'ts-program': 'program'}
             )
 
-            results.append([[u'TeX Root'], [tex_root]])
+            results.append([['TeX Root'], [tex_root]])
 
             results.append([
-                [u'LaTeX Engine'],
+                ['LaTeX Engine'],
                 [
                     tex_directives.get(
                         'program',
@@ -597,7 +597,7 @@ class SystemCheckThread(threading.Thread):
                 ]
             ])
 
-            table = [[u'LaTeX Output Setting', u'Value']]
+            table = [['LaTeX Output Setting', 'Value']]
             output_directory = get_output_directory(view)
             if output_directory:
                 table.append(
@@ -624,7 +624,7 @@ class SystemCheckThread(threading.Thread):
             options.extend(tex_directives.get('options', []))
 
             if len(options) > 0:
-                table = [[u'LaTeX Options']]
+                table = [['LaTeX Options']]
                 for option in options:
                     table.append([option])
 
@@ -696,10 +696,10 @@ class SystemCheckThread(threading.Thread):
             viewer_location = 'N/A'
 
         results.append([
-            [u'Viewer', u'Status', u'Location'],
+            ['Viewer', 'Status', 'Location'],
             [
                 viewer_name,
-                u'available' if viewer_available else u'missing',
+                'available' if viewer_available else 'missing',
                 viewer_location
             ]
         ])

@@ -76,7 +76,7 @@ class CompletionWrapper(collections.Mapping):
                 return self._entry[key]
             else:
                 value = self._entry[key]
-                return value or u'????'
+                return value or '????'
         except KeyError:
             if key[0] == "<":
                 raise
@@ -139,7 +139,7 @@ class CompletionWrapper(collections.Mapping):
                 except KeyError:
                     pass
 
-            return u'????'
+            return '????'
 
     def __iter__(self):
         return iter(self._entry)

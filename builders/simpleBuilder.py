@@ -1,12 +1,3 @@
-# ST2/ST3 compat
-from __future__ import print_function 
-import sublime
-if sublime.version() < '3000':
-    # we are on ST2 and Python 2.X
-    _ST3 = False
-else:
-    _ST3 = True
-
 import os.path
 import re
 # This will work because makePDF.py puts the appropriate
@@ -14,8 +5,6 @@ import re
 from pdfBuilder import PdfBuilder
 
 DEBUG = False
-
-
 
 
 #----------------------------------------------------------------

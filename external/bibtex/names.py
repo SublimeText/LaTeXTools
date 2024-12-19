@@ -14,7 +14,7 @@ NameResult = namedtuple('NameResult', ['first', 'middle', 'prefix', 'last', 'gen
 
 
 def tokenize_name(name_str):
-    u'''
+    '''
     Takes a string representing a name and returns a NameResult breaking that
     string into its component parts, as defined in the LaTeX book and BibTeXing.
 
@@ -41,7 +41,7 @@ def tokenize_name(name_str):
 
         new_names = split_tex_string(names[1], 1)
         while len(new_names) > 1 and new_names[0].islower():
-            result[0] = u' '.join((result[0], new_names[0]))
+            result[0] = ' '.join((result[0], new_names[0]))
             names = new_names
             new_names = split_tex_string(names[1], 1)
 
@@ -76,11 +76,11 @@ def tokenize_name(name_str):
                     else:
                         break
             if lower_name_index is not None:
-                last = u' '.join((
-                    u' '.join(first_parts[-lower_name_index:]),
+                last = ' '.join((
+                    ' '.join(first_parts[-lower_name_index:]),
                     last
                 ))
-                first = u' '.join(first_parts[:-lower_name_index])
+                first = ' '.join(first_parts[:-lower_name_index])
 
         forenames = extract_middle_names(first)
         lastnames = extract_name_prefix(last)
@@ -96,8 +96,8 @@ def tokenize_name(name_str):
         last, first = parts
 
         # for consistency with spaces being stripped in first last format
-        first = u' '.join((s for s in split_tex_string(first)))
-        last = u' '.join((s for s in split_tex_string(last)))
+        first = ' '.join((s for s in split_tex_string(first)))
+        last = ' '.join((s for s in split_tex_string(last)))
 
         forenames = extract_middle_names(first)
         lastnames = extract_name_prefix(last)
@@ -113,8 +113,8 @@ def tokenize_name(name_str):
         return NameResult(
             forenames[0] if len(forenames) > 0 else '',
             forenames[1] if len(forenames) > 1 else '',
-            u' '.join(lastnames[:name_index]) if len(lastnames) > 1 else '',
-            u' '.join(lastnames[name_index:]) if len(lastnames) > 1 else lastnames[0],
+            ' '.join(lastnames[:name_index]) if len(lastnames) > 1 else '',
+            ' '.join(lastnames[name_index:]) if len(lastnames) > 1 else lastnames[0],
             ''
         )
     elif len(parts) == 3:
@@ -130,11 +130,11 @@ def tokenize_name(name_str):
             generation
         )
     else:
-        raise ValueError(u'Unrecognised name format for "{0}"'.format(name_str))
+        raise ValueError('Unrecognised name format for "{0}"'.format(name_str))
 
 
 class Name(object):
-    u'''
+    '''
     Represents a BibLaTeX name entry. __str__ will return a name formatted in
     the preferred format
     '''
@@ -173,12 +173,12 @@ class Name(object):
         if not self.last:
             return self.first
 
-        result = u' '.join((self.prefix, self.last)) if self.prefix else unicode(self.last)
+        result = ' '.join((self.prefix, self.last)) if self.prefix else unicode(self.last)
         if self.generation:
-            result = u', '.join((result, self.generation))
-        result = u', '.join((result, self.first))
+            result = ', '.join((result, self.generation))
+        result = ', '.join((result, self.first))
         if self.middle:
-            result = u' '.join((result, self.middle))
+            result = ' '.join((result, self.middle))
         return result
 
     __str__ = __unicode__

@@ -19,27 +19,14 @@
 # Street, Fifth Floor, Boston, MA  02110-1301, USA
 
 # Incorporates fixes from http://ubuntuforums.org/showthread.php?t=1716268
-from __future__ import print_function
-
 import dbus
 import subprocess
 import time
 import sys
 import traceback
 
-if sys.version_info < (3,):
-    from urllib import unquote as urllib_unquote
-    from urllib import quote
-
-    def unquote(s):
-        # This is to deal with source files with non-ascii names
-        # We get url-quoted UTF-8 from dbus; convert to url-quoted ascii
-        # and then unquote. If you don't first convert ot ascii, it fails.
-        # It's a bit magical, but it seems to work
-        return urllib_unquote(s.encode('ascii'))
-else:
-    from urllib.parse import unquote
-    from urllib.parse import quote
+from urllib.parse import unquote
+from urllib.parse import quote
 
 RUNNING, CLOSED = range(2)
 

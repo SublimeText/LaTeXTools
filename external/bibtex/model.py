@@ -133,4 +133,4 @@ class Entry(MutableMapping):
         return len(self._attributes)
 
     def __repr__(self):
-        return u'<Entry [{0}]>'.format(self.cite_key)
+        return '<Entry [{0}]>'.format(self.cite_key)

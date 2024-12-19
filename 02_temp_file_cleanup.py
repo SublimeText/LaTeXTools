@@ -4,25 +4,6 @@ import sublime
 import shutil
 import tempfile
 
-if sublime.version() < '3000':
-    def get_cache_directory():
-        return os.path.join(
-            sublime.packages_path(),
-            'User',
-            '.lt_cache'
-        )
-
-    strbase = basestring
-else:
-    def get_cache_directory():
-        return os.path.join(
-            sublime.cache_path(),
-            'LaTeXTools'
-        )
-
-    strbase = str
-
-
 # unfortunately, there is no reliable way to do clean-up on exit in ST
 # see https://github.com/SublimeTextIssues/Core/issues/10
 # here we cleanup any directories listed in the temporary_output_dirs
@@ -30,7 +11,8 @@ else:
 
 def plugin_loaded():
     temporary_output_dirs = os.path.join(
-        get_cache_directory(),
+        sublime.cache_path(),
+        'LaTeXTools',
         'temporary_output_dirs'
     )
 
@@ -46,7 +28,7 @@ def plugin_loaded():
                 # ensure we are only deleting legitimate temporary files
                 if (
                     directory is None or
-                    not isinstance(directory, strbase) or
+                    not isinstance(directory, str) or
                     not directory.startswith(tempdir)
                 ):
                     continue
@@ -56,7 +38,7 @@ def plugin_loaded():
                 except OSError:
                     pass
                 else:
-                    print(u'Deleted old temp directory ' + directory)
+                    print('Deleted old temp directory ' + directory)
         except KeyError:
             pass
 

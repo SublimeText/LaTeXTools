@@ -118,15 +118,15 @@ def get_text_to_cursor(view):
 # builds the replacement string depending on the current context of the line
 def _get_replacement(matcher, key):
     if not matcher.group('ENTRIES'):
-        return u'{0}{1}{2}{3}'.format(
-            u'' if matcher.group('EQUALS') else u'= ',
-            u'' if matcher.group('OPEN') else u'{',
+        return '{0}{1}{2}{3}'.format(
+            '' if matcher.group('EQUALS') else '= ',
+            '' if matcher.group('OPEN') else '{',
             key,
-            u'' if matcher.group('OPEN') else u'}'
+            '' if matcher.group('OPEN') else '}'
         )
 
     return '{0}{1}'.format(
-        u',' if matcher.group('ENTRIES')[0] != u',' else u'',
+        ',' if matcher.group('ENTRIES')[0] != ',' else '',
         key
     )
 

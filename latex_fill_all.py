@@ -38,7 +38,7 @@ class LatexFillHelper(object):
     # word_separators
     #
     # defines non-word characters; see get_current_word
-    NON_WORD_CHARACTERS = u'/\\()"\':,.;<>~!@#$%^&*|+=\\[\\]{}`~?\\s'
+    NON_WORD_CHARACTERS = '/\\()"\':,.;<>~!@#$%^&*|+=\\[\\]{}`~?\\s'
 
     WORD_SEPARATOR_RX = re.compile(
         r'([^' + NON_WORD_CHARACTERS + r']*)',

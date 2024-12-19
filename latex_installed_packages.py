@@ -67,7 +67,7 @@ def _get_files_matching_extensions(paths, extensions=[]):
             continue
 
         # !! sometimes occurs in the results on POSIX; remove them
-        path = path.replace(u'!!', u'')
+        path = path.replace('!!', '')
         path = os.path.normpath(path)
         if not os.path.exists(path):  # ensure path exists
             continue
@@ -76,7 +76,7 @@ def _get_files_matching_extensions(paths, extensions=[]):
             for _, _, files in os.walk(path):
                 for f in files:
                     for ext in extensions:
-                        if f.endswith(u''.join((os.extsep, ext))):
+                        if f.endswith(''.join((os.extsep, ext))):
                             matched_files[ext].append(os.path.splitext(f)[0])
         else:
             for _, _, files in os.walk(path):

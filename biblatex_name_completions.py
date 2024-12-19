@@ -41,20 +41,20 @@ def _get_replacement(matcher, key):
     if not matcher.group('ENTRIES'):
         equals = matcher.group('EQUALS')
 
-        return u'{0}{1}{2}'.format(
-            u'' if equals else u'= ' if match.startswith(u' ') else u' = ',
-            u'' if matcher.group('OPEN') else
-            u'{' if not equals or match.startswith(u' ') else u' {',
+        return '{0}{1}{2}'.format(
+            '' if equals else '= ' if match.startswith(' ') else ' = ',
+            '' if matcher.group('OPEN') else
+            '{' if not equals or match.startswith(' ') else ' {',
             key
         )
 
     if matcher.group('ENTRIES').startswith('dna'):
         if match.startswith(' '):
-            return u'{0}'.format(key)
-        return u' {0}'.format(key)
+            return '{0}'.format(key)
+        return ' {0}'.format(key)
     else:
-        return u'{0}{1}'.format(
-            u' ' if matcher.group('ENTRIES').startswith(u' ') != u' ' else u'',
+        return '{0}{1}'.format(
+            ' ' if matcher.group('ENTRIES').startswith(' ') != ' ' else '',
             key
         )
 
@@ -71,7 +71,7 @@ def get_names_from_view(view):
 
 
 def get_names(contents):
-    u'''
+    '''
     Work-horse function to extract all the names defined in the current bib
     file.
     '''
@@ -107,7 +107,7 @@ def get_names(contents):
                 chars.append(c)
 
             names.extend([
-                str(Name(s)) for s in tokenize_list(u''.join(chars))
+                str(Name(s)) for s in tokenize_list(''.join(chars))
             ])
 
             pos += len(chars)

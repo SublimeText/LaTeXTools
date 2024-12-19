@@ -12,8 +12,6 @@ from latextools_utils.external_command import (
     external_command, get_texpath, update_env
 )
 
-_ST3 = sublime.version() >= '3000'
-
 
 #----------------------------------------------------------------
 # ScriptBuilder class
@@ -84,7 +82,7 @@ class ScriptBuilder(PdfBuilder):
 
             if not isinstance(cmd, str):
                 self.display("Invoking '{0}'... ".format(
-                    u' '.join([quote(s) for s in cmd])
+                    ' '.join([quote(s) for s in cmd])
                 ))
             else:
                 self.display("Invoking '{0}'... ".format(cmd))

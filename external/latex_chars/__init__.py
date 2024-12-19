@@ -77,7 +77,7 @@ def _registry(encoding):
             except NameError:
                 # Python 3
                 x = _unlatex(input)
-            return u''.join(x), len(input)
+            return ''.join(x), len(input)
 
     class StreamWriter(Codec, codecs.StreamWriter):
         pass

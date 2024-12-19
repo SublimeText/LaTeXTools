@@ -16,22 +16,20 @@ import traceback
 # LaTeX -> Unicode decoder
 latex_chars.register()
 
-if sublime.version() < '3000':
-    def _get_people_long(people):
-        return u' and '.join([str(x) for x in people])
-else:
-    def _get_people_long(people):
-        return u' and '.join([str(x) for x in people])
+
+def _get_people_long(people):
+    return ' and '.join([str(x) for x in people])
+
 
 def _get_people_short(people):
     if len(people) <= 2:
-        return u' & '.join([x.last if x.last != '' else x.first for x in people])
+        return ' & '.join([x.last if x.last != '' else x.first for x in people])
     else:
         return people[0].last if people[0].last != '' else people[0].first + \
-            u', et al.'
+            ', et al.'
 
 def remove_latex_commands(s):
-    u'''
+    '''
     Simple function to remove any LaTeX commands or brackets from the string,
     replacing it with its contents.
     '''
@@ -62,7 +60,7 @@ class EntryWrapper(Mapping):
 
     def __getitem__(self, key):
         if not key:
-            return u''
+            return ''
 
         key = key.lower()
         result = None
@@ -84,13 +82,13 @@ class EntryWrapper(Mapping):
                 try:
                     people.append(Name(x))
                 except:
-                    print(u'Error handling field "{0}" with value "{1}"'.format(
+                    print('Error handling field "{0}" with value "{1}"'.format(
                         key, x
                     ))
                     traceback.print_exc()
 
             if len(people) == 0:
-                return u''
+                return ''
 
             if short:
                 result = _get_people_short(people)

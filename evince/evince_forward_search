@@ -19,17 +19,12 @@
 # Street, Fifth Floor, Boston, MA  02110-1301, USA
 
 # This file offers forward search for evince.
-from __future__ import print_function
-
 import dbus
 import sys
 import os
 import traceback
 
-if sys.version_info < (3,):
-    from urllib import quote
-else:
-    from urllib.parse import quote
+from urllib.parse import quote
 
 if __name__ == '__main__':
     def print_usage():

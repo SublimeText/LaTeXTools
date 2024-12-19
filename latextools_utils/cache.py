@@ -377,7 +377,7 @@ class Cache(object):
                             self._objects[entry_name] = self._read(entry_name)
                         except:
                             print(
-                                u'error while loading {0}'.format(entry_name))
+                                'error while loading {0}'.format(entry_name))
             else:
                 self._objects[key] = self._read(key)
 
@@ -397,7 +397,7 @@ class Cache(object):
                 with open(file_path, 'rb') as f:
                     return pickle.load(f)
             except:
-                raise CacheMiss(u'cannot read cache file {0}'.format(key))
+                raise CacheMiss('cannot read cache file {0}'.format(key))
 
     def save(self, key=None):
         '''

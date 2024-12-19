@@ -1,43 +1,43 @@
 class AstNode(object):
 
     def __repr__(self):
-        return u'<AstNode>'
+        return '<AstNode>'
 
 
 class PreambleNode(AstNode):
 
     def __repr__(self):
-        return u'<Preamble>'
+        return '<Preamble>'
 
 
 class StringNode(AstNode):
 
     def __repr__(self):
         if self.key:
-            return u'<String [{0!s}]>'.format(self.key)
+            return '<String [{0!s}]>'.format(self.key)
         else:
-            return u'<String>'
+            return '<String>'
 
 
 class EntryNode(AstNode):
 
     def __repr__(self):
         if self.key:
-            return u'<Entry [{0!s}]>'.format(self.key)
+            return '<Entry [{0!s}]>'.format(self.key)
         else:
-            return u'<Entry>'
+            return '<Entry>'
 
 
 class EntryKeyNode(AstNode):
 
     def __repr__(self):
-        return u'<EntryKeyNode>'
+        return '<EntryKeyNode>'
 
     def __str__(self):
         try:
             return self.value
         except (AttributeError, NameError):
-            return u''
+            return ''
 
 
 class KeyValueNode(AstNode):
@@ -50,7 +50,7 @@ class LiteralNode(AstNode):
         try:
             return self.value
         except (AttributeError, NameError):
-            return u''
+            return ''
 
     __repr__ = __str__
 
@@ -61,7 +61,7 @@ class NumberNode(AstNode):
         try:
             return self.value
         except (AttributeError, NameError):
-            return u''
+            return ''
 
     __repr__ = __str__
 
@@ -72,7 +72,7 @@ class QuotedLiteralNode(AstNode):
         try:
             return self.value
         except (AttributeError, NameError):
-            return u''
+            return ''
 
     __repr__ = __str__
 

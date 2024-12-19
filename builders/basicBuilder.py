@@ -1,28 +1,6 @@
-# ST2/ST3 compat
-import sublime
-if sublime.version() < '3000':
-    # we are on ST2 and Python 2.X
-    _ST3 = False
-    strbase = basestring
-
-    # reraise implementation from 6
-    exec("""def reraise(tp, value, tb=None):
-    raise tp, value, tb
-""")
-else:
-    _ST3 = True
-    strbase = str
-
-    # reraise implementation from 6
-    def reraise(tp, value, tb=None):
-        if value is None:
-            value = tp()
-        if value.__traceback__ is not tb:
-            raise value.with_traceback(tb)
-        raise value
-
 import os
 import re
+import sublime
 import subprocess
 import sys
 # This will work because makePDF.py puts the appropriate
@@ -41,6 +19,15 @@ BIBLATEX_REGEX = re.compile(
 # \include
 FILE_WRITE_ERROR_REGEX = re.compile(
     r"! I can't write on file `(.*)/([^/']*)'")
+
+
+# reraise implementation from 6
+def reraise(tp, value, tb=None):
+    if value is None:
+        value = tp()
+    if value.__traceback__ is not tb:
+        raise value.with_traceback(tb)
+    raise value
 
 
 # ----------------------------------------------------------------
@@ -66,34 +53,34 @@ class BasicBuilder(PdfBuilder):
         if "la" not in engine:
             # we need the command rather than the engine
             engine = {
-                "pdftex": u"pdflatex",
-                "xetex": u"xelatex",
-                "luatex": u"lualatex"
-            }.get(engine, u'pdflatex')
+                "pdftex": "pdflatex",
+                "xetex": "xelatex",
+                "luatex": "lualatex"
+            }.get(engine, 'pdflatex')
 
         if engine not in ['pdflatex', 'xelatex', 'lualatex']:
             engine = 'pdflatex'
 
-        latex = [engine, u"-interaction=nonstopmode", u"-synctex=1"]
-        biber = [u"biber"]
+        latex = [engine, "-interaction=nonstopmode", "-synctex=1"]
+        biber = ["biber"]
 
         if self.aux_directory is not None:
-            biber.append(u'--output-directory=' + self.aux_directory)
+            biber.append('--output-directory=' + self.aux_directory)
             if self.aux_directory == self.output_directory:
-                latex.append(u'--output-directory=' + self.aux_directory)
+                latex.append('--output-directory=' + self.aux_directory)
             else:
-                latex.append(u'--aux-directory=' + self.aux_directory)
+                latex.append('--aux-directory=' + self.aux_directory)
         elif self.output_directory is not None:
-            biber.append(u'--output-directory=' + self.output_directory)
+            biber.append('--output-directory=' + self.output_directory)
 
         if (
             self.output_directory is not None and
             self.output_directory != self.aux_directory
         ):
-            latex.append(u'--output-directory=' + self.output_directory)
+            latex.append('--output-directory=' + self.output_directory)
 
         if self.job_name != self.base_name:
-            latex.append(u'--jobname=' + self.job_name)
+            latex.append('--jobname=' + self.job_name)
 
         for option in self.options:
             latex.append(option)
@@ -205,7 +192,7 @@ class BasicBuilder(PdfBuilder):
     def run_bibtex(self, command=None):
         if command is None:
             command = [self.bibtex]
-        elif isinstance(command, strbase):
+        elif isinstance(command, str):
             command = [command]
 
         # to get bibtex to work with the output directory, we change the
@@ -219,16 +206,8 @@ class BasicBuilder(PdfBuilder):
         )
         if output_directory is not None:
             # cwd is, at the point, the path to the main tex file
-            if _ST3:
-                env['BIBINPUTS'] = cwd + os.pathsep + env.get('BIBINPUTS', '')
-                env['BSTINPUTS'] = cwd + os.pathsep + env.get('BSTINPUTS', '')
-            else:
-                env['BIBINPUTS'] = \
-                    (cwd + os.pathsep + env.get('BIBINPUTS', '')).encode(
-                        sys.getfilesystemencoding())
-                env['BSTINPUTS'] = \
-                    (cwd + os.pathsep + env.get('BSTINPUTS', '')).encode(
-                        sys.getfilesystemencoding())
+            env['BIBINPUTS'] = cwd + os.pathsep + env.get('BIBINPUTS', '')
+            env['BSTINPUTS'] = cwd + os.pathsep + env.get('BSTINPUTS', '')
             # now we modify cwd to be the output directory
             # NOTE this cwd is not reused by any of the other command
             cwd = output_directory

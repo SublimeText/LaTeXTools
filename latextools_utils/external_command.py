@@ -128,7 +128,7 @@ def external_command(command, cwd=None, shell=False, env=None,
         shell is True and sublime.platform() != 'windows' and
         (isinstance(command, list) or isinstance(command, tuple))
     ):
-        command = u' '.join(command)
+        command = ' '.join(command)
 
     # Windows-specific adjustments
     startupinfo = None
@@ -158,14 +158,14 @@ def external_command(command, cwd=None, shell=False, env=None,
         stderr = None
 
     if isinstance(command, str):
-        print(u'Running "{0}"'.format(command))
+        print('Running "{0}"'.format(command))
     else:
         try:
-            print(u'Running "{0}"'.format(u' '.join(
+            print('Running "{0}"'.format(' '.join(
                 [quote(s) for s in command])))
         except UnicodeError:
             try:
-                print(u'Running "{0}"'.format(command))
+                print('Running "{0}"'.format(command))
             except:
                 pass
 
@@ -203,9 +203,9 @@ def execute_command(command, cwd=None, shell=False, env=None,
     '''
     def convert_stream(stream):
         if stream is None:
-            return u''
+            return ''
         else:
-            return u'\n'.join(
+            return '\n'.join(
                 re.split(r'\r?\n', stream.decode('utf-8', 'ignore').rstrip())
             )
 

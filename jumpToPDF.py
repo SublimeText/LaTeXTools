@@ -119,18 +119,18 @@ class LatextoolsJumpToPdfCommand(sublime_plugin.TextCommand):
         if output_directory is None:
             pdffile = os.path.join(
                 os.path.dirname(root),
-                file_name + u'.pdf'
+                file_name + '.pdf'
             )
         else:
             pdffile = os.path.join(
                 output_directory,
-                file_name + u'.pdf'
+                file_name + '.pdf'
             )
 
             if not os.path.exists(pdffile):
                 pdffile = os.path.join(
                     os.path.dirname(root),
-                    file_name + u'.pdf'
+                    file_name + '.pdf'
                 )
 
         if not os.path.exists(pdffile):
@@ -210,18 +210,18 @@ class LatextoolsViewPdfCommand(sublime_plugin.WindowCommand):
                 root = getTeXRoot.get_tex_root(view)
                 pdffile = os.path.join(
                     os.path.dirname(root),
-                    file_name + u'.pdf'
+                    file_name + '.pdf'
                 )
             else:
                 pdffile = os.path.join(
                     output_directory,
-                    file_name + u'.pdf'
+                    file_name + '.pdf'
                 )
 
                 if not os.path.exists(pdffile):
                     pdffile = os.path.join(
                         os.path.dirname(root),
-                        file_name + u'.pdf'
+                        file_name + '.pdf'
                     )
 
         pdffile = os.path.normpath(pdffile)
@@ -237,9 +237,9 @@ class LatextoolsViewPdfCommand(sublime_plugin.WindowCommand):
             print('No PDF file found.')
             return
         elif not os.path.exists(pdffile):
-            print(u'PDF file "{0}" does not exist.'.format(pdffile))
+            print('PDF file "{0}" does not exist.'.format(pdffile))
             sublime.error_message(
-                u'PDF file "{0}" does not exist.'.format(pdffile)
+                'PDF file "{0}" does not exist.'.format(pdffile)
             )
             return
 

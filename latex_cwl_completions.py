@@ -416,14 +416,14 @@ def cwl_parsing_handler(callback):
                      .replace("\r", "\n"))
             except IOError:
                 print(
-                    u'{0} does not exist or could not be accessed'.format(
+                    '{0} does not exist or could not be accessed'.format(
                         cwl_file
                     )
                 )
                 continue
             except UnicodeDecodeError:
                 print(
-                    u'{0}: {1}'.format(
+                    '{0}: {1}'.format(
                         cwl_file, exc_info()[1]
                     )
                 )
@@ -438,14 +438,14 @@ def cwl_parsing_handler(callback):
                 s = utils.read_file_unix_endings(cwl_file)
             except IOError:
                 print(
-                    u'{0} does not exist or could not be accessed'.format(
+                    '{0} does not exist or could not be accessed'.format(
                         cwl_file
                     )
                 )
                 continue
             except UnicodeDecodeError:
                 print(
-                    u'{0}: {1}'.format(
+                    '{0}: {1}'.format(
                         cwl_file, exc_info()[1]
                     )
                 )
@@ -533,7 +533,7 @@ def parse_cwl_file(cwl, s):
             # autocompletions consistent regardless of the returned results
             keyword = keyword.ljust(50)
 
-            item = (u'%s\t%s' % (keyword, method), insertion)
+            item = ('%s\t%s' % (keyword, method), insertion)
             results[key].append(item)
 
     return results["completions"], results["environments"], dependencies
