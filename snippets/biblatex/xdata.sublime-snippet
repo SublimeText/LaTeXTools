@@ -1,0 +1,15 @@
+<snippet>
+	<content><![CDATA[
+@xdata{${1:Key},
+	${2}
+}
+]]></content>
+	<tabTrigger>xdata</tabTrigger>
+	<description>BibLaTeX Xdata</description>
+	<scope>
+		text.biblatex
+		- meta.entry.braces.bibtex
+		- meta.entry.parenthesis.bibtex
+		- meta.entry.arguments.bibtex
+	</scope>
+</snippet>
