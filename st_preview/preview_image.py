@@ -8,10 +8,9 @@ import types
 import sublime
 import sublime_plugin
 
-
-from ..getTeXRoot import get_tex_root
 from ..jumpto_tex_file import open_image, find_image
 from ..latextools_utils import cache, get_setting
+from ..latextools_utils.tex_directives import get_tex_root
 from . import preview_utils
 from .preview_utils import (
     convert_installed, run_convert_command, ghostscript_installed,

@@ -8,7 +8,7 @@ from .latextools_utils import get_setting
 from .latextools_utils.external_command import (
     check_output, CalledProcessError
 )
-from .getTeXRoot import get_tex_root
+from .latextools_utils.tex_directives import get_tex_root
 
 
 class LatextoolsTexcountCommand(sublime_plugin.TextCommand):

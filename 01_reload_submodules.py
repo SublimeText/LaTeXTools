@@ -37,9 +37,6 @@ LOAD_ORDER = [
 
     'latextools_plugin_internal',
 
-    # reloaded here so that makePDF imports the current version
-    'parseTeXlog',
-
     'latextools_utils',
 
     # no internal dependencies
@@ -47,6 +44,7 @@ LOAD_ORDER = [
     'latextools_utils.settings',
     'latextools_utils.utils',
     'latextools_utils.tex_directives',
+    'latextools_utils.tex_log',
     'latextools_utils.internal_types',
 
     # depend on previous only

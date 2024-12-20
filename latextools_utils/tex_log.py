@@ -50,7 +50,7 @@ def debug_skip_file(f, root_dir):
         print ("Skip it!")
         return True
     # Heuristic: MiKTeX line
-    if re.match("MiKTeX \d\.\d\d?",f):
+    if re.match(r"MiKTeX \d\.\d\d?",f):
         print ("Skip it!")
         return True
     # Heuristic: no two consecutive spaces in file name

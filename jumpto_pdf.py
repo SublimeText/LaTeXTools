@@ -5,13 +5,13 @@ import os
 import traceback
 import re
 
-from . import getTeXRoot
 from .latextools_utils.is_tex_file import is_tex_file
 from .latextools_utils import get_setting
 from .latextools_utils.output_directory import (
     get_output_directory, get_jobname
 )
 from .latextools_utils.sublime_utils import focus_st
+from .latextools_utils.tex_directives import get_tex_root
 from .latextools_plugin import (
     get_plugin, add_plugin_path, NoSuchPluginException,
     add_whitelist_module
@@ -112,7 +112,7 @@ class LatextoolsJumpToPdfCommand(sublime_plugin.TextCommand):
             else:
                 forward_sync = False
 
-        root = getTeXRoot.get_tex_root(view)
+        root = get_tex_root(view)
         file_name = get_jobname(view)
 
         output_directory = get_output_directory(view)
@@ -202,12 +202,12 @@ class LatextoolsViewPdfCommand(sublime_plugin.WindowCommand):
         else:
             view = self.window.active_view()
 
-            root = getTeXRoot.get_tex_root(view)
+            root = get_tex_root(view)
             file_name = get_jobname(view)
 
             output_directory = get_output_directory(view)
             if output_directory is None:
-                root = getTeXRoot.get_tex_root(view)
+                root = get_tex_root(view)
                 pdffile = os.path.join(
                     os.path.dirname(root),
                     file_name + '.pdf'

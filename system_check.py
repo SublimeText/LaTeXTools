@@ -27,8 +27,8 @@ from .latextools_utils.output_directory import (
 from .latextools_utils.progress_indicator import ProgressIndicator
 from .latextools_utils.tex_directives import parse_tex_directives
 from .latextools_utils.sublime_utils import get_sublime_exe
-from .jumpToPDF import DEFAULT_VIEWERS
-from .getTeXRoot import get_tex_root
+from .latextools_utils.tex_directives import get_tex_root
+from .jumpto_pdf import DEFAULT_VIEWERS
 
 from .st_preview.preview_utils import (
     convert_installed, ghostscript_installed,

@@ -12,15 +12,14 @@ import types
 import sublime
 import sublime_plugin
 
-from ..parseTeXlog import parse_tex_log
-
 from ..latextools_utils import cache, get_setting
 from ..latextools_utils.external_command import execute_command
+from ..latextools_utils.tex_log import parse_tex_log
 from ..latextools_utils.utils import cpu_count
 from . import preview_utils
+from . import preview_threading as pv_threading
 from .preview_utils import (
     ghostscript_installed, get_ghostscript_version, run_ghostscript_command)
-from . import preview_threading as pv_threading
 
 # export the listener
 exports = ["MathPreviewPhantomListener"]
