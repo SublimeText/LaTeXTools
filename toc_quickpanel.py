@@ -1,8 +1,8 @@
 import sublime_plugin
 
 from .deprecated_command import deprecate
-from .getTeXRoot import get_tex_root
 from .latextools_utils import analysis, get_setting, quickpanel
+from .latextools_utils.tex_directives import get_tex_root
 
 
 def _make_caption(toc_indentations, com, indent_offset):

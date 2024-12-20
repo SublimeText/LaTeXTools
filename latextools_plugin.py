@@ -415,13 +415,13 @@ def _latextools_module_hack():
     Context manager to ensure sys.modules has certain white-listed modules,
     most especially latextools_plugins. This exposes some of the modules in
     LaTeXTools to plugins. It is intended primarily to expose library-esque
-    functionality, such as the getTeXRoot module, but can be configured by
+    functionality, such as the tex_directives module, but can be configured by
     the user as-needed.
     '''
     # add any white-listed plugins to sys.modules under their own name
     plugins_whitelist = get_setting(
         'plugins_whitelist',
-        ['external', 'getTeXRoot', 'latextools_utils']
+        ['external', 'latextools_utils']
     )
 
     # always include latextools_pluing

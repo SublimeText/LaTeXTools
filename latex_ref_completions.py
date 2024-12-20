@@ -1,6 +1,6 @@
-from . import getTeXRoot
 from .latex_fill_all import FillAllHelper
 from .latextools_utils import analysis, get_setting
+from .latextools_utils.tex_directives import get_tex_root
 
 import re
 
@@ -53,7 +53,7 @@ def get_ref_completions(view):
     #    2) if this file is unnamed and unsaved, get_tex_root will fail
     view.find_all(r'\\label\{([^\{\}]+)\}', 0, '\\1', completions)
 
-    root = getTeXRoot.get_tex_root(view)
+    root = get_tex_root(view)
     if root:
         print(u"TEX root: " + repr(root))
         find_labels_in_files(root, completions)

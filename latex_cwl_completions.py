@@ -17,9 +17,9 @@ from . import latex_input_completions
 from .latex_own_command_completions import (
     get_own_command_completion, get_own_env_completion
 )
-from .getTeXRoot import get_tex_root
 from .latextools_utils import get_setting, analysis, utils
 from .latextools_utils.parser_utils import command_to_snippet
+from .latextools_utils.tex_directives import get_tex_root
 
 __all__ = ['get_cwl_completions', 'is_cwl_available', 'LatexCwlCompletion']
 

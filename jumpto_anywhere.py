@@ -5,8 +5,8 @@ import sublime
 import sublime_plugin
 
 from .deprecated_command import deprecate
-from .getTeXRoot import get_tex_root
 from .latextools_utils import analysis, ana_utils, quickpanel, utils
+from .latextools_utils.tex_directives import get_tex_root
 from .latextools_utils.tex_directives import TEX_DIRECTIVE
 from .latex_cite_completions import NEW_STYLE_CITE_REGEX
 from .latex_glossary_completions import ACR_LINE_RE, GLO_LINE_RE

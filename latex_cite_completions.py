@@ -17,12 +17,12 @@ At present, there is one supported method on custom plugins.
 '''
 import sublime
 
-from . import getTeXRoot
 from .kpsewhich import kpsewhich
 from .latex_fill_all import FillAllHelper
 from .latextools_utils import (
     analysis, bibformat, cache, get_setting
 )
+from .latextools_utils.tex_directives import get_tex_root
 from . import latextools_plugin
 
 import os
@@ -392,7 +392,7 @@ def run_plugin_command(command, *args, **kwargs):
 
 
 def get_cite_completions(view):
-    root = getTeXRoot.get_tex_root(view)
+    root = get_tex_root(view)
 
     if root is None:
         # This is an unnamed, unsaved file

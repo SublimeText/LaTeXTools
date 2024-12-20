@@ -1,4 +1,3 @@
-# -*- coding:utf-8 -*-
 import json
 import os
 import re
@@ -6,14 +5,12 @@ import re
 import sublime
 
 from .latex_fill_all import FillAllHelper
-from .latextools_utils import analysis
+from .latextools_utils import analysis, get_setting
 from .latextools_utils.is_tex_file import get_tex_extensions
 from .latextools_utils.output_directory import (
     get_aux_directory, get_output_directory
 )
-
-from . import getTeXRoot
-from .latextools_utils import get_setting
+from .latextools_utils.tex_directives import get_tex_root
 
 
 def _filter_invalid_entries(entries):
@@ -262,7 +259,7 @@ def parse_completions(view, line):
     completions = []
 
     if entry["type"] == "input":
-        root = getTeXRoot.get_tex_root(view)
+        root = get_tex_root(view)
         if root:
             ana = analysis.get_analysis(root)
             tex_base_path = ana.tex_base_path(view.file_name())

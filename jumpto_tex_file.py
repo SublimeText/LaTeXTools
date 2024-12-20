@@ -8,10 +8,9 @@ import sublime
 import sublime_plugin
 
 from .deprecated_command import deprecate
-from .getTeXRoot import get_tex_root
 from .latextools_utils import analysis, get_setting, utils
 from .latextools_utils.external_command import external_command
-
+from .latextools_utils.tex_directives import get_tex_root
 
 INPUT_REG = re.compile(
     r"\\(?:input|include|subfile|loadglsentries)"

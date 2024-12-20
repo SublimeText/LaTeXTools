@@ -1,7 +1,6 @@
 import sublime_plugin
 
 from .latextools_utils import settings, tex_directives
-from .getTeXRoot import get_tex_root
 
 try:  # check whether the dictionaries package is installed
     import Dictionaries
@@ -130,7 +129,7 @@ def _get_locale(view):
 
 
 def _get_locale_from_tex_root(view):
-    tex_root = get_tex_root(view)
+    tex_root = tex_directives.get_tex_root(view)
     if not tex_root or tex_root == view.file_name():
         return
     return _get_locale(tex_root)

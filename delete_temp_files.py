@@ -1,10 +1,10 @@
 import sublime
 
-from . import getTeXRoot
 from .latextools_utils import cache, get_setting
 from .latextools_utils.output_directory import (
     get_aux_directory, get_output_directory
 )
+from .latextools_utils.tex_directives import get_tex_root
 
 import sublime_plugin
 import os
@@ -50,7 +50,7 @@ class LatextoolsClearLocalCacheCommand(sublime_plugin.WindowCommand):
         if not view.match_selector(0, "text.tex.latex"):
             return
 
-        tex_root = getTeXRoot.get_tex_root(view)
+        tex_root = get_tex_root(view)
         if tex_root:
             # clear the cache
             try:
@@ -92,7 +92,7 @@ class LatextoolsClearBibliographyCacheCommand(sublime_plugin.WindowCommand):
         # if run from a TeX file, clear all bib caches associated with this
         # document
         if view.match_selector(0, "text.tex.latex"):
-            tex_root = getTeXRoot.get_tex_root(view)
+            tex_root = get_tex_root(view)
             for bib_cache in cache_listener._BIB_CACHES.get(tex_root, []):
                 bib_cache.invalidate()
         # if run from a bib file, clear all bib caches that reflect this
@@ -120,7 +120,7 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
         if view is None:
             return
 
-        root_file = getTeXRoot.get_tex_root(view)
+        root_file = get_tex_root(view)
         if root_file is None:
             msg = \
                 'Could not find TEX root. Please ensure that either you ' + \
