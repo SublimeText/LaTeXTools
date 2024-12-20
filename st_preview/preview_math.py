@@ -137,9 +137,11 @@ def _create_image(latex_program, latex_document, base_name, color,
         f.write(latex_document)
 
     # compile the latex document to a pdf
-    execute_command([
-        latex_program, '-interaction=nonstopmode', rel_source_path
-    ], cwd=temp_path)
+    execute_command(
+        [latex_program, '-interaction=nonstopmode', rel_source_path],
+        cwd=temp_path,
+        shell=sublime.platform() == 'windows'
+    )
 
     pdf_exists = os.path.exists(pdf_path)
     if not pdf_exists:
