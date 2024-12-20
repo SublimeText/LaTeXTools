@@ -472,7 +472,7 @@ def _latextools_module_hack():
 
     # restore any temporarily overwritten modules and clear our loaded modules
     for module in plugins_whitelist:
-        if _get_sublime_module_name(mydir, module) != module:
+        if module in sys.modules and _get_sublime_module_name(mydir, module) != module:
             del sys.modules[module]
         if module in overwritten_modules:
             sys.modules[module] = overwritten_modules[module]
