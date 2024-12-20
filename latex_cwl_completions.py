@@ -23,6 +23,8 @@ from .latextools_utils.parser_utils import command_to_snippet
 
 __all__ = ['get_cwl_completions', 'is_cwl_available', 'LatexCwlCompletion']
 
+ST_VER = int(sublime.version())
+
 # Do not do completions in these environments
 ENV_DONOT_AUTO_COM = [
     OLD_STYLE_CITE_REGEX,
@@ -306,7 +308,7 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
 
         # this workaround is no longer needed in st4
 
-        if sublime.version() < '4058' and is_prefixed:
+        if ST_VER < 4058 and is_prefixed:
             completions = [
                 (c[0], c[1][1:]) if c[1].startswith("\\") else c
                 for c in completions

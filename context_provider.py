@@ -38,7 +38,7 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
     def on_query_context(self, view, key, operator, operand, match_all):
         if not key.startswith("latextools."):
             return
-        if not view.score_selector(0, "text.tex.latex"):
+        if not view.match_selector(0, "text.tex.latex"):
             return
 
         key_array = key.split(".")

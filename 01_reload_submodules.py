@@ -68,23 +68,18 @@ LOAD_ORDER = [
     'latextools_plugin',
 
     # ensure latex_fill_all is loaded before the modules that depend on it
-    'latex_fill_all'
+    'latex_fill_all',
+
+    # preview related modules
+    'st_preview.preview_utils',
+    'st_preview.preview_threading',
 ]
 
-# modules which should be scanned for any exports to be hoisted to this
-# module's context
-EXPORT_MODULES = []
-if sublime.version() > '3118':
-    LOAD_ORDER += [
-        'st_preview.preview_utils',
-        'st_preview.preview_threading'
-    ]
-
-    EXPORT_MODULES += [
-        'latextools_utils.input_quickpanel',
-        'st_preview.preview_math',
-        'st_preview.preview_image'
-    ]
+EXPORT_MODULES = [
+    'latextools_utils.input_quickpanel',
+    'st_preview.preview_math',
+    'st_preview.preview_image'
+]
 
 LOAD_ORDER += EXPORT_MODULES
 

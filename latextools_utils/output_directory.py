@@ -282,19 +282,8 @@ def resolve_to_absolute_path(root, value, root_path):
     return result
 
 
-if sublime.version() < '3000':
-    def get_cache_directory():
-        return os.path.join(
-            sublime.packages_path(),
-            'User',
-            '.lt_cache'
-        )
-else:
-    def get_cache_directory():
-        return os.path.join(
-            sublime.cache_path(),
-            'LaTeXTools'
-        )
+def get_cache_directory():
+    return os.path.join(sublime.cache_path(), 'LaTeXTools')
 
 
 # uses a process-wide temp directory which should be cleaned-up on exit

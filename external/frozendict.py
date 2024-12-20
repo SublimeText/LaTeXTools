@@ -23,13 +23,11 @@
 import collections
 import copy
 
-_iteritems = getattr(dict, 'iteritems', dict.items)  # py2-3 compatibility
 
-
-class frozendict(collections.Mapping):
+class frozendict(collections.abc.Mapping):
     """
     An immutable wrapper around dictionaries that implements the complete
-    :py:class:`collections.Mapping` interface.
+    :py:class:`collections.abc.Mapping` interface.
 
     It can be used as a drop-in replacement for dictionaries where immutability
     is desired.
@@ -79,7 +77,7 @@ class frozendict(collections.Mapping):
     def __hash__(self):
         if self._hash is None:
             h = 0
-            for key, value in _iteritems(self._dict):
+            for key, value in self._dict.items():
                 h ^= hash((key, value))
             self._hash = h
         return self._hash

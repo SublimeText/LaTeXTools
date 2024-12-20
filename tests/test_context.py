@@ -4,6 +4,8 @@ import sublime
 
 from LaTeXTools.context_provider import LatextoolsContextListener
 
+ST_VER = int(sublime.version())
+
 
 class ContextTest(TestCase):
     def setUp(self):
@@ -38,20 +40,19 @@ class ContextTest(TestCase):
         self.view.sel().add_all(regions)
 
     def test_version(self):
-        version = int(sublime.version())
         ctx = "latextools.st_version"
         self.assertTrue(
-            self.query_context(ctx, operand=">={}".format(version)))
+            self.query_context(ctx, operand=">={}".format(ST_VER)))
         self.assertTrue(
-            self.query_context(ctx, operand="={}".format(version)))
+            self.query_context(ctx, operand="={}".format(ST_VER)))
         self.assertFalse(
-            self.query_context(ctx, operand="<{}".format(version)))
+            self.query_context(ctx, operand="<{}".format(ST_VER)))
         self.assertTrue(
-            self.query_context(ctx, operand="<{}".format(version + 1)))
+            self.query_context(ctx, operand="<{}".format(ST_VER + 1)))
         self.assertTrue(
-            self.query_context(ctx, operand="<={}".format(version + 1)))
+            self.query_context(ctx, operand="<={}".format(ST_VER + 1)))
         self.assertFalse(
-            self.query_context(ctx, operand="<={}".format(version - 1)))
+            self.query_context(ctx, operand="<={}".format(ST_VER - 1)))
 
     def test_documentclass(self):
         ctx = "latextools.documentclass"

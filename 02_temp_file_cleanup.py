@@ -46,6 +46,3 @@ def plugin_loaded():
             os.remove(temporary_output_dirs)
         except OSError:
             pass
-
-if sublime.version() < '3000':
-    plugin_loaded()

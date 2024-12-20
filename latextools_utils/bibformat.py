@@ -3,7 +3,7 @@ import collections
 import re
 
 
-TITLE_SEP = re.compile(':|\.|\?')
+TITLE_SEP = re.compile(r':|\.|\?')
 PREFIX_MATCH_KEYS = set(["keyword", "title", "author"])
 
 formatter = Formatter()
@@ -61,7 +61,7 @@ def get_author_short(authors):
     return authors
 
 
-class CompletionWrapper(collections.Mapping):
+class CompletionWrapper(collections.abc.Mapping):
     '''
     Wraps the returned completions so that we can properly handle any
     KeyErrors that occur

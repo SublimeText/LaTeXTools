@@ -9,7 +9,7 @@ from LaTeXTools.external import latex_chars
 from latextools_utils import bibcache
 
 import codecs
-from collections import Mapping
+import collections
 import sublime
 import traceback
 
@@ -54,7 +54,7 @@ def remove_latex_commands(s):
 
 # wrapper to implement a dict-like interface for bibliographic entries
 # returning formatted value, if it is available
-class EntryWrapper(Mapping):
+class EntryWrapper(collections.abc.Mapping):
     def __init__(self, entry):
         self.entry = entry
 
