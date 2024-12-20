@@ -1,0 +1,126 @@
+[
+	{
+		"caption": "LaTeXTools: Check system",
+		"command": "latextools_system_check"
+	},
+	{
+		"caption": "LaTeXTools: Delete temporary files",
+		"command": "latextools_delete_temp_files"
+	},
+	{
+		"caption": "LaTeXTools: Clear cache",
+		"command": "latextools_clear_cache"
+	},
+	{
+		"caption": "LaTeXTools: Clear document cache",
+		"command": "latextools_clear_local_cache"
+	},
+	{
+		"caption": "LaTeXTools: Clear current bibliography cache",
+		"command": "latextools_clear_bibliography_cache"
+	},
+	{
+		"caption": "LaTeXTools: Fill All Helper",
+		"command": "latextools_fill_all"
+	},
+	{
+		"caption": "LaTeXTools: View PDF",
+		"command": "latextools_view_pdf"
+	},
+	{
+		"caption": "LaTeXTools: Jump to PDF",
+		"command": "latextools_jump_to_pdf"
+	},
+	{
+		"caption": "LaTeXTools: Reveal Aux Directory",
+		"command": "latextools_reveal_aux_directory"
+	},
+	{
+		"caption": "LaTeXTools: Reveal Output Directory",
+		"command": "latextools_reveal_output_directory"
+	},
+	{
+		"caption": "LaTeXTools: Reveal TeX Root Directory",
+		"command": "latextools_reveal_tex_root_directory"
+	},
+	{
+		"caption": "LaTeXTools: Show word count",
+		"command": "latextools_texcount"
+	},
+	{
+		"caption": "LaTeXTools: Show toggles",
+		"command": "toggle_show"
+	},
+	{
+		"caption": "LaTeXTools: Search for commands in document",
+		"command": "latextools_search_command_input"
+	},
+	{
+		"caption": "LaTeXTools: Reset user settings to default",
+		"command": "latextools_migrate"
+	},
+	{
+		"caption": "LaTeXTools: Open Detexify",
+		"command": "latextools_open_detexify"
+	},
+	{
+		"caption": "LaTeXTools: View TeX package documentation",
+		"command": "latextools_pkg_doc"
+	},
+	{
+		"caption": "LaTeXTools: Build cache of LaTeX packages",
+		"command": "latextools_gen_pkg_cache"
+	},
+	{
+		"caption": "LaTeXTools: Update document analysis cache",
+		"command": "latextools_analysis_update"
+	},
+	{
+		"caption": "LaTeXTools: Update bibliography cache",
+		"command": "latextools_bib_update"
+	},
+	{
+		"caption": "LaTeXTools: Paste Image from Clipboard",
+		"command": "latextools_smart_paste"
+	},
+	{
+		"caption": "LaTeXTools: Find deprecated commands",
+		"command": "latextools_find_deprecated_commands"
+	},
+	{
+		"caption": "Preferences: LaTeXTools Settings",
+		"command": "edit_settings",
+		"args": {
+			"base_file": "${packages}/LaTeXTools/LaTeXTools.sublime-settings",
+			"user_file": "${packages}/User/LaTeXTools.sublime-settings",
+			"default": "// Settings in here override those in \"LaTeXTools/LaTeXTools.sublime-settings\"\n{\n\t$0\n}\n"
+		}
+	},
+	{
+		"caption": "Preferences: LaTeXTools Advanced Settings",
+		"command": "edit_settings",
+		"args": {
+			"base_file": "${packages}/LaTeXTools/LaTeXTools (Advanced).sublime-settings",
+			"user_file": "${packages}/User/LaTeXTools (Advanced).sublime-settings",
+			"default": "// Settings in here override those in \"LaTeXTools/LaTeXTools (Advanced).sublime-settings\"\n{\n\t$0\n}\n"
+		}
+	},
+	{
+		"caption": "Preferences: LaTeXTools Key Bindings",
+		"command": "edit_settings",
+		"args": {
+			"base_file": "${packages}/LaTeXTools/Default ($platform).sublime-keymap",
+			"user_file": "${packages}/User/Default ($platform).sublime-keymap",
+			"default": "[\n\t$0\n]\n"
+		}
+	},
+	{
+		"caption": "Preferences: LaTeXTools Mouse Bindings",
+		"command": "edit_settings",
+		"args": {
+			"base_file": "${packages}/LaTeXTools/Default ($platform).sublime-mousemap",
+			"user_file": "${packages}/User/Default ($platform).sublime-mousemap",
+			"default": "[\n\t$0\n]\n"
+		}
+	},
+]
