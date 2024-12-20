@@ -289,7 +289,7 @@ LaTeX Package keymap for Linux
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex"}],
 		"command": "latextools_toc_quickpanel"},
-	{ "keys": ["ctrl+l","ctrl+shift+r"], "command": "latextools_toc_quickpanel",
+	{ "keys": ["ctrl+l","ctrl+shift+r"],
 		"args": {"only_current_file": false},
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex"}],

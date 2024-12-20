@@ -289,7 +289,7 @@ LaTeX Package keymap for OS X
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex"}],
 		"command": "latextools_toc_quickpanel"},
-	{ "keys": ["super+l","super+shift+r"], "command": "latextools_toc_quickpanel",
+	{ "keys": ["super+l","super+shift+r"],
 		"args": {"only_current_file": false},
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex"}],
