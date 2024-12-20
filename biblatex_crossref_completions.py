@@ -137,8 +137,7 @@ def get_completions_if_matches(regex, line, get_key_list_func, view):
                 (key, _get_replacement(matcher, key))
                 for key in sorted(set(get_key_list_func(view)))
             ],
-            sublime.INHIBIT_WORD_COMPLETIONS |
-            sublime.INHIBIT_EXPLICIT_COMPLETIONS
+            sublime.INHIBIT_WORD_COMPLETIONS
         )
     else:
         return []
