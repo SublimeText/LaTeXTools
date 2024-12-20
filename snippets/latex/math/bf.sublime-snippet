@@ -1,0 +1,10 @@
+
+<snippet>
+    <content><![CDATA[\mathbf{$1}]]></content>
+    <tabTrigger>bf</tabTrigger>
+    <scope>
+        text.tex.latex meta.environment.math,
+        text.tex.latex string.other.math
+    </scope>
+    <description>\mathbf{}</description>
+</snippet>

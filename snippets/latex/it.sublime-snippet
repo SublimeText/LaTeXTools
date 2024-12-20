@@ -1,0 +1,11 @@
+
+<snippet>
+    <content><![CDATA[\textit{$1}]]></content>
+    <tabTrigger>it</tabTrigger>
+    <scope>
+        text.tex.latex
+        - text.tex.latex meta.environment.math
+        - text.tex.latexstring.other.math
+    </scope>
+    <description>\textit{}</description>
+</snippet>

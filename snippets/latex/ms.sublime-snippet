@@ -1,0 +1,11 @@
+
+<snippet>
+    <content><![CDATA[\medskip]]></content>
+    <tabTrigger>ms</tabTrigger>
+    <scope>
+        text.tex.latex
+        - text.tex.latex meta.environment.math
+        - text.tex.latexstring.other.math
+    </scope>
+    <description>\medskip</description>
+</snippet>

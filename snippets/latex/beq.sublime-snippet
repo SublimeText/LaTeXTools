@@ -1,0 +1,13 @@
+
+<snippet>
+    <content><![CDATA[\[
+$0
+\]]]></content>
+    <tabTrigger>beq</tabTrigger>
+    <scope>
+        text.tex.latex
+        - text.tex.latex meta.environment.math
+        - text.tex.latexstring.other.math
+    </scope>
+    <description>\[</description>
+</snippet>

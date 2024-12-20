@@ -1,0 +1,10 @@
+
+<snippet>
+    <content><![CDATA[\Omega]]></content>
+    <tabTrigger>W</tabTrigger>
+    <scope>
+        text.tex.latex meta.environment.math,
+        text.tex.latex string.other.math
+    </scope>
+    <description>\Omega</description>
+</snippet>

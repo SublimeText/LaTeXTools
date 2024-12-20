@@ -1,0 +1,10 @@
+
+<snippet>
+    <content><![CDATA[\left( $1 \right) ]]></content>
+    <tabTrigger>lp</tabTrigger>
+    <scope>
+        text.tex.latex meta.environment.math,
+        text.tex.latex string.other.math
+    </scope>
+    <description>\left( $1 \right) </description>
+</snippet>

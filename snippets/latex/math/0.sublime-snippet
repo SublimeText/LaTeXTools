@@ -1,0 +1,10 @@
+
+<snippet>
+    <content><![CDATA[\emptyset]]></content>
+    <tabTrigger>0</tabTrigger>
+    <scope>
+        text.tex.latex meta.environment.math,
+        text.tex.latex string.other.math
+    </scope>
+    <description>\emptyset</description>
+</snippet>

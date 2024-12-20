@@ -1,0 +1,10 @@
+
+<snippet>
+    <content><![CDATA[\eta]]></content>
+    <tabTrigger>h</tabTrigger>
+    <scope>
+        text.tex.latex meta.environment.math,
+        text.tex.latex string.other.math
+    </scope>
+    <description>\eta</description>
+</snippet>

@@ -1,0 +1,11 @@
+
+<snippet>
+    <content><![CDATA[\bigskip]]></content>
+    <tabTrigger>bs</tabTrigger>
+    <scope>
+        text.tex.latex
+        - text.tex.latex meta.environment.math
+        - text.tex.latexstring.other.math
+    </scope>
+    <description>\bigskip</description>
+</snippet>

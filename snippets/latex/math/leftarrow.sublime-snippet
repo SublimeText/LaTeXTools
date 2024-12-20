@@ -1,0 +1,10 @@
+
+<snippet>
+    <content><![CDATA[Leftarrow]]></content>
+    <tabTrigger>Leftarrow</tabTrigger>
+    <scope>
+        text.tex.latex meta.environment.math,
+        text.tex.latex string.other.math
+    </scope>
+    <description>Leftarrow</description>
+</snippet>
