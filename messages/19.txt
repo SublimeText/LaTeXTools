@@ -1,8 +1,0 @@
-LaTeXTools Plugin version 2015-10-01 changelog:
-
-Sorry for the long hiatus. This is a quick-fix release for El Capitan. More is coming though!
-
-If you are NOT on a Mac running El Capitan, there is nothing you need to do, and no other news.
-
-NOTE: please check the README. I updated the default settings file, but some action is required on your part. The README has the details, which DO depend upon the version of MacTeX you are running.
-  
