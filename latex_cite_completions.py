@@ -15,7 +15,10 @@ At present, there is one supported method on custom plugins.
     can override this behaviour, however, by explicitly setting a value for
     whatever key they like.
 '''
+import os
+import re
 import sublime
+import traceback
 
 from .kpsewhich import kpsewhich
 from .latex_fill_all import FillAllHelper
@@ -24,11 +27,6 @@ from .latextools_utils import (
 )
 from .latextools_utils.tex_directives import get_tex_root
 from . import latextools_plugin
-
-import os
-import re
-
-import traceback
 
 
 class NoBibFilesError(Exception):
@@ -278,6 +276,20 @@ def find_bib_files(root):
     return result
 
 
+def find_open_bib_files():
+    window = sublime.active_window()
+    if not window:
+        return []
+
+    result = set()
+    for v in window.views() :
+        fname = v.file_name()
+        if fname and fname.endswith('.bib'):
+            result.add(fname)
+
+    return list(result)
+
+
 def run_plugin_command(command, *args, **kwargs):
     '''
     This function is intended to run a command against a user-configurable list
@@ -392,25 +404,27 @@ def run_plugin_command(command, *args, **kwargs):
 
 
 def get_cite_completions(view):
+    bib_files = None
+
     root = get_tex_root(view)
-
-    if root is None:
-        # This is an unnamed, unsaved file
-        # FIXME: should probably search the buffer instead of giving up
-        raise NoBibFilesError()
-
-    print(u"TEX root: " + repr(root))
-    bib_files = find_bib_files(root)
-    print("Bib files found: ")
-    print(repr(bib_files))
+    if root:
+        print("TEX root:", root)
+        bib_files = find_bib_files(root)
+        print("Bib files found: ")
+        print(bib_files)
+    
+    if not bib_files:
+        # Check the open files, in case the current file is TEX root,
+        # but doesn't reference anything
+        bib_files = find_open_bib_files()
+        print("Open Bib files found: ")
+        print(bib_files)
 
     if not bib_files:
         # sublime.error_message("No bib files found!") # here we can!
         raise NoBibFilesError()
 
-    completions = run_plugin_command('get_entries', *bib_files)
-
-    return completions
+    return run_plugin_command('get_entries', *bib_files)
 
 
 # called by LatextoolsFillAllCommand; provides citations for cite commands

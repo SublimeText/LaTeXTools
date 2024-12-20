@@ -44,24 +44,29 @@ def find_labels_in_files(root, labels):
         labels.append(command.args)
 
 
+# grab labels from all open buffers too
+def find_labels_in_open_files(views, labels):
+    for view in views:
+        if view.match_selector(0, 'text.tex.latex'):
+            view.find_all(r'\\label\{([^\{\}]+)\}', 0, '\\1', labels)
+
+
 # get_ref_completions forms the guts of the parsing shared by both the
 # autocomplete plugin and the quick panel command
 def get_ref_completions(view):
     completions = []
-    # Check the file buffer first:
-    #    1) in case there are unsaved changes
-    #    2) if this file is unnamed and unsaved, get_tex_root will fail
-    view.find_all(r'\\label\{([^\{\}]+)\}', 0, '\\1', completions)
+
+    window = view.window()
+    if window:
+        find_labels_in_open_files(window.views(), completions)
 
     root = get_tex_root(view)
     if root:
-        print(u"TEX root: " + repr(root))
+        print("TEX root: " + repr(root))
         find_labels_in_files(root, completions)
 
     # remove duplicates
-    completions = list(set(completions))
-
-    return completions
+    return list(set(completions))
 
 
 # called by LatextoolsFillAllCommand; provides a list of labels
