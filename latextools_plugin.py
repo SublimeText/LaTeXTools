@@ -432,14 +432,14 @@ def _latextools_module_hack():
     whitelist.extend(internal._WHITELIST_ADDED)
 
     # put the directory containing this file on the sys.path
-    __dir__ = os.path.dirname(__file__)
+    mydir = os.path.dirname(__file__)
 
     # handles ST2s relative directory
-    if __dir__ == '.':
-        __dir__ = os.path.join(sublime.packages_path(), 'LaTeXTools')
+    if mydir == '.':
+        mydir = os.path.join(sublime.packages_path(), 'LaTeXTools')
 
     # insert the LaTeXTools directory on the path
-    sys.path.insert(0, __dir__)
+    sys.path.insert(0, mydir)
     for name, module in whitelist:
         if callable(module):
             module = module()
@@ -450,12 +450,12 @@ def _latextools_module_hack():
         # attempting to autoload module
         if module is None:
             # if the module has already been loaded by ST, we just use that
-            latextools_module_name = _get_sublime_module_name(__dir__, name)
+            latextools_module_name = _get_sublime_module_name(mydir, name)
             if latextools_module_name in sys.modules:
                 sys.modules[name] = sys.modules[latextools_module_name]
             else:
                 try:
-                    sys.modules[name] = _load_module(name, name, __dir__)
+                    sys.modules[name] = _load_module(name, name, mydir)
                 except ImportError:
                     print(
                         'An error occurred while trying to load white-listed '
@@ -472,7 +472,7 @@ def _latextools_module_hack():
 
     # restore any temporarily overwritten modules and clear our loaded modules
     for module in plugins_whitelist:
-        if _get_sublime_module_name(__dir__, module) != module:
+        if _get_sublime_module_name(mydir, module) != module:
             del sys.modules[module]
         if module in overwritten_modules:
             sys.modules[module] = overwritten_modules[module]
