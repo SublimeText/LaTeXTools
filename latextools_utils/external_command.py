@@ -34,9 +34,16 @@
 # whether or not to run the executable with the PATH set to the current value
 # of texpath.
 import os
-import sys
 import re
-from imp import reload
+import sys
+
+try:
+    # python 3.8+
+    from importlib import reload
+except ImportError:
+    # python 3.3
+    from imp import reload
+
 from shlex import split, quote
 from shutil import which
 
