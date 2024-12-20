@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[\ldots]]></content>
+	<tabTrigger>ld</tabTrigger>
+	<scope>text.tex.latex meta.environment.math</scope>
+	<description>\ldots</description>
+</snippet>

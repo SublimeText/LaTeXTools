@@ -1,5 +1,0 @@
-<snippet>
-	<content><![CDATA[\\mathbf{${1:$SELECTION}}]]></content>
-	<scope>text.tex.latex meta.environment.math</scope>
-	<description>Boldface text</description>
-</snippet>

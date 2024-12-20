@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[\beta]]></content>
+	<tabTrigger>b</tabTrigger>
+	<scope>text.tex.latex meta.environment.math</scope>
+	<description>\beta</description>
+</snippet>

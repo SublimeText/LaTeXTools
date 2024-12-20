@@ -1,0 +1,12 @@
+<snippet>
+	<content><![CDATA[
+% Optional fields: editor, volume/number, series, address, month, publisher, organization, note
+@PROCCEDINGS{${1:Key},
+	title = {${2:Title}},
+	year = {${3:Year}}
+}
+]]></content>
+	<tabTrigger>proceedings</tabTrigger>
+	<scope>text.bibtex - meta.entry.braces.bibtex - meta.entry.parenthesis.bibtex - meta.entry.arguments.bibtex</scope>
+	<description>BibTeX Proceedings</description>
+</snippet>

@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[\exists]]></content>
+	<tabTrigger>E</tabTrigger>
+	<scope>text.tex.latex meta.environment.math</scope>
+	<description>\exists</description>
+</snippet>

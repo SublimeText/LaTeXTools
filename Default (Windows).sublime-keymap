@@ -297,21 +297,21 @@ LaTeX Package keymap for Linux
 	// Wrap selected text in command or environment
 	{
 		"keys": ["ctrl+l","ctrl+c"],
-		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/Wrap in command.sublime-snippet" },
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/Wrap in command.sublime-snippet" },
 		"context": [
 			{ "key": "selector", "operand": "text.tex.latex" }
 		]
 	},
 	{
 		"keys": ["ctrl+l","ctrl+n"],
-		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/Wrap in environment.sublime-snippet" },
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/Wrap in environment.sublime-snippet" },
 		"context": [
 			{ "key": "selector", "operand": "text.tex.latex" }
 		]
 	},
 	{
 		"keys": ["ctrl+l","ctrl+n"],
-		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/Insert environment.sublime-snippet" },
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/Insert environment.sublime-snippet" },
 		"context": [
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex" }
@@ -336,43 +336,50 @@ LaTeX Package keymap for Linux
 
 	// Wrap selected text in emph, bold or underline
 	{
-		"keys": ["ctrl+l","ctrl+e"],
-		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/Text emphasize.sublime-snippet" },
+		"keys": ["ctrl+l","ctrl+b"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/bf.sublime-snippet" },
 		"context": [
-			{ "key": "selector", "operand": "text.tex.latex" }
+			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
 		]
 	},
 	{
 		"keys": ["ctrl+l","ctrl+b"],
-		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/Text boldface.sublime-snippet" },
-		"context": [
-			{ "key": "selector", "operand": "text.tex.latex" }
-		]
-	},
-	{
-		"keys": ["ctrl+l","ctrl+b"],
-		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/Math boldface.sublime-snippet" },
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/math/bf.sublime-snippet" },
 		"context": [
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" }
 		]
 	},
 	{
-		"keys": ["ctrl+l","ctrl+s"],
-		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/Text slanted.sublime-snippet" },
+		"keys": ["ctrl+l","ctrl+e"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/em.sublime-snippet" },
 		"context": [
 			{ "key": "selector", "operand": "text.tex.latex" }
 		]
 	},
 	{
-		"keys": ["ctrl+l","ctrl+u"],
-		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/Text underline.sublime-snippet" },
+		"keys": ["ctrl+l","ctrl+s"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/sl.sublime-snippet" },
 		"context": [
-			{ "key": "selector", "operand": "text.tex.latex" }
+			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
 		]
 	},
 	{
 		"keys": ["ctrl+l","ctrl+t"],
-		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/Text monospace.sublime-snippet" },
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/tt.sublime-snippet" },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
+		]
+	},
+	{
+		"keys": ["ctrl+l","ctrl+t"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/math/tt.sublime-snippet" },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" }
+		]
+	},
+	{
+		"keys": ["ctrl+l","ctrl+u"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/un.sublime-snippet" },
 		"context": [
 			{ "key": "selector", "operand": "text.tex.latex" }
 		]

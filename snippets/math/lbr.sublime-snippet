@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[\left\\{ $0 \right\\}]]></content>
+	<tabTrigger>lbr</tabTrigger>
+	<scope>text.tex.latex meta.environment.math</scope>
+	<description>\left\\{  \right\\}</description>
+</snippet>

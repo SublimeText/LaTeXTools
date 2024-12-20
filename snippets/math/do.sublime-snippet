@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[\downarrow]]></content>
+	<tabTrigger>do</tabTrigger>
+	<scope>text.tex.latex meta.environment.math</scope>
+	<description>\downarrow</description>
+</snippet>

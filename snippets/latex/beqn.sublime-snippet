@@ -1,0 +1,9 @@
+<snippet>
+	<content><![CDATA[\begin{equation}
+$0
+\end{equation}
+]]></content>
+	<tabTrigger>beqn</tabTrigger>
+	<scope>text.tex.latex - text.tex.latex meta.environment.math</scope>
+	<description>\begin{equation}</description>
+</snippet>

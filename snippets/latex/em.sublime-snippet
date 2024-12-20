@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[\emph{${1:$SELECTION}}]]></content>
+	<tabTrigger>em</tabTrigger>
+	<scope>text.tex.latex - text.tex.latex meta.environment.math</scope>
+	<description>\emph{}</description>
+</snippet>

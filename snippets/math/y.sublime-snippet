@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[\psi]]></content>
+	<tabTrigger>y</tabTrigger>
+	<scope>text.tex.latex meta.environment.math</scope>
+	<description>\psi</description>
+</snippet>

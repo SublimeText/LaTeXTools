@@ -1,5 +1,0 @@
-<snippet>
-	<content><![CDATA[\\underline{${1:$SELECTION}}]]></content>
-	<scope>text.tex.latex</scope>
-	<description>Underline text</description>
-</snippet>

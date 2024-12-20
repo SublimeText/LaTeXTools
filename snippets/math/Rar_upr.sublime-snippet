@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[\Rightarrow]]></content>
+	<tabTrigger>Rar</tabTrigger>
+	<scope>text.tex.latex meta.environment.math</scope>
+	<description>\Rightarrow</description>
+</snippet>

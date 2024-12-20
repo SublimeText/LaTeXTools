@@ -29,9 +29,6 @@ else:
     from .latextools.biblatex_name_completions import (
         BiblatexNameCompletions
     )
-    from .latextools.biblatex_snippet_completions import (
-        SnippetCompletions
-    )
     from .latextools.biblatex_syntax_listener import (
         BibLaTeXSyntaxListener
     )

@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[\quad]]></content>
+	<tabTrigger>qd</tabTrigger>
+	<scope>text.tex.latex meta.environment.math</scope>
+	<description>\quad</description>
+</snippet>

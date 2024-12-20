@@ -1,0 +1,11 @@
+<snippet>
+	<content><![CDATA[
+% Optional fields: author, title, howpublished, month, year, note
+@MISC{${1:Key},
+	${2}
+}
+]]></content>
+	<tabTrigger>misc</tabTrigger>
+	<scope>text.bibtex - meta.entry.braces.bibtex - meta.entry.parenthesis.bibtex - meta.entry.arguments.bibtex</scope>
+	<description>BibTeX Misc</description>
+</snippet>

@@ -1,0 +1,9 @@
+<snippet>
+	<content><![CDATA[\begin{flalign}
+$0
+\end{flalign}
+]]></content>
+	<tabTrigger>bfln</tabTrigger>
+	<scope>text.tex.latex - text.tex.latex meta.environment.math</scope>
+	<description>\begin{flalign}</description>
+</snippet>

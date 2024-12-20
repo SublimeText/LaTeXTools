@@ -1,5 +1,0 @@
-<snippet>
-	<content><![CDATA[\\${1:cmd}{${2:$SELECTION}}]]></content>
-	<scope>text.tex.latex</scope>
-	<description>Wrap selection in LaTeX command</description>
-</snippet>

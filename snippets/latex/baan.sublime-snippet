@@ -1,0 +1,9 @@
+<snippet>
+	<content><![CDATA[\begin{alignat}
+$0
+\end{alignat}
+]]></content>
+	<tabTrigger>baan</tabTrigger>
+	<scope>text.tex.latex - text.tex.latex meta.environment.math</scope>
+	<description>\begin{alignat}</description>
+</snippet>

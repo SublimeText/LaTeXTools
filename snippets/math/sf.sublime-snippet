@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[\mathsf{${1:$SELECTION}}]]></content>
+	<tabTrigger>sf</tabTrigger>
+	<scope>text.tex.latex meta.environment.math</scope>
+	<description>\mathsf{}</description>
+</snippet>

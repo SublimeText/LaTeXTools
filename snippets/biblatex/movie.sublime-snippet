@@ -1,0 +1,11 @@
+<snippet>
+	<content><![CDATA[
+% Optional fields: author, title, subtitle, titleaddon, language, howpublished, type, version, note, organization, location, date, month, year, addendum, pubstate, doi, eprint, eprintclass, eprinttype, url, urldate
+@movie{${1:Key},
+	${2}
+}
+]]></content>
+	<tabTrigger>movie</tabTrigger>
+	<scope>text.biblatex - meta.entry.braces.bibtex - meta.entry.parenthesis.bibtex - meta.entry.arguments.bibtex</scope>
+	<description>BibLaTeX Movie</description>
+</snippet>

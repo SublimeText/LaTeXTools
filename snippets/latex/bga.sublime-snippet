@@ -1,0 +1,9 @@
+<snippet>
+	<content><![CDATA[\begin{gather*}
+$0
+\end{gather*}
+]]></content>
+	<tabTrigger>bga</tabTrigger>
+	<scope>text.tex.latex - text.tex.latex meta.environment.math</scope>
+	<description>\begin{gather*}</description>
+</snippet>

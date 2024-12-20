@@ -1,0 +1,13 @@
+<snippet>
+	<content><![CDATA[
+% Optional fields: subtitle, titleaddon, language, version, note, organization, date, month, year, addendum, pubstate, urldate
+@www{${1:Key},
+	author = {${2:Author/Editor}},
+	title = {${3:Title}},
+	year = {${4:Year}}
+}
+]]></content>
+	<tabTrigger>www</tabTrigger>
+	<scope>text.biblatex - meta.entry.braces.bibtex - meta.entry.parenthesis.bibtex - meta.entry.arguments.bibtex</scope>
+	<description>BibLaTeX WWW</description>
+</snippet>

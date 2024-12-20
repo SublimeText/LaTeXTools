@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[\kappa]]></content>
+	<tabTrigger>k</tabTrigger>
+	<scope>text.tex.latex meta.environment.math</scope>
+	<description>\kappa</description>
+</snippet>

@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[\frac{$1}{$2}]]></content>
+	<tabTrigger>fra</tabTrigger>
+	<scope>text.tex.latex meta.environment.math</scope>
+	<description>\frac{}{}</description>
+</snippet>
