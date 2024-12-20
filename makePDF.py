@@ -400,7 +400,8 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
                     if sublime.platform() == 'windows':
                         execute_command(
                             'taskkill /t /f /pid {pid}'.format(pid=self.proc.pid),
-                            use_texpath=False
+                            use_texpath=False,
+                            shell=True
                         )
                     else:
                         os.killpg(self.proc.pid, signal.SIGTERM)
