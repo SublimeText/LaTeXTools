@@ -124,19 +124,6 @@ def external_command(command, cwd=None, shell=False, env=None,
     if env is not None:
         update_env(_env, env)
 
-    # if command is a string rather than a list, convert it to a list
-    # unless shell is set to True on a non-Windows platform
-    if (
-        (shell is False or sublime.platform() == 'windows') and
-        isinstance(command, str)
-    ):
-        command = split(command, False, False)
-    elif (
-        shell is True and sublime.platform() != 'windows' and
-        (isinstance(command, list) or isinstance(command, tuple))
-    ):
-        command = ' '.join(command)
-
     # Windows-specific adjustments
     startupinfo = None
     if sublime.platform() == 'windows':
@@ -146,14 +133,6 @@ def external_command(command, cwd=None, shell=False, env=None,
 
         if show_window:
             startupinfo.wShowWindow = 1
-
-        if not os.path.isabs(command[0]):
-            _command = which(
-                command[0], path=_env['PATH'] or os.environ['PATH']
-            )
-
-            if _command:
-                command[0] = _command
 
     if stdin is __sentinel__:
         stdin = None
