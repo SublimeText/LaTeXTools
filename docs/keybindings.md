@@ -273,6 +273,6 @@ You can also *change the current environment* using the <kbd>C+l</kbd>,<kbd>C+Sh
 
 **Keybinding:** <kbd>C+l</kbd>,<kbd>w</kbd>
 
-This uses [TeXcount](http://ctan.org/pkg/texcount) to generate a word count for the current document which is displayed in a quick panel. If you don't have the `TeXcount`, you will simply get an error message. Word counts in LaTeX documents can be quite finicky, and its worth reviewing the TeXcount documentation to ensure your document is setup to generate as accurate a word-count as possible. The counts returned are those reported by: `texcount -total -merge <main_file.tex>`.
+This uses [TeXcount](https://ctan.org/pkg/texcount) to generate a word count for the current document which is displayed in a quick panel. If you don't have the `TeXcount`, you will simply get an error message. Word counts in LaTeX documents can be quite finicky, and its worth reviewing the TeXcount documentation to ensure your document is setup to generate as accurate a word-count as possible. The counts returned are those reported by: `texcount -total -merge <main_file.tex>`.
 
 The `word_count_sub_level` setting can be tweaked to display subcounts by chapter, section, etc. See the [Settings](settings.md).

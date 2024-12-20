@@ -24,7 +24,7 @@ If you don't want to install the entire MacTeX distribution—which is pretty bi
 
 ### Setup Skim
 
-We recommend that you install the [Skim PDF viewer](http://skim-app.sourceforge.net/), as this provides forward and inverse search capabilities, which are very useful! Skim is the default viewer that LaTeXTools uses on OS X. If you don't install Skim, please see the information on [available viewers](available-viewers.md#preview) for details on how to setup LaTeXTools to work with Preview.app
+We recommend that you install the [Skim PDF viewer](https://skim-app.sourceforge.net/), as this provides forward and inverse search capabilities, which are very useful! Skim is the default viewer that LaTeXTools uses on OS X. If you don't install Skim, please see the information on [available viewers](available-viewers.md#preview) for details on how to setup LaTeXTools to work with Preview.app
 
 To configure inverse search, in Skim, open the **Preferences** dialog, select the **Sync** tab, then:
 
@@ -43,7 +43,7 @@ Similarly, if you would like to use the image preview feature to view file types
 
 If you do not want to use the image preview feature, change the `preview_image_mode` setting to `"none"` when you are configuring your settings.
 
-The easiest way to install ImageMagick or Ghostscript is to use either [Homebrew](http://brew.sh/) or [MacPorts](https://www.macports.org/). Installing should be as simple as typing the relevant command in the Terminal:
+The easiest way to install ImageMagick or Ghostscript is to use either [Homebrew](https://brew.sh/) or [MacPorts](https://www.macports.org/). Installing should be as simple as typing the relevant command in the Terminal:
 
 |Product|Package Manager|Command|
 |-------|---------------|-------|
@@ -52,7 +52,7 @@ The easiest way to install ImageMagick or Ghostscript is to use either [Homebrew
 |Ghostscript|Homebrew|`brew install ghostscript`|
 |Ghostscript|Mac Ports|`sudo port install ghostscript`|
 
-If you do not use Homebrew or MacPorts (and you should), you will need to compile and install binaries from source. The source for Ghostscript can be found [on this page](http://ghostscript.com/download/gsdnld.html) and the source and compilation instructions for ImageMagick can be found [on this page](http://www.imagemagick.org/script/binary-releases.php#macosx).
+If you do not use Homebrew or MacPorts (and you should), you will need to compile and install binaries from source. The source for Ghostscript can be found [on this page](https://ghostscript.com/download/gsdnld.html) and the source and compilation instructions for ImageMagick can be found [on this page](https://www.imagemagick.org/script/binary-releases.php#macosx).
 
 You can use the **LaTeXTools: Check System** command to verify that these are installed and setup in a place LaTeXTools can find.
 
@@ -77,15 +77,15 @@ Sorry for the complications. It's not my fault.
 
 ### Distribution
 
-On **Windows**, both [MiKTeX](http://www.miktex.org/) and [TeXLive](https://www.tug.org/texlive/) are supported. Pick one and install it following the relevant documentation.
+On **Windows**, both [MiKTeX](https://www.miktex.org/) and [TeXLive](https://www.tug.org/texlive/) are supported. Pick one and install it following the relevant documentation.
 
 ### Setup Sumatra
 
-We recommend that you also install the [Sumatra PDF viewer](http://www.sumatrapdfreader.org/). Its very light-weight and supports both forward and inverse search. It is also the only viewer supported on Windows. Just download and install it in the normal way.
+We recommend that you also install the [Sumatra PDF viewer](https://www.sumatrapdfreader.org/). Its very light-weight and supports both forward and inverse search. It is also the only viewer supported on Windows. Just download and install it in the normal way.
 
 Once you've installed SumatraPDF, its a good idea to add it to your `PATH` so that LaTeXTools can easily find it. To do this, find the folder you installed SumatraPDF to (usually `C:\Program Files\SumatraPDF`). Once you have this, open the command line (`cmd.exe`) and run `setx PATH %PATH%;C:\Program Files\SumatraPDF`, changing the `C:\Program Files\SumatraPDF` depending on where you actually installed it.
 
-You now need to set up inverse search in Sumatra PDF. However, the GUI for doing this is hidden in Sumatra until you open a PDF file that has actual synchronization information (that is, an associated `.synctex.gz` file). See [this forum post](http://forums.fofou.org/sumatrapdf/topic?id=2026321) for details. 
+You now need to set up inverse search in Sumatra PDF. However, the GUI for doing this is hidden in Sumatra until you open a PDF file that has actual synchronization information (that is, an associated `.synctex.gz` file). See [this forum post](https://forums.fofou.org/sumatrapdf/topic?id=2026321) for details. 
 
 If you have a PDF file with a corresponding `.synctex.gz` file, then open it in Sumatra and go to **Settings | Options**, and enter:
 
@@ -112,9 +112,9 @@ To install and setup Ghostcript:
 
 * If you are using MiKTeX, LaTeXTools should automatically find the MiKTeX Ghostscript install, provided MiKTeX is available on your `PATH` system variable or via the LaTeXTools `texpath` setting.
 * If you are using TeXLive and you installed the default profile, you should already have Ghostscript installed in `<drive>:path\to\texlive\<year>\tlpkg\tlgs\bin`. Make sure this is added to your `PATH` system variable or to the `texpath` when setting up LaTeXTools.
-* If you do not have Ghostscript installed, you can simple download and install the [latest release here](http://ghostscript.com/download/gsdnld.html).
+* If you do not have Ghostscript installed, you can simple download and install the [latest release here](https://ghostscript.com/download/gsdnld.html).
 
-Similarly, if you would like to use the image preview feature to view file types not support by SublimeText or Ghostcript (so anything other than PNGs, JPEGs, GIFs, PDFs, EPSs, and PSs), you will need to ensure that [ImageMagick](http://www.imagemagick.org/) is installed on your machine, which you should be able to do using one of the [binary releases](http://www.imagemagick.org/script/binary-releases.php#windows). Once ImageMagick is installed, ensure its location is either added to your `PATH` system variable or the `texpath` LaTeXTools setting.
+Similarly, if you would like to use the image preview feature to view file types not support by SublimeText or Ghostcript (so anything other than PNGs, JPEGs, GIFs, PDFs, EPSs, and PSs), you will need to ensure that [ImageMagick](https://www.imagemagick.org/) is installed on your machine, which you should be able to do using one of the [binary releases](https://www.imagemagick.org/script/binary-releases.php#windows). Once ImageMagick is installed, ensure its location is either added to your `PATH` system variable or the `texpath` LaTeXTools setting.
 
 If you do not want to use the image preview feature, change the `preview_image_mode` setting to `"none"` when you are configuring your settings.
 

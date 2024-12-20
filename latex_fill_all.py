@@ -795,7 +795,7 @@ class LatexFillAllEventListener(
         else:
             # this assumes that all regions have a similar current word
             # not ideal, but reasonably safe see:
-            # http://docs.sublimetext.info/en/latest/extensibility/completions.html#completions-with-multiple-cursors
+            # https://docs.sublimetext.info/en/latest/extensibility/completions.html#completions-with-multiple-cursors
             insert_char = view.substr(
                 self.get_current_word(view, locations[0])
             )

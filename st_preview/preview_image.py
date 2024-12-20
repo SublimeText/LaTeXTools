@@ -132,8 +132,8 @@ def _is_jpg(h):
     return h.startswith(b'\xff\xd8')
 
 
-# from http://stackoverflow.com/a/20380514/5963435
-# somewhat enhanced from http://stackoverflow.com/a/39778771
+# from https://stackoverflow.com/a/20380514/5963435
+# somewhat enhanced from https://stackoverflow.com/a/39778771
 def get_image_size(image_path):
     '''Determine the image type of image_path and return its size.
     from draco'''
