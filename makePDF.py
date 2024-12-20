@@ -126,7 +126,7 @@ class CmdThread(threading.Thread):
                         self.caller.show_output_panel()
                         self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
                         self.caller.output("Attempted command:")
-                        self.caller.output(" ".join(cmd))
+                        self.caller.output(subprocess.list2cmdline(cmd))
                         self.caller.output("\nBuild engine: " + self.caller.builder.name)
                         self.caller.proc = None
                         traceback.print_exc()
