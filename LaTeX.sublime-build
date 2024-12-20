@@ -8,27 +8,22 @@
 // Again: there is NOTHING user-customizable here anymore.
 
 {
-
 	"target": "latextools_make_pdf",
 	"selector": "text.tex.latex",
 
-	"osx":
-		{
-			"file_regex": "^(...*?):([0-9]+): ([0-9]*)([^\\.]+)"
-		},
+	"osx": {
+		"file_regex": "^(...*?):([0-9]+): ([0-9]*)([^\\.]+)"
+	},
 
-	"windows":
-		{
-			"file_regex": "^((?:.:)?[^:\n\r]*):([0-9]+):?([0-9]+)?:? (.*)$"
-		},
+	"windows": {
+		"file_regex": "^((?:.:)?[^:\n\r]*):([0-9]+):?([0-9]+)?:? (.*)$"
+	},
 
-	"linux":
-		{
-			"file_regex": "^(...*?):([0-9]+): ([0-9]*)([^\\.]+)"
-		},
+	"linux": {
+		"file_regex": "^(...*?):([0-9]+): ([0-9]*)([^\\.]+)"
+	},
 
-	"variants":
-	[
+	"variants": [
 		{
 			"name": "Traditional",
 			"builder": "traditional"
