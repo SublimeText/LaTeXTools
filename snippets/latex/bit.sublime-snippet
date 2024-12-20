@@ -7,6 +7,7 @@
     <tabTrigger>bit</tabTrigger>
     <scope>
         text.tex.latex
+        - text.tex.latex meta.group
         - text.tex.latex meta.environment.math
         - text.tex.latexstring.other.math
     </scope>

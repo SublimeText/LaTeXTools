@@ -2,6 +2,11 @@
 	<content><![CDATA[\\begin{remark}\label{rem:$0}
 \\end{remark}]]></content>
 	<tabTrigger>rem</tabTrigger>
-	<scope>text.tex.latex</scope>
+	<scope>
+		text.tex.latex
+		- text.tex.latex meta.group
+		- text.tex.latex meta.environment.math
+		- text.tex.latexstring.other.math
+	</scope>
 	<description>Remark</description>
 </snippet>

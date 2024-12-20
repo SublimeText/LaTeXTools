@@ -1,11 +1,12 @@
 
 <snippet>
-    <content><![CDATA[\usepackage]]></content>
-    <tabTrigger>use</tabTrigger>
-    <scope>
-        text.tex.latex
-        - text.tex.latex meta.environment.math
-        - text.tex.latexstring.other.math
-    </scope>
-    <description>\usepackage</description>
+	<content><![CDATA[\usepackage]]></content>
+	<tabTrigger>use</tabTrigger>
+	<scope>
+		text.tex.latex
+		- text.tex.latex meta.group
+		- text.tex.latex meta.environment.math
+		- text.tex.latexstring.other.math
+	</scope>
+	<description>\usepackage</description>
 </snippet>

@@ -1,10 +1,15 @@
 <snippet>
-    <content><![CDATA[\\begin{frame}[${1:t}]\\frametitle{${2:title}}
-    
+	<content><![CDATA[\\begin{frame}[${1:t}]\\frametitle{${2:title}}
+
 $0
 
 \\end{frame}]]></content>
-    <tabTrigger>frame</tabTrigger>
-    <scope>text.tex.latex</scope>
-    <description>Beamer frame</description>
+	<tabTrigger>frame</tabTrigger>
+	<scope>
+		text.tex.latex
+		- text.tex.latex meta.group
+		- text.tex.latex meta.environment.math
+		- text.tex.latexstring.other.math
+	</scope>
+	<description>Beamer frame</description>
 </snippet>
