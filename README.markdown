@@ -3,7 +3,7 @@
 by Ian Bacher, Marciano Siniscalchi, and Richard Stein
 
 **Marciano's blog:**
-<http://tekonomist.wordpress.com>
+<https://tekonomist.wordpress.com>
 
 **Documentation:**
 <https://latextools.readthedocs.io>
@@ -36,7 +36,7 @@ If you also use prereleases of other packages just add them comma separated into
 
 This plugin provides several features that simplify working with LaTeX files:
 
-* The ST build command takes care of compiling your LaTeX source to PDF using `texify` (Windows/MikTeX) or `latexmk` (OSX/MacTeX, Windows/TeXlive, Linux/TeXlive). Then, it parses the log file and lists errors and warning. Finally, it launches the PDF viewer and, on supported viewers ([Sumatra PDF](http://sumatrapdfreader.org/free-pdf-reader.html) on Windows, [Skim](http://skim-app.sourceforge.net/) on OSX, and [Evince](https://wiki.gnome.org/Apps/Evince) on Linux by default) jumps to the current cursor position.
+* The ST build command takes care of compiling your LaTeX source to PDF using `texify` (Windows/MikTeX) or `latexmk` (OSX/MacTeX, Windows/TeXlive, Linux/TeXlive). Then, it parses the log file and lists errors and warning. Finally, it launches the PDF viewer and, on supported viewers ([Sumatra PDF](https://sumatrapdfreader.org/free-pdf-reader.html) on Windows, [Skim](https://skim-app.sourceforge.net/) on OSX, and [Evince](https://wiki.gnome.org/Apps/Evince) on Linux by default) jumps to the current cursor position.
 * Forward and inverse search with the named PDF previewers is fully supported
 * Fill everything including references, citations, packages, graphics, figures, etc.
 * Plugs into the "Goto anything" facility to make jumping to any section or label in your LaTeX file(s)
@@ -54,11 +54,11 @@ The easiest way to install LaTeXTools is via [Package Control](https://packageco
 
 If you prefer a more hands-on approach, you can always clone the git repository, or else just grab this plugin's .zip file from GitHub and extract it to your Packages directory (you can open it easily from ST, by clicking on **Preferences > Browse Packages**). Then, (re)launch ST. Please note that if you do a manual installation, the Package **must** be named **LaTeXTools**.
 
-Finally, you'll need to have a working TeX installation and a PDF viewer. LaTeXTools supports [MacTeX](https://www.tug.org/mactex/), [MiKTeX](http://www.miktex.org/) and [TeXLive](https://www.tug.org/texlive/) as TeX systems and [Skim](http://skim-app.sourceforge.net/), [Sumatra PDF](http://sumatrapdfreader.org/free-pdf-reader.html), [Evince](https://wiki.gnome.org/Apps/Evince), [Okular](https://okular.kde.org/), and [Zathura](https://pwmt.org/projects/zathura/) as PDF viewers. For detailed instructions on how to set these up, please see [our online documentation](http://latextools.readthedocs.io/en/latest/install/)!
+Finally, you'll need to have a working TeX installation and a PDF viewer. LaTeXTools supports [MacTeX](https://www.tug.org/mactex/), [MiKTeX](https://www.miktex.org/) and [TeXLive](https://www.tug.org/texlive/) as TeX systems and [Skim](https://skim-app.sourceforge.net/), [Sumatra PDF](https://sumatrapdfreader.org/free-pdf-reader.html), [Evince](https://wiki.gnome.org/Apps/Evince), [Okular](https://okular.kde.org/), and [Zathura](https://pwmt.org/projects/zathura/) as PDF viewers. For detailed instructions on how to set these up, please see [our online documentation](https://latextools.readthedocs.io/en/latest/install/)!
 
 ## Bugs, issues & feature requests
 
-Please read the [installation instructions](http://latextools.readthedocs.io/en/latest/install/) carefully to ensure you get up and running as quickly as possible. Help for troubleshooting common issues can be found in the [Troubleshooting](#troubleshooting) section at the end of this README. For other bugs, issues or to request new features, please get in touch with us via [Github](https://github.com/SublimeText/LaTeXTools).
+Please read the [installation instructions](https://latextools.readthedocs.io/en/latest/install/) carefully to ensure you get up and running as quickly as possible. Help for troubleshooting common issues can be found in the [Troubleshooting](#troubleshooting) section at the end of this README. For other bugs, issues or to request new features, please get in touch with us via [Github](https://github.com/SublimeText/LaTeXTools).
 
 **Please** [search for existing issues and pull requests](https://github.com/SublimeText/LaTeXTools/issues/?q=is%3Aopen) before [opening a new issue](https://github.com/SublimeText/LaTeXTools/issues/new).
 

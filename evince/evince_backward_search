@@ -18,7 +18,7 @@
 # this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
 # Street, Fifth Floor, Boston, MA  02110-1301, USA
 
-# Incorporates fixes from http://ubuntuforums.org/showthread.php?t=1716268
+# Incorporates fixes from https://ubuntuforums.org/showthread.php?t=1716268
 import dbus
 import subprocess
 import time

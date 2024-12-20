@@ -1,7 +1,7 @@
 try:
     from collections import OrderedDict
 except (ImportError, NameError):
-    # OrderedDict from http://code.activestate.com/recipes/576693/
+    # OrderedDict from https://code.activestate.com/recipes/576693/
     #
     # License:
     # Copyright (c) 2009 Raymond Hettinger

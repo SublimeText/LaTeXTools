@@ -14,7 +14,7 @@ become available by calling latex.register().
 We also make public a dictionary latex_equivalents,
 mapping ord(unicode char) to LaTeX code.
 
-Modified from http://code.activestate.com/recipes/252124-latex-codec/
+Modified from https://code.activestate.com/recipes/252124-latex-codec/
 
 D. Eppstein, October 2003.
 """
@@ -40,7 +40,7 @@ def _registry(encoding):
     else:
         return None
 
-    # something akin to http://bugs.python.org/issue14847 appears to
+    # something akin to https://bugs.python.org/issue14847 appears to
     # occur in ST3 b3083; this apparently-redundant reimport resolves
     # the issue
     import codecs

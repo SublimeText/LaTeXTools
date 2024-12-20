@@ -184,7 +184,7 @@ Other example formats are provided in the settings file.
 
 Any settings can be overridden on a project-specific basis if you are using SublimeText's [project system](https://www.sublimetext.com/docs/3/projects.html). In addition, you can use the `tex_root` setting in the project file only to specify the master tex file instead of using `%!TEX root =` magic comments. If specified in the project file, the `tex_root` will be resolved relative to the location of your `.sublime-project` file. Similarly, if you use `output_directory` or `aux_directory` in the project file, they will be resolved relative to the location of the project file.
 
-To use project-specific settings, simply create a [`"settings"` section in your project file](http://docs.sublimetext.info/en/latest/file_management/file_management.html#the-sublime-project-format). The structure and format is the same as for the `LaTeXTools.sublime-settings` file, but the first level settings are prefixed with `latextools.` to avoid collisions with other packages. Here is an example:
+To use project-specific settings, simply create a [`"settings"` section in your project file](https://docs.sublimetext.info/en/latest/file_management/file_management.html#the-sublime-project-format). The structure and format is the same as for the `LaTeXTools.sublime-settings` file, but the first level settings are prefixed with `latextools.` to avoid collisions with other packages. Here is an example:
 
 ```json
 {

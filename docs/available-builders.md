@@ -4,9 +4,9 @@
 
 By default, LaTeXTools uses the `traditional` builder, which is designed to work in most circumstances and for most setups. This builder provides all of the builder features discussed elsewhere in the documentation, such as the various [builder features](features.md#default-builder), including multi-document support, the ability to set LaTeX flags via the `TeX Options` settings, etc.
 
-When you are using MiKTeX, the `traditional` builder defaults to using the MiKTeX compiler driver [`texify`](http://docs.miktex.org/manual/texifying.html), which automatically runs PDFLaTeX / XeLaTeX / LuaLaTeX as many times as necessary to generate a document. Note that because of certain limitations of `texify`, some features, such as support for output directory, auxiliary directory, jobname, etc. are unavailable when using the traditional builder. You can change this by installing `latexmk` and changing the `command` setting in the `builder_settings` block to `"latexmk -cd -f -%E -interaction=nonstopmode -synctex=1"`, in which case the `traditional` builder will run `latexmk` instead of `texify`
+When you are using MiKTeX, the `traditional` builder defaults to using the MiKTeX compiler driver [`texify`](https://docs.miktex.org/manual/texifying.html), which automatically runs PDFLaTeX / XeLaTeX / LuaLaTeX as many times as necessary to generate a document. Note that because of certain limitations of `texify`, some features, such as support for output directory, auxiliary directory, jobname, etc. are unavailable when using the traditional builder. You can change this by installing `latexmk` and changing the `command` setting in the `builder_settings` block to `"latexmk -cd -f -%E -interaction=nonstopmode -synctex=1"`, in which case the `traditional` builder will run `latexmk` instead of `texify`
 
-When you are using any other setup (MacTeX or TeXLive on Linux or Windows), the `traditional` builder uses [`latexmk`](http://www.ctan.org/pkg/latexmk/), which supports all the documented features for the builder.
+When you are using any other setup (MacTeX or TeXLive on Linux or Windows), the `traditional` builder uses [`latexmk`](https://www.ctan.org/pkg/latexmk/), which supports all the documented features for the builder.
 
 ## Basic Builder
 
@@ -171,7 +171,7 @@ Finally, please remember that script commands on Windows are run using `cmd.exe`
 
 ## Sublime Build Files
 
-LaTeXTools now has some support for custom `.sublime-build` files or builders specified in your project settings. For an overview of `.sublime-build` files in general, please see [the Unofficial Documentation](http://sublime-text-unofficial-documentation.readthedocs.io/en/latest/reference/build_systems.html) (which is generally a great resource about Sublime Text). For more on adding builders to project files, see [the relevant section of the Sublime documentation](https://www.sublimetext.com/docs/3/projects.html). This section will cover the basics of creating a `.sublime-build` file that works with LaTeXTools.
+LaTeXTools now has some support for custom `.sublime-build` files or builders specified in your project settings. For an overview of `.sublime-build` files in general, please see [the Unofficial Documentation](https://sublime-text-unofficial-documentation.readthedocs.io/en/latest/reference/build_systems.html) (which is generally a great resource about Sublime Text). For more on adding builders to project files, see [the relevant section of the Sublime documentation](https://www.sublimetext.com/docs/3/projects.html). This section will cover the basics of creating a `.sublime-build` file that works with LaTeXTools.
 
 At a minimum, your `.sublime-build` file must have the following elements:
 

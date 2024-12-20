@@ -3,7 +3,7 @@
 by Ian Bacher, Marciano Siniscalchi, and Richard Stein
 
 Marciano's blog:
-<http://tekonomist.wordpress.com>
+<https://tekonomist.wordpress.com>
 
 *Thank you, thank you, thank you* to all our contributors:
 

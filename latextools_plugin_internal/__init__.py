@@ -90,7 +90,7 @@ def _classname_to_internal_name(s):
         else:
             break
 
-    # pilfered from http://code.activestate.com/recipes/66009/
+    # pilfered from https://code.activestate.com/recipes/66009/
     s = re.sub(r'(?<=[a-z])[A-Z]|(?<!^)[A-Z](?=[a-z])', r"_\g<0>", s).lower()
 
     if s.endswith('_plugin'):
