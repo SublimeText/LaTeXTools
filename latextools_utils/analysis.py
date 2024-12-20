@@ -560,3 +560,6 @@ class objectview(object):
 
     def __init__(self, d):
         self.__dict__.update(d)
+
+    def __setattr__(self, attr, value):
+        raise TypeError('cannot set value on an objectview')
