@@ -129,11 +129,12 @@ class BiblatexNameCompletions(sublime_plugin.EventListener):
 
         matcher = ON_NAME_FIELD_REGEX.match(current_line)
         if matcher:
-            return ([
-                (name, _get_replacement(matcher, name))
-                for name in get_names_from_view(view)
-            ],
-                sublime.INHIBIT_WORD_COMPLETIONS |
-                sublime.INHIBIT_EXPLICIT_COMPLETIONS)
+            return (
+                [
+                    (name, _get_replacement(matcher, name))
+                    for name in get_names_from_view(view)
+                ],
+                sublime.INHIBIT_WORD_COMPLETIONS
+            )
 
         return []

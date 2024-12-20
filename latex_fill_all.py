@@ -838,8 +838,7 @@ class LatexFillAllEventListener(
 
         return (
             zip(show, completions),
-            sublime.INHIBIT_WORD_COMPLETIONS |
-            sublime.INHIBIT_EXPLICIT_COMPLETIONS
+            sublime.INHIBIT_WORD_COMPLETIONS
         )
 
 

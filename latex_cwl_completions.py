@@ -316,8 +316,7 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
 
         return (
             completions,
-            sublime.INHIBIT_WORD_COMPLETIONS |
-            sublime.INHIBIT_EXPLICIT_COMPLETIONS
+            sublime.INHIBIT_WORD_COMPLETIONS
         )
 
     # This functions is to determine whether LaTeX-cwl is installed,
