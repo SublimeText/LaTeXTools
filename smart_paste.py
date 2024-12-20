@@ -155,7 +155,7 @@ def _is_possible_image_path(text):
 class LatextoolsSmartPasteCommand(sublime_plugin.WindowCommand):
     def is_visible(self, *args):
         view = self.window.active_view()
-        return bool(view.score_selector(0, "text.tex.latex"))
+        return view and view.match_selector(0, "text.tex.latex")
 
     def run(self):
         window = self.window

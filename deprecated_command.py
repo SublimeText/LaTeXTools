@@ -96,7 +96,7 @@ def deprecate(module, old_classname, NewClass):
 class LatextoolsFindDeprecatedCommandsCommand(sublime_plugin.TextCommand):
     def is_visible(self):
         view = self.view
-        return bool(view.score_selector(0, 'source.json.sublime'))
+        return view.match_selector(0, 'source.json.sublime')
 
     def run(self, edit):
         view = self.view

@@ -237,8 +237,7 @@ class LatexDirectiveCompletion(sublime_plugin.EventListener):
         if len(locations) > 1:
             return
         point = locations[0]
-        if not view.score_selector(
-                point, "text.tex.latex comment.line.percentage"):
+        if not view.match_selector(point, "text.tex.latex comment.line.percentage"):
             return
 
         line_str = view.substr(sublime.Region(view.line(point).a, point))

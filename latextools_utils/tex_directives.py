@@ -114,6 +114,9 @@ def parse_tex_directives(view_or_path, multi_values=[], key_maps={},
 
 # Contributed by Sam Finn
 def get_tex_root(view):
+    if not view:
+        return None
+
     view_file = view.file_name()
 
     root = None

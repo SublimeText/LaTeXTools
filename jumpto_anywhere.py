@@ -336,12 +336,14 @@ class LatextoolsJumptoAnywhereByMouseCommand(sublime_plugin.WindowCommand):
     def run(self, event=None, fallback_command="", set_caret=False):
         window = self.window
         view = window.active_view()
+        if not view:
+            return
 
-        def score_selector(selector):
+        def match_selector(selector):
             point = view.sel()[0].b if len(view.sel()) else 0
-            return view.score_selector(point, selector)
+            return view.match_selector(point, selector)
 
-        if score_selector("text.tex.latex"):
+        if match_selector("text.tex.latex"):
             print("Jump in tex file.")
             pos = view.window_to_text((event["x"], event["y"]))
             view.run_command("latextools_jumpto_anywhere", {"position": pos})

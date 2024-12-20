@@ -82,7 +82,7 @@ class LatextoolsCacheUpdateListener(
     _BIB_CACHES = {}
 
     def on_load_async(self, view):
-        if not view.score_selector(0, 'text.tex.latex'):
+        if not view.match_selector(0, 'text.tex.latex'):
             return
         on_load = get_setting('cache_on_load', {}, view=view)
         if not on_load or not any(on_load.values()):
@@ -132,7 +132,7 @@ class LatextoolsCacheUpdateListener(
         self.run_cache_update()
 
     def on_close(self, view):
-        if not view.score_selector(0, 'text.tex.latex'):
+        if not view.match_selector(0, 'text.tex.latex'):
             return
 
         _id = view.id()
@@ -152,7 +152,7 @@ class LatextoolsCacheUpdateListener(
             pass
 
     def on_post_save_async(self, view):
-        if not view.score_selector(0, 'text.tex.latex'):
+        if not view.match_selector(0, 'text.tex.latex'):
             return
 
         on_save = get_setting('cache_on_save', {}, view=view)
@@ -183,9 +183,8 @@ class LatextoolsCacheUpdateListener(
 class LatextoolsCacheUpdateCommand(object):
 
     def is_visible(self):
-        return sublime.active_window().active_view().score_selector(
-            0, 'text.tex.latex'
-        ) > 0
+        view = sublime.active_window().active_view()
+        return view and view.match_selector(0, 'text.tex.latex')
 
 
 class LatextoolsAnalysisUpdateCommand(
@@ -197,7 +196,7 @@ class LatextoolsAnalysisUpdateCommand(
         super(LatextoolsAnalysisUpdateCommand, self).__init__(*args, **kwargs)
 
     def run(self, edit):
-        if not self.view.score_selector(0, 'text.tex.latex'):
+        if not self.view.match_selector(0, 'text.tex.latex'):
             return
 
         tex_root = get_tex_root(self.view)
@@ -217,7 +216,7 @@ class LatextoolsBibcacheUpdateCommand(
         super(LatextoolsBibcacheUpdateCommand, self).__init__(*args, **kwargs)
 
     def run(self, edit):
-        if not self.view.score_selector(0, 'text.tex.latex'):
+        if not self.view.match_selector(0, 'text.tex.latex'):
             return
 
         tex_root = get_tex_root(self.view)

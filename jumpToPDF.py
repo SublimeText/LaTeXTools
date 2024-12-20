@@ -76,7 +76,7 @@ class LatextoolsJumpToPdfCommand(sublime_plugin.TextCommand):
 
     def is_visible(self, *args):
         view = sublime.active_window().active_view()
-        return bool(view.score_selector(0, "text.tex"))
+        return view and view.match_selector(0, "text.tex")
 
     def run(self, edit, **args):
         # Check prefs for PDF focus and sync
@@ -193,7 +193,7 @@ class LatextoolsViewPdfCommand(sublime_plugin.WindowCommand):
 
     def is_visible(self, *args):
         view = self.window.active_view()
-        return bool(view.score_selector(0, "text.tex"))
+        return view and view.match_selector(0, "text.tex")
 
     def run(self, **args):
         pdffile = None

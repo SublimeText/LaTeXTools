@@ -63,7 +63,7 @@ class LatextoolsTexcountCommand(sublime_plugin.TextCommand):
 
     def is_visible(self, *args):
         view = self.view
-        return bool(view.score_selector(0, 'text.tex.latex'))
+        return view and view.match_selector(0, 'text.tex.latex')
 
 
 deprecate(globals(), 'TexcountCommand', LatextoolsTexcountCommand)

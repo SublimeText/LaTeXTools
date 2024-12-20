@@ -254,7 +254,7 @@ class LatexFillHelper(object):
                 if c.end() > suffix_end:
                     break
 
-                if view.score_selector(c.begin(), 'comment') != 0:
+                if view.match_selector(c.begin(), 'comment'):
                     start = c.end()
                     continue
 
@@ -583,7 +583,7 @@ class LatexFillHelper(object):
             for start, end in tuples
         ]
 
-    def score_selector(self, view, selector):
+    def match_selector(self, view, selector):
         '''
         Scores a selector on a view, returns True if the selectors is
         scored for each selection.
@@ -594,7 +594,7 @@ class LatexFillHelper(object):
         :param selector:
             the selector, which should be scored
         '''
-        return all(view.score_selector(sel.b, selector) for sel in view.sel())
+        return all(view.match_selector(sel.b, selector) for sel in view.sel())
 
 
 class LatexFillAllPluginConsumer(object):
@@ -660,7 +660,7 @@ class LatexFillAllEventListener(
             return None
         for sel in view.sel():
             point = sel.b
-            if not view.score_selector(point, "text.tex.latex"):
+            if not view.match_selector(point, "text.tex.latex"):
                 return None
 
         # load the plugins
@@ -695,7 +695,7 @@ class LatexFillAllEventListener(
             return False
 
         selector = completion_type.get_supported_scope_selector()
-        if not self.score_selector(view, selector):
+        if not self.match_selector(view, selector):
             return False
 
         lines = [
@@ -715,7 +715,7 @@ class LatexFillAllEventListener(
 
     def on_query_completions(self, view, prefix, locations):
         for location in locations:
-            if not view.score_selector(location, "text.tex.latex"):
+            if not view.match_selector(location, "text.tex.latex"):
                 return
 
         completion_types = self.get_completion_types()
@@ -766,7 +766,7 @@ class LatexFillAllEventListener(
         if completion_type is None:
             self.clear_bracket_cache()
             return []
-        elif not self.score_selector(
+        elif not self.match_selector(
                 view, completion_type.get_supported_scope_selector()):
             self.clear_bracket_cache()
             return []
@@ -879,7 +879,7 @@ class LatextoolsFillAllCommand(
     '''
 
     def is_visible(self, *args):
-        return bool(self.view.score_selector(0, "text.tex.latex"))
+        return self.view.match_selector(0, "text.tex.latex")
 
     def run(
         self, edit, completion_type=None, insert_char="", overwrite=False,
@@ -889,7 +889,7 @@ class LatextoolsFillAllCommand(
 
         for sel in view.sel():
             point = sel.b
-            if not view.score_selector(point, "text.tex.latex"):
+            if not view.match_selector(point, "text.tex.latex"):
                 self.complete_brackets(view, edit, insert_char)
                 return
 

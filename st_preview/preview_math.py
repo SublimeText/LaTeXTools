@@ -720,7 +720,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
         # avoid creating a preview if someone just inserts $|$ and
         # most likely want to create an inline and not a block block
         def is_dollar_snippet(scope):
-            is_selector = view.score_selector(
+            is_selector = view.match_selector(
                 scope.begin(), "meta.environment.math.block.dollar")
             sel_at_start = any(
                 sel.empty() and sel.b == scope.begin() + 1
@@ -746,7 +746,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             layout = (sublime.LAYOUT_BLOCK
                       if multline or self.visible_mode == "selected"
                       else sublime.LAYOUT_INLINE)
-            BE_BLOCK = view.score_selector(
+            BE_BLOCK = view.match_selector(
                 scope.begin(), "meta.environment.math.block.be")
 
             # avoid jumping around in begin end block

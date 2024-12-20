@@ -575,7 +575,7 @@ class SystemCheckThread(threading.Thread):
 
         # is current view a TeX file?
         view = self.view
-        if view.score_selector(0, 'text.tex.latex') != 0:
+        if view and view.match_selector(0, 'text.tex.latex'):
             tex_root = get_tex_root(view)
             tex_directives = parse_tex_directives(
                 tex_root,

@@ -31,7 +31,7 @@ class LatextoolsSearchCommandCommand(sublime_plugin.WindowCommand):
 class LatextoolsSearchCommandInputCommand(sublime_plugin.WindowCommand):
     def is_visible(self, *args):
         view = self.window.active_view()
-        return bool(view.score_selector(0, "text.tex"))
+        return view and view.match_selector(0, "text.tex")
 
     def run(self, only_current_file=False):
         window = self.window

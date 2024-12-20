@@ -158,12 +158,12 @@ def update_dict_language(view, extract_from_root):
 
 class LatextoolsAutoDetectSpellcheckListener(sublime_plugin.EventListener):
     def on_post_save(self, view):
-        if not view.score_selector(0, "text.tex.latex"):
+        if not view.match_selector(0, "text.tex.latex"):
             return
         update_dict_language(view, False)
 
     def on_load_event(self, view):
-        if not view.score_selector(0, "text.tex.latex"):
+        if not view.match_selector(0, "text.tex.latex"):
             return
         update_dict_language(view, True)
     on_load_async = on_load_event

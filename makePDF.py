@@ -838,7 +838,7 @@ class LatextoolsDoFinishEditCommand(sublime_plugin.TextCommand):
 
 class BuildPhantomEventListener(sublime_plugin.EventListener):
     def on_load(self, view):
-        if not view.score_selector(0, "text.tex"):
+        if not view.match_selector(0, "text.tex"):
             return
         w = view.window()
         if w is not None:

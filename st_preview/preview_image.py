@@ -261,8 +261,7 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
         if view.is_popup_visible():
             # don't let the popup blink
             return
-        if not view.score_selector(
-                point, "meta.function.includegraphics.latex"):
+        if not view.match_selector(point, "meta.function.includegraphics.latex"):
             return
         mode = get_setting("preview_image_mode", view=view)
         if mode != "hover":
@@ -403,7 +402,7 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener,
     def is_applicable(cls, settings):
         try:
             view = inspect.currentframe().f_back.f_locals['view']
-            return view.score_selector(0, 'text.tex.latex') > 0
+            return view and view.match_selector(0, 'text.tex.latex')
         except KeyError:
             syntax = settings.get('syntax')
             return syntax == 'Packages/LaTeX/LaTeX.sublime-syntax'

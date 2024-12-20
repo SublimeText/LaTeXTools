@@ -1,7 +1,7 @@
 import sublime
 
 from . import getTeXRoot
-from .latextools_utils import cache, get_setting, is_bib_buffer
+from .latextools_utils import cache, get_setting
 from .latextools_utils.output_directory import (
     get_aux_directory, get_output_directory
 )
@@ -28,8 +28,10 @@ class LatextoolsClearCacheCommand(sublime_plugin.WindowCommand):
             except Exception:
                 print('Error while trying to delete local cache')
                 traceback.print_exc()
+
         window = self.window
-        if window.active_view().score_selector(0, "text.tex.latex"):
+        view = window.active_view()
+        if view and view.match_selector(0, "text.tex.latex"):
             window.run_command("latextools_clear_local_cache")
             window.run_command("latextools_clear_bibliography_cache")
 
@@ -38,12 +40,14 @@ class LatextoolsClearLocalCacheCommand(sublime_plugin.WindowCommand):
 
     def is_visible(self, *args):
         view = self.window.active_view()
-        return bool(view.score_selector(0, "text.tex.latex"))
+        return view and view.match_selector(0, "text.tex.latex")
 
     def run(self):
         view = self.window.active_view()
+        if not view:
+            return
 
-        if view is None or not bool(view.score_selector(0, "text.tex.latex")):
+        if not view.match_selector(0, "text.tex.latex"):
             return
 
         tex_root = getTeXRoot.get_tex_root(view)
@@ -60,19 +64,14 @@ class LatextoolsClearBibliographyCacheCommand(sublime_plugin.WindowCommand):
 
     def is_visible(self, *args):
         view = self.window.active_view()
-        return (
-            bool(view.score_selector(0, "text.tex.latex")) or
-            is_bib_buffer(view)
-        )
+        return view and view.match_selector(0, "text.tex.latex, text.bibtex, text.biblatex")
 
     def run(self):
         view = self.window.active_view()
-
         if view is None:
             return
 
-        is_tex_file = bool(view.score_selector(0, "text.tex.latex"))
-        if not (is_tex_file or is_bib_buffer(view)):
+        if not view.match_selector(0, "text.tex.latex, text.bibtex, text.biblatex"):
             return
 
         # find the instance of LatextoolsCacheUpdateListener, if any
@@ -92,7 +91,7 @@ class LatextoolsClearBibliographyCacheCommand(sublime_plugin.WindowCommand):
 
         # if run from a TeX file, clear all bib caches associated with this
         # document
-        if is_tex_file:
+        if view.match_selector(0, "text.tex.latex"):
             tex_root = getTeXRoot.get_tex_root(view)
             for bib_cache in cache_listener._BIB_CACHES.get(tex_root, []):
                 bib_cache.invalidate()
@@ -113,11 +112,13 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
 
     def is_visible(self, *args):
         view = self.window.active_view()
-        return bool(view.score_selector(0, "text.tex.latex"))
+        return view and view.match_selector(0, "text.tex.latex")
 
     def run(self):
         # Retrieve root file and dirname.
         view = self.window.active_view()
+        if view is None:
+            return
 
         root_file = getTeXRoot.get_tex_root(view)
         if root_file is None:

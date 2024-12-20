@@ -126,7 +126,7 @@ class LatextoolsTocQuickpanelCommand(sublime_plugin.WindowCommand):
 class LatextoolsTocQuickpanelContext(sublime_plugin.EventListener):
     def on_query_context(self, view, key, *args):
         if (key != "overwrite_goto_overlay" or
-                not view.score_selector(0, "text.tex.latex")):
+                not view.match_selector(0, "text.tex.latex")):
             return None
         return get_setting("overwrite_goto_overlay")
 

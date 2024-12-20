@@ -17,7 +17,7 @@ class TeXSyntaxListener(sublime_plugin.EventListener):
         if view.is_scratch() or not view.file_name():
             return
 
-        if view.score_selector(0, "text.tex"):
+        if view.match_selector(0, "text.tex"):
             return
 
         if not get_setting('latextools_set_syntax', True):

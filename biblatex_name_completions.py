@@ -6,8 +6,6 @@ import sublime_plugin
 
 from .external.bibtex.names import Name
 from .external.bibtex.tex import tokenize_list
-from .latextools_utils import is_bib_buffer
-
 
 NAME_FIELDS = Name.NAME_FIELDS
 
@@ -121,7 +119,7 @@ def get_names(contents):
 class BiblatexNameCompletions(sublime_plugin.EventListener):
 
     def on_query_completions(self, view, prefix, locations):
-        if not is_bib_buffer(view):
+        if not view.match_selector(locations[0], 'text.bibtex, text.biblatex'):
             return []
 
         current_line = get_text_to_cursor(view)[::-1]

@@ -1,8 +1,6 @@
 import sublime
 import sublime_plugin
 
-from .latextools_utils import is_bib_buffer, is_biblatex_buffer
-
 bibtex_fields = [
     ('address', 'address = {${1:Address}},'),
     ('annote', 'annote = {${1:Annote}},'),
@@ -181,27 +179,23 @@ biblatex_fields = [
 
 
 class FieldNameCompletions(sublime_plugin.EventListener):
-    def on_query_completions(self, view, prefix, locations):
-        if not is_bib_buffer(view):
+   def on_query_completions(self, view, prefix, locations):
+        pt = locations[0]
+
+        if not view.match_selector(
+            pt,
+            # autocomplete if the cursor is inside an entry
+            '(meta.entry.braces.bibtex, meta.entry.parenthesis.bibtex, meta.entry.arguments.bibtex)'
+            # but not when cursor is in the citekey field
+            ' - entity.name.type.entry-key.bibtex'
+            # or if cursor is inside field value (ST3)
+            ' - meta.key-assignment.bibtex'
+            # or if cursor is inside field value (ST4)
+            ' - meta.mapping.value.bibtex'
+        ):
             return []
 
-        cursor_point = view.sel()[0].b
-
-        # do not autocomplete if the cursor is outside an entry
-        if view.score_selector(cursor_point, 'meta.entry.braces.bibtex') == 0:
-            return []
-
-        # do not autocomplete when cursor is in the citekey field
-        if view.score_selector(
-                cursor_point, 'entity.name.type.entry-key.bibtex') > 0:
-            return []
-
-        # do not autocomplete if we are already inside a field
-        if view.score_selector(cursor_point, 'meta.key-assignment.bibtex') > 0:
-            return []
-
-        if is_biblatex_buffer(view):
+        if view.match_selector(pt, 'text.biblatex'):
             return (biblatex_fields, sublime.INHIBIT_WORD_COMPLETIONS)
-
         else:
             return (bibtex_fields, sublime.INHIBIT_WORD_COMPLETIONS)

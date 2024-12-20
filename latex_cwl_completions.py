@@ -242,7 +242,7 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
             return []
 
         point = locations[0]
-        if not view.score_selector(point, "text.tex.latex"):
+        if not view.match_selector(point, "text.tex.latex"):
             return []
 
         point_before = point - len(prefix)
@@ -274,7 +274,7 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
             # (no prefix) and the user has not enabled auto completion for the
             # scope, then hide the auto complete popup
             selector = view.settings().get("auto_complete_selector")
-            if not prefix and not view.score_selector(point, selector):
+            if not prefix and not view.match_selector(point, selector):
                 view.run_command("hide_auto_complete")
             return []
 
@@ -329,7 +329,7 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
     # is loaded; run on_load instead of on_load_async to assure that view
     # exists / is active
     def on_load(self, view):
-        if not view.score_selector(0, "text.tex.latex"):
+        if not view.match_selector(0, "text.tex.latex"):
             return
 
         CWL_COMPLETIONS.load_completions()
@@ -358,7 +358,7 @@ def _check_if_cwl_enabled(view=None):
         except AttributeError:
             return
 
-    if view is None or not view.score_selector(0, "text.tex.latex"):
+    if view is None or not view.match_selector(0, "text.tex.latex"):
         return
 
     if get_setting('command_completion', 'prefixed', view=view) == 'never':

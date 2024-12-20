@@ -29,7 +29,7 @@ def get_own_command_completion(view):
         "string.other.math.latex, "
         "string.other.math.block.environment.latex"
     )
-    is_math = bool(view.score_selector(view.sel()[0].b, math_selector))
+    is_math = view.match_selector(view.sel()[0].b, math_selector)
 
     def make_completions():
         ana = analysis.get_analysis(tex_root)

@@ -3,8 +3,6 @@ import re
 import sublime
 import sublime_plugin
 
-from .latextools_utils import is_bib_buffer, is_biblatex_buffer
-
 # Regexes to detect the various types of crossref fields
 # Expected field in the format:
 #   <field> = {<value>,<value>}
@@ -148,7 +146,7 @@ def get_completions_if_matches(regex, line, get_key_list_func, view):
 
 class BiblatexCrossrefCompletions(sublime_plugin.EventListener):
     def on_query_completions(self, view, prefix, locations):
-        if not is_bib_buffer(view):
+        if not view.match_selector(locations[0], 'text.bibtex, text.biblatex'):
             return []
 
         current_line = get_text_to_cursor(view)[::-1]
@@ -162,7 +160,7 @@ class BiblatexCrossrefCompletions(sublime_plugin.EventListener):
         if result:
             return result
 
-        if not is_biblatex_buffer(view):
+        if not view.match_selector(locations[0], 'text.biblatex'):
             return []
 
         return (
