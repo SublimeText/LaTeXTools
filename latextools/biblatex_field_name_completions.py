@@ -179,9 +179,27 @@ biblatex_fields = [
     ("year", "year = {${1:Year}},"),
 ]
 
-bibtex_fields = [(trigger + "\tBibTeX field", content) for trigger, content in bibtex_fields]
+bibtex_fields = [
+    sublime.CompletionItem(
+        trigger=trigger,
+        kind=sublime.KIND_VARIABLE,
+        details="BibTeX field",
+        completion=content,
+        completion_format=sublime.CompletionFormat.SNIPPET,
+    )
+    for trigger, content in bibtex_fields
+]
 
-biblatex_fields = [(trigger + "\tBibLaTeX field", content) for trigger, content in biblatex_fields]
+biblatex_fields = [
+    sublime.CompletionItem(
+        trigger=trigger,
+        kind=sublime.KIND_VARIABLE,
+        details="BibLaTeX field",
+        completion=content,
+        completion_format=sublime.CompletionFormat.SNIPPET,
+    )
+    for trigger, content in biblatex_fields
+]
 
 
 class FieldNameCompletions(sublime_plugin.EventListener):
@@ -202,6 +220,6 @@ class FieldNameCompletions(sublime_plugin.EventListener):
             return []
 
         if view.match_selector(pt, "text.biblatex"):
-            return (biblatex_fields, sublime.INHIBIT_WORD_COMPLETIONS)
+            return sublime.CompletionList(biblatex_fields, sublime.INHIBIT_WORD_COMPLETIONS)
         else:
-            return (bibtex_fields, sublime.INHIBIT_WORD_COMPLETIONS)
+            return sublime.CompletionList(bibtex_fields, sublime.INHIBIT_WORD_COMPLETIONS)
