@@ -2,7 +2,7 @@ import sublime_plugin
 
 from .latextools_utils import get_setting
 
-BIBLATEX_SYNTAX = 'Packages/LaTeXTools/BibLaTeX.tmLanguage'
+BIBLATEX_SYNTAX = 'Packages/LaTeXTools/BibLaTeX.sublime-syntax'
 
 
 # simple listener to default bib files to BibLaTeX syntax if the
