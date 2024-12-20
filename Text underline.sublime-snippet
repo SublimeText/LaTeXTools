@@ -1,9 +1,0 @@
-<snippet>
-	<description>Underline text</description>
-	<content><![CDATA[
-\\underline{${1:$SELECTION}}
-]]></content>
-	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-	<!-- <tabTrigger>hello</tabTrigger> -->
-	<scope>text.tex.latex</scope>
-</snippet>

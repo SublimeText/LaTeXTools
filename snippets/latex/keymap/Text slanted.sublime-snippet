@@ -1,0 +1,7 @@
+<snippet>
+	<content><![CDATA[
+\\textsl{${1:$SELECTION}}
+]]></content>
+	<scope>text.tex.latex</scope>
+	<description>Slanted text</description>
+</snippet>

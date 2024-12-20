@@ -226,16 +226,16 @@ LaTeX Package keymap for Windows
 	{ "keys": ["ctrl+l","ctrl+c"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Wrap in command.sublime-snippet"}},
+		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/snippets/latex/keymap/Wrap in command.sublime-snippet"}},
 	{ "keys": ["ctrl+l","ctrl+n"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Wrap in environment.sublime-snippet"}},
+		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/snippets/latex/keymap/Wrap in environment.sublime-snippet"}},
 	{ "keys": ["ctrl+l","ctrl+n"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
 			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Insert environment.sublime-snippet"}},
+		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/snippets/latex/keymap/Insert environment.sublime-snippet"}},
 	// Change the surrounding environment
 	{ "keys": ["ctrl+l", "ctrl+shift+n"],
 		"context":  [
@@ -251,23 +251,23 @@ LaTeX Package keymap for Windows
 	{ "keys": ["ctrl+l","ctrl+e"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text emphasize.sublime-snippet"}},
+		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/snippets/latex/keymap/Text emphasize.sublime-snippet"}},
 	{ "keys": ["ctrl+l","ctrl+b"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text boldface.sublime-snippet"}},
+		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/snippets/latex/keymap/Text boldface.sublime-snippet"}},
 	{ "keys": ["ctrl+l","ctrl+s"],  
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text slanted.sublime-snippet"}},
+		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/snippets/latex/keymap/Text slanted.sublime-snippet"}},
 	{ "keys": ["ctrl+l","ctrl+u"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text underline.sublime-snippet"}},
+		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/snippets/latex/keymap/Text underline.sublime-snippet"}},
 	{ "keys": ["ctrl+l","ctrl+t"],
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text monospace.sublime-snippet"}},
+		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/snippets/latex/keymap/Text monospace.sublime-snippet"}},
 
 	// Replace the `C-r` overlay and the `C-shift-r` overlay with a
 	// whole document overlay as opt-out
