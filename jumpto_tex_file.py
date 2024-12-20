@@ -186,7 +186,7 @@ def open_image(window, file_path):
 
     if commands is None:
         window.open_file(file_path)
-    elif type(commands) is str:
+    elif isinstance(commands, str):
         run_command(commands)
     else:
         for d in commands:

@@ -50,7 +50,7 @@ def _get_keys_by_type(view, valid_types):
 
     if callable(valid_types):
         validator = valid_types
-    elif type(valid_types) == str:
+    elif isinstance(valid_types, str):
         def validator(s):
             return s == valid_types
     else:

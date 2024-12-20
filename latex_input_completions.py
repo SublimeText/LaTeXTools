@@ -349,7 +349,7 @@ class InputFillAllHelper(FillAllHelper):
 
         if len(completions) == 0:
             return []
-        elif not type(completions[0]) is tuple:
+        elif not isinstance(completions[0], tuple):
             return completions
         else:
             return [
@@ -366,7 +366,7 @@ class InputFillAllHelper(FillAllHelper):
 
         if len(completions) == 0:
             return
-        elif not type(completions[0]) is tuple:
+        elif not isinstance(completions[0], tuple):
             return completions
         else:
             formatted_completions = []

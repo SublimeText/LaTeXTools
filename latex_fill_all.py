@@ -196,7 +196,7 @@ class LatexFillHelper(object):
                 candidates = self.candidates = {}
 
         # first, find the nearest bracket
-        if type(sel) is sublime.Region:
+        if isinstance(sel, sublime.Region):
             start, end = sel.begin(), sel.end()
         else:
             start = end = sel
@@ -322,7 +322,7 @@ class LatexFillHelper(object):
         :param locations:
             either a list of points or a list of sublime.Regions
         '''
-        if type(locations[0]) is int or type(locations[0]) is int:
+        if isinstance(locations[0], int):
             locations = [sublime.Region(l, l) for l in locations]
 
         old_prefix = None
@@ -557,7 +557,7 @@ class LatexFillHelper(object):
         '''
         # a and b are used instead of begin() / end() so that the caret
         # position (b) is preserved
-        if type(regions) == sublime.Region:
+        if isinstance(regions, sublime.Region):
             return [(regions.a, regions.b)]
 
         return [
@@ -575,7 +575,7 @@ class LatexFillHelper(object):
         :param tuples:
             an iterable of two-element tuples to convert to sublime.Regions
         '''
-        if type(tuples) == tuple:
+        if isinstance(tuples, tuple):
             return [sublime.Region(tuples[0], tuples[1])]
 
         return [
@@ -787,7 +787,7 @@ class LatexFillAllEventListener(
         if len(completions) == 0:
             self.clear_bracket_cache()
             return []
-        elif type(completions) is tuple and len(completions) == 2:
+        elif isinstance(completions, tuple) and len(completions) == 2:
             completions, insert_char = completions
             if len(completions) == 0:
                 self.clear_bracket_cache()
@@ -811,7 +811,7 @@ class LatexFillAllEventListener(
                 }
             )
 
-        if type(completions[0]) is tuple:
+        if isinstance(completions[0], tuple):
             show, completions = zip(*completions)
         else:
             show = completions[:]
@@ -934,7 +934,7 @@ class LatextoolsFillAllCommand(
         ) + insert_char)[::-1]
 
         # handle a list of completion types
-        if type(completion_type) is list:
+        if isinstance(completion_type, list):
             for name in completion_type:
                 try:
                     ct = self.get_completion_type(name)
@@ -957,7 +957,7 @@ class LatextoolsFillAllCommand(
                 except:
                     pass
 
-            if type(completion_type) is list:
+            if isinstance(completion_type, list):
                 message = "No valid completions found"
                 print(message)
                 sublime.status_message(message)
@@ -1054,7 +1054,7 @@ class LatextoolsFillAllCommand(
                 view, edit, insert_char, remove_regions=remove_regions
             )
             return
-        elif type(completions) is tuple:
+        elif isinstance(completions, tuple):
             formatted_completions, completions = completions
         else:
             formatted_completions = completions

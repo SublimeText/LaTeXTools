@@ -235,7 +235,7 @@ class Analysis(object):
         if isinstance(how, str):
             def command_filter(c):
                 return c.command == how
-        elif type(how) is list:
+        elif isinstance(how, list):
             def command_filter(c):
                 return c.command in how
         elif callable(how):
