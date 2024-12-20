@@ -1,13 +1,12 @@
-
 <snippet>
-    <content><![CDATA[\begin{split}
+	<content><![CDATA[\begin{split}
 $0
 \end{split}
 ]]></content>
-    <tabTrigger>sp</tabTrigger>
-    <scope>
-        text.tex.latex meta.environment.math,
-        text.tex.latex string.other.math
-    </scope>
-    <description>\begin{split}</description>
+	<tabTrigger>sp</tabTrigger>
+	<scope>
+		text.tex.latex meta.environment.math,
+		text.tex.latex string.other.math
+	</scope>
+	<description>\begin{split}</description>
 </snippet>

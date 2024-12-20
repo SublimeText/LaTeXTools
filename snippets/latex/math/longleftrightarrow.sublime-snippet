@@ -1,10 +1,9 @@
-
 <snippet>
-    <content><![CDATA[Longleftrightarrow]]></content>
-    <tabTrigger>Longleftrightarrow</tabTrigger>
-    <scope>
-        text.tex.latex meta.environment.math,
-        text.tex.latex string.other.math
-    </scope>
-    <description>Longleftrightarrow</description>
+	<content><![CDATA[Longleftrightarrow]]></content>
+	<tabTrigger>Longleftrightarrow</tabTrigger>
+	<scope>
+		text.tex.latex meta.environment.math,
+		text.tex.latex string.other.math
+	</scope>
+	<description>Longleftrightarrow</description>
 </snippet>

@@ -1,12 +1,11 @@
-
 <snippet>
-    <content><![CDATA[\item ]]></content>
-    <tabTrigger>i</tabTrigger>
-    <scope>
-        text.tex.latex
-        - text.tex.latex meta.group
-        - text.tex.latex meta.environment.math
-        - text.tex.latexstring.other.math
-    </scope>
-    <description>\item </description>
+	<content><![CDATA[\item ]]></content>
+	<tabTrigger>i</tabTrigger>
+	<scope>
+		text.tex.latex
+		- text.tex.latex meta.group
+		- text.tex.latex meta.environment.math
+		- text.tex.latexstring.other.math
+	</scope>
+	<description>\item </description>
 </snippet>

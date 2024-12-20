@@ -1,15 +1,14 @@
-
 <snippet>
-    <content><![CDATA[\begin{equation}
+	<content><![CDATA[\begin{equation}
 $0
 \end{equation}
 ]]></content>
-    <tabTrigger>beqn</tabTrigger>
-    <scope>
-        text.tex.latex
-        - text.tex.latex meta.group
-        - text.tex.latex meta.environment.math
-        - text.tex.latexstring.other.math
-    </scope>
-    <description>\begin{equation}</description>
+	<tabTrigger>beqn</tabTrigger>
+	<scope>
+		text.tex.latex
+		- text.tex.latex meta.group
+		- text.tex.latex meta.environment.math
+		- text.tex.latexstring.other.math
+	</scope>
+	<description>\begin{equation}</description>
 </snippet>

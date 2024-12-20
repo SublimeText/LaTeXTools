@@ -1,10 +1,9 @@
-
 <snippet>
-    <content><![CDATA[\Sigma]]></content>
-    <tabTrigger>S</tabTrigger>
-    <scope>
-        text.tex.latex meta.environment.math,
-        text.tex.latex string.other.math
-    </scope>
-    <description>\Sigma</description>
+	<content><![CDATA[\Sigma]]></content>
+	<tabTrigger>S</tabTrigger>
+	<scope>
+		text.tex.latex meta.environment.math,
+		text.tex.latex string.other.math
+	</scope>
+	<description>\Sigma</description>
 </snippet>

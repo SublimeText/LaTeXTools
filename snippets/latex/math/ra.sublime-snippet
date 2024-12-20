@@ -1,10 +1,9 @@
-
 <snippet>
-    <content><![CDATA[\rangle]]></content>
-    <tabTrigger>ra</tabTrigger>
-    <scope>
-        text.tex.latex meta.environment.math,
-        text.tex.latex string.other.math
-    </scope>
-    <description>\rangle</description>
+	<content><![CDATA[\rangle]]></content>
+	<tabTrigger>ra</tabTrigger>
+	<scope>
+		text.tex.latex meta.environment.math,
+		text.tex.latex string.other.math
+	</scope>
+	<description>\rangle</description>
 </snippet>

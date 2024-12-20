@@ -1,10 +1,9 @@
-
 <snippet>
-    <content><![CDATA[\partial]]></content>
-    <tabTrigger>\delta</tabTrigger>
-    <scope>
-        text.tex.latex meta.environment.math,
-        text.tex.latex string.other.math
-    </scope>
-    <description>\partial</description>
+	<content><![CDATA[\partial]]></content>
+	<tabTrigger>\delta</tabTrigger>
+	<scope>
+		text.tex.latex meta.environment.math,
+		text.tex.latex string.other.math
+	</scope>
+	<description>\partial</description>
 </snippet>

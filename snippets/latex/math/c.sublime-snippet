@@ -1,10 +1,9 @@
-
 <snippet>
-    <content><![CDATA[\chi]]></content>
-    <tabTrigger>c</tabTrigger>
-    <scope>
-        text.tex.latex meta.environment.math,
-        text.tex.latex string.other.math
-    </scope>
-    <description>\chi</description>
+	<content><![CDATA[\chi]]></content>
+	<tabTrigger>c</tabTrigger>
+	<scope>
+		text.tex.latex meta.environment.math,
+		text.tex.latex string.other.math
+	</scope>
+	<description>\chi</description>
 </snippet>

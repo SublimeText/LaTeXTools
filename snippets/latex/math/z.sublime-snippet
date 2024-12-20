@@ -1,10 +1,9 @@
-
 <snippet>
-    <content><![CDATA[\zeta]]></content>
-    <tabTrigger>z</tabTrigger>
-    <scope>
-        text.tex.latex meta.environment.math,
-        text.tex.latex string.other.math
-    </scope>
-    <description>\zeta</description>
+	<content><![CDATA[\zeta]]></content>
+	<tabTrigger>z</tabTrigger>
+	<scope>
+		text.tex.latex meta.environment.math,
+		text.tex.latex string.other.math
+	</scope>
+	<description>\zeta</description>
 </snippet>

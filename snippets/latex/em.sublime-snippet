@@ -1,12 +1,11 @@
-
 <snippet>
-    <content><![CDATA[\emph{$1}]]></content>
-    <tabTrigger>em</tabTrigger>
-    <scope>
-        text.tex.latex
-        - text.tex.latex meta.group
-        - text.tex.latex meta.environment.math
-        - text.tex.latexstring.other.math
-    </scope>
-    <description>\emph{}</description>
+	<content><![CDATA[\emph{$1}]]></content>
+	<tabTrigger>em</tabTrigger>
+	<scope>
+		text.tex.latex
+		- text.tex.latex meta.group
+		- text.tex.latex meta.environment.math
+		- text.tex.latexstring.other.math
+	</scope>
+	<description>\emph{}</description>
 </snippet>

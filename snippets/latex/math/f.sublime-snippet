@@ -1,10 +1,9 @@
-
 <snippet>
-    <content><![CDATA[\Phi]]></content>
-    <tabTrigger>F</tabTrigger>
-    <scope>
-        text.tex.latex meta.environment.math,
-        text.tex.latex string.other.math
-    </scope>
-    <description>\Phi</description>
+	<content><![CDATA[\Phi]]></content>
+	<tabTrigger>F</tabTrigger>
+	<scope>
+		text.tex.latex meta.environment.math,
+		text.tex.latex string.other.math
+	</scope>
+	<description>\Phi</description>
 </snippet>

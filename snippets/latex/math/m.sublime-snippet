@@ -1,10 +1,9 @@
-
 <snippet>
-    <content><![CDATA[\mu]]></content>
-    <tabTrigger>m</tabTrigger>
-    <scope>
-        text.tex.latex meta.environment.math,
-        text.tex.latex string.other.math
-    </scope>
-    <description>\mu</description>
+	<content><![CDATA[\mu]]></content>
+	<tabTrigger>m</tabTrigger>
+	<scope>
+		text.tex.latex meta.environment.math,
+		text.tex.latex string.other.math
+	</scope>
+	<description>\mu</description>
 </snippet>

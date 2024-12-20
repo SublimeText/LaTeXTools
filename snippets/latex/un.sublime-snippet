@@ -1,12 +1,11 @@
-
 <snippet>
-    <content><![CDATA[\underline{$1}]]></content>
-    <tabTrigger>un</tabTrigger>
-    <scope>
-        text.tex.latex
-        - text.tex.latex meta.group
-        - text.tex.latex meta.environment.math
-        - text.tex.latexstring.other.math
-    </scope>
-    <description>\underline{}</description>
+	<content><![CDATA[\underline{$1}]]></content>
+	<tabTrigger>un</tabTrigger>
+	<scope>
+		text.tex.latex
+		- text.tex.latex meta.group
+		- text.tex.latex meta.environment.math
+		- text.tex.latexstring.other.math
+	</scope>
+	<description>\underline{}</description>
 </snippet>

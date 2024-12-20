@@ -1,15 +1,14 @@
-
 <snippet>
-    <content><![CDATA[\begin{multline*}
+	<content><![CDATA[\begin{multline*}
 $0
 \end{multline*}
 ]]></content>
-    <tabTrigger>bml</tabTrigger>
-    <scope>
-        text.tex.latex
-        - text.tex.latex meta.group
-        - text.tex.latex meta.environment.math
-        - text.tex.latexstring.other.math
-    </scope>
-    <description>\begin{multline*}</description>
+	<tabTrigger>bml</tabTrigger>
+	<scope>
+		text.tex.latex
+		- text.tex.latex meta.group
+		- text.tex.latex meta.environment.math
+		- text.tex.latexstring.other.math
+	</scope>
+	<description>\begin{multline*}</description>
 </snippet>

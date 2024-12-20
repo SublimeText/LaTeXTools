@@ -1,10 +1,9 @@
-
 <snippet>
-    <content><![CDATA[\bigcup]]></content>
-    <tabTrigger>bcu</tabTrigger>
-    <scope>
-        text.tex.latex meta.environment.math,
-        text.tex.latex string.other.math
-    </scope>
-    <description>\bigcup</description>
+	<content><![CDATA[\bigcup]]></content>
+	<tabTrigger>bcu</tabTrigger>
+	<scope>
+		text.tex.latex meta.environment.math,
+		text.tex.latex string.other.math
+	</scope>
+	<description>\bigcup</description>
 </snippet>

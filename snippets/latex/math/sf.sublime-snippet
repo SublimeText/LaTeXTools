@@ -1,10 +1,9 @@
-
 <snippet>
-    <content><![CDATA[\mathsf{$1}]]></content>
-    <tabTrigger>sf</tabTrigger>
-    <scope>
-        text.tex.latex meta.environment.math,
-        text.tex.latex string.other.math
-    </scope>
-    <description>\mathsf{}</description>
+	<content><![CDATA[\mathsf{$1}]]></content>
+	<tabTrigger>sf</tabTrigger>
+	<scope>
+		text.tex.latex meta.environment.math,
+		text.tex.latex string.other.math
+	</scope>
+	<description>\mathsf{}</description>
 </snippet>

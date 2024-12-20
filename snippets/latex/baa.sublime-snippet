@@ -1,15 +1,14 @@
-
 <snippet>
-    <content><![CDATA[\begin{alignat*}
+	<content><![CDATA[\begin{alignat*}
 $0
 \end{alignat*}
 ]]></content>
-    <tabTrigger>baa</tabTrigger>
-    <scope>
-        text.tex.latex
-        - text.tex.latex meta.group
-        - text.tex.latex meta.environment.math
-        - text.tex.latexstring.other.math
-    </scope>
-    <description>\begin{alignat*}</description>
+	<tabTrigger>baa</tabTrigger>
+	<scope>
+		text.tex.latex
+		- text.tex.latex meta.group
+		- text.tex.latex meta.environment.math
+		- text.tex.latexstring.other.math
+	</scope>
+	<description>\begin{alignat*}</description>
 </snippet>

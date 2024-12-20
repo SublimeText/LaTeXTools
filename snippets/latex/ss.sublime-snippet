@@ -1,12 +1,11 @@
-
 <snippet>
-    <content><![CDATA[\smallskip]]></content>
-    <tabTrigger>ss</tabTrigger>
-    <scope>
-        text.tex.latex
-        - text.tex.latex meta.group
-        - text.tex.latex meta.environment.math
-        - text.tex.latexstring.other.math
-    </scope>
-    <description>\smallskip</description>
+	<content><![CDATA[\smallskip]]></content>
+	<tabTrigger>ss</tabTrigger>
+	<scope>
+		text.tex.latex
+		- text.tex.latex meta.group
+		- text.tex.latex meta.environment.math
+		- text.tex.latexstring.other.math
+	</scope>
+	<description>\smallskip</description>
 </snippet>

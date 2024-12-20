@@ -1,10 +1,9 @@
-
 <snippet>
-    <content><![CDATA[\kappa]]></content>
-    <tabTrigger>k</tabTrigger>
-    <scope>
-        text.tex.latex meta.environment.math,
-        text.tex.latex string.other.math
-    </scope>
-    <description>\kappa</description>
+	<content><![CDATA[\kappa]]></content>
+	<tabTrigger>k</tabTrigger>
+	<scope>
+		text.tex.latex meta.environment.math,
+		text.tex.latex string.other.math
+	</scope>
+	<description>\kappa</description>
 </snippet>

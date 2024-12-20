@@ -1,7 +1,7 @@
 <snippet>
-    <content><![CDATA[
+	<content><![CDATA[
 \\texttt{${1:$SELECTION}}
 ]]></content>
-    <scope>text.tex.latex</scope>
-    <description>Monospace text</description>
+	<scope>text.tex.latex</scope>
+	<description>Monospace text</description>
 </snippet>
