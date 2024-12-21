@@ -8,6 +8,8 @@ from . import detect_spellcheck
 from .latex_fill_all import FillAllHelper
 from .latextools_utils import get_setting
 
+HAVE_KINDINFO = hasattr(sublime, 'CompletionItem')
+
 try:
     installed_locales = sorted(detect_spellcheck._dictionary_mappings.keys())
 except:
@@ -248,21 +250,50 @@ class LatexDirectiveCompletion(sublime_plugin.EventListener):
         if "!" not in line_str:
             return
 
-        comp = None
+        completions = None
 
         tex_directives = [
             "root", "spellcheck", "program", "output_directory",
             "aux_directory", "jobname", "options"
         ]
-        if _EXCLAMATION_MARK_RE.match(line_str):
-            row, _ = view.rowcol(point)
-            # do this completion only in the first 20 lines
-            if row < 20:
-                comp = [
-                    ("TEX {0}\tTEX directive".format(s), "TEX " + s)
+
+        if HAVE_KINDINFO: # ST4
+            KIND_INFO = [sublime.KindId.KEYWORD, "d", "Directive"]
+
+            if _EXCLAMATION_MARK_RE.match(line_str):
+                row, _ = view.rowcol(point)
+                # do this completion only in the first 20 lines
+                if row < 20:
+                    completions = [
+                        sublime.CompletionItem(
+                            trigger="TEX " + s,
+                            kind=KIND_INFO,
+                            details=" " # ensure details line is displayed
+                        )
+                        for s in tex_directives
+                    ]
+
+            elif _TEX_PREFIX_RE.match(line_str):
+                completions = [
+                    sublime.CompletionItem(
+                        trigger=s,
+                        kind=KIND_INFO,
+                        details=" " # ensure details line is displayed
+                    )
                     for s in tex_directives
                 ]
-        elif _TEX_PREFIX_RE.match(line_str):
-            comp = [(s + "\tTEX directive", s) for s in tex_directives]
+
+        else: # ST3
+            if _EXCLAMATION_MARK_RE.match(line_str):
+                row, _ = view.rowcol(point)
+                # do this completion only in the first 20 lines
+                if row < 20:
+                    completions = [
+                        ("TEX {0}\tTEX directive".format(s), "TEX " + s)
+                        for s in tex_directives
+                    ]
+            elif _TEX_PREFIX_RE.match(line_str):
+                completions = [(s + "\tTEX directive", s) for s in tex_directives]
+
         # other completions are handled via fill all helper
-        return comp
+        return completions
