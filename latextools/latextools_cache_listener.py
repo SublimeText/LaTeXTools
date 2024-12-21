@@ -8,6 +8,7 @@ import sublime_plugin
 
 from .latex_cite_completions import find_bib_files
 from .latex_cite_completions import run_plugin_command
+from .latex_cwl_completions import get_cwl_command_completions
 from .utils import analysis
 from .utils.activity_indicator import ActivityIndicator
 from .utils.cache import LocalCache
@@ -54,6 +55,9 @@ def update_cache(cache, doc, bib):
                 if bib:
                     logger.debug("Updating bibliography cache for %s", cache.tex_root)
                     run_plugin_command("get_entries", *(find_bib_files(cache.tex_root) or []))
+
+                get_cwl_command_completions(cache.tex_root)
+
             except Exception:
                 activity.finish("LaTeXTools cache update failed")
                 traceback.print_exc()

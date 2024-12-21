@@ -65,8 +65,8 @@ else:
     from .latextools.latex_command import (
         LatextoolsLatexCmdCommand
     )
-    from .latextools.latex_cwl_completions import (
-        LatexCwlCompletion
+    from .latextools.latex_command_completions import (
+        LatexCmdCompletion
     )
     from .latextools.latex_directive_completions import (
         LatexDirectiveCompletion
