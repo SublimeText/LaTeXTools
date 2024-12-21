@@ -211,22 +211,25 @@ class LatexDirectiveCompletion(sublime_plugin.EventListener):
     @async_completions
     def on_query_completions(self, view, prefix, locations):
         if len(locations) > 1:
-            return
-        point = locations[0]
-        if not view.match_selector(point, "text.tex.latex comment.line.percentage"):
-            return
+            return []
 
-        line_str = view.substr(sublime.Region(view.line(point).a, point))
+        pt = locations[0]
+        if not view.match_selector(pt, "text.tex.latex comment.line.percentage"):
+            return []
+
+        line_reg = view.line(pt)
+        line_reg.b = pt
+        line_str = view.substr(line_reg)
         if prefix:
             line_str = line_str[: -len(prefix)]
 
         # circumvent completion if it cannot be possible
         if "!" not in line_str:
-            return
+            return []
 
-        comp = None
+        completions = []
 
-        tex_directives = [
+        directives = [
             "root",
             "spellcheck",
             "program",
@@ -235,12 +238,22 @@ class LatexDirectiveCompletion(sublime_plugin.EventListener):
             "jobname",
             "options",
         ]
+
+        kind = [sublime.KindId.KEYWORD, "d", "Directive"]
+
         if _EXCLAMATION_MARK_RE.match(line_str):
-            row, _ = view.rowcol(point)
+            row, _ = view.rowcol(pt)
             # do this completion only in the first 20 lines
             if row < 20:
-                comp = [("TEX {0}\tTEX directive".format(s), "TEX " + s) for s in tex_directives]
+                completions = [
+                    sublime.CompletionItem(trigger="TEX " + directive, kind=kind, details=" ")
+                    for directive in directives
+                ]
+
         elif _TEX_PREFIX_RE.match(line_str):
-            comp = [(s + "\tTEX directive", s) for s in tex_directives]
-        # other completions are handled via fill all helper
-        return comp
+            completions = [
+                sublime.CompletionItem(trigger=directive, kind=kind, details=" ")
+                for directive in directives
+            ]
+
+        return completions
