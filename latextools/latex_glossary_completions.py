@@ -1,17 +1,109 @@
 import re
+import sublime
 
 from .latex_fill_all import FillAllHelper
 from .utils import analysis
-from .utils import cache
+from .utils.cache import cache_local
 from .utils.settings import get_setting
 from .utils.tex_directives import get_tex_root
 
+GLO_LINE_RE = re.compile(r"([^{}\[\]]*)\{*?(?:lp|lobmys)?slg\\", re.IGNORECASE)
+ACR_LINE_RE = re.compile(r"([^{}\[\]]*)\{(?:(?:lp)?lluf|gnol|trohs)rca\\", re.IGNORECASE)
 
-GLO_LINE_RE = re.compile(r"([^{}\[\]]*)\{*?(?:lp|lobmys)?sl(?:G|g)\\")
-ACR_LINE_RE = re.compile(r"([^{}\[\]]*)\{(?:lluf|gnol|trohs)rca\\")
+
+def _get_compl_type(line):
+    if ACR_LINE_RE.match(line[::-1]):
+        return "acr"
+    # elif GLO_LINE_RE.match(line[::-1]):
+    #     return "glo"
+    else:
+        return "glo"
 
 
-def _get_pgfkeys_value(kv_str, key, strip=False):
+def _get_acr_completion_items(ana):
+    """
+    Gets the glossary commands.
+
+    Expected format of returned commands is:
+
+        \\newacronym{key}{The Name}{The Description}
+    """
+    return ana.filter_commands("newacronym")
+
+
+def _get_acr_auto_completions(ana):
+    kind = (sublime.KindId.VARIABLE, "a", "Acronym")
+
+    return [
+        sublime.CompletionItem(
+            trigger=a.args, completion=a.args, annotation=a.args2, details=a.args3, kind=kind
+        )
+        for a in _get_acr_completion_items(ana)
+    ]
+
+
+def _get_acr_kbd_completions(ana):
+    kind = (sublime.KindId.VARIABLE, "a", "Acronym")
+
+    display = []
+    value = []
+
+    for a in _get_acr_completion_items(ana):
+        display.append(
+            sublime.QuickPanelItem(trigger=a.args, annotation=a.args2, details=a.args3, kind=kind)
+        )
+        value.append(a.args)
+
+    return (display, value)
+
+
+def _get_glo_completion_items(ana):
+    """
+    Gets the glossary commands.
+
+    Expected format of returned commands is:
+
+        \\newglossary{key}{name={The Name} description={The Description}}
+    """
+    return ana.filter_commands(["newglossaryentry", "longnewglossaryentry"])
+
+
+def _get_glo_auto_completions(ana):
+    kind = (sublime.KindId.VARIABLE, "g", "Glossary")
+
+    return [
+        sublime.CompletionItem(
+            trigger=a.args,
+            completion=a.args,
+            annotation=_get_pgfkeys_value(a.args2, "name"),
+            details=_get_pgfkeys_value(a.args2, "description"),
+            kind=kind,
+        )
+        for a in _get_glo_completion_items(ana)
+    ]
+
+
+def _get_glo_kbd_completions(ana):
+    kind = (sublime.KindId.VARIABLE, "g", "Glossary")
+
+    display = []
+    value = []
+
+    for a in _get_glo_completion_items(ana):
+        display.append(
+            sublime.QuickPanelItem(
+                trigger=a.args,
+                annotation=_get_pgfkeys_value(a.args2, "name"),
+                details=_get_pgfkeys_value(a.args2, "description"),
+                kind=kind,
+            )
+        )
+        value.append(a.args)
+
+    return (display, value)
+
+
+def _get_pgfkeys_value(kv_str, key, strip=True):
     """
     Extract the value of a pgfkeys like string.
 
@@ -19,84 +111,65 @@ def _get_pgfkeys_value(kv_str, key, strip=False):
     k1=value1, k2={long value 2}
     """
     if not kv_str:
-        return
+        return ""
     # TODO this is only heuristically over re search and
     # can still be improved
     m = re.search(key + r"\s*=\s*(\{[^\}]+\}|\w+)", kv_str)
     if not m:
-        return
+        return ""
     result = m.group(1)
     if strip and result and result.startswith("{") and result.endswith("}"):
         result = result[1:-1]
     return result
 
 
-def _create_glo_desc(a):
-    name = _get_pgfkeys_value(a.args2, "name", strip=True) or ""
-    desc = _get_pgfkeys_value(a.args2, "description", strip=True) or ""
-    return "{name} - {desc}".format(**locals())
-
-
-def _get_glo_completions(ana, prefix, ac):
-    comp = []
-    glo_commands = ana.filter_commands(["newglossaryentry", "longnewglossaryentry", "newacronym"])
-    if ac:
-        comp = [(a.args + "\tGlossary", a.args) for a in glo_commands]
-    else:
-        glo_commands = [a for a in glo_commands if a.args.startswith(prefix)]
-        comp = [[a.args, _create_glo_desc(a)] for a in glo_commands], [a.args for a in glo_commands]
-    return comp
-
-
-def _get_acr_completions(ana, prefix, ac):
-    acr_commands = ana.filter_commands("newacronym")
-    if ac:
-        comp = [(a.args + "\tAcronym", a.args) for a in acr_commands]
-    else:
-        acr_commands = [a for a in acr_commands if a.args.startswith(prefix)]
-        comp = [[a.args, "{0} - {1}".format(a.args2 or "", a.args3 or "")] for a in acr_commands], [
-            a.args for a in acr_commands
-        ]
-    return comp
-
-
 class GlossaryFillAllHelper(FillAllHelper):
-    def _get_completions(self, view, prefix, line, comp_type="glo", ac=False):
+    def get_auto_completions(self, view, prefix, line):
         tex_root = get_tex_root(view)
         if not tex_root:
             return []
 
-        cache_name = "glocomp_{0}_{1}".format(comp_type, "ac" if ac else "kbd")
+        comp_type = _get_compl_type(line)
 
-        def make_compl():
+        def make():
             ana = analysis.get_analysis(tex_root)
-            if comp_type == "glo":
-                comp = _get_glo_completions(ana, prefix, ac)
-            elif comp_type == "acr":
-                comp = _get_acr_completions(ana, prefix, ac)
+            if comp_type == "acr":
+                return _get_acr_auto_completions(ana)
+            elif comp_type == "glo":
+                return _get_acr_auto_completions(ana) + _get_glo_auto_completions(ana)
             else:
-                comp = []
-            return comp
+                return []
 
-        comp = cache.cache(tex_root, cache_name, make_compl)
-        return comp
+        comp = cache_local(tex_root, f"glocomp_{comp_type}_ac", make)
+        if comp and prefix:
+            prefix = prefix.lower()
+            comp = [c for c in comp if c.trigger.lower().startswith(prefix)]
 
-    def get_compl_type(self, line):
-        if GLO_LINE_RE.match(line[::-1]):
-            return "glo"
-        elif ACR_LINE_RE.match(line[::-1]):
-            return "acr"
-        else:
-            return "glo"
-
-    def get_auto_completions(self, view, prefix, line):
-        comp_type = self.get_compl_type(line)
-        comp = self._get_completions(view, prefix, line, comp_type=comp_type, ac=True)
         return comp
 
     def get_completions(self, view, prefix, line):
-        comp_type = self.get_compl_type(line)
-        comp = self._get_completions(view, prefix, line, comp_type=comp_type, ac=False)
+        tex_root = get_tex_root(view)
+        if not tex_root:
+            return []
+
+        comp_type = _get_compl_type(line)
+
+        def make():
+            ana = analysis.get_analysis(tex_root)
+            if comp_type == "acr":
+                return _get_acr_kbd_completions(ana)
+            elif comp_type == "glo":
+                acr_display, acr_value = _get_acr_kbd_completions(ana)
+                glo_display, glo_value = _get_glo_kbd_completions(ana)
+                return (acr_display + glo_display, acr_value + glo_value)
+            else:
+                return []
+
+        comp = cache_local(tex_root, f"glocomp_{comp_type}_kbd", make)
+        if comp and prefix:
+            prefix = prefix.lower()
+            comp = [c for c in comp if c.trigger.lower().startswith(prefix)]
+
         return comp
 
     def matches_line(self, line):

@@ -613,12 +613,17 @@
 	// Valid wildcards: keyword, title, author, year, author_short, title_short, journal
 
 	// Uncomment or modify at will
-	"cite_panel_format": ["{author_short} {year} - {title_short} ({keyword})","{title}"],
+	"cite_panel_format": ["{author_short} {year} - {title_short}", "{title}", "{author}"],
 	//"cite_panel_format": ["({keyword}) {author_short} - {year}","{title} - {journal}"],
 	//"cite_panel_format": ["{author_short} {year} ({keyword})"],
 
-	// Similarly, the formatting for the autocomplete panel:
-	"cite_autocomplete_format": "{keyword}: {title}",
+	// A list of 3 templates, specifying the formatting of autocomplete panel items
+	// [<trigger>, <annotation>, <details>]
+	"cite_autocomplete_format": [
+		"{keyword}: {title_short}",
+		"",
+		"{author_short} {year} - {title}"
+	],
 
 // ------------------------------------------------------------------
 // Cache options

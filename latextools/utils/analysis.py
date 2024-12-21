@@ -11,7 +11,7 @@ from functools import partial
 from ...vendor.frozendict import frozendict
 
 from . import utils
-from .cache import LocalCache
+from .cache import cache_local
 from .logging import logger
 from .tex_directives import get_tex_root
 
@@ -333,7 +333,7 @@ def get_analysis(tex_root):
     elif not isinstance(tex_root, str):
         raise TypeError("tex_root must be a string or view")
 
-    return LocalCache(tex_root).cache("analysis", partial(analyze_document, tex_root))
+    return cache_local(tex_root, "analysis", partial(analyze_document, tex_root))
 
 
 def _generate_entries(m, file_name, offset=0):

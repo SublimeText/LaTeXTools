@@ -118,9 +118,7 @@ def latextools_plugin_loaded():
                 "regex": r"\}[^{}\[\]]*\{\*?(?:tropmi|morftupni|morfedulcni)\\",
                 "extensions": [e[1:] for e in get_tex_extensions()],
                 "strip_extensions": [".tex"],
-                "post_regex": (
-                    r"\\(?:import|includefrom|inputfrom)\*?\{([^{}\[\]]*)\}\{[^\}]*?$"
-                ),
+                "post_regex": (r"\\(?:import|includefrom|inputfrom)\*?\{([^{}\[\]]*)\}\{[^\}]*?$"),
                 "folder": "$_1",
             },
             {"regex": r"(?:\][^{}\[\]]*\[)?ecruoserbibdda\\", "extensions": ["bib"]},
@@ -306,8 +304,9 @@ def parse_completions(view, line):
     else:
         logger.error("Unknown entry type %s.", entry["type"])
 
-    if "post_process" in entry:
-        fkt = globals().get("_post_process_{0}".format(entry["post_process"]), None)
+    pp = entry.get("post_process")
+    if pp:
+        fkt = globals().get(f"_post_process_{pp}")
         if fkt:
             completions = fkt(completions)
 
@@ -337,47 +336,59 @@ def _get_cache():
 
 
 class InputFillAllHelper(FillAllHelper):
-
     def get_auto_completions(self, view, prefix, line):
+        kind = (sublime.KindId.VARIABLE, "f", "File")
         completions = parse_completions(view, line)
 
-        if len(completions) == 0:
+        if not completions:
             return []
         elif not isinstance(completions[0], tuple):
-            return completions
-        else:
-            return [
-                # Replace backslash with forward slash to fix Windows paths
-                # LaTeX does not support forward slashes in paths
-                os.path.normpath(os.path.join(relpath, filename)).replace("\\", "/")
-                for base_path, relpath, filename in completions
-            ]
+            return [sublime.CompletionItem(trigger=c, completion=c, kind=kind) for c in completions]
+
+        comp = []
+
+        for base_path, relpath, filename in completions:
+            file_path = os.path.normpath(os.path.join(relpath, filename)).replace("\\", "/")
+
+            comp.append(
+                sublime.CompletionItem(
+                    trigger=file_path,
+                    completion=file_path,
+                    details=os.path.normpath(os.path.join(base_path, file_path)),
+                    kind=kind,
+                )
+            )
+
+        return comp
 
     def get_completions(self, view, prefix, line):
+        kind = (sublime.KindId.VARIABLE, "f", "File")
         completions = parse_completions(view, line)
 
-        if len(completions) == 0:
-            return
+        if not completions:
+            return []
+
         elif not isinstance(completions[0], tuple):
-            return completions
-        else:
-            formatted_completions = []
-            normal_completions = []
-            for base_path, relpath, filename in completions:
-                latex_formatted = os.path.normpath(os.path.join(relpath, filename)).replace(
-                    "\\", "/"
+            display = [sublime.QuickPanelItem(trigger=c, kind=kind) for c in completions]
+            return (display, completions)
+
+        display = []
+        values = []
+
+        for base_path, relpath, filename in completions:
+            file_path = os.path.normpath(os.path.join(relpath, filename)).replace("\\", "/")
+
+            display.append(
+                sublime.QuickPanelItem(
+                    trigger=file_path,
+                    details=os.path.normpath(os.path.join(base_path, file_path)),
+                    kind=kind,
                 )
+            )
 
-                formatted_completions.append(
-                    [
-                        latex_formatted,
-                        os.path.normpath(os.path.join(base_path, relpath, filename)),
-                    ]
-                )
+            values.append(file_path)
 
-                normal_completions.append(latex_formatted)
-
-            return formatted_completions, normal_completions
+        return (display, values)
 
     def matches_line(self, line):
         if TEX_INPUT_FILE_REGEX.match(line):

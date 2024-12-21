@@ -149,7 +149,9 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
                     "<panel_formatted>": tuple(
                         bibformat.format_entry(s, entry) for s in panel_format
                     ),
-                    "<autocomplete_formatted>": bibformat.format_entry(autocomplete_format, entry),
+                    "<autocomplete_formatted>": tuple(
+                        bibformat.format_entry(s, entry) for s in autocomplete_format
+                    ),
                 }
             )
             for entry in bib_entries

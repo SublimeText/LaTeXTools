@@ -775,11 +775,6 @@ class LatexFillAllEventListener(
                 },
             )
 
-        if isinstance(completions[0], tuple):
-            show, completions = zip(*completions)
-        else:
-            show = completions[:]
-
         # we did not find a fancy prefix, so append the closing bracket,
         # if needed, to the completions
         if not remove_regions:
@@ -793,11 +788,12 @@ class LatexFillAllEventListener(
                     break
 
             if closing_bracket:
-                completions = [c + closing_bracket for c in completions]
+                for c in completions:
+                    c.completion += closing_bracket
 
         self.clear_bracket_cache()
 
-        return zip(show, completions)
+        return completions
 
 
 class LatextoolsFillAllCommand(

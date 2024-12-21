@@ -1,10 +1,10 @@
+import re
+import sublime
+
 from .latex_fill_all import FillAllHelper
 from .utils import analysis
-from .utils.logging import logger
 from .utils.settings import get_setting
 from .utils.tex_directives import get_tex_root
-
-import re
 
 _ref_special_commands = "|".join(
     [
@@ -52,43 +52,35 @@ NEW_STYLE_REF_MULTIVALUE_REGEX = re.compile(r"([^},]*)(?:,[^},]*)*\{fer(c|C|egap
 AUTOCOMPLETE_EXCLUDE_RX = re.compile(r"fer(?:" + _ref_special_commands + r")?\\?")
 
 
-# recursively search all linked tex files to find all
-# included \label{} tags in the document and extract
-def find_labels_in_files(root, labels):
-    doc = analysis.get_analysis(root)
-    for command in doc.filter_commands("label"):
-        labels.append(command.args)
-
-
-# grab labels from all open buffers too
-def find_labels_in_open_files(views, labels):
-    for view in views:
-        if view.match_selector(0, "text.tex.latex"):
-            view.find_all(r"\\label\{([^\{\}]+)\}", 0, "\\1", labels)
-
-
-# get_ref_completions forms the guts of the parsing shared by both the
-# autocomplete plugin and the quick panel command
 def get_ref_completions(view):
+    """
+    Find all labels
+
+    get_ref_completions forms the guts of the parsing shared by both the
+    autocomplete plugin and the quick panel command
+    """
     completions = []
 
+    # Finds labels in open files.
     window = view.window()
     if window:
-        find_labels_in_open_files(window.views(), completions)
+        for view in window.views():
+            if view.is_primary() and view.match_selector(0, "text.tex.latex"):
+                view.find_all(r"\\label\{([^\{\}]+)\}", 0, "\\1", completions)
 
+    # Finds labels in associated files.
     root = get_tex_root(view)
     if root:
-        logger.debug("TEX root: %s", root)
-        find_labels_in_files(root, completions)
+        ana = analysis.get_analysis(root)
+        if ana:
+            for command in ana.filter_commands("label"):
+                completions.append(command.args)
 
     # remove duplicates
-    return list(set(completions))
+    return set(completions)
 
 
-# called by LatextoolsFillAllCommand; provides a list of labels
-# for any ref commands
 class RefFillAllHelper(FillAllHelper):
-
     def get_auto_completions(self, view, prefix, line):
         # Reverse, to simulate having the regex
         # match backwards (cool trick jps btw!)
@@ -102,25 +94,26 @@ class RefFillAllHelper(FillAllHelper):
         if old_style and not prefix:
             return []
 
-        completions = get_ref_completions(view)
+        kind = (sublime.KindId.NAVIGATION, "l", "Label")
 
-        if prefix:
-            lower_prefix = prefix.lower()
-            completions = [c for c in completions if lower_prefix in c.lower()]
+        completions = [
+            sublime.CompletionItem(trigger=c, completion=c, details=" ", kind=kind)
+            for c in get_ref_completions(view)
+        ]
 
-        if old_style:
-            return completions, "{"
-        else:
-            return completions
+        return completions, "{" if old_style else completions
 
     def get_completions(self, view, prefix, line):
-        completions = get_ref_completions(view)
+        display = []
+        value = []
 
-        if prefix:
-            lower_prefix = prefix.lower()
-            completions = [c for c in completions if lower_prefix in c.lower()]
+        kind = (sublime.KindId.NAVIGATION, "l", "Label")
 
-        return completions
+        for c in get_ref_completions(view):
+            display.append(sublime.QuickPanelItem(trigger=c, annotation="label", kind=kind))
+            value.append(c)
+
+        return (display, value)
 
     def matches_line(self, line):
         return bool(

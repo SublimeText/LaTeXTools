@@ -24,7 +24,7 @@ import traceback
 from .latex_fill_all import FillAllHelper
 from .utils import analysis
 from .utils import bibformat
-from .utils.cache import LocalCache
+from .utils.cache import cache_local
 from .utils.external_command import CalledProcessError
 from .utils.external_command import check_output
 from .utils.logging import logger
@@ -38,7 +38,6 @@ class NoBibFilesError(Exception):
 
 
 class BibParsingError(Exception):
-
     def __init__(self, filename=""):
         self.filename = filename
 
@@ -221,6 +220,8 @@ def find_bib_files(root):
 
         # load the analysis
         doc = analysis.get_analysis(root)
+        if not doc:
+            return tuple()
         # we use ALL_COMMANDS here as any flag will filter some command
         # we want to support
         flags = analysis.ALL_COMMANDS | analysis.ONLY_COMMANDS_WITH_ARGS
@@ -265,7 +266,7 @@ def find_bib_files(root):
         return tuple(result)
 
     # since the processing can be a bit intensive, cache the results
-    result = LocalCache(root).cache("bib_files", _find_bib_files)
+    result = cache_local(root, "bib_files", _find_bib_files)
 
     # if a an additional_file is set append it to the result
     additional_file = get_setting("additional_bibliography_file")
@@ -444,7 +445,6 @@ def get_cite_completions(view):
 
 # called by LatextoolsFillAllCommand; provides citations for cite commands
 class CiteFillAllHelper(FillAllHelper):
-
     def get_auto_completions(self, view, prefix, line):
         # Reverse, to simulate having the regex
         # match backwards (cool trick jps btw!)
@@ -460,80 +460,90 @@ class CiteFillAllHelper(FillAllHelper):
 
         try:
             completions = get_cite_completions(view)
+            if not completions:
+                return []
+
         except NoBibFilesError:
             logger.error("No bib files found!")
             sublime.status_message("No bib files found!")
             return []
-        except BibParsingError as e:
-            message = "Error occurred parsing {0}. {1}.".format(e.filename, e.message)
-            logger.error(message)
-            traceback.print_exc()
 
+        except BibParsingError as e:
+            message = f"Error occurred parsing {e.filename}. {e.message}."
+            logger.error(message)
             sublime.status_message(message)
             return []
 
-        if prefix:
-            lower_prefix = prefix.lower()
-            completions = [c for c in completions if _is_prefix(lower_prefix, c)]
-
-        if len(completions) == 0:
-            return []
-
-        cite_autocomplete_format = get_setting("cite_autocomplete_format", "{keyword}: {title}", view)
+        autocomplete_format = get_setting(
+            "cite_autocomplete_format",
+            ["{keyword}", "{title_short}", "{author_short} {year} - {title}"],
+            view,
+        )
+        kind = (sublime.KindId.TYPE, "b", "Bibliography")
 
         def formatted_entry(entry):
             try:
-                return entry["<autocomplete_formatted>"]
+                trigger, annotation, details = entry["<autocomplete_formatted>"]
             except Exception:
-                return bibformat.format_entry(cite_autocomplete_format, entry)
+                trigger, annotation, details = (
+                    bibformat.format_entry(s, entry) for s in autocomplete_format
+                )
 
-        completions = [(formatted_entry(c), c["keyword"]) for c in completions]
+            keyword = entry["keyword"]
 
-        if old_style:
-            return completions, "{"
-        else:
-            return completions
+            return sublime.CompletionItem(
+                trigger=trigger,
+                annotation=annotation,
+                completion=keyword,
+                details=details,
+                kind=kind,
+            )
+
+        completions = [formatted_entry(c) for c in completions]
+
+        return completions, "{" if old_style else completions
 
     def get_completions(self, view, prefix, line):
         try:
             completions = get_cite_completions(view)
+            if not completions:
+                return []
+
         except NoBibFilesError:
             sublime.status_message("No bib files found!")
-            return
+            return []
+
         except BibParsingError as e:
-            msg = "Error occurred parsing {0}. {1}.".format(e.filename, e.message)
-            logger.error(msg)
-            sublime.status_message(msg)
-            return
+            message = f"Error occurred parsing {e.filename}. {e.message}."
+            logger.error(message)
+            sublime.status_message(message)
+            return []
 
-        if prefix:
-            lower_prefix = prefix.lower()
-            completions = [c for c in completions if _is_prefix(lower_prefix, c)]
+        display = []
+        values = []
 
-        completions_length = len(completions)
-        if completions_length == 0:
-            return
-        elif completions_length == 1:
-            return [completions[0]["keyword"]]
+        panel_format = get_setting(
+            "cite_panel_format", ["{title} ({keyword})", "{author}"], view
+        )
+        kind = (sublime.KindId.TYPE, "b", "Bibliography")
 
-        cite_panel_format = get_setting("cite_panel_format", ["{title} ({keyword})", "{author}"], view)
-
-        def formatted_entry(entry):
+        for c in completions:
             try:
-                result = entry["<panel_formatted>"]
-                if isinstance(result, tuple):
-                    result = list(result)
-                return result
+                result = c["<panel_formatted>"]
             except Exception:
-                return [bibformat.format_entry(s, entry) for s in cite_panel_format]
+                result = (bibformat.format_entry(s, c) for s in panel_format)
 
-        formatted_completions = []
-        result_completions = []
-        for completion in completions:
-            formatted_completions.append(formatted_entry(completion))
-            result_completions.append(completion["keyword"])
+            keyword = c["keyword"]
 
-        return formatted_completions, result_completions
+            display.append(
+                sublime.QuickPanelItem(
+                    trigger=result[0], details=result[1:] or "", annotation=keyword, kind=kind
+                )
+            )
+
+            values.append(keyword)
+
+        return (display, values)
 
     def matches_line(self, line):
         return bool(OLD_STYLE_CITE_REGEX.match(line) or NEW_STYLE_CITE_REGEX.match(line))
@@ -543,13 +553,6 @@ class CiteFillAllHelper(FillAllHelper):
 
     def is_enabled(self):
         return get_setting("cite_auto_trigger", True)
-
-
-def _is_prefix(lower_prefix, entry):
-    try:
-        return lower_prefix in entry["<prefix_match>"]
-    except Exception:
-        return lower_prefix in bibformat.create_prefix_match_str(entry)
 
 
 def latextools_plugin_loaded():
