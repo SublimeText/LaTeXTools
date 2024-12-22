@@ -13,6 +13,28 @@ LaTeX Package keymap for OS X
 		],
 	},
 
+	// Avoid weird brace-matching behavior with indented text
+	{ 	"keys": ["{"],
+		"command": "insert_snippet", "args": {"contents": "{$0}"},
+		"context": [
+			{ "key": "indented_block", "match_all": true },
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex - text.tex.latex meta.environment.math" },
+			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
+			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
+			{ "key": "following_text", "operator": "regex_match", "operand": "^$", "match_all": true }
+		]
+	},
+	// Enable auto-bairing braces in front of termination
+	{ 	"keys": ["{"],
+		"command": "insert_snippet", "args": {"contents": "{$0}"},
+		"context": [
+			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex meta.environment.math" },
+			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
+			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\$", "match_all": true }
+		]
+	},
+
 	// New-style keybindings use "cmd+l" as a prefix
 	// This overrides "extend selection to line", which is remapped to
 	// "cmd+l","cmd+l"
@@ -24,17 +46,6 @@ LaTeX Package keymap for OS X
 		"context":  [
 			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
 		"command": "expand_selection", "args": {"to": "line"} },
-
-	// Avoid weird brace-matching behavior with indented text
-	{ "keys": ["{"], "command": "insert_snippet", "args": {"contents": "{$0}"}, "context":
-		[
-			{ "key": "indented_block", "match_all": true },
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
-			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
-			{ "key": "following_text", "operator": "regex_match", "operand": "^$", "match_all": true }
-		]
-	},
 
 	// Insert latex command or environment, and close current environment
 	{ 	"keys": ["super+l","c"],
