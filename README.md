@@ -1,4 +1,4 @@
-# LateXTools: A LaTeX Plugin for Sublime Text 2 and 3
+# LateXTools: A LaTeX Plugin for Sublime Text
 
 by Ian Bacher, Marciano Siniscalchi, and Richard Stein
 
@@ -7,8 +7,6 @@ by Ian Bacher, Marciano Siniscalchi, and Richard Stein
 
 **Documentation:**
 <https://latextools.readthedocs.io>
-
-*Latest revision:* v3.15.1 (2018-04-23).
 
 [![Package Control](https://img.shields.io/packagecontrol/dm/LaTeXTools.svg?maxAge=2592000)](https://packagecontrol.io/packages/LaTeXTools)
 
