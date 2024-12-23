@@ -48,7 +48,7 @@ def focus_st():
             def keep_focus():
                 external_command([sublime_command], use_texpath=False)
 
-        sublime.set_async_timeout(keep_focus, int(wait_time * 1000))
+        sublime.set_timeout_async(keep_focus, int(wait_time * 1000))
 
 
 # returns the path to the sublime executable
