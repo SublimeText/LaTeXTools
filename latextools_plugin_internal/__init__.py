@@ -79,16 +79,11 @@ def _classname_to_internal_name(s):
     if not s:
         return s
 
-    # little hack to support LaTeX or TeX in the plugin name
-    while True:
-        match = re.search(r'(?:Bib)?(?:La)?TeX', s)
-        if match:
-            s = s.replace(
-                match.group(0),
-                match.group(0)[0] + match.group(0)[1:].lower()
-            )
-        else:
-            break
+    def _repl(match):
+        match = match.group(0)
+        return match[0] + match[1:].lower()
+
+    s = re.sub(r'(?:Bib)?(?:La)?TeX', _repl, s)
 
     # pilfered from https://code.activestate.com/recipes/66009/
     s = re.sub(r'(?<=[a-z])[A-Z]|(?<!^)[A-Z](?=[a-z])', r"_\g<0>", s).lower()
