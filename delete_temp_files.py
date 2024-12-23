@@ -21,11 +21,12 @@ class LatextoolsClearCacheCommand(sublime_plugin.WindowCommand):
         except Exception:
             print('Error while trying to delete global cache')
             traceback.print_exc()
-            try:
-                shutil.rmtree(cache._local_cache_path())
-            except Exception:
-                print('Error while trying to delete local cache')
-                traceback.print_exc()
+
+        try:
+            shutil.rmtree(cache._local_cache_path())
+        except Exception:
+            print('Error while trying to delete local cache')
+            traceback.print_exc()
 
         window = self.window
         view = window.active_view()
