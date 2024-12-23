@@ -63,9 +63,7 @@ def get_sublime_exe():
     '''
     platform = sublime.platform()
 
-    plat_settings = get_setting(platform, {})
-    sublime_executable = plat_settings.get('sublime_executable', None)
-
+    sublime_executable = get_setting(platform, {}).get('sublime_executable')
     if sublime_executable:
         return sublime_executable
 
@@ -73,44 +71,50 @@ def get_sublime_exe():
     if hasattr(get_sublime_exe, 'result'):
         return get_sublime_exe.result
 
-    get_sublime_exe.result = sublime.executable_path()
+    executable = sublime.executable_path()
+
     # on osx, the executable does not function the same as subl
     if platform == 'osx':
-        get_sublime_exe.result = os.path.normpath(
+        executable = os.path.normpath(
             os.path.join(
-                os.path.dirname(get_sublime_exe.result),
+                os.path.dirname(executable),
                 '..',
                 'SharedSupport',
                 'bin',
                 'subl'
             )
         )
+
     # on linux, it is preferable to use subl if it points to the
     # correct version see issue #710 for a case where this is useful
-    elif (
-        platform == 'linux' and
-        not get_sublime_exe.result.endswith('subl')
-    ):
-        subl = which('subl')
-        if subl is not None:
-            try:
-                m = SUBLIME_VERSION.search(check_output(
-                    [subl, '-v'],
-                    use_texpath=False
-                ))
+    elif platform == 'linux':
+        if not executable.endswith('subl'):
+            subl = which('subl')
+            if subl is not None:
+                try:
+                    m = SUBLIME_VERSION.search(check_output(
+                        'subl -v',
+                        use_texpath=False
+                    ))
 
-                if m and m.group(1) == sublime.version():
-                    get_sublime_exe.result = subl
-            except:
-                pass
+                    if m and m.group(1) == sublime.version():
+                        executable = subl
+                except:
+                    pass
 
-    if get_sublime_exe.result is None:
+    # on windows, subl.exe must be called to re-focuses last active window
+    # calling sublime_text.exe opens a new window by default
+    elif platform == 'windows':
+        executable = os.path.join(os.path.dirname(executable), 'subl.exe')
+
+    if executable is None:
         logger.error(
             'Cannot determine the path to your Sublime installation. Please '
             'set the "sublime_executable" setting in your settings for your '
             'platform.'
         )
 
+    get_sublime_exe.result = executable
     return get_sublime_exe.result
 
 
