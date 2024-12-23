@@ -494,11 +494,11 @@ class CiteFillAllHelper(FillAllHelper):
         try:
             completions = get_cite_completions(view)
         except NoBibFilesError:
-            sublime.error_message("No bib files found!")
+            sublime.status_message("No bib files found!")
             return
         except BibParsingError as e:
             traceback.print_exc()
-            sublime.error_message(
+            sublime.status_message(
                 "Error occurred parsing {0}. {1}.".format(
                     e.filename, e.message
                 )
