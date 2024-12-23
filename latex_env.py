@@ -29,7 +29,7 @@ class LatextoolsLatexEnvCommand(sublime_plugin.TextCommand):
                 view.erase(edit, environment_region)
                 snippet = "\\\\begin{" + environment + "}\n$1\n\\\\end{" + environment + "}$0"
             else:
-                snippet = "\\\\begin{${1:env}}\n$2\n\end{$1}$0"
+                snippet = "\\\\begin{${1:env}}\n$2\n\\end{$1}$0"
             view.run_command("insert_snippet", {'contents': snippet})
         else:
             sublime.status_message(
