@@ -17,6 +17,7 @@ from .latex_ref_completions import NEW_STYLE_REF_REGEX
 from .latex_ref_completions import OLD_STYLE_REF_REGEX
 from .latextools_utils import analysis
 from .latextools_utils import utils
+from .latextools_utils.logger import logger
 from .latextools_utils.parser_utils import command_to_snippet
 from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
@@ -416,11 +417,7 @@ def cwl_parsing_handler(callback):
                 s = (sublime.load_resource(cwl_file).replace("\r\n", "\n")
                      .replace("\r", "\n"))
             except IOError:
-                print(
-                    '{0} does not exist or could not be accessed'.format(
-                        cwl_file
-                    )
-                )
+                logger.error('%s does not exist or could not be accessed', cwl_file)
                 continue
             except UnicodeDecodeError:
                 print(

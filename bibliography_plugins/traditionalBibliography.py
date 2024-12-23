@@ -2,6 +2,7 @@ from latextools_plugin import LaTeXToolsPlugin
 
 from LaTeXTools.external import latex_chars
 from latextools_utils import bibcache
+from latextools_utils.logger import logger
 
 import codecs
 import re
@@ -54,8 +55,9 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
             try:
                 bibf = codecs.open(bibfname, 'r', 'UTF-8', 'ignore')  # 'ignore' to be safe
             except IOError:
-                print("Cannot open bibliography file %s !" % (bibfname,))
-                sublime.status_message("Cannot open bibliography file %s !" % (bibfname,))
+                msg = "Cannot open bibliography file %s !" % bibfname
+                logger.error(msg)
+                sublime.status_message(msg)
                 continue
             else:
                 bib_data = bibf.readlines()
@@ -82,11 +84,8 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                         if kp_match:
                             entry['keyword'] = kp_match.group(1)
                         else:
-                            print("Cannot process this @ line: " + line)
-                            print(
-                                "Previous keyword (if any): " +
-                                entry.get('keyword', '')
-                            )
+                            logger.error("Cannot process this @ line: %s", line)
+                            logger.error("Previous keyword (if any): %s", entry.get('keyword', ''))
                         continue
 
                     # Now test for title, author, etc.
@@ -107,7 +106,7 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                 if 'keyword' in entry:
                     bib_entries.append(entry)
 
-                print('Loaded %d bibitems' % (len(bib_entries)))
+                logger.info('Loaded %d bibitems', len(bib_data))
 
                 try:
                     bib_cache.set(bib_entries)
@@ -115,7 +114,7 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                     entries.extend(fmt_entries)
                 except:
                     traceback.print_exc()
-                    print("Using bibliography without caching it")
+                    logger.warning("Using bibliography without caching it")
                     entries.extend(bib_entries)
             finally:
                 try:
@@ -123,5 +122,6 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                 except:
                     pass
 
-            print("Found %d total bib entries" % (len(entries),))
+            logger.info("Found %d total bib entries", len(entries))
+
         return entries

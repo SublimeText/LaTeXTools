@@ -1,6 +1,7 @@
 import sublime_plugin
 
 from .deprecated_command import deprecate
+from .latextools_utils.logger import logger
 from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
 from .latextools_utils.tex_directives import parse_tex_directives
@@ -146,14 +147,13 @@ def update_dict_language(view, extract_from_root):
         user_sc = get_setting("tex_spellcheck_paths", {})
         dict_path = user_sc.get(loc) or get_dict_path(loc)
     except DictMissing:
-        print("dict definition missing for locale '{0}'"
-              .format(loc))
+        logger.error("dict definition missing for locale '%s'", loc)
         return  # no dict defined for locale
     current_dict = view.settings().get("dictionary")
     if current_dict == dict_path:
         return  # the locale is already set
     view.settings().set("dictionary", dict_path)
-    print("Changed dictionary to '{0}'".format(dict_path))
+    logger.info("Changed dictionary to '%s'", dict_path)
 
 
 class LatextoolsAutoDetectSpellcheckListener(sublime_plugin.EventListener):

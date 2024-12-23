@@ -1,6 +1,7 @@
 import sublime
 import sublime_plugin
 
+from .latextools_utils.logger import logger
 from .latextools_utils.settings import get_setting
 
 
@@ -26,7 +27,7 @@ def _toggle_setting(setting_name, view):
     view.settings().set("latextools.{}".format(setting_name), new_value)
     message = "Set '{0}' to '{1}'.".format(setting_name, new_value)
     sublime.status_message(message)
-    print(message)
+    logger.info(message)
 
 
 def _show_toggle_overlay(window, view, prefix, setting_keys):
@@ -49,8 +50,8 @@ def _show_toggle_overlay(window, view, prefix, setting_keys):
         name, value = current_settings[index][0:2]
         new_value = not value
         message = "Set '{0}' to {1}".format(name, new_value)
-        print(message)
         sublime.status_message(message)
+        logger.info(message)
         current_settings[index][1] = new_value
         view.settings().set("latextools.{}".format(name), new_value)
         panel_entries[index] = _make_panel_entry(

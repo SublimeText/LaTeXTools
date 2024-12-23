@@ -2,6 +2,7 @@ import threading
 import traceback
 
 
+from ..latextools_utils.logger import logger
 from .preview_utils import try_delete_temp_files
 
 _max_threads = 2
@@ -85,7 +86,7 @@ def _start_threads(name, thread_id):
     try:
         func = _thread_functions[name]
     except KeyError:
-        print("Thread function missing for '{0}'".format(name))
+        logger.error("Thread function missing for '%s'", name)
         return
     try:
         lock, job_list = _jobs[name]

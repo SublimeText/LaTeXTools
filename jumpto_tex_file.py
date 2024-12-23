@@ -11,6 +11,7 @@ from .deprecated_command import deprecate
 from .latextools_utils import analysis
 from .latextools_utils import utils
 from .latextools_utils.external_command import external_command
+from .latextools_utils.logger import logger
 from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
 
@@ -68,21 +69,19 @@ def _jumpto_tex_file(view, window, tex_root, file_name,
             os.path.join(base_path, containing_folder))
 
     # create the missing folder
-    if auto_create_missing_folders and\
-            not os.path.exists(containing_folder):
+    if auto_create_missing_folders and not os.path.exists(containing_folder):
         try:
             os.makedirs(containing_folder)
         except OSError:
             # most likely a permissions error
-            print('Error occurred while creating path "{0}"'
-                  .format(containing_folder))
+            logger.error('Error occurred while creating path "%s"',
+                         containing_folder)
             traceback.print_last()
         else:
-            print('Created folder: "{0}"'.format(containing_folder))
+            logger.info('Created folder: "%s"', containing_folder)
 
     if not os.path.exists(containing_folder):
-        sublime.status_message(
-            "Cannot open tex file as folders are missing")
+        sublime.status_message("Cannot open tex file as folders are missing")
         return
     is_root_inserted = False
     full_new_path = os.path.join(containing_folder, file_name)
@@ -100,17 +99,15 @@ def _jumpto_tex_file(view, window, tex_root, file_name,
 
         root_string = '%!TEX root = {0}\n'.format(root_path)
         try:
-            with codecs.open(full_new_path, "w", "utf8")\
-                    as new_file:
+            with open(full_new_path, "w", encoding="utf-8") as new_file:
                 new_file.write(root_string)
             is_root_inserted = True
         except OSError:
-            print('An error occurred while creating file "{0}"'
-                  .format(file_name))
+            logger.error('An error occurred while creating file "%s"', file_name)
             traceback.print_last()
 
     # open the file
-    print("Open the file '{0}'".format(full_new_path))
+    logger.info("Open the file '%s'", full_new_path)
 
     # await opening and move cursor to end of the new view
     if auto_insert_root and is_root_inserted:
@@ -141,9 +138,9 @@ def _validate_image(file_path, image_types):
     else:
         for ext in image_types:
             test_path = file_path + "." + ext
-            print("Test file: '{0}'".format(test_path))
+            logger.debug("Test file: '%s'", test_path)
             if os.path.exists(test_path):
-                print("Found file: '{0}'".format(test_path))
+                logger.debug("Found file: '%s'", test_path)
                 return test_path
 
 
@@ -182,8 +179,8 @@ def open_image(window, file_path):
     extension = extension[1:]  # strip the leading point
     psystem = sublime.platform()
     commands = get_setting("open_image_command", {}).get(psystem, None)
-    print("Commands: '{0}'".format(commands))
-    print("Open File: '{0}'".format(file_path))
+    logger.debug("Commands: '%s'", commands)
+    logger.info("Open File: '%s'", file_path)
 
     if commands is None:
         window.open_file(file_path)
@@ -191,13 +188,12 @@ def open_image(window, file_path):
         run_command(commands)
     else:
         for d in commands:
-            print(d)
+            logger.debug(d)
             # validate the entry
             if "command" not in d:
-                message = "Invalid entry {0}, missing: 'command'"\
-                    .format(str(d))
+                message = "Invalid entry {0}, missing: 'command'".format(d)
                 sublime.status_message(message)
-                print(message)
+                logger.error(message)
                 continue
             # check whether the extension matches
             if "extension" in d:
@@ -227,7 +223,7 @@ def _split_bib_args(bib_args):
     if "," in bib_args:
         file_names = bib_args.split(",")
         file_names = [f.strip() for f in file_names]
-        print("Bib files: {0}".format(file_names))
+        logger.debug("Bib files: %s", file_names)
     else:
         file_names = [bib_args]
     return file_names
@@ -264,7 +260,7 @@ class LatextoolsJumptoFileCommand(sublime_plugin.TextCommand):
 
             for g in filter(is_inside, INPUT_REG.finditer(line)):
                 file_name = g.group("file")
-                print("Jumpto tex file '{0}'".format(file_name))
+                logger.info("Jumpto tex file '%s'", file_name)
                 _jumpto_tex_file(view, window, tex_root, file_name,
                                  auto_create_missing_folders, auto_insert_root)
 
@@ -272,7 +268,7 @@ class LatextoolsJumptoFileCommand(sublime_plugin.TextCommand):
                 if not g.group("file"):
                     continue
                 file_name = os.path.join(g.group("path"), g.group("file"))
-                print("Jumpto tex file '{0}'".format(file_name))
+                logger.info("Jumpto tex file '%s'", file_name)
                 _jumpto_tex_file(view, window, tex_root, file_name,
                                  auto_create_missing_folders, auto_insert_root)
 
@@ -280,14 +276,13 @@ class LatextoolsJumptoFileCommand(sublime_plugin.TextCommand):
                 file_group = g.group("file")
                 file_names = _split_bib_args(file_group)
                 for file_name in file_names:
-                    print("Jumpto bib file '{0}'".format(file_name))
+                    logger.info("Jumpto bib file '%s'", file_name)
                     _jumpto_bib_file(view, window, tex_root, file_name,
                                      auto_create_missing_folders)
 
             for g in filter(is_inside, IMAGE_REG.finditer(line)):
                 file_name = g.group("file")
-                print("Jumpto image file '{0}'".format(file_name))
+                logger.info("Jumpto image file '%s'", file_name)
                 _jumpto_image_file(view, window, tex_root, file_name)
 
 deprecate(globals(), 'JumptoTexFileCommand', LatextoolsJumptoFileCommand)
-

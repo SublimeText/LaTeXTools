@@ -52,6 +52,7 @@ from subprocess import Popen, PIPE, STDOUT, CalledProcessError
 
 import sublime
 
+from .logger import logger
 from .settings import get_setting
 
 
@@ -144,14 +145,13 @@ def external_command(command, cwd=None, shell=False, env=None,
         stderr = None
 
     if isinstance(command, str):
-        print('Running "{0}"'.format(command))
+        logger.info('Running "%s"', command)
     else:
         try:
-            print('Running "{0}"'.format(' '.join(
-                [quote(s) for s in command])))
+            logger.info('Running "%s"', ' '.join(map(quote, command)))
         except UnicodeError:
             try:
-                print('Running "{0}"'.format(command))
+                logger.info('Running "%s"', command)
             except:
                 pass
 

@@ -1,6 +1,7 @@
 from base_viewer import BaseViewer
 
 from latextools_utils.external_command import external_command
+from latextools_utils.logger import logger
 from latextools_utils.settings import get_setting
 
 import os
@@ -66,7 +67,7 @@ class SumatraViewer(BaseViewer):
                 sublime.error_message(message)
 
             sublime.set_timeout(_error_msg, 1)
-            print(message)
+            logger.error(message)
 
         # paranoia
         if not isinstance(commands, list):

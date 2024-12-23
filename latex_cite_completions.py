@@ -25,6 +25,7 @@ from .latex_fill_all import FillAllHelper
 from .latextools_utils import analysis
 from .latextools_utils import bibformat
 from .latextools_utils import cache
+from .latextools_utils.logger import logger
 from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
 from . import latextools_plugin
@@ -337,7 +338,7 @@ def run_plugin_command(command, *args, **kwargs):
                 'Could not find bibliography plugin named {0}. '
                 'Please ensure your LaTeXTools.sublime-settings is configured'
                 'correctly.'.format(plugin_name))
-            print(error_message)
+            logger.error(error_message)
             raise BibPluginError(error_message)
 
         # instantiate plugin
@@ -347,7 +348,7 @@ def run_plugin_command(command, *args, **kwargs):
             error_message = (
                 'Could not instantiate {0}. {0} must have a no-args __init__ '
                 'method'.format(type(plugin).__name__,))
-            print(error_message)
+            logger.error(error_message)
             raise BibPluginError(error_message)
 
         try:
@@ -358,7 +359,7 @@ def run_plugin_command(command, *args, **kwargs):
                     '{1} is not properly implemented by {0}.'.format(
                         type(plugin).__name__,
                         command))
-                print(error_message)
+                logger.error(error_message)
                 raise BibPluginError(error_message)
             else:
                 raise e
@@ -366,7 +367,7 @@ def run_plugin_command(command, *args, **kwargs):
             if "'{0}'".format(command) in str(e):
                 error_message = '{0} does not implement `{1}`'.format(
                     type(plugin).__name__, command)
-                print(error_message)
+                logger.error(error_message)
                 raise BibPluginError(error_message)
             else:
                 raise e
@@ -377,7 +378,7 @@ def run_plugin_command(command, *args, **kwargs):
 
     plugins = get_setting('bibliography', ['traditional'])
     if not plugins:
-        print('bibliography setting is blank. Loading traditional plugin.')
+        logger.warning('bibliography setting is blank. Loading traditional plugin.')
         plugins = 'traditional'
 
     result = None
@@ -409,17 +410,15 @@ def get_cite_completions(view):
 
     root = get_tex_root(view)
     if root:
-        print("TEX root:", root)
+        logger.debug("TEX root:", root)
         bib_files = find_bib_files(root)
-        print("Bib files found: ")
-        print(bib_files)
+        logger.debug("Bib files found:\n  %s", bib_files)
     
     if not bib_files:
         # Check the open files, in case the current file is TEX root,
         # but doesn't reference anything
         bib_files = find_open_bib_files()
-        print("Open Bib files found: ")
-        print(bib_files)
+        logger.debug("Open Bib files found:\n  %s", bib_files)
 
     if not bib_files:
         # sublime.error_message("No bib files found!") # here we can!
@@ -447,13 +446,13 @@ class CiteFillAllHelper(FillAllHelper):
         try:
             completions = get_cite_completions(view)
         except NoBibFilesError:
-            print("No bib files found!")
+            logger.error("No bib files found!")
             sublime.status_message("No bib files found!")
             return []
         except BibParsingError as e:
             message = "Error occurred parsing {0}. {1}.".format(
                 e.filename, e.message)
-            print(message)
+            logger.error(message)
             traceback.print_exc()
 
             sublime.status_message(message)

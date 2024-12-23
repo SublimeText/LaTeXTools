@@ -9,6 +9,7 @@ from pdfBuilder import PdfBuilder
 
 from latextools_utils.external_command import external_command
 from latextools_utils.external_command import get_texpath
+from latextools_utils.logger import logger
 
 # Standard LaTeX warning
 CITATIONS_REGEX = re.compile(
@@ -183,12 +184,8 @@ class BasicBuilder(PdfBuilder):
 
     def make_directory(self, directory):
         if not os.path.exists(directory):
-            try:
-                print('making directory ' + directory)
-                os.makedirs(directory)
-            except OSError:
-                if not os.path.exists(directory):
-                    reraise(*sys.exc_info())
+            logger.debug('making directory %s', directory)
+            os.makedirs(directory)
 
     def run_bibtex(self, command=None):
         if command is None:

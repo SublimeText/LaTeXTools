@@ -25,6 +25,7 @@ from ..latextools_utils.external_command import __sentinel__
 from ..latextools_utils.external_command import check_output
 from ..latextools_utils.external_command import execute_command
 from ..latextools_utils.external_command import get_texpath
+from ..latextools_utils.logger import logger
 from ..latextools_utils.settings import get_setting
 
 _lt_settings = {}
@@ -118,8 +119,7 @@ def _update_gs_version():
             if m:
                 _GS_VERSION = tuple(int(x) for x in m.groups())
         except Exception:
-            print('Error finding Ghostscript version for {0}'.format(
-                _GS_COMMAND))
+            logger.error('Error finding Ghostscript version for %s', _GS_COMMAND)
             traceback.print_exc()
             return None
 
@@ -224,8 +224,8 @@ def _get_gs_exe_from_registry():
         try:
             hndl = winreg.OpenKey(
                 winreg.HKEY_LOCAL_MACHINE,
-                'SOFTWARE\\{product_family}\\{major_version}.'
-                '{minor_version:02}'.format(**locals())
+                'SOFTWARE\\{0}\\{1}.{2:02}'
+                .format(product_family, major_version, minor_version)
             )
 
             try:
@@ -239,10 +239,7 @@ def _get_gs_exe_from_registry():
             finally:
                 winreg.CloseKey(hndl)
         except OSError:
-            print(
-                'Could not find GS_DLL value for '
-                '{product_family}'.format(**locals())
-            )
+            logger.error('Could not find GS_DLL value for %s', product_family)
 
     return result
 

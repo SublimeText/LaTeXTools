@@ -24,9 +24,7 @@ def _load_module_exports(module):
                 # lift the export to this modules top level
                 globals()[name] = module.__dict__[name]
             except KeyError:
-                print(
-                    "Error: {0} not defined in {1}."
-                    .format(name, module.__name__))
+                print("Error: {0} not defined in {1}.".format(name, module.__name__))
 
 
 MOD_PREFIX = 'LaTeXTools.'
@@ -40,6 +38,7 @@ LOAD_ORDER = [
     'latextools_utils',
 
     # no internal dependencies
+    'latextools_utils.logger',
     'latextools_utils.bibformat',
     'latextools_utils.settings',
     'latextools_utils.utils',

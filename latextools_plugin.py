@@ -121,6 +121,7 @@ import traceback
 from contextlib import contextmanager
 from collections.abc import MutableMapping
 
+from .latextools_utils.logger import logger
 from .latextools_utils.settings import get_setting
 from . import latextools_plugin_internal as internal
 
@@ -205,9 +206,11 @@ def add_plugin_path(path, glob='*.py'):
 
                 sys.path.pop(0)
 
-    print('Loaded LaTeXTools plugins {0} from path {1}'.format(
+    logger.info(
+        "Loaded plugins %s from path '%s'",
         list(set(internal._REGISTRY.keys()) - previous_plugins),
-        path))
+        path
+    )
 
 
 def add_whitelist_module(name, module=None):
@@ -375,7 +378,7 @@ def _load_plugin(filename, *paths):
     try:
         return _load_module(module_name, filename, *paths)
     except:
-        print('Could not load module {0} using path {1}.'.format(name, paths))
+        logger.error('Could not load module %s using path %s.', name, paths)
         traceback.print_exc()
 
     return None
@@ -400,9 +403,10 @@ def _load_plugins():
                 # assume path is a tuple of [<path>, <glob>]
                 add_plugin_path(_resolve_plugin_path(path[0]), path[1])
             except:
-                print(
-                    'An error occurred while trying to add the plugin '
-                    'path {0}'.format(path))
+                logger.error(
+                    'An error occurred while trying to add the plugin path %s',
+                    path
+                )
                 traceback.print_exc()
 
 
@@ -454,9 +458,9 @@ def _latextools_module_hack():
                 try:
                     sys.modules[name] = _load_module(name, name, mydir)
                 except ImportError:
-                    print(
-                        'An error occurred while trying to load white-listed '
-                        'module {0}'.format(name)
+                    logger.error(
+                        'An error occurred while trying to load white-listed module %s',
+                        name
                     )
                     traceback.print_exc()
         else:
@@ -485,7 +489,7 @@ def plugin_loaded():
 def _plugin_loaded():
     internal._REGISTRY = LaTeXToolsPluginRegistry()
 
-    print('Loading LaTeXTools plugins...')
+    logger.info('Loading LaTeXTools plugins...')
 
     for name, cls in internal._REGISTERED_CLASSES_TO_LOAD:
         internal._REGISTRY[name] = cls

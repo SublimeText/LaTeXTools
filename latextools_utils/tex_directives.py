@@ -6,6 +6,7 @@ import traceback
 import sublime
 
 from .is_tex_file import is_tex_file
+from .logger import logger
 from .sublime_utils import get_project_file_name
 
 
@@ -52,15 +53,13 @@ def parse_tex_directives(view_or_path, multi_values=[], key_maps={},
             lines = codecs.open(view_or_path, "r", "utf-8", "ignore")
         except IOError:
             # fail (relatively) silently if view_or_path is not a valid path
-            print('Caught IOError while handling {0} as file'.format(
-                view_or_path))
+            logger.error('Caught IOError while handling %s as file', view_or_path)
             traceback.print_exc()
             return result
         else:
             is_file = True
     else:
-        print('{0} is not supported by parse_tex_directives()'.format(
-            type(view_or_path)))
+        logger.error('%s is not supported by parse_tex_directives()', type(view_or_path))
         return result
 
     try:

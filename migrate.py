@@ -3,7 +3,7 @@ import sublime_plugin
 import os
 import codecs
 
-DEBUG = False
+from .latextools_utils.logger import logger
 
 # Copy settings from default file to user directory
 # Try to incorporate existing user settings
@@ -41,7 +41,7 @@ class LatextoolsMigrateCommand(sublime_plugin.ApplicationCommand):
         # Hence, quit
         # NOTE: we will move this code somewhere else, but for now, it's here
 
-        print ("Running settings reset")
+        logger.info("Running settings reset")
         sublime.status_message("Resetting user settings to default...")
         ltt_path = os.path.join(sublime.packages_path(),"LaTeXTools")
         user_path = os.path.join(sublime.packages_path(),"User")
@@ -92,17 +92,17 @@ class LatextoolsMigrateCommand(sublime_plugin.ApplicationCommand):
                 m = quotes + s["key"] + quotes + ":"
                 if m == l[:len(m)]:
                     s["line"] = i
-                    print(s["key"] + " is on line " + str(i) + " (0-based)")
+                    logger.info(s["key"] + " is on line " + str(i) + " (0-based)")
 
         # Collect needed modifications
         def_modify = {}
         s_old = sublime.load_settings(OLD_SETTINGS)
         for s in settings:
             key = s["key"]
-            print("Trying " + key)
+            logger.info("Trying " + key)
             s_old_entry = s_old.get(key)
             if s_old_entry is not None: # Checking for True misses all bool's set to False!
-                print("Porting " + key)
+                logger.info("Porting " + key)
                 l = s["tabs"]*"\t" + quotes + key + quotes + ": "
                 if s["type"]=="bool":
                     l += "true" if s_old_entry==True else "false"
@@ -119,7 +119,7 @@ class LatextoolsMigrateCommand(sublime_plugin.ApplicationCommand):
                     l+= "\n"
                 else:
                     l += ",\n"
-                print(l)
+                logger.info(l)
                 def_lines[s["line"]] = l
 
         # Modify text saying "don't touch this!" in the default file

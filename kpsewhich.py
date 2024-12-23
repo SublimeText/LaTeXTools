@@ -4,6 +4,7 @@ import sublime
 
 from .latextools_utils.external_command import CalledProcessError
 from .latextools_utils.external_command import check_output
+from .latextools_utils.logger import logger
 
 __all__ = ['kpsewhich']
 
@@ -24,7 +25,7 @@ def kpsewhich(filename, file_format=None, notify_user_on_error=False):
                 'Files in your TEXINPUTS could not be accessed.'
             )
             if e.output:
-                print(e.output)
+                logger.debug(e.output)
             traceback.print_exc()
     except OSError:
         if notify_user_on_error:

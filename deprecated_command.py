@@ -1,6 +1,8 @@
 import sublime
 import sublime_plugin
 
+from .latextools_utils.logger import logger
+
 _setting_name = 'compatibility_enable_version3_commands'
 
 
@@ -25,9 +27,9 @@ class LatextoolsDeprecatedCommand(object):
     def _ask_for_activation(self):
         name = self.name()
         new_name = self.new_name()
-        print(
-            'LaTeXTools WARN: "{}" has been renamed to "{}"'
-            .format(name, new_name)
+        logger.warning(
+            'LaTeXTools WARN: "%s" has been renamed to "%s"',
+            name, new_name
         )
         activate_commands = sublime.ok_cancel_dialog(
             'Dear LaTeXTools user,\n\n you have called the command "{}", '
@@ -44,7 +46,7 @@ class LatextoolsDeprecatedCommand(object):
 
     def _run_new_command(self, kwargs):
         new_name = self.new_name()
-        print('Running {} instead of {}'.format(new_name, self.name()))
+        logger.warning('Running %s instead of %s', new_name, self.name())
         if isinstance(self, sublime_plugin.TextCommand) and self.view:
             self.view.run_command(new_name, kwargs)
         elif isinstance(self, sublime_plugin.WindowCommand) and self.window:

@@ -13,6 +13,7 @@ from .latextools_plugin import NoSuchPluginException
 from .latextools_utils.is_tex_file import is_tex_file
 from .latextools_utils.output_directory import get_jobname
 from .latextools_utils.output_directory import get_output_directory
+from .latextools_utils.logger import logger
 from .latextools_utils.settings import get_setting
 from .latextools_utils.sublime_utils import focus_st
 from .latextools_utils.tex_directives import get_tex_root
@@ -54,7 +55,7 @@ def get_viewer():
                 'Please check your LaTeXTools Preferences.')
             raise NoViewerException()
 
-    print(repr(viewer))
+    logger.debug(repr(viewer))
 
     # assume no-args constructor
     viewer = viewer()
@@ -92,7 +93,7 @@ class LatextoolsJumpToPdfCommand(sublime_plugin.TextCommand):
         from_keybinding = args.pop("from_keybinding", False)
         if from_keybinding:
             forward_sync = True
-        print(from_keybinding, keep_focus, forward_sync)
+        logger.debug(from_keybinding, keep_focus, forward_sync)
 
         view = self.view
 
@@ -132,13 +133,13 @@ class LatextoolsJumpToPdfCommand(sublime_plugin.TextCommand):
                 )
 
         if not os.path.exists(pdffile):
-            print("Expected PDF file {0} not found".format(pdffile))
+            logger.error("Expected PDF file %s not found", pdffile)
             return
 
         pdffile = os.path.realpath(pdffile)
 
         (line, col) = self.view.rowcol(self.view.sel()[0].end())
-        print("Jump to: ", line, col)
+        logger.debug("Jump to: ", line, col)
         # column is actually ignored up to 0.94
         # HACK? It seems we get better results incrementing line
         line += 1
@@ -224,7 +225,7 @@ class LatextoolsViewPdfCommand(sublime_plugin.WindowCommand):
 
         pdffile = os.path.normpath(pdffile)
         if not os.path.exists(pdffile):
-            print("Expected PDF file {0} not found".format(pdffile))
+            logger.error("Expected PDF file %s not found", pdffile)
             return
 
         pdffile = os.path.realpath(pdffile)
@@ -232,10 +233,10 @@ class LatextoolsViewPdfCommand(sublime_plugin.WindowCommand):
         # since we potentially accept an argument, add some extra
         # safety checks
         if pdffile is None:
-            print('No PDF file found.')
+            logger.error('No PDF file found.')
             return
         elif not os.path.exists(pdffile):
-            print('PDF file "{0}" does not exist.'.format(pdffile))
+            # note: error_message() already logs to console
             sublime.error_message(
                 'PDF file "{0}" does not exist.'.format(pdffile)
             )

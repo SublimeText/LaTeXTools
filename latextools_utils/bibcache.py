@@ -4,6 +4,7 @@ import traceback
 
 from . import bibformat
 from . import cache
+from .logger import logger
 from .settings import get_setting
 
 from ..external.frozendict import frozendict
@@ -54,7 +55,7 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
             try:
                 cache.pickle.dumps(bib_entries, protocol=-1)
             except cache.pickle.PicklingError:
-                print('bib_entries must be pickleable')
+                logger.error('bib_entries must be pickleable')
                 traceback.print_exc()
             else:
                 with self._disk_lock:

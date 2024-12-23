@@ -21,6 +21,7 @@ from .latextools_utils.external_command import external_command
 from .latextools_utils.external_command import get_texpath
 from .latextools_utils.external_command import update_env
 from .latextools_utils.is_tex_file import is_tex_file
+from .latextools_utils.logger import logger
 from .latextools_utils.output_directory import get_aux_directory
 from .latextools_utils.output_directory import get_jobname
 from .latextools_utils.output_directory import get_output_directory
@@ -29,8 +30,6 @@ from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
 from .latextools_utils.tex_directives import parse_tex_directives
 from .latextools_utils.tex_log import parse_tex_log
-
-DEBUG = False
 
 
 # Compile current .tex file to pdf
@@ -82,7 +81,7 @@ class CmdThread(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
-        print("Welcome to thread " + self.getName())
+        logger.info("Welcome to thread %s", self.getName())
         self.caller.output("[Compiling " + self.caller.file_name + "]")
 
         env = dict(os.environ)
@@ -109,7 +108,7 @@ class CmdThread(threading.Thread):
                     break
 
                 if isinstance(cmd, str) or isinstance(cmd, list):
-                    print(cmd)
+                    logger.debug(cmd)
                     # Now create a Popen object
                     try:
                         proc = external_command(
@@ -151,15 +150,15 @@ class CmdThread(threading.Thread):
                 # TODO: clean up?
                 with self.caller.proc_lock:
                     if not self.caller.proc:
-                        print (proc.returncode)
+                        logger.debug (proc.returncode)
                         self.caller.output("\n\n[User terminated compilation process]\n")
                         self.caller.finish(False)   # We kill, so won't switch to PDF anyway
                         return
                 # Here we are done cleanly:
                 with self.caller.proc_lock:
                     self.caller.proc = None
-                print ("Finished normally")
-                print (proc.returncode)
+                logger.info("Finished normally")
+                logger.debug("with returncode %d", proc.returncode)
                 # At this point, out contains the output from the current command;
                 # we pass it to the cmd_iterator and get the next command, until completion
         except:
@@ -404,7 +403,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
                     else:
                         os.killpg(self.proc.pid, signal.SIGTERM)
                 except:
-                    print('Exception occurred while killing build')
+                    logger.error('Exception occurred while killing build')
                     traceback.print_exc()
 
                 self.proc = None
@@ -419,7 +418,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         self.show_errors_inline = pref_settings.get("show_errors_inline", True)
 
         if view.is_dirty():
-            print ("saving...")
+            logger.info ("saving...")
             view.run_command('save')  # call this on view, not self.window
 
         if view.file_name() is None:
@@ -588,7 +587,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             builder_platform_settings['script_commands'] = script_commands
             builder_settings[self.plat] = builder_platform_settings
 
-        print(repr(builder))
+        logger.debug(repr(builder))
         self.builder = builder(
             self.file_name,
             self.output,
@@ -611,7 +610,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
         thread = CmdThread(self)
         thread.start()
-        print(threading.active_count())
+        logger.debug(threading.active_count())
 
         # setup the progress indicator
         display_message_length = int(
@@ -728,7 +727,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         try:
             self.file_regex = re.compile(file_regex, re.MULTILINE)
         except:
-            print("Cannot compile file regex.")
+            logger.error("Cannot compile file regex.")
             return
         lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
         level_name = lt_settings.get("show_error_phantoms")

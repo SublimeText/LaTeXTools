@@ -11,6 +11,7 @@ import sublime_plugin
 from ..jumpto_tex_file import find_image
 from ..jumpto_tex_file import open_image
 from ..latextools_utils import cache
+from ..latextools_utils.logger import logger
 from ..latextools_utils.settings import get_setting
 from ..latextools_utils.tex_directives import get_tex_root
 from .preview_utils import SettingsListener as PreviewSettingsListener
@@ -273,7 +274,7 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
             containing_scope = next(
                 c for c in containing_scopes if c.contains(point))
         except StopIteration:
-            print("Not inside an image scope.")
+            logger.error("Not inside an image scope.")
             return
         image_scopes = view.find_by_selector(
             "meta.function.includegraphics.latex meta.group.brace.latex")
@@ -281,7 +282,7 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
             image_scope = next(
                 i for i in image_scopes if containing_scope.contains(i))
         except StopIteration:
-            print("No file name scope found.")
+            logger.error("No file name scope found.")
             return
 
         file_name = view.substr(image_scope)[1:-1].strip()

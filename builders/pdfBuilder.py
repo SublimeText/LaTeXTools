@@ -3,8 +3,7 @@ import sublime
 import sys
 
 import latextools_plugin
-
-DEBUG = False
+from latextools_utils.logger import logger
 
 
 #---------------------------------------------------------------
@@ -74,9 +73,7 @@ class PdfBuilder(latextools_plugin.LaTeXToolsPlugin):
     # Save command output
     # Usually no need to override
     def set_output(self, out):
-        if DEBUG:
-            print("Setting out")
-            print(out)
+        logger.debug("Setting out\n%s", out)
         self.out = out
 
     # This is where the real work is done. This generator must yield (cmd, msg) tuples,

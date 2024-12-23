@@ -4,6 +4,8 @@ import sublime
 import shutil
 import tempfile
 
+from .latextools_utils.logger import logger
+
 # unfortunately, there is no reliable way to do clean-up on exit in ST
 # see https://github.com/SublimeTextIssues/Core/issues/10
 # here we cleanup any directories listed in the temporary_output_dirs
@@ -38,7 +40,7 @@ def plugin_loaded():
                 except OSError:
                     pass
                 else:
-                    print('Deleted old temp directory ' + directory)
+                    logger.info('Deleted old temp directory %s', directory)
         except KeyError:
             pass
 

@@ -7,6 +7,7 @@ import traceback
 from .deprecated_command import deprecate
 
 from .latextools_utils import cache
+from .latextools_utils.logger import logger
 from .latextools_utils.output_directory import get_aux_directory
 from .latextools_utils.output_directory import get_output_directory
 from .latextools_utils.settings import get_setting
@@ -18,15 +19,17 @@ class LatextoolsClearCacheCommand(sublime_plugin.WindowCommand):
     def run(self):
         try:
             shutil.rmtree(cache._global_cache_path())
-        except Exception:
-            print('Error while trying to delete global cache')
-            traceback.print_exc()
+        except FileNotFoundError:
+            pass
+        except OSError as e:
+            logger.error("Can't delete global cache: %s", e)
 
         try:
             shutil.rmtree(cache._local_cache_path())
-        except Exception:
-            print('Error while trying to delete local cache')
-            traceback.print_exc()
+        except FileNotFoundError:
+            pass
+        except OSError as e:
+            logger.error("Can't delete local cache: %s", e)
 
         window = self.window
         view = window.active_view()
@@ -55,7 +58,7 @@ class LatextoolsClearLocalCacheCommand(sublime_plugin.WindowCommand):
             try:
                 cache.LocalCache(tex_root).invalidate()
             except Exception:
-                print('Error while trying to delete local cache')
+                logger.error('Error while trying to delete local cache')
                 traceback.print_exc()
 
 
@@ -126,20 +129,20 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
                 'have configured a TEX root in your project settings or ' + \
                 'have a LaTeX document open.'
             sublime.status_message(msg)
-            print(msg)
+            logger.error(msg)
             return
 
         if not os.path.isfile(root_file):
             message = "Could not find TEX root {0}.".format(root_file)
             sublime.status_message(message)
-            print(message)
+            logger.error(message)
             return
 
         # clear the cache
         try:
             cache.LocalCache(root_file).invalidate()
         except Exception:
-            print('Error while trying to delete local cache')
+            logger.error('Error while trying to delete local cache')
             traceback.print_exc()
 
         aux_directory, aux_directory_setting = get_aux_directory(
@@ -221,24 +224,25 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
         return True
 
     def _rmtree(self, path):
-        if os.path.exists(path):
-            try:
-                shutil.rmtree(path)
-            except OSError:
-                if os.path.exists(path):
-                    # report the exception if the folder didn't end up deleted
-                    traceback.print_exc()
+        try:
+            shutil.rmtree(path)
+        except FileNotFoundError:
+            pass
+        except OSError:
+            # report the exception if the folder didn't end up deleted
+            logger.error('Error while trying to delete %s', path)
+            traceback.print_exc()
 
     def _rmfile(self, path):
-        if os.path.exists(path):
-            try:
-                os.remove(path)
-            except OSError:
-                if os.path.exists(path):
-                    # basically here for locked files in Windows,
-                    # but who knows what we might find?
-                    print('Error while trying to delete {0}'.format(path))
-                    traceback.print_exc()
+        try:
+            os.remove(path)
+        except FileNotFoundError:
+            pass
+        except OSError:
+            # basically here for locked files in Windows,
+            # but who knows what we might find?
+            logger.error('Error while trying to delete %s', path)
+            traceback.print_exc()
 
     def _clear_dir(self, path):
         for root, directories, file_names in os.walk(path):

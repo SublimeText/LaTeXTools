@@ -7,6 +7,7 @@ from LaTeXTools.external.bibtex.tex import tokenize_list
 from LaTeXTools.external import latex_chars
 
 from latextools_utils import bibcache
+from latextools_utils.logger import logger
 
 import codecs
 import collections
@@ -81,10 +82,8 @@ class EntryWrapper(collections.abc.Mapping):
 
                 try:
                     people.append(Name(x))
-                except:
-                    print('Error handling field "{0}" with value "{1}"'.format(
-                        key, x
-                    ))
+                except Exception:
+                    logger.error('Error handling field "%s" with value "%s"', key, x)
                     traceback.print_exc()
 
             if len(people) == 0:
@@ -125,13 +124,14 @@ class NewBibliographyPlugin(LaTeXToolsPlugin):
             try:
                 bibf = codecs.open(bibfname, 'r', 'UTF-8', 'ignore')  # 'ignore' to be safe
             except IOError:
-                print("Cannot open bibliography file %s !" % (bibfname,))
-                sublime.status_message("Cannot open bibliography file %s !" % (bibfname,))
+                msg = "Cannot open bibliography file %s !" % bibfname
+                logger.error(msg)
+                sublime.status_message(msg)
                 continue
             else:
                 bib_data = parser.parse(bibf.read())
 
-                print('Loaded %d bibitems' % (len(bib_data)))
+                logger.info('Loaded %d bibitems', len(bib_data))
 
                 bib_entries = []
                 for key in bib_data:
@@ -156,7 +156,7 @@ class NewBibliographyPlugin(LaTeXToolsPlugin):
                     entries.extend(fmt_entries)
                 except:
                     traceback.print_exc()
-                    print("Using bibliography without caching it")
+                    logger.warning("Using bibliography without caching it")
                     entries.extend(bib_entries)
             finally:
                 try:
@@ -164,5 +164,6 @@ class NewBibliographyPlugin(LaTeXToolsPlugin):
                 except:
                     pass
 
-            print("Found %d total bib entries" % (len(entries),))
+            logger.info("Found %d total bib entries", len(entries))
+
         return entries

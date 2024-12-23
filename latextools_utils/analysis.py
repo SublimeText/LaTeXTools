@@ -10,6 +10,7 @@ import sublime
 from . import utils
 from ..external.frozendict import frozendict
 from .cache import LocalCache
+from .logger import logger
 from .tex_directives import get_tex_root
 
 
@@ -414,8 +415,7 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
     file_name = os.path.normpath(file_name)
     # ensure not to go into infinite recursion
     if file_name in process_file_stack:
-        print("File appears cyclic: ", file_name)
-        print(process_file_stack)
+        logger.error("File appears cyclic: %s\n%s", file_name, process_file_stack)
         return ana
 
     if not import_path:
@@ -427,9 +427,10 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
     if import_path:
         if file_name in ana._import_base_paths:
             if ana._import_base_paths[file_name] != import_path:
-                print(
-                    "Warning: '{0}' is imported twice. "
-                    "Cannot handle this correctly in the analysis."
+                logger.warning(
+                    "'%s' is imported twice. "
+                    "Cannot handle this correctly in the analysis.",
+                    file_name
                 )
         else:
             ana._import_base_paths[file_name] = base_path
@@ -438,9 +439,9 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
     try:
         raw_content, content = _preprocess_file(file_name)
     except:
-        print('Error occurred while preprocessing {0}'.format(file_name))
+        logger.error('Error occurred while preprocessing %s', file_name)
         traceback.print_exc()
-        print('Continuing...')
+        logger.info('Continuing...')
         return ana
 
     ana._content[file_name] = content

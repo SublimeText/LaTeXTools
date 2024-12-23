@@ -9,6 +9,8 @@ from xml.etree import ElementTree
 import sublime
 import sublime_plugin
 
+from .latextools_utils.logger import logger
+
 __dir = os.path.dirname(__file__)
 if __dir == '.':
     __dir = os.path.join(sublime.packages_path(), 'LaTeXTools')
@@ -34,11 +36,11 @@ def _get_completions(ext):
                         doc.find('content').text.strip()
                     )
                 )
-            except:
-                print(
-                    'Error occurred when trying to load snippet from {0}'
-                    .format(os.path.join(root, f)))
-
+            except Exception:
+                logger.error(
+                    'Error occurred when trying to load snippet from {0}',
+                    os.path.join(root, f)
+                )
                 traceback.print_exc()
 
     return completions

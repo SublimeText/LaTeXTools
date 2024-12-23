@@ -1,5 +1,6 @@
 from .latex_fill_all import FillAllHelper
 from .latextools_utils import analysis
+from .latextools_utils.logger import logger
 from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
 
@@ -63,7 +64,7 @@ def get_ref_completions(view):
 
     root = get_tex_root(view)
     if root:
-        print("TEX root: " + repr(root))
+        logger.debug("TEX root: %s", root)
         find_labels_in_files(root, completions)
 
     # remove duplicates

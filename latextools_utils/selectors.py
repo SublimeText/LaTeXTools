@@ -27,6 +27,7 @@ import re
 import shlex
 import string
 
+from .logger import logger
 
 class Ast():
     def __ne__(self, other):
@@ -178,9 +179,9 @@ def _build_ast(postfix_list):
 
 def build_ast(selector):
     tokens = _parse_selector(selector)
-    print("tokens:", tokens)
+    logger.debug("tokens: %s", tokens)
     postfix_list = _convert_infix_to_postfix(tokens)
-    print("postfix_list:", postfix_list)
+    logger.debug("postfix_list: %s", postfix_list)
     ast = _build_ast(postfix_list)
     return ast
 

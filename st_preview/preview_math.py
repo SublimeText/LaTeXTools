@@ -14,6 +14,7 @@ import sublime_plugin
 
 from ..latextools_utils import cache
 from ..latextools_utils.external_command import execute_command
+from ..latextools_utils.logger import logger
 from ..latextools_utils.settings import get_setting
 from ..latextools_utils.tex_log import parse_tex_log
 from ..latextools_utils.utils import cpu_count
@@ -569,17 +570,12 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
                 with open(self.latex_template_file, "r", encoding="utf8") as f:
                     file_content = f.read()
                 mtime = os.path.getmtime(self.latex_template_file)
-                print(
-                    "LaTeXTools preview_math: "
-                    "Load template file for '{0}'"
-                    .format(self.latex_template_file)
+                logger.info(
+                    "Load math preview template file for '%s'",
+                    self.latex_template_file
                 )
             except Exception as e:
-                print(
-                    "LaTeXTools preview_math: "
-                    "Error while reading template file: {0}"
-                    .format(e)
-                )
+                logger.error("Error while reading math preview template file: %s", e)
                 file_content = None
             self.template_contents[self.latex_template_file] = file_content
             self.template_mtime[self.latex_template_file] = mtime

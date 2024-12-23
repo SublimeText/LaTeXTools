@@ -11,10 +11,13 @@
 
 {
 
-
 // ------------------------------------------------------------------
 // General settings
 // ------------------------------------------------------------------
+
+	// Verbosity of console messages
+	// valid values are, "error", "warning", "info", "debug"
+	"log_level": "warning",
 
 	// Cite/ref autocompletion by default is triggered after e.g. \ref{. If you don't like this,
 	// set to false. You can also use toggles: C-l,t,a,c and C-l,t,a,r.
@@ -191,6 +194,7 @@
 // ------------------------------------------------------------------
 // Temporary file settings
 // ------------------------------------------------------------------
+
 	// Ends of the names of temporary files to be deleted
 	"temp_files_exts": [
 		".blg",".bbl",".aux",".log",".brf",".nlo",".out",".dvi",".ps",
@@ -430,11 +434,11 @@
 // ------------------------------------------------------------------
 // Build panel and phantoms settings
 // ------------------------------------------------------------------
+
 	// OPTION: "highlight_build_panel"
 	// adds syntax highlighting to the build panel so that errors, warnings, etc.
 	// show up in different colors; if set to false, the panel will be left as-is.
 	"highlight_build_panel": true,
-
 
 	// OPTION: "hide_build_panel"
 	// level to hide the build panel after the build is finished
@@ -469,6 +473,7 @@
 // ------------------------------------------------------------------
 // Viewer settings
 // ------------------------------------------------------------------
+
 	// OPTION: "viewer"
 	// Specifies which viewer to use
 	// Possible values:
@@ -540,6 +545,7 @@
 // ------------------------------------------------------------------
 // Bibliographic references
 // ------------------------------------------------------------------
+
 	// OPTION: "bibliography"
 	// Either a single  bibliography plugin to use or a list of plugins
 	// which will be executed in order, stopping after the first result
@@ -596,8 +602,6 @@
 
 	// Similarly, the formatting for the autocomplete panel:
 	"cite_autocomplete_format": "{keyword}: {title}",
-
-
 
 // ------------------------------------------------------------------
 // Cache options

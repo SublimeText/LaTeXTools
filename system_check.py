@@ -21,6 +21,7 @@ from .latextools_plugin import get_plugin
 from .latextools_plugin import NoSuchPluginException
 from .latextools_utils.distro_utils import using_miktex
 from .latextools_utils.external_command import check_output
+from .latextools_utils.logger import logger
 from .latextools_utils.output_directory import get_aux_directory
 from .latextools_utils.output_directory import get_jobname
 from .latextools_utils.output_directory import get_output_directory
@@ -125,7 +126,7 @@ class SubprocessTimeoutThread(threading.Thread):
 
 
 def get_version_info(executable, env=None):
-    print('Checking {0}...'.format(executable))
+    logger.info('Checking %s...', executable)
 
     if env is None:
         env = os.environ
@@ -164,7 +165,7 @@ def get_tex_path_variable_texlive(variable, env=None):
     Uses kpsewhich to read the value of a given TeX PATH variable, such as
     TEXINPUTS.
     '''
-    print('Reading path for {0}...'.format(variable))
+    logger.info('Reading path for %s...', variable)
 
     if env is None:
         env = os.environ
@@ -195,7 +196,7 @@ def get_tex_path_variable_miktex(variable, env=None):
     Uses findtexmf to find the values of a given TeX PATH variable, such as
     TEXINPUTS
     '''
-    print('Reading path for {0}...'.format(variable))
+    logger.info('Reading path for %s...', variable)
 
     if env is None:
         env = os.environ

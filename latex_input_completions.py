@@ -7,6 +7,7 @@ import sublime
 from .latex_fill_all import FillAllHelper
 from .latextools_utils import analysis
 from .latextools_utils.is_tex_file import get_tex_extensions
+from .latextools_utils.logger import logger
 from .latextools_utils.output_directory import get_aux_directory
 from .latextools_utils.output_directory import get_output_directory
 from .latextools_utils.settings import get_setting
@@ -18,24 +19,26 @@ def _filter_invalid_entries(entries):
     remove_entries = []
     for i, entry in enumerate(entries):
         if "extensions" not in entry:
-            print("Missing field 'extensions' in entry {0}".format(entry))
+            logger.error("Missing field 'extensions' in entry %s", entry)
             remove_entries.append(i)
             continue
         if "regex" not in entry:
-            print("Missing field 'regex' in entry {0}".format(entry))
+            logger.error("Missing field 'regex' in entry %s", entry)
             remove_entries.append(i)
             continue
 
         try:
             reg = re.compile(entry["regex"])
         except Exception as e:
-            print("Invalid regex: '{0}' ({1})".format(entry["regex"], e))
+            logger.error("Invalid regex: '%s' (%s)", entry["regex"], e)
             remove_entries.append(i)
             continue
         if reg.groups != 0:
-            print("The regex must not have a capturing group, invalidated in "
-                  "entry {0}. You might escape your group with (?:...)"
-                  .format(entry))
+            logger.error(
+                "The regex must not have a capturing group, invalidated in "
+                "entry %s. You might escape your group with (?:...)",
+                entry
+            )
             remove_entries.append(i)
             continue
         # remove all blacklisted entries in reversed order, so the remaining
@@ -252,8 +255,7 @@ def parse_completions(view, line):
                      if v is not None)
         entry = entries[group]
     except Exception as e:
-        print("Error occurred while extracting entry from matching group.")
-        print(e)
+        logger.error("Error occurred while extracting entry from matching group.\n%s", e)
         return []
 
     completions = []
@@ -304,7 +306,7 @@ def parse_completions(view, line):
         if cache is not None:
             completions = cache.get(entry["cache_name"])
     else:
-        print("Unknown entry type {0}.".format(entry["type"]))
+        logger.error("Unknown entry type %s.", entry["type"])
 
     if "post_process" in entry:
         fkt = globals().get(

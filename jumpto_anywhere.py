@@ -9,6 +9,7 @@ from .latextools_utils import analysis
 from .latextools_utils import ana_utils
 from .latextools_utils import quickpanel
 from .latextools_utils import utils
+from .latextools_utils.logger import logger
 from .latextools_utils.tex_directives import get_tex_root
 from .latextools_utils.tex_directives import TEX_DIRECTIVE
 from .latex_cite_completions import NEW_STYLE_CITE_REGEX
@@ -48,7 +49,7 @@ def _get_selected_arg(view, com_reg, pos):
             "Selection to vague. Directly click on the name"
             " inside the command."
         )
-        print(message)
+        logger.error(message)
         sublime.status_message(message)
         return
     before = args[:cursor]
@@ -108,12 +109,12 @@ def _jumpto_ref(view, com_reg, pos):
         label = labels[0]
     except:
         message = "No matching label found for '{0}'.".format(label_id)
-        print(message)
+        logger.error(message)
         sublime.status_message(message)
         return
     label_region = label.region
     message = "Jumping to label '{0}'.".format(label_id)
-    print(message)
+    logger.info(message)
     sublime.status_message(message)
     utils.open_and_select_region(view, label.file_name, label_region)
 
@@ -124,7 +125,7 @@ def _jumpto_cite(view, com_reg, pos):
     if tex_root is None or not bib_key:
         return
     message = "Scanning bibliography files for key '{0}'...".format(bib_key)
-    print(message)
+    logger.info(message)
     sublime.status_message(message)
     base_dir = os.path.dirname(tex_root)
     ana = analysis.get_analysis(tex_root)
@@ -146,16 +147,15 @@ def _jumpto_cite(view, com_reg, pos):
                     continue
                 region = sublime.Region(start, end)
                 message = "Jumping to bibliography key '{0}'.".format(bib_key)
-                print(message)
+                logger.info(message)
                 sublime.status_message(message)
                 utils.open_and_select_region(view, bib_file, region)
                 return
             except Exception as e:
-                print("Error occurred opening file {0}".format(bib_file))
-                print(e)
+                logger.error("Failed to open file %s:\n  %s", bib_file, e)
                 continue
     message = "Entry '{0}' not found in bibliography.".format(bib_key)
-    print(message)
+    logger.error(message)
     sublime.status_message(message)
 
 
@@ -175,11 +175,11 @@ def _jumpto_glo(view, com_reg, pos, acr=False):
         entry = next(c for c in commands if c.args == iden)
     except:
         message = "Glossary definition not found for '{0}'".format(iden)
-        print(message)
+        logger.error(message)
         sublime.status_message(message)
         return
     message = "Jumping to Glossary '{0}'.".format(iden)
-    print(message)
+    logger.info(message)
     sublime.status_message(message)
     utils.open_and_select_region(view, entry.file_name, entry.args_region)
 
@@ -187,7 +187,7 @@ def _jumpto_glo(view, com_reg, pos, acr=False):
 def _jumpto_pkg_doc(view, com_reg, pos):
     def view_doc(package):
         message = "Try opening documentation for package '{0}'".format(package)
-        print(message)
+        logger.info(message)
         sublime.status_message(message)
         view.window().run_command("latextools_view_doc", {"file": package})
 
@@ -221,13 +221,11 @@ def _opt_jumpto_self_def_command(view, com_reg):
     cana = analysis.get_analysis(tex_root)
     new_commands = cana.filter_commands(newcommand_keywords)
     if command not in [c.args for c in new_commands]:
-        message = "Command not defined (cached) '{0}'".format(command)
-        print(message)
+        logger.error("Command not defined (cached) '%s'", command)
         return False
 
-    message =\
-        "Scanning document for command definition of '{0}'".format(command)
-    print(message)
+    message = "Scanning document for command definition of '{0}'".format(command)
+    logger.info(message)
     sublime.status_message(message)
     # analyze the document to retrieve the correct position of the
     # command definition
@@ -236,15 +234,14 @@ def _opt_jumpto_self_def_command(view, com_reg):
     try:
         new_com_def = next(filter(
             lambda c: c.args == command, new_commands))
-    except:
-        message = "Command not self defined '{0}'".format(command)
-        print(message)
+    except Exception:
+        logger.error("Command not self defined '%s'", command)
         return False
     file_name = new_com_def.file_name
     region = new_com_def.args_region
 
     message = "Jumping to definition of '{0}'".format(command)
-    print(message)
+    logger.info(message)
     sublime.status_message(message)
     utils.open_and_select_region(view, file_name, region)
     return True
@@ -255,7 +252,7 @@ class LatextoolsJumptoAnywhereCommand(sublime_plugin.TextCommand):
         view = self.view
         if position is None:
             if len(view.sel()) != 1:
-                print("Jump to anywhere does not work with multiple cursors")
+                logger.error("Jump to anywhere does not work with multiple cursors")
                 return
             sel = view.sel()[0]
         else:
@@ -287,7 +284,7 @@ class LatextoolsJumptoAnywhereCommand(sublime_plugin.TextCommand):
                     _jumpto_tex_root(view, m.group(2))
                     return
 
-            print("Cursor is not inside a command")
+            logger.error("Cursor is not inside a command")
             return
 
         command = com_reg.group("command")
@@ -348,13 +345,13 @@ class LatextoolsJumptoAnywhereByMouseCommand(sublime_plugin.WindowCommand):
             return view.match_selector(point, selector)
 
         if match_selector("text.tex.latex"):
-            print("Jump in tex file.")
+            logger.debug("Jump in tex file.")
             pos = view.window_to_text((event["x"], event["y"]))
             view.run_command("latextools_jumpto_anywhere", {"position": pos})
         elif fallback_command:
             if set_caret:
                 self._set_caret(view, event)
-            print("Run command '{0}'".format(fallback_command))
+            logger.debug("Run command '%s'", fallback_command)
             window.run_command(fallback_command)
 
     def _set_caret(self, view, event):

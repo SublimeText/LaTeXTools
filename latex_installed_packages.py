@@ -14,6 +14,7 @@ import sublime_plugin
 from .deprecated_command import deprecate
 from .latextools_utils.external_command import CalledProcessError
 from .latextools_utils.external_command import check_output
+from .latextools_utils.logger import logger
 
 __all__ = ['LatextoolsGenPkgCacheCommand']
 
@@ -37,7 +38,7 @@ def _get_tex_searchpath(file_type):
             0
         )
         if e.output:
-            print(e.output)
+            logger.debug(e.output)
         traceback.print_exc()
     except OSError:
         sublime.set_timeout(

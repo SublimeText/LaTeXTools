@@ -9,6 +9,7 @@ import sublime
 
 from .external_command import check_output
 from .external_command import external_command
+from .logger import logger
 from .settings import get_setting
 
 # used by get_sublime_exe()
@@ -104,7 +105,7 @@ def get_sublime_exe():
                 pass
 
     if get_sublime_exe.result is None:
-        print(
+        logger.error(
             'Cannot determine the path to your Sublime installation. Please '
             'set the "sublime_executable" setting in your settings for your '
             'platform.'

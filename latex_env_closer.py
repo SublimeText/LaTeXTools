@@ -33,12 +33,8 @@ class LatextoolsLatexEnvCloserCommand(sublime_plugin.TextCommand):
         if b == []:
             sublime.error_message("Every environment is closed")
         else:
-            # note the double escaping of \end
-            print("now we insert")
             # for some reason insert does not work
-            view.run_command(
-                "insert_snippet",
-                {'contents': "\\\\end" + b[-1] + "\n"})
+            view.run_command("insert_snippet", {'contents': "\\\\end" + b[-1] + "\n"})
 
 
 deprecate(globals(), 'latex_env_closerCommand', LatextoolsLatexEnvCloserCommand)

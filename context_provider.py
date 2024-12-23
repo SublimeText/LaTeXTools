@@ -1,15 +1,15 @@
-from functools import partial
 import operator as opi
 import re
-
 import sublime
 import sublime_plugin
 
+from functools import partial
+
 from .latextools_utils import analysis
+from .latextools_utils.logger import logger
 from .latextools_utils.selectors import build_ast
 from .latextools_utils.selectors import match_selector
 from .latextools_utils.settings import get_setting
-
 
 operator_map = {
     sublime.OP_EQUAL: opi.eq,
@@ -50,7 +50,7 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
         except IndexError:
             return
         except AttributeError:
-            print("Unsupported LaTeXTools context: {0}".format(key))
+            logger.error("Unsupported LaTeXTools context: %s", key)
             return
 
         try:

@@ -12,6 +12,7 @@ import traceback
 import sublime
 
 from ..external.frozendict import frozendict
+from .logger import logger
 from .settings import get_setting
 from .utils import ThreadPool
 
@@ -339,8 +340,8 @@ class Cache(object):
         def _invalidate(key):
             try:
                 self._objects[key] = _invalid_object
-            except:
-                print('error occurred while invalidating {0}'.format(key))
+            except Exception:
+                logger.error('error occurred while invalidating %s', key)
                 traceback.print_exc()
 
         with self._write_lock:
@@ -375,9 +376,8 @@ class Cache(object):
                         entry_name = os.path.basename[entry]
                         try:
                             self._objects[entry_name] = self._read(entry_name)
-                        except:
-                            print(
-                                'error while loading {0}'.format(entry_name))
+                        except Exception:
+                            logger.error('error while loading %s', entry_name)
             else:
                 self._objects[key] = self._read(key)
 
@@ -443,17 +443,18 @@ class Cache(object):
                     # cache has been emptied, so remove it
                     try:
                         shutil.rmtree(self.cache_path)
-                    except:
-                        print(
-                            'error while deleting {0}'.format(self.cache_path))
+                    except OSError as e:
+                        logger.error(
+                            'error while deleting %s: %s', self.cache_path, e)
                         traceback.print_exc()
             elif key in _objs:
                 if _objs[key] == _invalid_object:
                     file_path = os.path.join(self.cache_path, key)
                     try:
                         os.path.remove(file_path)
-                    except:
-                        print('error while deleting {0}'.format(file_path))
+                    except OSError as e:
+                        logger.error(
+                            'error while deleting %s: %s', file_path, e)
                         traceback.print_exc()
                 else:
                     os.makedirs(self.cache_path, exist_ok=True)
@@ -477,8 +478,8 @@ class Cache(object):
         try:
             with open(os.path.join(self.cache_path, key), 'wb') as f:
                 pickle.dump(_obj, f, protocol=-1)
-        except OSError:
-            print('error while writing to {0}'.format(key))
+        except OSError as e:
+            logger.error('error while writing to %s: %s', key, e)
             traceback.print_exc()
             raise CacheMiss()
 
@@ -738,9 +739,10 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
                     # sum the converted times
                     # if not specified (None) use 0
                     return sum(int(t[0] or 0) * t[1] for t in times)
-                except:
-                    print('error parsing life_span_string {0}'.format(
-                        life_span_string))
+                except Exception as e:
+                    logger.error(
+                        'error parsing life_span_string %s', life_span_string
+                    )
                     traceback.print_exc()
                     # default 30 minutes in seconds
                     return 1800
