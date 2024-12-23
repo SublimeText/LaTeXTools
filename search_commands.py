@@ -6,6 +6,10 @@ from .latextools_utils import ana_utils
 from .latextools_utils import quickpanel
 from .latextools_utils.tex_directives import get_tex_root
 
+__all__ = [
+    "LatextoolsSearchCommandCommand",
+    "LatextoolsSearchCommandInputCommand"
+]
 
 def _make_caption(ana, entry):
     text = entry.text

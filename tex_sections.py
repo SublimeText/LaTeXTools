@@ -4,6 +4,8 @@ import sublime_plugin
 
 from .deprecated_command import deprecate
 
+__all__ = ["LatextoolsTexSectionsCommand"]
+
 # References and citations
 
 spaces = {'part' : '', 'chapter' : '  ', 'section' : '    ',

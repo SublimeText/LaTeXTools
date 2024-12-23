@@ -7,6 +7,8 @@ import sublime_plugin
 from .external.bibtex.names import Name
 from .external.bibtex.tex import tokenize_list
 
+__all__ = ["BiblatexNameCompletions"]
+
 NAME_FIELDS = Name.NAME_FIELDS
 
 # Regex to recognise if we are in a name field
@@ -58,7 +60,7 @@ def _get_replacement(matcher, key):
 
 
 NAME_FIELD_REGEX = re.compile(
-    r'(?:^|[\s~]+)(?:' + r'|'.join(NAME_FIELDS) + ')\s*=\s*\{',
+    r'(?:^|[\s~]+)(?:' + r'|'.join(NAME_FIELDS) + r')\s*=\s*\{',
     re.IGNORECASE
 )
 

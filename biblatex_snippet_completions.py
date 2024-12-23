@@ -11,6 +11,8 @@ import sublime_plugin
 
 from .latextools_utils.logger import logger
 
+__all__ = ["SnippetCompletions"]
+
 __dir = os.path.dirname(__file__)
 if __dir == '.':
     __dir = os.path.join(sublime.packages_path(), 'LaTeXTools')

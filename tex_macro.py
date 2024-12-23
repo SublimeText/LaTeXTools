@@ -2,6 +2,8 @@ import sublime, sublime_plugin
 
 from .deprecated_command import deprecate
 
+__all__ = ["LatextoolsTexMacroCommand"]
+
 macros = {
 'a' : '\\alpha',
 'b' : '\\beta',

@@ -5,6 +5,8 @@ import codecs
 
 from .latextools_utils.logger import logger
 
+__all__ = ["LatextoolsMigrateCommand"]
+
 # Copy settings from default file to user directory
 # Try to incorporate existing user settings
 

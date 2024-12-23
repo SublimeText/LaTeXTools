@@ -9,6 +9,8 @@ from .latextools_utils.external_command import check_output
 from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
 
+__all__ = ["LatextoolsTexcountCommand"]
+
 
 class LatextoolsTexcountCommand(sublime_plugin.TextCommand):
     """

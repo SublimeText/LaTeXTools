@@ -4,6 +4,8 @@ import re
 
 from .deprecated_command import deprecate
 
+__all__ = ["LatextoolsLatexEnvCommand"]
+
 # Insert LaTeX environment based on current word
 # Position cursor inside environment
 

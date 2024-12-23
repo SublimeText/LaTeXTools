@@ -12,7 +12,10 @@ try:  # check whether the dictionaries package is installed
 except Exception:
     _DICT_INSTALLED = False
 
-
+__all__ = [
+    "LatextoolsAutoDetectSpellcheckListener",
+    "LatextoolsDetectSpellcheckCommand"
+]
 
 class DictMissing(Exception):
     pass

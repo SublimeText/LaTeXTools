@@ -38,6 +38,10 @@ from .st_preview.preview_utils import __get_gs_command as get_gs_command
 if sublime.platform() == 'windows':
     from .st_preview.preview_utils import get_system_root
 
+__all__ = [
+    "LatextoolsSystemCheckCommand",
+    "LatextoolsInsertTextCommand"
+]
 
 def expand_vars(texpath):
     return os.path.expandvars(texpath)

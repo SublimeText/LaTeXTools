@@ -3,6 +3,11 @@ import sublime_plugin
 
 from .latextools_utils.logger import logger
 
+__all__ = [
+    "deprecate",
+    "LatextoolsFindDeprecatedCommandsCommand"
+]
+
 _setting_name = 'compatibility_enable_version3_commands'
 
 

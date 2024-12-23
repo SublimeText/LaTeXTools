@@ -3,6 +3,8 @@ import re
 import sublime
 import sublime_plugin
 
+__all__ = ["BiblatexCrossrefCompletions"]
+
 # Regexes to detect the various types of crossref fields
 # Expected field in the format:
 #   <field> = {<value>,<value>}

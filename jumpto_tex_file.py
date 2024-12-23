@@ -15,6 +15,8 @@ from .latextools_utils.logger import logger
 from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
 
+__all__ = ["LatextoolsJumptoFileCommand"]
+
 INPUT_REG = re.compile(
     r"\\(?:input|include|subfile|loadglsentries)"
     r"\{(?P<file>[^}]+)\}",
