@@ -3,7 +3,7 @@ import re
 import sublime
 import sublime_plugin
 
-from .latextools_utils import get_setting
+from .latextools_utils.settings import get_setting
 
 
 def _RE_FIND_SECTION(command_mapping):

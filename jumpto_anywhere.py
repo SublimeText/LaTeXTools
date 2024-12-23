@@ -5,11 +5,15 @@ import sublime
 import sublime_plugin
 
 from .deprecated_command import deprecate
-from .latextools_utils import analysis, ana_utils, quickpanel, utils
+from .latextools_utils import analysis
+from .latextools_utils import ana_utils
+from .latextools_utils import quickpanel
+from .latextools_utils import utils
 from .latextools_utils.tex_directives import get_tex_root
 from .latextools_utils.tex_directives import TEX_DIRECTIVE
 from .latex_cite_completions import NEW_STYLE_CITE_REGEX
-from .latex_glossary_completions import ACR_LINE_RE, GLO_LINE_RE
+from .latex_glossary_completions import ACR_LINE_RE
+from .latex_glossary_completions import GLO_LINE_RE
 from .latex_ref_completions import NEW_STYLE_REF_REGEX
 from .jumpto_tex_file import INPUT_REG, IMPORT_REG, BIB_REG, IMAGE_REG
 from . import jumpto_tex_file

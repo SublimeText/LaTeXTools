@@ -8,8 +8,10 @@ import sublime
 import sublime_plugin
 
 from .deprecated_command import deprecate
-from .latextools_utils import analysis, get_setting, utils
+from .latextools_utils import analysis
+from .latextools_utils import utils
 from .latextools_utils.external_command import external_command
+from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
 
 INPUT_REG = re.compile(

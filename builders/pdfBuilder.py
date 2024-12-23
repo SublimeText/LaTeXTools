@@ -1,8 +1,8 @@
-import latextools_plugin
-
 import os
 import sublime
 import sys
+
+import latextools_plugin
 
 DEBUG = False
 

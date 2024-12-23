@@ -8,14 +8,16 @@ import types
 import sublime
 import sublime_plugin
 
-from ..jumpto_tex_file import open_image, find_image
-from ..latextools_utils import cache, get_setting
+from ..jumpto_tex_file import find_image
+from ..jumpto_tex_file import open_image
+from ..latextools_utils import cache
+from ..latextools_utils.settings import get_setting
 from ..latextools_utils.tex_directives import get_tex_root
-from . import preview_utils
-from .preview_utils import (
-    convert_installed, run_convert_command, ghostscript_installed,
-    run_ghostscript_command
-)
+from .preview_utils import SettingsListener as PreviewSettingsListener
+from .preview_utils import convert_installed
+from .preview_utils import ghostscript_installed
+from .preview_utils import run_convert_command
+from .preview_utils import run_ghostscript_command
 from . import preview_threading as pv_threading
 
 # export the listeners
@@ -350,7 +352,7 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
 
 
 class PreviewImagePhantomListener(sublime_plugin.ViewEventListener,
-                                  preview_utils.SettingsListener):
+                                  PreviewSettingsListener):
     key = "preview_image"
 
     def __init__(self, view):

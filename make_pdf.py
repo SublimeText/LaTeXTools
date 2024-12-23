@@ -11,24 +11,24 @@ import traceback
 import sublime
 import sublime_plugin
 
-from .latextools_plugin import (
-    add_plugin_path, get_plugin, NoSuchPluginException,
-    _classname_to_internal_name
-)
-from .latextools_utils import get_setting
-from .latextools_utils.is_tex_file import is_tex_file
-from .latextools_utils.tex_directives import parse_tex_directives
-from .latextools_utils.external_command import (
-    execute_command, external_command, get_texpath, update_env
-)
-from .latextools_utils.output_directory import (
-    get_aux_directory, get_output_directory, get_jobname
-)
-from .latextools_utils.progress_indicator import ProgressIndicator
-from .latextools_utils.tex_directives import get_tex_root
-from .latextools_utils.tex_log import parse_tex_log
-
 from .deprecated_command import deprecate
+from .latextools_plugin import _classname_to_internal_name
+from .latextools_plugin import add_plugin_path
+from .latextools_plugin import get_plugin
+from .latextools_plugin import NoSuchPluginException
+from .latextools_utils.external_command import execute_command
+from .latextools_utils.external_command import external_command
+from .latextools_utils.external_command import get_texpath
+from .latextools_utils.external_command import update_env
+from .latextools_utils.is_tex_file import is_tex_file
+from .latextools_utils.output_directory import get_aux_directory
+from .latextools_utils.output_directory import get_jobname
+from .latextools_utils.output_directory import get_output_directory
+from .latextools_utils.progress_indicator import ProgressIndicator
+from .latextools_utils.settings import get_setting
+from .latextools_utils.tex_directives import get_tex_root
+from .latextools_utils.tex_directives import parse_tex_directives
+from .latextools_utils.tex_log import parse_tex_log
 
 DEBUG = False
 

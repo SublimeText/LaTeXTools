@@ -8,8 +8,8 @@ from functools import partial
 import sublime
 
 from . import utils
-from .cache import LocalCache
 from ..external.frozendict import frozendict
+from .cache import LocalCache
 from .tex_directives import get_tex_root
 
 

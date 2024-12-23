@@ -11,8 +11,8 @@ import traceback
 
 import sublime
 
-from . import get_setting
 from ..external.frozendict import frozendict
+from .settings import get_setting
 from .utils import ThreadPool
 
 

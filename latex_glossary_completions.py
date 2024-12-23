@@ -1,7 +1,10 @@
 import re
 
 from .latex_fill_all import FillAllHelper
-from .latextools_utils import analysis, cache, get_setting, pgf
+from .latextools_utils import analysis
+from .latextools_utils import cache
+from .latextools_utils import pgf
+from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
 
 

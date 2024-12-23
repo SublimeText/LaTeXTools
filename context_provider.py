@@ -6,8 +6,9 @@ import sublime
 import sublime_plugin
 
 from .latextools_utils import analysis
+from .latextools_utils.selectors import build_ast
+from .latextools_utils.selectors import match_selector
 from .latextools_utils.settings import get_setting
-from .latextools_utils.selectors import build_ast, match_selector
 
 
 operator_map = {

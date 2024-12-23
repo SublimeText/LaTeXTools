@@ -2,7 +2,10 @@ import os
 import time
 import traceback
 
-from . import bibformat, cache, get_setting
+from . import bibformat
+from . import cache
+from .settings import get_setting
+
 from ..external.frozendict import frozendict
 
 _VERSION = 2

@@ -1,7 +1,9 @@
 import sublime_plugin
 
 from .deprecated_command import deprecate
-from .latextools_utils import analysis, get_setting, quickpanel
+from .latextools_utils import analysis
+from .latextools_utils import quickpanel
+from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
 
 

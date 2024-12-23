@@ -1,4 +1,5 @@
-from .latextools_utils import analysis, cache
+from .latextools_utils import analysis
+from .latextools_utils import cache
 from .latextools_utils.parser_utils import command_to_snippet
 from .latextools_utils.tex_directives import get_tex_root
 

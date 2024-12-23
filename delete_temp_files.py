@@ -1,18 +1,16 @@
-import sublime
-
-from .latextools_utils import cache, get_setting
-from .latextools_utils.output_directory import (
-    get_aux_directory, get_output_directory
-)
-from .latextools_utils.tex_directives import get_tex_root
-
-import sublime_plugin
 import os
 import shutil
-
+import sublime
+import sublime_plugin
 import traceback
 
 from .deprecated_command import deprecate
+
+from .latextools_utils import cache
+from .latextools_utils.output_directory import get_aux_directory
+from .latextools_utils.output_directory import get_output_directory
+from .latextools_utils.settings import get_setting
+from .latextools_utils.tex_directives import get_tex_root
 
 
 class LatextoolsClearCacheCommand(sublime_plugin.WindowCommand):

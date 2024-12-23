@@ -1,6 +1,9 @@
 import sublime_plugin
 
-from .latextools_utils import settings, tex_directives
+from .deprecated_command import deprecate
+from .latextools_utils.settings import get_setting
+from .latextools_utils.tex_directives import get_tex_root
+from .latextools_utils.tex_directives import parse_tex_directives
 
 try:  # check whether the dictionaries package is installed
     import Dictionaries
@@ -8,7 +11,6 @@ try:  # check whether the dictionaries package is installed
 except:
     _DICT_INSTALLED = False
 
-from .deprecated_command import deprecate
 
 
 class DictMissing(Exception):
@@ -123,13 +125,12 @@ else:
 
 
 def _get_locale(view):
-    sc_option = tex_directives.\
-        parse_tex_directives(view, only_for=["spellcheck"])
+    sc_option = parse_tex_directives(view, only_for=["spellcheck"])
     return sc_option.get("spellcheck")
 
 
 def _get_locale_from_tex_root(view):
-    tex_root = tex_directives.get_tex_root(view)
+    tex_root = get_tex_root(view)
     if not tex_root or tex_root == view.file_name():
         return
     return _get_locale(tex_root)
@@ -142,7 +143,7 @@ def update_dict_language(view, extract_from_root):
         return  # no spellcheck directive found
 
     try:
-        user_sc = settings.get_setting("tex_spellcheck_paths", {})
+        user_sc = get_setting("tex_spellcheck_paths", {})
         dict_path = user_sc.get(loc) or get_dict_path(loc)
     except DictMissing:
         print("dict definition missing for locale '{0}'"

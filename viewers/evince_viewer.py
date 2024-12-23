@@ -1,14 +1,14 @@
-from base_viewer import BaseViewer
-
-from latextools_utils import get_setting
-from latextools_utils.external_command import (
-    external_command, check_output, check_call
-)
-from latextools_utils.sublime_utils import get_sublime_exe
-
 import os
 import sublime
 import time
+
+from base_viewer import BaseViewer
+
+from latextools_utils.external_command import check_call
+from latextools_utils.external_command import check_output
+from latextools_utils.external_command import external_command
+from latextools_utils.settings import get_setting
+from latextools_utils.sublime_utils import get_sublime_exe
 
 
 class EvinceViewer(BaseViewer):

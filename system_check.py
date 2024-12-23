@@ -14,26 +14,25 @@ from shutil import which
 import sublime
 import sublime_plugin
 
-from .latextools_plugin import (
-    add_plugin_path, get_plugin, NoSuchPluginException,
-    _classname_to_internal_name
-)
-from .latextools_utils import get_setting
+from .jumpto_pdf import DEFAULT_VIEWERS
+from .latextools_plugin import _classname_to_internal_name
+from .latextools_plugin import add_plugin_path
+from .latextools_plugin import get_plugin
+from .latextools_plugin import NoSuchPluginException
 from .latextools_utils.distro_utils import using_miktex
 from .latextools_utils.external_command import check_output
-from .latextools_utils.output_directory import (
-    get_aux_directory, get_output_directory, get_jobname
-)
+from .latextools_utils.output_directory import get_aux_directory
+from .latextools_utils.output_directory import get_jobname
+from .latextools_utils.output_directory import get_output_directory
 from .latextools_utils.progress_indicator import ProgressIndicator
-from .latextools_utils.tex_directives import parse_tex_directives
+from .latextools_utils.settings import get_setting
 from .latextools_utils.sublime_utils import get_sublime_exe
 from .latextools_utils.tex_directives import get_tex_root
-from .jumpto_pdf import DEFAULT_VIEWERS
+from .latextools_utils.tex_directives import parse_tex_directives
 
-from .st_preview.preview_utils import (
-    convert_installed, ghostscript_installed,
-    __get_gs_command as get_gs_command
-)
+from .st_preview.preview_utils import convert_installed
+from .st_preview.preview_utils import ghostscript_installed
+from .st_preview.preview_utils import __get_gs_command as get_gs_command
 
 if sublime.platform() == 'windows':
     from .st_preview.preview_utils import get_system_root

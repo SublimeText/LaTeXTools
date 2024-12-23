@@ -1,6 +1,6 @@
 import sublime
 
-from . import get_setting
+from .settings import get_setting
 
 
 def using_miktex():

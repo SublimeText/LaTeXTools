@@ -2,9 +2,8 @@ import traceback
 
 import sublime
 
-from .latextools_utils.external_command import (
-    check_output, CalledProcessError
-)
+from .latextools_utils.external_command import CalledProcessError
+from .latextools_utils.external_command import check_output
 
 __all__ = ['kpsewhich']
 

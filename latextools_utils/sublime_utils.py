@@ -7,7 +7,8 @@ from shutil import which
 
 import sublime
 
-from .external_command import check_output, external_command
+from .external_command import check_output
+from .external_command import external_command
 from .settings import get_setting
 
 # used by get_sublime_exe()

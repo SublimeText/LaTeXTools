@@ -3,11 +3,10 @@ import os
 import sublime
 import sublime_plugin
 
+from .latextools_utils.output_directory import get_aux_directory
+from .latextools_utils.output_directory import get_output_directory
 from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
-from .latextools_utils.output_directory import (
-    get_output_directory, get_aux_directory
-)
 
 
 class LatextoolsRevealAuxDirectoryCommand(sublime_plugin.WindowCommand):

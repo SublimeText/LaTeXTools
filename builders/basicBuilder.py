@@ -7,7 +7,8 @@ import sys
 # builders directory in sys.path
 from pdfBuilder import PdfBuilder
 
-from latextools_utils.external_command import external_command, get_texpath
+from latextools_utils.external_command import external_command
+from latextools_utils.external_command import get_texpath
 
 # Standard LaTeX warning
 CITATIONS_REGEX = re.compile(

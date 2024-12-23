@@ -113,18 +113,15 @@ API:
 
 import glob as _glob
 import os
+import sublime
 import sys
-
 import threading
 import traceback
 
 from contextlib import contextmanager
+from collections.abc import MutableMapping
 
-from collections import MutableMapping
-
-import sublime
-
-from .latextools_utils import get_setting
+from .latextools_utils.settings import get_setting
 from . import latextools_plugin_internal as internal
 
 __all__ = [

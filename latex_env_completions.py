@@ -1,8 +1,8 @@
 from .latex_fill_all import FillAllHelper
-from .latextools_utils import get_setting
-from .latex_cwl_completions import (
-    get_cwl_completions, is_cwl_available, BEGIN_END_BEFORE_REGEX
-)
+from .latextools_utils.settings import get_setting
+from .latex_cwl_completions import BEGIN_END_BEFORE_REGEX
+from .latex_cwl_completions import get_cwl_completions
+from .latex_cwl_completions import is_cwl_available
 from .latex_own_command_completions import get_own_env_completion
 
 

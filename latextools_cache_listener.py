@@ -6,12 +6,12 @@ import traceback
 import sublime
 import sublime_plugin
 
-from .latex_cite_completions import (
-    find_bib_files, run_plugin_command
-)
-from .latextools_utils import analysis, get_setting
+from .latex_cite_completions import find_bib_files
+from .latex_cite_completions import run_plugin_command
+from .latextools_utils import analysis
 from .latextools_utils.bibcache import BibCache
 from .latextools_utils.cache import LocalCache
+from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
 from .latextools_utils.progress_indicator import ProgressIndicator
 

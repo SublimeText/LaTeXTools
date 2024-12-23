@@ -12,11 +12,10 @@ import sublime
 import sublime_plugin
 
 from .deprecated_command import deprecate
-from .latextools_utils.external_command import (
-    check_output, CalledProcessError
-)
+from .latextools_utils.external_command import CalledProcessError
+from .latextools_utils.external_command import check_output
 
-__all__ = ['LatexGenPkgCacheCommand', 'LatextoolsGenPkgCacheCommand']
+__all__ = ['LatextoolsGenPkgCacheCommand']
 
 
 def _get_tex_searchpath(file_type):

@@ -19,11 +19,13 @@ if sublime.platform() == 'windows':
         ctypes.windll.kernel32.GetSystemDirectoryW(buffer, len(buffer))
         return buffer.value
 
-from ..latextools_utils import cache, get_setting
+from ..latextools_utils import cache
 from ..latextools_utils.distro_utils import using_miktex
-from ..latextools_utils.external_command import (
-    get_texpath, execute_command, check_output, __sentinel__
-)
+from ..latextools_utils.external_command import __sentinel__
+from ..latextools_utils.external_command import check_output
+from ..latextools_utils.external_command import execute_command
+from ..latextools_utils.external_command import get_texpath
+from ..latextools_utils.settings import get_setting
 
 _lt_settings = {}
 
