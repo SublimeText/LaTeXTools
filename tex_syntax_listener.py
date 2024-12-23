@@ -3,7 +3,7 @@ import sublime_plugin
 from .latextools_utils.settings import get_setting
 from .latextools_utils.is_tex_file import is_tex_file
 
-LATEX_SYNTAX = 'Packages/LaTeX/LaTeX.sublime-syntax'
+__all__ = ["TeXSyntaxListener"]
 
 
 class TeXSyntaxListener(sublime_plugin.EventListener):
@@ -25,4 +25,4 @@ class TeXSyntaxListener(sublime_plugin.EventListener):
 
         file_name = view.file_name()
         if is_tex_file(file_name):
-            view.set_syntax_file(LATEX_SYNTAX)
+            view.set_syntax_file('Packages/LaTeX/LaTeX.sublime-syntax')

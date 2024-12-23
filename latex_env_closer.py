@@ -3,6 +3,8 @@ import sublime_plugin
 
 from .deprecated_command import deprecate
 
+__all__ = ["LatextoolsLatexEnvCloserCommand"]
+
 # Insert environment closer
 # this only looks at the LAST \begin{...}
 # need to extend to allow for nested \begin's

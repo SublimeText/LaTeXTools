@@ -31,6 +31,13 @@ from .latextools_utils.tex_directives import get_tex_root
 from .latextools_utils.tex_directives import parse_tex_directives
 from .latextools_utils.tex_log import parse_tex_log
 
+__all__ = [
+    "LatextoolsMakePdfCommand",
+    "LatextoolsDoOutputEditCommand",
+    "LatextoolsDoFinishEditCommand",
+    "BuildPhantomEventListener",
+    "plugin_loaded"
+]
 
 # Compile current .tex file to pdf
 # Allow custom scripts and build engines!

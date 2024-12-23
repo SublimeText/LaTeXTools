@@ -11,6 +11,8 @@ from .latextools_utils.selectors import build_ast
 from .latextools_utils.selectors import match_selector
 from .latextools_utils.settings import get_setting
 
+__all__ = ["LatextoolsContextListener"]
+
 operator_map = {
     sublime.OP_EQUAL: opi.eq,
     sublime.OP_NOT_EQUAL: opi.ne,

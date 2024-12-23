@@ -2,13 +2,13 @@ import logging
 
 import sublime
 
-__all__ = ["plugin_loaded", "plugin_unloaded"]
-
 from .latextools_utils.logger import logger
 from .latextools_utils.logger import handler
 from .latextools_utils.logger import DEFAULT_LOG_LEVEL
 from .latextools_utils.logger import DEFAULT_LOG_LEVEL_NAME
 from .latextools_utils.logger import EVENT_LEVEL
+
+__all__ = ["plugin_loaded", "plugin_unloaded"]
 
 
 def _settings():

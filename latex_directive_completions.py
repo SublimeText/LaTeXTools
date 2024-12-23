@@ -13,6 +13,7 @@ try:
 except Exception:
     installed_locales = ["en", "en-en", "en-us"]
 
+__all__ = ["DirectiveFillAllHelper", "LatexDirectiveCompletion"]
 
 def _prettify_locale(loc):
     if "-" not in loc:

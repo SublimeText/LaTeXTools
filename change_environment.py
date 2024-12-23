@@ -4,6 +4,11 @@ import re
 
 from .deprecated_command import deprecate
 
+__all__ = [
+    "LatextoolsChangeEnvironmentCommand",
+    "LatextoolsToggleEnvironmentStarCommand",
+]
+
 
 class LatextoolsChangeEnvironmentCommand(sublime_plugin.TextCommand):
     def run(self, edit):

@@ -7,6 +7,8 @@ from .deprecated_command import deprecate
 from .latextools_utils.distro_utils import using_miktex
 from .latextools_utils.external_command import external_command
 
+__all__ = ["LatextoolsPkgDocCommand", "LatextoolsViewDocCommand"]
+
 
 def _view_texdoc(file):
     if file is None:

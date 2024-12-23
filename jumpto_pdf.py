@@ -18,6 +18,12 @@ from .latextools_utils.settings import get_setting
 from .latextools_utils.sublime_utils import focus_st
 from .latextools_utils.tex_directives import get_tex_root
 
+__all__ = [
+    "LatextoolsJumpToPdfCommand",
+    "LatextoolsViewPdfCommand",
+    "plugin_loaded"
+]
+
 SUBLIME_VERSION = re.compile(r'Build (\d{4})', re.UNICODE)
 DEFAULT_VIEWERS = {
     'linux': 'evince',
@@ -266,6 +272,7 @@ def plugin_loaded():
     # as plugins
     add_plugin_path(os.path.join(viewers_path, 'base_viewer.py'))
     add_plugin_path(viewers_path)
+
 
 deprecate(globals(), 'JumpToPdf', LatextoolsJumpToPdfCommand)
 deprecate(globals(), 'ViewPdf', LatextoolsViewPdfCommand)

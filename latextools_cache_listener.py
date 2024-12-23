@@ -15,6 +15,12 @@ from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
 from .latextools_utils.progress_indicator import ProgressIndicator
 
+__all__ = [
+    "LatextoolsCacheUpdateListener",
+    "LatextoolsAnalysisUpdateCommand",
+    "LatextoolsBibcacheUpdateCommand",
+]
+
 
 class LatextoolsCacheUpdater(object):
 

@@ -9,6 +9,12 @@ from .latextools_utils.logger import logger
 from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
 
+__all__ = [
+    "LatextoolsRevealAuxDirectoryCommand",
+    "LatextoolsRevealOutputDirectoryCommand",
+    "LatextoolsRevealTexRootDirectoryCommand"
+]
+
 
 class LatextoolsRevealAuxDirectoryCommand(sublime_plugin.WindowCommand):
     """

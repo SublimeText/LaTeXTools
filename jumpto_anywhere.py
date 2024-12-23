@@ -19,6 +19,11 @@ from .latex_ref_completions import NEW_STYLE_REF_REGEX
 from .jumpto_tex_file import INPUT_REG, IMPORT_REG, BIB_REG, IMAGE_REG
 from . import jumpto_tex_file
 
+__all__ = [
+    "LatextoolsJumptoAnywhereCommand",
+    "LatextoolsJumptoAnywhereByMouseCommand"
+]
+
 INPUT_REG_EXPS = [INPUT_REG, IMPORT_REG, BIB_REG, IMAGE_REG]
 
 COMMAND_REG = re.compile(

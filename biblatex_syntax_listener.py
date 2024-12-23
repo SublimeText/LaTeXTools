@@ -2,6 +2,8 @@ import sublime_plugin
 
 from .latextools_utils.settings import get_setting
 
+__all__ = ["BibLaTeXSyntaxListener"]
+
 BIBLATEX_SYNTAX = 'Packages/LaTeXTools/BibLaTeX.sublime-syntax'
 
 

@@ -5,10 +5,14 @@ import sublime_plugin
 
 from .latextools_utils.settings import get_setting
 
+__all__ = [
+    "LatextoolsAutoInsertLabelCommand",
+    "LatextoolsAutoInserLabelListener",
+]
 
 def _RE_FIND_SECTION(command_mapping):
     return re.compile(
-        r"\\(?P<command>" + "|".join(command_mapping.keys()) + "|caption)"
+        r"\\(?P<command>" + "|".join(command_mapping.keys()) + r"|caption)"
         r"(?:\[[^\]]*\])*"
         r"\{(?P<content>[^\}]+)\}"
     )

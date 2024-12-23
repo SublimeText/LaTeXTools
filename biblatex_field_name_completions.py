@@ -1,6 +1,8 @@
 import sublime
 import sublime_plugin
 
+__all__ = ["FieldNameCompletions"]
+
 bibtex_fields = [
     ('address', 'address = {${1:Address}},'),
     ('annote', 'annote = {${1:Annote}},'),

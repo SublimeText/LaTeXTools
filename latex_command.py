@@ -5,6 +5,8 @@ import re
 
 from .deprecated_command import deprecate
 
+__all__ = ["LatextoolsLatexCmdCommand"]
+
 # Insert LaTeX command based on current word
 # Position cursor inside braces
 
