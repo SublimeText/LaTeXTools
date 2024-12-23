@@ -99,7 +99,7 @@ def get_sublime_exe():
 
                     if m and m.group(1) == sublime.version():
                         executable = subl
-                except:
+                except Exception:
                     pass
 
     # on windows, subl.exe must be called to re-focuses last active window

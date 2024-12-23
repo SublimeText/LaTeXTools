@@ -255,7 +255,7 @@ class Cache(object):
         try:
             if hasattr(result, '__dict__') or hasattr(result, '__slots__'):
                 result = copy.copy(result)
-        except:
+        except Exception:
             pass
 
         return result
@@ -323,7 +323,7 @@ class Cache(object):
 
         try:
             return self.get(key)
-        except:
+        except Exception:
             result = func()
             self.set(key, result)
             return result
@@ -396,7 +396,7 @@ class Cache(object):
             try:
                 with open(file_path, 'rb') as f:
                     return pickle.load(f)
-            except:
+            except Exception:
                 raise CacheMiss('cannot read cache file {0}'.format(key))
 
     def save(self, key=None):
@@ -437,7 +437,7 @@ class Cache(object):
                     for k in _objs.keys():
                         try:
                             self._write(k, _objs)
-                        except:
+                        except Exception:
                             traceback.print_exc()
                 else:
                     # cache has been emptied, so remove it
@@ -684,7 +684,7 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
     def validate_on_get(self, key):
         try:
             cache_time = Cache.get(self, self._CACHE_TIMESTAMP)
-        except:
+        except Exception:
             raise ValueError('cannot load created timestamp')
         else:
             if not self.is_up_to_date(key, cache_time):

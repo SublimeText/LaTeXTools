@@ -201,7 +201,7 @@ def _validate_thumbnail_currentness(image_path, thumbnail_path):
     try:
         if os.path.getmtime(image_path) > os.path.getmtime(thumbnail_path):
             os.remove(thumbnail_path)
-    except:
+    except Exception:
         pass
 
 

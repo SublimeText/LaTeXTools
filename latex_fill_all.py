@@ -192,7 +192,7 @@ class LatexFillHelper(object):
         if candidates is None:
             try:
                 candidates = self.candidates
-            except:
+            except Exception:
                 candidates = self.candidates = {}
 
         # first, find the nearest bracket
@@ -299,17 +299,17 @@ class LatexFillHelper(object):
         '''
         try:
             del self.candidates
-        except:
+        except Exception:
             pass
 
         try:
             del self.last_view
-        except:
+        except Exception:
             pass
 
         try:
             del self.use_full_scan
-        except:
+        except Exception:
             pass
 
     def get_common_prefix(self, view, locations):
@@ -672,7 +672,7 @@ class LatexFillAllEventListener(
 
         try:
             key, insert_char = key.split('.')
-        except:
+        except Exception:
             insert_char = ''
 
         # not handled here
@@ -779,7 +779,7 @@ class LatexFillAllEventListener(
             completions = completion_type.get_auto_completions(
                 view, prefix, line[::-1]
             )
-        except:
+        except Exception:
             traceback.print_exc()
             self.clear_bracket_cache()
             return []
@@ -953,7 +953,7 @@ class LatextoolsFillAllCommand(
                         completion_type = ct
                         remove_regions = []
                         break
-                except:
+                except Exception:
                     pass
 
             if isinstance(completion_type, list):
@@ -1041,7 +1041,7 @@ class LatextoolsFillAllCommand(
             completions = completion_type.get_completions(
                 view, prefix, line[::-1]
             )
-        except:
+        except Exception:
             self.complete_brackets(
                 view, edit, insert_char, remove_regions=remove_regions
             )

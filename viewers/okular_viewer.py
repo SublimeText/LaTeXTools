@@ -27,7 +27,7 @@ class OkularViewer(BaseViewer):
                     continue
                 if '--unique' in app:
                     return True
-        except:
+        except Exception:
             pass
 
         return False

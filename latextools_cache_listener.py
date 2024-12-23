@@ -42,7 +42,7 @@ class LatextoolsCacheUpdater(object):
         for step in self._steps:
             try:
                 step()
-            except:
+            except Exception:
                 traceback.print_exc()
 
 
@@ -143,12 +143,12 @@ class LatextoolsCacheUpdateListener(
             if self._TEX_ROOT_REFS[tex_root] <= 0:
                 del self._TEX_ROOT_REFS[tex_root]
                 del self._BIB_CACHES[tex_root]
-        except:
+        except Exception:
             pass
 
         try:
             del self._TEX_CACHES[_id]
-        except:
+        except Exception:
             pass
 
     def on_post_save_async(self, view):

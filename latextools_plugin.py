@@ -377,7 +377,7 @@ def _load_plugin(filename, *paths):
 
     try:
         return _load_module(module_name, filename, *paths)
-    except:
+    except Exception:
         logger.error('Could not load module %s using path %s.', name, paths)
         traceback.print_exc()
 
@@ -402,7 +402,7 @@ def _load_plugins():
             try:
                 # assume path is a tuple of [<path>, <glob>]
                 add_plugin_path(_resolve_plugin_path(path[0]), path[1])
-            except:
+            except Exception:
                 logger.error(
                     'An error occurred while trying to add the plugin path %s',
                     path

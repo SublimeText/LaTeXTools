@@ -9,7 +9,7 @@ from .latextools_utils.tex_directives import parse_tex_directives
 try:  # check whether the dictionaries package is installed
     import Dictionaries
     _DICT_INSTALLED = True
-except:
+except Exception:
     _DICT_INSTALLED = False
 
 
@@ -110,7 +110,7 @@ if _DICT_INSTALLED:
         loc = normalize_locale(loc)
         try:
             dict_name = _dictionary_mappings[loc]
-        except:
+        except Exception:
             raise DictMissing()
         dict_path = "Packages/Dictionaries/" + dict_name
         return dict_path

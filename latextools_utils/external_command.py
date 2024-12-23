@@ -90,7 +90,7 @@ def get_texpath():
         try:
             reload(sys.modules[get_texpath.__module__])
             texpath = get_setting(sublime.platform(), {}).get('texpath')
-        except:
+        except Exception:
             reraise(*exc_info)
 
     return expand_vars(texpath) if texpath is not None else None
@@ -152,7 +152,7 @@ def external_command(command, cwd=None, shell=False, env=None,
         except UnicodeError:
             try:
                 logger.info('Running "%s"', command)
-            except:
+            except Exception:
                 pass
 
     p = Popen(

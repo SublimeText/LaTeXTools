@@ -69,7 +69,7 @@ def _post_process_path_only(completions):
     for t in completions:
         try:
             relpath, file_name = t
-        except:
+        except Exception:
             continue
         if relpath == "." or relpath in added:
             continue

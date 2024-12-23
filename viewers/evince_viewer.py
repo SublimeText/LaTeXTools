@@ -30,7 +30,7 @@ class EvinceViewer(BaseViewer):
                 ('evince {0}'.format(pdf_file)) in
                 check_output(['ps', 'xv'], use_texpath=False)
             )
-        except:
+        except Exception:
             return False
 
     def _get_settings(self):
@@ -53,13 +53,13 @@ class EvinceViewer(BaseViewer):
                         ['python', '-c', 'import dbus'], use_texpath=False
                     )
                     python = 'python'
-                except:
+                except Exception:
                     try:
                         check_call(
                             ['python3', '-c', 'import dbus'], use_texpath=False
                         )
                         python = 'python3'
-                    except:
+                    except Exception:
                         sublime.error_message(
                             '''Cannot find a valid Python interpreter.
                             Please set the python setting in your LaTeXTools

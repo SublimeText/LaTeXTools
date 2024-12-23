@@ -10,7 +10,7 @@ from .latextools_utils.settings import get_setting
 
 try:
     installed_locales = sorted(detect_spellcheck._dictionary_mappings.keys())
-except:
+except Exception:
     installed_locales = ["en", "en-en", "en-us"]
 
 
@@ -94,7 +94,7 @@ def _directive_spellcheck_completions(view, value, ac=True):
                 _, dic = os.path.split(dic)
             elif dic.startswith("Packages/"):
                 dic = dic[len("Packages/"):]
-        except:
+        except Exception:
             dic = "locale"
         return dic
     locales = [
@@ -206,7 +206,7 @@ class DirectiveFillAllHelper(FillAllHelper):
         # call the completion
         try:
             comp = globals().get(function)(view, value, ac)
-        except:
+        except Exception:
             return []
 
         if not ac and not prefix and m.group("spaces"):

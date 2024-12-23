@@ -111,7 +111,7 @@ def _partition(env_list, is_before):
     while True:
         try:
             item = next(iterator)
-        except:
+        except Exception:
             break
         if is_before(item):
             before.append(item)
@@ -133,11 +133,11 @@ def _get_closest_begin(begin_before, end_before):
     while True:
         try:
             b = next(begin_iter)
-        except:
+        except Exception:
             raise NoEnvError("No open environment detected")
         try:
             e = next(end_iter)
-        except:
+        except Exception:
             break
         if not b.begin() < e.begin():
             break
@@ -151,11 +151,11 @@ def _get_closest_end(end_after, begin_after):
     while True:
         try:
             e = next(end_iter)
-        except:
+        except Exception:
             raise NoEnvError("No closing environment detected")
         try:
             b = next(begin_iter)
-        except:
+        except Exception:
             break
         if not e.begin() > b.begin():
             break

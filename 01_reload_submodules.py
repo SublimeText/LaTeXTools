@@ -87,7 +87,7 @@ for suffix in LOAD_ORDER:
             reload(sys.modules[mod])
         else:
             __import__(mod)
-    except:
+    except Exception:
         traceback.print_exc()
 
     if suffix in EXPORT_MODULES:
@@ -98,10 +98,7 @@ def plugin_loaded():
     # reload any plugins cached in memory
     mods = [m for m in sys.modules if m.startswith('_latextools_')]
     for mod in mods:
-        try:
-            del sys.modules[mod]
-        except:
-            traceback.print_exc()
+        del sys.modules[mod]
 
     for module in EXPORT_MODULES:
         mod = MOD_PREFIX + module

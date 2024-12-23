@@ -121,7 +121,7 @@ class CmdThread(threading.Thread):
                             preexec_fn=os.setsid if self.caller.plat != 'windows' else None,
                             cwd=self.caller.tex_dir
                         )
-                    except:
+                    except Exception:
                         self.caller.show_output_panel()
                         self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
                         self.caller.output("Attempted command:")
@@ -161,7 +161,7 @@ class CmdThread(threading.Thread):
                 logger.debug("with returncode %d", proc.returncode)
                 # At this point, out contains the output from the current command;
                 # we pass it to the cmd_iterator and get the next command, until completion
-        except:
+        except Exception:
             self.caller.show_output_panel()
             self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
             self.caller.output("\nBuild engine: " + self.caller.builder.name)
@@ -402,7 +402,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
                         )
                     else:
                         os.killpg(self.proc.pid, signal.SIGTERM)
-                except:
+                except Exception:
                     logger.error('Exception occurred while killing build')
                     traceback.print_exc()
 
@@ -726,7 +726,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         self.errs_by_file = {}
         try:
             self.file_regex = re.compile(file_regex, re.MULTILINE)
-        except:
+        except Exception:
             logger.error("Cannot compile file regex.")
             return
         lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")

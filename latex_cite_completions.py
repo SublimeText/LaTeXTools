@@ -258,7 +258,7 @@ def find_bib_files(root):
         result = _find_bib_files()
         try:
             cache.LocalCache(root).set('bib_files', result)
-        except:
+        except Exception:
             pass
     # if a an additional_file is set append it to the result
     additional_file = get_setting("additional_bibliography_file")
@@ -344,7 +344,7 @@ def run_plugin_command(command, *args, **kwargs):
         # instantiate plugin
         try:
             plugin = plugin()
-        except:
+        except Exception:
             error_message = (
                 'Could not instantiate {0}. {0} must have a no-args __init__ '
                 'method'.format(type(plugin).__name__,))
@@ -475,7 +475,7 @@ class CiteFillAllHelper(FillAllHelper):
         def formatted_entry(entry):
             try:
                 return entry['<autocomplete_formatted>']
-            except:
+            except Exception:
                 return bibformat.format_entry(cite_autocomplete_format, entry)
 
         completions = [
@@ -529,7 +529,7 @@ class CiteFillAllHelper(FillAllHelper):
                 if isinstance(result, tuple):
                     result = list(result)
                 return result
-            except:
+            except Exception:
                 return [
                     bibformat.format_entry(s, entry)
                     for s in cite_panel_format
@@ -559,7 +559,7 @@ class CiteFillAllHelper(FillAllHelper):
 def _is_prefix(lower_prefix, entry):
     try:
         return lower_prefix in entry["<prefix_match>"]
-    except:
+    except Exception:
         return lower_prefix in bibformat.create_prefix_match_str(entry)
 
 

@@ -34,7 +34,7 @@ class ZathuraViewer(BaseViewer):
                     continue
                 if pdf_file in app:
                     return app.lstrip().split(' ', 1)[0]
-        except:
+        except Exception:
             pass
 
         return None
@@ -44,13 +44,13 @@ class ZathuraViewer(BaseViewer):
             try:
                 self._focus_xdotool(pid)
                 return
-            except:
+            except Exception:
                 pass
 
         if which('wmctrl') is not None:
             try:
                 self._focus_wmctrl(pid)
-            except:
+            except Exception:
                 pass
 
     def _focus_wmctrl(self, pid):
@@ -59,7 +59,7 @@ class ZathuraViewer(BaseViewer):
             windows = check_output(
                 ['wmctrl', '-l', '-p'], use_texpath=False
             )
-        except:
+        except Exception:
             pass
         else:
             pid = ' {0} '.format(pid)

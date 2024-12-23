@@ -107,7 +107,7 @@ def _jumpto_ref(view, com_reg, pos):
     labels = ana.filter_commands(is_correct_label)
     try:
         label = labels[0]
-    except:
+    except Exception:
         message = "No matching label found for '{0}'.".format(label_id)
         logger.error(message)
         sublime.status_message(message)
@@ -173,7 +173,7 @@ def _jumpto_glo(view, com_reg, pos, acr=False):
     iden = com_reg.group("args")
     try:
         entry = next(c for c in commands if c.args == iden)
-    except:
+    except Exception:
         message = "Glossary definition not found for '{0}'".format(iden)
         logger.error(message)
         sublime.status_message(message)
@@ -271,7 +271,7 @@ class LatextoolsJumptoAnywhereCommand(sublime_plugin.TextCommand):
 
         try:
             com_reg = next(filter(is_inside, COMMAND_REG.finditer(line)))
-        except:
+        except Exception:
             # since the magic comment will not match the command, do this here
             if view.file_name():
                 m = TEX_DIRECTIVE.search(line)

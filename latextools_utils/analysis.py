@@ -438,7 +438,7 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
     # read the content from the file
     try:
         raw_content, content = _preprocess_file(file_name)
-    except:
+    except Exception:
         logger.error('Error occurred while preprocessing %s', file_name)
         traceback.print_exc()
         logger.info('Continuing...')

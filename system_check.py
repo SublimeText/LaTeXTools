@@ -121,7 +121,7 @@ class SubprocessTimeoutThread(threading.Thread):
                 )
             else:
                 os.killpg(self._p.pid, signal.SIGKILL)
-        except:
+        except Exception:
             traceback.print_exc()
 
 
@@ -156,7 +156,7 @@ def get_version_info(executable, env=None):
         return re.split(
             r'\r?\n', stdout.decode(encoding='utf-8', errors='ignore').strip(), 1
         )[0].lstrip('Version: ')
-    except:
+    except Exception:
         return None
 
 
@@ -187,7 +187,7 @@ def get_tex_path_variable_texlive(variable, env=None):
             return None
 
         return '\n'.join(re.split(r'\r?\n', stdout.decode('utf-8').strip()))
-    except:
+    except Exception:
         return None
 
 
@@ -230,7 +230,7 @@ def get_tex_path_variable_miktex(variable, env=None):
         return os.pathsep.join([
             os.path.normpath(p) for p in output.split(os.pathsep)
         ])
-    except:
+    except Exception:
         return None
 
 

@@ -224,7 +224,7 @@ def get_directive(root, key):
             if opt.lstrip('-').startswith(option):
                 try:
                     return opt.split('=')[1].strip()
-                except:
+                except Exception:
                     # invalid option parameter
                     return None
         return None

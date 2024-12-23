@@ -16,7 +16,7 @@ def get_setting(setting, default=None, view=None):
             view_settings = view.settings()
         else:
             view_settings = {}
-    except:
+    except Exception:
         # no view defined or view invalid
         view_settings = {}
 

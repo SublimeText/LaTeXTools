@@ -49,7 +49,7 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                 cached_entries = bib_cache.get()
                 entries.extend(cached_entries)
                 continue
-            except:
+            except Exception:
                 pass
 
             try:
@@ -112,14 +112,14 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                     bib_cache.set(bib_entries)
                     fmt_entries = bib_cache.get()
                     entries.extend(fmt_entries)
-                except:
+                except Exception:
                     traceback.print_exc()
                     logger.warning("Using bibliography without caching it")
                     entries.extend(bib_entries)
             finally:
                 try:
                     bibf.close()
-                except:
+                except Exception:
                     pass
 
             logger.info("Found %d total bib entries", len(entries))

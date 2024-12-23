@@ -78,7 +78,7 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
     def cache(self, func):
         try:
             return self.get()
-        except:
+        except Exception:
             result = func()
             self.set(result)
             return result
@@ -91,7 +91,7 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
 
         try:
             mtime = os.path.getmtime(self.bib_file)
-        except:
+        except Exception:
             raise cache.CacheMiss()
         else:
             if mtime > meta_data['cache_time']:
@@ -120,7 +120,7 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
                 os.path.join(self.cache_path, self.cache_name))
 
             bib_mtime = os.path.getmtime(self.bib_file)
-        except:
+        except Exception:
             raise cache.CacheMiss()
         else:
             if cache_mtime < bib_mtime:

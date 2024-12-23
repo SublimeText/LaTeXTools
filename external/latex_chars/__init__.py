@@ -54,7 +54,7 @@ def _registry(encoding):
                     try:
                         output.append(c.encode(encoding))
                         continue
-                    except:
+                    except Exception:
                         pass
                 if ord(c) in latex_equivalents:
                     output.append(latex_equivalents[ord(c)])
