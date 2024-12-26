@@ -57,7 +57,7 @@ With [MultiEditUtils] you improve the control of your multiple selections. It ha
 
 [AlignTab] adds a command to align tables. This can be useful for `tabular` and `align` environments.
 
-``` js
+``` json
 // aligntab in tabular environment (context only available ST build 3127+)
 {
     "keys": ["ctrl+l", "ctrl+alt+f"],
@@ -65,9 +65,8 @@ With [MultiEditUtils] you improve the control of your multiple selections. It ha
     "args": {
         "user_input": "\\&"
     },
-    "context":
-    [
-        { "key": "selector", "operator": "equal", "operand": "text.tex.latex meta.environment.tabular" }
+    "context": [
+        { "key": "selector", "operand": "text.tex.latex meta.environment.tabular" }
     ]
 },
 // aligntab in math environments (for align)
@@ -77,9 +76,8 @@ With [MultiEditUtils] you improve the control of your multiple selections. It ha
     "args": {
         "user_input": "\\&"
     },
-    "context":
-    [
-        { "key": "selector", "operator": "equal", "operand": "text.tex.latex meta.environment.math.block.be" }
+    "context": [
+        { "key": "selector", "operand": "text.tex.latex meta.environment.math.block.be" }
     ]
 },
 ```
@@ -92,7 +90,7 @@ Just select the word (eg. with ExpandRegion) and press the increase or decrease 
 
 Example settings (Open *Preferences > Package Settings > Inc-Dec-Value > Settings - User*):
 
-``` js
+``` json
 {
     "action_inc_all":  1,
     "action_dec_all": -1,

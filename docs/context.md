@@ -9,14 +9,13 @@ For example in the context key `latextools.setting.setting_name` you have
 - the additional specifier `setting_name` my be used to provide additional arguments to the context
 
 
-```js
+```json
     {
         "keys": ["ctrl+l", "ctrl+x"],
         "command": "insert", "args": {"characters": "my_input"},
-        "context":
-        [
+        "context": [
             { "key": "selector", "operand": "text.tex.latex" },
-            { "key": "latextools.the_context", "operator": "equal", "operand": "The operand" },
+            { "key": "latextools.the_context", "operand": "The operand" },
         ],
     },
 ```

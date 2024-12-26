@@ -48,7 +48,7 @@
 	//   "command": "latextools_toggle_keys", "args": {"prefix": "ab"},
 	//   "context":
 	//   [
-	//     {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+	//     {"key": "selector", "operand": "text.tex.latex"}
 	//   ]
 	// },
 	"toggle_setting_keys": [
