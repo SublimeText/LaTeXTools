@@ -92,45 +92,30 @@ class BasicBuilder(PdfBuilder):
         # Check if any subfolders need to be created
         # this adds a number of potential runs as LaTeX treats being unable
         # to open output files as fatal errors
-        output_directory = (
-            self.aux_directory_full or self.output_directory_full
-        )
-
-        if (
-            output_directory is not None and
-            not os.path.exists(output_directory)
-        ):
+        output_directory = self.aux_directory_full or self.output_directory_full
+        if output_directory:
             self.make_directory(output_directory)
 
         yield (latex, "running {0}...".format(engine))
         self.display("done.\n")
         self.log_output()
 
-        if output_directory is not None:
+        if output_directory:
             while True:
-                start = 0
-                added_directory = False
-                while True:
-                    match = FILE_WRITE_ERROR_REGEX.search(self.out, start)
-                    if match:
-                        self.make_directory(
-                            os.path.normpath(
-                                os.path.join(
-                                    output_directory,
-                                    match.group(1)
-                                )
-                            )
-                        )
-                        start = match.end(1)
-                        added_directory = True
-                    else:
-                        break
-                if added_directory:
-                    yield (latex, "running {0}...".format(engine))
-                    self.display("done.\n")
-                    self.log_output()
-                else:
+                matches = FILE_WRITE_ERROR_REGEX.findall(self.out)
+                if not matches:
                     break
+
+                for match in matches:
+                    self.make_directory(
+                        os.path.normpath(
+                            os.path.join(output_directory, match.group(1))
+                        )
+                    )
+
+                yield (latex, "running {0}...".format(engine))
+                self.display("done.\n")
+                self.log_output()
 
         # Check for citations
         # We need to run pdflatex twice after bibtex
@@ -146,9 +131,7 @@ class BasicBuilder(PdfBuilder):
                 if bibtex == 'biber':
                     use_bibtex = False
         # check for natbib as well
-        elif (
-            'Package natbib Warning: There were undefined citations'
-                in self.out):
+        elif 'Package natbib Warning: There were undefined citations' in self.out:
             run_bibtex = True
 
         if run_bibtex:
