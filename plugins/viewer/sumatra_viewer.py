@@ -9,9 +9,9 @@ except ImportError:
     # not on Windows
     pass
 
-from latextools_utils.external_command import external_command
-from latextools_utils.logging import logger
-from latextools_utils.settings import get_setting
+from LaTeXTools.latextools.utils.external_command import external_command
+from LaTeXTools.latextools.utils.logging import logger
+from LaTeXTools.latextools.utils.settings import get_setting
 
 from base_viewer import BaseViewer
 

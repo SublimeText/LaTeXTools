@@ -1,10 +1,10 @@
 import sublime_plugin
 
 from .deprecated_command import deprecate
-from .latextools_utils.logging import logger
-from .latextools_utils.settings import get_setting
-from .latextools_utils.tex_directives import get_tex_root
-from .latextools_utils.tex_directives import parse_tex_directives
+from .utils.logging import logger
+from .utils.settings import get_setting
+from .utils.tex_directives import get_tex_root
+from .utils.tex_directives import parse_tex_directives
 
 try:  # check whether the dictionaries package is installed
     import Dictionaries

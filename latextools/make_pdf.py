@@ -16,27 +16,26 @@ from .latextools_plugin import _classname_to_internal_name
 from .latextools_plugin import add_plugin_path
 from .latextools_plugin import get_plugin
 from .latextools_plugin import NoSuchPluginException
-from .latextools_utils.activity_indicator import ActivityIndicator
-from .latextools_utils.external_command import execute_command
-from .latextools_utils.external_command import external_command
-from .latextools_utils.external_command import get_texpath
-from .latextools_utils.external_command import update_env
-from .latextools_utils.is_tex_file import is_tex_file
-from .latextools_utils.logging import logger
-from .latextools_utils.output_directory import get_aux_directory
-from .latextools_utils.output_directory import get_jobname
-from .latextools_utils.output_directory import get_output_directory
-from .latextools_utils.settings import get_setting
-from .latextools_utils.tex_directives import get_tex_root
-from .latextools_utils.tex_directives import parse_tex_directives
-from .latextools_utils.tex_log import parse_tex_log
+from .utils.activity_indicator import ActivityIndicator
+from .utils.external_command import execute_command
+from .utils.external_command import external_command
+from .utils.external_command import get_texpath
+from .utils.external_command import update_env
+from .utils.is_tex_file import is_tex_file
+from .utils.logging import logger
+from .utils.output_directory import get_aux_directory
+from .utils.output_directory import get_jobname
+from .utils.output_directory import get_output_directory
+from .utils.settings import get_setting
+from .utils.tex_directives import get_tex_root
+from .utils.tex_directives import parse_tex_directives
+from .utils.tex_log import parse_tex_log
 
 __all__ = [
     "LatextoolsMakePdfCommand",
     "LatextoolsDoOutputEditCommand",
     "LatextoolsDoFinishEditCommand",
     "LatextoolsExecEventListener",
-    "plugin_loaded",
 ]
 
 # Compile current .tex file to pdf

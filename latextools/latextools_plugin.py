@@ -86,50 +86,45 @@ The plugin environment will be setup so that the directory containing the
 plugin is the first entry on sys.path, enabling import of any modules located
 in the same folder, according to standard Python import rules. In addition, the
 standard modules available to SublimeText are available. In addition, a small
-number of modules from LaTeXTools itself can be made available. This list of
-modules can be configured  either through the `plugins_whitelist` configuration
-option in the settings file or by using the `add_whitelist_module()` function
-defined in this module.
-
-Configuration options:
-    `plugins_whitelist`:
-        A list of LaTeXTools module names to be made available via sys.modules
-        when  loading plugins. This names do not need to be the fully
-        qualified name, but should be the name of the module relative to the
-        LaTeXTools folder (i.e.  "latextools_utils" rather than
-        "LaTeXTools.latextools_utils") as this ensures compatibility between
-        ST2 and ST3.
-
-API:
-    `add_whitelist_module()`: can be used in a manner similar to the
-    `plugins_whitelist` option described above, i.e. called with the name of a
-    module to add to the list of modules available in sys.modules when a
-    LaTeXTools plugin is loaded. The optional argument, `module`, if used
-    should be a Python module object (normally obtained from `sys.modules`).
-    This is primarily intended to expose a module that would not otherwise be
-    available or expose an already available module to plugins under a
-    different name.
+number of modules from LaTeXTools itself can be made available.
 """
-
 import glob as _glob
 import os
-import sublime
+import re
 import sys
 import threading
 import traceback
 
 from contextlib import contextmanager
 from collections.abc import MutableMapping
+from importlib.machinery import PathFinder, SourceFileLoader
 
-from .latextools_utils.logging import logger
-from .latextools_utils.settings import get_setting
-from . import latextools_plugin_internal as internal
+import sublime
 
-# this is used to load plugins and not interfere with other modules
-_MODULE_PREFIX = "_latextools_"
+from .utils.logging import logger
+from .utils.settings import get_setting
 
+_MODULE_PREFIX = 'LaTeXTools.plugins.'
+"""this is used to load plugins and not interfere with other modules"""
 
-# -- Public API --#
+_REGISTRY = None
+
+_REGISTERED_PATHS_TO_LOAD = []
+"""
+list of tuples consisting of a path and a glob to load in the plugin_loaded()
+method to handle the case where `add_plugin_path` is called before this
+module has been fully loaded.
+"""
+
+_REGISTERED_CLASSES_TO_LOAD = []
+"""
+list of tuples consisting of names and class objects to load in the
+plugin_loaded() method to handle the case where a plugin is defined before
+the registry has been created
+"""
+
+# -- Public API -- #
+
 # exceptions
 class LaTeXToolsPluginException(Exception):
     """
@@ -160,7 +155,42 @@ class InvalidPluginException(LaTeXToolsPluginException):
     pass
 
 
-LaTeXToolsPlugin = internal.LaTeXToolsPlugin
+class LaTeXToolsPluginMeta(type):
+    '''
+    Metaclass for plugins which will automatically register them with the
+    plugin registry
+    '''
+    def __init__(cls, name, bases, attrs):
+        try:
+            super(LaTeXToolsPluginMeta, cls).__init__(name, bases, attrs)
+        except TypeError:
+            # occurs on reload
+            return
+
+        if cls == LaTeXToolsPluginMeta or cls is None:
+            return
+
+        try:
+            if not any(
+                (True for base in bases if issubclass(base, LaTeXToolsPlugin))
+            ):
+                return
+        except NameError:
+            return
+
+        registered_name = _classname_to_internal_name(name)
+
+        _REGISTERED_CLASSES_TO_LOAD.append((registered_name, cls))
+
+        if _REGISTRY is not None:
+            _REGISTRY[registered_name] = cls
+
+
+LaTeXToolsPlugin = LaTeXToolsPluginMeta('LaTeXToolsPlugin', (object,), {})
+'''
+Base class for LaTeXTools plugins. Implementation details will depend on where
+this plugin is supposed to be loaded. See the documentation for details.
+'''
 
 
 # methods for consumers
@@ -174,66 +204,39 @@ def add_plugin_path(path, glob="*.py"):
 
     `glob`, if specified should be a valid Python glob. See the `glob` module.
     """
-    if (path, glob) not in internal._REGISTERED_PATHS_TO_LOAD:
-        internal._REGISTERED_PATHS_TO_LOAD.append((path, glob))
+    if (path, glob) not in _REGISTERED_PATHS_TO_LOAD:
+        _REGISTERED_PATHS_TO_LOAD.append((path, glob))
 
     # if we are called before `plugin_loaded`
-    if internal._REGISTRY is None:
+    if _REGISTRY is None:
         return
 
-    previous_plugins = set(internal._REGISTRY.keys())
+    previous_plugins = set(_REGISTRY.keys())
 
-    with _latextools_module_hack():
-        if not os.path.exists(path):
-            return
+    if not os.path.exists(path):
+        return
 
-        if os.path.isfile(path):
-            plugin_dir = os.path.dirname(path)
+    if os.path.isfile(path):
+        plugin_dir = os.path.dirname(path)
+        sys.path.insert(0, plugin_dir)
+
+        _load_plugin(os.path.basename(path), plugin_dir)
+
+        sys.path.pop(0)
+    else:
+        for file in _glob.iglob(os.path.join(path, glob)):
+            plugin_dir = os.path.dirname(file)
             sys.path.insert(0, plugin_dir)
 
-            _load_plugin(os.path.basename(path), plugin_dir)
+            _load_plugin(os.path.basename(file), plugin_dir)
 
             sys.path.pop(0)
-        else:
-            for file in _glob.iglob(os.path.join(path, glob)):
-                plugin_dir = os.path.dirname(file)
-                sys.path.insert(0, plugin_dir)
-
-                _load_plugin(os.path.basename(file), plugin_dir)
-
-                sys.path.pop(0)
 
     logger.info(
         "Loaded plugins %s from path '%s'",
-        list(set(internal._REGISTRY.keys()) - previous_plugins),
+        list(set(_REGISTRY.keys()) - previous_plugins),
         path,
     )
-
-
-def add_whitelist_module(name, module=None):
-    """
-    API function to ensure that a certain module is made available to any
-    plugins.
-
-    `name` should be the name of the module as it will be imported in a plugin
-    `module`, if specified, should be either an actual module object or a
-    callable that returns the actual module object.
-
-    The `module` mechanism is provided to allow for the import of modules that
-    might otherwise be unavailable or available in sys.modules only by a
-    different name. Standard LaTeXTools modules should provide a name only.
-
-    Note that this function *must* be called before add_plugin_path.
-    """
-    for i, (_name, _module) in enumerate(internal._WHITELIST_ADDED):
-        if _name == name:
-            if _module == module:
-                return
-            internal._WHITELIST_ADDED[i] = (_name, module)
-            return
-
-    internal._WHITELIST_ADDED.append((name, module))
-
 
 def get_plugin(name):
     """
@@ -250,30 +253,27 @@ def get_plugin(name):
 
         For example, 'biblatex' will get the plugin named 'BibLaTeX', etc.
     """
-    if internal._REGISTRY is None:
+    if _REGISTRY is None:
         raise NoSuchPluginException(
             "Could not load plugin {0} because the registry either hasn't "
             + "been loaded or has just been unloaded.".format(name)
         )
-    return internal._REGISTRY[name]
+    return _REGISTRY[name]
 
 
 def get_plugins_by_type(cls):
-    if internal._REGISTRY is None:
+    if _REGISTRY is None:
         raise NoSuchPluginException(
             "No plugins could be loaded because the registry either hasn't "
             "been loaded or has been unloaded"
         )
 
-    plugins = [plugin for _, plugin in internal._REGISTRY.items() if issubclass(plugin, cls)]
+    plugins = [plugin for _, plugin in _REGISTRY.items() if issubclass(plugin, cls)]
 
     return plugins
 
 
 # -- Private API --#
-from importlib.machinery import PathFinder, SourceFileLoader
-from . import latextools_plugin_internal as internal
-
 
 # WARNING:
 # imp module is deprecated in 3.x, unfortunately, importlib does not seem
@@ -326,7 +326,7 @@ class LaTeXToolsPluginRegistry(MutableMapping):
             )
 
     def __setitem__(self, key, value):
-        if not isinstance(value, internal.LaTeXToolsPluginMeta):
+        if not isinstance(value, LaTeXToolsPluginMeta):
             raise InvalidPluginException(value)
 
         self._registry[key] = value
@@ -344,7 +344,36 @@ class LaTeXToolsPluginRegistry(MutableMapping):
         return str(self._registry)
 
 
-_classname_to_internal_name = internal._classname_to_internal_name
+def _classname_to_internal_name(s):
+    '''
+    Converts a Python class name in to an internal name
+
+    The intention here is to mirror how ST treats *Command objects, i.e., by
+    converting them from CamelCase to under_scored. Similarly, we will chop
+    "Plugin" off the end of the plugin, though it isn't necessary for the class
+    to be treated as a plugin.
+
+    E.g.,
+        SomeClass will become some_class
+        ReferencesPlugin will become references
+        BibLaTeXPlugin will become biblatex
+    '''
+    if not s:
+        return s
+
+    def _repl(match):
+        match = match.group(0)
+        return match[0] + match[1:].lower()
+
+    s = re.sub(r'(?:Bib)?(?:La)?TeX', _repl, s)
+
+    # pilfered from https://code.activestate.com/recipes/66009/
+    s = re.sub(r'(?<=[a-z])[A-Z]|(?<!^)[A-Z](?=[a-z])', r"_\g<0>", s).lower()
+
+    if s.endswith('_plugin'):
+        s = s[:-7]
+
+    return s
 
 
 def _get_plugin_paths():
@@ -398,82 +427,17 @@ def _load_plugins():
                 traceback.print_exc()
 
 
-@contextmanager
-def _latextools_module_hack():
-    """
-    Context manager to ensure sys.modules has certain white-listed modules,
-    most especially latextools_plugins. This exposes some of the modules in
-    LaTeXTools to plugins. It is intended primarily to expose library-esque
-    functionality, such as the tex_directives module, but can be configured by
-    the user as-needed.
-    """
-    # add any white-listed plugins to sys.modules under their own name
-    plugins_whitelist = get_setting("plugins_whitelist", ["external", "latextools_utils"])
-
-    # always include latextools_pluing
-    plugins_whitelist.append("latextools_plugin")
-    overwritten_modules = {}
-
-    whitelist = [(name, None) for name in plugins_whitelist]
-    whitelist.extend(internal._WHITELIST_ADDED)
-
-    # put the directory containing this file on the sys.path
-    mydir = os.path.dirname(__file__)
-
-    # handles ST2s relative directory
-    if mydir == ".":
-        mydir = os.path.join(sublime.packages_path(), "LaTeXTools")
-
-    # insert the LaTeXTools directory on the path
-    sys.path.insert(0, mydir)
-    for name, module in whitelist:
-        if callable(module):
-            module = module()
-
-        if name in sys.modules:
-            overwritten_modules[name] = sys.modules[name]
-
-        # attempting to autoload module
-        if module is None:
-            # if the module has already been loaded by ST, we just use that
-            latextools_module_name = _get_sublime_module_name(mydir, name)
-            if latextools_module_name in sys.modules:
-                sys.modules[name] = sys.modules[latextools_module_name]
-            else:
-                try:
-                    sys.modules[name] = _load_module(name, name, mydir)
-                except ImportError:
-                    logger.error(
-                        "An error occurred while trying to load white-listed module %s",
-                        name,
-                    )
-                    traceback.print_exc()
-        else:
-            sys.modules[name] = module
-
-    # remove the LaTeXTools directory from the path
-    sys.path.pop(0)
-
-    yield
-
-    # restore any temporarily overwritten modules and clear our loaded modules
-    for module in plugins_whitelist:
-        if module in sys.modules and _get_sublime_module_name(mydir, module) != module:
-            del sys.modules[module]
-        if module in overwritten_modules:
-            sys.modules[module] = overwritten_modules[module]
-
-
 # load plugins when the Sublime API is available, just in case...
 def plugin_loaded():
-    internal._REGISTRY = LaTeXToolsPluginRegistry()
+    global _REGISTRY
+    _REGISTRY = LaTeXToolsPluginRegistry()
 
     logger.info("Loading LaTeXTools plugins...")
 
-    for name, cls in internal._REGISTERED_CLASSES_TO_LOAD:
-        internal._REGISTRY[name] = cls
+    for name, cls in _REGISTERED_CLASSES_TO_LOAD:
+        _REGISTRY[name] = cls
 
     _load_plugins()
 
-    for path, glob in internal._REGISTERED_PATHS_TO_LOAD:
+    for path, glob in _REGISTERED_PATHS_TO_LOAD:
         add_plugin_path(path, glob)

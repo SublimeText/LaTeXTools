@@ -10,7 +10,7 @@ from .logging import logger
 from .sublime_utils import get_project_file_name
 
 
-TEX_DIRECTIVE = re.compile(r"%+\s*!(?:T|t)(?:E|e)(?:X|x)\s+([\w-]+)\s*=\s*" + r"(.*?)\s*$")
+TEX_DIRECTIVE = re.compile(r"%+\s*![Tt][Ee][Xx]\s+([\w-]+)\s*=\s*(.*?)\s*$")
 
 # this is obviously imperfect, but is intended as a heuristic. we
 # can tolerate false negatives, but not false positives that match, e.g.,

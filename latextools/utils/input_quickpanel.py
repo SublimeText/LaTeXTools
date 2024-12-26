@@ -26,7 +26,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import sublime
 import sublime_plugin
 
-exports = ["InputQuickpanelListener", "LatextoolsConfirmQuickpanelCommand"]
+__all__ = ["InputQuickpanelListener", "LatextoolsConfirmQuickpanelCommand"]
 
 _DO_NOTHING = 0
 _SEARCH_QUICKPANEL = 1

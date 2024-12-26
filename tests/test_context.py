@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import sublime
 
-from LaTeXTools.context_provider import LatextoolsContextListener
+from LaTeXTools.latextools.context_provider import LatextoolsContextListener
 
 ST_VER = int(sublime.version())
 

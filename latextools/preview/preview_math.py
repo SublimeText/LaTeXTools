@@ -12,12 +12,12 @@ import types
 import sublime
 import sublime_plugin
 
-from ..latextools_utils import cache
-from ..latextools_utils.external_command import execute_command
-from ..latextools_utils.logging import logger
-from ..latextools_utils.settings import get_setting
-from ..latextools_utils.tex_log import parse_tex_log
-from ..latextools_utils.utils import cpu_count
+from ..utils import cache
+from ..utils.external_command import execute_command
+from ..utils.logging import logger
+from ..utils.settings import get_setting
+from ..utils.tex_log import parse_tex_log
+from ..utils.utils import cpu_count
 from .preview_utils import SettingsListener as PreviewSettingsListener
 from .preview_utils import ghostscript_installed
 from .preview_utils import get_ghostscript_version
@@ -25,7 +25,7 @@ from .preview_utils import run_ghostscript_command
 from . import preview_threading as pv_threading
 
 # export the listener
-exports = ["MathPreviewPhantomListener"]
+__all__ = ["MathPreviewPhantomListener"]
 
 # increase this number if you change the convert command to mark the
 # generated images as expired
@@ -122,6 +122,7 @@ def plugin_unloaded():
             v.erase_phantoms(_name)
             v.settings().clear_on_change(_name)
 
+    _lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
     _lt_settings.clear_on_change(_name)
     _lt_settings.clear_on_change("lt_preview_math_main")
 

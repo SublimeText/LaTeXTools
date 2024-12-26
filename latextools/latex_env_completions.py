@@ -1,5 +1,5 @@
 from .latex_fill_all import FillAllHelper
-from .latextools_utils.settings import get_setting
+from .utils.settings import get_setting
 from .latex_cwl_completions import BEGIN_END_BEFORE_REGEX
 from .latex_cwl_completions import get_cwl_completions
 from .latex_cwl_completions import is_cwl_available

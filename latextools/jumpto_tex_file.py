@@ -8,12 +8,12 @@ import sublime
 import sublime_plugin
 
 from .deprecated_command import deprecate
-from .latextools_utils import analysis
-from .latextools_utils import utils
-from .latextools_utils.external_command import external_command
-from .latextools_utils.logging import logger
-from .latextools_utils.settings import get_setting
-from .latextools_utils.tex_directives import get_tex_root
+from .utils import analysis
+from .utils import utils
+from .utils.external_command import external_command
+from .utils.logging import logger
+from .utils.settings import get_setting
+from .utils.tex_directives import get_tex_root
 
 __all__ = ["LatextoolsJumptoFileCommand"]
 

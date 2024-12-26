@@ -11,11 +11,10 @@ import traceback
 
 import sublime
 
-from ..external.frozendict import frozendict
+from ...vendor.frozendict import frozendict
 from .logging import logger
 from .settings import get_setting
 from .utils import ThreadPool
-
 
 # the folder, if the local cache is not hidden, i.e. folder in the same
 # folder as the tex root

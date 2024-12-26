@@ -15,14 +15,14 @@ from .latex_own_command_completions import get_own_command_completion
 from .latex_own_command_completions import get_own_env_completion
 from .latex_ref_completions import NEW_STYLE_REF_REGEX
 from .latex_ref_completions import OLD_STYLE_REF_REGEX
-from .latextools_utils import analysis
-from .latextools_utils import utils
-from .latextools_utils.logging import logger
-from .latextools_utils.parser_utils import command_to_snippet
-from .latextools_utils.settings import get_setting
-from .latextools_utils.tex_directives import get_tex_root
+from .utils import analysis
+from .utils import utils
+from .utils.parser_utils import command_to_snippet
+from .utils.logging import logger
+from .utils.settings import get_setting
+from .utils.tex_directives import get_tex_root
 
-__all__ = ["LatexCwlCompletion", "plugin_loaded"]
+__all__ = ["LatexCwlCompletion"]
 
 ST_VER = int(sublime.version())
 

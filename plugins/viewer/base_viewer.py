@@ -1,8 +1,7 @@
 import sys
 
-from latextools_plugin import add_whitelist_module
-from latextools_plugin import LaTeXToolsPlugin
-from latextools_utils import sublime_utils as st_utils
+from LaTeXTools.latextools.latextools_plugin import LaTeXToolsPlugin
+from LaTeXTools.latextools.utils import sublime_utils as st_utils
 
 # most methods take a kwargs variable, which currently only consists of the
 # `keep_focus` setting
@@ -54,6 +53,3 @@ class BaseViewer(LaTeXToolsPlugin):
 
     def focus_st(self):
         st_utils.focus_st()
-
-
-add_whitelist_module("base_viewer", sys.modules[BaseViewer.__module__])

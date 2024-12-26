@@ -1,4 +1,4 @@
-from LaTeXTools.latextools_plugin import LaTeXToolsPlugin
+from ..latextools_plugin import LaTeXToolsPlugin
 
 
 class FillAllHelper(LaTeXToolsPlugin):

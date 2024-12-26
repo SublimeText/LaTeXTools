@@ -7,12 +7,12 @@ from functools import partial
 
 import sublime
 
+from ...vendor.frozendict import frozendict
+
 from . import utils
-from ..external.frozendict import frozendict
 from .cache import LocalCache
 from .logging import logger
 from .tex_directives import get_tex_root
-
 
 # attributes of an entry (for documentation)
 """

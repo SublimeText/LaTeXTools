@@ -1,7 +1,7 @@
 import sublime
 import sublime_plugin
 
-from .latextools_utils.logging import logger
+from .utils.logging import logger
 
 __all__ = ["deprecate", "LatextoolsFindDeprecatedCommandsCommand"]
 

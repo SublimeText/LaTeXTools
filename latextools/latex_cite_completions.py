@@ -22,14 +22,14 @@ import sublime
 import traceback
 
 from .latex_fill_all import FillAllHelper
-from .latextools_utils import analysis
-from .latextools_utils import bibformat
-from .latextools_utils import cache
-from .latextools_utils.external_command import CalledProcessError
-from .latextools_utils.external_command import check_output
-from .latextools_utils.logging import logger
-from .latextools_utils.settings import get_setting
-from .latextools_utils.tex_directives import get_tex_root
+from .utils import analysis
+from .utils import bibformat
+from .utils import cache
+from .utils.external_command import CalledProcessError
+from .utils.external_command import check_output
+from .utils.logging import logger
+from .utils.settings import get_setting
+from .utils.tex_directives import get_tex_root
 from . import latextools_plugin
 
 

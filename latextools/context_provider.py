@@ -5,11 +5,11 @@ import sublime_plugin
 
 from functools import partial
 
-from .latextools_utils import analysis
-from .latextools_utils.logging import logger
-from .latextools_utils.selectors import build_ast
-from .latextools_utils.selectors import match_selector
-from .latextools_utils.settings import get_setting
+from .utils import analysis
+from .utils.logging import logger
+from .utils.selectors import build_ast
+from .utils.selectors import match_selector
+from .utils.settings import get_setting
 
 __all__ = ["LatextoolsContextListener"]
 

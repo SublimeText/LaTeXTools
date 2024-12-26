@@ -27,10 +27,10 @@ def _on_settings_changed():
         logger.setLevel(new_log_level)
 
 
-def init():
+def init_logger():
     _settings().add_on_change(__name__, _on_settings_changed)
     _on_settings_changed()  # trigger on inital settings load, too
 
 
-def shutdown():
+def shutdown_logger():
     _settings().clear_on_change(__name__)

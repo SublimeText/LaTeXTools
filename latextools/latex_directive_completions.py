@@ -6,7 +6,7 @@ import sublime_plugin
 
 from . import detect_spellcheck
 from .latex_fill_all import FillAllHelper
-from .latextools_utils.settings import get_setting
+from .utils.settings import get_setting
 
 try:
     installed_locales = sorted(detect_spellcheck._dictionary_mappings.keys())

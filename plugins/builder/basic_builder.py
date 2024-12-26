@@ -4,9 +4,9 @@ import sublime
 import subprocess
 import sys
 
-from latextools_utils.external_command import external_command
-from latextools_utils.external_command import get_texpath
-from latextools_utils.logging import logger
+from LaTeXTools.latextools.utils.external_command import external_command
+from LaTeXTools.latextools.utils.external_command import get_texpath
+from LaTeXTools.latextools.utils.logging import logger
 
 from pdf_builder import PdfBuilder
 

@@ -3,14 +3,14 @@ import collections
 import sublime
 import traceback
 
-from external import latex_chars
-from external.bibtex import Parser
-from external.bibtex.names import Name
-from external.bibtex.tex import tokenize_list
+from LaTeXTools.latextools.latextools_plugin import LaTeXToolsPlugin
+from LaTeXTools.latextools.utils import bibcache
+from LaTeXTools.latextools.utils.logging import logger
 
-from latextools_plugin import LaTeXToolsPlugin
-from latextools_utils import bibcache
-from latextools_utils.logging import logger
+from LaTeXTools.vendor.bibtex import Parser
+from LaTeXTools.vendor.bibtex.names import Name
+from LaTeXTools.vendor.bibtex.tex import tokenize_list
+from LaTeXTools.vendor import latex_chars
 
 # LaTeX -> Unicode decoder
 latex_chars.register()

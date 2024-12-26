@@ -2,9 +2,8 @@ import os
 import sublime
 import sys
 
-from latextools_plugin import add_whitelist_module
-from latextools_plugin import LaTeXToolsPlugin
-from latextools_utils.logging import logger
+from LaTeXTools.latextools.latextools_plugin import LaTeXToolsPlugin
+from LaTeXTools.latextools.utils.logging import logger
 
 
 class PdfBuilder(LaTeXToolsPlugin):
@@ -18,8 +17,8 @@ class PdfBuilder(LaTeXToolsPlugin):
 
     tex_root: the full path to the tex root file
     output: object in main thread responsible for writing to the output panel
-    builder_settings : a dictionary containing the "builder_settings" from LaTeXTools.sublime-settings
-    platform_settings : a dictionary containing the "platform_settings" from LaTeXTools.sublime-settings
+    builder_settings : a dictionary containing the "builder_settings" from LaTeXTools.latextools.sublime-settings
+    platform_settings : a dictionary containing the "platform_settings" from LaTeXTools.latextools.sublime-settings
 
     E.g.: self.path = prefs["path"]
 
@@ -94,7 +93,3 @@ class PdfBuilder(LaTeXToolsPlugin):
     # pass the tex root again. Need to think about this
     def cleantemps(self):
         return NotImplementedError()
-
-
-# ensure pdfBuilder is available to any custom builders
-add_whitelist_module("pdf_builder", sys.modules[PdfBuilder.__module__])

@@ -3,7 +3,6 @@ import re
 import sys
 import os.path
 
-
 print_debug = False
 interactive = False
 extra_file_ext = []

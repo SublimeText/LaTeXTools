@@ -10,10 +10,10 @@ import sublime_plugin
 
 from ..jumpto_tex_file import find_image
 from ..jumpto_tex_file import open_image
-from ..latextools_utils import cache
-from ..latextools_utils.logging import logger
-from ..latextools_utils.settings import get_setting
-from ..latextools_utils.tex_directives import get_tex_root
+from ..utils import cache
+from ..utils.logging import logger
+from ..utils.settings import get_setting
+from ..utils.tex_directives import get_tex_root
 from .preview_utils import SettingsListener as PreviewSettingsListener
 from .preview_utils import convert_installed
 from .preview_utils import ghostscript_installed
@@ -22,7 +22,7 @@ from .preview_utils import run_ghostscript_command
 from . import preview_threading as pv_threading
 
 # export the listeners
-exports = ["PreviewImageHoverListener", "PreviewImagePhantomListener"]
+__all__ = ["PreviewImageHoverListener", "PreviewImagePhantomListener"]
 
 # the path to the temp files (set on loading)
 temp_path = None
@@ -65,6 +65,7 @@ def plugin_unloaded():
             v.erase_phantoms(_name)
             v.settings().clear_on_change(_name)
 
+    _lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
     _lt_settings.clear_on_change(_name)
     _lt_settings.clear_on_change("lt_preview_image_main")
 

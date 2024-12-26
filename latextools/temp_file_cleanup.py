@@ -4,7 +4,7 @@ import sublime
 import shutil
 import tempfile
 
-from .latextools_utils.logging import logger
+from .utils.logging import logger
 
 # unfortunately, there is no reliable way to do clean-up on exit in ST
 # see https://github.com/SublimeTextIssues/Core/issues/10

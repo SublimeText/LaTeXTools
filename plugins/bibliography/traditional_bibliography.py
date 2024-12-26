@@ -3,11 +3,10 @@ import re
 import sublime
 import traceback
 
-from external import latex_chars
-
-from latextools_plugin import LaTeXToolsPlugin
-from latextools_utils import bibcache
-from latextools_utils.logging import logger
+from LaTeXTools.latextools.latextools_plugin import LaTeXToolsPlugin
+from LaTeXTools.latextools.utils import bibcache
+from LaTeXTools.latextools.utils.logging import logger
+from LaTeXTools.vendor import latex_chars
 
 kp = re.compile(r"@[^\{]+\{\s*(.+)\s*,")
 # new and improved regex

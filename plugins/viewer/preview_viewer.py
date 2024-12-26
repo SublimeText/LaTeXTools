@@ -1,4 +1,4 @@
-from latextools_utils.external_command import external_command
+from LaTeXTools.latextools.utils.external_command import external_command
 
 from base_viewer import BaseViewer
 

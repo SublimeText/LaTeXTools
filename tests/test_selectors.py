@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from LaTeXTools.latextools_utils.selectors import (
+from LaTeXTools.latextools.utils.selectors import (
     AstNode as Node, AstLeaf as Leaf, build_ast
 )
 

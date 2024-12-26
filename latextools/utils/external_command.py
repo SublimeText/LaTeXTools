@@ -55,7 +55,6 @@ import sublime
 from .logging import logger
 from .settings import get_setting
 
-
 def expand_vars(texpath):
     return os.path.expandvars(texpath)
 

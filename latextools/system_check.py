@@ -19,24 +19,24 @@ from .latextools_plugin import _classname_to_internal_name
 from .latextools_plugin import add_plugin_path
 from .latextools_plugin import get_plugin
 from .latextools_plugin import NoSuchPluginException
-from .latextools_utils.activity_indicator import ActivityIndicator
-from .latextools_utils.distro_utils import using_miktex
-from .latextools_utils.external_command import check_output
-from .latextools_utils.logging import logger
-from .latextools_utils.output_directory import get_aux_directory
-from .latextools_utils.output_directory import get_jobname
-from .latextools_utils.output_directory import get_output_directory
-from .latextools_utils.settings import get_setting
-from .latextools_utils.sublime_utils import get_sublime_exe
-from .latextools_utils.tex_directives import get_tex_root
-from .latextools_utils.tex_directives import parse_tex_directives
+from .utils.activity_indicator import ActivityIndicator
+from .utils.distro_utils import using_miktex
+from .utils.external_command import check_output
+from .utils.logging import logger
+from .utils.output_directory import get_aux_directory
+from .utils.output_directory import get_jobname
+from .utils.output_directory import get_output_directory
+from .utils.settings import get_setting
+from .utils.sublime_utils import get_sublime_exe
+from .utils.tex_directives import get_tex_root
+from .utils.tex_directives import parse_tex_directives
 
-from .st_preview.preview_utils import convert_installed
-from .st_preview.preview_utils import ghostscript_installed
-from .st_preview.preview_utils import __get_gs_command as get_gs_command
+from .preview.preview_utils import convert_installed
+from .preview.preview_utils import ghostscript_installed
+from .preview.preview_utils import __get_gs_command as get_gs_command
 
 if sublime.platform() == "windows":
-    from .st_preview.preview_utils import get_system_root
+    from .preview.preview_utils import get_system_root
 
 __all__ = ["LatextoolsSystemCheckCommand", "LatextoolsInsertTextCommand"]
 

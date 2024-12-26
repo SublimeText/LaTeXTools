@@ -4,8 +4,8 @@ import re
 import sublime
 import sublime_plugin
 
-from .external.bibtex.names import Name
-from .external.bibtex.tex import tokenize_list
+from ..vendor.bibtex.names import Name
+from ..vendor.bibtex.tex import tokenize_list
 
 __all__ = ["BiblatexNameCompletions"]
 

@@ -6,9 +6,9 @@ import subprocess
 from shlex import quote
 from string import Template
 
-from latextools_utils.external_command import external_command
-from latextools_utils.external_command import get_texpath
-from latextools_utils.external_command import update_env
+from LaTeXTools.latextools.utils.external_command import external_command
+from LaTeXTools.latextools.utils.external_command import get_texpath
+from LaTeXTools.latextools.utils.external_command import update_env
 
 from pdf_builder import PdfBuilder
 

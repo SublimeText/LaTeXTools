@@ -12,14 +12,6 @@ from .tex_directives import get_tex_root
 from .tex_directives import parse_tex_directives
 
 
-__all__ = [
-    "get_aux_directory",
-    "get_output_directory",
-    "get_jobname",
-    "UnsavedFileException",
-]
-
-
 # raised whenever the root cannot be determined, which indicates an unsaved
 # file
 class UnsavedFileException(Exception):

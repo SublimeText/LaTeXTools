@@ -7,18 +7,17 @@ import sublime_plugin
 
 from .deprecated_command import deprecate
 from .latextools_plugin import add_plugin_path
-from .latextools_plugin import add_whitelist_module
 from .latextools_plugin import get_plugin
 from .latextools_plugin import NoSuchPluginException
-from .latextools_utils.is_tex_file import is_tex_file
-from .latextools_utils.output_directory import get_jobname
-from .latextools_utils.output_directory import get_output_directory
-from .latextools_utils.logging import logger
-from .latextools_utils.settings import get_setting
-from .latextools_utils.sublime_utils import focus_st
-from .latextools_utils.tex_directives import get_tex_root
+from .utils.is_tex_file import is_tex_file
+from .utils.logging import logger
+from .utils.output_directory import get_jobname
+from .utils.output_directory import get_output_directory
+from .utils.settings import get_setting
+from .utils.sublime_utils import focus_st
+from .utils.tex_directives import get_tex_root
 
-__all__ = ["LatextoolsJumptoPdfCommand", "LatextoolsViewPdfCommand", "plugin_loaded"]
+__all__ = ["LatextoolsJumptoPdfCommand", "LatextoolsViewPdfCommand"]
 
 SUBLIME_VERSION = re.compile(r"Build (\d{4})", re.UNICODE)
 DEFAULT_VIEWERS = {"linux": "evince", "osx": "skim", "windows": "sumatra"}

@@ -1,8 +1,8 @@
 from .latex_fill_all import FillAllHelper
-from .latextools_utils import analysis
-from .latextools_utils.logging import logger
-from .latextools_utils.settings import get_setting
-from .latextools_utils.tex_directives import get_tex_root
+from .utils import analysis
+from .utils.logging import logger
+from .utils.settings import get_setting
+from .utils.tex_directives import get_tex_root
 
 import re
 

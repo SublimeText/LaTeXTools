@@ -1,7 +1,7 @@
 import os
 
-from latextools_utils.external_command import check_output
-from latextools_utils.external_command import external_command
+from LaTeXTools.latextools.utils.external_command import check_output
+from LaTeXTools.latextools.utils.external_command import external_command
 
 from base_viewer import BaseViewer
 

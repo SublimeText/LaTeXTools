@@ -1,9 +1,6 @@
 import sublime
 
 
-__all__ = ["get_setting"]
-
-
 def get_setting(setting, default=None, view=None):
     advanced_settings = sublime.load_settings("LaTeXTools (Advanced).sublime-settings")
     global_settings = sublime.load_settings("LaTeXTools.sublime-settings")

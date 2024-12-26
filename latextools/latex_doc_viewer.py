@@ -4,8 +4,8 @@ import sublime
 import sublime_plugin
 
 from .deprecated_command import deprecate
-from .latextools_utils.distro_utils import using_miktex
-from .latextools_utils.external_command import external_command
+from .utils.distro_utils import using_miktex
+from .utils.external_command import external_command
 
 __all__ = ["LatextoolsPkgDocCommand", "LatextoolsViewDocCommand"]
 

@@ -7,7 +7,7 @@ from . import cache
 from .logging import logger
 from .settings import get_setting
 
-from ..external.frozendict import frozendict
+from ...vendor.frozendict import frozendict
 
 _VERSION = 2
 

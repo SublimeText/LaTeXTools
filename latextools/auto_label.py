@@ -3,7 +3,7 @@ import re
 import sublime
 import sublime_plugin
 
-from .latextools_utils.settings import get_setting
+from .utils.settings import get_setting
 
 __all__ = [
     "LatextoolsAutoInsertLabelCommand",

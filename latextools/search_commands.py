@@ -1,10 +1,10 @@
 import sublime_plugin
 
 from .deprecated_command import deprecate
-from .latextools_utils import analysis
-from .latextools_utils import ana_utils
-from .latextools_utils import quickpanel
-from .latextools_utils.tex_directives import get_tex_root
+from .utils import analysis
+from .utils import ana_utils
+from .utils import quickpanel
+from .utils.tex_directives import get_tex_root
 
 __all__ = ["LatextoolsSearchCommandCommand", "LatextoolsSearchCommandInputCommand"]
 

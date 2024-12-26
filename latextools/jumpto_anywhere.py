@@ -5,13 +5,13 @@ import sublime
 import sublime_plugin
 
 from .deprecated_command import deprecate
-from .latextools_utils import analysis
-from .latextools_utils import ana_utils
-from .latextools_utils import quickpanel
-from .latextools_utils import utils
-from .latextools_utils.logging import logger
-from .latextools_utils.tex_directives import get_tex_root
-from .latextools_utils.tex_directives import TEX_DIRECTIVE
+from .utils import analysis
+from .utils import ana_utils
+from .utils import quickpanel
+from .utils import utils
+from .utils.logging import logger
+from .utils.tex_directives import get_tex_root
+from .utils.tex_directives import TEX_DIRECTIVE
 from .latex_cite_completions import NEW_STYLE_CITE_REGEX
 from .latex_glossary_completions import ACR_LINE_RE
 from .latex_glossary_completions import GLO_LINE_RE

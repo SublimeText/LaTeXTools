@@ -8,6 +8,17 @@ import sublime
 
 from shutil import which
 
+from ..utils import cache
+from ..utils.distro_utils import using_miktex
+from ..utils.external_command import __sentinel__
+from ..utils.external_command import check_output
+from ..utils.external_command import execute_command
+from ..utils.external_command import get_texpath
+from ..utils.logging import logger
+from ..utils.settings import get_setting
+
+_lt_settings = {}
+
 if sublime.platform() == "windows":
     import winreg
     import ctypes
@@ -18,18 +29,6 @@ if sublime.platform() == "windows":
         buffer = ctypes.create_unicode_buffer(wintypes.MAX_PATH + 1)
         ctypes.windll.kernel32.GetSystemDirectoryW(buffer, len(buffer))
         return buffer.value
-
-
-from ..latextools_utils import cache
-from ..latextools_utils.distro_utils import using_miktex
-from ..latextools_utils.external_command import __sentinel__
-from ..latextools_utils.external_command import check_output
-from ..latextools_utils.external_command import execute_command
-from ..latextools_utils.external_command import get_texpath
-from ..latextools_utils.logging import logger
-from ..latextools_utils.settings import get_setting
-
-_lt_settings = {}
 
 
 def _get_convert_command():

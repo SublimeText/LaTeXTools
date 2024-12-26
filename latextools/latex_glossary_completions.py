@@ -1,10 +1,10 @@
 import re
 
 from .latex_fill_all import FillAllHelper
-from .latextools_utils import analysis
-from .latextools_utils import cache
-from .latextools_utils.settings import get_setting
-from .latextools_utils.tex_directives import get_tex_root
+from .utils import analysis
+from .utils import cache
+from .utils.settings import get_setting
+from .utils.tex_directives import get_tex_root
 
 
 GLO_LINE_RE = re.compile(r"([^{}\[\]]*)\{*?(?:lp|lobmys)?sl(?:G|g)\\")
