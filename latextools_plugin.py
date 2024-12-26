@@ -481,12 +481,6 @@ def _latextools_module_hack():
 
 # load plugins when the Sublime API is available, just in case...
 def plugin_loaded():
-    t = threading.Thread(target=_plugin_loaded)
-    t.daemon = True
-    t.start()
-
-
-def _plugin_loaded():
     internal._REGISTRY = LaTeXToolsPluginRegistry()
 
     logger.info('Loading LaTeXTools plugins...')

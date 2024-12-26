@@ -2,13 +2,19 @@ import logging
 
 import sublime
 
-from .latextools_utils.logger import logger
-from .latextools_utils.logger import handler
-from .latextools_utils.logger import DEFAULT_LOG_LEVEL
-from .latextools_utils.logger import DEFAULT_LOG_LEVEL_NAME
-from .latextools_utils.logger import EVENT_LEVEL
-
 __all__ = ["plugin_loaded", "plugin_unloaded"]
+
+DEFAULT_LOG_LEVEL = logging.INFO
+DEFAULT_LOG_LEVEL_NAME = logging.getLevelName(DEFAULT_LOG_LEVEL)
+EVENT_LEVEL = logging.INFO
+
+logger = logging.getLogger("LaTeXTools")
+handler = logging.StreamHandler()
+formatter = logging.Formatter(fmt="{name} [{levelname}]: {message}", style='{')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger.setLevel(DEFAULT_LOG_LEVEL)
+logger.propagate = False  # prevent root logger from catching this
 
 
 def _settings():
