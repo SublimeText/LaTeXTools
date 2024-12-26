@@ -88,7 +88,7 @@ class CmdThread(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
-        logger.info("Welcome to thread %s", self.getName())
+        logger.debug("Welcome to thread %s", self.getName())
         self.caller.output("[Compiling " + self.caller.file_name + "]")
 
         env = dict(os.environ)
@@ -621,49 +621,22 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         logger.debug(threading.active_count())
 
         # setup the progress indicator
-        display_message_length = int(
-            get_setting(
-                'build_finished_message_length', 2.0, view=view) * 1000)
+        display_message_length = int(get_setting('build_finished_message_length', 2.0, view=view) * 1000)
         # NB CmdThread will change the success message
         self.progress_indicator = ProgressIndicator(
             thread, 'Building', 'Build failed',
             display_message_length=display_message_length
         )
 
-
-    # Threading headaches :-)
-    # The following function is what gets called from CmdThread; in turn,
-    # this spawns append_data, but on the main thread.
-
     def output(self, data):
-        sublime.set_timeout(functools.partial(self.do_output, data), 0)
-
-    def do_output(self, data):
-        # decoding in thread, so we can pass coded and decoded data
-        # handle both lists and strings
-        strdata = data if isinstance(data, str) else "\n".join(data)
-
-        # Normalize newlines, Sublime Text always uses a single \n separator
-        # in memory.
-        strdata = strdata.replace('\r\n', '\n').replace('\r', '\n')
-
-        selection_was_at_end = (len(self.output_view.sel()) == 1
-            and self.output_view.sel()[0]
-                == sublime.Region(self.output_view.size()))
-        self.output_view.set_read_only(False)
-        # Move this to a TextCommand for compatibility with ST3
-        self.output_view.run_command("latextools_do_output_edit", {"data": strdata, "selection_was_at_end": selection_was_at_end})
-        # edit = self.output_view.begin_edit()
-        # self.output_view.insert(edit, self.output_view.size(), strdata)
-        # if selection_was_at_end:
-        #     self.output_view.show(self.output_view.size())
-        # self.output_view.end_edit(edit)
-        self.output_view.set_read_only(True)
+        if isinstance(data, list) or  isinstance(data, tuple):
+            data = "\n".join(data)
+        data = data.replace('\r\n', '\n').replace('\r', '\n')
+        self.output_view.run_command("latextools_do_output_edit", {"data": data})
 
     def show_output_panel(self, force=False):
         if force or self.hide_panel_level != 'always':
-            self.window.run_command(
-                "show_panel", {"panel": "output.latextools"})
+            self.window.run_command("show_panel", {"panel": "output.latextools"})
 
     # Also from exec.py
     # Set the selection to the start of the output panel, so next_result works
@@ -829,10 +802,15 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
 
 class LatextoolsDoOutputEditCommand(sublime_plugin.TextCommand):
-    def run(self, edit, data, selection_was_at_end):
-        self.view.insert(edit, self.view.size(), data)
-        if selection_was_at_end:
-            self.view.show(self.view.size())
+    def run(self, edit, data):
+        view = self.view
+        sel = view.sel()
+        sel_at_end = len(sel) == 1 and sel[0].end() == view.size()
+        view.set_read_only(False)
+        view.insert(edit, view.size(), data)
+        view.set_read_only(True)
+        if sel_at_end:
+            view.show(view.size())
 
 
 class LatextoolsDoFinishEditCommand(sublime_plugin.TextCommand):
