@@ -88,6 +88,11 @@
 		"command": "latextools_find_deprecated_commands"
 	},
 	{
+		"caption": "LaTeXTools: Clear inline build error messages",
+		"command": "latextools_make_pdf",
+		"args": { "hide_annotations_only": true }
+	},
+	{
 		"caption": "Preferences: LaTeXTools Settings",
 		"command": "edit_settings",
 		"args": {

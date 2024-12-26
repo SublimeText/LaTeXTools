@@ -35,7 +35,7 @@ __all__ = [
     "LatextoolsMakePdfCommand",
     "LatextoolsDoOutputEditCommand",
     "LatextoolsDoFinishEditCommand",
-    "BuildPhantomEventListener",
+    "LatextoolsExecEventListener",
     "plugin_loaded"
 ]
 
@@ -364,16 +364,17 @@ class CmdThread(threading.Thread):
 
             self.caller.finish(len(errors) == 0)
 
+
+annotation_sets_by_buffer = {}
+
+
 # Actual Command
 class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
-
     errs_by_file = {}
-    phantom_sets_by_buffer = {}
     show_errors_inline = True
     errors = []
     warnings = []
     badboxes = []
-
 
     def __init__(self, *args, **kwargs):
         sublime_plugin.WindowCommand.__init__(self, *args, **kwargs)
@@ -384,16 +385,16 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
     # parameters
     def run(
         self, file_regex="", program=None, builder=None, command=None,
-        env=None, path=None, script_commands=None, update_phantoms_only=False,
-        hide_phantoms_only=False, **kwargs
+        env=None, path=None, script_commands=None, update_annotations_only=False,
+        hide_annotations_only=False, **kwargs
     ):
-        if update_phantoms_only:
+        if update_annotations_only:
             if self.show_errors_inline:
-                self.update_phantoms()
+                self.update_annotations()
             return
 
-        if hide_phantoms_only:
-            self.hide_phantoms()
+        if hide_annotations_only:
+            self.hide_annotations()
             return
 
         # Try to handle killing
@@ -420,7 +421,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
         view = self.view = self.window.active_view()
 
-        self.hide_phantoms()
+        self.hide_annotations()
         pref_settings = sublime.load_settings("Preferences.sublime-settings")
         self.show_errors_inline = pref_settings.get("show_errors_inline", True)
 
@@ -676,7 +677,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
         if self.show_errors_inline:
             self.create_errs_by_file()
-            self.update_phantoms()
+            self.update_annotations()
 
         # can_switch_to_pdf indicates a pdf should've been created
         if can_switch_to_pdf:
@@ -752,7 +753,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         if level >= 3:
             self._find_errors(self.badboxes, "warning badbox")
 
-    def update_phantoms(self):
+    def update_annotations(self):
         stylesheet = """
             <style>
                 div.lt-error {
@@ -780,16 +781,20 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             </style>
         """
 
+        def on_navigate(href):
+            if href == "hide":
+                self.hide_annotations()
+
         for file, errs in self.errs_by_file.items():
             view = self.window.find_open_file(file)
             if view:
 
                 buffer_id = view.buffer_id()
-                if buffer_id not in self.phantom_sets_by_buffer:
+                if buffer_id not in annotation_sets_by_buffer:
                     phantom_set = sublime.PhantomSet(view, "lt_exec")
-                    self.phantom_sets_by_buffer[buffer_id] = phantom_set
+                    annotation_sets_by_buffer[buffer_id] = phantom_set
                 else:
-                    phantom_set = self.phantom_sets_by_buffer[buffer_id]
+                    phantom_set = annotation_sets_by_buffer[buffer_id]
 
                 phantoms = []
 
@@ -808,22 +813,19 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
                     phantoms.append(sublime.Phantom(
                         sublime.Region(pt, view.line(pt).b),
                         phantom_content, sublime.LAYOUT_BELOW,
-                        on_navigate=self.on_phantom_navigate))
+                        on_navigate=on_navigate))
 
                 phantom_set.update(phantoms)
 
-    def hide_phantoms(self):
+    def hide_annotations(self):
+        global annotation_sets_by_buffer
         for file, errs in self.errs_by_file.items():
             view = self.window.find_open_file(file)
             if view:
-                view.erase_phantoms("lt_exec")
+                del annotation_sets_by_buffer[view.buffer_id()]
 
         self.errs_by_file = {}
-        self.phantom_sets_by_buffer = {}
         self.show_errors_inline = False
-
-    def on_phantom_navigate(self, href):
-        self.hide_phantoms()
 
 
 class LatextoolsDoOutputEditCommand(sublime_plugin.TextCommand):
@@ -841,13 +843,29 @@ class LatextoolsDoFinishEditCommand(sublime_plugin.TextCommand):
         self.view.show(reg)
 
 
-class BuildPhantomEventListener(sublime_plugin.EventListener):
+class LatextoolsExecEventListener(sublime_plugin.EventListener):
     def on_load(self, view):
         if not view.match_selector(0, "text.tex"):
             return
         w = view.window()
         if w is not None:
-            w.run_command("latextools_make_pdf", {"update_phantoms_only": True})
+            w.run_command("latextools_make_pdf", {"update_annotations_only": True})
+
+    def on_query_context(self, view, key, operator, operand, match_all):
+        if key != "latextools_inline_errors_visible":
+            return False
+
+        result = bool(annotation_sets_by_buffer.get(view.buffer_id(), False))
+
+        if operator == sublime.OP_EQUAL:
+            return result == operand
+
+        if operator == sublime.OP_NOT_EQUAL:
+            return result != operand
+
+        raise Exception(
+            "latextools_inline_errors_visible; "
+            "Invalid operator must be EQUAL or NOT_EQUAL.")
 
 
 def plugin_loaded():

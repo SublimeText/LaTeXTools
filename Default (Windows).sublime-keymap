@@ -2,6 +2,15 @@
 LaTeX Package keymap for Windows
 */
 [
+	// Hide inline build error phantoms
+	{
+		"keys": ["escape"],
+		"command": "latextools_make_pdf", "args": { "hide_annotations_only": true },
+		"context": [
+			{ "key": "latextools_inline_errors_visible" }
+		]
+	},
+
 	// these also override ST commands
 	{
 		"keys": ["ctrl+v"],
