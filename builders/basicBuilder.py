@@ -23,23 +23,14 @@ FILE_WRITE_ERROR_REGEX = re.compile(
     r"! I can't write on file `(.*)/([^/']*)'", re.MULTILINE)
 
 
-# reraise implementation from 6
-def reraise(tp, value, tb=None):
-    if value is None:
-        value = tp()
-    if value.__traceback__ is not tb:
-        raise value.with_traceback(tb)
-    raise value
-
-
-# ----------------------------------------------------------------
-# BasicBuilder class
-#
-# This is a more fully functional verion of the Simple Builder
-# concept. It implements the same building features as the
-# Traditional builder.
-#
 class BasicBuilder(PdfBuilder):
+    """
+    BasicBuilder class
+
+    This is a more fully functional verion of the Simple Builder
+    concept. It implements the same building features as the
+    Traditional builder.
+    """
 
     def __init__(self, *args):
         super(BasicBuilder, self).__init__(*args)

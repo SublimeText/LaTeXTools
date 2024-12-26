@@ -13,12 +13,12 @@ from latextools_utils.external_command import (
 )
 
 
-#----------------------------------------------------------------
-# ScriptBuilder class
-#
-# Launch a user-specified script
-#
 class ScriptBuilder(PdfBuilder):
+    """
+    ScriptBuilder class
+
+    Launch a user-specified script
+    """
 
     FILE_VARIABLES = r'file|file_path|file_name|file_ext|file_base_name'
 

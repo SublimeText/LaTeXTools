@@ -4,17 +4,14 @@ import re
 # builders directory in sys.path
 from pdfBuilder import PdfBuilder
 
-DEBUG = False
-
-
-#----------------------------------------------------------------
-# SimpleBuilder class
-#
-# Just call a bunch of commands in sequence
-# Demonstrate basics
-#
 
 class SimpleBuilder(PdfBuilder):
+    """
+    SimpleBuilder class
+
+    Just call a bunch of commands in sequence
+    Demonstrate basics
+    """
 
     def __init__(self, *args):
         # Sets the file name parts, plus internal stuff

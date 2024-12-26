@@ -2,22 +2,22 @@ import shlex
 import sublime
 from pdfBuilder import PdfBuilder
 
-DEBUG = False
+DEFAULT_COMMAND_LATEXMK = [
+    "latexmk", "-cd", "-f", "-%E", "-interaction=nonstopmode", "-synctex=1"
+]
 
-DEFAULT_COMMAND_LATEXMK = ["latexmk", "-cd", "-f", "-%E",
-                    "-interaction=nonstopmode", "-synctex=1"]
-
-DEFAULT_COMMAND_WINDOWS_MIKTEX = ["texify", "-b", "-p", "--engine=%E",
-                    "--tex-option=\"--synctex=1\""]
+DEFAULT_COMMAND_WINDOWS_MIKTEX = [
+    "texify", "-b", "-p", "--engine=%E", "--tex-option=\"--synctex=1\""
+]
 
 
-#----------------------------------------------------------------
-# TraditionalBuilder class
-#
-# Implement existing functionality, more or less
-# NOTE: move this to a different file, too
-#
 class TraditionalBuilder(PdfBuilder):
+    """
+    TraditionalBuilder class
+
+    Implement existing functionality, more or less
+    NOTE: move this to a different file, too
+    """
 
     def __init__(self, *args):
         # Sets the file name parts, plus internal stuff
@@ -96,30 +96,20 @@ class TraditionalBuilder(PdfBuilder):
                     self.aux_directory != self.output_directory
                 ):
                     # DO NOT ADD QUOTES HERE
-                    cmd.append(
-                        u"--aux-directory=" +
-                        self.aux_directory
-                    )
+                    cmd.append("--aux-directory=" + self.aux_directory)
 
-                if (
-                    self.output_directory is not None
-                ):
+                if  self.output_directory is not None:
                     # DO NOT ADD QUOTES HERE
-                    cmd.append(
-                        u"--output-directory=" +
-                        self.output_directory
-                    )
+                    cmd.append("--output-directory=" + self.output_directory)
 
                 if self.job_name != self.base_name:
-                    cmd.append(
-                        u"--jobname=" + self.job_name
-                    )
+                    cmd.append("--jobname=" + self.job_name)
 
             for option in self.options:
                 if texify:
-                    cmd.append(u"--tex-option=\"" + option + "\"")
+                    cmd.append("--tex-option=\"" + option + "\"")
                 else:
-                    cmd.append(u"-latexoption=" + option)
+                    cmd.append("-latexoption=" + option)
 
         # texify wants the .tex extension; latexmk doesn't care either way
         yield (cmd + [self.tex_name], "Invoking " + cmd[0] + "... ")

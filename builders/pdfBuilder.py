@@ -6,28 +6,27 @@ import latextools_plugin
 from latextools_utils.logger import logger
 
 
-#---------------------------------------------------------------
-# PdfBuilder class
-#
-# Build engines subclass PdfBuilder
-# NOTE: this will have to be moved eventually.
-#
-
 class PdfBuilder(latextools_plugin.LaTeXToolsPlugin):
-    """Base class for build engines"""
+    """
+    Base class for build engines
 
-    # Configure parameters here
-    #
-    # tex_root: the full path to the tex root file
-    # output: object in main thread responsible for writing to the output panel
-    # builder_settings : a dictionary containing the "builder_settings" from LaTeXTools.sublime-settings
-    # platform_settings : a dictionary containing the "platform_settings" from LaTeXTools.sublime-settings
-    #
-    # E.g.: self.path = prefs["path"]
-    #
-    # Your __init__ method *must* call this (via super) to ensure that
-    # tex_root is properly split into the root tex file's directory,
-    # its base name, and extension, etc.
+    Build engines subclass PdfBuilder
+    NOTE: this will have to be moved eventually.
+
+    Configure parameters here
+
+    tex_root: the full path to the tex root file
+    output: object in main thread responsible for writing to the output panel
+    builder_settings : a dictionary containing the "builder_settings" from LaTeXTools.sublime-settings
+    platform_settings : a dictionary containing the "platform_settings" from LaTeXTools.sublime-settings
+
+    E.g.: self.path = prefs["path"]
+
+    Your __init__ method *must* call this (via super) to ensure that
+    tex_root is properly split into the root tex file's directory,
+    its base name, and extension, etc.
+    """
+
     def __init__(self, tex_root, output, engine, options, aux_directory,
                  output_directory, job_name, tex_directives,
                  builder_settings, platform_settings):
