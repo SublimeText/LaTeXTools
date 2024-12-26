@@ -1,0 +1,9 @@
+<snippet>
+	<description>Boldface text</description>
+	<content><![CDATA[
+\\mathbf{${1:$SELECTION}}
+]]></content>
+	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+	<!-- <tabTrigger>hello</tabTrigger> -->
+	<scope>text.tex.latex meta.environment.math</scope>
+</snippet>

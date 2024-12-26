@@ -350,6 +350,13 @@ LaTeX Package keymap for OS X
 		]
 	},
 	{
+		"keys": ["super+l","super+b"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/Math boldface.sublime-snippet" },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" }
+		]
+	},
+	{
 		"keys": ["super+l","super+s"],
 		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/Text slanted.sublime-snippet" },
 		"context": [

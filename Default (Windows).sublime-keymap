@@ -350,6 +350,13 @@ LaTeX Package keymap for Linux
 		]
 	},
 	{
+		"keys": ["ctrl+l","ctrl+b"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/Math boldface.sublime-snippet" },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" }
+		]
+	},
+	{
 		"keys": ["ctrl+l","ctrl+s"],
 		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/Text slanted.sublime-snippet" },
 		"context": [
