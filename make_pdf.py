@@ -461,11 +461,6 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
                 "syntax",
                 "Packages/LaTeXTools/LaTeXTools Console.sublime-syntax"
             )
-            output_view_settings.set(
-                "color_scheme",
-                sublime.load_settings('Preferences.sublime-settings').
-                get('color_scheme')
-            )
 
         self.output_view.set_read_only(True)
 
