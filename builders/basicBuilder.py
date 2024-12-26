@@ -13,7 +13,7 @@ from latextools_utils.logger import logger
 
 # Standard LaTeX warning
 CITATIONS_REGEX = re.compile(
-    r"Warning: Citation [`|'].+'\s+(?:on\s+page\s+\d+\s+)?undefined", re.MULTILINE)
+    r"Warning: Citation [`'].+'\s+(?:on\s+page\s+\d+\s+)?undefined", re.MULTILINE)
 # Capture which program to run for BibLaTeX
 BIBLATEX_REGEX = re.compile(
     r"Package biblatex Warning: Please \(re\)run (\S*)")
