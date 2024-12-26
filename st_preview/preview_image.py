@@ -61,6 +61,12 @@ def plugin_loaded():
 
 
 def plugin_unloaded():
+    for w in sublime.windows():
+        for v in w.views():
+            v.erase_phantoms(_name)
+            v.settings().clear_on_change(_name)
+
+    _lt_settings.clear_on_change(_name)
     _lt_settings.clear_on_change("lt_preview_image_main")
 
 
