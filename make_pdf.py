@@ -262,12 +262,13 @@ class CmdThread(threading.Thread):
             badboxes = []
 
             try:
+                ws = re.compile(r"\s+")
                 (errors, warnings, badboxes) = parse_tex_log(data, self.caller.tex_dir)
                 content = [""]
                 if errors:
                     content.append("Errors:")
                     content.append("")
-                    content.extend(errors)
+                    content.extend((ws.sub(" ", e) for e in errors))
                 else:
                     content.append("No errors.")
                 if warnings:
@@ -276,7 +277,7 @@ class CmdThread(threading.Thread):
                     else:
                         content[-1] = content[-1] + " Warnings:"
                     content.append("")
-                    content.extend(warnings)
+                    content.extend((ws.sub(" ", w) for w in warnings))
                 else:
                     if errors:
                         content.append("")
