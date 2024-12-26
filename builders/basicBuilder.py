@@ -13,14 +13,14 @@ from latextools_utils.logger import logger
 
 # Standard LaTeX warning
 CITATIONS_REGEX = re.compile(
-    r"Warning: Citation [`|'].+' (?:on page \d+ )?undefined")
+    r"Warning: Citation [`|'].+'\s+(?:on\s+page\s+\d+\s+)?undefined", re.MULTILINE)
 # Capture which program to run for BibLaTeX
 BIBLATEX_REGEX = re.compile(
     r"Package biblatex Warning: Please \(re\)run (\S*)")
 # Used to indicate a subdirectory that needs to be made for a file input using
 # \include
 FILE_WRITE_ERROR_REGEX = re.compile(
-    r"! I can't write on file `(.*)/([^/']*)'")
+    r"! I can't write on file `(.*)/([^/']*)'", re.MULTILINE)
 
 
 # reraise implementation from 6
