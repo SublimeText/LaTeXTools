@@ -425,13 +425,13 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         pref_settings = sublime.load_settings("Preferences.sublime-settings")
         self.show_errors_inline = pref_settings.get("show_errors_inline", True)
 
-        if view.is_dirty():
-            logger.info ("saving...")
-            view.run_command('save')  # call this on view, not self.window
-
         if view.file_name() is None:
             sublime.error_message('Please save your file before attempting to build.')
             return
+
+        if view.is_dirty():
+            logger.info ("saving...")
+            view.run_command('save')  # call this on view, not self.window
 
         self.file_name = get_tex_root(view)
         if not os.path.isfile(self.file_name):
