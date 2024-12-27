@@ -22,7 +22,7 @@ from .latextools_utils.parser_utils import command_to_snippet
 from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
 
-__all__ = ['get_cwl_completions', 'is_cwl_available', 'LatexCwlCompletion']
+__all__ = ['LatexCwlCompletion', 'plugin_loaded']
 
 ST_VER = int(sublime.version())
 

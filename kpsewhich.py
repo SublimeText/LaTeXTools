@@ -6,8 +6,6 @@ from .latextools_utils.external_command import CalledProcessError
 from .latextools_utils.external_command import check_output
 from .latextools_utils.logger import logger
 
-__all__ = ['kpsewhich']
-
 
 def kpsewhich(filename, file_format=None, notify_user_on_error=False):
     # build command

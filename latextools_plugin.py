@@ -125,12 +125,6 @@ from .latextools_utils.logger import logger
 from .latextools_utils.settings import get_setting
 from . import latextools_plugin_internal as internal
 
-__all__ = [
-    'LaTeXToolsPlugin', 'get_plugin', 'get_plugins_by_type',
-    'add_plugin_path', 'LaTeXToolsPluginException', 'InvalidPluginException',
-    'NoSuchPluginException'
-]
-
 # this is used to load plugins and not interfere with other modules
 _MODULE_PREFIX = '_latextools_'
 

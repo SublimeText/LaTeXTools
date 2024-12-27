@@ -3,8 +3,6 @@ from .latextools_utils import cache
 from .latextools_utils.parser_utils import command_to_snippet
 from .latextools_utils.tex_directives import get_tex_root
 
-__all__ = ["get_own_env_completion", "get_own_command_completion"]
-
 
 def get_own_env_completion(view):
     tex_root = get_tex_root(view)
