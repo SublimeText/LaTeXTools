@@ -20,11 +20,12 @@ import re
 import sublime
 import traceback
 
-from .kpsewhich import kpsewhich
 from .latex_fill_all import FillAllHelper
 from .latextools_utils import analysis
 from .latextools_utils import bibformat
 from .latextools_utils import cache
+from .latextools_utils.external_command import CalledProcessError
+from .latextools_utils.external_command import check_output
 from .latextools_utils.logger import logger
 from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
@@ -192,6 +193,31 @@ def _bibfile_filter(c):
             c.args == 'refsection'
         )
     )
+
+
+def kpsewhich(filename, file_format=None):
+    command = ['kpsewhich']
+    if file_format is not None:
+        command.append('-format={0}'.format(file_format))
+    command.append(filename)
+
+    try:
+        return check_output(command)
+    except CalledProcessError as e:
+        logger.error(
+            'An error occurred while trying to run kpsewhich. '
+            'Files in your TEXINPUTS could not be accessed.'
+        )
+        if e.output:
+            logger.debug(e.output)
+    except OSError as e:
+        logger.error(
+            'Could not run kpsewhich. Please ensure that your texpath '
+            'setting is correct.'
+        )
+        logger.debug(e)
+
+    return None
 
 
 def find_bib_files(root):
