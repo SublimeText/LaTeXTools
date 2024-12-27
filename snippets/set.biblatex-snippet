@@ -1,7 +1,7 @@
 <snippet>
 	<content><![CDATA[
 @Set{${1:Key},
-    entryset = {${1:Entries}}
+	entryset = {${1:Entries}}
 }
 ]]></content>
 	<tabTrigger>set</tabTrigger>

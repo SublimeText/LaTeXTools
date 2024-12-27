@@ -4,7 +4,7 @@
 @thesis{${1:Key},
 	author = {${2:Author/Editor}},
 	title = {${3:Title}},
-    type = {${4:Type}},
+	type = {${4:Type}},
 	institution = {${5:Institution}},
 	year = {${6:Year}}
 }
