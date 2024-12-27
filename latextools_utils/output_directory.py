@@ -5,7 +5,7 @@ import sublime
 import tempfile
 
 from .distro_utils import using_miktex
-from .logger import logger
+from .logging import logger
 from .settings import get_setting
 from .sublime_utils import get_project_file_name
 from .tex_directives import get_tex_root

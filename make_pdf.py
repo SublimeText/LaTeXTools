@@ -22,7 +22,7 @@ from .latextools_utils.external_command import external_command
 from .latextools_utils.external_command import get_texpath
 from .latextools_utils.external_command import update_env
 from .latextools_utils.is_tex_file import is_tex_file
-from .latextools_utils.logger import logger
+from .latextools_utils.logging import logger
 from .latextools_utils.output_directory import get_aux_directory
 from .latextools_utils.output_directory import get_jobname
 from .latextools_utils.output_directory import get_output_directory

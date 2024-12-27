@@ -7,7 +7,7 @@ import traceback
 from .deprecated_command import deprecate
 
 from .latextools_utils import cache
-from .latextools_utils.logger import logger
+from .latextools_utils.logging import logger
 from .latextools_utils.output_directory import get_aux_directory
 from .latextools_utils.output_directory import get_output_directory
 from .latextools_utils.settings import get_setting

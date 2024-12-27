@@ -14,7 +14,7 @@ import sublime_plugin
 
 from ..latextools_utils import cache
 from ..latextools_utils.external_command import execute_command
-from ..latextools_utils.logger import logger
+from ..latextools_utils.logging import logger
 from ..latextools_utils.settings import get_setting
 from ..latextools_utils.tex_log import parse_tex_log
 from ..latextools_utils.utils import cpu_count

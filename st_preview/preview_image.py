@@ -11,7 +11,7 @@ import sublime_plugin
 from ..jumpto_tex_file import find_image
 from ..jumpto_tex_file import open_image
 from ..latextools_utils import cache
-from ..latextools_utils.logger import logger
+from ..latextools_utils.logging import logger
 from ..latextools_utils.settings import get_setting
 from ..latextools_utils.tex_directives import get_tex_root
 from .preview_utils import SettingsListener as PreviewSettingsListener

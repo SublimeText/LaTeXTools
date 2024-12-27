@@ -10,7 +10,7 @@ __package__ = 'LaTeXTools'
 
 from .latextools_plugin import _classname_to_internal_name
 from .latextools_plugin import get_plugins_by_type
-from .latextools_utils.logger import logger
+from .latextools_utils.logging import logger
 from .latextools_utils.settings import get_setting
 from .latextools_utils.internal_types import FillAllHelper
 from .latextools_utils.input_quickpanel import show_input_quick_panel

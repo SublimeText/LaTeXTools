@@ -9,7 +9,7 @@ from xml.etree import ElementTree
 import sublime
 import sublime_plugin
 
-from .latextools_utils.logger import logger
+from .latextools_utils.logging import logger
 
 __all__ = ["SnippetCompletions"]
 

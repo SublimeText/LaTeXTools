@@ -4,7 +4,7 @@ import traceback
 
 from . import bibformat
 from . import cache
-from .logger import logger
+from .logging import logger
 from .settings import get_setting
 
 from ..external.frozendict import frozendict

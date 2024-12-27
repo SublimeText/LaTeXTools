@@ -1,7 +1,7 @@
 from base_viewer import BaseViewer
 
 from latextools_utils.external_command import external_command
-from latextools_utils.logger import logger
+from latextools_utils.logging import logger
 from latextools_utils.settings import get_setting
 
 import os

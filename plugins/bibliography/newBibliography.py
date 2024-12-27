@@ -10,7 +10,7 @@ from LaTeXTools.external.bibtex.tex import tokenize_list
 
 from latextools_plugin import LaTeXToolsPlugin
 from latextools_utils import bibcache
-from latextools_utils.logger import logger
+from latextools_utils.logging import logger
 
 # LaTeX -> Unicode decoder
 latex_chars.register()

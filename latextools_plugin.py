@@ -121,7 +121,7 @@ import traceback
 from contextlib import contextmanager
 from collections.abc import MutableMapping
 
-from .latextools_utils.logger import logger
+from .latextools_utils.logging import logger
 from .latextools_utils.settings import get_setting
 from . import latextools_plugin_internal as internal
 

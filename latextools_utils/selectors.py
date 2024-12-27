@@ -27,7 +27,7 @@ import re
 import shlex
 import string
 
-from .logger import logger
+from .logging import logger
 
 class Ast():
     def __ne__(self, other):

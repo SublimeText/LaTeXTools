@@ -7,7 +7,7 @@ import sublime
 from .latex_fill_all import FillAllHelper
 from .latextools_utils import analysis
 from .latextools_utils.is_tex_file import get_tex_extensions
-from .latextools_utils.logger import logger
+from .latextools_utils.logging import logger
 from .latextools_utils.output_directory import get_aux_directory
 from .latextools_utils.output_directory import get_output_directory
 from .latextools_utils.settings import get_setting

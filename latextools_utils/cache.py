@@ -12,7 +12,7 @@ import traceback
 import sublime
 
 from ..external.frozendict import frozendict
-from .logger import logger
+from .logging import logger
 from .settings import get_setting
 from .utils import ThreadPool
 

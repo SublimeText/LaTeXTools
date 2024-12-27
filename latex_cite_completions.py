@@ -26,7 +26,7 @@ from .latextools_utils import bibformat
 from .latextools_utils import cache
 from .latextools_utils.external_command import CalledProcessError
 from .latextools_utils.external_command import check_output
-from .latextools_utils.logger import logger
+from .latextools_utils.logging import logger
 from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
 from . import latextools_plugin

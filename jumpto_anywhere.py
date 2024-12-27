@@ -9,7 +9,7 @@ from .latextools_utils import analysis
 from .latextools_utils import ana_utils
 from .latextools_utils import quickpanel
 from .latextools_utils import utils
-from .latextools_utils.logger import logger
+from .latextools_utils.logging import logger
 from .latextools_utils.tex_directives import get_tex_root
 from .latextools_utils.tex_directives import TEX_DIRECTIVE
 from .latex_cite_completions import NEW_STYLE_CITE_REGEX

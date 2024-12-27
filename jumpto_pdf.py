@@ -13,7 +13,7 @@ from .latextools_plugin import NoSuchPluginException
 from .latextools_utils.is_tex_file import is_tex_file
 from .latextools_utils.output_directory import get_jobname
 from .latextools_utils.output_directory import get_output_directory
-from .latextools_utils.logger import logger
+from .latextools_utils.logging import logger
 from .latextools_utils.settings import get_setting
 from .latextools_utils.sublime_utils import focus_st
 from .latextools_utils.tex_directives import get_tex_root

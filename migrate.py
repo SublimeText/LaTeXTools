@@ -3,7 +3,7 @@ import sublime_plugin
 import os
 import codecs
 
-from .latextools_utils.logger import logger
+from .latextools_utils.logging import logger
 
 __all__ = ["LatextoolsMigrateCommand"]
 

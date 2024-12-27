@@ -9,7 +9,7 @@ import sublime
 
 from .external_command import check_output
 from .external_command import external_command
-from .logger import logger
+from .logging import logger
 from .settings import get_setting
 
 # used by get_sublime_exe()

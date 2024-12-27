@@ -6,7 +6,7 @@ import traceback
 import sublime
 
 from .is_tex_file import is_tex_file
-from .logger import logger
+from .logging import logger
 from .sublime_utils import get_project_file_name
 
 

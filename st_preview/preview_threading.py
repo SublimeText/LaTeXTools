@@ -2,7 +2,7 @@ import threading
 import traceback
 
 
-from ..latextools_utils.logger import logger
+from ..latextools_utils.logging import logger
 from .preview_utils import try_delete_temp_files
 
 _max_threads = 2

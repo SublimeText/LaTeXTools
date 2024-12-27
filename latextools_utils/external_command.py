@@ -52,7 +52,7 @@ from subprocess import Popen, PIPE, STDOUT, CalledProcessError
 
 import sublime
 
-from .logger import logger
+from .logging import logger
 from .settings import get_setting
 
 

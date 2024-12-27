@@ -6,7 +6,7 @@ import sublime_plugin
 from functools import partial
 
 from .latextools_utils import analysis
-from .latextools_utils.logger import logger
+from .latextools_utils.logging import logger
 from .latextools_utils.selectors import build_ast
 from .latextools_utils.selectors import match_selector
 from .latextools_utils.settings import get_setting

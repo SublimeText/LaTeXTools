@@ -4,7 +4,7 @@ import sys
 
 from latextools_plugin import add_whitelist_module
 from latextools_plugin import LaTeXToolsPlugin
-from latextools_utils.logger import logger
+from latextools_utils.logging import logger
 
 
 class PdfBuilder(LaTeXToolsPlugin):

@@ -43,7 +43,7 @@ LOAD_ORDER = [
     # no internal dependencies
     'latextools_utils.activity_indicator',
     'latextools_utils.bibformat',
-    'latextools_utils.logger',
+    'latextools_utils.logging',
     'latextools_utils.parser_utils',
     'latextools_utils.settings',
     'latextools_utils.utils',
@@ -100,7 +100,12 @@ for suffix in LOAD_ORDER:
         _load_module_exports(sys.modules[mod])
 
 
+from .latextools_utils import logging
+
+
 def plugin_loaded():
+    logging.init()
+
     # reload any plugins cached in memory
     mods = [m for m in sys.modules if m.startswith('_latextools_')]
     for mod in mods:
@@ -123,3 +128,5 @@ def plugin_unloaded():
             pass
         except AttributeError:
             pass
+
+    logging.shutdown()

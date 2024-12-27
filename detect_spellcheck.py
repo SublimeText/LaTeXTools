@@ -1,7 +1,7 @@
 import sublime_plugin
 
 from .deprecated_command import deprecate
-from .latextools_utils.logger import logger
+from .latextools_utils.logging import logger
 from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
 from .latextools_utils.tex_directives import parse_tex_directives

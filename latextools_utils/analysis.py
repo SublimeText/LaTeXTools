@@ -10,7 +10,7 @@ import sublime
 from . import utils
 from ..external.frozendict import frozendict
 from .cache import LocalCache
-from .logger import logger
+from .logging import logger
 from .tex_directives import get_tex_root
 
 

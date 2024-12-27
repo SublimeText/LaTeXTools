@@ -22,7 +22,7 @@ from .latextools_plugin import NoSuchPluginException
 from .latextools_utils.activity_indicator import ActivityIndicator
 from .latextools_utils.distro_utils import using_miktex
 from .latextools_utils.external_command import check_output
-from .latextools_utils.logger import logger
+from .latextools_utils.logging import logger
 from .latextools_utils.output_directory import get_aux_directory
 from .latextools_utils.output_directory import get_jobname
 from .latextools_utils.output_directory import get_output_directory

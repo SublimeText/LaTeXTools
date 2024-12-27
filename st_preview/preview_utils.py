@@ -25,7 +25,7 @@ from ..latextools_utils.external_command import __sentinel__
 from ..latextools_utils.external_command import check_output
 from ..latextools_utils.external_command import execute_command
 from ..latextools_utils.external_command import get_texpath
-from ..latextools_utils.logger import logger
+from ..latextools_utils.logging import logger
 from ..latextools_utils.settings import get_setting
 
 _lt_settings = {}
