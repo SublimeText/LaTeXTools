@@ -31,18 +31,10 @@ class LatextoolsClearCacheCommand(sublime_plugin.WindowCommand):
         except OSError as e:
             logger.error("Can't delete global cache: %s", e)
 
-        try:
-            shutil.rmtree(cache._local_cache_path())
-        except FileNotFoundError:
-            pass
-        except OSError as e:
-            logger.error("Can't delete local cache: %s", e)
-
-        window = self.window
-        view = window.active_view()
+        view = self.window.active_view()
         if view and view.match_selector(0, "text.tex.latex"):
-            window.run_command("latextools_clear_local_cache")
-            window.run_command("latextools_clear_bibliography_cache")
+            self.window.run_command("latextools_clear_local_cache")
+            self.window.run_command("latextools_clear_bibliography_cache")
 
 
 class LatextoolsClearLocalCacheCommand(sublime_plugin.WindowCommand):
