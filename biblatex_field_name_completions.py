@@ -179,6 +179,16 @@ biblatex_fields = [
     ('year', 'year = {${1:Year}},')
 ]
 
+bibtex_fields = [
+    (trigger + '\tBibTeX field', content)
+    for trigger, content in bibtex_fields
+]
+
+biblatex_fields = [
+    (trigger + '\tBibLaTeX field', content)
+    for trigger, content in biblatex_fields
+]
+
 
 class FieldNameCompletions(sublime_plugin.EventListener):
    def on_query_completions(self, view, prefix, locations):

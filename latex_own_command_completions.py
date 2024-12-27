@@ -4,6 +4,10 @@ from .latextools_utils.parser_utils import command_to_snippet
 from .latextools_utils.tex_directives import get_tex_root
 
 
+class NoArgs(Exception):
+    pass
+
+
 def get_own_env_completion(view):
     tex_root = get_tex_root(view)
     if not tex_root:
@@ -38,61 +42,54 @@ def get_own_command_completion(view):
     if is_math:
         cache_name += "_math"
 
-    return list(
-        cache.LocalCache(tex_root).cache(cache_name, make_completions) or [])
+    return list(cache.LocalCache(tex_root).cache(cache_name, make_completions) or [])
 
 
 def _make_own_env_completion(ana):
-    commands = ana.filter_commands(["newenvironment", "renewenvironment"])
-    return [(c.args.ljust(50) + "\tlocal", c.args) for c in commands]
+    return [
+        [c.args + "\tlocal", c.args]
+        for c in ana.filter_commands(["newenvironment", "renewenvironment"])
+    ]
 
 
 def _make_own_command_completion(ana, is_math):
-    com = ana.filter_commands(["newcommand", "renewcommand"])
-    res = [_parse_command(c) for c in com]
+    res = []
 
-    env = ana.filter_commands(["newenvironment", "renewenvironment"])
-    for e in env:
-        res.extend([
-            ("\\begin{{{0}}}".format(e.args).ljust(50) + "\tlocal",
-                "\\begin{{{0}}}\n$1\n\\end{{{0}}}$0".format(e.args)),
-            ("\\end{{{0}}}".format(e.args).ljust(50) + "\tlocal",
-                "\\end{{{0}}}".format(e.args))
+    for c in ana.filter_commands(["newcommand", "renewcommand"]):
+        try:
+            if not c.optargs2:
+                raise NoArgs()
+            arg_count = int(c.optargs2)
+            has_opt = bool(c.optargs2a)
+            s = c.args
+            if has_opt:
+                s += "[{0}]".format(c.optargs2a)
+                arg_count -= 1
+            elif arg_count == 0:
+                raise NoArgs()
+            s += "{arg}" * arg_count
+            comp = command_to_snippet(s)
+            if comp is None:
+                raise NoArgs()
+            comp = comp[1]
+        except:  # no args
+            s = c.args + "{}"
+            comp = s
+
+        res.append([s + "\tlocal", comp])
+
+    for c in ana.filter_commands(["newenvironment", "renewenvironment"]):
+        res.append([
+            "\\begin{{{0}}}\tlocal".format(c.args),
+            "\\begin{{{0}}}\n$0\n\\end{{{0}}}".format(c.args),
+        ])
+        res.append([
+            "\\end{{{0}}}\tlocal".format(c.args),
+            "\\end{{{0}}}".format(c.args),
         ])
 
     if is_math:
-        dop = ana.filter_commands(["DeclareMathOperator"])
-        res.extend(
-            (s.args.ljust(50) + "\tlocal", s.args)
-            for s in dop
-        )
+        for c in ana.filter_commands(["DeclareMathOperator"]):
+            res.append([s.args + "\tlocal", s.args])
 
     return res
-
-
-def _parse_command(c):
-    class NoArgs(Exception):
-        pass
-
-    try:
-        if not c.optargs2:
-            raise NoArgs()
-        arg_count = int(c.optargs2)
-        has_opt = bool(c.optargs2a)
-        s = c.args
-        if has_opt:
-            s += "[{0}]".format(c.optargs2a)
-            arg_count -= 1
-        elif arg_count == 0:
-            raise NoArgs()
-        s += "{arg}" * arg_count
-        comp = command_to_snippet(s)
-        if comp is None:
-            raise NoArgs()
-        comp = comp[1]
-    except:  # no args
-        s = c.args + "{}"
-        comp = s
-
-    s = s.ljust(50)
-    return (s + "\tlocal", comp)
