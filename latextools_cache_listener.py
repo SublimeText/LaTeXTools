@@ -9,11 +9,11 @@ import sublime_plugin
 from .latex_cite_completions import find_bib_files
 from .latex_cite_completions import run_plugin_command
 from .latextools_utils import analysis
+from .latextools_utils.activity_indicator import ActivityIndicator
 from .latextools_utils.bibcache import BibCache
 from .latextools_utils.cache import LocalCache
 from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
-from .latextools_utils.progress_indicator import ProgressIndicator
 
 __all__ = [
     "LatextoolsCacheUpdateListener",
@@ -41,15 +41,15 @@ class LatextoolsCacheUpdater(object):
         t.daemon = True
         t.start()
 
-        ProgressIndicator(
-            t, 'Updating LaTeXTools cache', 'LaTeXTools cache updated')
-
     def _run_cache_update(self):
-        for step in self._steps:
-            try:
-                step()
-            except Exception:
-                traceback.print_exc()
+        with ActivityIndicator('Updating LaTeXTools cache') as activity:
+            for step in self._steps:
+                try:
+                    step()
+                except Exception:
+                    traceback.print_exc()
+                else:
+                    activity.finish('LaTeXTools cache updated')
 
 
 class LatextoolsAnalysisUpdater(LatextoolsCacheUpdater):

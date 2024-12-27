@@ -16,6 +16,7 @@ from .latextools_plugin import _classname_to_internal_name
 from .latextools_plugin import add_plugin_path
 from .latextools_plugin import get_plugin
 from .latextools_plugin import NoSuchPluginException
+from .latextools_utils.activity_indicator import ActivityIndicator
 from .latextools_utils.external_command import execute_command
 from .latextools_utils.external_command import external_command
 from .latextools_utils.external_command import get_texpath
@@ -25,7 +26,6 @@ from .latextools_utils.logger import logger
 from .latextools_utils.output_directory import get_aux_directory
 from .latextools_utils.output_directory import get_jobname
 from .latextools_utils.output_directory import get_output_directory
-from .latextools_utils.progress_indicator import ProgressIndicator
 from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
 from .latextools_utils.tex_directives import parse_tex_directives
@@ -88,6 +88,10 @@ class CmdThread(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
+        with ActivityIndicator('Building...') as activity_indicator:
+            self.worker(activity_indicator)
+
+    def worker(self, activity_indicator):
         logger.debug("Welcome to thread %s", self.getName())
         self.caller.output("[Compiling " + self.caller.file_name + "]")
 
@@ -314,7 +318,7 @@ class CmdThread(threading.Thread):
                 }.get(self.caller.hide_panel_level, bool(errors or warnings))
 
                 if show_panel:
-                    self.caller.progress_indicator.success_message = "Build completed"
+                    activity_indicator.finish("Build completed")
                     self.caller.show_output_panel(force=True)
                 else:
                     message = "Build completed"
@@ -336,8 +340,9 @@ class CmdThread(threading.Thread):
                             message += " with"
                         message += " bad boxes"
 
-                    self.caller.progress_indicator.success_message = message
+                    activity_indicator.finish(message)
             except Exception as e:
+                activity_indicator.finish("Build failed!")
                 self.caller.show_output_panel()
                 content = ["", ""]
                 content.append(
@@ -615,14 +620,6 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         thread = CmdThread(self)
         thread.start()
         logger.debug(threading.active_count())
-
-        # setup the progress indicator
-        display_message_length = int(get_setting('build_finished_message_length', 2.0, view=view) * 1000)
-        # NB CmdThread will change the success message
-        self.progress_indicator = ProgressIndicator(
-            thread, 'Building', 'Build failed',
-            display_message_length=display_message_length
-        )
 
     def output(self, data):
         if isinstance(data, list) or  isinstance(data, tuple):

@@ -38,6 +38,7 @@ LOAD_ORDER = [
     'latextools_utils',
 
     # no internal dependencies
+    'latextools_utils.activity_indicator',
     'latextools_utils.logger',
     'latextools_utils.bibformat',
     'latextools_utils.settings',

@@ -19,13 +19,13 @@ from .latextools_plugin import _classname_to_internal_name
 from .latextools_plugin import add_plugin_path
 from .latextools_plugin import get_plugin
 from .latextools_plugin import NoSuchPluginException
+from .latextools_utils.activity_indicator import ActivityIndicator
 from .latextools_utils.distro_utils import using_miktex
 from .latextools_utils.external_command import check_output
 from .latextools_utils.logger import logger
 from .latextools_utils.output_directory import get_aux_directory
 from .latextools_utils.output_directory import get_jobname
 from .latextools_utils.output_directory import get_output_directory
-from .latextools_utils.progress_indicator import ProgressIndicator
 from .latextools_utils.settings import get_setting
 from .latextools_utils.sublime_utils import get_sublime_exe
 from .latextools_utils.tex_directives import get_tex_root
@@ -335,6 +335,11 @@ class SystemCheckThread(threading.Thread):
         self.on_done = on_done
 
     def run(self):
+        with ActivityIndicator('Checking system...') as activity_indicator:
+            self.worker()
+            activity_indicator.finish('System check complete')
+
+    def worker(self):
         texpath = self.texpath
         results = []
 
@@ -531,9 +536,6 @@ class SystemCheckThread(threading.Thread):
 
                 results.append(table)
 
-        self._on_main_thread(results)
-
-    def _on_main_thread(self, results):
         builder_name = get_setting(
             'builder', 'traditional', view=self.view
         )
@@ -729,8 +731,6 @@ class LatextoolsSystemCheckCommand(sublime_plugin.ApplicationCommand):
         )
 
         t.start()
-
-        ProgressIndicator(t, 'Checking system...', 'System check complete')
 
     def on_done(self, results):
         def _on_done():
