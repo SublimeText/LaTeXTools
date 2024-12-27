@@ -3,7 +3,6 @@ import re
 from .latex_fill_all import FillAllHelper
 from .latextools_utils import analysis
 from .latextools_utils import cache
-from .latextools_utils import pgf
 from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
 
@@ -16,9 +15,30 @@ ACR_LINE_RE = re.compile(
 )
 
 
+def _get_pgfkeys_value(kv_str, key, strip=False):
+    """
+    Extract the value of a pgfkeys like string.
+
+    I.e. a string with the format:
+    k1=value1, k2={long value 2}
+    """
+    if not kv_str:
+        return
+    # TODO this is only heuristically over re search and
+    # can still be improved
+    m = re.search(key + r"\s*=\s*(\{[^\}]+\}|\w+)", kv_str)
+    if not m:
+        return
+    result = m.group(1)
+    if (strip and result and result.startswith("{") and
+            result.endswith("}")):
+        result = result[1:-1]
+    return result
+
+
 def _create_glo_desc(a):
-    name = pgf.get_pgfkeys_value(a.args2, "name", strip=True) or ""
-    desc = pgf.get_pgfkeys_value(a.args2, "description", strip=True) or ""
+    name = _get_pgfkeys_value(a.args2, "name", strip=True) or ""
+    desc = _get_pgfkeys_value(a.args2, "description", strip=True) or ""
     return "{name} - {desc}".format(**locals())
 
 
