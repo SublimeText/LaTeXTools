@@ -89,6 +89,6 @@ def _make_own_command_completion(ana, is_math):
 
     if is_math:
         for c in ana.filter_commands(["DeclareMathOperator"]):
-            res.append([s.args + "\tlocal", s.args])
+            res.append([c.args + "\tlocal", c.args])
 
     return res
