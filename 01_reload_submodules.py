@@ -31,6 +31,9 @@ MOD_PREFIX = 'LaTeXTools.'
 
 # these modules must be specified in the order they depend on one another
 LOAD_ORDER = [
+    'external',
+    'external.bibtex',
+    'external.frozendict',
     'external.latex_chars',
 
     'latextools_plugin_internal',
@@ -39,23 +42,25 @@ LOAD_ORDER = [
 
     # no internal dependencies
     'latextools_utils.activity_indicator',
-    'latextools_utils.logger',
     'latextools_utils.bibformat',
+    'latextools_utils.logger',
+    'latextools_utils.parser_utils',
     'latextools_utils.settings',
     'latextools_utils.utils',
-    'latextools_utils.tex_directives',
-    'latextools_utils.tex_log',
-    'latextools_utils.internal_types',
 
     # depend on previous only
-    'latextools_utils.distro_utils',
-    'latextools_utils.is_tex_file',
     'latextools_utils.cache',
-    'latextools_utils.quickpanel',
+    'latextools_utils.distro_utils',
     'latextools_utils.external_command',
+    'latextools_utils.internal_types',
+    'latextools_utils.quickpanel',
+    'latextools_utils.selectors',
 
     # depend on any previous
     'latextools_utils.sublime_utils',
+    'latextools_utils.is_tex_file',
+    'latextools_utils.tex_directives',
+    'latextools_utils.tex_log',
 
     # depend on any previous
     'latextools_utils.analysis',
