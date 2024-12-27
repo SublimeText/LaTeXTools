@@ -29,7 +29,7 @@ def _create_label_content(command_content):
     char_replace = get_setting("auto_label_char_replace", {})
     for c in command_content:
         c = c.lower()
-        if re.match("[a-z0-9]", c):
+        if re.match(r"[a-z0-9]", c):
             label_content.append(c)
             is_underscore = False
         elif c in char_replace:
