@@ -652,7 +652,11 @@ class InstanceTrackingCache(Cache):
         if inst_key is None:
             return
 
-        with self._LOCKS[inst_key]:
+        lock = self._LOCKS.get(inst_key)
+        if lock is None:
+            return
+
+        with lock:
             ref_count = self._REF_COUNTS[inst_key]
             ref_count -= 1
             self._REF_COUNTS[inst_key] = ref_count
@@ -662,6 +666,7 @@ class InstanceTrackingCache(Cache):
                 self._pool.terminate()
                 del self._REF_COUNTS[inst_key]
                 del self._INSTANCES[inst_key]
+                del self._LOCKS[inst_key]
 
 
 class LocalCache(ValidatingCache, InstanceTrackingCache):
