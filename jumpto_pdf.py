@@ -265,9 +265,7 @@ class LatextoolsViewPdfCommand(sublime_plugin.WindowCommand):
 
 
 def plugin_loaded():
-    add_whitelist_module('latextools_utils')
-
-    viewers_path = os.path.join(sublime.packages_path(), 'LaTeXTools', 'viewers')
+    viewers_path = os.path.join(sublime.packages_path(), 'LaTeXTools', 'plugins', 'viewer')
     # ensure that base_viewer is loaded first so that other viewers are registered
     # as plugins
     add_plugin_path(os.path.join(viewers_path, 'base_viewer.py'))

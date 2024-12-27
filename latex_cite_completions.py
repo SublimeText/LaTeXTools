@@ -564,10 +564,9 @@ def _is_prefix(lower_prefix, entry):
 
 
 def plugin_loaded():
-    # load plugins from the bibliography_plugins dir of LaTeXTools if it exists
+    # load plugins from the plugins/bibliography dir of LaTeXTools if it exists
     # this allows us to have pre-packaged plugins that won't require any user
     # setup
-    os_path = os.path
     latextools_plugin.add_plugin_path(
-        os_path.join(
-            sublime.packages_path(), 'LaTeXTools', 'bibliography_plugins'))
+        os.path.join(sublime.packages_path(), 'LaTeXTools', 'plugins', 'bibliography')
+    )

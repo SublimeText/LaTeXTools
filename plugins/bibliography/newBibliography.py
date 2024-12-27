@@ -1,18 +1,16 @@
-from latextools_plugin import LaTeXToolsPlugin
-
-from LaTeXTools.external.bibtex import Parser
-from LaTeXTools.external.bibtex.names import Name
-from LaTeXTools.external.bibtex.tex import tokenize_list
-
-from LaTeXTools.external import latex_chars
-
-from latextools_utils import bibcache
-from latextools_utils.logger import logger
-
 import codecs
 import collections
 import sublime
 import traceback
+
+from LaTeXTools.external import latex_chars
+from LaTeXTools.external.bibtex import Parser
+from LaTeXTools.external.bibtex.names import Name
+from LaTeXTools.external.bibtex.tex import tokenize_list
+
+from latextools_plugin import LaTeXToolsPlugin
+from latextools_utils import bibcache
+from latextools_utils.logger import logger
 
 # LaTeX -> Unicode decoder
 latex_chars.register()

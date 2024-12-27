@@ -1,13 +1,14 @@
-import latextools_plugin
 import sys
 
-import latextools_utils.sublime_utils as st_utils
+from latextools_plugin import add_whitelist_module
+from latextools_plugin import LaTeXToolsPlugin
+from latextools_utils import sublime_utils as st_utils
 
 # most methods take a kwargs variable, which currently only consists of the
 # `keep_focus` setting
 
 
-class BaseViewer(latextools_plugin.LaTeXToolsPlugin):
+class BaseViewer(LaTeXToolsPlugin):
 
     def forward_sync(self, pdf_file, tex_file, line, col, **kwargs):
         '''
@@ -55,6 +56,4 @@ class BaseViewer(latextools_plugin.LaTeXToolsPlugin):
         st_utils.focus_st()
 
 
-latextools_plugin.add_whitelist_module(
-    'base_viewer', sys.modules[BaseViewer.__module__]
-)
+add_whitelist_module('base_viewer', sys.modules[BaseViewer.__module__])

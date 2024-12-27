@@ -1,13 +1,13 @@
-from latextools_plugin import LaTeXToolsPlugin
-
-from LaTeXTools.external import latex_chars
-from latextools_utils import bibcache
-from latextools_utils.logger import logger
-
 import codecs
 import re
 import sublime
 import traceback
+
+from LaTeXTools.external import latex_chars
+
+from latextools_plugin import LaTeXToolsPlugin
+from latextools_utils import bibcache
+from latextools_utils.logger import logger
 
 kp = re.compile(r'@[^\{]+\{\s*(.+)\s*,')
 # new and improved regex
