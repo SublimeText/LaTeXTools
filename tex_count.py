@@ -20,7 +20,7 @@ class LatextoolsTexcountCommand(sublime_plugin.TextCommand):
     def run(self, edit, **args):
         tex_root = get_tex_root(self.view)
 
-        if not os.path.exists(tex_root):
+        if not tex_root or not os.path.exists(tex_root):
             sublime.error_message(
                 'Tried to run TeXCount on non-existent file. Please ensure '
                 'all files are saved before invoking TeXCount.'
@@ -48,9 +48,12 @@ class LatextoolsTexcountCommand(sublime_plugin.TextCommand):
         try:
             result = check_output(command, cwd=cwd)
             res_split = result.splitlines()
-            self.view.window().show_quick_panel(
-                res_split[1:4] + res_split[9:], None
-            )
+            window = self.view.window()
+            if window:
+                window.show_quick_panel(
+                    res_split[1:4] + res_split[9:],
+                    lambda _: None
+                )
         except CalledProcessError as e:
             sublime.error_message(
                 'Error while running TeXCount: {0}'.format(e.output or e)
