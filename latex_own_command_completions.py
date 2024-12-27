@@ -26,13 +26,12 @@ def get_own_command_completion(view):
     if not tex_root:
         return []
 
+    sel = view.sel()
+    if not sel:
+        return []
+
     # use special handling (additional completions) for math mode
-    math_selector = (
-        "string.other.math.tex, "
-        "string.other.math.latex, "
-        "string.other.math.block.environment.latex"
-    )
-    is_math = view.match_selector(view.sel()[0].b, math_selector)
+    is_math = view.match_selector(sel[0].b, "text.tex meta.environment.math")
 
     def make_completions():
         ana = analysis.get_analysis(tex_root)
