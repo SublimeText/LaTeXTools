@@ -246,9 +246,6 @@
 		// Both Python2 and Python3 are supported, but must have the DBus bindings
 		// installed.
 		"python": "",
-		// The name of the ST2 or ST3 executable. On Ubuntu, both subl and sublime-text are
-		// available for ST2; adjust as needed for other platforms, and for ST3
-		"sublime": "sublime-text",
 		// How long to wait after evince or okular has launched before sending a sync message
 		// in seconds, floating point; choose 2.0 or 3.0 on a slower machine, 0.5 on a fast one
 		// Note: only tweak this if sync after launching the PDF viewer does not seem to work,
