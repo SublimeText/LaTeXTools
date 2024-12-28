@@ -9,7 +9,7 @@ exclude = '''
   | \.mypy_cache
   | \.tox
   | \.venv
-  | external
   | tests
+  | vendor
 )/
 '''
