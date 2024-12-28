@@ -673,7 +673,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
                             )
 
             if get_setting('open_pdf_on_build', True, view=self.view):
-                self.window.run_command("latextools_jump_to_pdf", {"from_keybinding": False})
+                self.window.run_command("latextools_jumpto_pdf", {"from_keybinding": False})
 
     def _find_errors(self, errors, error_class):
         for line in errors:

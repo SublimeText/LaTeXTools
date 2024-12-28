@@ -255,7 +255,7 @@ LaTeX Package keymap for Linux
 	},
 	{
 		"keys": ["ctrl+l","j"],
-		"command": "latextools_jump_to_pdf", "args": { "from_keybinding": true },
+		"command": "latextools_jumpto_pdf", "args": { "from_keybinding": true },
 		"context": [
 			{ "key": "selector", "operand": "text.tex.latex" }
 		]

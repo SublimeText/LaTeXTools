@@ -29,7 +29,7 @@
 	},
 	{
 		"caption": "LaTeXTools: Jump to PDF",
-		"command": "latextools_jump_to_pdf"
+		"command": "latextools_jumpto_pdf"
 	},
 	{
 		"caption": "LaTeXTools: Reveal Aux Directory",

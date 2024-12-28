@@ -19,7 +19,7 @@ from .latextools_utils.sublime_utils import focus_st
 from .latextools_utils.tex_directives import get_tex_root
 
 __all__ = [
-    "LatextoolsJumpToPdfCommand",
+    "LatextoolsJumptoPdfCommand",
     "LatextoolsViewPdfCommand",
     "plugin_loaded"
 ]
@@ -77,7 +77,7 @@ def get_viewer():
 
 # Jump to current line in PDF file
 # NOTE: must be called with {"from_keybinding": <boolean>} as arg
-class LatextoolsJumpToPdfCommand(sublime_plugin.WindowCommand):
+class LatextoolsJumptoPdfCommand(sublime_plugin.WindowCommand):
 
     def is_visible(self):
         view = self.window.active_view()
@@ -271,5 +271,5 @@ def plugin_loaded():
     add_plugin_path(viewers_path)
 
 
-deprecate(globals(), 'JumpToPdf', LatextoolsJumpToPdfCommand)
+deprecate(globals(), 'JumpToPdf', LatextoolsJumptoPdfCommand)
 deprecate(globals(), 'ViewPdf', LatextoolsViewPdfCommand)
