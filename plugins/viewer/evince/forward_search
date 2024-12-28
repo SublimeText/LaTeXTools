@@ -28,7 +28,7 @@ from urllib.parse import quote
 
 if __name__ == '__main__':
     def print_usage():
-        print('Usage: evince_forward_search pdf_file line_number tex_file')
+        print('Usage: forward_search pdf_file line_number tex_file')
         sys.exit(1)
 
     if len(sys.argv) != 4:

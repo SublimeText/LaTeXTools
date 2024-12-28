@@ -16,13 +16,7 @@ class EvinceViewer(BaseViewer):
     PYTHON = None
 
     def _get_evince_folder(self):
-        return os.path.normpath(
-            os.path.join(
-                os.path.dirname(__file__),
-                '..',
-                'evince'
-            )
-        )
+        return os.path.join(os.path.dirname(__file__), 'evince')
 
     def _is_evince_running(self, pdf_file):
         try:
@@ -83,10 +77,7 @@ class EvinceViewer(BaseViewer):
             st_binary = linux_settings.get('sublime', 'sublime_text')
 
         external_command(
-            [
-                'sh', os.path.join(ev_path, 'evince_sync'),
-                py_binary, st_binary, pdf_file
-            ],
+            ['sh', os.path.join(ev_path, 'sync'), py_binary, st_binary, pdf_file],
             cwd=ev_path,
             use_texpath=False
         )
@@ -110,7 +101,7 @@ class EvinceViewer(BaseViewer):
 
         external_command(
             [
-                py_binary, os.path.join(ev_path, 'evince_forward_search'),
+                py_binary, os.path.join(ev_path, 'forward_search'),
                 pdf_file, str(line), tex_file
             ],
             use_texpath=False

@@ -154,16 +154,16 @@ if __name__ == '__main__':
 
     def print_usage():
         print("""Usage:
-  evince_backward_search pdf_file "editorcmd %f %l"'
+  backward_search pdf_file "editorcmd %f %l"'
     %f ... TeX-file to load
     %l ... line to jump to
 E.g.:
-  evince_backward_search somepdf.pdf "gvim --servername somepdf --remote-silent '+%l<Enter>' %f"
-  evince_backward_search somepdf.pdf "emacsclient -a emacs --no-wait +%l %f"
-  evince_backward_search somepdf.pdf "scite %f '-goto:%l'"
-  evince_backward_search somepdf.pdf "lyxclient -g %f %l"
-  evince_backward_search somepdf.pdf "kate --use --line %l"
-  evince_backward_search somepdf.pdf "kile --line %l" """)
+  backward_search somepdf.pdf "gvim --servername somepdf --remote-silent '+%l<Enter>' %f"
+  backward_search somepdf.pdf "emacsclient -a emacs --no-wait +%l %f"
+  backward_search somepdf.pdf "scite %f '-goto:%l'"
+  backward_search somepdf.pdf "lyxclient -g %f %l"
+  backward_search somepdf.pdf "kate --use --line %l"
+  backward_search somepdf.pdf "kile --line %l" """)
         sys.exit(1)
 
     if len(sys.argv) != 3:

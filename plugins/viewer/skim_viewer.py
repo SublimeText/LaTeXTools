@@ -42,14 +42,7 @@ class SkimViewer(BaseViewer):
 
         command = [
             '/bin/sh',
-            os.path.normpath(
-                os.path.join(
-                    os.path.dirname(__file__),
-                    '..',
-                    'skim',
-                    'displayfile'
-                )
-            ),
+            os.path.join(os.path.dirname(__file__), 'skim', 'displayfile'),
             '-r'
         ]
 
