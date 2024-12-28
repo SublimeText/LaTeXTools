@@ -1,4 +1,0 @@
-LaTeXTools Plugin version 3.12.10 (2016-12-04) changelog:
-
-Bugfixes:
-- Fixed a bug, which disabled cwl completions (#975)

@@ -1,5 +1,0 @@
-LaTeXTools Plugin version 3.8.1 (2016-06-18) changelog:
-
-Bugfixes:
-
-- Adds some docs for basic builder

@@ -1,5 +1,0 @@
-LaTeXTools Plugin version 3.10.3 (2016-08-05) changelog:
-
-Bugfixes:
-
-- fancy prefix was too greedy (#800)

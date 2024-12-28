@@ -1,5 +1,0 @@
-LaTeXTools Plugin version 3.10.4 (2016-08-05) changelog:
-
-Bugfixes:
-
-- log files were not processed properly due to relative paths not being resolved correctly

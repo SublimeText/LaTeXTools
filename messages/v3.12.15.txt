@@ -1,4 +1,0 @@
-LaTeXTools Plugin version 3.12.15 (2017-01-14) changelog:
-
-Bugfixes:
-- Fixed a bug which caused bibtex not to be run when using the Harvard package (#1007)

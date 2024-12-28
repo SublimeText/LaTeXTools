@@ -1,6 +1,0 @@
-LaTeXTools Plugin version 3.8.2 (2016-06-19) changelog:
-
-Bugfixes:
-
-- Fix setting inheritence (#749)
-- Added some necessary docs on Zathura, Okular, etc.

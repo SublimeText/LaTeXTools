@@ -1,5 +1,0 @@
-LaTeXTools Plugin version 3.7.3 (2016-04-20) changelog:
-
-Bugfix:
-
-- Fix additional issues with bib parsing reported on #686

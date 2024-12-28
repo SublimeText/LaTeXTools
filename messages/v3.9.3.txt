@@ -1,6 +1,0 @@
-LaTeXTools Plugin version 3.9.3 (2016-07-25) changelog:
-
-
-Bugfixes:
-
-- Jump to anyhwere keybindings are now unique: `ctrl-alt-leftclick` (Windows) / `super-leftclick` Linux) / `ctrl-super-leftclick` (OSX). If you want to change, them or they does not work run the "LaTeXTools: Create mousemap in user folder" command from the command panel.

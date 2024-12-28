@@ -1,5 +1,0 @@
-LaTeXTools Plugin version st3-4.0.0-alpha.9 (2019-07-16) changelog:
-
-Features:
-
-- Improve cwl support by interpreting the #include keyword (#1345)
