@@ -161,7 +161,8 @@ class CmdThread(threading.Thread):
                 # TODO: clean up?
                 with self.caller.proc_lock:
                     if not self.caller.proc:
-                        logger.debug (proc.returncode)
+                        logger.info("Build canceled")
+                        logger.debug("with returncode %d", proc.returncode)
                         self.caller.output("\n\n[User terminated compilation process]\n")
                         self.caller.finish(False)   # We kill, so won't switch to PDF anyway
                         return

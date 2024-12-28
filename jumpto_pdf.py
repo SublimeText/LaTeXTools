@@ -75,7 +75,7 @@ def get_viewer():
     return viewer
 
 
-# Jump to current line in PDF file
+# Jump to current row in PDF file
 # NOTE: must be called with {"from_keybinding": <boolean>} as arg
 class LatextoolsJumptoPdfCommand(sublime_plugin.WindowCommand):
 
@@ -106,7 +106,11 @@ class LatextoolsJumptoPdfCommand(sublime_plugin.WindowCommand):
         from_keybinding = args.pop("from_keybinding", False)
         if from_keybinding:
             forward_sync = True
-        logger.debug(from_keybinding, keep_focus, forward_sync)
+
+        logger.debug(
+            "from_keybinding=%s, keep_focus=%s, forward_sync=%s",
+            from_keybinding, keep_focus, forward_sync
+        )
 
         file_name = view.file_name()
         if not is_tex_file(file_name):
@@ -140,11 +144,11 @@ class LatextoolsJumptoPdfCommand(sublime_plugin.WindowCommand):
 
         pdffile = os.path.realpath(pdffile)
 
-        (line, col) = view.rowcol(view.sel()[0].end())
-        logger.debug("Jump to: ", line, col)
+        (row, col) = view.rowcol(view.sel()[0].end())
+        logger.debug("Jump to row: %d col: %d", row, col)
         # column is actually ignored up to 0.94
-        # HACK? It seems we get better results incrementing line
-        line += 1
+        # HACK? It seems we get better results incrementing row
+        row += 1
 
         # issue #625: we need to pass the path to the file to the viewer when
         # there are files in subfolders of the main folder.
@@ -158,7 +162,7 @@ class LatextoolsJumptoPdfCommand(sublime_plugin.WindowCommand):
 
         if forward_sync:
             try:
-                viewer.forward_sync(pdffile, srcfile, line, col, keep_focus=keep_focus)
+                viewer.forward_sync(pdffile, srcfile, row, col, keep_focus=keep_focus)
             except (AttributeError, NotImplementedError):
                 try:
                     viewer.view_file(pdffile, keep_focus=keep_focus)
