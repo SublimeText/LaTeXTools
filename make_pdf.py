@@ -153,8 +153,9 @@ class CmdThread(threading.Thread):
                 with self.caller.proc_lock:
                     self.caller.proc = proc
                 out, err = proc.communicate()
-                self.caller.builder.set_output(out.decode(self.caller.encoding,"ignore"))
-
+                out = out.decode(self.caller.encoding, "ignore")
+                out = out.replace("\r\n", "\n").replace("\r", "\n")
+                self.caller.builder.set_output(out)
 
                 # Here the process terminated, but it may have been killed. If so, stop and don't read log
                 # Since we set self.caller.proc above, if it is None, the process must have been killed.
