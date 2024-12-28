@@ -19,8 +19,7 @@ def _make_caption(ana, entry):
 
 class LatextoolsSearchCommandCommand(sublime_plugin.WindowCommand):
     def run(self, commands, only_current_file=False):
-        window = self.window
-        view = window.active_view()
+        view = self.window.active_view()
         tex_root = get_tex_root(view)
 
         ana = analysis.analyze_document(tex_root)
@@ -40,7 +39,6 @@ class LatextoolsSearchCommandInputCommand(sublime_plugin.WindowCommand):
         return view and view.match_selector(0, "text.tex")
 
     def run(self, only_current_file=False):
-        window = self.window
 
         def on_done(text):
             commands = [c.strip() for c in text.split(",")]
@@ -48,12 +46,13 @@ class LatextoolsSearchCommandInputCommand(sublime_plugin.WindowCommand):
                 "commands": commands,
                 "only_current_file": only_current_file
             }
-            window.run_command("latextools_search_command", kwargs)
+            self.window.run_command("latextools_search_command", kwargs)
 
         def do_nothing(text):
             pass
+
         caption = "Search for commands in a comma (,) separated list"
-        window.show_input_panel(caption, "", on_done, do_nothing, do_nothing)
+        self.window.show_input_panel(caption, "", on_done, do_nothing, do_nothing)
 
 
 deprecate(globals(), 'LatexSearchCommandCommand', LatextoolsSearchCommandCommand)

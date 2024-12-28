@@ -136,7 +136,7 @@ def _generate_package_cache():
 # Generates a cache for installed latex packages, classes and bst.
 # Used for fill all command for \documentclass, \usepackage and
 # \bibliographystyle envrioments
-class LatextoolsGenPkgCacheCommand(sublime_plugin.WindowCommand):
+class LatextoolsGenPkgCacheCommand(sublime_plugin.ApplicationCommand):
 
     def run(self):
         # use a separate thread to update cache

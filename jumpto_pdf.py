@@ -77,13 +77,20 @@ def get_viewer():
 
 # Jump to current line in PDF file
 # NOTE: must be called with {"from_keybinding": <boolean>} as arg
-class LatextoolsJumpToPdfCommand(sublime_plugin.TextCommand):
+class LatextoolsJumpToPdfCommand(sublime_plugin.WindowCommand):
 
-    def is_visible(self, *args):
-        view = sublime.active_window().active_view()
-        return view and view.match_selector(0, "text.tex")
+    def is_visible(self):
+        view = self.window.active_view()
+        return view and view.match_selector(0, 'text.tex')
 
-    def run(self, edit, **args):
+    def run(self, **args):
+        view = self.window.active_view()
+        if not view:
+            return
+
+        if not view.match_selector(0, "text.tex"):
+            return
+
         # Check prefs for PDF focus and sync
         keep_focus = args.get('keep_focus', get_setting('keep_focus', True))
         forward_sync = args.get('forward_sync', get_setting('forward_sync', True))
@@ -100,8 +107,6 @@ class LatextoolsJumpToPdfCommand(sublime_plugin.TextCommand):
         if from_keybinding:
             forward_sync = True
         logger.debug(from_keybinding, keep_focus, forward_sync)
-
-        view = self.view
 
         file_name = view.file_name()
         if not is_tex_file(file_name):
@@ -122,21 +127,12 @@ class LatextoolsJumpToPdfCommand(sublime_plugin.TextCommand):
 
         output_directory = get_output_directory(view)
         if output_directory is None:
-            pdffile = os.path.join(
-                os.path.dirname(root),
-                file_name + '.pdf'
-            )
-        else:
-            pdffile = os.path.join(
-                output_directory,
-                file_name + '.pdf'
-            )
+            pdffile = os.path.join(os.path.dirname(root), file_name + '.pdf')
 
+        else:
+            pdffile = os.path.join(output_directory, file_name + '.pdf')
             if not os.path.exists(pdffile):
-                pdffile = os.path.join(
-                    os.path.dirname(root),
-                    file_name + '.pdf'
-                )
+                pdffile = os.path.join(os.path.dirname(root), file_name + '.pdf')
 
         if not os.path.exists(pdffile):
             logger.error("Expected PDF file %s not found", pdffile)
@@ -144,7 +140,7 @@ class LatextoolsJumpToPdfCommand(sublime_plugin.TextCommand):
 
         pdffile = os.path.realpath(pdffile)
 
-        (line, col) = self.view.rowcol(self.view.sel()[0].end())
+        (line, col) = view.rowcol(view.sel()[0].end())
         logger.debug("Jump to: ", line, col)
         # column is actually ignored up to 0.94
         # HACK? It seems we get better results incrementing line
@@ -153,7 +149,7 @@ class LatextoolsJumpToPdfCommand(sublime_plugin.TextCommand):
         # issue #625: we need to pass the path to the file to the viewer when
         # there are files in subfolders of the main folder.
         # Thanks rstein and arahlin for this code!
-        srcfile = self.view.file_name()
+        srcfile = view.file_name()
 
         try:
             viewer = get_viewer()
@@ -208,6 +204,9 @@ class LatextoolsViewPdfCommand(sublime_plugin.WindowCommand):
             view = self.window.active_view()
 
             root = get_tex_root(view)
+            if root is None:
+                return
+
             file_name = get_jobname(view)
 
             output_directory = get_output_directory(view)

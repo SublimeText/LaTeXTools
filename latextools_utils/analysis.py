@@ -323,11 +323,11 @@ def get_analysis(tex_root):
     An Analysis of the view, which contains all relevant information and
     provides access methods to useful properties
     """
-    if tex_root is None:
+    if not tex_root:
         return
     if isinstance(tex_root, sublime.View):
         tex_root = get_tex_root(tex_root)
-        if tex_root is None:
+        if not tex_root:
             return
     elif not isinstance(tex_root, str):
         raise TypeError("tex_root must be a string or view")
@@ -388,11 +388,11 @@ def analyze_document(tex_root):
     An Analysis of the view, which contains all relevant information and
     provides access methods to useful properties
     """
-    if tex_root is None:
+    if not tex_root:
         return
     if isinstance(tex_root, sublime.View):
         tex_root = get_tex_root(tex_root)
-        if tex_root is None:
+        if not tex_root:
             return
     elif not isinstance(tex_root, str):
         raise TypeError("tex_root must be a string or view")

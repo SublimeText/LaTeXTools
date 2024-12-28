@@ -175,6 +175,7 @@ class LatextoolsAutoDetectSpellcheckListener(sublime_plugin.EventListener):
 class LatextoolsDetectSpellcheckCommand(sublime_plugin.WindowCommand):
     def run(self):
         view = self.window.active_view()
-        update_dict_language(view)
+        if view:
+            update_dict_language(view)
 
 deprecate(globals(), 'LatexDetectSpellcheckCommand', LatextoolsDetectSpellcheckCommand)

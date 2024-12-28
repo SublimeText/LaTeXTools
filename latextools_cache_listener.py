@@ -95,7 +95,7 @@ class LatextoolsCacheUpdateListener(
             return
 
         tex_root = get_tex_root(view)
-        if tex_root is None:
+        if not tex_root:
             return
 
         self._TEX_CACHES[view.id()] = local_cache = LocalCache(tex_root)
@@ -166,7 +166,7 @@ class LatextoolsCacheUpdateListener(
             return
 
         tex_root = get_tex_root(view)
-        if tex_root is None:
+        if not tex_root:
             return
 
         _id = view.id()
@@ -186,47 +186,37 @@ class LatextoolsCacheUpdateListener(
         self.run_cache_update()
 
 
-class LatextoolsCacheUpdateCommand(object):
-
-    def is_visible(self):
-        view = sublime.active_window().active_view()
-        return view and view.match_selector(0, 'text.tex.latex')
-
-
-class LatextoolsAnalysisUpdateCommand(
-    sublime_plugin.TextCommand, LatextoolsCacheUpdateCommand,
-    LatextoolsAnalysisUpdater
-):
+class LatextoolsAnalysisUpdateCommand(sublime_plugin.WindowCommand, LatextoolsAnalysisUpdater):
 
     def __init__(self, *args, **kwargs):
         super(LatextoolsAnalysisUpdateCommand, self).__init__(*args, **kwargs)
 
-    def run(self, edit):
-        if not self.view.match_selector(0, 'text.tex.latex'):
-            return
+    def is_visible(self):
+        view = self.window.active_view()
+        return view and view.match_selector(0, 'text.tex.latex')
 
-        tex_root = get_tex_root(self.view)
-        if tex_root is None:
+    def run(self, edit):
+        tex_root = get_tex_root(self.window.active_view())
+        if not tex_root:
             return
 
         self.run_analysis(tex_root)
         self.run_cache_update()
 
 
-class LatextoolsBibcacheUpdateCommand(
-    sublime_plugin.TextCommand, LatextoolsCacheUpdateCommand,
-    LatextoolsBibCacheUpdater
-):
+
+class LatextoolsBibcacheUpdateCommand(sublime_plugin.WindowCommand, LatextoolsBibCacheUpdater):
 
     def __init__(self, *args, **kwargs):
         super(LatextoolsBibcacheUpdateCommand, self).__init__(*args, **kwargs)
 
-    def run(self, edit):
-        if not self.view.match_selector(0, 'text.tex.latex'):
-            return
+    def is_visible(self):
+        view = self.window.active_view()
+        return view and view.match_selector(0, 'text.tex.latex')
 
-        tex_root = get_tex_root(self.view)
-        if tex_root is None:
+    def run(self, edit):
+        tex_root = get_tex_root(self.window.active_view())
+        if not tex_root:
             return
 
         self.run_bib_cache(tex_root)

@@ -78,7 +78,7 @@
 	},
 	{
 		"caption": "LaTeXTools: Update bibliography cache",
-		"command": "latextools_bib_update"
+		"command": "latextools_bibcache_update"
 	},
 	{
 		"caption": "LaTeXTools: Paste Image from Clipboard",

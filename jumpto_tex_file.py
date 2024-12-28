@@ -231,14 +231,13 @@ def _split_bib_args(bib_args):
     return file_names
 
 
-class LatextoolsJumptoFileCommand(sublime_plugin.TextCommand):
+class LatextoolsJumptoFileCommand(sublime_plugin.WindowCommand):
 
-    def run(self, edit, auto_create_missing_folders=True,
-            auto_insert_root=True, position=None):
-        view = self.view
-        window = view.window()
+    def run(self, auto_create_missing_folders=True, auto_insert_root=True, position=None):
+        window = self.window
+        view = window.active_view()
         tex_root = get_tex_root(view)
-        if tex_root is None:
+        if not tex_root:
             sublime.status_message("Save your current file first")
             return
 

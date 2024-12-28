@@ -66,13 +66,18 @@ def _show_toggle_overlay(window, view, prefix, setting_keys):
 
 
 class LatextoolsToggleKeysCommand(sublime_plugin.WindowCommand):
-    def is_visible(self, *args):
-        view = sublime.active_window().active_view()
-        return view and view.match_selector(0, "text.tex.latex")
+    def is_visible(self):
+        view = self.window.active_view()
+        return view and view.match_selector(0, 'text.tex.latex')
 
     def run(self, character="", prefix=""):
-        window = self.window
-        view = window.active_view()
+        view = self.window.active_view()
+        if not view:
+            return
+
+        if not view.match_selector(0, "text.tex.latex"):
+            return
+
         setting_keys = get_setting("toggle_setting_keys", [], view={})
         toggle_keys = {k: v for v, k, *_ in setting_keys}
         if prefix:
@@ -88,4 +93,4 @@ class LatextoolsToggleKeysCommand(sublime_plugin.WindowCommand):
             _toggle_setting(setting_name, view)
         else:
             # show the overlay with all settings
-            _show_toggle_overlay(window, view, prefix, setting_keys)
+            _show_toggle_overlay(self.window, view, prefix, setting_keys)

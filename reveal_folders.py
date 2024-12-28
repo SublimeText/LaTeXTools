@@ -30,8 +30,7 @@ class LatextoolsRevealAuxDirectoryCommand(sublime_plugin.WindowCommand):
         )
 
     def run(self):
-        window = self.window
-        view = window.active_view()
+        view = self.window.active_view()
         folder = get_aux_directory(view)
         if not folder:
             message = "'aux directory' not found"
@@ -45,7 +44,7 @@ class LatextoolsRevealAuxDirectoryCommand(sublime_plugin.WindowCommand):
             return
 
         logger.debug("open folder '%s'", folder)
-        window.run_command("open_dir", {"dir": folder})
+        self.window.run_command("open_dir", {"dir": folder})
 
 
 class LatextoolsRevealOutputDirectoryCommand(sublime_plugin.WindowCommand):
@@ -62,8 +61,7 @@ class LatextoolsRevealOutputDirectoryCommand(sublime_plugin.WindowCommand):
         )
 
     def run(self):
-        window = self.window
-        view = window.active_view()
+        view = self.window.active_view()
         folder = get_output_directory(view)
         if not folder:
             message = "'output directory' not found"
@@ -77,7 +75,7 @@ class LatextoolsRevealOutputDirectoryCommand(sublime_plugin.WindowCommand):
             return
 
         logger.debug("open folder '%s'", folder)
-        window.run_command("open_dir", {"dir": folder})
+        self.window.run_command("open_dir", {"dir": folder})
 
 
 class LatextoolsRevealTexRootDirectoryCommand(sublime_plugin.WindowCommand):
@@ -91,12 +89,11 @@ class LatextoolsRevealTexRootDirectoryCommand(sublime_plugin.WindowCommand):
         return view and view.match_selector(0, "text.tex.latex")
 
     def run(self):
-        window = self.window
-        view = window.active_view()
-        tex_root = get_tex_root(view)
+        tex_root = get_tex_root(self.window.active_view())
         if not tex_root:
             return
+
         folder, file = os.path.split(tex_root)
 
         logger.debug("open folder '%s', file: %s", folder, file)
-        window.run_command("open_dir", {"dir": folder, "file": file})
+        self.window.run_command("open_dir", {"dir": folder, "file": file})

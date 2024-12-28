@@ -44,21 +44,15 @@ class LatextoolsClearLocalCacheCommand(sublime_plugin.WindowCommand):
         return view and view.match_selector(0, "text.tex.latex")
 
     def run(self):
-        view = self.window.active_view()
-        if not view:
+        tex_root = get_tex_root(self.window.active_view())
+        if not tex_root:
             return
 
-        if not view.match_selector(0, "text.tex.latex"):
-            return
-
-        tex_root = get_tex_root(view)
-        if tex_root:
-            # clear the cache
-            try:
-                cache.LocalCache(tex_root).invalidate()
-            except Exception:
-                logger.error('Error while trying to delete local cache')
-                traceback.print_exc()
+        try:
+            cache.LocalCache(tex_root).invalidate()
+        except Exception:
+            logger.error('Error while trying to delete local cache')
+            traceback.print_exc()
 
 
 class LatextoolsClearBibliographyCacheCommand(sublime_plugin.WindowCommand):
@@ -118,9 +112,6 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
     def run(self):
         # Retrieve root file and dirname.
         view = self.window.active_view()
-        if view is None:
-            return
-
         root_file = get_tex_root(view)
         if root_file is None:
             msg = \

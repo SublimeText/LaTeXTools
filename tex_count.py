@@ -12,13 +12,17 @@ from .latextools_utils.tex_directives import get_tex_root
 __all__ = ["LatextoolsTexcountCommand"]
 
 
-class LatextoolsTexcountCommand(sublime_plugin.TextCommand):
+class LatextoolsTexcountCommand(sublime_plugin.WindowCommand):
     """
-    Simple TextCommand to run TeXCount against the current document
+    Simple WindowCommand to run TeXCount against the current document
     """
 
+    def is_visible(self):
+        view = self.window.active_view()
+        return view and view.match_selector(0, 'text.tex.latex')
+
     def run(self, edit, **args):
-        tex_root = get_tex_root(self.view)
+        tex_root = get_tex_root(self.window.active_view())
 
         if not tex_root or not os.path.exists(tex_root):
             sublime.error_message(
@@ -48,12 +52,10 @@ class LatextoolsTexcountCommand(sublime_plugin.TextCommand):
         try:
             result = check_output(command, cwd=cwd)
             res_split = result.splitlines()
-            window = self.view.window()
-            if window:
-                window.show_quick_panel(
-                    res_split[1:4] + res_split[9:],
-                    lambda _: None
-                )
+            self.window.show_quick_panel(
+                res_split[1:4] + res_split[9:],
+                lambda _: None
+            )
         except CalledProcessError as e:
             sublime.error_message(
                 'Error while running TeXCount: {0}'.format(e.output or e)
@@ -64,10 +66,6 @@ class LatextoolsTexcountCommand(sublime_plugin.TextCommand):
                 'installed and that your texpath setting includes the path '
                 'containing the TeXcount executable.'
             )
-
-    def is_visible(self, *args):
-        view = self.view
-        return view and view.match_selector(0, 'text.tex.latex')
 
 
 deprecate(globals(), 'TexcountCommand', LatextoolsTexcountCommand)

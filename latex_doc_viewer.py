@@ -32,17 +32,11 @@ def _view_texdoc(file):
 
 class LatextoolsPkgDocCommand(sublime_plugin.WindowCommand):
     def run(self):
-        window = self.window
-
         def _on_done(file):
-            if (
-                file is not None and
-                isinstance(file, str) and
-                file != ''
-            ):
-                window.run_command('latextools_view_doc', {'file': file})
+            if file and isinstance(file, str):
+                self.window.run_command('latextools_view_doc', {'file': file})
 
-        window.show_input_panel(
+        self.window.show_input_panel(
             'View documentation for which package?',
             '',
             _on_done,
