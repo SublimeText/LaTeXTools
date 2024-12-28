@@ -307,11 +307,13 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
         # NB this may not work if there are other punctuation marks in the
         # completion
 
-        # this workaround is no longer needed in st4
+        # This workaround is no longer needed in st4 in its current form
+        # ST4 has different issues when committing various items after each
+        # other, which can't be solved by preprocessing completions.
 
         if ST_VER < 4058 and is_prefixed:
             completions = [
-                (c[0], c[1][1:]) if c[1].startswith("\\") else c
+                (c[0], c[1][1:]) if c[1].startswith("\\") and "$" in c[1] else c
                 for c in completions
             ]
 
