@@ -61,7 +61,8 @@
 	},
 	{
 		"caption": "LaTeXTools: Open Detexify",
-		"command": "latextools_open_detexify"
+		"command": "open_url",
+		"args": { "url": "https://detexify.kirelabs.org/classify.html" },
 	},
 	{
 		"caption": "LaTeXTools: View TeX package documentation",
