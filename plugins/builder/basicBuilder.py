@@ -60,7 +60,7 @@ class BasicBuilder(PdfBuilder):
         if engine not in ['pdflatex', 'xelatex', 'lualatex']:
             engine = 'pdflatex'
 
-        latex = [engine, "-interaction=nonstopmode", "-synctex=1"]
+        latex = [engine, "-interaction=nonstopmode", "-shell-escape", "-synctex=1"]
         biber = ["biber"]
 
         if self.aux_directory is not None:
