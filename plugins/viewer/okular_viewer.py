@@ -1,10 +1,10 @@
 import time
 
-from base_viewer import BaseViewer
-
 from latextools_utils.external_command import check_output
 from latextools_utils.external_command import external_command
 from latextools_utils.settings import get_setting
+
+from base_viewer import BaseViewer
 
 
 class OkularViewer(BaseViewer):

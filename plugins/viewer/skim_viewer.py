@@ -1,8 +1,9 @@
-from base_viewer import BaseViewer
-
 import os
 
-from latextools_utils.external_command import check_output, external_command
+from latextools_utils.external_command import check_output
+from latextools_utils.external_command import external_command
+
+from base_viewer import BaseViewer
 
 
 class SkimViewer(BaseViewer):
