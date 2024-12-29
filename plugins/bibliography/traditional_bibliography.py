@@ -3,7 +3,7 @@ import re
 import sublime
 import traceback
 
-from LaTeXTools.external import latex_chars
+from external import latex_chars
 
 from latextools_plugin import LaTeXToolsPlugin
 from latextools_utils import bibcache

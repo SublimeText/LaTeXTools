@@ -3,10 +3,10 @@ import collections
 import sublime
 import traceback
 
-from LaTeXTools.external import latex_chars
-from LaTeXTools.external.bibtex import Parser
-from LaTeXTools.external.bibtex.names import Name
-from LaTeXTools.external.bibtex.tex import tokenize_list
+from external import latex_chars
+from external.bibtex import Parser
+from external.bibtex.names import Name
+from external.bibtex.tex import tokenize_list
 
 from latextools_plugin import LaTeXToolsPlugin
 from latextools_utils import bibcache
