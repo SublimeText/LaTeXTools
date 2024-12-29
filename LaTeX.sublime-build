@@ -25,21 +25,21 @@
 
 	"variants": [
 		{
-			"name": "Traditional",
+			"name": "Traditional Builder",
 			"builder": "traditional"
 		},
 		{
-			"name": "PdfLaTeX",
+			"name": "Traditional Builder with PdfLaTeX",
 			"builder": "traditional",
 			"program": "pdflatex"
 		},
 		{
-			"name": "XeLaTeX",
+			"name": "Traditional Builder with XeLaTeX",
 			"builder": "traditional",
 			"program": "xelatex"
 		},
 		{
-			"name": "LuaLaTeX",
+			"name": "Traditional Builder with LuaLaTeX",
 			"builder": "traditional",
 			"program": "lualatex"
 		},
@@ -48,17 +48,17 @@
 			"builder": "basic"
 		},
 		{
-			"name": "Basic Builder - PdfLaTeX",
+			"name": "Basic Builder with PdfLaTeX",
 			"builder": "basic",
 			"program": "pdflatex"
 		},
 		{
-			"name": "Basic Builder - XeLaTeX",
+			"name": "Basic Builder with XeLaTeX",
 			"builder": "basic",
 			"program": "xelatex"
 		},
 		{
-			"name": "Basic Builder - LuaLaTeX",
+			"name": "Basic Builder with LuaLaTeX",
 			"builder": "basic",
 			"program": "lualatex"
 		},
