@@ -1,16 +1,16 @@
-from pdfBuilder import PdfBuilder
-import sublime
-
 import os
 import re
+import sublime
 import subprocess
 
 from shlex import quote
 from string import Template
 
-from latextools_utils.external_command import (
-    external_command, get_texpath, update_env
-)
+from latextools_utils.external_command import external_command
+from latextools_utils.external_command import get_texpath
+from latextools_utils.external_command import update_env
+
+from pdf_builder import PdfBuilder
 
 
 class ScriptBuilder(PdfBuilder):

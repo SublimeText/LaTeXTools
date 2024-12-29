@@ -846,7 +846,7 @@ def plugin_loaded():
     ltt_path = os.path.join(sublime.packages_path(), 'LaTeXTools', 'plugins', 'builder')
     # ensure that pdfBuilder is loaded first as otherwise, the other builders
     # will not be registered as plugins
-    add_plugin_path(os.path.join(ltt_path, 'pdfBuilder.py'))
+    add_plugin_path(os.path.join(ltt_path, 'pdf_builder.py'))
     add_plugin_path(ltt_path)
 
 deprecate(globals(), 'make_pdfCommand', LatextoolsMakePdfCommand)

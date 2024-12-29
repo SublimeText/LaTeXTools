@@ -97,4 +97,4 @@ class PdfBuilder(LaTeXToolsPlugin):
 
 
 # ensure pdfBuilder is available to any custom builders
-add_whitelist_module('pdfBuilder', sys.modules[PdfBuilder.__module__])
+add_whitelist_module('pdf_builder', sys.modules[PdfBuilder.__module__])

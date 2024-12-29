@@ -1,8 +1,7 @@
 import os.path
 import re
-# This will work because makePDF.py puts the appropriate
-# builders directory in sys.path
-from pdfBuilder import PdfBuilder
+
+from pdf_builder import PdfBuilder
 
 
 class SimpleBuilder(PdfBuilder):

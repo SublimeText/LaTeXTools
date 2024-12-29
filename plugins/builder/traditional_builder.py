@@ -1,6 +1,7 @@
 import shlex
 import sublime
-from pdfBuilder import PdfBuilder
+
+from pdf_builder import PdfBuilder
 
 DEFAULT_COMMAND_LATEXMK = [
     "latexmk", "-cd", "-f", "-%E", "-interaction=nonstopmode", "-synctex=1"
