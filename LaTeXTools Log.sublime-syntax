@@ -131,32 +131,32 @@ contexts:
 
   strings:
     - match: '<<'
-      scope: punctuation.definition.string.begin.log.latex
+      scope: punctuation.definition.string.begin.log
       push: double-angled-string-body
     - match: '<'
-      scope: punctuation.definition.string.begin.log.latex
+      scope: punctuation.definition.string.begin.log
       push: single-angled-string-body
     - match: '`'
-      scope: punctuation.definition.string.begin.log.latex
+      scope: punctuation.definition.string.begin.log
       push: single-quoted-string-body
 
   double-angled-string-body:
-    - meta_scope: string.quoted.other.log.latex
+    - meta_scope: string.quoted.other.log
     - match: '>>'
-      scope: punctuation.definition.string.end.log.latex
+      scope: punctuation.definition.string.end.log
       pop: true
 
   single-angled-string-body:
-    - meta_scope: string.quoted.other.log.latex
+    - meta_scope: string.quoted.other.log
     - match: '>'
-      scope: punctuation.definition.string.end.log.latex
+      scope: punctuation.definition.string.end.log
       pop: true
 
   single-quoted-string-body:
-    - meta_scope: string.quoted.single.log.latex
+    - meta_scope: string.quoted.single.log
     - match: ''''
-      scope: punctuation.definition.string.end.log.latex
+      scope: punctuation.definition.string.end.log
       pop: true
     - match: \.$
-      scope: punctuation.definition.string.end.log.latex
+      scope: punctuation.definition.string.end.log
       pop: true
