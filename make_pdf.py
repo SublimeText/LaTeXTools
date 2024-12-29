@@ -818,13 +818,21 @@ class LatextoolsDoFinishEditCommand(sublime_plugin.TextCommand):
 
 class LatextoolsExecEventListener(sublime_plugin.EventListener):
     def on_load(self, view):
-        if not view.match_selector(0, "text.tex"):
+        # assign latex log syntax based on view's first line
+        if view.match_selector(0, "text.plain"):
+            first_line = view.substr(sublime.Region(0, 40))
+            if re.search(r"^This is (?:LuaHB|pdfe?|Xe)?(?:La)?TeXk?, Version ", first_line):
+                view.assign_syntax("LaTeXTools Log.sublime-syntax")
             return
-        w = view.window()
-        if w is not None:
-            w.run_command("latextools_make_pdf", {"update_annotations_only": True})
+
+        # update build result annotations
+        if view.match_selector(0, "text.tex"):
+            w = view.window()
+            if w is not None:
+                w.run_command("latextools_make_pdf", {"update_annotations_only": True})
 
     def on_query_context(self, view, key, operator, operand, match_all):
+        # provide context for conditional key bindings
         if key != "latextools_inline_errors_visible":
             return False
 
