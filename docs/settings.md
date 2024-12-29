@@ -177,8 +177,7 @@ Other example formats are provided in the settings file.
 
 ## Cache Settings
 
-* `hide_local_cache` (`true`): Whether the local cache should be hidden in the sublime cache path (`true`) or in the same directory as the root file (`false`). See the section [LaTeXTools Cache](#latextools-cache).
-* `local_cache_life_span` (`30 m`): The lifespan of the local cache, specified in the format `" d x h X m X s"` where `X` is a natural number `s` stands for seconds, `m` for minutes, `h` for hours, and `d` for days. Missing fields will be treated as 0 and white-spaces are optional. Hence you can write `"1 h 30 m"` to refresh the cached data every one and a half hours. If you use `"infinite"` the cache will not be invalidated automatically. A lower lifespan will produce results, which are more up to date. However it requires more recalculations and might decrease the performance.
+* `cache.life_span` (`30 m`): The lifespan of the local cache, specified in the format `" d x h X m X s"` where `X` is a natural number `s` stands for seconds, `m` for minutes, `h` for hours, and `d` for days. Missing fields will be treated as 0 and white-spaces are optional. Hence you can write `"1 h 30 m"` to refresh the cached data every one and a half hours. If you use `"infinite"` the cache will not be invalidated automatically. A lower lifespan will produce results, which are more up to date. However it requires more recalculations and might decrease the performance.
 
 ## Project-Specific Settings
 

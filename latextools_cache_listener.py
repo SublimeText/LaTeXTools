@@ -10,8 +10,8 @@ from .latex_cite_completions import find_bib_files
 from .latex_cite_completions import run_plugin_command
 from .latextools_utils import analysis
 from .latextools_utils.activity_indicator import ActivityIndicator
-from .latextools_utils.bibcache import BibCache
 from .latextools_utils.cache import LocalCache
+from .latextools_utils.logging import logger
 from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
 
@@ -21,203 +21,118 @@ __all__ = [
     "LatextoolsBibcacheUpdateCommand",
 ]
 
-
-class LatextoolsCacheUpdater(object):
-
-    def __init__(self):
-        super(LatextoolsCacheUpdater, self).__init__()
-        self._steps = []
-
-    def add_step(self, step):
-        if step is None:
-            raise ValueError('step cannot be None')
-        elif not callable(step):
-            raise TypeError('step must be a no-args function')
-
-        self._steps.append(step)
-
-    def run_cache_update(self):
-        t = threading.Thread(target=self._run_cache_update)
-        t.daemon = True
-        t.start()
-
-    def _run_cache_update(self):
-        with ActivityIndicator('Updating LaTeXTools cache') as activity:
-            for step in self._steps:
-                try:
-                    step()
-                except Exception:
-                    traceback.print_exc()
-                else:
-                    activity.finish('LaTeXTools cache updated')
+# stores a cache instance per open LaTeX view
+# note that cache instances share state
+_TEX_CACHES = {}
 
 
-class LatextoolsAnalysisUpdater(LatextoolsCacheUpdater):
-
-    def run_analysis(self, tex_root):
-        self.add_step(partial(self._run_analysis, tex_root))
-
-    def _run_analysis(self, tex_root):
-        LocalCache(tex_root).set(
-            'analysis', analysis.analyze_document(tex_root)
-        )
-
-
-class LatextoolsBibCacheUpdater(LatextoolsCacheUpdater):
-
-    def run_bib_cache(self, tex_root):
-        self.add_step(partial(self._invalidate_find_bib_files, tex_root))
-        self.add_step(partial(self._run_bib_cache, tex_root))
-
-    def _invalidate_find_bib_files(self, tex_root):
-        LocalCache(tex_root).invalidate('bib_files')
-
-    def _run_bib_cache(self, tex_root):
-        run_plugin_command('get_entries', *(find_bib_files(tex_root) or []))
-
-
-class LatextoolsCacheUpdateListener(
-    sublime_plugin.EventListener, LatextoolsAnalysisUpdater,
-    LatextoolsBibCacheUpdater
-):
-
-    # stores a cache instance per open LaTeX view
-    # note that cache instances share state
-    _TEX_CACHES = {}
-    _TEX_ROOT_REFS = collections.defaultdict(lambda: 0)
-    _BIB_CACHES = {}
-
-    def on_load_async(self, view):
-        if not view.match_selector(0, 'text.tex.latex'):
-            return
-        on_load = get_setting('cache_on_load', {}, view=view)
-        if not on_load or not any(on_load.values()):
-            return
-
+def get_cache(view):
+    vid = view.id()
+    cache = _TEX_CACHES.get(vid)
+    if cache is None:
         tex_root = get_tex_root(view)
         if not tex_root:
             return
 
-        self._TEX_CACHES[view.id()] = local_cache = LocalCache(tex_root)
-        self._TEX_ROOT_REFS[tex_root] += 1
+        cache = _TEX_CACHES[vid] = LocalCache(tex_root)
+
+    return cache
+
+
+def remove_cache(view):
+    _TEX_CACHES.pop(view.id(), None)
+
+
+def update_cache(cache, doc, bib):
+    def worker():
+        with ActivityIndicator("Updating LaTeXTools cache") as activity:
+            try:
+                cache.invalidate("bib_files")
+                if doc:
+                    logger.debug("Updating analysis cache for %s", cache.tex_root)
+                    cache.set("analysis", analysis.analyze_document(cache.tex_root))
+                if bib:
+                    logger.debug("Updating bibliography cache for %s", cache.tex_root)
+                    run_plugin_command(
+                        "get_entries", *(find_bib_files(cache.tex_root) or [])
+                    )
+            except Exception:
+                traceback.print_exc()
+            else:
+                activity.finish("LaTeXTools cache updated")
+
+    if cache and (doc or bib):
+        threading.Thread(target=worker).start()
+
+
+class LatextoolsCacheUpdateListener(sublime_plugin.EventListener):
+    def on_load(self, view):
+        if not view.match_selector(0, "text.tex.latex"):
+            return
+
+        update_doc = get_setting("cache.analysis.update_on_load", True, view)
+        update_bib = get_setting("cache.bibliography.update_on_load", True, view)
+        if not update_doc and not update_bib:
+            return
+
+        cache = get_cache(view)
+        if not cache:
+            return
 
         # because cache state is shared amongst all documents sharing a tex
         # root, this ensure we only load the analysis ONCE in the on_load
         # event
-        if (
-            not local_cache.has('analysis') and
-            on_load.get('analysis', False)
-        ):
-            self.run_analysis(tex_root)
-
-        if tex_root not in self._BIB_CACHES:
-            if on_load.get('bibliography', False):
-                self.run_bib_cache(tex_root)
-
-            self._BIB_CACHES[tex_root] = bib_caches = []
-
-            LocalCache(tex_root).invalidate('bib_files')
-            bib_files = find_bib_files(tex_root)
-
-            plugins = get_setting(
-                'bibliography_plugins', ['traditional'], view=view)
-            if not isinstance(plugins, list):
-                plugins = [plugins]
-
-            if 'new' in plugins or 'new_bibliography' in plugins:
-                for bib_file in bib_files:
-                    bib_caches.append(BibCache('new', bib_file))
-
-            if (
-                'traditional' in plugins or
-                'traditional_bibliography' in plugins
-            ):
-                for bib_file in bib_files:
-                    bib_caches.append(BibCache('trad', bib_file))
-
-        self.run_cache_update()
+        update_cache(
+            cache,
+            update_doc and not cache.has("analysis"),
+            update_bib and not cache.has("bib_files"),
+        )
 
     def on_close(self, view):
-        if not view.match_selector(0, 'text.tex.latex'):
+        remove_cache(view)
+
+    def on_post_save(self, view):
+        if not view.match_selector(0, "text.tex.latex"):
             return
 
-        _id = view.id()
-
-        try:
-            tex_root = self._TEX_CACHES[_id].tex_root
-            self._TEX_ROOT_REFS[tex_root] -= 1
-            if self._TEX_ROOT_REFS[tex_root] <= 0:
-                del self._TEX_ROOT_REFS[tex_root]
-                del self._BIB_CACHES[tex_root]
-        except Exception:
-            pass
-
-        try:
-            del self._TEX_CACHES[_id]
-        except Exception:
-            pass
-
-    def on_post_save_async(self, view):
-        if not view.match_selector(0, 'text.tex.latex'):
+        if not view.is_primary():
             return
 
-        on_save = get_setting('cache_on_save', {}, view=view)
-        if not on_save or not any(on_save.values()):
+        update_doc = get_setting("cache.analysis.update_on_save", True, view)
+        update_bib = get_setting("cache.bibliography.update_on_save", True, view)
+        if not update_doc and not update_bib:
             return
 
-        tex_root = get_tex_root(view)
-        if not tex_root:
-            return
-
-        _id = view.id()
-        if _id not in self._TEX_CACHES:
-            local_cache = self._TEX_CACHES[_id] = LocalCache(tex_root)
-        else:
-            local_cache = self._TEX_CACHES[_id]
-
-        if on_save.get('analysis', False):
-            # ensure the cache of bib_files is rebuilt on demand
-            local_cache.invalidate('bib_files')
-            self.run_analysis(tex_root)
-
-        if on_save.get('bibliography', False):
-            self.run_bib_cache(tex_root)
-
-        self.run_cache_update()
+        update_cache(get_cache(view), update_doc, update_bib)
 
 
-class LatextoolsAnalysisUpdateCommand(sublime_plugin.WindowCommand, LatextoolsAnalysisUpdater):
-
-    def __init__(self, *args, **kwargs):
-        super(LatextoolsAnalysisUpdateCommand, self).__init__(*args, **kwargs)
-
+class LatextoolsAnalysisUpdateCommand(sublime_plugin.WindowCommand):
     def is_visible(self):
         view = self.window.active_view()
-        return view and view.match_selector(0, 'text.tex.latex')
+        return view and view.match_selector(0, "text.tex.latex")
 
-    def run(self, edit):
-        tex_root = get_tex_root(self.window.active_view())
-        if not tex_root:
+    def run(self):
+        view = self.window.active_view()
+        if not view:
             return
 
-        self.run_analysis(tex_root)
-        self.run_cache_update()
+        if not view.match_selector(0, "text.tex.latex"):
+            return
+
+        update_cache(get_cache(view), True, False)
 
 
-
-class LatextoolsBibcacheUpdateCommand(sublime_plugin.WindowCommand, LatextoolsBibCacheUpdater):
-
-    def __init__(self, *args, **kwargs):
-        super(LatextoolsBibcacheUpdateCommand, self).__init__(*args, **kwargs)
-
+class LatextoolsBibcacheUpdateCommand(sublime_plugin.WindowCommand):
     def is_visible(self):
         view = self.window.active_view()
-        return view and view.match_selector(0, 'text.tex.latex')
+        return view and view.match_selector(0, "text.tex.latex")
 
-    def run(self, edit):
-        tex_root = get_tex_root(self.window.active_view())
-        if not tex_root:
+    def run(self):
+        view = self.window.active_view()
+        if not view:
             return
 
-        self.run_bib_cache(tex_root)
-        self.run_cache_update()
+        if not view.match_selector(0, "text.tex.latex"):
+            return
+
+        update_cache(get_cache(view), False, True)

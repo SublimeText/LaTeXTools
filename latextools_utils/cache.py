@@ -25,7 +25,7 @@ LOCAL_CACHE_FOLDER = "local_cache"
 # folder to store the global and the local cache
 ST2_GLOBAL_CACHE_FOLDER = ".lt_cache"
 
-# re for parsing the local_cache_life_span setting when written
+# re for parsing the cache.life_span setting when written
 # in "natural" language:
 # 100 d(ays) 100 h(ours) 100 m((in)utes) 100 s((ec)onds)
 TIME_RE = re.compile(
@@ -753,7 +753,7 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
                     return 1800
 
         with cls._LIFE_SPAN_LOCK:
-            life_span_string = get_setting('local_cache_life_span')
+            life_span_string = get_setting('cache.life_span')
             try:
                 if cls._PREV_LIFE_SPAN_STR == life_span_string:
                     return cls._PREV_LIFE_SPAN

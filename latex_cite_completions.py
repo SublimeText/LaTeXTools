@@ -436,7 +436,7 @@ def get_cite_completions(view):
 
     root = get_tex_root(view)
     if root:
-        logger.debug("TEX root:", root)
+        logger.debug("TEX root: %s", root)
         bib_files = find_bib_files(root)
         logger.debug("Bib files found:\n  %s", bib_files)
     

@@ -21,7 +21,7 @@ class LatextoolsTexcountCommand(sublime_plugin.WindowCommand):
         view = self.window.active_view()
         return view and view.match_selector(0, 'text.tex.latex')
 
-    def run(self, edit, **args):
+    def run(self, **args):
         tex_root = get_tex_root(self.window.active_view())
 
         if not tex_root or not os.path.exists(tex_root):
