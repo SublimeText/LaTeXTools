@@ -26,14 +26,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import sublime
 import sublime_plugin
 
-exports = ["_InputQuickpanelListener", "LatextoolsConfirmQuickpanelCommand"]
+exports = ["InputQuickpanelListener", "LatextoolsConfirmQuickpanelCommand"]
 
 _DO_NOTHING = 0
 _SEARCH_QUICKPANEL = 1
 _CAPTURE_QUICKPANEL = 2
 
 
-class _InputQuickpanelListener(sublime_plugin.EventListener):
+class InputQuickpanelListener(sublime_plugin.EventListener):
     _capturing = _DO_NOTHING
     _confirmed = False
     _view_id = -1
@@ -107,11 +107,11 @@ class _InputQuickpanelListener(sublime_plugin.EventListener):
 
 class LatextoolsConfirmQuickpanelCommand(sublime_plugin.WindowCommand):
     def run(self):
-        _InputQuickpanelListener.confirm_quickpanel(self.window)
+        InputQuickpanelListener.confirm_quickpanel(self.window)
 
 
 # on_done: (int/None, str) => ?
 def show_input_quick_panel(window, items, on_done, flags=0, selected_index=-1, on_highlight=None):
-    _InputQuickpanelListener.capture_and_show_input_quick_panel(
+    InputQuickpanelListener.capture_and_show_input_quick_panel(
         window, items, on_done, flags, selected_index, on_highlight
     )
