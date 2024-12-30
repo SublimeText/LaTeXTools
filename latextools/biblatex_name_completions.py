@@ -20,8 +20,7 @@ NAME_FIELDS = Name.NAME_FIELDS
 VALUE_REGEX = r"[\s~]*(?P<ENTRIES>(?:dna[\s~]+.+)+)?[\s~]*(?P<OPEN>\{)?(?P<EQUALS>\s*=\s*)?"
 
 ON_NAME_FIELD_REGEX = re.compile(
-    VALUE_REGEX + r"(?:" + r"|".join((s[::-1] for s in NAME_FIELDS)) + r")\b",
-    re.IGNORECASE,
+    VALUE_REGEX + r"(?:" + r"|".join((s[::-1] for s in NAME_FIELDS)) + r")\b", re.IGNORECASE
 )
 
 
@@ -42,7 +41,7 @@ def _get_replacement(matcher, key):
 
         return "{0}{1}{2}".format(
             "" if equals else "= " if match.startswith(" ") else " = ",
-            ("" if matcher.group("OPEN") else "{" if not equals or match.startswith(" ") else " {"),
+            "" if matcher.group("OPEN") else "{" if not equals or match.startswith(" ") else " {",
             key,
         )
 
@@ -107,7 +106,7 @@ def get_names(contents):
                 break
             in_entry = False
 
-    return sorted(set(names))
+    return set(names)
 
 
 class BiblatexNameCompletions(sublime_plugin.EventListener):
@@ -122,10 +121,19 @@ class BiblatexNameCompletions(sublime_plugin.EventListener):
             current_line = current_line[len(prefix) :]
 
         matcher = ON_NAME_FIELD_REGEX.match(current_line)
-        if matcher:
-            return (
-                [(name, _get_replacement(matcher, name)) for name in get_names_from_view(view)],
-                sublime.INHIBIT_WORD_COMPLETIONS,
-            )
+        if not matcher:
+            return []
 
-        return []
+        KIND_INFO = [sublime.KindId.VARIABLE, "n", "Name"]
+
+        completions = [
+            sublime.CompletionItem(
+                trigger=name,
+                completion=_get_replacement(matcher, name),
+                kind=KIND_INFO,
+                details=" ",
+            )
+            for name in get_names_from_view(view)
+        ]
+
+        return sublime.CompletionList(completions, sublime.INHIBIT_WORD_COMPLETIONS)

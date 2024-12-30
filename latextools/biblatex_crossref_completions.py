@@ -51,9 +51,7 @@ def _get_keys_by_type(view, valid_types):
 
     contents = view.substr(sublime.Region(0, view.size()))
     for entry_type, key in re.findall(
-        r"(@(?!preamble|comment|string)[a-zA-Z]+)\s*\{\s*([^,]+)\b",
-        contents,
-        re.IGNORECASE,
+        r"(@(?!preamble|comment|string)[a-zA-Z]+)\s*\{\s*([^,]+)\b", contents, re.IGNORECASE
     ):
         if validator(entry_type):
             keys.append(key)
@@ -113,13 +111,21 @@ def _get_replacement(matcher, key):
 
 def get_completions_if_matches(regex, line, get_key_list_func, view):
     matcher = regex.match(line)
-    if matcher:
-        return (
-            [(key, _get_replacement(matcher, key)) for key in sorted(set(get_key_list_func(view)))],
-            sublime.INHIBIT_WORD_COMPLETIONS,
-        )
-    else:
+    if not matcher:
         return []
+
+    KIND_INFO = [sublime.KindId.NAVIGATION, "r", "Reference"]
+
+    completions = [
+        sublime.CompletionItem(
+            trigger=name,
+            completion=_get_replacement(matcher, name),
+            kind=KIND_INFO
+        )
+        for name in get_key_list_func(view)
+    ]
+
+    return sublime.CompletionList(completions, sublime.INHIBIT_WORD_COMPLETIONS)
 
 
 class BiblatexCrossrefCompletions(sublime_plugin.EventListener):
