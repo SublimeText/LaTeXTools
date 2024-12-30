@@ -6,10 +6,8 @@ from .latextools_utils import ana_utils
 from .latextools_utils import quickpanel
 from .latextools_utils.tex_directives import get_tex_root
 
-__all__ = [
-    "LatextoolsSearchCommandCommand",
-    "LatextoolsSearchCommandInputCommand"
-]
+__all__ = ["LatextoolsSearchCommandCommand", "LatextoolsSearchCommandInputCommand"]
+
 
 def _make_caption(ana, entry):
     text = entry.text
@@ -42,10 +40,7 @@ class LatextoolsSearchCommandInputCommand(sublime_plugin.WindowCommand):
 
         def on_done(text):
             commands = [c.strip() for c in text.split(",")]
-            kwargs = {
-                "commands": commands,
-                "only_current_file": only_current_file
-            }
+            kwargs = {"commands": commands, "only_current_file": only_current_file}
             self.window.run_command("latextools_search_command", kwargs)
 
         def do_nothing(text):
@@ -55,5 +50,5 @@ class LatextoolsSearchCommandInputCommand(sublime_plugin.WindowCommand):
         self.window.show_input_panel(caption, "", on_done, do_nothing, do_nothing)
 
 
-deprecate(globals(), 'LatexSearchCommandCommand', LatextoolsSearchCommandCommand)
-deprecate(globals(), 'LatexSearchCommandInputCommand', LatextoolsSearchCommandInputCommand)
+deprecate(globals(), "LatexSearchCommandCommand", LatextoolsSearchCommandCommand)
+deprecate(globals(), "LatexSearchCommandInputCommand", LatextoolsSearchCommandInputCommand)

@@ -16,52 +16,42 @@ class EvinceViewer(BaseViewer):
     PYTHON = None
 
     def _get_evince_folder(self):
-        return os.path.join(os.path.dirname(__file__), 'evince')
+        return os.path.join(os.path.dirname(__file__), "evince")
 
     def _is_evince_running(self, pdf_file):
         try:
-            return (
-                ('evince {0}'.format(pdf_file)) in
-                check_output(['ps', 'xv'], use_texpath=False)
-            )
+            return ("evince {0}".format(pdf_file)) in check_output(["ps", "xv"], use_texpath=False)
         except Exception:
             return False
 
     def _get_settings(self):
-        '''
+        """
         returns evince-related settings as a tuple
         (python, sync_wait)
-        '''
-        linux_settings = get_setting('linux', {})
-        python = linux_settings.get('python')
-        if python is None or python == '':
+        """
+        linux_settings = get_setting("linux", {})
+        python = linux_settings.get("python")
+        if python is None or python == "":
             if self.PYTHON is not None:
                 python = self.PYTHON
             else:
                 try:
-                    check_call(
-                        ['python', '-c', 'import dbus'], use_texpath=False
-                    )
-                    python = 'python'
+                    check_call(["python", "-c", "import dbus"], use_texpath=False)
+                    python = "python"
                 except Exception:
                     try:
-                        check_call(
-                            ['python3', '-c', 'import dbus'], use_texpath=False
-                        )
-                        python = 'python3'
+                        check_call(["python3", "-c", "import dbus"], use_texpath=False)
+                        python = "python3"
                     except Exception:
                         sublime.error_message(
-                            '''Cannot find a valid Python interpreter.
+                            """Cannot find a valid Python interpreter.
                             Please set the python setting in your LaTeXTools
-                            settings.'''.strip()
+                            settings.""".strip()
                         )
                         # exit the viewer process
-                        raise Exception('Cannot find a valid interpreter')
+                        raise Exception("Cannot find a valid interpreter")
                 self.PYTHON = python
-        return (
-            python,
-            linux_settings.get('sync_wait') or 1.0
-        )
+        return (python, linux_settings.get("sync_wait") or 1.0)
 
     def _launch_evince(self, pdf_file):
         ev_path = self._get_evince_folder()
@@ -69,20 +59,18 @@ class EvinceViewer(BaseViewer):
 
         st_binary = get_sublime_exe()
         if st_binary is None:
-            linux_settings = get_setting('linux', {})
-            st_binary = linux_settings.get('sublime', 'sublime_text')
+            linux_settings = get_setting("linux", {})
+            st_binary = linux_settings.get("sublime", "sublime_text")
 
         external_command(
-            ['sh', os.path.join(ev_path, 'sync'), py_binary, st_binary, pdf_file],
+            ["sh", os.path.join(ev_path, "sync"), py_binary, st_binary, pdf_file],
             cwd=ev_path,
-            use_texpath=False
+            use_texpath=False,
         )
 
     def forward_sync(self, pdf_file, tex_file, line, col, **kwargs):
-        keep_focus = kwargs.pop('keep_focus', True)
-        bring_evince_forward = get_setting('viewer_settings', {}).get(
-            'bring_evince_forward', False
-        )
+        keep_focus = kwargs.pop("keep_focus", True)
+        bring_evince_forward = get_setting("viewer_settings", {}).get("bring_evince_forward", False)
 
         ev_path = self._get_evince_folder()
         py_binary, sync_wait = self._get_settings()
@@ -97,14 +85,17 @@ class EvinceViewer(BaseViewer):
 
         external_command(
             [
-                py_binary, os.path.join(ev_path, 'forward_search'),
-                pdf_file, str(line), tex_file
+                py_binary,
+                os.path.join(ev_path, "forward_search"),
+                pdf_file,
+                str(line),
+                tex_file,
             ],
-            use_texpath=False
+            use_texpath=False,
         )
 
     def view_file(self, pdf_file, **kwargs):
-        keep_focus = kwargs.pop('keep_focus', True)
+        keep_focus = kwargs.pop("keep_focus", True)
 
         if not keep_focus or not self._is_evince_running(pdf_file):
             self._launch_evince(pdf_file)
@@ -112,7 +103,7 @@ class EvinceViewer(BaseViewer):
                 self.focus_st()
 
     def supports_platform(self, platform):
-        return platform == 'linux'
+        return platform == "linux"
 
     def supports_keep_focus(self):
         return True

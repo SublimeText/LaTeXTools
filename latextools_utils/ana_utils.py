@@ -36,6 +36,6 @@ def create_rel_file_str(ana, entry):
         show_path = os.path.join(show_path, file_base)
         # prettify on windows
         if sublime.platform() == "windows":
-            show_path = show_path.replace('\\', '/')
+            show_path = show_path.replace("\\", "/")
     line = line_nr(ana, entry)
     return "{show_path}:{line}".format(**locals())

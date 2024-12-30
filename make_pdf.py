@@ -36,7 +36,7 @@ __all__ = [
     "LatextoolsDoOutputEditCommand",
     "LatextoolsDoFinishEditCommand",
     "LatextoolsExecEventListener",
-    "plugin_loaded"
+    "plugin_loaded",
 ]
 
 # Compile current .tex file to pdf
@@ -49,7 +49,7 @@ __all__ = [
 # TODO: counterpart for OSX? Guess encoding of files?
 # Hopefully with Python 3.6+ this is unnecessary
 def getOEMCP():
-    if hasattr(getOEMCP, '_result'):
+    if hasattr(getOEMCP, "_result"):
         return getOEMCP._result
 
     # Windows OEM/Ansi codepage mismatch issue.
@@ -66,12 +66,12 @@ def getOEMCP():
         codecs.lookup(codepage)
     except LookupError:
         # otherwise, preprend cp to it to get, e.g. cp850
-        codepage = 'cp' + codepage
+        codepage = "cp" + codepage
         try:
             codecs.lookup(codepage)
         except LookupError:
             # if the codepage can't be determined, default to utf-8
-            codepage = 'utf-8'
+            codepage = "utf-8"
 
     getOEMCP._result = codepage
     return codepage
@@ -79,16 +79,17 @@ def getOEMCP():
 
 # First, define thread class for async processing
 
+
 class CmdThread(threading.Thread):
 
     # Use __init__ to pass things we need
     # in particular, we pass the caller in teh main thread, so we can display stuff!
-    def __init__ (self, caller):
+    def __init__(self, caller):
         self.caller = caller
         threading.Thread.__init__(self)
 
     def run(self):
-        with ActivityIndicator('Building...') as activity_indicator:
+        with ActivityIndicator("Building...") as activity_indicator:
             self.worker(activity_indicator)
 
     def worker(self, activity_indicator):
@@ -97,7 +98,7 @@ class CmdThread(threading.Thread):
 
         env = dict(os.environ)
         if self.caller.path:
-            env['PATH'] = self.caller.path
+            env["PATH"] = self.caller.path
 
         # Handle custom env variables
         if self.caller.env:
@@ -107,7 +108,7 @@ class CmdThread(threading.Thread):
         #
         cmd_iterator = self.caller.builder.commands()
         try:
-            for (cmd, msg) in cmd_iterator:
+            for cmd, msg in cmd_iterator:
 
                 # If there is a message, display it
                 if msg:
@@ -129,8 +130,8 @@ class CmdThread(threading.Thread):
                             stdin=subprocess.PIPE,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT,
-                            preexec_fn=os.setsid if self.caller.plat != 'windows' else None,
-                            cwd=self.caller.tex_dir
+                            preexec_fn=(os.setsid if self.caller.plat != "windows" else None),
+                            cwd=self.caller.tex_dir,
                         )
                     except Exception:
                         self.caller.show_output_panel()
@@ -165,7 +166,7 @@ class CmdThread(threading.Thread):
                         logger.info("Build canceled")
                         logger.debug("with returncode %d", proc.returncode)
                         self.caller.output("\n\n[User terminated compilation process]\n")
-                        self.caller.finish(False)   # We kill, so won't switch to PDF anyway
+                        self.caller.finish(False)  # We kill, so won't switch to PDF anyway
                         return
                 # Here we are done cleanly:
                 with self.caller.proc_lock:
@@ -193,42 +194,24 @@ class CmdThread(threading.Thread):
             log_file_base = self.caller.tex_base + ".log"
             if self.caller.aux_directory is None:
                 if self.caller.output_directory is None:
-                    log_file = os.path.join(
-                        self.caller.tex_dir,
-                        log_file_base
-                    )
+                    log_file = os.path.join(self.caller.tex_dir, log_file_base)
                 else:
-                    log_file = os.path.join(
-                        self.caller.output_directory,
-                        log_file_base
-                    )
+                    log_file = os.path.join(self.caller.output_directory, log_file_base)
 
                     if not os.path.exists(log_file):
-                        log_file = os.path.join(
-                            self.caller.tex_dir,
-                            log_file_base
-                        )
+                        log_file = os.path.join(self.caller.tex_dir, log_file_base)
             else:
-                log_file = os.path.join(
-                    self.caller.aux_directory,
-                    log_file_base
-                )
+                log_file = os.path.join(self.caller.aux_directory, log_file_base)
 
                 if not os.path.exists(log_file):
                     if (
-                        self.caller.output_directory is not None and
-                        self.caller.output_directory != self.caller.aux_directory
+                        self.caller.output_directory is not None
+                        and self.caller.output_directory != self.caller.aux_directory
                     ):
-                        log_file = os.path.join(
-                            self.caller.output_directory,
-                            log_file_base
-                        )
+                        log_file = os.path.join(self.caller.output_directory, log_file_base)
 
                     if not os.path.exists(log_file):
-                        log_file = os.path.join(
-                            self.caller.tex_dir,
-                            log_file_base
-                        )
+                        log_file = os.path.join(self.caller.tex_dir, log_file_base)
 
             # CHANGED 12-10-27. OK, here's the deal. We must open in binary mode
             # on Windows because silly MiKTeX inserts ASCII control characters in
@@ -245,20 +228,22 @@ class CmdThread(threading.Thread):
             # Note to self: need to think whether we don't want to codecs.open
             # this, too... Also, we may want to move part of this logic to the
             # builder...
-            with open(log_file, 'rb') as f:
+            with open(log_file, "rb") as f:
                 data = f.read()
         except IOError:
             traceback.print_exc()
 
             self.caller.show_output_panel()
 
-            content = ['', 'Could not read log file {0}.log'.format(
-                self.caller.tex_base
-            ), '']
+            content = [
+                "",
+                "Could not read log file {0}.log".format(self.caller.tex_base),
+                "",
+            ]
             if out is not None:
-                content.extend(['Output from compilation:', '', out.decode('utf-8')])
+                content.extend(["Output from compilation:", "", out.decode("utf-8")])
             if err is not None:
-                content.extend(['Errors from compilation:', '', err.decode('utf-8')])
+                content.extend(["Errors from compilation:", "", err.decode("utf-8")])
             self.caller.output(content)
             # if we got here, there shouldn't be a PDF at all
             self.caller.finish(False)
@@ -314,9 +299,9 @@ class CmdThread(threading.Thread):
                     "no_errors": bool(errors),
                     "no_warnings": bool(errors or warnings),
                     "no_badboxes": bool(
-                        errors or warnings or
-                        (self.caller.display_bad_boxes and badboxes)),
-                    "never": True
+                        errors or warnings or (self.caller.display_bad_boxes and badboxes)
+                    ),
+                    "never": True,
                 }.get(self.caller.hide_panel_level, bool(errors or warnings))
 
                 if show_panel:
@@ -347,18 +332,12 @@ class CmdThread(threading.Thread):
                 activity_indicator.finish("Build failed!")
                 self.caller.show_output_panel()
                 content = ["", ""]
-                content.append(
-                    "LaTeXTools could not parse the TeX log file {0}".format(
-                        log_file
-                    )
-                )
+                content.append("LaTeXTools could not parse the TeX log file {0}".format(log_file))
                 content.append("(actually, we never should have gotten here)")
                 content.append("")
                 content.append("Python exception: {0!r}".format(e))
                 content.append("")
-                content.append(
-                    "The full error description can be found on the console."
-                )
+                content.append("The full error description can be found on the console.")
                 content.append("Please let us know on GitHub. Thanks!")
 
                 traceback.print_exc()
@@ -392,9 +371,17 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
     # **kwargs is unused but there so run can safely ignore any unknown
     # parameters
     def run(
-        self, file_regex="", program=None, builder=None, command=None,
-        env=None, path=None, script_commands=None, update_annotations_only=False,
-        hide_annotations_only=False, **kwargs
+        self,
+        file_regex="",
+        program=None,
+        builder=None,
+        command=None,
+        env=None,
+        path=None,
+        script_commands=None,
+        update_annotations_only=False,
+        hide_annotations_only=False,
+        **kwargs
     ):
         if update_annotations_only:
             if self.show_errors_inline:
@@ -410,21 +397,21 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             if self.proc:  # if we are running, try to kill running process
                 self.output("\n\n### Got request to terminate compilation ###")
                 try:
-                    if sublime.platform() == 'windows':
+                    if sublime.platform() == "windows":
                         execute_command(
-                            'taskkill /t /f /pid {pid}'.format(pid=self.proc.pid),
+                            "taskkill /t /f /pid {pid}".format(pid=self.proc.pid),
                             use_texpath=False,
-                            shell=True
+                            shell=True,
                         )
                     else:
                         os.killpg(self.proc.pid, signal.SIGTERM)
                 except Exception:
-                    logger.error('Exception occurred while killing build')
+                    logger.error("Exception occurred while killing build")
                     traceback.print_exc()
 
                 self.proc = None
                 return
-            else: # either it's the first time we run, or else we have no running processes
+            else:  # either it's the first time we run, or else we have no running processes
                 self.proc = None
 
         view = self.view = self.window.active_view()
@@ -434,12 +421,12 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         self.show_errors_inline = pref_settings.get("show_errors_inline", True)
 
         if view.file_name() is None:
-            sublime.error_message('Please save your file before attempting to build.')
+            sublime.error_message("Please save your file before attempting to build.")
             return
 
         if view.is_dirty():
-            logger.info ("saving...")
-            view.run_command('save')  # call this on view, not self.window
+            logger.info("saving...")
+            view.run_command("save")  # call this on view, not self.window
 
         self.file_name = get_tex_root(view)
         if not os.path.isfile(self.file_name):
@@ -450,11 +437,14 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         self.tex_dir = os.path.dirname(self.file_name)
 
         if not is_tex_file(self.file_name):
-            sublime.error_message("%s is not a TeX source file: cannot compile." % (os.path.basename(view.file_name()),))
+            sublime.error_message(
+                "%s is not a TeX source file: cannot compile."
+                % (os.path.basename(view.file_name()),)
+            )
             return
 
         # Output panel: from exec.py
-        if not hasattr(self, 'output_view'):
+        if not hasattr(self, "output_view"):
             self.output_view = self.window.get_output_panel("latextools")
 
         output_view_settings = self.output_view.settings()
@@ -466,8 +456,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
         if get_setting("highlight_build_panel", True, view=view):
             output_view_settings.set(
-                "syntax",
-                "Packages/LaTeXTools/LaTeXTools Console.sublime-syntax"
+                "syntax", "Packages/LaTeXTools/LaTeXTools Console.sublime-syntax"
             )
 
         self.output_view.set_read_only(True)
@@ -476,8 +465,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         # up as the result buffer
         self.window.get_output_panel("latextools")
 
-        self.hide_panel_level = get_setting(
-            "hide_build_panel", "no_warnings", view=view)
+        self.hide_panel_level = get_setting("hide_build_panel", "no_warnings", view=view)
         if self.hide_panel_level == "never":
             self.show_output_panel(force=True)
 
@@ -494,8 +482,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
         # Get platform settings, builder, and builder settings
         platform_settings = get_setting(self.plat, {}, view=view)
-        self.display_bad_boxes = get_setting(
-            "display_bad_boxes", False, view=view)
+        self.display_bad_boxes = get_setting("display_bad_boxes", False, view=view)
 
         if builder is not None:
             builder_name = builder
@@ -503,8 +490,8 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             builder_name = get_setting("builder", "traditional", view=view)
 
         # Default to 'traditional' builder
-        if builder_name in ['', 'default']:
-            builder_name = 'traditional'
+        if builder_name in ["", "default"]:
+            builder_name = "traditional"
 
         # this is to convert old-style names (e.g. AReallyLongName)
         # to new style plugin names (a_really_long_name)
@@ -518,42 +505,46 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
         # parse root for any %!TEX directives
         tex_directives = parse_tex_directives(
-            self.file_name,
-            multi_values=['options'],
-            key_maps={'ts-program': 'program'}
+            self.file_name, multi_values=["options"], key_maps={"ts-program": "program"}
         )
 
         # determine the engine
         if program is not None:
             engine = program
         else:
-            engine = tex_directives.get(
-                'program',
-                builder_settings.get("program", "pdflatex")
-            )
+            engine = tex_directives.get("program", builder_settings.get("program", "pdflatex"))
 
         engine = engine.lower()
 
         # Sanity check: if "strange" engine, default to pdflatex (silently...)
         if engine not in [
-            'pdflatex', "pdftex", 'xelatex', 'xetex', 'lualatex', 'luatex'
+            "pdflatex",
+            "pdftex",
+            "xelatex",
+            "xetex",
+            "lualatex",
+            "luatex",
         ]:
-            engine = 'pdflatex'
+            engine = "pdflatex"
 
         options = builder_settings.get("options", [])
         if isinstance(options, str):
             options = [options]
 
-        if 'options' in tex_directives:
-            options.extend(tex_directives['options'])
+        if "options" in tex_directives:
+            options.extend(tex_directives["options"])
 
         # filter out --aux-directory and --output-directory options which are
         # handled separately
-        options = [opt for opt in options if (
-            not opt.startswith('--aux-directory') and
-            not opt.startswith('--output-directory') and
-            not opt.startswith('--jobname')
-        )]
+        options = [
+            opt
+            for opt in options
+            if (
+                not opt.startswith("--aux-directory")
+                and not opt.startswith("--output-directory")
+                and not opt.startswith("--jobname")
+            )
+        ]
 
         self.aux_directory = get_aux_directory(view)
         self.output_directory = get_output_directory(view)
@@ -570,7 +561,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
         # Safety check: if we are using a built-in builder, disregard
         # builder_path, even if it was specified in the pref file
-        if builder_name in ['simple', 'traditional', 'script', 'basic']:
+        if builder_name in ["simple", "traditional", "script", "basic"]:
             builder_path = None
         else:
             # relative to ST packages dir!
@@ -581,7 +572,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             add_plugin_path(bld_path)
 
         try:
-            builder = get_plugin('{0}_builder'.format(builder_name))
+            builder = get_plugin("{0}_builder".format(builder_name))
         except NoSuchPluginException:
             try:
                 builder = get_plugin(builder_name)
@@ -590,12 +581,11 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
                     "Cannot find builder {0}.\n"
                     "Check your LaTeXTools Preferences".format(builder_name)
                 )
-                self.window.run_command(
-                    'hide_panel', {"panel": "output.latextools"})
+                self.window.run_command("hide_panel", {"panel": "output.latextools"})
                 return
 
-        if builder_name == 'script' and script_commands:
-            builder_platform_settings['script_commands'] = script_commands
+        if builder_name == "script" and script_commands:
+            builder_platform_settings["script_commands"] = script_commands
             builder_settings[self.plat] = builder_platform_settings
 
         logger.debug(repr(builder))
@@ -609,7 +599,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             self.tex_base,
             tex_directives,
             builder_settings,
-            platform_settings
+            platform_settings,
         )
 
         # Now get the tex binary path from prefs, change directory to
@@ -617,20 +607,20 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         if path is not None:
             self.path = path
         else:
-            self.path = get_texpath() or os.environ['PATH']
+            self.path = get_texpath() or os.environ["PATH"]
 
         thread = CmdThread(self)
         thread.start()
         logger.debug(threading.active_count())
 
     def output(self, data):
-        if isinstance(data, list) or  isinstance(data, tuple):
+        if isinstance(data, list) or isinstance(data, tuple):
             data = "\n".join(data)
-        data = data.replace('\r\n', '\n').replace('\r', '\n')
+        data = data.replace("\r\n", "\n").replace("\r", "\n")
         self.output_view.run_command("latextools_do_output_edit", {"data": data})
 
     def show_output_panel(self, force=False):
-        if force or self.hide_panel_level != 'always':
+        if force or self.hide_panel_level != "always":
             self.window.run_command("show_panel", {"panel": "output.latextools"})
 
     # Also from exec.py
@@ -652,29 +642,19 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             # if using output_directory, follow the copy_output_on_build setting
             # files are copied to the same directory as the main tex file
             if self.output_directory is not None:
-                copy_on_build = get_setting(
-                    'copy_output_on_build', True, view=self.view)
+                copy_on_build = get_setting("copy_output_on_build", True, view=self.view)
                 if copy_on_build is None or copy_on_build is True:
                     shutil.copy2(
-                        os.path.join(
-                            self.output_directory,
-                            self.tex_base + '.pdf'
-                        ),
-                        os.path.dirname(self.file_name)
+                        os.path.join(self.output_directory, self.tex_base + ".pdf"),
+                        os.path.dirname(self.file_name),
                     )
                 elif isinstance(copy_on_build, list):
                     for ext in copy_on_build:
-                        copy_file = os.path.join(
-                            self.output_directory,
-                            self.tex_base + ext
-                        )
+                        copy_file = os.path.join(self.output_directory, self.tex_base + ext)
                         if os.path.isfile(copy_file):
-                            shutil.copy2(
-                                copy_file,
-                                os.path.dirname(self.file_name)
-                            )
+                            shutil.copy2(copy_file, os.path.dirname(self.file_name))
 
-            if get_setting('open_pdf_on_build', True, view=self.view):
+            if get_setting("open_pdf_on_build", True, view=self.view):
                 self.window.run_command("latextools_jumpto_pdf", {"from_keybinding": False})
 
     def _find_errors(self, errors, error_class):
@@ -707,12 +687,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             return
         lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
         level_name = lt_settings.get("show_error_phantoms")
-        level = {
-            "none": 0,
-            "errors": 1,
-            "warnings": 2,
-            "badboxes": 3
-        }.get(level_name, 2)
+        level = {"none": 0, "errors": 1, "warnings": 2, "badboxes": 3}.get(level_name, 2)
 
         if level >= 1:
             self._find_errors(self.errors, "error")
@@ -777,11 +752,17 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
                                 <a href="hide">{cancel_char}</a>
                             </div>
                         </body>
-                    """.format(cancel_char=chr(0x00D7), **locals())
-                    phantoms.append(sublime.Phantom(
-                        sublime.Region(pt, view.line(pt).b),
-                        phantom_content, sublime.LAYOUT_BELOW,
-                        on_navigate=on_navigate))
+                    """.format(
+                        cancel_char=chr(0x00D7), **locals()
+                    )
+                    phantoms.append(
+                        sublime.Phantom(
+                            sublime.Region(pt, view.line(pt).b),
+                            phantom_content,
+                            sublime.LAYOUT_BELOW,
+                            on_navigate=on_navigate,
+                        )
+                    )
 
                 phantom_set.update(phantoms)
 
@@ -845,18 +826,19 @@ class LatextoolsExecEventListener(sublime_plugin.EventListener):
             return result != operand
 
         raise Exception(
-            "latextools_inline_errors_visible; "
-            "Invalid operator must be EQUAL or NOT_EQUAL.")
+            "latextools_inline_errors_visible; " "Invalid operator must be EQUAL or NOT_EQUAL."
+        )
 
 
 def plugin_loaded():
     # load the plugins from the builders dir
-    ltt_path = os.path.join(sublime.packages_path(), 'LaTeXTools', 'plugins', 'builder')
+    ltt_path = os.path.join(sublime.packages_path(), "LaTeXTools", "plugins", "builder")
     # ensure that pdfBuilder is loaded first as otherwise, the other builders
     # will not be registered as plugins
-    add_plugin_path(os.path.join(ltt_path, 'pdf_builder.py'))
+    add_plugin_path(os.path.join(ltt_path, "pdf_builder.py"))
     add_plugin_path(ltt_path)
 
-deprecate(globals(), 'make_pdfCommand', LatextoolsMakePdfCommand)
-deprecate(globals(), 'DoOutputEditCommand', LatextoolsDoOutputEditCommand)
-deprecate(globals(), 'DoFinishEditCommand', LatextoolsDoFinishEditCommand)
+
+deprecate(globals(), "make_pdfCommand", LatextoolsMakePdfCommand)
+deprecate(globals(), "DoOutputEditCommand", LatextoolsDoOutputEditCommand)
+deprecate(globals(), "DoFinishEditCommand", LatextoolsDoFinishEditCommand)

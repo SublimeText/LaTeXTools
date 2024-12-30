@@ -12,13 +12,13 @@ __all__ = ["LatextoolsPkgDocCommand", "LatextoolsViewDocCommand"]
 
 def _view_texdoc(file):
     if file is None:
-        raise Exception('File must be specified')
+        raise Exception("File must be specified")
     if not isinstance(file, str):
-        raise TypeError('File must be a string')
+        raise TypeError("File must be a string")
 
-    command = ['texdoc']
+    command = ["texdoc"]
     if using_miktex():
-        command.append('--view')
+        command.append("--view")
     command.append(file)
 
     try:
@@ -26,22 +26,19 @@ def _view_texdoc(file):
     except OSError:
         traceback.print_exc()
         sublime.error_message(
-            'Could not run texdoc. Please ensure that your texpath setting '
-            'is configured correctly in the LaTeXTools settings.')
+            "Could not run texdoc. Please ensure that your texpath setting "
+            "is configured correctly in the LaTeXTools settings."
+        )
 
 
 class LatextoolsPkgDocCommand(sublime_plugin.WindowCommand):
     def run(self):
         def _on_done(file):
             if file and isinstance(file, str):
-                self.window.run_command('latextools_view_doc', {'file': file})
+                self.window.run_command("latextools_view_doc", {"file": file})
 
         self.window.show_input_panel(
-            'View documentation for which package?',
-            '',
-            _on_done,
-            None,
-            None
+            "View documentation for which package?", "", _on_done, None, None
         )
 
 
@@ -53,5 +50,5 @@ class LatextoolsViewDocCommand(sublime_plugin.WindowCommand):
         return False  # hide this from menu
 
 
-deprecate(globals(), 'LatexPkgDocCommand', LatextoolsPkgDocCommand)
-deprecate(globals(), 'LatexViewDocCommand', LatextoolsViewDocCommand)
+deprecate(globals(), "LatexPkgDocCommand", LatextoolsPkgDocCommand)
+deprecate(globals(), "LatexViewDocCommand", LatextoolsViewDocCommand)

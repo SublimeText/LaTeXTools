@@ -6,18 +6,18 @@ from base_viewer import BaseViewer
 class PreviewViewer(BaseViewer):
 
     def view_file(self, pdf_file, **kwargs):
-        keep_focus = kwargs.pop('keep_focus', True)
+        keep_focus = kwargs.pop("keep_focus", True)
 
-        command = ['open']
+        command = ["open"]
         if keep_focus:
-            command.append('-g')
+            command.append("-g")
 
-        command += ['-a', 'Preview', pdf_file]
+        command += ["-a", "Preview", pdf_file]
 
         external_command(command, use_texpath=False)
 
     def supports_platform(self, platform):
-        return platform == 'osx'
+        return platform == "osx"
 
     def supports_keep_focus(self):
         return True

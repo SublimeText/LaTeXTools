@@ -38,6 +38,7 @@ TIME_RE = re.compile(
 
 class CacheMiss(Exception):
     """exception to indicate that the cache file is missing"""
+
     pass
 
 
@@ -56,7 +57,7 @@ def hash_digest(text):
 
 
 def cache_local(tex_root, key, func):
-    '''
+    """
     alias for cache() on the LocalCache instance corresponding to the tex_root:
 
     convenience method to attempt to get the value from the cache and
@@ -72,12 +73,12 @@ def cache_local(tex_root, key, func):
     :param func:
         a callable that takes no arguments and when invoked will return
         the proper value
-    '''
+    """
     return LocalCache(tex_root).cache(key, func)
 
 
 def write_local(tex_root, key, obj):
-    '''
+    """
     alias for set() on the LocalCache instance corresponding to the tex_root:
 
     set the cache value for the given key
@@ -90,12 +91,12 @@ def write_local(tex_root, key, obj):
 
     :param obj:
         the value to store; note that obj *must* be picklable
-    '''
+    """
     return LocalCache(tex_root).set(key, obj)
 
 
 def read_local(tex_root, key):
-    '''
+    """
     alias for get() on the LocalCache instance corresponding to the tex_root:
 
     retrieve the cached value for the corresponding key
@@ -107,12 +108,12 @@ def read_local(tex_root, key):
 
     :param key:
         the key to set
-    '''
+    """
     return LocalCache(tex_root).get(key)
 
 
 def cache_global(key, func):
-    '''
+    """
     alias for cache() on the GlobalCache:
 
     convenience method to attempt to get the value from the cache and
@@ -125,12 +126,12 @@ def cache_global(key, func):
     :param func:
         a callable that takes no arguments and when invoked will return
         the proper value
-    '''
+    """
     return GlobalCache().cache(key, func)
 
 
 def write_global(key, obj):
-    '''
+    """
     alias for set() on the GlobalCache:
 
     set the cache value for the given key
@@ -140,12 +141,12 @@ def write_global(key, obj):
 
     :param obj:
         the value to store; note that obj *must* be picklable
-    '''
+    """
     return GlobalCache().set(key, obj)
 
 
 def read_global(key):
-    '''
+    """
     alias for get() on the GlobablCache:
 
     retrieve the cached value for the corresponding key
@@ -157,7 +158,7 @@ def read_global(key):
 
     :param key:
         the key to set
-    '''
+    """
     return GlobalCache().get(key)
 
 
@@ -168,8 +169,7 @@ read = read_local
 
 
 def _global_cache_path():
-    return os.path.normpath(os.path.join(
-        sublime.cache_path(), "LaTeXTools", "internal"))
+    return os.path.normpath(os.path.join(sublime.cache_path(), "LaTeXTools", "internal"))
 
 
 # marker class for invalidated result
@@ -198,11 +198,11 @@ except NameError:
 
 
 class Cache(object):
-    '''
+    """
     default cache object and definition
 
     implements the shared functionality between the various caches
-    '''
+    """
 
     def __new__(cls, *args, **kwargs):
         # don't allow this class to be instantiated directly
@@ -213,34 +213,34 @@ class Cache(object):
 
     def __init__(self):
         # initialize state but ONLY if it hasn't already been initialized
-        if not hasattr(self, '_disk_lock'):
+        if not hasattr(self, "_disk_lock"):
             self._disk_lock = threading.Lock()
-        if not hasattr(self, '_write_lock'):
+        if not hasattr(self, "_write_lock"):
             self._write_lock = threading.Lock()
-        if not hasattr(self, '_save_lock'):
+        if not hasattr(self, "_save_lock"):
             self._save_lock = threading.Lock()
-        if not hasattr(self, '_objects'):
+        if not hasattr(self, "_objects"):
             self._objects = {}
-        if not hasattr(self, '_dirty'):
+        if not hasattr(self, "_dirty"):
             self._dirty = False
-        if not hasattr(self, '_save_queue'):
+        if not hasattr(self, "_save_queue"):
             self._save_queue = []
-        if not hasattr(self, '_pool'):
+        if not hasattr(self, "_pool"):
             self._pool = ThreadPool(2)
 
         self.cache_path = self._get_cache_path()
 
     def get(self, key):
-        '''
+        """
         retrieve the cached value for the corresponding key
 
         raises CacheMiss if value has not been cached
 
         :param key:
             the key that the value has been stored under
-        '''
+        """
         if key is None:
-            raise ValueError('key cannot be None')
+            raise ValueError("key cannot be None")
 
         try:
             result = self._objects[key]
@@ -249,11 +249,11 @@ class Cache(object):
             result = self.load(key)
 
         if result == _invalid_object:
-            raise CacheMiss('{0} is invalid'.format(key))
+            raise CacheMiss("{0} is invalid".format(key))
 
         # return a copy of any objects
         try:
-            if hasattr(result, '__dict__') or hasattr(result, '__slots__'):
+            if hasattr(result, "__dict__") or hasattr(result, "__slots__"):
                 result = copy.copy(result)
         except Exception:
             pass
@@ -261,22 +261,19 @@ class Cache(object):
         return result
 
     def has(self, key):
-        '''
+        """
         check if cache has a value for the corresponding key
 
         :param key:
             the key that the value has been stored under
-        '''
+        """
         if key is None:
-            raise ValueError('key cannot be None')
+            raise ValueError("key cannot be None")
 
-        return (
-            key in self._objects and
-            self._objects[key] != _invalid_object
-        )
+        return key in self._objects and self._objects[key] != _invalid_object
 
     def set(self, key, obj):
-        '''
+        """
         set the cache value for the given key
 
         :param key:
@@ -284,14 +281,14 @@ class Cache(object):
 
         :param obj:
             the value to store; note that obj *must* be picklable
-        '''
+        """
         if key is None:
-            raise ValueError('key cannot be None')
+            raise ValueError("key cannot be None")
 
         try:
             pickle.dumps(obj, protocol=-1)
         except pickle.PicklingError:
-            raise ValueError('obj must be picklable')
+            raise ValueError("obj must be picklable")
 
         if isinstance(obj, list):
             obj = tuple(obj)
@@ -306,7 +303,7 @@ class Cache(object):
         self._schedule_save()
 
     def cache(self, key, func):
-        '''
+        """
         convenience method to attempt to get the value from the cache and
         generate the value if it hasn't been cached yet or the entry has
         otherwise been invalidated
@@ -317,9 +314,9 @@ class Cache(object):
         :param func:
             a callable that takes no arguments and when invoked will return
             the proper value
-        '''
+        """
         if key is None:
-            raise ValueError('key cannot be None')
+            raise ValueError("key cannot be None")
 
         try:
             return self.get(key)
@@ -329,19 +326,20 @@ class Cache(object):
             return result
 
     def invalidate(self, key=None):
-        '''
+        """
         invalidates either this whole cache, a single entry or a list of
         entries in this cache
 
         :param key:
             the key of the entry to invalidate; if None, the entire cache
             will be invalidated
-        '''
+        """
+
         def _invalidate(key):
             try:
                 self._objects[key] = _invalid_object
             except Exception:
-                logger.error('error occurred while invalidating %s', key)
+                logger.error("error occurred while invalidating %s", key)
                 traceback.print_exc()
 
         with self._write_lock:
@@ -361,14 +359,14 @@ class Cache(object):
         return _global_cache_path()
 
     def load(self, key=None):
-        '''
+        """
         loads the value specified from the disk and stores it in the in-memory
         cache
 
         :param key:
             the key to load from disk; if None, all entries in the cache
             will be read from disk
-        '''
+        """
         with self._write_lock:
             if key is None:
                 for entry in os.listdir(self.cache_path):
@@ -377,7 +375,7 @@ class Cache(object):
                         try:
                             self._objects[entry_name] = self._read(entry_name)
                         except Exception:
-                            logger.error('error while loading %s', entry_name)
+                            logger.error("error while loading %s", entry_name)
             else:
                 self._objects[key] = self._read(key)
 
@@ -385,28 +383,28 @@ class Cache(object):
             return self._objects[key]
 
     def load_async(self, key=None):
-        '''
+        """
         an async version of load; does the loading in a new thread
-        '''
+        """
         self._pool.apply_async(self.load, key)
 
     def _read(self, key):
         file_path = os.path.join(self.cache_path, key)
         with self._disk_lock:
             try:
-                with open(file_path, 'rb') as f:
+                with open(file_path, "rb") as f:
                     return pickle.load(f)
             except Exception:
-                raise CacheMiss('cannot read cache file {0}'.format(key))
+                raise CacheMiss("cannot read cache file {0}".format(key))
 
     def save(self, key=None):
-        '''
+        """
         saves the cache entry specified to disk
 
         :param key:
             the entry to flush to disk; if None, all entries in the cache will
             be written to disk
-        '''
+        """
         if not self._dirty:
             return
 
@@ -420,9 +418,7 @@ class Cache(object):
 
             if key is None:
                 # remove all InvalidObjects
-                delete_keys = [
-                    k for k in _objs if _objs[k] == _invalid_object
-                ]
+                delete_keys = [k for k in _objs if _objs[k] == _invalid_object]
 
                 for k in delete_keys:
                     del _objs[k]
@@ -444,8 +440,7 @@ class Cache(object):
                     try:
                         shutil.rmtree(self.cache_path)
                     except OSError as e:
-                        logger.error(
-                            'error while deleting %s: %s', self.cache_path, e)
+                        logger.error("error while deleting %s: %s", self.cache_path, e)
                         traceback.print_exc()
             elif key in _objs:
                 if _objs[key] == _invalid_object:
@@ -453,17 +448,16 @@ class Cache(object):
                     try:
                         os.path.remove(file_path)
                     except OSError as e:
-                        logger.error(
-                            'error while deleting %s: %s', file_path, e)
+                        logger.error("error while deleting %s: %s", file_path, e)
                         traceback.print_exc()
                 else:
                     os.makedirs(self.cache_path, exist_ok=True)
                     self._write(key, _objs)
 
     def save_async(self, key=None):
-        '''
+        """
         an async version of save; does the save in a new thread
-        '''
+        """
         try:
             self._pool.apply_async(self.save, key)
         except ValueError:
@@ -476,10 +470,10 @@ class Cache(object):
             raise CacheMiss()
 
         try:
-            with open(os.path.join(self.cache_path, key), 'wb') as f:
+            with open(os.path.join(self.cache_path, key), "wb") as f:
                 pickle.dump(_obj, f, protocol=-1)
         except OSError as e:
-            logger.error('error while writing to %s: %s', key, e)
+            logger.error("error while writing to %s: %s", key, e)
             traceback.print_exc()
             raise CacheMiss()
 
@@ -503,7 +497,7 @@ class Cache(object):
 
 
 class GlobalCache(Cache):
-    '''
+    """
     the global cache
 
     stores data in the appropriate global cache folder; SHOULD NOT be used
@@ -511,7 +505,7 @@ class GlobalCache(Cache):
 
     note that all instance of the global cache share state, meaning that it
     behaves as though there were a single object
-    '''
+    """
 
     __STATE = {}
 
@@ -523,18 +517,18 @@ class GlobalCache(Cache):
 
     def invalidate(self, key):
         if key is None:
-            raise ValueError('key must not be None')
+            raise ValueError("key must not be None")
         super(GlobalCache, self).invalidate(key)
 
 
 class ValidatingCache(Cache):
-    '''
+    """
     an abstract class for a cache which implements validation either when an
     entry is retrieved or changed
 
     implementing subclasses SHOULD override validate_on_get or validate_on_set
     as appropriate
-    '''
+    """
 
     def __new__(cls, *args, **kwargs):
         # don't allow this class to be instantiated directly
@@ -544,22 +538,22 @@ class ValidatingCache(Cache):
         return super(ValidatingCache, cls).__new__(cls, *args, **kwargs)
 
     def validate_on_get(self, key):
-        '''
+        """
         subclasses should override this to run validation when an object is
         retrieved from the cache
 
         subclasses should raise a ValueError if the validation shouldn't
         succeed
-        '''
+        """
 
     def validate_on_set(self, key, obj):
-        '''
+        """
         subclasses should override this to run validation when an object is
         added or modified in the cache
 
         subclasses should raise a ValueError if the validation shouldn't
         succeed
-        '''
+        """
 
     def get(self, key):
         try:
@@ -574,7 +568,7 @@ class ValidatingCache(Cache):
 
     def set(self, key, obj):
         if key is None:
-            raise ValueError('key cannot be None')
+            raise ValueError("key cannot be None")
 
         self.validate_on_set(key, obj)
 
@@ -584,7 +578,7 @@ class ValidatingCache(Cache):
 
 
 class InstanceTrackingCache(Cache):
-    '''
+    """
     an abstract class for caches that share state between different instances
     that point to the same underlying data; in addition, when all instances
     of a given cache have been removed from memory, the cache is written to
@@ -597,7 +591,7 @@ class InstanceTrackingCache(Cache):
     the "same" document
 
     subclasses MUST implement the _get_inst_key method
-    '''
+    """
 
     _CLASSES = set([])
 
@@ -607,7 +601,7 @@ class InstanceTrackingCache(Cache):
 
         InstanceTrackingCache._CLASSES.add(cls)
 
-        if not hasattr(cls, '_INSTANCES'):
+        if not hasattr(cls, "_INSTANCES"):
             cls._INSTANCES = collections.defaultdict(lambda: {})
             cls._REF_COUNTS = collections.defaultdict(lambda: 0)
             cls._LOCKS = collections.defaultdict(lambda: threading.Lock())
@@ -622,7 +616,7 @@ class InstanceTrackingCache(Cache):
         return inst
 
     def _get_inst_key(self, *args, **kwargs):
-        '''
+        """
         subclasses MUST override this method to return a key which identifies
         this instance; this key MUST be able to be used as a dictionary key
 
@@ -642,7 +636,7 @@ class InstanceTrackingCache(Cache):
                 passed to the construtor; subclasses MUST ensure that the same
                 key derived in #1 can be derived in this case from information
                 stored in the object
-        '''
+        """
         raise NotImplemented
 
     # ensure the cache is written to disk when LAST copy of this instance is
@@ -670,14 +664,14 @@ class InstanceTrackingCache(Cache):
 
 
 class LocalCache(ValidatingCache, InstanceTrackingCache):
-    '''
+    """
     the local cache
 
     stores data related to a particular tex document (identified by the
     tex_root) to a uniquely named folder in the cache directory
 
     all data in this cache SHOULD relate directly to the tex_root
-    '''
+    """
 
     _CACHE_TIMESTAMP = "created_time_stamp"
     _LIFE_SPAN_LOCK = threading.Lock()
@@ -690,17 +684,17 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
         try:
             cache_time = Cache.get(self, self._CACHE_TIMESTAMP)
         except Exception:
-            raise ValueError('cannot load created timestamp')
+            raise ValueError("cannot load created timestamp")
         else:
             if not self.is_up_to_date(key, cache_time):
-                raise ValueError('value outdated')
+                raise ValueError("value outdated")
 
     def validate_on_set(self, key, obj):
         if not self.has(self._CACHE_TIMESTAMP):
             Cache.set(self, self._CACHE_TIMESTAMP, int(time.time()))
 
     def _get_inst_key(self, *args, **kwargs):
-        if not hasattr(self, 'tex_root'):
+        if not hasattr(self, "tex_root"):
             if len(args) > 0:
                 return args[0]
             return None
@@ -726,13 +720,14 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
 
     @classmethod
     def _get_cache_life_span(cls):
-        '''
+        """
         gets the length of time an item should remain in the local cache
         before being evicted
 
         note that previous values are calculated and stored since this method
         is used on every cache read
-        '''
+        """
+
         def __parse_life_span_string():
             try:
                 return int(life_span_string)
@@ -745,15 +740,13 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
                     # if not specified (None) use 0
                     return sum(int(t[0] or 0) * t[1] for t in times)
                 except Exception as e:
-                    logger.error(
-                        'error parsing life_span_string %s', life_span_string
-                    )
+                    logger.error("error parsing life_span_string %s", life_span_string)
                     traceback.print_exc()
                     # default 30 minutes in seconds
                     return 1800
 
         with cls._LIFE_SPAN_LOCK:
-            life_span_string = get_setting('cache.life_span')
+            life_span_string = get_setting("cache.life_span")
             try:
                 if cls._PREV_LIFE_SPAN_STR == life_span_string:
                     return cls._PREV_LIFE_SPAN

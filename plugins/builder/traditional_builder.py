@@ -4,11 +4,20 @@ import sublime
 from pdf_builder import PdfBuilder
 
 DEFAULT_COMMAND_LATEXMK = [
-    "latexmk", "-cd", "-f", "-%E", "-interaction=nonstopmode", "-synctex=1"
+    "latexmk",
+    "-cd",
+    "-f",
+    "-%E",
+    "-interaction=nonstopmode",
+    "-synctex=1",
 ]
 
 DEFAULT_COMMAND_WINDOWS_MIKTEX = [
-    "texify", "-b", "-p", "--engine=%E", "--tex-option=\"--synctex=1\""
+    "texify",
+    "-b",
+    "-p",
+    "--engine=%E",
+    '--tex-option="--synctex=1"',
 ]
 
 
@@ -30,10 +39,7 @@ class TraditionalBuilder(PdfBuilder):
         # Build command, with reasonable defaults
         plat = sublime.platform()
         # Figure out which distro we are using
-        distro = self.platform_settings.get(
-            "distro",
-            "miktex" if plat == "windows" else "texlive"
-        )
+        distro = self.platform_settings.get("distro", "miktex" if plat == "windows" else "texlive")
         if distro in ["miktex", ""]:
             default_command = DEFAULT_COMMAND_WINDOWS_MIKTEX
         else:  # osx, linux, windows/texlive, everything else really!
@@ -62,8 +68,8 @@ class TraditionalBuilder(PdfBuilder):
                 engine_used = True
                 break
 
-        texify = cmd[0] == 'texify'
-        latexmk = cmd[0] == 'latexmk'
+        texify = cmd[0] == "texify"
+        latexmk = cmd[0] == "latexmk"
 
         if not engine_used:
             self.display("Your custom command does not allow the engine to be selected\n\n")
@@ -72,19 +78,19 @@ class TraditionalBuilder(PdfBuilder):
 
             if texify:
                 # texify's --engine option takes pdftex/xetex/luatex as acceptable values
-                engine = engine.replace("la","")
+                engine = engine.replace("la", "")
             elif latexmk:
                 if "la" not in engine:
                     # latexmk options only supports latex-specific versions
                     engine = {
                         "pdftex": "pdflatex",
                         "xetex": "xelatex",
-                        "luatex": "lualatex"
+                        "luatex": "lualatex",
                     }[engine]
 
             for i, c in enumerate(cmd):
                 cmd[i] = c.replace(
-                    "-%E", "-" + engine if texify or engine != 'pdflatex' else '-pdf'
+                    "-%E", "-" + engine if texify or engine != "pdflatex" else "-pdf"
                 ).replace("%E", engine)
 
         # handle any options
@@ -92,14 +98,11 @@ class TraditionalBuilder(PdfBuilder):
             # we can only handle aux_directory, output_directory, or jobname
             # with latexmk
             if latexmk:
-                if (
-                    self.aux_directory is not None and
-                    self.aux_directory != self.output_directory
-                ):
+                if self.aux_directory is not None and self.aux_directory != self.output_directory:
                     # DO NOT ADD QUOTES HERE
                     cmd.append("--aux-directory=" + self.aux_directory)
 
-                if  self.output_directory is not None:
+                if self.output_directory is not None:
                     # DO NOT ADD QUOTES HERE
                     cmd.append("--output-directory=" + self.output_directory)
 
@@ -108,7 +111,7 @@ class TraditionalBuilder(PdfBuilder):
 
             for option in self.options:
                 if texify:
-                    cmd.append("--tex-option=\"" + option + "\"")
+                    cmd.append('--tex-option="' + option + '"')
                 else:
                     cmd.append("-latexoption=" + option)
 

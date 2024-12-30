@@ -174,7 +174,7 @@ def run_jobs(name):
             lock, job_list = _jobs[name]
         except KeyError:
             return
-    # we may not need locks for this
+        # we may not need locks for this
         with lock:
             rem_len = len(job_list)
         with _thread_num_lock:
@@ -184,5 +184,10 @@ def run_jobs(name):
             if start_threads_count > 0:
                 _thread_num += start_threads_count
         for thread_id in range(before_num, after_num):
-            threading.Thread(target=start_threads,
-                             args=(name, thread_id,)).start()
+            threading.Thread(
+                target=start_threads,
+                args=(
+                    name,
+                    thread_id,
+                ),
+            ).start()

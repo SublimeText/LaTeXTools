@@ -8,7 +8,7 @@ EVENT_LEVEL = logging.INFO
 logger = logging.getLogger("LaTeXTools")
 if not logger.handlers:
     handler = logging.StreamHandler()
-    handler.setFormatter(logging.Formatter(fmt="{name} [{levelname}]: {message}", style='{'))
+    handler.setFormatter(logging.Formatter(fmt="{name} [{levelname}]: {message}", style="{"))
     logger.addHandler(handler)
     logger.setLevel(DEFAULT_LOG_LEVEL)
     logger.propagate = False  # prevent root logger from catching this
@@ -21,7 +21,7 @@ def _settings():
 
 def _on_settings_changed():
     cur_log_level = logger.getEffectiveLevel()
-    new_log_level_name = _settings().get('log_level', DEFAULT_LOG_LEVEL_NAME).upper()
+    new_log_level_name = _settings().get("log_level", DEFAULT_LOG_LEVEL_NAME).upper()
     new_log_level = getattr(logging, new_log_level_name, DEFAULT_LOG_LEVEL)
     if new_log_level != cur_log_level:
         logger.setLevel(new_log_level)

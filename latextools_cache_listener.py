@@ -53,9 +53,7 @@ def update_cache(cache, doc, bib):
                     cache.set("analysis", analysis.analyze_document(cache.tex_root))
                 if bib:
                     logger.debug("Updating bibliography cache for %s", cache.tex_root)
-                    run_plugin_command(
-                        "get_entries", *(find_bib_files(cache.tex_root) or [])
-                    )
+                    run_plugin_command("get_entries", *(find_bib_files(cache.tex_root) or []))
             except Exception:
                 traceback.print_exc()
             else:

@@ -6,51 +6,65 @@ from .latextools_utils.tex_directives import get_tex_root
 
 import re
 
-_ref_special_commands = "|".join([
-    "", "eq", "page", "v", "V", "auto", "autopage", "name",
-    "c", "C", "cpage", "Cpage", "namec", "nameC", "lcnamec", "labelc",
-    "labelcpage", "sub", "f", "F", "vpage", "t", "p", "A", "B", "P", "S",
-    "title", "headname", "tocname"
-])[::-1]
+_ref_special_commands = "|".join(
+    [
+        "",
+        "eq",
+        "page",
+        "v",
+        "V",
+        "auto",
+        "autopage",
+        "name",
+        "c",
+        "C",
+        "cpage",
+        "Cpage",
+        "namec",
+        "nameC",
+        "lcnamec",
+        "labelc",
+        "labelcpage",
+        "sub",
+        "f",
+        "F",
+        "vpage",
+        "t",
+        "p",
+        "A",
+        "B",
+        "P",
+        "S",
+        "title",
+        "headname",
+        "tocname",
+    ]
+)[::-1]
 
-OLD_STYLE_REF_REGEX = re.compile(
-    r"([^_]*_)?(?:\*?s?fer(" +
-    _ref_special_commands +
-    r")?)\\"
-)
+OLD_STYLE_REF_REGEX = re.compile(r"([^_]*_)?(?:\*?s?fer(" + _ref_special_commands + r")?)\\")
 
-NEW_STYLE_REF_REGEX = re.compile(
-    r"([^}]*)\{(?:\*?s?fer(" +
-    _ref_special_commands +
-    r")?)\\"
-)
+NEW_STYLE_REF_REGEX = re.compile(r"([^}]*)\{(?:\*?s?fer(" + _ref_special_commands + r")?)\\")
 
-NEW_STYLE_REF_RANGE_REGEX = re.compile(
-    r"([^}]*)\{(?:\}[^\}]*\{)?\*?egnarfer(egapv|v|egapc|C|c)\\"
-)
+NEW_STYLE_REF_RANGE_REGEX = re.compile(r"([^}]*)\{(?:\}[^\}]*\{)?\*?egnarfer(egapv|v|egapc|C|c)\\")
 
-NEW_STYLE_REF_MULTIVALUE_REGEX = re.compile(
-    r"([^},]*)(?:,[^},]*)*\{fer(c|C|egapc|egapC)\\"
-)
+NEW_STYLE_REF_MULTIVALUE_REGEX = re.compile(r"([^},]*)(?:,[^},]*)*\{fer(c|C|egapc|egapC)\\")
 
-AUTOCOMPLETE_EXCLUDE_RX = re.compile(
-    r"fer(?:" + _ref_special_commands + r")?\\?"
-)
+AUTOCOMPLETE_EXCLUDE_RX = re.compile(r"fer(?:" + _ref_special_commands + r")?\\?")
 
 
 # recursively search all linked tex files to find all
 # included \label{} tags in the document and extract
 def find_labels_in_files(root, labels):
     doc = analysis.get_analysis(root)
-    for command in doc.filter_commands('label'):
+    for command in doc.filter_commands("label"):
         labels.append(command.args)
 
 
 # grab labels from all open buffers too
 def find_labels_in_open_files(views, labels):
     for view in views:
-        if view.match_selector(0, 'text.tex.latex'):
-            view.find_all(r'\\label\{([^\{\}]+)\}', 0, '\\1', labels)
+        if view.match_selector(0, "text.tex.latex"):
+            view.find_all(r"\\label\{([^\{\}]+)\}", 0, "\\1", labels)
 
 
 # get_ref_completions forms the guts of the parsing shared by both the
@@ -95,7 +109,7 @@ class RefFillAllHelper(FillAllHelper):
             completions = [c for c in completions if lower_prefix in c.lower()]
 
         if old_style:
-            return completions, '{'
+            return completions, "{"
         else:
             return completions
 
@@ -110,13 +124,11 @@ class RefFillAllHelper(FillAllHelper):
 
     def matches_line(self, line):
         return bool(
-            (
-                not line.startswith(',') or
-                NEW_STYLE_REF_MULTIVALUE_REGEX.match(line)
-            ) and (
-                OLD_STYLE_REF_REGEX.match(line) or
-                NEW_STYLE_REF_REGEX.match(line) or
-                NEW_STYLE_REF_RANGE_REGEX.match(line)
+            (not line.startswith(",") or NEW_STYLE_REF_MULTIVALUE_REGEX.match(line))
+            and (
+                OLD_STYLE_REF_REGEX.match(line)
+                or NEW_STYLE_REF_REGEX.match(line)
+                or NEW_STYLE_REF_RANGE_REGEX.match(line)
             )
         )
 
@@ -124,4 +136,4 @@ class RefFillAllHelper(FillAllHelper):
         return bool(OLD_STYLE_REF_REGEX.match(line))
 
     def is_enabled(self):
-        return get_setting('ref_auto_trigger', True)
+        return get_setting("ref_auto_trigger", True)

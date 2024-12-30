@@ -8,7 +8,7 @@ import sublime
 
 from shutil import which
 
-if sublime.platform() == 'windows':
+if sublime.platform() == "windows":
     import winreg
     import ctypes
     from ctypes import wintypes
@@ -18,6 +18,7 @@ if sublime.platform() == 'windows':
         buffer = ctypes.create_unicode_buffer(wintypes.MAX_PATH + 1)
         ctypes.windll.kernel32.GetSystemDirectoryW(buffer, len(buffer))
         return buffer.value
+
 
 from ..latextools_utils import cache
 from ..latextools_utils.distro_utils import using_miktex
@@ -35,15 +36,13 @@ def _get_convert_command():
     if hasattr(_get_convert_command, "result"):
         return _get_convert_command.result
 
-    texpath = get_texpath() or os.environ['PATH']
-    _get_convert_command.result = (
-        which('magick', path=texpath) or
-        which('convert', path=texpath)
-    )
+    texpath = get_texpath() or os.environ["PATH"]
+    _get_convert_command.result = which("magick", path=texpath) or which("convert", path=texpath)
 
     # DO NOT RUN THE CONVERT COMMAND IN THE SYSTEM ROOT ON WINDOWS
-    if (sublime.platform() == 'windows' and
-            _get_convert_command.result.lower().endswith('convert.exe')):
+    if sublime.platform() == "windows" and _get_convert_command.result.lower().endswith(
+        "convert.exe"
+    ):
         system_root = get_system_root().lower()
         if _get_convert_command.result.lower().startswith(system_root):
             _get_convert_command.result = None
@@ -59,16 +58,16 @@ def run_convert_command(args):
     """Executes ImageMagick convert or magick command as appropriate with the
     given args"""
     if not isinstance(args, list):
-        raise TypeError('args must be a list')
+        raise TypeError("args must be a list")
 
     convert_command = _get_convert_command()
-    if os.path.splitext(os.path.basename(convert_command))[0] == 'magick':
+    if os.path.splitext(os.path.basename(convert_command))[0] == "magick":
         args.insert(0, convert_command)
-        args.insert(1, 'convert')
+        args.insert(1, "convert")
     else:
         args.insert(0, convert_command)
 
-    execute_command(args, shell=sublime.platform() == 'windows')
+    execute_command(args, shell=sublime.platform() == "windows")
 
 
 _GS_COMMAND = None
@@ -80,7 +79,7 @@ _GS_COMMAND = None
 _GS_EXTRA_LIBRARY_PATHS = []
 _GS_VERSION_LOCK = threading.Lock()
 _GS_VERSION = None
-_GS_VERSION_REGEX = re.compile(r'Ghostscript (?P<major>\d+)\.(?P<minor>\d{2})')
+_GS_VERSION_REGEX = re.compile(r"Ghostscript (?P<major>\d+)\.(?P<minor>\d{2})")
 
 
 def _get_gs_command():
@@ -114,25 +113,25 @@ def _update_gs_version():
             return None
 
         try:
-            raw_version = check_output([_GS_COMMAND, '-version'])
+            raw_version = check_output([_GS_COMMAND, "-version"])
             m = _GS_VERSION_REGEX.search(raw_version)
             if m:
                 _GS_VERSION = tuple(int(x) for x in m.groups())
         except Exception:
-            logger.error('Error finding Ghostscript version for %s', _GS_COMMAND)
+            logger.error("Error finding Ghostscript version for %s", _GS_COMMAND)
             traceback.print_exc()
             return None
 
 
 # broken out to be called from system_check
 def __get_gs_command():
-    texpath = get_texpath() or os.environ['PATH']
-    if sublime.platform() == 'windows':
+    texpath = get_texpath() or os.environ["PATH"]
+    if sublime.platform() == "windows":
         # use Ghostscript from the texpath if possible
         result = (
-            which('gswin32c', path=texpath) or
-            which('gswin64c', path=texpath) or
-            which('gs', path=texpath)
+            which("gswin32c", path=texpath)
+            or which("gswin64c", path=texpath)
+            or which("gs", path=texpath)
         )
 
         # try to find Ghostscript from the registry
@@ -141,45 +140,40 @@ def __get_gs_command():
 
         if result is None:
             if using_miktex():
-                result = which('mgs', path=texpath)
+                result = which("mgs", path=texpath)
             else:
                 result = _get_tl_gs_path(texpath)
                 if result is not None:
                     global _GS_EXTRA_LIBRARY_PATHS
 
-                    _tlgs_path = os.path.normpath(os.path.join(
-                        os.path.dirname(result), '..'))
+                    _tlgs_path = os.path.normpath(os.path.join(os.path.dirname(result), ".."))
 
                     _GS_EXTRA_LIBRARY_PATHS = [
-                        os.path.join(_tlgs_path, 'Resource', 'Init'),
-                        os.path.join(_tlgs_path, 'kanji')
+                        os.path.join(_tlgs_path, "Resource", "Init"),
+                        os.path.join(_tlgs_path, "kanji"),
                     ]
     else:
-        result = which('gs', path=texpath)
+        result = which("gs", path=texpath)
 
     return result
 
 
 def _get_tl_gs_path(texpath):
     """Tries to find the gs installed by TeXLive"""
-    pdflatex = which('pdflatex', path=texpath)
+    pdflatex = which("pdflatex", path=texpath)
     if pdflatex is None:
         return None
 
     # assumed structure
     # texlive/<year>/
-    tlgs_path = os.path.normpath(os.path.join(
-        os.path.dirname(pdflatex),
-        '..', '..', 'tlpkg', 'tlgs', 'bin'
-    ))
+    tlgs_path = os.path.normpath(
+        os.path.join(os.path.dirname(pdflatex), "..", "..", "tlpkg", "tlgs", "bin")
+    )
 
     if not os.path.exists(tlgs_path):
         return None
 
-    return (
-        which('gswin32c', path=tlgs_path) or
-        which('gswin64c', path=tlgs_path)
-    )
+    return which("gswin32c", path=tlgs_path) or which("gswin64c", path=tlgs_path)
 
 
 def _get_gs_exe_from_registry():
@@ -193,22 +187,15 @@ def _get_gs_exe_from_registry():
     # find the most recent version of Ghostscript installed
     for product in ["GPL Ghostscript", "AFPL Ghostscript"]:
         try:
-            hndl = winreg.OpenKey(
-                winreg.HKEY_LOCAL_MACHINE,
-                'SOFTWARE\\{0}'.format(product)
-            )
+            hndl = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\{0}".format(product))
 
             try:
                 for i in range(winreg.QueryInfoKey(hndl)[0]):
                     version = winreg.EnumKey(hndl, i)
                     try:
-                        major, minor = map(int, version.split('.'))
-                        if (
-                            major > major_version or
-                            (
-                                major == major_version and
-                                minor > minor_version
-                            )
+                        major, minor = map(int, version.split("."))
+                        if major > major_version or (
+                            major == major_version and minor > minor_version
                         ):
                             major_version = major
                             minor_version = minor
@@ -224,22 +211,18 @@ def _get_gs_exe_from_registry():
         try:
             hndl = winreg.OpenKey(
                 winreg.HKEY_LOCAL_MACHINE,
-                'SOFTWARE\\{0}\\{1}.{2:02}'
-                .format(product_family, major_version, minor_version)
+                "SOFTWARE\\{0}\\{1}.{2:02}".format(product_family, major_version, minor_version),
             )
 
             try:
-                gs_path = os.path.dirname(
-                    winreg.QueryValue(hndl, 'GS_DLL'))
+                gs_path = os.path.dirname(winreg.QueryValue(hndl, "GS_DLL"))
 
                 if gs_path is not None:
-                    result = (
-                        which('gswin32c', path=gs_path) or
-                        which('gswin64c', path=gs_path))
+                    result = which("gswin32c", path=gs_path) or which("gswin64c", path=gs_path)
             finally:
                 winreg.CloseKey(hndl)
         except OSError:
-            logger.error('Could not find GS_DLL value for %s', product_family)
+            logger.error("Could not find GS_DLL value for %s", product_family)
 
     return result
 
@@ -260,26 +243,25 @@ def get_ghostscript_version():
 def run_ghostscript_command(args, stdout=__sentinel__, stderr=__sentinel__):
     """Executes a Ghostscript command with the given args"""
     if not isinstance(args, list):
-        raise TypeError('args must be a list')
+        raise TypeError("args must be a list")
 
     # add some default args to run in quiet batch mode
     args.insert(0, _get_gs_command())
     # if there are any extra library paths to add; however, we do not want
     # to override the GS_LIB environment variable
-    if 'GS_LIB' not in os.environ:
+    if "GS_LIB" not in os.environ:
         for p in _GS_EXTRA_LIBRARY_PATHS:
             args.insert(1, p)
-            args.insert(1, '-I')
-    args.insert(1, '-q')
-    args.insert(1, '-dQUIET')
-    args.insert(1, '-dNOPROMPT')
-    args.insert(1, '-dNOPAUSE')
-    args.insert(1, '-dBATCH')
-    args.insert(1, '-dSAFER')
+            args.insert(1, "-I")
+    args.insert(1, "-q")
+    args.insert(1, "-dQUIET")
+    args.insert(1, "-dNOPROMPT")
+    args.insert(1, "-dNOPAUSE")
+    args.insert(1, "-dBATCH")
+    args.insert(1, "-dSAFER")
 
     return execute_command(
-        args, shell=sublime.platform() == 'windows',
-        stdout=stdout, stderr=stderr
+        args, shell=sublime.platform() == "windows", stdout=stdout, stderr=stderr
     )
 
 
@@ -300,8 +282,7 @@ class SettingsListener(object):
         global _lt_settings
         if not isinstance(_lt_settings, sublime.Settings):
             try:
-                _lt_settings = sublime.load_settings(
-                    "LaTeXTools.sublime-settings")
+                _lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
             except Exception:
                 traceback.print_exc()
 
@@ -318,15 +299,12 @@ class SettingsListener(object):
             settings_name = d["setting"]
             self.__dict__[attr_name] = _lt_settings.get(settings_name)
 
-        _lt_settings.add_on_change(
-            key, lambda: self._on_setting_change(False))
-        self.view.settings().add_on_change(
-            key, lambda: self._on_setting_change(True))
+        _lt_settings.add_on_change(key, lambda: self._on_setting_change(False))
+        self.view.settings().add_on_change(key, lambda: self._on_setting_change(True))
 
     def _on_setting_change(self, for_view):
         settings = self.view.settings() if for_view else _lt_settings
-        attr_updates = (self.v_attr_updates if for_view
-                        else self.lt_attr_updates)
+        attr_updates = self.v_attr_updates if for_view else self.lt_attr_updates
         for attr_name in attr_updates.keys():
             attr = attr_updates[attr_name]
             settings_name = attr["setting"]
@@ -368,15 +346,15 @@ def try_delete_temp_files(key, temp_path):
     period *= 60 * 60  # h -> s
 
     # the remaining size as tenth of the cache size
-    max_remaining_size = cache_size / 10.
+    max_remaining_size = cache_size / 10.0
 
     if time.time() <= last_try + period:
         return
     cache.write_global(key + "_temp_delete", last_try)
 
     tr = threading.Thread(
-        target=lambda: delete_temp_files(
-            temp_path, cache_size, max_remaining_size))
+        target=lambda: delete_temp_files(temp_path, cache_size, max_remaining_size)
+    )
     tr.start()
 
 
@@ -397,17 +375,13 @@ def _modified_time(file_path):
     return mtime
 
 
-def delete_temp_files(temp_path, cache_size, max_remaining_size,
-                      total_size=None, delete_all=False):
+def delete_temp_files(temp_path, cache_size, max_remaining_size, total_size=None, delete_all=False):
     if total_size is None and not delete_all:
         total_size = _temp_folder_size(temp_path)
     if total_size <= cache_size:
         return
 
-    del_files = [
-        os.path.join(temp_path, file_name)
-        for file_name in os.listdir(temp_path)
-    ]
+    del_files = [os.path.join(temp_path, file_name) for file_name in os.listdir(temp_path)]
     # sort the delete files by their modification time
     del_files.sort(key=_modified_time, reverse=True)
 

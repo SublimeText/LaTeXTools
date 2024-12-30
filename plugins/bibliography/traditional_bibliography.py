@@ -9,7 +9,7 @@ from latextools_plugin import LaTeXToolsPlugin
 from latextools_utils import bibcache
 from latextools_utils.logging import logger
 
-kp = re.compile(r'@[^\{]+\{\s*(.+)\s*,')
+kp = re.compile(r"@[^\{]+\{\s*(.+)\s*,")
 # new and improved regex
 # we must have "title" then "=", possibly with spaces
 # then either {, maybe repeated twice, or "
@@ -30,9 +30,8 @@ kp = re.compile(r'@[^\{]+\{\s*(.+)\s*,')
 # This may speed things up
 # So far this captures: the tag, and the THREE possible groups
 multip = re.compile(
-    r'\b(author|title|year|editor|journal|eprint)\s*=\s*'
-    r'(?:\{|"|\b)(.+?)(?:\}+|"|\b)\s*,?\s*\Z',
-    re.IGNORECASE
+    r"\b(author|title|year|editor|journal|eprint)\s*=\s*" r'(?:\{|"|\b)(.+?)(?:\}+|"|\b)\s*,?\s*\Z',
+    re.IGNORECASE,
 )
 
 # LaTeX -> Unicode decoder
@@ -53,7 +52,7 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                 pass
 
             try:
-                bibf = codecs.open(bibfname, 'r', 'UTF-8', 'ignore')  # 'ignore' to be safe
+                bibf = codecs.open(bibfname, "r", "UTF-8", "ignore")  # 'ignore' to be safe
             except IOError:
                 msg = "Cannot open bibliography file %s !" % bibfname
                 logger.error(msg)
@@ -67,7 +66,7 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                 for line in bib_data:
                     line = line.strip()
                     # Let's get rid of irrelevant lines first
-                    if line == "" or line[0] == '%':
+                    if line == "" or line[0] == "%":
                         continue
                     if line.lower()[0:8] == "@comment":
                         continue
@@ -76,16 +75,19 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                     if line.lower()[0:9] == "@preamble":
                         continue
                     if line[0] == "@":
-                        if 'keyword' in entry:
+                        if "keyword" in entry:
                             bib_entries.append(entry)
                             entry = {}
 
                         kp_match = kp.search(line)
                         if kp_match:
-                            entry['keyword'] = kp_match.group(1)
+                            entry["keyword"] = kp_match.group(1)
                         else:
                             logger.error("Cannot process this @ line: %s", line)
-                            logger.error("Previous keyword (if any): %s", entry.get('keyword', ''))
+                            logger.error(
+                                "Previous keyword (if any): %s",
+                                entry.get("keyword", ""),
+                            )
                         continue
 
                     # Now test for title, author, etc.
@@ -93,20 +95,22 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                     multip_match = multip.search(line)
                     if multip_match:
                         key = multip_match.group(1).lower()
-                        value = codecs.decode(multip_match.group(2), 'latex')
+                        value = codecs.decode(multip_match.group(2), "latex")
 
-                        if key == 'title':
-                            value = value.replace(
-                                '{\\textquoteright}', ''
-                            ).replace('{', '').replace('}', '')
+                        if key == "title":
+                            value = (
+                                value.replace("{\\textquoteright}", "")
+                                .replace("{", "")
+                                .replace("}", "")
+                            )
                         entry[key] = value
                     continue
 
                 # at the end, we have a single record
-                if 'keyword' in entry:
+                if "keyword" in entry:
                     bib_entries.append(entry)
 
-                logger.info('Loaded %d bibitems', len(bib_data))
+                logger.info("Loaded %d bibitems", len(bib_data))
 
                 try:
                     bib_cache.set(bib_entries)

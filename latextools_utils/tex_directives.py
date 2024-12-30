@@ -10,19 +10,16 @@ from .logging import logger
 from .sublime_utils import get_project_file_name
 
 
-TEX_DIRECTIVE = re.compile(
-    r'%+\s*!(?:T|t)(?:E|e)(?:X|x)\s+([\w-]+)\s*=\s*' +
-    r'(.*?)\s*$')
+TEX_DIRECTIVE = re.compile(r"%+\s*!(?:T|t)(?:E|e)(?:X|x)\s+([\w-]+)\s*=\s*" + r"(.*?)\s*$")
 
 # this is obviously imperfect, but is intended as a heuristic. we
 # can tolerate false negatives, but not false positives that match, e.g.,
 # Windows paths or parts of Windows paths.
-LATEX_COMMAND = re.compile(r'\\[a-zA-Z]+\*?(?:\[[^\]]+\])*\{[^\}]+\}')
+LATEX_COMMAND = re.compile(r"\\[a-zA-Z]+\*?(?:\[[^\]]+\])*\{[^\}]+\}")
 
 
-def parse_tex_directives(view_or_path, multi_values=[], key_maps={},
-                         only_for=[]):
-    '''
+def parse_tex_directives(view_or_path, multi_values=[], key_maps={}, only_for=[]):
+    """
     Parses a view or file for any %!TEX directives
 
     Returns a dictionary of directives keyed from the directive name in
@@ -40,26 +37,25 @@ def parse_tex_directives(view_or_path, multi_values=[], key_maps={},
                             if only a single value is present and no
                             multi_values are specified, this will exit once
                             a match is found
-    '''
+    """
     result = {}
 
     # used to indicate if we opened a file so it can be closed
     is_file = False
     if isinstance(view_or_path, sublime.View):
-        lines = view_or_path.substr(
-            sublime.Region(0, view_or_path.size())).split('\n')
+        lines = view_or_path.substr(sublime.Region(0, view_or_path.size())).split("\n")
     elif isinstance(view_or_path, str):
         try:
             lines = codecs.open(view_or_path, "r", "utf-8", "ignore")
         except IOError:
             # fail (relatively) silently if view_or_path is not a valid path
-            logger.error('Caught IOError while handling %s as file', view_or_path)
+            logger.error("Caught IOError while handling %s as file", view_or_path)
             traceback.print_exc()
             return result
         else:
             is_file = True
     else:
-        logger.error('%s is not supported by parse_tex_directives()', type(view_or_path))
+        logger.error("%s is not supported by parse_tex_directives()", type(view_or_path))
         return result
 
     try:
@@ -71,15 +67,18 @@ def parse_tex_directives(view_or_path, multi_values=[], key_maps={},
         # whether or not we should break on the first value encountered
         # we do so if only a single directive is being searched for
         # and it is not multi-valued
-        break_on_first = has_only_for and len(only_for) == 1 and \
-            (multi_values is None or only_for[0] not in multi_values)
+        break_on_first = (
+            has_only_for
+            and len(only_for) == 1
+            and (multi_values is None or only_for[0] not in multi_values)
+        )
 
         for line in lines:
             # read up until the first LaTeX command
             m = LATEX_COMMAND.search(line)
             if m:
                 break
-            elif not line.startswith('%'):
+            elif not line.startswith("%"):
                 continue
 
             m = TEX_DIRECTIVE.match(line)
@@ -119,9 +118,9 @@ def get_tex_root(view):
     view_file = view.file_name()
 
     root = None
-    directives = parse_tex_directives(view, only_for=['root'])
+    directives = parse_tex_directives(view, only_for=["root"])
     try:
-        root = directives['root']
+        root = directives["root"]
     except KeyError:
         pass
     else:
@@ -140,7 +139,7 @@ def get_tex_root(view):
 
 
 def get_tex_root_from_settings(view):
-    root = view.settings().get('latextools.tex_root', None)
+    root = view.settings().get("latextools.tex_root", None)
 
     if root is not None:
         if os.path.isabs(root):

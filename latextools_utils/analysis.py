@@ -42,9 +42,13 @@ for each regex name:
 # \command[optargs]{args}[optargs2][optargs2a]{args2}[optargs3]{args3}
 # the argument names (in correct order!)
 _COMMAND_ARG_NAMES = (
-    "optargs", "args",
-    "optargs2", "optargs2a", "args2",
-    "optargs3", "args3"
+    "optargs",
+    "args",
+    "optargs2",
+    "optargs2a",
+    "args2",
+    "optargs3",
+    "args3",
 )
 _RE_COMMAND = regex.compile(
     r"\\(?P<command>[A-Za-z]+)(?P<star>\*?)" +  # The initial command
@@ -72,19 +76,21 @@ _RE_COMMAND = regex.compile(
             close=(r"\]" if name.startswith("opt") else r"\}"),
         )
         for name in _COMMAND_ARG_NAMES
-    ), regex.MULTILINE | regex.UNICODE | regex.VERBOSE
+    ),
+    regex.MULTILINE | regex.UNICODE | regex.VERBOSE,
 )
 # this regex is used to remove comments
-_RE_COMMENT = regex.compile(
-    r"((?<=^)|(?<=[^\\]))%.*",
-    regex.UNICODE
-)
+_RE_COMMENT = regex.compile(r"((?<=^)|(?<=[^\\]))%.*", regex.UNICODE)
 # the analysis will walk recursively into the included files
 # i.e. the 'args' field of the command
 _input_commands = ["input", "include", "subfile", "loadglsentries"]
 _import_commands = [
-    "import", "subimport", "includefrom", "subincludefrom",
-    "inputfrom", "subinputfrom"
+    "import",
+    "subimport",
+    "includefrom",
+    "subincludefrom",
+    "inputfrom",
+    "subinputfrom",
 ]
 
 
@@ -113,12 +119,9 @@ ONLY_PREAMBLE = _flag()
 # all filter functions to filter out commands,
 # which do not need a special treatment
 _FLAG_FILTER = {
-    NO_BEGIN_END_COMMANDS:
-        lambda c: c.command != "begin" and c.command != "end",
-    ONLY_COMMANDS_WITH_ARGS:
-        lambda c: c.args is not None,
-    ONLY_COMMANDS_WITH_ARG_CONTENT:
-        lambda c: bool(c.args)
+    NO_BEGIN_END_COMMANDS: lambda c: c.command != "begin" and c.command != "end",
+    ONLY_COMMANDS_WITH_ARGS: lambda c: c.args is not None,
+    ONLY_COMMANDS_WITH_ARG_CONTENT: lambda c: bool(c.args),
 }
 
 DEFAULT_FLAGS = NO_BEGIN_END_COMMANDS | ONLY_COMMANDS_WITH_ARGS
@@ -234,14 +237,20 @@ class Analysis(object):
         """
         # convert the filter into a function
         if isinstance(how, str):
+
             def command_filter(c):
                 return c.command == how
+
         elif isinstance(how, list):
+
             def command_filter(c):
                 return c.command in how
+
         elif callable(how):
+
             def command_filter(c):
                 return how(c)
+
         else:
             raise Exception("Unsupported filter type: " + str(type(how)))
         com = self._commands(flags)
@@ -258,10 +267,7 @@ class Analysis(object):
             base_path = os.path.join(self.tex_base_path(com.file_name))
             paths = (p.rstrip("}") for p in com.args.split("{") if p)
             self._graphics_path.extend(
-                os.path.normpath(
-                    p if os.path.isabs(p)
-                    else os.path.join(base_path, p)
-                )
+                os.path.normpath(p if os.path.isabs(p) else os.path.join(base_path, p))
                 for p in paths
             )
 
@@ -276,8 +282,10 @@ class Analysis(object):
     def _build_cache(self, flags):
         com = self._all_commands
         if flags & ONLY_PREAMBLE:
+
             def is_not_begin_document(c):
                 return not (c.command == "begin" and c.args == "document")
+
             com = itertools.takewhile(is_not_begin_document, com)
         for cflag in sorted(_FLAG_FILTER.keys()):
             if flags & cflag:
@@ -332,8 +340,7 @@ def get_analysis(tex_root):
     elif not isinstance(tex_root, str):
         raise TypeError("tex_root must be a string or view")
 
-    result = LocalCache(tex_root).cache(
-        'analysis', partial(analyze_document, tex_root))
+    result = LocalCache(tex_root).cache("analysis", partial(analyze_document, tex_root))
     result._freeze()
     return result
 
@@ -343,19 +350,20 @@ def _generate_entries(m, file_name, offset=0):
     # on the group dict, i.e. all regex matches
     entryDict = m.groupdict()
 
-    entryDict.update({
-        "file_name": file_name,
-        "text": m.group(0),
-        "start": offset + m.start(),
-        "end": offset + m.end(),
-        "region": sublime.Region(offset + m.start(), offset + m.end())
-    })
+    entryDict.update(
+        {
+            "file_name": file_name,
+            "text": m.group(0),
+            "start": offset + m.start(),
+            "end": offset + m.end(),
+            "region": sublime.Region(offset + m.start(), offset + m.end()),
+        }
+    )
     # insert the regions of the matches into the entry dict
     for k in m.groupdict().keys():
         region_name = k + "_region"
         reg = m.regs[m.re.groupindex[k]]
-        entryDict[region_name] = sublime.Region(
-            offset + reg[0], offset + reg[1])
+        entryDict[region_name] = sublime.Region(offset + reg[0], offset + reg[1])
     # create an object from the dict and insert it into the analysis
     entry = objectview(frozendict(entryDict))
     yield entry
@@ -401,8 +409,14 @@ def analyze_document(tex_root):
     return result
 
 
-def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
-                      ana=None, import_path=None, only_preamble=False):
+def _analyze_tex_file(
+    tex_root,
+    file_name=None,
+    process_file_stack=[],
+    ana=None,
+    import_path=None,
+    only_preamble=False,
+):
     # init ana and the file name
     if not ana:
         ana = Analysis(tex_root)
@@ -428,9 +442,8 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
         if file_name in ana._import_base_paths:
             if ana._import_base_paths[file_name] != import_path:
                 logger.warning(
-                    "'%s' is imported twice. "
-                    "Cannot handle this correctly in the analysis.",
-                    file_name
+                    "'%s' is imported twice. " "Cannot handle this correctly in the analysis.",
+                    file_name,
                 )
         else:
             ana._import_base_paths[file_name] = base_path
@@ -439,9 +452,9 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
     try:
         raw_content, content = _preprocess_file(file_name)
     except Exception:
-        logger.error('Error occurred while preprocessing %s', file_name)
+        logger.error("Error occurred while preprocessing %s", file_name)
         traceback.print_exc()
-        logger.info('Continuing...')
+        logger.info("Continuing...")
         return ana
 
     ana._content[file_name] = content
@@ -452,8 +465,7 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
         g = m.group
 
         # precancel if we only parse the preamble (for subfiles)
-        if (only_preamble and g("command") == "begin" and
-                g("args") == "document"):
+        if only_preamble and g("command") == "begin" and g("args") == "document":
             ana._state["preamble_finished"] = True
             return ana
 
@@ -468,8 +480,7 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
             # check that we still need to analyze
             if only_preamble and ana._state.get("preamble_finished", False):
                 return ana
-        elif (g("command") in _import_commands and g("args") is not None and
-                g("args2") is not None):
+        elif g("command") in _import_commands and g("args") is not None and g("args2") is not None:
             if g("command").startswith("sub"):
                 next_import_path = os.path.join(base_path, g("args").strip('"'))
             else:
@@ -480,8 +491,13 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
 
             process_file_stack.append(file_name)
             _analyze_tex_file(
-                tex_root, open_file, process_file_stack, ana,
-                import_path=next_import_path, only_preamble=only_preamble)
+                tex_root,
+                open_file,
+                process_file_stack,
+                ana,
+                import_path=next_import_path,
+                only_preamble=only_preamble,
+            )
             process_file_stack.pop()
             # check that we still need to analyze
             if only_preamble and ana._state.get("preamble_finished", False):
@@ -490,15 +506,20 @@ def _analyze_tex_file(tex_root, file_name=None, process_file_stack=[],
         # if we are not in the root file (i.e. not call from included files)
         # and have the command \documentclass[main.tex]{subfiles}
         # analyze the root file
-        elif (tex_root != file_name and g("command") == "documentclass" and
-                g("args") == "subfiles"):
+        elif tex_root != file_name and g("command") == "documentclass" and g("args") == "subfiles":
             main_file = g("optargs")
             if not main_file:
                 continue
             main_file = os.path.join(base_path, main_file)
             process_file_stack.append(file_name)
-            _analyze_tex_file(main_file, main_file, process_file_stack, ana,
-                              import_path=None, only_preamble=True)
+            _analyze_tex_file(
+                main_file,
+                main_file,
+                process_file_stack,
+                ana,
+                import_path=None,
+                only_preamble=True,
+            )
             process_file_stack.pop()
             try:
                 del ana._state["preamble_finished"]
@@ -521,7 +542,7 @@ def _preprocess_file(file_name):
     content = list(raw_content)
     for m in comments:
         for i in range(m.start(), m.end()):
-            content[i] = ' '
+            content[i] = " "
     content = "".join(content)
     return raw_content, content
 
@@ -550,6 +571,7 @@ def make_rowcol(string):
                 return (i, pos - last)
             last = k
         return (-1, -1)
+
     return rowcol
 
 
@@ -563,4 +585,4 @@ class objectview(object):
         self.__dict__.update(d)
 
     def __setattr__(self, attr, value):
-        raise TypeError('cannot set value on an objectview')
+        raise TypeError("cannot set value on an objectview")

@@ -1,13 +1,12 @@
 import sublime
 
 
-__all__ = ['get_setting']
+__all__ = ["get_setting"]
 
 
 def get_setting(setting, default=None, view=None):
-    advanced_settings = sublime.load_settings(
-        'LaTeXTools (Advanced).sublime-settings')
-    global_settings = sublime.load_settings('LaTeXTools.sublime-settings')
+    advanced_settings = sublime.load_settings("LaTeXTools (Advanced).sublime-settings")
+    global_settings = sublime.load_settings("LaTeXTools.sublime-settings")
 
     try:
         if view is None:
@@ -20,7 +19,7 @@ def get_setting(setting, default=None, view=None):
         # no view defined or view invalid
         view_settings = {}
 
-    result = view_settings.get('latextools.{}'.format(setting))
+    result = view_settings.get("latextools.{}".format(setting))
 
     if result is None:
         result = global_settings.get(setting)
@@ -28,7 +27,7 @@ def get_setting(setting, default=None, view=None):
     if result is None:
         result = advanced_settings.get(setting, default)
 
-    if result is None or '':
+    if result is None or "":
         result = default
 
     if isinstance(result, sublime.Settings) or isinstance(result, dict):
@@ -36,8 +35,8 @@ def get_setting(setting, default=None, view=None):
         for s in (
             advanced_settings.get(setting, {}),
             global_settings.get(setting, {}),
-            view_settings.get('latextools.{}'.format(setting), {}),
-            result
+            view_settings.get("latextools.{}".format(setting), {}),
+            result,
         ):
             # recursively load settings
             _update_setting(values, s)
@@ -48,11 +47,8 @@ def get_setting(setting, default=None, view=None):
 
 def _update_setting(settings, values):
     for key in values:
-        if (
-            key in settings and (
-                isinstance(settings[key], dict) or
-                isinstance(settings[key], sublime.Settings)
-            )
+        if key in settings and (
+            isinstance(settings[key], dict) or isinstance(settings[key], sublime.Settings)
         ):
             _update_setting(settings[key], values[key])
         else:

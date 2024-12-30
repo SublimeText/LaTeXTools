@@ -13,7 +13,7 @@ _VERSION = 2
 
 
 class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
-    '''
+    """
     implements a cache for a bibliography file
 
     note that this differs somewhat from the other cache objects because it
@@ -23,7 +23,7 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
     note that the bibliography entries themselves are NOT stored in the
     in-memory cache which ONLY stores the formatted entries; instead,
     they are read from disk as necessary
-    '''
+    """
 
     def __init__(self, bib_plugin_name, bib_file):
         self._inst_name = (bib_plugin_name, bib_file)
@@ -32,9 +32,7 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
         file_hash = cache.hash_digest(bib_file)
         self.bib_file = bib_file
         self.cache_name = "bib_{0}_{1}".format(bib_plugin_name, file_hash)
-        self.formatted_cache_name = "bib_{0}_fmt_{1}".format(
-            bib_plugin_name, file_hash
-        )
+        self.formatted_cache_name = "bib_{0}_fmt_{1}".format(bib_plugin_name, file_hash)
 
     def get(self):
         try:
@@ -55,15 +53,12 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
             try:
                 cache.pickle.dumps(bib_entries, protocol=-1)
             except cache.pickle.PicklingError:
-                logger.error('bib_entries must be pickleable')
+                logger.error("bib_entries must be pickleable")
                 traceback.print_exc()
             else:
                 with self._disk_lock:
                     os.makedirs(self.cache_path, exist_ok=True)
-                    self._write(
-                        self.cache_name,
-                        {self.cache_name: bib_entries}
-                    )
+                    self._write(self.cache_name, {self.cache_name: bib_entries})
 
         # write bib_entries to disk
         self._pool.apply_async(_write_bib_cache)
@@ -94,10 +89,10 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
         except Exception:
             raise cache.CacheMiss()
         else:
-            if mtime > meta_data['cache_time']:
-                raise cache.CacheMiss('outdated formatted entries')
+            if mtime > meta_data["cache_time"]:
+                raise cache.CacheMiss("outdated formatted entries")
 
-        if _VERSION != meta_data['version'] or any(
+        if _VERSION != meta_data["version"] or any(
             meta_data[s] != get_setting("cite_" + s)
             for s in ["panel_format", "autocomplete_format"]
         ):
@@ -106,7 +101,7 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
         return formatted_entries
 
     def _get_inst_key(self, *args, **kwargs):
-        if not hasattr(self, '_inst_name'):
+        if not hasattr(self, "_inst_name"):
             if len(args) > 1:
                 return (args[0], args[1])
             else:
@@ -116,15 +111,14 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
 
     def _get_bib_cache(self):
         try:
-            cache_mtime = os.path.getmtime(
-                os.path.join(self.cache_path, self.cache_name))
+            cache_mtime = os.path.getmtime(os.path.join(self.cache_path, self.cache_name))
 
             bib_mtime = os.path.getmtime(self.bib_file)
         except Exception:
             raise cache.CacheMiss()
         else:
             if cache_mtime < bib_mtime:
-                raise cache.CacheMiss('outdated bib entry cache')
+                raise cache.CacheMiss("outdated bib entry cache")
 
         bib_entries = self._read(self.cache_name)
         formatted_entries = self._create_formatted_entries(bib_entries)
@@ -144,19 +138,20 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
             cache_time=int(time.time()),
             version=_VERSION,
             autocomplete_format=autocomplete_format,
-            panel_format=panel_format
+            panel_format=panel_format,
         )
 
         formatted_entries = tuple(
-            frozendict(**{
-                "keyword": entry["keyword"],
-                "<prefix_match>": bibformat.create_prefix_match_str(entry),
-                "<panel_formatted>": tuple(
-                    bibformat.format_entry(s, entry) for s in panel_format
-                ),
-                "<autocomplete_formatted>":
-                    bibformat.format_entry(autocomplete_format, entry)
-            })
+            frozendict(
+                **{
+                    "keyword": entry["keyword"],
+                    "<prefix_match>": bibformat.create_prefix_match_str(entry),
+                    "<panel_formatted>": tuple(
+                        bibformat.format_entry(s, entry) for s in panel_format
+                    ),
+                    "<autocomplete_formatted>": bibformat.format_entry(autocomplete_format, entry),
+                }
+            )
             for entry in bib_entries
         )
 

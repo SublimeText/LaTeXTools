@@ -22,6 +22,7 @@ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
+
 from functools import partial
 import re
 import shlex
@@ -29,7 +30,8 @@ import string
 
 from .logging import logger
 
-class Ast():
+
+class Ast:
     def __ne__(self, other):
         return not self == other
 
@@ -42,8 +44,11 @@ class AstNode(Ast):
 
     def __eq__(self, other):
         return (
-            isinstance(other, self.__class__) and self.op == other.op and
-            self.left == other.left and self.right == other.right)
+            isinstance(other, self.__class__)
+            and self.op == other.op
+            and self.left == other.left
+            and self.right == other.right
+        )
 
     def __repr__(self):
         return "({op} {left} {right})".format(**self.__dict__)
@@ -60,7 +65,7 @@ class AstLeaf(Ast):
         return self.value
 
 
-class _Operator():
+class _Operator:
     def __init__(self, symbol, precedence, right_assoc=False):
         self._symbol = symbol
         self._precedence = precedence
@@ -115,8 +120,9 @@ def _parse_selector(selector):
         if is_normal_token(last_token) and is_normal_token(token):
             tokens.append(" ")
         # if a operator is missing its lhs add an empty-token
-        elif ((last_token in (None, "(") or is_operator(last_token)) and
-                (is_operator(token) or token == ")")):
+        elif (last_token in (None, "(") or is_operator(last_token)) and (
+            is_operator(token) or token == ")"
+        ):
             tokens.append("")
         tokens.append(token)
         last_token = token
@@ -145,10 +151,11 @@ def _convert_infix_to_postfix(tokens):
         elif token in _op_map:
             _operator = _op_map[token]
             while (
-                    op_stack and
-                    isinstance(op_stack[-1], _Operator) and
-                    not _operator.right_assoc() and
-                    _operator.precedence() <= op_stack[-1].precedence()):
+                op_stack
+                and isinstance(op_stack[-1], _Operator)
+                and not _operator.right_assoc()
+                and _operator.precedence() <= op_stack[-1].precedence()
+            ):
                 postfix_list.append(op_stack.pop())
             op_stack.append(_operator)
         else:
@@ -209,7 +216,7 @@ def _match_selector(ast, eval_func):
         assert ast.op in _eval_map
         return _eval_map[ast.op](
             partial(_match_selector, ast.left, eval_func),
-            partial(_match_selector, ast.right, eval_func)
+            partial(_match_selector, ast.right, eval_func),
         )
 
 

@@ -22,12 +22,11 @@ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
+
 import sublime
 import sublime_plugin
 
-exports = [
-    "_InputQuickpanelListener", "LatextoolsConfirmQuickpanelCommand"
-]
+exports = ["_InputQuickpanelListener", "LatextoolsConfirmQuickpanelCommand"]
 
 _DO_NOTHING = 0
 _SEARCH_QUICKPANEL = 1
@@ -70,8 +69,9 @@ class _InputQuickpanelListener(sublime_plugin.EventListener):
         return cls._last_known_text
 
     @classmethod
-    def capture_and_show_input_quick_panel(cls, window, items, on_done, flags,
-                                           selected_index, on_highlight):
+    def capture_and_show_input_quick_panel(
+        cls, window, items, on_done, flags, selected_index, on_highlight
+    ):
         def wrap_on_done(index):
             if cls.is_quickpanel_confirmed():
                 assert index == -1
@@ -80,8 +80,11 @@ class _InputQuickpanelListener(sublime_plugin.EventListener):
 
         cls.start_capture_quickpanel()
         window.show_quick_panel(
-            items, wrap_on_done, flags=flags, selected_index=selected_index,
-            on_highlight=on_highlight
+            items,
+            wrap_on_done,
+            flags=flags,
+            selected_index=selected_index,
+            on_highlight=on_highlight,
         )
 
     def on_activated(self, view):
@@ -108,7 +111,7 @@ class LatextoolsConfirmQuickpanelCommand(sublime_plugin.WindowCommand):
 
 
 # on_done: (int/None, str) => ?
-def show_input_quick_panel(window, items, on_done, flags=0,
-                           selected_index=-1, on_highlight=None):
+def show_input_quick_panel(window, items, on_done, flags=0, selected_index=-1, on_highlight=None):
     _InputQuickpanelListener.capture_and_show_input_quick_panel(
-        window, items, on_done, flags, selected_index, on_highlight)
+        window, items, on_done, flags, selected_index, on_highlight
+    )

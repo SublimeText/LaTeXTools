@@ -17,8 +17,7 @@ def get_own_env_completion(view):
         ana = analysis.get_analysis(tex_root)
         return _make_own_env_completion(ana)
 
-    return list(cache.LocalCache(tex_root).cache(
-        "own_env_completion", make_completions) or [])
+    return list(cache.LocalCache(tex_root).cache("own_env_completion", make_completions) or [])
 
 
 def get_own_command_completion(view):
@@ -78,14 +77,18 @@ def _make_own_command_completion(ana, is_math):
         res.append([s + "\tlocal", comp])
 
     for c in ana.filter_commands(["newenvironment", "renewenvironment"]):
-        res.append([
-            "\\begin{{{0}}}\tlocal".format(c.args),
-            "\\begin{{{0}}}\n$0\n\\end{{{0}}}".format(c.args),
-        ])
-        res.append([
-            "\\end{{{0}}}\tlocal".format(c.args),
-            "\\end{{{0}}}".format(c.args),
-        ])
+        res.append(
+            [
+                "\\begin{{{0}}}\tlocal".format(c.args),
+                "\\begin{{{0}}}\n$0\n\\end{{{0}}}".format(c.args),
+            ]
+        )
+        res.append(
+            [
+                "\\end{{{0}}}\tlocal".format(c.args),
+                "\\end{{{0}}}".format(c.args),
+            ]
+        )
 
     if is_math:
         for c in ana.filter_commands(["DeclareMathOperator"]):

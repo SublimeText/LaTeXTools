@@ -17,12 +17,11 @@ NAME_FIELDS = Name.NAME_FIELDS
 # constructing them here
 #
 # VALUE_REGEX is a common suffix to handle the `= {<value> and <value>}` part
-VALUE_REGEX = r'[\s~]*(?P<ENTRIES>(?:dna[\s~]+.+)+)?[\s~]*' \
-              r'(?P<OPEN>\{)?(?P<EQUALS>\s*=\s*)?'
+VALUE_REGEX = r"[\s~]*(?P<ENTRIES>(?:dna[\s~]+.+)+)?[\s~]*" r"(?P<OPEN>\{)?(?P<EQUALS>\s*=\s*)?"
 
 ON_NAME_FIELD_REGEX = re.compile(
-    VALUE_REGEX + r'(?:' + r'|'.join((s[::-1] for s in NAME_FIELDS)) + r')\b',
-    re.IGNORECASE
+    VALUE_REGEX + r"(?:" + r"|".join((s[::-1] for s in NAME_FIELDS)) + r")\b",
+    re.IGNORECASE,
 )
 
 
@@ -38,30 +37,25 @@ def _get_replacement(matcher, key):
         return key
 
     match = matcher.group(0)
-    if not matcher.group('ENTRIES'):
-        equals = matcher.group('EQUALS')
+    if not matcher.group("ENTRIES"):
+        equals = matcher.group("EQUALS")
 
-        return '{0}{1}{2}'.format(
-            '' if equals else '= ' if match.startswith(' ') else ' = ',
-            '' if matcher.group('OPEN') else
-            '{' if not equals or match.startswith(' ') else ' {',
-            key
+        return "{0}{1}{2}".format(
+            "" if equals else "= " if match.startswith(" ") else " = ",
+            ("" if matcher.group("OPEN") else "{" if not equals or match.startswith(" ") else " {"),
+            key,
         )
 
-    if matcher.group('ENTRIES').startswith('dna'):
-        if match.startswith(' '):
-            return '{0}'.format(key)
-        return ' {0}'.format(key)
+    if matcher.group("ENTRIES").startswith("dna"):
+        if match.startswith(" "):
+            return "{0}".format(key)
+        return " {0}".format(key)
     else:
-        return '{0}{1}'.format(
-            ' ' if matcher.group('ENTRIES').startswith(' ') != ' ' else '',
-            key
-        )
+        return "{0}{1}".format(" " if matcher.group("ENTRIES").startswith(" ") != " " else "", key)
 
 
 NAME_FIELD_REGEX = re.compile(
-    r'(?:^|[\s~]+)(?:' + r'|'.join(NAME_FIELDS) + r')\s*=\s*\{',
-    re.IGNORECASE
+    r"(?:^|[\s~]+)(?:" + r"|".join(NAME_FIELDS) + r")\s*=\s*\{", re.IGNORECASE
 )
 
 
@@ -71,10 +65,10 @@ def get_names_from_view(view):
 
 
 def get_names(contents):
-    '''
+    """
     Work-horse function to extract all the names defined in the current bib
     file.
-    '''
+    """
     names = []
 
     in_entry = False
@@ -95,20 +89,18 @@ def get_names(contents):
 
             bracket_depth = 1
             for c in contents[pos:]:
-                if c == '}':
+                if c == "}":
                     bracket_depth -= 1
 
                 if bracket_depth == 0:
                     break
 
-                if c == '{':
+                if c == "{":
                     bracket_depth += 1
 
                 chars.append(c)
 
-            names.extend([
-                str(Name(s)) for s in tokenize_list(''.join(chars))
-            ])
+            names.extend([str(Name(s)) for s in tokenize_list("".join(chars))])
 
             pos += len(chars)
             if pos >= contents_length:
@@ -121,22 +113,19 @@ def get_names(contents):
 class BiblatexNameCompletions(sublime_plugin.EventListener):
 
     def on_query_completions(self, view, prefix, locations):
-        if not view.match_selector(locations[0], 'text.bibtex, text.biblatex'):
+        if not view.match_selector(locations[0], "text.bibtex, text.biblatex"):
             return []
 
         current_line = get_text_to_cursor(view)[::-1]
 
         if current_line.startswith(prefix[::-1]):
-            current_line = current_line[len(prefix):]
+            current_line = current_line[len(prefix) :]
 
         matcher = ON_NAME_FIELD_REGEX.match(current_line)
         if matcher:
             return (
-                [
-                    (name, _get_replacement(matcher, name))
-                    for name in get_names_from_view(view)
-                ],
-                sublime.INHIBIT_WORD_COMPLETIONS
+                [(name, _get_replacement(matcher, name)) for name in get_names_from_view(view)],
+                sublime.INHIBIT_WORD_COMPLETIONS,
             )
 
         return []

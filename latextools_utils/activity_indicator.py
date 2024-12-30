@@ -12,7 +12,8 @@ class ActivityIndicator:
 
     :class:`ActivityIndicator` can be used as a context manager.
     """
-    _name = '_latex_tools_activity'
+
+    _name = "_latex_tools_activity"
 
     def __init__(self, label=None):
         self.label = label
@@ -43,7 +44,7 @@ class ActivityIndicator:
 
         with self._lock:
             if self._running:
-                raise RuntimeError('Timer is already running')
+                raise RuntimeError("Timer is already running")
             self._running = True
             self._ticks = 0
             self.update(self.render_indicator_text())
@@ -114,7 +115,7 @@ class ActivityIndicator:
             The activity indicator string to display in the status bar
         """
 
-        text = '⣷⣯⣟⡿⢿⣻⣽⣾'[self._ticks % 8]
+        text = "⣷⣯⣟⡿⢿⣻⣽⣾"[self._ticks % 8]
         if self.label:
             text += " " + self.label
         return text

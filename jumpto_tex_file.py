@@ -18,9 +18,7 @@ from .latextools_utils.tex_directives import get_tex_root
 __all__ = ["LatextoolsJumptoFileCommand"]
 
 INPUT_REG = re.compile(
-    r"\\(?:input|include|subfile|loadglsentries)"
-    r"\{(?P<file>[^}]+)\}",
-    re.UNICODE
+    r"\\(?:input|include|subfile|loadglsentries)" r"\{(?P<file>[^}]+)\}", re.UNICODE
 )
 
 IMPORT_REG = re.compile(
@@ -28,28 +26,24 @@ IMPORT_REG = re.compile(
     r"\*?"
     r"\{(?P<path>[^}]+)\}"
     r"(?:\{(?P<file>[^}]+)\})?",  # optional for compat with jumpto-anywhere
-    re.UNICODE
+    re.UNICODE,
 )
 
 BIB_REG = re.compile(
     r"\\(?:bibliography|nobibliography|addbibresource|add(?:global|section)bib)"
     r"(?:\[[^\]]*\])?"
     r"\{(?P<file>[^}]+)\}",
-    re.UNICODE
+    re.UNICODE,
 )
 
-IMAGE_REG = re.compile(
-    r"\\includegraphics"
-    r"(?:\[[^\]]*\])?"
-    r"\{(?P<file>[^\}]+)\}",
-    re.UNICODE
-)
+IMAGE_REG = re.compile(r"\\includegraphics" r"(?:\[[^\]]*\])?" r"\{(?P<file>[^\}]+)\}", re.UNICODE)
 
 
-def _jumpto_tex_file(view, window, tex_root, file_name,
-                     auto_create_missing_folders, auto_insert_root):
+def _jumpto_tex_file(
+    view, window, tex_root, file_name, auto_create_missing_folders, auto_insert_root
+):
     file_name = file_name.strip('"')
-    
+
     root_base_path, root_base_name = os.path.split(tex_root)
 
     ana = analysis.get_analysis(tex_root)
@@ -57,7 +51,7 @@ def _jumpto_tex_file(view, window, tex_root, file_name,
 
     _, ext = os.path.splitext(file_name)
     if not ext:
-        file_name += '.tex'
+        file_name += ".tex"
 
     # clean-up any directory manipulating components
     file_name = os.path.normpath(file_name)
@@ -67,8 +61,7 @@ def _jumpto_tex_file(view, window, tex_root, file_name,
     # allow absolute paths on \include or \input
     isabs = os.path.isabs(containing_folder)
     if not isabs:
-        containing_folder = os.path.normpath(
-            os.path.join(base_path, containing_folder))
+        containing_folder = os.path.normpath(os.path.join(base_path, containing_folder))
 
     # create the missing folder
     if auto_create_missing_folders and not os.path.exists(containing_folder):
@@ -76,8 +69,7 @@ def _jumpto_tex_file(view, window, tex_root, file_name,
             os.makedirs(containing_folder)
         except OSError:
             # most likely a permissions error
-            logger.error('Error occurred while creating path "%s"',
-                         containing_folder)
+            logger.error('Error occurred while creating path "%s"', containing_folder)
             traceback.print_last()
         else:
             logger.info('Created folder: "%s"', containing_folder)
@@ -92,14 +84,14 @@ def _jumpto_tex_file(view, window, tex_root, file_name,
             root_path = tex_root
         else:
             root_path = os.path.join(
-                os.path.relpath(root_base_path, containing_folder),
-                root_base_name)
+                os.path.relpath(root_base_path, containing_folder), root_base_name
+            )
 
         # Use slashes consistent with TeX's usage
-        if sublime.platform() == 'windows' and not isabs:
-            root_path = root_path.replace('\\', '/')
+        if sublime.platform() == "windows" and not isabs:
+            root_path = root_path.replace("\\", "/")
 
-        root_string = '%!TEX root = {0}\n'.format(root_path)
+        root_string = "%!TEX root = {0}\n".format(root_path)
         try:
             with open(full_new_path, "w", encoding="utf-8") as new_file:
                 new_file.write(root_string)
@@ -120,15 +112,13 @@ def _jumpto_tex_file(view, window, tex_root, file_name,
         window.open_file(full_new_path)
 
 
-def _jumpto_bib_file(view, window, tex_root, file_name,
-                     auto_create_missing_folders):
+def _jumpto_bib_file(view, window, tex_root, file_name, auto_create_missing_folders):
     # just abuse the insights of _jumpto_tex_file and call it
     # disable all tex features and open the file
     _, ext = os.path.splitext(file_name)
     if not ext:
-        file_name += '.bib'
-    _jumpto_tex_file(view, window, tex_root, file_name,
-                     auto_create_missing_folders, False)
+        file_name += ".bib"
+    _jumpto_tex_file(view, window, tex_root, file_name, auto_create_missing_folders, False)
 
 
 def _validate_image(file_path, image_types):
@@ -150,15 +140,11 @@ def find_image(tex_root, file_name, tex_file_name=None):
     ana = analysis.get_analysis(tex_root)
     base_path = ana.tex_base_path(tex_file_name)
 
-    image_types = get_setting(
-        "image_types", [
-            "png", "pdf", "jpg", "jpeg", "eps"
-        ])
+    image_types = get_setting("image_types", ["png", "pdf", "jpg", "jpeg", "eps"])
 
     for graphics_path in [base_path] + ana.graphics_paths():
         file_path = _validate_image(
-            os.path.normpath(os.path.join(graphics_path, file_name)),
-            image_types
+            os.path.normpath(os.path.join(graphics_path, file_name)), image_types
         )
         if file_path:
             return file_path
@@ -166,16 +152,15 @@ def find_image(tex_root, file_name, tex_file_name=None):
 
 def open_image(window, file_path):
     def run_command(command):
-            command = shlex.split(command)
-            # if $file is used, substitute it by the file path
-            if "$file" in command:
-                command = [file_path if c == "$file" else c
-                           for c in command]
-            # if $file is not used, append the file path
-            else:
-                command.append(file_path)
+        command = shlex.split(command)
+        # if $file is used, substitute it by the file path
+        if "$file" in command:
+            command = [file_path if c == "$file" else c for c in command]
+        # if $file is not used, append the file path
+        else:
+            command.append(file_path)
 
-            external_command(command, shell=True)
+        external_command(command, shell=True)
 
     _, extension = os.path.splitext(file_path)
     extension = extension[1:]  # strip the leading point
@@ -207,9 +192,7 @@ def open_image(window, file_path):
                 run_command(d["command"])
                 break
         else:
-            sublime.status_message(
-                "No opening command for {0} defined"
-                .format(extension))
+            sublime.status_message("No opening command for {0} defined".format(extension))
             window.open_file(file_path)
 
 
@@ -262,28 +245,40 @@ class LatextoolsJumptoFileCommand(sublime_plugin.WindowCommand):
             for g in filter(is_inside, INPUT_REG.finditer(line)):
                 file_name = g.group("file")
                 logger.info("Jumpto tex file '%s'", file_name)
-                _jumpto_tex_file(view, window, tex_root, file_name,
-                                 auto_create_missing_folders, auto_insert_root)
+                _jumpto_tex_file(
+                    view,
+                    window,
+                    tex_root,
+                    file_name,
+                    auto_create_missing_folders,
+                    auto_insert_root,
+                )
 
             for g in filter(is_inside, IMPORT_REG.finditer(line)):
                 if not g.group("file"):
                     continue
                 file_name = os.path.join(g.group("path"), g.group("file"))
                 logger.info("Jumpto tex file '%s'", file_name)
-                _jumpto_tex_file(view, window, tex_root, file_name,
-                                 auto_create_missing_folders, auto_insert_root)
+                _jumpto_tex_file(
+                    view,
+                    window,
+                    tex_root,
+                    file_name,
+                    auto_create_missing_folders,
+                    auto_insert_root,
+                )
 
             for g in filter(is_inside, BIB_REG.finditer(line)):
                 file_group = g.group("file")
                 file_names = _split_bib_args(file_group)
                 for file_name in file_names:
                     logger.info("Jumpto bib file '%s'", file_name)
-                    _jumpto_bib_file(view, window, tex_root, file_name,
-                                     auto_create_missing_folders)
+                    _jumpto_bib_file(view, window, tex_root, file_name, auto_create_missing_folders)
 
             for g in filter(is_inside, IMAGE_REG.finditer(line)):
                 file_name = g.group("file")
                 logger.info("Jumpto image file '%s'", file_name)
                 _jumpto_image_file(view, window, tex_root, file_name)
 
-deprecate(globals(), 'JumptoTexFileCommand', LatextoolsJumptoFileCommand)
+
+deprecate(globals(), "JumptoTexFileCommand", LatextoolsJumptoFileCommand)

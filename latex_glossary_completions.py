@@ -7,12 +7,8 @@ from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
 
 
-GLO_LINE_RE = re.compile(
-    r"([^{}\[\]]*)\{*?(?:lp|lobmys)?sl(?:G|g)\\"
-)
-ACR_LINE_RE = re.compile(
-    r"([^{}\[\]]*)\{(?:lluf|gnol|trohs)rca\\"
-)
+GLO_LINE_RE = re.compile(r"([^{}\[\]]*)\{*?(?:lp|lobmys)?sl(?:G|g)\\")
+ACR_LINE_RE = re.compile(r"([^{}\[\]]*)\{(?:lluf|gnol|trohs)rca\\")
 
 
 def _get_pgfkeys_value(kv_str, key, strip=False):
@@ -30,8 +26,7 @@ def _get_pgfkeys_value(kv_str, key, strip=False):
     if not m:
         return
     result = m.group(1)
-    if (strip and result and result.startswith("{") and
-            result.endswith("}")):
+    if strip and result and result.startswith("{") and result.endswith("}"):
         result = result[1:-1]
     return result
 
@@ -44,18 +39,12 @@ def _create_glo_desc(a):
 
 def _get_glo_completions(ana, prefix, ac):
     comp = []
-    glo_commands = ana.filter_commands(
-        ["newglossaryentry", "longnewglossaryentry", "newacronym"])
+    glo_commands = ana.filter_commands(["newglossaryentry", "longnewglossaryentry", "newacronym"])
     if ac:
         comp = [(a.args + "\tGlossary", a.args) for a in glo_commands]
     else:
         glo_commands = [a for a in glo_commands if a.args.startswith(prefix)]
-        comp = [
-            [a.args, _create_glo_desc(a)]
-            for a in glo_commands
-        ], [
-            a.args for a in glo_commands
-        ]
+        comp = [[a.args, _create_glo_desc(a)] for a in glo_commands], [a.args for a in glo_commands]
     return comp
 
 
@@ -65,10 +54,7 @@ def _get_acr_completions(ana, prefix, ac):
         comp = [(a.args + "\tAcronym", a.args) for a in acr_commands]
     else:
         acr_commands = [a for a in acr_commands if a.args.startswith(prefix)]
-        comp = [
-            [a.args, "{0} - {1}".format(a.args2 or "", a.args3 or "")]
-            for a in acr_commands
-        ], [
+        comp = [[a.args, "{0} - {1}".format(a.args2 or "", a.args3 or "")] for a in acr_commands], [
             a.args for a in acr_commands
         ]
     return comp
@@ -105,14 +91,12 @@ class GlossaryFillAllHelper(FillAllHelper):
 
     def get_auto_completions(self, view, prefix, line):
         comp_type = self.get_compl_type(line)
-        comp = self._get_completions(
-            view, prefix, line, comp_type=comp_type, ac=True)
+        comp = self._get_completions(view, prefix, line, comp_type=comp_type, ac=True)
         return comp
 
     def get_completions(self, view, prefix, line):
         comp_type = self.get_compl_type(line)
-        comp = self._get_completions(
-            view, prefix, line, comp_type=comp_type, ac=False)
+        comp = self._get_completions(view, prefix, line, comp_type=comp_type, ac=False)
         return comp
 
     def matches_line(self, line):

@@ -13,8 +13,10 @@ from .tex_directives import parse_tex_directives
 
 
 __all__ = [
-    'get_aux_directory', 'get_output_directory', 'get_jobname',
-    'UnsavedFileException'
+    "get_aux_directory",
+    "get_output_directory",
+    "get_jobname",
+    "UnsavedFileException",
 ]
 
 
@@ -43,16 +45,15 @@ def get_aux_directory(view_or_root, return_setting=False):
 
     root = get_root(view_or_root)
 
-    aux_directory = get_directive(view_or_root, 'aux_directory')
+    aux_directory = get_directive(view_or_root, "aux_directory")
 
-    if (aux_directory is None or aux_directory == '') and (
-            root is not None and view_or_root != root):
-        aux_directory = get_directive(root, 'aux_directory')
+    if (aux_directory is None or aux_directory == "") and (
+        root is not None and view_or_root != root
+    ):
+        aux_directory = get_directive(root, "aux_directory")
 
-    if aux_directory is not None and aux_directory != '':
-        aux_dir = resolve_to_absolute_path(
-            root, aux_directory, _get_root_directory(root)
-        )
+    if aux_directory is not None and aux_directory != "":
+        aux_dir = resolve_to_absolute_path(root, aux_directory, _get_root_directory(root))
 
         if return_setting:
             return (aux_dir, aux_directory)
@@ -60,13 +61,11 @@ def get_aux_directory(view_or_root, return_setting=False):
             return aux_dir
 
     view = sublime.active_window().active_view()
-    aux_directory = view.settings().get('aux_directory')
+    aux_directory = view.settings().get("aux_directory")
 
-    if aux_directory is not None and aux_directory != '':
+    if aux_directory is not None and aux_directory != "":
         aux_dir = resolve_to_absolute_path(
-            root,
-            aux_directory,
-            _get_root_directory(get_project_file_name(view))
+            root, aux_directory, _get_root_directory(get_project_file_name(view))
         )
 
         if return_setting:
@@ -74,13 +73,11 @@ def get_aux_directory(view_or_root, return_setting=False):
         else:
             return aux_dir
 
-    settings = sublime.load_settings('LaTeXTools.sublime-settings')
-    aux_directory = settings.get('aux_directory')
+    settings = sublime.load_settings("LaTeXTools.sublime-settings")
+    aux_directory = settings.get("aux_directory")
 
-    if aux_directory is not None and aux_directory != '':
-        aux_dir = resolve_to_absolute_path(
-            root, aux_directory, _get_root_directory(root)
-        )
+    if aux_directory is not None and aux_directory != "":
+        aux_dir = resolve_to_absolute_path(root, aux_directory, _get_root_directory(root))
 
         if return_setting:
             return (aux_dir, aux_directory)
@@ -109,16 +106,15 @@ def get_output_directory(view_or_root, return_setting=False):
 
     root = get_root(view_or_root)
 
-    output_directory = get_directive(view_or_root, 'output_directory')
+    output_directory = get_directive(view_or_root, "output_directory")
 
-    if (output_directory is None or output_directory == '') and (
-            root is not None and view_or_root != root):
-        output_directory = get_directive(root, 'output_directory')
+    if (output_directory is None or output_directory == "") and (
+        root is not None and view_or_root != root
+    ):
+        output_directory = get_directive(root, "output_directory")
 
-    if output_directory is not None and output_directory != '':
-        out_dir = resolve_to_absolute_path(
-            root, output_directory, _get_root_directory(root)
-        )
+    if output_directory is not None and output_directory != "":
+        out_dir = resolve_to_absolute_path(root, output_directory, _get_root_directory(root))
 
         if return_setting:
             return (out_dir, output_directory)
@@ -126,13 +122,11 @@ def get_output_directory(view_or_root, return_setting=False):
             return out_dir
 
     view = sublime.active_window().active_view()
-    output_directory = view.settings().get('output_directory')
+    output_directory = view.settings().get("output_directory")
 
-    if output_directory is not None and output_directory != '':
+    if output_directory is not None and output_directory != "":
         out_dir = resolve_to_absolute_path(
-            root,
-            output_directory,
-            _get_root_directory(get_project_file_name(view))
+            root, output_directory, _get_root_directory(get_project_file_name(view))
         )
 
         if return_setting:
@@ -140,13 +134,11 @@ def get_output_directory(view_or_root, return_setting=False):
         else:
             return out_dir
 
-    settings = sublime.load_settings('LaTeXTools.sublime-settings')
-    output_directory = settings.get('output_directory')
+    settings = sublime.load_settings("LaTeXTools.sublime-settings")
+    output_directory = settings.get("output_directory")
 
-    if output_directory is not None and output_directory != '':
-        out_dir = resolve_to_absolute_path(
-            root, output_directory, _get_root_directory(root)
-        )
+    if output_directory is not None and output_directory != "":
+        out_dir = resolve_to_absolute_path(root, output_directory, _get_root_directory(root))
 
         if return_setting:
             return (out_dir, output_directory)
@@ -175,29 +167,25 @@ def get_jobname(view_or_root):
     # exit condition: texify and simple do not support jobname
     # so always return the root path
     if using_texify_or_simple():
-        return os.path.splitext(
-            os.path.basename(root)
-        )[0]
+        return os.path.splitext(os.path.basename(root))[0]
 
-    jobname = get_directive(view_or_root, 'jobname')
-    if (jobname is None or jobname == '') and view_or_root != root:
-        jobname = get_directive(root, 'jobname')
+    jobname = get_directive(view_or_root, "jobname")
+    if (jobname is None or jobname == "") and view_or_root != root:
+        jobname = get_directive(root, "jobname")
 
-    if jobname is None or jobname == '':
-        jobname = get_setting('jobname')
+    if jobname is None or jobname == "":
+        jobname = get_setting("jobname")
 
-    if jobname is None or jobname == '':
-        return os.path.splitext(
-            os.path.basename(root)
-        )[0]
+    if jobname is None or jobname == "":
+        return os.path.splitext(os.path.basename(root))[0]
 
     return jobname
 
 
 def using_texify_or_simple():
     if using_miktex():
-        builder = get_setting('builder', 'traditional')
-        if builder in ['', 'default', 'traditional', 'simple']:
+        builder = get_setting("builder", "traditional")
+        if builder in ["", "default", "traditional", "simple"]:
             return True
     return False
 
@@ -212,18 +200,16 @@ def get_root(view_or_root):
 
 
 def get_directive(root, key):
-    directives = parse_tex_directives(
-        root, multi_values=['options'], only_for=['options', key]
-    )
+    directives = parse_tex_directives(root, multi_values=["options"], only_for=["options", key])
 
     try:
         return directives[key]
     except KeyError:
-        option = key.replace('_', '-')
-        for opt in directives.get('options', []):
-            if opt.lstrip('-').startswith(option):
+        option = key.replace("_", "-")
+        for opt in directives.get("options", []):
+            if opt.lstrip("-").startswith(option):
                 try:
-                    return opt.split('=')[1].strip()
+                    return opt.split("=")[1].strip()
                 except Exception:
                     # invalid option parameter
                     return None
@@ -233,31 +219,24 @@ def get_directive(root, key):
 def resolve_to_absolute_path(root, value, root_path):
     # special values
     if (
-        len(value) > 4 and
-        value[0] == '<' and
-        value[1] == '<' and
-        value[-2] == '>' and
-        value[-1] == '>'
+        len(value) > 4
+        and value[0] == "<"
+        and value[1] == "<"
+        and value[-2] == ">"
+        and value[-1] == ">"
     ):
         root_hash = _get_root_hash(root)
         if root_hash is None:
             raise UnsavedFileException()
 
-        if value == '<<temp>>':
-            result = os.path.join(
-                _get_tmp_dir(), root_hash
-            )
-        elif value == '<<project>>':
-            result = os.path.join(
-                root_path, root_hash
-            )
-        elif value == '<<cache>>':
-            result = os.path.join(
-                get_cache_directory(),
-                root_hash
-            )
+        if value == "<<temp>>":
+            result = os.path.join(_get_tmp_dir(), root_hash)
+        elif value == "<<project>>":
+            result = os.path.join(root_path, root_hash)
+        elif value == "<<cache>>":
+            result = os.path.join(get_cache_directory(), root_hash)
         else:
-            logger.error('unrecognized special value: %s', value)
+            logger.error("unrecognized special value: %s", value)
 
             # NOTE this assumes that the value provided is a typo, etc.
             # and tries not to do anything harmful. This may not be the
@@ -269,11 +248,7 @@ def resolve_to_absolute_path(root, value, root_path):
 
         return result
 
-    result = os.path.expandvars(
-        os.path.expanduser(
-            value
-        )
-    )
+    result = os.path.expandvars(os.path.expanduser(value))
 
     if not os.path.isabs(result):
         result = os.path.join(root_path, result)
@@ -285,12 +260,12 @@ def resolve_to_absolute_path(root, value, root_path):
 
 
 def get_cache_directory():
-    return os.path.join(sublime.cache_path(), 'LaTeXTools')
+    return os.path.join(sublime.cache_path(), "LaTeXTools")
 
 
 # uses a process-wide temp directory which should be cleaned-up on exit
 def _get_tmp_dir():
-    if hasattr(_get_tmp_dir, 'directory'):
+    if hasattr(_get_tmp_dir, "directory"):
         return _get_tmp_dir.directory
     else:
         _get_tmp_dir.directory = tempfile.mkdtemp()
@@ -301,20 +276,17 @@ def _get_tmp_dir():
         cache_dir = get_cache_directory()
         os.makedirs(cache_dir, exist_ok=True)
 
-        temporary_output_dirs = os.path.join(
-            cache_dir,
-            'temporary_output_dirs'
-        )
+        temporary_output_dirs = os.path.join(cache_dir, "temporary_output_dirs")
 
         if os.path.exists(temporary_output_dirs):
-            with open(temporary_output_dirs, 'r') as f:
+            with open(temporary_output_dirs, "r") as f:
                 data = json.load(f)
         else:
-            data = {'directories': []}
+            data = {"directories": []}
 
-        data['directories'].append(_get_tmp_dir.directory)
+        data["directories"].append(_get_tmp_dir.directory)
 
-        with open(temporary_output_dirs, 'w') as f:
+        with open(temporary_output_dirs, "w") as f:
             json.dump(data, f)
 
         return _get_tmp_dir.directory
@@ -338,4 +310,4 @@ def _get_root_hash(root):
     if os.path.exists(root):
         root = os.path.realpath(root)
 
-    return hashlib.md5(root.encode('utf-8')).hexdigest()
+    return hashlib.md5(root.encode("utf-8")).hexdigest()

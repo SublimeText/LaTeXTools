@@ -3,20 +3,17 @@ import sublime_plugin
 
 from .latextools_utils.logging import logger
 
-__all__ = [
-    "deprecate",
-    "LatextoolsFindDeprecatedCommandsCommand"
-]
+__all__ = ["deprecate", "LatextoolsFindDeprecatedCommandsCommand"]
 
-_setting_name = 'compatibility_enable_version3_commands'
+_setting_name = "compatibility_enable_version3_commands"
 
 
 class LatextoolsDeprecatedCommand(object):
     # every subclass should overwrite this attribute
-    new_classname = ''
+    new_classname = ""
 
     def run(self, *args, **kwargs):
-        settings = sublime.load_settings('LaTeXTools.sublime-settings')
+        settings = sublime.load_settings("LaTeXTools.sublime-settings")
         backward_compatible = settings.get(_setting_name, False)
         if not backward_compatible:
             # check whether the new command shall be executed
@@ -32,26 +29,24 @@ class LatextoolsDeprecatedCommand(object):
     def _ask_for_activation(self):
         name = self.name()
         new_name = self.new_name()
-        logger.warning(
-            'LaTeXTools WARN: "%s" has been renamed to "%s"',
-            name, new_name
-        )
+        logger.warning('LaTeXTools WARN: "%s" has been renamed to "%s"', name, new_name)
         activate_commands = sublime.ok_cancel_dialog(
             'Dear LaTeXTools user,\n\n you have called the command "{}", '
-            'which has been deprecated during a major refactoring '
+            "which has been deprecated during a major refactoring "
             'and is now called "{}" and will be removed in the future.\n'
-            'Please update your keybindings accordingly. '
-            'Until then you can active the old commands during this session.\n'
-            'To disable this dialog you can set the setting '
-            '"{}" in LaTeXTools user settings to true (not recommended).'
-            .format(name, new_name, _setting_name),
-            'Activate deprecated commands (I will update the bindings later)'
+            "Please update your keybindings accordingly. "
+            "Until then you can active the old commands during this session.\n"
+            "To disable this dialog you can set the setting "
+            '"{}" in LaTeXTools user settings to true (not recommended).'.format(
+                name, new_name, _setting_name
+            ),
+            "Activate deprecated commands (I will update the bindings later)",
         )
         return activate_commands
 
     def _run_new_command(self, kwargs):
         new_name = self.new_name()
-        logger.warning('Running %s instead of %s', new_name, self.name())
+        logger.warning("Running %s instead of %s", new_name, self.name())
         if isinstance(self, sublime_plugin.TextCommand) and self.view:
             self.view.run_command(new_name, kwargs)
         elif isinstance(self, sublime_plugin.WindowCommand) and self.window:
@@ -71,7 +66,7 @@ def _convert_name(clsname):
     last_upper = False
     for c in clsname[1:]:
         if c.isupper() and not last_upper:
-            name += '_'
+            name += "_"
             name += c.lower()
         else:
             name += c
@@ -81,7 +76,7 @@ def _convert_name(clsname):
     return name
 
 
-if 'deprecated_commands' not in globals():
+if "deprecated_commands" not in globals():
     deprecated_commands = {}
 
 
@@ -96,31 +91,30 @@ def deprecate(module, old_classname, NewClass):
     module[old_classname] = type(
         old_classname,
         (LatextoolsDeprecatedCommand, ParentClass),
-        {"new_classname": new_classname}
+        {"new_classname": new_classname},
     )
 
 
 class LatextoolsFindDeprecatedCommandsCommand(sublime_plugin.TextCommand):
     def is_visible(self):
-        return self.view.match_selector(0, 'source.json.sublime')
+        return self.view.match_selector(0, "source.json.sublime")
 
     def run(self, edit):
         view = self.view
 
-        regex = '"(:?{})"'.format('|'.join(deprecated_commands.keys()))
+        regex = '"(:?{})"'.format("|".join(deprecated_commands.keys()))
         all_deprecated_commands = view.find_all(regex)
         if not all_deprecated_commands:
-            sublime.message_dialog(
-                'No deprecated commands found in this view.'
-            )
+            sublime.message_dialog("No deprecated commands found in this view.")
         for region in reversed(all_deprecated_commands):
             view.show_at_center(region)
 
             old_command = view.substr(region)[1:-1]
             new_command = deprecated_commands[old_command]
             r = sublime.yes_no_cancel_dialog(
-                'Replace {} with {}?'.format(old_command, new_command),
-                'Replace!', 'Next'
+                "Replace {} with {}?".format(old_command, new_command),
+                "Replace!",
+                "Next",
             )
             if r == sublime.DIALOG_CANCEL:
                 return

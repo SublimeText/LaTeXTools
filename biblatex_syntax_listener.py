@@ -4,7 +4,7 @@ from .latextools_utils.settings import get_setting
 
 __all__ = ["BibLaTeXSyntaxListener"]
 
-BIBLATEX_SYNTAX = 'Packages/LaTeXTools/BibLaTeX.sublime-syntax'
+BIBLATEX_SYNTAX = "Packages/LaTeXTools/BibLaTeX.sublime-syntax"
 
 
 # simple listener to default bib files to BibLaTeX syntax if the
@@ -21,13 +21,13 @@ class BibLaTeXSyntaxListener(sublime_plugin.EventListener):
         if view.is_scratch() or not view.file_name():
             return
 
-        current_syntax = view.settings().get('syntax')
+        current_syntax = view.settings().get("syntax")
         if current_syntax == BIBLATEX_SYNTAX:
             return
 
-        if not get_setting('use_biblatex', False):
+        if not get_setting("use_biblatex", False):
             return
 
         file_name = view.file_name()
-        if file_name.endswith('bib'):
+        if file_name.endswith("bib"):
             view.set_syntax_file(BIBLATEX_SYNTAX)

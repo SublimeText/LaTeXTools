@@ -3,7 +3,7 @@ import collections
 import re
 
 
-TITLE_SEP = re.compile(r':|\.|\?')
+TITLE_SEP = re.compile(r":|\.|\?")
 PREFIX_MATCH_KEYS = set(["keyword", "title", "author"])
 
 formatter = Formatter()
@@ -20,8 +20,7 @@ def format_entry(format_string, entry):
 
 
 def format_entries(format_string, entries):
-    return [formatter.vformat(format_string, (), _wrap(entry))
-            for entry in entries]
+    return [formatter.vformat(format_string, (), _wrap(entry)) for entry in entries]
 
 
 def create_prefix_match_str(entry):
@@ -33,7 +32,7 @@ def create_prefix_match_str(entry):
 def get_title_short(title):
     title = TITLE_SEP.split(title)[0]
     if len(title) > 60:
-        title = title[:60] + '...'
+        title = title[:60] + "..."
     return title
 
 
@@ -41,105 +40,112 @@ def get_title_short(title):
 # version of itself assumes we get a basically raw LaTeX string,
 # e.g. "Lastname, Firstname and Otherlastname, Otherfirstname"
 def get_author_short(authors):
-    if authors == '':
-        return ''
+    if authors == "":
+        return ""
 
     # split authors using ' and ' and get last name for 'last, first' format
-    authors = [a.split(", ")[0].strip(' ') for a in authors.split(" and ")]
+    authors = [a.split(", ")[0].strip(" ") for a in authors.split(" and ")]
     # get last name for 'first last' format (preserve {...} text)
-    authors = [a.split(" ")[-1] if not('{' in a and a.endswith('}'))
-               else re.sub(r'{|}', '', a[a.rindex('{') + 1:-1])
-               for a in authors if len(a) > 0]
+    authors = [
+        (
+            a.split(" ")[-1]
+            if not ("{" in a and a.endswith("}"))
+            else re.sub(r"{|}", "", a[a.rindex("{") + 1 : -1])
+        )
+        for a in authors
+        if len(a) > 0
+    ]
 
     # truncate and add 'et al.'
     if len(authors) > 2:
         authors = authors[0] + " et al."
     else:
-        authors = ' & '.join(authors)
+        authors = " & ".join(authors)
 
     # return formated string
     return authors
 
 
 class CompletionWrapper(collections.abc.Mapping):
-    '''
+    """
     Wraps the returned completions so that we can properly handle any
     KeyErrors that occur
-    '''
+    """
+
     def __init__(self, entry):
         self._entry = entry
 
     def __getitem__(self, key):
         try:
             # emulating previous behaviour of latex_cite_completions
-            if key not in ('author', 'journal'):
+            if key not in ("author", "journal"):
                 return self._entry[key]
             else:
                 value = self._entry[key]
-                return value or '????'
+                return value or "????"
         except KeyError:
             if key[0] == "<":
                 raise
-            elif key == 'keyword':
+            elif key == "keyword":
                 try:
-                    return self._entry['citekey']
+                    return self._entry["citekey"]
                 except KeyError:
                     pass
-            elif key == 'author':
+            elif key == "author":
                 try:
-                    return self._entry['editor']
+                    return self._entry["editor"]
                 except KeyError:
                     pass
-            elif key == 'author_short':
+            elif key == "author_short":
                 try:
-                    return get_author_short(self._entry['author'])
-                except KeyError:
-                    pass
-
-                return self['editor_short']
-            elif key == 'editor_short':
-                try:
-                    return get_author_short(self._entry['editor'])
-                except KeyError:
-                    pass
-            elif key == 'title_short':
-                try:
-                    return self._entry['shorttitle']
+                    return get_author_short(self._entry["author"])
                 except KeyError:
                     pass
 
+                return self["editor_short"]
+            elif key == "editor_short":
                 try:
-                    return get_title_short(self._entry['title'])
+                    return get_author_short(self._entry["editor"])
                 except KeyError:
                     pass
-            elif key == 'journal':
+            elif key == "title_short":
                 try:
-                    return self._entry['journaltitle']
+                    return self._entry["shorttitle"]
                 except KeyError:
                     pass
 
                 try:
-                    return self._entry['eprint']
+                    return get_title_short(self._entry["title"])
                 except KeyError:
                     pass
-            elif key == 'year':
+            elif key == "journal":
                 try:
-                    date = self._entry['date']
-                    date_matcher = re.match(r'(\d{4})', date)
+                    return self._entry["journaltitle"]
+                except KeyError:
+                    pass
+
+                try:
+                    return self._entry["eprint"]
+                except KeyError:
+                    pass
+            elif key == "year":
+                try:
+                    date = self._entry["date"]
+                    date_matcher = re.match(r"(\d{4})", date)
                     if date_matcher:
                         return date_matcher.group(1)
                 except KeyError:
                     pass
-            elif key == 'month':
+            elif key == "month":
                 try:
-                    date = self._entry['date']
-                    date_matcher = re.match(r'\d{4}-(\d{2})', date)
+                    date = self._entry["date"]
+                    date_matcher = re.match(r"\d{4}-(\d{2})", date)
                     if date_matcher:
                         return date_matcher.group(1)
                 except KeyError:
                     pass
 
-            return '????'
+            return "????"
 
     def __iter__(self):
         return iter(self._entry)

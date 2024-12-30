@@ -16,15 +16,15 @@ from .latextools_utils.external_command import CalledProcessError
 from .latextools_utils.external_command import check_output
 from .latextools_utils.logging import logger
 
-__all__ = ['LatextoolsGenPkgCacheCommand']
+__all__ = ["LatextoolsGenPkgCacheCommand"]
 
 
 def _get_tex_searchpath(file_type):
     if file_type is None:
-        raise Exception('file_type must be set for _get_tex_searchpath')
+        raise Exception("file_type must be set for _get_tex_searchpath")
 
-    command = ['kpsewhich']
-    command.append('--show-path={0}'.format(file_type))
+    command = ["kpsewhich"]
+    command.append("--show-path={0}".format(file_type))
 
     try:
         return check_output(command)
@@ -32,10 +32,10 @@ def _get_tex_searchpath(file_type):
         sublime.set_timeout(
             partial(
                 sublime.error_message,
-                'An error occurred while trying to run kpsewhich. '
-                'Files in your TEXMF tree could not be accessed.'
+                "An error occurred while trying to run kpsewhich. "
+                "Files in your TEXMF tree could not be accessed.",
             ),
-            0
+            0,
         )
         if e.output:
             logger.debug(e.output)
@@ -44,11 +44,11 @@ def _get_tex_searchpath(file_type):
         sublime.set_timeout(
             partial(
                 sublime.error_message,
-                'Could not run kpsewhich. Please ensure that your texpath '
-                'setting is configured correctly in your LaTeXTools '
-                'settings.'
+                "Could not run kpsewhich. Please ensure that your texpath "
+                "setting is configured correctly in your LaTeXTools "
+                "settings.",
             ),
-            0
+            0,
         )
         traceback.print_exc()
 
@@ -63,11 +63,11 @@ def _get_files_matching_extensions(paths, extensions=[]):
 
     for path in paths.split(os.pathsep):
         # our current directory isn't usually meaningful from a WindowCommand
-        if path == '.':
+        if path == ".":
             continue
 
         # !! sometimes occurs in the results on POSIX; remove them
-        path = path.replace('!!', '')
+        path = path.replace("!!", "")
         path = os.path.normpath(path)
         if not os.path.exists(path):  # ensure path exists
             continue
@@ -76,60 +76,47 @@ def _get_files_matching_extensions(paths, extensions=[]):
             for _, _, files in os.walk(path):
                 for f in files:
                     for ext in extensions:
-                        if f.endswith(''.join((os.extsep, ext))):
+                        if f.endswith("".join((os.extsep, ext))):
                             matched_files[ext].append(os.path.splitext(f)[0])
         else:
             for _, _, files in os.walk(path):
                 for f in files:
-                    matched_files['*'].append(os.path.splitext(f)[0])
+                    matched_files["*"].append(os.path.splitext(f)[0])
 
-    matched_files = dict([
-        (key, sorted(set(value), key=lambda s: s.lower()))
-        for key, value in matched_files.items()
-    ])
+    matched_files = dict(
+        [(key, sorted(set(value), key=lambda s: s.lower())) for key, value in matched_files.items()]
+    )
 
     return matched_files
 
 
 def _generate_package_cache():
-    installed_tex_items = _get_files_matching_extensions(
-        _get_tex_searchpath('tex'),
-        ['sty', 'cls']
-    )
+    installed_tex_items = _get_files_matching_extensions(_get_tex_searchpath("tex"), ["sty", "cls"])
 
-    installed_bst = _get_files_matching_extensions(
-        _get_tex_searchpath('bst'),
-        ['bst']
-    )
+    installed_bst = _get_files_matching_extensions(_get_tex_searchpath("bst"), ["bst"])
 
     # create the cache object
     pkg_cache = {
-        'pkg': installed_tex_items.get('sty', []),
-        'bst': installed_bst.get('bst', []),
-        'cls': installed_tex_items.get('cls', [])
+        "pkg": installed_tex_items.get("sty", []),
+        "bst": installed_bst.get("bst", []),
+        "cls": installed_tex_items.get("cls", []),
     }
 
     # For ST3, put the cache files in cache dir
     # and for ST2, put it in the user packages dir
     # and change the name
-    cache_path = os.path.normpath(
-        os.path.join(sublime.cache_path(), "LaTeXTools"))
+    cache_path = os.path.normpath(os.path.join(sublime.cache_path(), "LaTeXTools"))
 
     if not os.path.exists(cache_path):
         os.makedirs(cache_path)
 
-    pkg_cache_file = os.path.normpath(
-        os.path.join(cache_path, 'pkg_cache.cache'))
+    pkg_cache_file = os.path.normpath(os.path.join(cache_path, "pkg_cache.cache"))
 
-    with open(pkg_cache_file, 'w+') as f:
+    with open(pkg_cache_file, "w+") as f:
         json.dump(pkg_cache, f)
 
     sublime.set_timeout(
-        partial(
-            sublime.status_message,
-            'Finished generating LaTeX package cache'
-        ),
-        0
+        partial(sublime.status_message, "Finished generating LaTeX package cache"), 0
     )
 
 
@@ -144,4 +131,5 @@ class LatextoolsGenPkgCacheCommand(sublime_plugin.ApplicationCommand):
         thread.daemon = True
         thread.start()
 
-deprecate(globals(), 'LatexGenPkgCacheCommand', LatextoolsGenPkgCacheCommand)
+
+deprecate(globals(), "LatexGenPkgCacheCommand", LatextoolsGenPkgCacheCommand)

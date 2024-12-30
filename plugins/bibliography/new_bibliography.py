@@ -17,39 +17,40 @@ latex_chars.register()
 
 
 def _get_people_long(people):
-    return ' and '.join([str(x) for x in people])
+    return " and ".join([str(x) for x in people])
 
 
 def _get_people_short(people):
     if len(people) <= 2:
-        return ' & '.join([x.last if x.last != '' else x.first for x in people])
+        return " & ".join([x.last if x.last != "" else x.first for x in people])
     else:
-        return people[0].last if people[0].last != '' else people[0].first + \
-            ', et al.'
+        return people[0].last if people[0].last != "" else people[0].first + ", et al."
+
 
 def remove_latex_commands(s):
-    '''
+    """
     Simple function to remove any LaTeX commands or brackets from the string,
     replacing it with its contents.
-    '''
+    """
     chars = []
     FOUND_SLASH = False
 
     for c in s:
-        if c == '{':
+        if c == "{":
             # i.e., we are entering the contents of the command
             if FOUND_SLASH:
                 FOUND_SLASH = False
-        elif c == '}':
+        elif c == "}":
             pass
-        elif c == '\\':
+        elif c == "\\":
             FOUND_SLASH = True
         elif not FOUND_SLASH:
             chars.append(c)
         elif c.isspace():
             FOUND_SLASH = False
 
-    return ''.join(chars)
+    return "".join(chars)
+
 
 # wrapper to implement a dict-like interface for bibliographic entries
 # returning formatted value, if it is available
@@ -59,23 +60,23 @@ class EntryWrapper(collections.abc.Mapping):
 
     def __getitem__(self, key):
         if not key:
-            return ''
+            return ""
 
         key = key.lower()
         result = None
 
         short = False
-        if key.endswith('_short'):
+        if key.endswith("_short"):
             short = True
             key = key[:-6]
 
-        if key == 'keyword' or key == 'citekey':
+        if key == "keyword" or key == "citekey":
             return self.entry.cite_key
 
         if key in Name.NAME_FIELDS:
             people = []
             for x in tokenize_list(self.entry[key]):
-                if x.strip() == '':
+                if x.strip() == "":
                     continue
 
                 try:
@@ -85,7 +86,7 @@ class EntryWrapper(collections.abc.Mapping):
                     traceback.print_exc()
 
             if len(people) == 0:
-                return ''
+                return ""
 
             if short:
                 result = _get_people_short(people)
@@ -95,7 +96,7 @@ class EntryWrapper(collections.abc.Mapping):
         if not result:
             result = self.entry[key]
 
-        return remove_latex_commands(codecs.decode(result, 'latex'))
+        return remove_latex_commands(codecs.decode(result, "latex"))
 
     def __iter__(self):
         return iter(self.entry)
@@ -120,7 +121,7 @@ class NewBibliographyPlugin(LaTeXToolsPlugin):
                 pass
 
             try:
-                bibf = codecs.open(bibfname, 'r', 'UTF-8', 'ignore')  # 'ignore' to be safe
+                bibf = codecs.open(bibfname, "r", "UTF-8", "ignore")  # 'ignore' to be safe
             except IOError:
                 msg = "Cannot open bibliography file %s !" % bibfname
                 logger.error(msg)
@@ -129,19 +130,23 @@ class NewBibliographyPlugin(LaTeXToolsPlugin):
             else:
                 bib_data = parser.parse(bibf.read())
 
-                logger.info('Loaded %d bibitems', len(bib_data))
+                logger.info("Loaded %d bibitems", len(bib_data))
 
                 bib_entries = []
                 for key in bib_data:
                     entry = bib_data[key]
-                    if entry.entry_type in ('xdata', 'comment', 'string'):
+                    if entry.entry_type in ("xdata", "comment", "string"):
                         continue
 
                     # purge some unnecessary fields from the bib entry to save
                     # some space and time reloading
                     for k in [
-                        'abstract', 'annotation', 'annote', 'execute',
-                        'langidopts', 'options'
+                        "abstract",
+                        "annotation",
+                        "annote",
+                        "execute",
+                        "langidopts",
+                        "options",
                     ]:
                         if k in entry:
                             del entry[k]

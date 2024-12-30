@@ -13,10 +13,7 @@ from .latextools_utils import analysis
 from .latextools_utils.settings import get_setting
 from .latextools_utils.tex_directives import get_tex_root
 
-__all__ = [
-    "LatextoolsDownloadInsertImageHelperCommand",
-    "LatextoolsSmartPasteCommand"
-]
+__all__ = ["LatextoolsDownloadInsertImageHelperCommand", "LatextoolsSmartPasteCommand"]
 
 
 class LatextoolsDownloadInsertImageHelperCommand(sublime_plugin.TextCommand):
@@ -63,8 +60,8 @@ class LatextoolsDownloadInsertImageHelperCommand(sublime_plugin.TextCommand):
 
         if os.path.exists(image_path):
             ok = sublime.ok_cancel_dialog(
-                "Target image does already exist. Overwrite?",
-                "Overwrite!")
+                "Target image does already exist. Overwrite?", "Overwrite!"
+            )
             if not ok:
                 return
 
@@ -74,24 +71,21 @@ class LatextoolsDownloadInsertImageHelperCommand(sublime_plugin.TextCommand):
 
         if offline:
             # if it is offline just copy the file non-blocking
-            threading.Thread(
-                target=self._copy,
-                args=(image_path, image_url)
-            ).start()
+            threading.Thread(target=self._copy, args=(image_path, image_url)).start()
         else:
             # if the image is online also show a phantom to notify the
             # download
             pid = view.add_phantom(
-                "lt-dl-img", sublime.Region(pos), "Downloading Image...",
-                sublime.LAYOUT_BLOCK)
+                "lt-dl-img",
+                sublime.Region(pos),
+                "Downloading Image...",
+                sublime.LAYOUT_BLOCK,
+            )
 
             def on_done():
                 view.erase_phantom_by_id(pid)
 
-            threading.Thread(
-                target=self._download,
-                args=(image_path, image_url, on_done)
-            ).start()
+            threading.Thread(target=self._download, args=(image_path, image_url, on_done)).start()
 
 
 def _create_image_snippet(image_name):
@@ -104,8 +98,7 @@ def _download_insert_image(window, view, image_url, offline=False):
     tex_root = get_tex_root(view)
     if not tex_root:
         window.run_command("paste")
-        sublime.status_message(
-            "Need to save the view before downloading image.")
+        sublime.status_message("Need to save the view before downloading image.")
         return
     ext = image_url.split(".")[-1]
     caption = "Include graphics path (.{})".format(ext)
@@ -145,16 +138,13 @@ def _download_insert_image(window, view, image_url, offline=False):
         _, example_name = os.path.split(image_url)
 
     window.show_input_panel(
-        caption, example_name, on_done, on_change=lambda _: None,
-        on_cancel=on_cancel)
+        caption, example_name, on_done, on_change=lambda _: None, on_cancel=on_cancel
+    )
     window.run_command("select_all")
 
 
 def _is_possible_image_path(text):
-    return any(
-        text.endswith("." + image_type)
-        for image_type in get_setting("image_types")
-    )
+    return any(text.endswith("." + image_type) for image_type in get_setting("image_types"))
 
 
 class LatextoolsSmartPasteCommand(sublime_plugin.WindowCommand):
@@ -171,9 +161,7 @@ class LatextoolsSmartPasteCommand(sublime_plugin.WindowCommand):
         if sublime.platform() == "windows":
             content = content.strip('"')
 
-        is_empty_line = all(
-            not view.substr(view.line(sel.b)).strip()
-            for sel in view.sel())
+        is_empty_line = all(not view.substr(view.line(sel.b)).strip() for sel in view.sel())
         maybe_image = _is_possible_image_path(content)
 
         if is_empty_line and maybe_image and url_regex.match(content):

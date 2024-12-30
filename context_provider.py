@@ -83,8 +83,7 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
         else:
             quantor = all if match_all else any
             result = quantor(
-                op(compare_operand, context_method(sel=sel, **kwargs))
-                for sel in view.sel()
+                op(compare_operand, context_method(sel=sel, **kwargs)) for sel in view.sel()
             )
 
         return bool(result)
@@ -100,16 +99,12 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
         if operand[0:1] in "<>=":
             i = 1 if operand[1:2] != "=" else 2
             comp_str, operand = operand[:i], operand[i:]
-            compare = {
-                "<": opi.lt,
-                ">": opi.gt,
-                "<=": opi.le,
-                ">=": opi.ge
-            }.get(comp_str, opi.eq)
+            compare = {"<": opi.lt, ">": opi.gt, "<=": opi.le, ">=": opi.ge}.get(comp_str, opi.eq)
         else:
             compare = opi.eq
         result = compare(st_version, operand.strip())
         return result
+
     _ctx_st_version.consume_operand = True
 
     def _ctx_documentclass(self, view, **kwargs):
@@ -130,15 +125,12 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
         com = ana.filter_commands("usepackage")
         if not com:
             return falsity
-        packages = [
-            p.strip()
-            for c in com
-            for p in c.args.split(",")
-        ]
+        packages = [p.strip() for c in com for p in c.args.split(",")]
         if consume_operand:
             return operand in packages
         else:
             return ",".join(packages)
+
     _ctx_usepackage.consume_operand = True
 
     def _ctx_env_selector(self, view, sel, operand, **kwargs):
@@ -149,6 +141,7 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
             ast = self._env_ast_cache[operand] = build_ast(operand)
         res = match_selector(ast, partial(self._inside_envs, view, sel.b))
         return res
+
     _env_ast_cache = {}
     _ctx_env_selector.consume_operand = True
     _ctx_env_selector.foreach = True
@@ -180,8 +173,7 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
             # if there is no \begin we are not inside the environment
             if not regions:
                 return False
-            closed_regions = len(list(
-                r for r in view.find_all(eenv) if r.b < search_end))
+            closed_regions = len(list(r for r in view.find_all(eenv) if r.b < search_end))
             # if we have closed as many (or more?) environments as we opened
             # we are not inside the environment
             if len(regions) <= closed_regions:
@@ -189,8 +181,7 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
 
             # if we only have the nearest environment check that the
             # nearest environment is the correct one
-            if (only_nearest and
-                    not re.match(real_benv, view.substr(regions[-1]))):
+            if only_nearest and not re.match(real_benv, view.substr(regions[-1])):
                 return False
 
             # update the end if the search to the start of the closest
@@ -208,6 +199,7 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
             ast = self._command_ast_cache[operand] = build_ast(operand)
         res = match_selector(ast, partial(self._inside_coms, view, sel.b))
         return res
+
     _command_ast_cache = {}
     _ctx_command_selector.consume_operand = True
     _ctx_command_selector.foreach = True
@@ -224,7 +216,8 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
         while text:
             try:
                 command_match = next(
-                    c for c in command_re.finditer(text)
+                    c
+                    for c in command_re.finditer(text)
                     if c.start() < text_pos and text_pos < c.end()
                 )
             except StopIteration:

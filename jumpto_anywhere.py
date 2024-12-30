@@ -19,19 +19,13 @@ from .latex_ref_completions import NEW_STYLE_REF_REGEX
 from .jumpto_tex_file import INPUT_REG, IMPORT_REG, BIB_REG, IMAGE_REG
 from . import jumpto_tex_file
 
-__all__ = [
-    "LatextoolsJumptoAnywhereCommand",
-    "LatextoolsJumptoAnywhereByMouseCommand"
-]
+__all__ = ["LatextoolsJumptoAnywhereCommand", "LatextoolsJumptoAnywhereByMouseCommand"]
 
 INPUT_REG_EXPS = [INPUT_REG, IMPORT_REG, BIB_REG, IMAGE_REG]
 
 COMMAND_REG = re.compile(
-    r"\\(?P<command>[\w]+)"
-    r"\*?\s*"
-    r"(?:\[[^\]]*\]\s*)?"
-    r"\{(?P<args>[^}]*)\}",
-    re.UNICODE
+    r"\\(?P<command>[\w]+)" r"\*?\s*" r"(?:\[[^\]]*\]\s*)?" r"\{(?P<args>[^}]*)\}",
+    re.UNICODE,
 )
 
 
@@ -50,10 +44,7 @@ def _get_selected_arg(view, com_reg, pos):
 
     if cursor < 0 or len(args) < cursor:
         # need to explicit select the argument
-        message = (
-            "Selection to vague. Directly click on the name"
-            " inside the command."
-        )
+        message = "Selection to vague. Directly click on the name" " inside the command."
         logger.error(message)
         sublime.status_message(message)
         return
@@ -100,8 +91,7 @@ def _jumpto_ref(view, com_reg, pos):
     label_id = _get_selected_arg(view, com_reg, pos)
     if not label_id:
         return
-    sublime.status_message(
-        "Scanning document for label '{0}'...".format(label_id))
+    sublime.status_message("Scanning document for label '{0}'...".format(label_id))
     tex_root = get_tex_root(view)
     ana = analysis.analyze_document(tex_root)
     if ana is None:
@@ -109,6 +99,7 @@ def _jumpto_ref(view, com_reg, pos):
 
     def is_correct_label(c):
         return c.command == "label" and c.args == label_id
+
     labels = ana.filter_commands(is_correct_label)
     try:
         label = labels[0]
@@ -135,8 +126,7 @@ def _jumpto_cite(view, com_reg, pos):
     base_dir = os.path.dirname(tex_root)
     ana = analysis.get_analysis(tex_root)
 
-    bib_commands = ana.filter_commands(
-        ["bibliography", "nobibliography", "addbibresource"])
+    bib_commands = ana.filter_commands(["bibliography", "nobibliography", "addbibresource"])
     for bib_command in bib_commands:
         for bib_file in jumpto_tex_file._split_bib_args(bib_command.args):
             if not os.path.splitext(bib_file)[1]:
@@ -147,8 +137,11 @@ def _jumpto_cite(view, com_reg, pos):
                 start = file_content.find(bib_key)
                 end = start + len(bib_key)
                 # check that we found the entry and we are not inside a word
-                if (start == -1 or file_content[start - 1:start].isalnum() or
-                        file_content[end:end + 1].isalnum()):
+                if (
+                    start == -1
+                    or file_content[start - 1 : start].isalnum()
+                    or file_content[end : end + 1].isalnum()
+                ):
                     continue
                 region = sublime.Region(start, end)
                 message = "Jumping to bibliography key '{0}'.".format(bib_key)
@@ -170,8 +163,7 @@ def _jumpto_glo(view, com_reg, pos, acr=False):
         return
     ana = analysis.analyze_document(tex_root)
     if not acr:
-        commands = ana.filter_commands(
-            ["newglossaryentry", "longnewglossaryentry", "newacronym"])
+        commands = ana.filter_commands(["newglossaryentry", "longnewglossaryentry", "newacronym"])
     else:
         commands = ana.filter_commands("newacronym")
 
@@ -205,12 +197,7 @@ def _jumpto_tex_root(view, root):
     if os.path.isabs(root):
         path = root
     else:
-        path = os.path.normpath(
-            os.path.join(
-                os.path.dirname(view.file_name()),
-                root
-            )
-        )
+        path = os.path.normpath(os.path.join(os.path.dirname(view.file_name()), root))
 
     sublime.active_window().open_file(path)
 
@@ -237,8 +224,7 @@ def _opt_jumpto_self_def_command(view, com_reg):
     ana = analysis.analyze_document(tex_root)
     new_commands = ana.filter_commands(newcommand_keywords)
     try:
-        new_com_def = next(filter(
-            lambda c: c.args == command, new_commands))
+        new_com_def = next(filter(lambda c: c.args == command, new_commands))
     except Exception:
         logger.error("Command not self defined '%s'", command)
         return False
@@ -285,10 +271,10 @@ class LatextoolsJumptoAnywhereCommand(sublime_plugin.WindowCommand):
             if view.file_name():
                 m = TEX_DIRECTIVE.search(line)
                 if (
-                    m and
-                    m.group(1) == 'root' and
-                    m.start() <= sel.begin() - line_r.begin() and
-                    sel.end() - line_r.begin() <= m.end()
+                    m
+                    and m.group(1) == "root"
+                    and m.start() <= sel.begin() - line_r.begin()
+                    and sel.end() - line_r.begin() <= m.end()
                 ):
                     _jumpto_tex_root(view, m.group(2))
                     return
@@ -319,10 +305,7 @@ class LatextoolsJumptoAnywhereCommand(sublime_plugin.WindowCommand):
             _jumpto_glo(view, com_reg, pos, acr=True)
         # check if it is any kind of input command
         elif any(reg.match(com_reg.group(0)) for reg in INPUT_REG_EXPS):
-            kwargs = {
-                "auto_create_missing_folders": False,
-                "auto_insert_root": False
-            }
+            kwargs = {"auto_create_missing_folders": False, "auto_insert_root": False}
             if pos is not None:
                 kwargs.update({"position": position})
             self.window.run_command("latextools_jumpto_file", kwargs)
@@ -334,8 +317,7 @@ class LatextoolsJumptoAnywhereCommand(sublime_plugin.WindowCommand):
             b = line_r.begin()
             command_region = com_reg.regs[COMMAND_REG.groupindex["command"]]
             # if cursor is inside \command
-            if (command_region[0] + b - 1 <= sel.begin() and
-                    sel.end() <= command_region[1] + b):
+            if command_region[0] + b - 1 <= sel.begin() and sel.end() <= command_region[1] + b:
                 _opt_jumpto_self_def_command(view, com_reg)
 
 
@@ -367,5 +349,6 @@ class LatextoolsJumptoAnywhereByMouseCommand(sublime_plugin.WindowCommand):
         view.sel().clear()
         view.sel().add(sublime.Region(pos, pos))
 
-deprecate(globals(), 'JumptoTexAnywhereCommand', LatextoolsJumptoAnywhereCommand)
-deprecate(globals(), 'JumptoTexAnywhereByMouseCommand', LatextoolsJumptoAnywhereByMouseCommand)
+
+deprecate(globals(), "JumptoTexAnywhereCommand", LatextoolsJumptoAnywhereCommand)
+deprecate(globals(), "JumptoTexAnywhereByMouseCommand", LatextoolsJumptoAnywhereByMouseCommand)

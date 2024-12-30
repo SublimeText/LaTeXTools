@@ -73,23 +73,29 @@ def reraise(tp, value, tb=None):
     raise value
 
 
-__all__ = ['external_command', 'execute_command', 'check_call', 'check_output',
-           'get_texpath', 'update_env']
+__all__ = [
+    "external_command",
+    "execute_command",
+    "check_call",
+    "check_output",
+    "get_texpath",
+    "update_env",
+]
 
 
 def get_texpath():
-    '''
+    """
     Returns the texpath setting with any environment variables expanded
-    '''
+    """
     try:
-        texpath = get_setting(sublime.platform(), {}).get('texpath')
+        texpath = get_setting(sublime.platform(), {}).get("texpath")
     except AttributeError:
         # hack to reload this module in case the calling module was
         # reloaded
         exc_info = sys.exc_info
         try:
             reload(sys.modules[get_texpath.__module__])
-            texpath = get_setting(sublime.platform(), {}).get('texpath')
+            texpath = get_setting(sublime.platform(), {}).get("texpath")
         except Exception:
             reraise(*exc_info)
 
@@ -103,31 +109,39 @@ if "__sentinel__" not in globals():
 
 
 # wrapper to handle common logic for executing subprocesses
-def external_command(command, cwd=None, shell=False, env=None,
-                     stdin=__sentinel__, stdout=__sentinel__,
-                     stderr=__sentinel__, preexec_fn=None,
-                     use_texpath=True, show_window=False):
-    '''
+def external_command(
+    command,
+    cwd=None,
+    shell=False,
+    env=None,
+    stdin=__sentinel__,
+    stdout=__sentinel__,
+    stderr=__sentinel__,
+    preexec_fn=None,
+    use_texpath=True,
+    show_window=False,
+):
+    """
     Takes a command object to be passed to subprocess.Popen.
 
     Returns a subprocess.Popen object for the corresponding process.
 
     Raises OSError if command not found
-    '''
+    """
     if command is None:
-        raise ValueError('command must be a string or list of strings')
+        raise ValueError("command must be a string or list of strings")
 
     _env = dict(os.environ)
 
     if use_texpath:
-        _env['PATH'] = get_texpath() or os.environ['PATH']
+        _env["PATH"] = get_texpath() or os.environ["PATH"]
 
     if env is not None:
         update_env(_env, env)
 
     # Windows-specific adjustments
     startupinfo = None
-    if sublime.platform() == 'windows':
+    if sublime.platform() == "windows":
         # ensure console window doesn't show
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -148,7 +162,7 @@ def external_command(command, cwd=None, shell=False, env=None,
         logger.debug('Running "%s"', command)
     else:
         try:
-            logger.debug('Running "%s"', ' '.join(map(quote, command)))
+            logger.debug('Running "%s"', " ".join(map(quote, command)))
         except UnicodeError:
             try:
                 logger.debug('Running "%s"', command)
@@ -164,17 +178,25 @@ def external_command(command, cwd=None, shell=False, env=None,
         preexec_fn=preexec_fn,
         shell=shell,
         env=_env,
-        cwd=cwd
+        cwd=cwd,
     )
 
     return p
 
 
-def execute_command(command, cwd=None, shell=False, env=None,
-                    stdin=__sentinel__, stdout=__sentinel__,
-                    stderr=__sentinel__, preexec_fn=None,
-                    use_texpath=True, show_window=False):
-    '''
+def execute_command(
+    command,
+    cwd=None,
+    shell=False,
+    env=None,
+    stdin=__sentinel__,
+    stdout=__sentinel__,
+    stderr=__sentinel__,
+    preexec_fn=None,
+    use_texpath=True,
+    show_window=False,
+):
+    """
     Takes a command to be passed to subprocess.Popen and runs it. This is
     similar to subprocess.call().
 
@@ -186,14 +208,13 @@ def execute_command(command, cwd=None, shell=False, env=None,
     to subprocess.PIPE or any other valid value.
 
     Raises OSError if the executable is not found
-    '''
+    """
+
     def convert_stream(stream):
         if stream is None:
-            return ''
+            return ""
         else:
-            return '\n'.join(
-                re.split(r'\r?\n', stream.decode('utf-8', 'ignore').rstrip())
-            )
+            return "\n".join(re.split(r"\r?\n", stream.decode("utf-8", "ignore").rstrip()))
 
     if stdout is __sentinel__:
         stdout = PIPE
@@ -211,22 +232,26 @@ def execute_command(command, cwd=None, shell=False, env=None,
         stderr=stderr,
         preexec_fn=preexec_fn,
         use_texpath=use_texpath,
-        show_window=show_window
+        show_window=show_window,
     )
 
     stdout, stderr = p.communicate()
-    return (
-        p.returncode,
-        convert_stream(stdout),
-        convert_stream(stderr)
-    )
+    return (p.returncode, convert_stream(stdout), convert_stream(stderr))
 
 
-def check_call(command, cwd=None, shell=False, env=None,
-               stdin=__sentinel__, stdout=__sentinel__,
-               stderr=__sentinel__, preexec_fn=None,
-               use_texpath=True, show_window=False):
-    '''
+def check_call(
+    command,
+    cwd=None,
+    shell=False,
+    env=None,
+    stdin=__sentinel__,
+    stdout=__sentinel__,
+    stderr=__sentinel__,
+    preexec_fn=None,
+    use_texpath=True,
+    show_window=False,
+):
+    """
     Takes a command to be passed to subprocess.Popen.
 
     Raises CalledProcessError if the command returned a non-zero value
@@ -234,12 +259,12 @@ def check_call(command, cwd=None, shell=False, env=None,
 
     This is pretty much identical to subprocess.check_call(), but
     implemented here to take advantage of LaTeXTools-specific tooling.
-    '''
+    """
     # since we don't do anything with the output, by default just ignore it
     if stdout is __sentinel__:
-        stdout = open(os.devnull, 'w')
+        stdout = open(os.devnull, "w")
     if stderr is __sentinel__:
-        stderr = open(os.devnull, 'w')
+        stderr = open(os.devnull, "w")
 
     returncode, stdout, stderr = execute_command(
         command,
@@ -250,24 +275,28 @@ def check_call(command, cwd=None, shell=False, env=None,
         stderr=stderr,
         preexec_fn=preexec_fn,
         use_texpath=use_texpath,
-        show_window=show_window
+        show_window=show_window,
     )
 
     if returncode:
-        e = CalledProcessError(
-            returncode,
-            command
-        )
+        e = CalledProcessError(returncode, command)
         raise e
 
     return 0
 
 
-def check_output(command, cwd=None, shell=False, env=None,
-                 stdin=__sentinel__, stderr=__sentinel__,
-                 preexec_fn=None, use_texpath=True,
-                 show_window=False):
-    '''
+def check_output(
+    command,
+    cwd=None,
+    shell=False,
+    env=None,
+    stdin=__sentinel__,
+    stderr=__sentinel__,
+    preexec_fn=None,
+    use_texpath=True,
+    show_window=False,
+):
+    """
     Takes a command to be passed to subprocess.Popen.
 
     Returns the output if the command was successful.
@@ -281,7 +310,7 @@ def check_output(command, cwd=None, shell=False, env=None,
 
     This is pretty much identical to subprocess.check_output(), but
     implemented here since it is unavailable in Python 2.6's library.
-    '''
+    """
     returncode, stdout, stderr = execute_command(
         command,
         cwd=cwd,
@@ -291,14 +320,11 @@ def check_output(command, cwd=None, shell=False, env=None,
         stderr=stderr,
         preexec_fn=preexec_fn,
         use_texpath=use_texpath,
-        show_window=show_window
+        show_window=show_window,
     )
 
     if returncode:
-        e = CalledProcessError(
-            returncode,
-            command
-        )
+        e = CalledProcessError(returncode, command)
         e.output = stdout
         e.stderr = stderr
         raise e

@@ -1,9 +1,9 @@
-'''
+"""
 This is internal definitions used by the latextools_plugin module
 
 This separate module is required because ST's reload semantics make it
 impossible to implement something like this within that module itself.
-'''
+"""
 
 import re
 
@@ -25,10 +25,11 @@ _WHITELIST_ADDED = []
 
 # LaTeXToolsPlugin - base class for all plugins
 class LaTeXToolsPluginMeta(type):
-    '''
+    """
     Metaclass for plugins which will automatically register them with the
     plugin registry
-    '''
+    """
+
     def __init__(cls, name, bases, attrs):
         try:
             super(LaTeXToolsPluginMeta, cls).__init__(name, bases, attrs)
@@ -40,9 +41,7 @@ class LaTeXToolsPluginMeta(type):
             return
 
         try:
-            if not any(
-                (True for base in bases if issubclass(base, LaTeXToolsPlugin))
-            ):
+            if not any((True for base in bases if issubclass(base, LaTeXToolsPlugin))):
                 return
         except NameError:
             return
@@ -55,15 +54,15 @@ class LaTeXToolsPluginMeta(type):
             _REGISTRY[registered_name] = cls
 
 
-LaTeXToolsPlugin = LaTeXToolsPluginMeta('LaTeXToolsPlugin', (object,), {})
-LaTeXToolsPlugin.__doc__ = '''
+LaTeXToolsPlugin = LaTeXToolsPluginMeta("LaTeXToolsPlugin", (object,), {})
+LaTeXToolsPlugin.__doc__ = """
 Base class for LaTeXTools plugins. Implementation details will depend on where
 this plugin is supposed to be loaded. See the documentation for details.
-'''
+"""
 
 
 def _classname_to_internal_name(s):
-    '''
+    """
     Converts a Python class name in to an internal name
 
     The intention here is to mirror how ST treats *Command objects, i.e., by
@@ -75,7 +74,7 @@ def _classname_to_internal_name(s):
         SomeClass will become some_class
         ReferencesPlugin will become references
         BibLaTeXPlugin will become biblatex
-    '''
+    """
     if not s:
         return s
 
@@ -83,12 +82,12 @@ def _classname_to_internal_name(s):
         match = match.group(0)
         return match[0] + match[1:].lower()
 
-    s = re.sub(r'(?:Bib)?(?:La)?TeX', _repl, s)
+    s = re.sub(r"(?:Bib)?(?:La)?TeX", _repl, s)
 
     # pilfered from https://code.activestate.com/recipes/66009/
-    s = re.sub(r'(?<=[a-z])[A-Z]|(?<!^)[A-Z](?=[a-z])', r"_\g<0>", s).lower()
+    s = re.sub(r"(?<=[a-z])[A-Z]|(?<!^)[A-Z](?=[a-z])", r"_\g<0>", s).lower()
 
-    if s.endswith('_plugin'):
+    if s.endswith("_plugin"):
         s = s[:-7]
 
     return s

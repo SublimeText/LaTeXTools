@@ -15,6 +15,7 @@ import sublime
 
 def run_after_loading(view, func):
     """Run a function after the view has finished loading"""
+
     def run():
         if view.is_loading():
             sublime.set_timeout(run, 10)
@@ -22,6 +23,7 @@ def run_after_loading(view, func):
             # add an additional delay, because it might not be ready
             # even if the loading function returns false
             sublime.set_timeout(func, 10)
+
     run()
 
 
@@ -71,9 +73,9 @@ def get_view_content(file_name):
 
 
 def get_open_view(file_name):
-    '''
+    """
     Returns the view for the specified file_name if it exists
-    '''
+    """
     active_window = sublime.active_window()
     active_view = active_window.active_view()
     # search for the file name in 3 hierarchical steps
@@ -93,8 +95,7 @@ def get_open_view(file_name):
             return view
 
 
-def get_file_content(file_name, encoding="utf8", ignore=True,
-                     force_lf_endings=False):
+def get_file_content(file_name, encoding="utf8", ignore=True, force_lf_endings=False):
     """
     Returns the content of this file.
     If the file is opened in a view, then the content of the view will
@@ -106,8 +107,7 @@ def get_file_content(file_name, encoding="utf8", ignore=True,
     else:
         read_file_content = _read_file_content
 
-    content = (get_view_content(file_name) or
-               read_file_content(file_name, encoding, ignore))
+    content = get_view_content(file_name) or read_file_content(file_name, encoding, ignore)
     return content
 
 
@@ -122,14 +122,14 @@ except NameError:
 
 
 class ThreadPool(object):
-    '''A relatively simple ThreadPool designed to maintain a number of thread
+    """A relatively simple ThreadPool designed to maintain a number of thread
     workers
 
     By default, each pool manages a number of processes equal to the number
     of CPU cores. This can be adjusted by setting the processes parameter
     when creating the pool.
 
-    Returned results are similar to multiprocessing.pool.AsyncResult'''
+    Returned results are similar to multiprocessing.pool.AsyncResult"""
 
     def __init__(self, processes=None):
         self._task_queue = Queue()
@@ -148,12 +148,12 @@ class ThreadPool(object):
 
         self._result_handler = threading.Thread(target=self._handle_results)
         self._result_handler.daemon = True
-        self._result_handler.name = '{0!r} handler'.format(self)
+        self._result_handler.name = "{0!r} handler".format(self)
         self._result_handler.start()
 
         self._supervisor = threading.Thread(target=self._maintain_pool)
         self._supervisor.daemon = True
-        self._supervisor.name = '{0!r} supervisor'.format(self)
+        self._supervisor.name = "{0!r} supervisor".format(self)
         self._supervisor.start()
 
     # - Public API
@@ -166,9 +166,9 @@ class ThreadPool(object):
         return not self._should_stop.is_set()
 
     def terminate(self):
-        '''Stops this thread pool. Note stopping is not immediate. If you
+        """Stops this thread pool. Note stopping is not immediate. If you
         need to wait for the termination to complete, you should call join()
-        after this.'''
+        after this."""
         self._should_stop.set()
 
     def join(self, timeout=None):
@@ -280,9 +280,9 @@ class _ThreadPoolResult(object):
 
         # handle an exception, which is passed as a sys.exc_info tuple
         if (
-            isinstance(self._value, tuple) and
-            len(self._value) == 3 and
-            issubclass(self._value[0], Exception)
+            isinstance(self._value, tuple)
+            and len(self._value) == 3
+            and issubclass(self._value[0], Exception)
         ):
             raise self._value
         else:

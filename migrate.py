@@ -30,9 +30,16 @@ settings = [
     {"key": "python2", "type": "string", "line": -1, "tabs": 2, "last": False},
     {"key": "sublime", "type": "string", "line": -1, "tabs": 2, "last": False},
     {"key": "sync_wait", "type": "num", "line": -1, "tabs": 2, "last": True},
-    {"key": "cite_panel_format", "type": "list", "line": -1, "tabs": 1, "last": False },
-    {"key": "cite_autocomplete_format", "type": "string", "line": -1, "tabs": 1, "last": True}
+    {"key": "cite_panel_format", "type": "list", "line": -1, "tabs": 1, "last": False},
+    {
+        "key": "cite_autocomplete_format",
+        "type": "string",
+        "line": -1,
+        "tabs": 1,
+        "last": True,
+    },
 ]
+
 
 class LatextoolsMigrateCommand(sublime_plugin.ApplicationCommand):
 
@@ -45,30 +52,32 @@ class LatextoolsMigrateCommand(sublime_plugin.ApplicationCommand):
 
         logger.info("Running settings reset")
         sublime.status_message("Resetting user settings to default...")
-        ltt_path = os.path.join(sublime.packages_path(),"LaTeXTools")
-        user_path = os.path.join(sublime.packages_path(),"User")
-        default_file = os.path.join(ltt_path,DEFAULT_SETTINGS)
-        user_file = os.path.join(user_path,USER_SETTINGS)
-        old_file = os.path.join(user_path,OLD_SETTINGS)
+        ltt_path = os.path.join(sublime.packages_path(), "LaTeXTools")
+        user_path = os.path.join(sublime.packages_path(), "User")
+        default_file = os.path.join(ltt_path, DEFAULT_SETTINGS)
+        user_file = os.path.join(user_path, USER_SETTINGS)
+        old_file = os.path.join(user_path, OLD_SETTINGS)
 
-        killall = False # So final message check works even if there is no existing setting file
+        killall = False  # So final message check works even if there is no existing setting file
         if os.path.exists(user_file):
-            killall = sublime.ok_cancel_dialog(USER_SETTINGS + " already exists in the User directory!\n"
+            killall = sublime.ok_cancel_dialog(
+                USER_SETTINGS + " already exists in the User directory!\n"
                 "Are you sure you want to DELETE YOUR CURRENT SETTINGS and reset them to default?",
-                "DELETE current settings")
+                "DELETE current settings",
+            )
             if not killall:
                 sublime.message_dialog("OK, I will preserve your existing settings.")
                 return
 
-        with codecs.open(default_file,'r','UTF-8') as def_fp:
+        with codecs.open(default_file, "r", "UTF-8") as def_fp:
             def_lines = def_fp.readlines()
 
-        quotes = "\""
+        quotes = '"'
 
         # Find lines where keys are in the default file
         comments = False
         for i in range(len(def_lines)):
-            l = def_lines[i].strip() # Get rid of tabs and leading spaces
+            l = def_lines[i].strip()  # Get rid of tabs and leading spaces
             # skip comments
             # This works as long as multiline comments do not start/end on a line that
             # also contains code.
@@ -78,21 +87,21 @@ class LatextoolsMigrateCommand(sublime_plugin.ApplicationCommand):
             if comments:
                 if beg_cmts == "*/":
                     comments = False
-                    l = l[2:] # and process the line just in case
+                    l = l[2:]  # and process the line just in case
                 elif end_cmts == "*/":
                     comments = False
                     continue
-                else: # HACK: this fails if we have "...*/ <code>", which however is bad form
+                else:  # HACK: this fails if we have "...*/ <code>", which however is bad form
                     continue
-            if beg_cmts=="//": # single-line comments
+            if beg_cmts == "//":  # single-line comments
                 continue
-            if beg_cmts=="/*": # Beginning of multiline comment.
-                comments = True # HACK: this fails if "<code> /* ..." begins a multiline comment
+            if beg_cmts == "/*":  # Beginning of multiline comment.
+                comments = True  # HACK: this fails if "<code> /* ..." begins a multiline comment
                 continue
             for s in settings:
                 # Be conservative: precise match.
                 m = quotes + s["key"] + quotes + ":"
-                if m == l[:len(m)]:
+                if m == l[: len(m)]:
                     s["line"] = i
                     logger.info(s["key"] + " is on line " + str(i) + " (0-based)")
 
@@ -103,34 +112,34 @@ class LatextoolsMigrateCommand(sublime_plugin.ApplicationCommand):
             key = s["key"]
             logger.info("Trying " + key)
             s_old_entry = s_old.get(key)
-            if s_old_entry is not None: # Checking for True misses all bool's set to False!
+            if s_old_entry is not None:  # Checking for True misses all bool's set to False!
                 logger.info("Porting " + key)
-                l = s["tabs"]*"\t" + quotes + key + quotes + ": "
-                if s["type"]=="bool":
-                    l += "true" if s_old_entry==True else "false"
-                elif s["type"]=="num":
+                l = s["tabs"] * "\t" + quotes + key + quotes + ": "
+                if s["type"] == "bool":
+                    l += "true" if s_old_entry == True else "false"
+                elif s["type"] == "num":
                     l += str(s_old_entry)
-                elif s["type"]=="list": # HACK HACK HACK! List of strings only!
+                elif s["type"] == "list":  # HACK HACK HACK! List of strings only!
                     l += "["
                     for el in s_old_entry:
                         l += quotes + el + quotes + ","
-                    l = l[:-1] + "]" # replace last comma with bracket
+                    l = l[:-1] + "]"  # replace last comma with bracket
                 else:
                     l += quotes + s_old_entry + quotes
-                if s["last"]: # Add comma, unless at the end of a {...} block
-                    l+= "\n"
+                if s["last"]:  # Add comma, unless at the end of a {...} block
+                    l += "\n"
                 else:
                     l += ",\n"
                 logger.info(l)
                 def_lines[s["line"]] = l
 
         # Modify text saying "don't touch this!" in the default file
-        def_lines[0] = '// LaTeXTools Preferences\n'
-        def_lines[2] = '// Keep in the User directory. Personalize as needed\n'
+        def_lines[0] = "// LaTeXTools Preferences\n"
+        def_lines[2] = "// Keep in the User directory. Personalize as needed\n"
         for i in range(3, 10):
-            def_lines.pop(3) # Must be 3: 4 becomes 3, then 5 becomes 3...
+            def_lines.pop(3)  # Must be 3: 4 becomes 3, then 5 becomes 3...
 
-        with codecs.open(user_file,'w','UTF-8') as user_fp:
+        with codecs.open(user_file, "w", "UTF-8") as user_fp:
             user_fp.writelines(def_lines)
 
         if killall:
@@ -138,6 +147,7 @@ class LatextoolsMigrateCommand(sublime_plugin.ApplicationCommand):
         else:
             msg_preserved = "Old-style, pre-2014 settings (if any) have been migrated."
         sublime.status_message("Settings reset to default.")
-        sublime.message_dialog("LaTeXTools settings successfully reset to default. " + msg_preserved)
+        sublime.message_dialog(
+            "LaTeXTools settings successfully reset to default. " + msg_preserved
+        )
         return
-

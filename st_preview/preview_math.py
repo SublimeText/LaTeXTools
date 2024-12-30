@@ -44,7 +44,9 @@ try:
         except Exception:
             color = "#CCCCCC"
         return color
+
 except Exception:
+
     def get_color(view):
         return "#CCCCCC"
 
@@ -86,14 +88,12 @@ _name = "preview_math"
 
 def _on_setting_change():
     global _density, _scale_quotient, _hires, _max_bitmap, _bufferspace
-    _scale_quotient = _lt_settings.get(
-        "preview_math_scale_quotient", _scale_quotient)
+    _scale_quotient = _lt_settings.get("preview_math_scale_quotient", _scale_quotient)
     _density = _lt_settings.get("preview_math_density", _density)
     _hires = _lt_settings.get("preview_math_hires", _hires)
     _max_bitmap = _lt_settings.get("preview_math_max_bitmap", _max_bitmap)
     _bufferspace = _lt_settings.get("preview_math_bufferspace", _bufferspace)
-    max_threads = get_setting(
-        "preview_max_convert_threads", default=None, view={})
+    max_threads = get_setting("preview_max_convert_threads", default=None, view={})
     if max_threads is not None:
         pv_threading.set_max_threads(max_threads)
 
@@ -126,8 +126,7 @@ def plugin_unloaded():
     _lt_settings.clear_on_change("lt_preview_math_main")
 
 
-def _create_image(latex_program, latex_document, base_name, color,
-                  **kwargs):
+def _create_image(latex_program, latex_document, base_name, color, **kwargs):
     """Create an image for a latex document."""
     rel_source_path = base_name + ".tex"
     pdf_path = os.path.join(temp_path, base_name + ".pdf")
@@ -147,9 +146,9 @@ def _create_image(latex_program, latex_document, base_name, color,
 
     # compile the latex document to a pdf
     execute_command(
-        [latex_program, '-interaction=nonstopmode', rel_source_path],
+        [latex_program, "-interaction=nonstopmode", rel_source_path],
         cwd=temp_path,
-        shell=sublime.platform() == 'windows'
+        shell=sublime.platform() == "windows",
     )
 
     pdf_exists = os.path.exists(pdf_path)
@@ -164,27 +163,25 @@ def _create_image(latex_program, latex_document, base_name, color,
         # written to STDERR rather than STDOUT; we specify 72 dpi in order to
         # speed up processing; the user-supplied density will be used in
         # making the actual conversion
-        rc, _, output = run_ghostscript_command([
-            '-sDEVICE=bbox', '-r72', '-dLastPage=1', pdf_path
-        ], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        rc, _, output = run_ghostscript_command(
+            ["-sDEVICE=bbox", "-r72", "-dLastPage=1", pdf_path],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+        )
 
         if rc == 0:
             # we only check the first line of output which should be in the
             # format:
             # %%BoundingBox: int int int int
             try:
-                bbox = [
-                    int(x) for x in
-                    output.splitlines()[0].lstrip('%%BoundingBox: ').split()
-                ]
+                bbox = [int(x) for x in output.splitlines()[0].lstrip("%%BoundingBox: ").split()]
             except ValueError:
                 bbox = None
         else:
             bbox = None
 
         # hires renders the image at 8 times the dpi, then scales it down
-        scale_factor = \
-            8 if _hires and get_ghostscript_version() >= (9, 14) else 1
+        scale_factor = 8 if _hires and get_ghostscript_version() >= (9, 14) else 1
 
         # allow Ghostscript to use multiple CPUs, up to two less than the
         # total number (so that sublime_text and plugin_host are minimally
@@ -193,14 +190,16 @@ def _create_image(latex_program, latex_document, base_name, color,
 
         # convert the pdf to a png image
         command = [
-            '-sDEVICE=pngalpha', '-dLastPage=1',
-            '-sOutputFile={image_path}'.format(image_path=image_path),
-            '-r{density}'.format(density=_density * scale_factor),
-            '-dDownScaleFactor={0}'.format(scale_factor),
-            '-dTextAlphaBits=4', '-dGraphicsAlphaBits=4',
-            '-dNumRenderingThreads={0}'.format(cpus),
-            '-dMaxBitmap={0}'.format(_max_bitmap),
-            '-dBufferSpace={0}'.format(_bufferspace)
+            "-sDEVICE=pngalpha",
+            "-dLastPage=1",
+            "-sOutputFile={image_path}".format(image_path=image_path),
+            "-r{density}".format(density=_density * scale_factor),
+            "-dDownScaleFactor={0}".format(scale_factor),
+            "-dTextAlphaBits=4",
+            "-dGraphicsAlphaBits=4",
+            "-dNumRenderingThreads={0}".format(cpus),
+            "-dMaxBitmap={0}".format(_max_bitmap),
+            "-dBufferSpace={0}".format(_bufferspace),
         ]
 
         # calculate and apply cropping boundaries, if we have them
@@ -211,28 +210,31 @@ def _create_image(latex_program, latex_document, base_name, color,
             # 4pts are added to each length for some padding
             # these are then multiplied by the ratio of the final density to
             # the PDFs DPI (72) to get the final size of the image in pixels
-            width = round(
-                (bbox[2] - bbox[0] + 4) * _density * scale_factor / 72)
-            height = round(
-                (bbox[3] - bbox[1] + 4) * _density * scale_factor / 72)
-            command.extend([
-                '-g{width}x{height}'.format(**locals()), '-c',
-                # this is the command that does the clipping starting from
-                # the lower left of the displayed contents; we subtract 2pts
-                # to properly center the final image with our padding
-                '<</Install {{{0} {1} translate}}>> setpagedevice'.format(
-                    -1 * (bbox[0] - 2), -1 * (bbox[1] - 2)), '-f'
-            ])
+            width = round((bbox[2] - bbox[0] + 4) * _density * scale_factor / 72)
+            height = round((bbox[3] - bbox[1] + 4) * _density * scale_factor / 72)
+            command.extend(
+                [
+                    "-g{width}x{height}".format(**locals()),
+                    "-c",
+                    # this is the command that does the clipping starting from
+                    # the lower left of the displayed contents; we subtract 2pts
+                    # to properly center the final image with our padding
+                    "<</Install {{{0} {1} translate}}>> setpagedevice".format(
+                        -1 * (bbox[0] - 2), -1 * (bbox[1] - 2)
+                    ),
+                    "-f",
+                ]
+            )
 
         command.append(pdf_path)
 
         rc, output, _ = run_ghostscript_command(
-            command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+            command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
+        )
 
         if rc != 0:
             gs_error_occurred = True
-            err_log.append(
-                'Error while running Ghostscript. {0}'.format(output))
+            err_log.append("Error while running Ghostscript. {0}".format(output))
 
         # Ghostscript will output a 0 byte sized image if certain issues
         # occur. Deal with this here.
@@ -240,19 +242,19 @@ def _create_image(latex_program, latex_document, base_name, color,
             os.remove(image_path)
             gs_error_occurred = True
             err_log.append(
-                'Ghostscript could not produce an image. '
-                'Please try changing the preview_math_bufferspace setting '
-                'to a larger value. Currently: {0}. '.format(_bufferspace) +
-                'This setting can be found in the LaTeXTools (Advanced) '
-                'settings file.')
+                "Ghostscript could not produce an image. "
+                "Please try changing the preview_math_bufferspace setting "
+                "to a larger value. Currently: {0}. ".format(_bufferspace)
+                + "This setting can be found in the LaTeXTools (Advanced) "
+                "settings file."
+            )
 
         if gs_error_occurred:
-            err_log.append('')
+            err_log.append("")
 
     if not pdf_exists:
         err_log.append(
-            "Failed to run '{latex_program}' to create pdf to preview."
-            .format(**locals())
+            "Failed to run '{latex_program}' to create pdf to preview.".format(**locals())
         )
         err_log.append("")
         err_log.append("")
@@ -317,14 +319,18 @@ def _cancel_image_jobs(vid, p=None):
     global _job_list
 
     if p is None:
+
         def is_target_job(job):
             return job["vid"] == vid
+
     elif isinstance(p, list):
         pset = set(p)
 
         def is_target_job(job):
             return job["vid"] == vid and job["p"] in pset
+
     else:
+
         def is_target_job(job):
             return job["vid"] == vid and job["p"] == p
 
@@ -366,10 +372,9 @@ def _wrap_html(html_content, color=None, background_color=None):
         style = ""
     html_content = (
         '<body id="latextools-preview-math-phantom">'
-        '{style}'
-        '{html_content}'
-        '</body>'
-        .format(**locals())
+        "{style}"
+        "{html_content}"
+        "</body>".format(**locals())
     )
     return html_content
 
@@ -382,11 +387,10 @@ def _generate_error_html(view, image_path, style_kwargs):
 
     html_content = html.escape(content, quote=False)
     html_content += (
-        '<br>'
+        "<br>"
         '<a href="check_system">(Check System)</a> '
         '<a href="report-{err_file}">(Show Report)</a> '
-        '<a href="disable">(Disable)</a>'
-        .format(**locals())
+        '<a href="disable">(Disable)</a>'.format(**locals())
     )
 
     html_content = _wrap_html(html_content, **style_kwargs)
@@ -408,17 +412,11 @@ def _generate_html(view, image_path, style_kwargs):
         if _scale_quotient != 1:
             width /= _scale_quotient
             height /= _scale_quotient
-            style = (
-                'style="width: {width}; height: {height};"'
-                .format(**locals())
-            )
+            style = 'style="width: {width}; height: {height};"'.format(**locals())
         else:
             style = ""
-        img_data_b64 = base64.b64encode(image_raw_data).decode('ascii')
-        html_content = (
-            "<img {style} src=\"data:image/png;base64,{img_data_b64}\">"
-            .format(**locals())
-        )
+        img_data_b64 = base64.b64encode(image_raw_data).decode("ascii")
+        html_content = '<img {style} src="data:image/png;base64,{img_data_b64}">'.format(**locals())
     # wrap the html content in a body and style
     html_content = _wrap_html(html_content, **style_kwargs)
     return html_content
@@ -428,12 +426,12 @@ class PhantomNamepace(types.SimpleNamespace):
     """
     A hashable SimpleNamespace required for python 3.8 compatibility
     """
+
     def __hash__(self):
         return self.id
 
 
-class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
-                                 PreviewSettingsListener):
+class MathPreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSettingsListener):
     key = "preview_math"
     # a dict from the file name to the content to avoid storing it for
     # every view
@@ -484,40 +482,40 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
         view_attr = {
             "visible_mode": {
                 "setting": "preview_math_mode",
-                "call_after": self.update_phantoms
+                "call_after": self.update_phantoms,
             },
             "latex_program": {
                 "setting": "preview_math_latex_compile_program",
-                "call_after": self.reset_phantoms
+                "call_after": self.reset_phantoms,
             },
             "no_star_env": {
                 "setting": "preview_math_no_star_envs",
-                "call_after": self.reset_phantoms
+                "call_after": self.reset_phantoms,
             },
             "color": {
                 "setting": "preview_math_color",
-                "call_after": self.reset_phantoms
+                "call_after": self.reset_phantoms,
             },
             "background_color": {
                 "setting": "preview_math_background_color",
-                "call_after": self.reset_phantoms
+                "call_after": self.reset_phantoms,
             },
             "math_scope": {
                 "setting": "preview_math_scope",
-                "call_after": self.reset_phantoms
+                "call_after": self.reset_phantoms,
             },
             "packages": {
                 "setting": "preview_math_template_packages",
-                "call_after": update_packages_str
+                "call_after": update_packages_str,
             },
             "preamble": {
                 "setting": "preview_math_template_preamble",
-                "call_after": update_preamble_str
+                "call_after": update_preamble_str,
             },
             "latex_template_file": {
                 "setting": "preview_math_template_file",
-                "call_after": update_template_file
-            }
+                "call_after": update_template_file,
+            },
         }
 
         lt_attr = view_attr.copy()
@@ -526,24 +524,24 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
         watch_attr = {
             "_watch_scale_quotient": {
                 "setting": "preview_math_scale_quotient",
-                "call_after": self.reset_phantoms
+                "call_after": self.reset_phantoms,
             },
             "_watch_density": {
                 "setting": "preview_math_density",
-                "call_after": self.reset_phantoms
+                "call_after": self.reset_phantoms,
             },
             "_watch_hires": {
                 "setting": "preview_math_hires",
-                "call_after": self.reset_phantoms
+                "call_after": self.reset_phantoms,
             },
             "_watch_max_bitmap": {
                 "setting": "preview_math_max_bitmap",
-                "call_after": self.reset_phantoms
+                "call_after": self.reset_phantoms,
             },
             "_watch_bufferspace": {
                 "setting": "preview_math_bufferspace",
-                "call_after": self.reset_phantoms
-            }
+                "call_after": self.reset_phantoms,
+            },
         }
         for attr_name, d in watch_attr.items():
             settings_name = d["setting"]
@@ -577,10 +575,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
                 with open(self.latex_template_file, "r", encoding="utf8") as f:
                     file_content = f.read()
                 mtime = os.path.getmtime(self.latex_template_file)
-                logger.info(
-                    "Load math preview template file for '%s'",
-                    self.latex_template_file
-                )
+                logger.info("Load math preview template file for '%s'", self.latex_template_file)
             except Exception as e:
                 logger.error("Error while reading math preview template file: %s", e)
                 file_content = None
@@ -590,11 +585,11 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
     @classmethod
     def is_applicable(cls, settings):
         try:
-            view = inspect.currentframe().f_back.f_locals['view']
-            return len(view.find_by_selector('text.tex.latex')) > 0
+            view = inspect.currentframe().f_back.f_locals["view"]
+            return len(view.find_by_selector("text.tex.latex")) > 0
         except KeyError:
-            syntax = settings.get('syntax')
-            return syntax == 'Packages/LaTeX/LaTeX.sublime-syntax'
+            syntax = settings.get("syntax")
+            return syntax == "Packages/LaTeX/LaTeX.sublime-syntax"
 
     @classmethod
     def applies_to_primary_view_only(cls):
@@ -644,9 +639,9 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
                 "The math-live preview will be temporary disabled until "
                 "you restart Sublime Text. If you want to disable it "
                 "permanent open your LaTeXTools settings and set "
-                "\"preview_math_mode\" to \"none\".",
+                '"preview_math_mode" to "none".',
                 yes_title="Open LaTeXTools settings",
-                no_title="Disable for this session"
+                no_title="Disable for this session",
             )
             if answer == sublime.DIALOG_CANCEL:
                 # do nothing
@@ -656,11 +651,9 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             if answer == sublime.DIALOG_YES:
                 self.view.window().run_command("latextools_open_user_settings")
         elif href.startswith("report-"):
-            file_path = href[len("report-"):]
+            file_path = href[len("report-") :]
             if not os.path.exists(file_path):
-                sublime.error_message(
-                    "Report file missing: {0}.".format(file_path)
-                )
+                sublime.error_message("Report file missing: {0}.".format(file_path))
                 return
             self.view.window().open_file(file_path)
 
@@ -694,10 +687,10 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
 
         # see #980; in any case window is None only for newly created views
         # where there isn't much point in running the phantom update.
-        if (window is None or
-            not any(window.active_view_in_group(g) == view
-                    for g in range(window.num_groups()))):
-                return
+        if window is None or not any(
+            window.active_view_in_group(g) == view for g in range(window.num_groups())
+        ):
+            return
 
         # TODO we may only want to apply if the view is visible
         # if view != view.window().active_view():
@@ -708,8 +701,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
 
         new_phantoms = []
         job_args = []
-        if (not _IS_ENABLED or self.visible_mode == "none" or
-                self.math_scope is None):
+        if not _IS_ENABLED or self.visible_mode == "none" or self.math_scope is None:
             if not self.phantoms:
                 return
             scopes = []
@@ -717,8 +709,9 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             scopes = view.find_by_selector(self.math_scope)
         elif self.visible_mode == "selected":
             math_scopes = view.find_by_selector(self.math_scope)
-            scopes = [scope for scope in math_scopes
-                      if any(scope.contains(sel) for sel in view.sel())]
+            scopes = [
+                scope for scope in math_scopes if any(scope.contains(sel) for sel in view.sel())
+            ]
         else:
             self.visible_mode = "none"
             scopes = []
@@ -726,13 +719,10 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
         # avoid creating a preview if someone just inserts $|$ and
         # most likely want to create an inline and not a block block
         def is_dollar_snippet(scope):
-            is_selector = view.match_selector(
-                scope.begin(), "meta.environment.math.block.dollar")
-            sel_at_start = any(
-                sel.empty() and sel.b == scope.begin() + 1
-                for sel in view.sel()
-            )
+            is_selector = view.match_selector(scope.begin(), "meta.environment.math.block.dollar")
+            sel_at_start = any(sel.empty() and sel.b == scope.begin() + 1 for sel in view.sel())
             return is_selector and sel_at_start
+
         scopes = [scope for scope in scopes if not is_dollar_snippet(scope)]
 
         color = self.color
@@ -740,20 +730,18 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
         if not color:
             color = get_color(view)
 
-        style_kwargs = {
-            "color": color,
-            "background_color": self.background_color
-        }
+        style_kwargs = {"color": color, "background_color": self.background_color}
 
         for scope in scopes:
             content = view.substr(scope)
             multline = "\n" in content
 
-            layout = (sublime.LAYOUT_BLOCK
-                      if multline or self.visible_mode == "selected"
-                      else sublime.LAYOUT_INLINE)
-            BE_BLOCK = view.match_selector(
-                scope.begin(), "meta.environment.math.block.be")
+            layout = (
+                sublime.LAYOUT_BLOCK
+                if multline or self.visible_mode == "selected"
+                else sublime.LAYOUT_INLINE
+            )
+            BE_BLOCK = view.match_selector(scope.begin(), "meta.environment.math.block.be")
 
             # avoid jumping around in begin end block
             if multline and BE_BLOCK:
@@ -776,21 +764,23 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
                     region=region,
                     content=content,
                     layout=layout,
-                    update_time=0
+                    update_time=0,
                 )
 
             # generate the latex template
             latex_document = self._create_document(scope, color)
 
             # create a string, which uniquely identifies the compiled document
-            id_str = "\n".join([
-                str(_version),
-                self.latex_program,
-                str(_density),
-                str(_hires and get_ghostscript_version() >= (9, 14)),
-                color,
-                latex_document
-            ])
+            id_str = "\n".join(
+                [
+                    str(_version),
+                    self.latex_program,
+                    str(_density),
+                    str(_hires and get_ghostscript_version() >= (9, 14)),
+                    color,
+                    latex_document,
+                ]
+            )
             base_name = cache.hash_digest(id_str)
             image_path = os.path.join(temp_path, base_name + _IMAGE_EXTENSION)
 
@@ -801,25 +791,30 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
                     _cancel_image_jobs(view.id(), p)
                 html_content = _generate_html(view, image_path, style_kwargs)
                 p.id = view.add_phantom(
-                    self.key, region, html_content, layout,
-                    on_navigate=self.on_navigate)
+                    self.key, region, html_content, layout, on_navigate=self.on_navigate
+                )
                 new_phantoms.append(p)
                 continue
             # if neither the file nor the phantom exists, create a
             # placeholder phantom
             elif p.id is None:
                 p.id = view.add_phantom(
-                    self.key, region, _wrap_html("\u231B", **style_kwargs),
-                    layout, on_navigate=self.on_navigate)
+                    self.key,
+                    region,
+                    _wrap_html("\u231B", **style_kwargs),
+                    layout,
+                    on_navigate=self.on_navigate,
+                )
 
-            job_args.append({
-                "latex_document": latex_document,
-                "base_name": base_name,
-                "color": color,
-                "p": p,
-                "cont": self._make_cont(
-                    p, image_path, time.time(), style_kwargs)
-            })
+            job_args.append(
+                {
+                    "latex_document": latex_document,
+                    "base_name": base_name,
+                    "color": color,
+                    "p": p,
+                    "cont": self._make_cont(p, image_path, time.time(), style_kwargs),
+                }
+            )
 
             new_phantoms.append(p)
 
@@ -879,10 +874,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
         # strip the content
         content = content.strip()
 
-        document_content = (
-            "{open_str}\n{content}\n{close_str}"
-            .format(**locals())
-        )
+        document_content = "{open_str}\n{content}\n{close_str}".format(**locals())
 
         try:
             latex_template = self.template_contents[self.latex_template_file]
@@ -898,8 +890,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             set_color = "\\color{{{color}}}".format(color=color)
 
         latex_document = (
-            latex_template
-            .replace("<<content>>", document_content, 1)
+            latex_template.replace("<<content>>", document_content, 1)
             .replace("<<set_color>>", set_color, 1)
             .replace("<<packages>>", self.packages_str, 1)
             .replace("<<preamble>>", self.preamble_str, 1)
@@ -912,18 +903,15 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
             # if the image does not exists do nothing
             if os.path.exists(image_path):
                 # generate the html
-                html_content = _generate_html(
-                    self.view, image_path, style_kwargs)
+                html_content = _generate_html(self.view, image_path, style_kwargs)
             elif os.path.exists(image_path + _ERROR_EXTENSION):
                 # inform the user about the error
-                html_content = _generate_error_html(
-                    self.view, image_path, style_kwargs)
+                html_content = _generate_error_html(self.view, image_path, style_kwargs)
             else:
                 return
             # move to main thread and update the phantom
-            sublime.set_timeout(
-                self._update_phantom_content(p, html_content, update_time)
-            )
+            sublime.set_timeout(self._update_phantom_content(p, html_content, update_time))
+
         return cont
 
     def _update_phantom_regions(self):
@@ -946,8 +934,8 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener,
         # erase the old and add the new phantom
         view.erase_phantom_by_id(p.id)
         p.id = view.add_phantom(
-            self.key, p.region, html_content, p.layout,
-            on_navigate=self.on_navigate)
+            self.key, p.region, html_content, p.layout, on_navigate=self.on_navigate
+        )
 
         # update the phantoms update time
         p.update_time = update_time

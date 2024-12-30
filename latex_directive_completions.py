@@ -15,6 +15,7 @@ except Exception:
 
 __all__ = ["LatexDirectiveCompletion"]
 
+
 def _prettify_locale(loc):
     if "-" not in loc:
         return loc
@@ -38,9 +39,7 @@ def _directive_root_completions(view, value, ac=True):
     def list_tex_files(dir_path):
         return (f for f in os.listdir(dir_path) if is_tex_file(f))
 
-    tex_files = [
-        "./" + f for f in list_tex_files(directory) if not base_name == f
-    ]
+    tex_files = ["./" + f for f in list_tex_files(directory) if not base_name == f]
 
     # search up to 3 empty folders for tex files
     search_threshold = 3
@@ -67,16 +66,14 @@ def _directive_root_completions(view, value, ac=True):
 
     len_prefix = len([v for v in value if v in [".", "/"]])
     tex_files = [
-        s for s in tex_files
-        if s.startswith(value) or
-        (not len_prefix and s.startswith("./" + value))
+        s
+        for s in tex_files
+        if s.startswith(value) or (not len_prefix and s.startswith("./" + value))
     ]
     if ac:
         comp = [(s + "\ttex-file", s[len_prefix:]) for s in tex_files]
     else:
-        comp = [
-            [s, os.path.abspath(os.path.join(directory, s))] for s in tex_files
-        ], tex_files
+        comp = [[s, os.path.abspath(os.path.join(directory, s))] for s in tex_files], tex_files
 
     return comp
 
@@ -94,30 +91,22 @@ def _directive_spellcheck_completions(view, value, ac=True):
             if ac:
                 _, dic = os.path.split(dic)
             elif dic.startswith("Packages/"):
-                dic = dic[len("Packages/"):]
+                dic = dic[len("Packages/") :]
         except Exception:
             dic = "locale"
         return dic
-    locales = [
-        loc
-        for loc in map(_prettify_locale, locales)
-        if loc.startswith(value)
-    ]
+
+    locales = [loc for loc in map(_prettify_locale, locales) if loc.startswith(value)]
 
     if ac:
-        comp = [
-            ("{0}\t{1}".format(loc, get_locale(loc)), loc)
-            for loc in locales
-        ]
+        comp = [("{0}\t{1}".format(loc, get_locale(loc)), loc) for loc in locales]
     else:
         comp = [[loc, get_locale(loc)] for loc in locales], locales
     return comp
 
 
 def _directive_program_completions(view, value, ac=True):
-    engines = [
-        "pdflatex", "xelatex", "lualatex", "pdftex", "xetex", "luatex"
-    ]
+    engines = ["pdflatex", "xelatex", "lualatex", "pdftex", "xetex", "luatex"]
     engines = [e for e in engines if e.startswith(value)]
     if ac:
         comp = [(e + "\ttex-program", e) for e in engines]
@@ -132,14 +121,10 @@ def _directive_output_directory_completions(view, value, ac=True):
         comp = [
             (["Other", "Define your own path"], ""),
             (["Cache", "Use LaTeXTools cache path"], "<<cache>>"),
-            (["Project", "Use a folder relative to project root"],
-             "<<project>>"),
-            (["Temporary", "Use a temporary directory"], "<<temp>>")
+            (["Project", "Use a folder relative to project root"], "<<project>>"),
+            (["Temporary", "Use a temporary directory"], "<<temp>>"),
         ]
-        comp = [
-            c for c in comp
-            if c[1].startswith(value) or c[1].startswith("<<" + value)
-        ]
+        comp = [c for c in comp if c[1].startswith(value) or c[1].startswith("<<" + value)]
         return [c[0] for c in comp], [c[1] for c in comp]
 
     if value.endswith(">>"):
@@ -159,34 +144,22 @@ def _directive_output_directory_completions(view, value, ac=True):
         ("project\tRelative to project", "<<project>>"),
         ("temp\tTemporary directory", "<<temp>>"),
     ]
-    comp = [
-        (c[0], c[1][lstrip:]) for c in comp
-        if c[0].startswith(value) or c[1].startswith(value)
-    ]
+    comp = [(c[0], c[1][lstrip:]) for c in comp if c[0].startswith(value) or c[1].startswith(value)]
     return comp
 
 
 _directive_aux_directory_completions = _directive_output_directory_completions
 
 
-_EXCLAMATION_MARK_RE = re.compile(
-    r"%+\s*!"
-    r"$",
-    re.UNICODE | re.IGNORECASE
-)
-_TEX_PREFIX_RE = re.compile(
-    r"%+\s*!"
-    r"TEX\s+"
-    r"$",
-    re.UNICODE | re.IGNORECASE
-)
+_EXCLAMATION_MARK_RE = re.compile(r"%+\s*!" r"$", re.UNICODE | re.IGNORECASE)
+_TEX_PREFIX_RE = re.compile(r"%+\s*!" r"TEX\s+" r"$", re.UNICODE | re.IGNORECASE)
 _LINE_RE = re.compile(
     r"%+\s*!"
     r"TEX\s+"
     r"(?P<directive>[\w-]+)(?P<spaces>\s*)"
     r"=(?P<postspaces>\s*)"
     r"(?P<prefix>.*)",
-    re.UNICODE | re.IGNORECASE
+    re.UNICODE | re.IGNORECASE,
 )
 
 
@@ -243,7 +216,7 @@ class LatexDirectiveCompletion(sublime_plugin.EventListener):
 
         line_str = view.substr(sublime.Region(view.line(point).a, point))
         if prefix:
-            line_str = line_str[:-len(prefix)]
+            line_str = line_str[: -len(prefix)]
 
         # circumvent completion if it cannot be possible
         if "!" not in line_str:
@@ -252,17 +225,19 @@ class LatexDirectiveCompletion(sublime_plugin.EventListener):
         comp = None
 
         tex_directives = [
-            "root", "spellcheck", "program", "output_directory",
-            "aux_directory", "jobname", "options"
+            "root",
+            "spellcheck",
+            "program",
+            "output_directory",
+            "aux_directory",
+            "jobname",
+            "options",
         ]
         if _EXCLAMATION_MARK_RE.match(line_str):
             row, _ = view.rowcol(point)
             # do this completion only in the first 20 lines
             if row < 20:
-                comp = [
-                    ("TEX {0}\tTEX directive".format(s), "TEX " + s)
-                    for s in tex_directives
-                ]
+                comp = [("TEX {0}\tTEX directive".format(s), "TEX " + s) for s in tex_directives]
         elif _TEX_PREFIX_RE.match(line_str):
             comp = [(s + "\tTEX directive", s) for s in tex_directives]
         # other completions are handled via fill all helper

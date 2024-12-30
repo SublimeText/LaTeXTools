@@ -51,7 +51,7 @@ class LatextoolsClearLocalCacheCommand(sublime_plugin.WindowCommand):
         try:
             cache.LocalCache(tex_root).invalidate()
         except Exception:
-            logger.error('Error while trying to delete local cache')
+            logger.error("Error while trying to delete local cache")
             traceback.print_exc()
 
 
@@ -71,13 +71,13 @@ class LatextoolsClearBibliographyCacheCommand(sublime_plugin.WindowCommand):
 
         # find the instance of LatextoolsCacheUpdateListener, if any
         cache_listener = None
-        for callback in sublime_plugin.all_callbacks['on_close']:
+        for callback in sublime_plugin.all_callbacks["on_close"]:
             try:
                 instance = callback.__self__
             except Exception:
                 continue
 
-            if instance.__class__.__name__ == 'LatextoolsCacheUpdateListener':
+            if instance.__class__.__name__ == "LatextoolsCacheUpdateListener":
                 cache_listener = instance
                 break
 
@@ -114,10 +114,11 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
         view = self.window.active_view()
         root_file = get_tex_root(view)
         if root_file is None:
-            msg = \
-                'Could not find TEX root. Please ensure that either you ' + \
-                'have configured a TEX root in your project settings or ' + \
-                'have a LaTeX document open.'
+            msg = (
+                "Could not find TEX root. Please ensure that either you "
+                + "have configured a TEX root in your project settings or "
+                + "have a LaTeX document open."
+            )
             sublime.status_message(msg)
             logger.error(msg)
             return
@@ -132,36 +133,29 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
         try:
             cache.LocalCache(root_file).invalidate()
         except Exception:
-            logger.error('Error while trying to delete local cache')
+            logger.error("Error while trying to delete local cache")
             traceback.print_exc()
 
-        aux_directory, aux_directory_setting = get_aux_directory(
-            view, return_setting=True
-        )
+        aux_directory, aux_directory_setting = get_aux_directory(view, return_setting=True)
 
-        output_directory, output_directory_setting = get_output_directory(
-            view, return_setting=True
-        )
+        output_directory, output_directory_setting = get_output_directory(view, return_setting=True)
 
         deleted = True
 
         if aux_directory is not None:
             # we cannot delete the output directory on Windows in case
             # Sumatra is holding a reference to it
-            if (
-                sublime.platform() != 'windows' or
-                aux_directory != output_directory
-            ):
-                if aux_directory_setting.startswith('<<'):
+            if sublime.platform() != "windows" or aux_directory != output_directory:
+                if aux_directory_setting.startswith("<<"):
                     self._rmtree(aux_directory)
                 else:
                     deleted = self.delete_temp_files(aux_directory)
 
         if output_directory is not None:
-            if output_directory_setting.startswith('<<'):
+            if output_directory_setting.startswith("<<"):
                 # we cannot delete the output directory on Windows in case
                 # Sumatra is holding a reference to it
-                if sublime.platform() == 'windows':
+                if sublime.platform() == "windows":
                     self._clear_dir(output_directory)
                 else:
                     self._rmtree(output_directory)
@@ -178,16 +172,30 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
     def delete_temp_files(self, path):
         # Load the files to delete from the settings
         temp_files_exts = get_setting(
-            'temp_files_exts',
-            ['.blg', '.bbl', '.aux', '.log', '.brf', '.nlo', '.out', '.dvi',
-                '.ps', '.lof', '.toc', '.fls', '.fdb_latexmk', '.pdfsync',
-                '.synctex.gz', '.ind', '.ilg', '.idx']
+            "temp_files_exts",
+            [
+                ".blg",
+                ".bbl",
+                ".aux",
+                ".log",
+                ".brf",
+                ".nlo",
+                ".out",
+                ".dvi",
+                ".ps",
+                ".lof",
+                ".toc",
+                ".fls",
+                ".fdb_latexmk",
+                ".pdfsync",
+                ".synctex.gz",
+                ".ind",
+                ".ilg",
+                ".idx",
+            ],
         )
 
-        ignored_folders = get_setting(
-            'temp_files_ignored_folders',
-            ['.git', '.svn', '.hg']
-        )
+        ignored_folders = get_setting("temp_files_ignored_folders", [".git", ".svn", ".hg"])
 
         ignored_folders = set(ignored_folders)
 
@@ -220,7 +228,7 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
             pass
         except OSError:
             # report the exception if the folder didn't end up deleted
-            logger.error('Error while trying to delete %s', path)
+            logger.error("Error while trying to delete %s", path)
             traceback.print_exc()
 
     def _rmfile(self, path):
@@ -231,7 +239,7 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
         except OSError:
             # basically here for locked files in Windows,
             # but who knows what we might find?
-            logger.error('Error while trying to delete %s', path)
+            logger.error("Error while trying to delete %s", path)
             traceback.print_exc()
 
     def _clear_dir(self, path):
@@ -242,6 +250,6 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
                 self._rmfile(os.path.join(root, file_name))
 
 
-deprecate(globals(), 'ClearLocalLatexCacheCommand', LatextoolsClearLocalCacheCommand)
-deprecate(globals(), 'ClearBibliographyCacheCommand', LatextoolsClearBibliographyCacheCommand)
-deprecate(globals(), 'DeleteTempFilesCommand', LatextoolsDeleteTempFilesCommand)
+deprecate(globals(), "ClearLocalLatexCacheCommand", LatextoolsClearLocalCacheCommand)
+deprecate(globals(), "ClearBibliographyCacheCommand", LatextoolsClearBibliographyCacheCommand)
+deprecate(globals(), "DeleteTempFilesCommand", LatextoolsDeleteTempFilesCommand)

@@ -22,6 +22,7 @@ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
+
 import sublime
 
 from .utils import run_after_loading
@@ -52,17 +53,17 @@ def show_quickpanel(captions, entries, show_cancel=False):
 
 def _convert_entries(entries):
     if any(isinstance(entry, dict) for entry in entries):
-        entries = [Entry(**entry) if isinstance(entry, dict) else entry
-                   for entry in entries]
+        entries = [Entry(**entry) if isinstance(entry, dict) else entry for entry in entries]
     return entries
 
 
-class Entry():
+class Entry:
     """
     Duck type to show entries in a quickpanel, consists of
     - the file_name as str
     - the region as sublime.Region
     """
+
     def __init__(self, file_name, region, **kwargs):
         """
         Arguments
@@ -79,6 +80,7 @@ class EntriesQuickpanel(object):
     """
     A Class to show latex commands in a quickpanel
     """
+
     def __init__(self, captions, entries):
         # store all necessary values
         self.window = sublime.active_window()
@@ -109,10 +111,7 @@ class EntriesQuickpanel(object):
         change_handler -- This handler will be executed, when the item is
             highlighted
         """
-        index = {
-            AT_START: 0,
-            AT_END: self._offset
-        }.get(position, position)
+        index = {AT_START: 0, AT_END: self._offset}.get(position, position)
         # force the index to be between 0 and the offset
         index = min(max(0, index), self._offset)
 
@@ -127,10 +126,7 @@ class EntriesQuickpanel(object):
         """
         Opens a quickpanel based on the initialized data
         """
-        flags = {
-            "selected_index": selected_index,
-            "on_highlight": self._on_changed
-        }
+        flags = {"selected_index": selected_index, "on_highlight": self._on_changed}
         self.window.show_quick_panel(self.captions, self._on_done, **flags)
 
     def _remove_highlight(self, view=None):
@@ -146,8 +142,7 @@ class EntriesQuickpanel(object):
     def _add_highlight(self, view, region):
         """Add the highlight to the region"""
         flags = sublime.DRAW_NO_FILL
-        view.add_regions("temp_highlight_command", [region], "comment",
-                         flags=flags)
+        view.add_regions("temp_highlight_command", [region], "comment", flags=flags)
 
     def _open_transient(self, command):
         """
@@ -211,6 +206,7 @@ class EntriesQuickpanel(object):
             view.show(command.start)
             # erase the regions
             self._remove_highlight(view)
+
         run_after_loading(view, move)
 
     def _on_done(self, index):
@@ -240,10 +236,15 @@ class CancelEntriesQuickpanel(EntriesQuickpanel):
     """
     A Class to show entries in a quickpanel, which adds a cancel button
     """
+
     def __init__(self, *args):
         super(CancelEntriesQuickpanel, self).__init__(*args)
 
         # add "Cancel" to the quickpanel
         # if it is pressed the initial viewport is restored
-        self.add_item(AT_START, "Cancel", done_handler=self._restore_viewport,
-                      change_handler=self._restore_viewport)
+        self.add_item(
+            AT_START,
+            "Cancel",
+            done_handler=self._restore_viewport,
+            change_handler=self._restore_viewport,
+        )

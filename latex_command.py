@@ -10,6 +10,7 @@ __all__ = ["LatextoolsLatexCmdCommand"]
 # Insert LaTeX command based on current word
 # Position cursor inside braces
 
+
 class LatextoolsLatexCmdCommand(sublime_plugin.TextCommand):
     def run(self, edit, **args):
         view = self.view
@@ -30,14 +31,13 @@ class LatextoolsLatexCmdCommand(sublime_plugin.TextCommand):
                 command_region = sublime.Region(point - len(command), point)
                 view.erase(edit, command_region)
                 # Be forgiving and skip \ if the user provided one (by mistake...)
-                bslash = "" if command[0] == '\\' else "\\\\"
+                bslash = "" if command[0] == "\\" else "\\\\"
                 snippet = bslash + command + "{$1} $0"
             else:
                 snippet = "\\\\$1{$2} $0"
-            view.run_command("insert_snippet", {'contents': snippet})
+            view.run_command("insert_snippet", {"contents": snippet})
         else:
-            sublime.status_message(
-                "LATEXTOOLS INTERNAL ERROR: could not find command to expand")
+            sublime.status_message("LATEXTOOLS INTERNAL ERROR: could not find command to expand")
 
 
-deprecate(globals(), 'latexcmdCommand', LatextoolsLatexCmdCommand)
+deprecate(globals(), "latexcmdCommand", LatextoolsLatexCmdCommand)

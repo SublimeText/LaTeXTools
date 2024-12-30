@@ -31,7 +31,7 @@ class LatextoolsToggleEnvironmentStarCommand(sublime_plugin.TextCommand):
 
         # replace '*' with '' or vice versa for each region
         for r in reversed(new_regions):
-            if view.substr(r).endswith('*'):
+            if view.substr(r).endswith("*"):
                 view.replace(edit, r, view.substr(r)[:-1])
             else:
                 view.replace(edit, r, view.substr(r) + "*")
@@ -51,6 +51,7 @@ def _find_env_regions(view):
     def is_comment(reg):
         line_str = view.substr(view.line(reg))
         return comment_line_re.match(line_str) is not None
+
     begins = [b for b in begins if not is_comment(b)]
     ends = [e for e in ends if not is_comment(e)]
 
@@ -73,10 +74,8 @@ def _find_env_regions(view):
 
     for sel in view.sel():
         # partition the open and closed environments
-        begin_before, begin_after =\
-            _partition(begins, lambda b: b.begin() <= sel.begin())
-        end_before, end_after =\
-            _partition(ends, lambda e: e.end() < sel.begin())
+        begin_before, begin_after = _partition(begins, lambda b: b.begin() <= sel.begin())
+        end_before, end_after = _partition(ends, lambda e: e.end() < sel.begin())
 
         # get the nearest open environments
         try:
@@ -100,8 +99,7 @@ def _find_env_regions(view):
         elif one_sel:
             sublime.status_message(
                 "The environment begin and end does not match:"
-                "'{0}' and '{1}'"
-                .format(view.substr(begin_region), view.substr(end_region))
+                "'{0}' and '{1}'".format(view.substr(begin_region), view.substr(end_region))
             )
     if not new_regions:
         sublime.status_message("Environment detection failed")
@@ -166,5 +164,10 @@ def _get_closest_end(end_after, begin_after):
             break
     return e
 
-deprecate(globals(), 'LatexChangeEnvironmentCommand', LatextoolsChangeEnvironmentCommand)
-deprecate(globals(), 'LatexToggleEnvironmentStarCommand', LatextoolsToggleEnvironmentStarCommand)
+
+deprecate(globals(), "LatexChangeEnvironmentCommand", LatextoolsChangeEnvironmentCommand)
+deprecate(
+    globals(),
+    "LatexToggleEnvironmentStarCommand",
+    LatextoolsToggleEnvironmentStarCommand,
+)

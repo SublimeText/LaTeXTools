@@ -37,7 +37,7 @@ def _filter_invalid_entries(entries):
             logger.error(
                 "The regex must not have a capturing group, invalidated in "
                 "entry %s. You might escape your group with (?:...)",
-                entry
+                entry,
             )
             remove_entries.append(i)
             continue
@@ -84,80 +84,77 @@ def plugin_loaded():
     _filter_invalid_entries(_setting_entries)
     _fillall_entries.extend(_setting_entries)
 
-    _fillall_entries.extend([
-        # input/include
-        {
-            "regex": r'(?:edulcni|tupni)\\',
-            "extensions": [e[1:] for e in get_tex_extensions()],
-            "strip_extensions": [".tex"]
-        },
-        # includegraphics
-        {
-            "regex": r'(?:\][^{}\[\]]*\[)?scihpargedulcni\\',
-            "extensions": get_setting("image_types", [
-                "pdf", "png", "jpeg", "jpg", "eps"
-            ]),
-            "folder": "${graphics_path:$base}"
-        },
-        # import/subimport
-        {
-            "regex": r'\*?(?:tropmibus)\\',
-            "extensions": [e[1:] for e in get_tex_extensions()],
-            "strip_extensions": [".tex"],
-            "post_process": "path_only"
-        },
-        {
-            "regex": r'\}[^{}\[\]]*\{\*?(?:tropmi|morftupni|morfedulcni)?bus\\',
-            "extensions": [e[1:] for e in get_tex_extensions()],
-            "strip_extensions": [".tex"],
-            "post_regex": (
-                r'\\sub(?:import|includefrom|inputfrom)\*?'
-                r'\{([^{}\[\]]*)\}\{[^\}]*?$'
-            ),
-            "folder": "$base/$_1"
-        },
-        {
-            "regex": r'\}[^{}\[\]]*\{\*?(?:tropmi|morftupni|morfedulcni)\\',
-            "extensions": [e[1:] for e in get_tex_extensions()],
-            "strip_extensions": [".tex"],
-            "post_regex": (
-                r'\\(?:import|includefrom|inputfrom)\*?'
-                r'\{([^{}\[\]]*)\}\{[^\}]*?$'
-            ),
-            "folder": "$_1"
-        },
-        {
-            "regex": r'(?:\][^{}\[\]]*\[)?ecruoserbibdda\\',
-            "extensions": ["bib"]
-        },
-        {
-            "regex": r'yhpargoilbib\\',
-            "extensions": ["bib"],
-            "strip_extensions": [".bib"],
-            "comma_separated": True
-        }
-    ])
+    _fillall_entries.extend(
+        [
+            # input/include
+            {
+                "regex": r"(?:edulcni|tupni)\\",
+                "extensions": [e[1:] for e in get_tex_extensions()],
+                "strip_extensions": [".tex"],
+            },
+            # includegraphics
+            {
+                "regex": r"(?:\][^{}\[\]]*\[)?scihpargedulcni\\",
+                "extensions": get_setting("image_types", ["pdf", "png", "jpeg", "jpg", "eps"]),
+                "folder": "${graphics_path:$base}",
+            },
+            # import/subimport
+            {
+                "regex": r"\*?(?:tropmibus)\\",
+                "extensions": [e[1:] for e in get_tex_extensions()],
+                "strip_extensions": [".tex"],
+                "post_process": "path_only",
+            },
+            {
+                "regex": r"\}[^{}\[\]]*\{\*?(?:tropmi|morftupni|morfedulcni)?bus\\",
+                "extensions": [e[1:] for e in get_tex_extensions()],
+                "strip_extensions": [".tex"],
+                "post_regex": (
+                    r"\\sub(?:import|includefrom|inputfrom)\*?" r"\{([^{}\[\]]*)\}\{[^\}]*?$"
+                ),
+                "folder": "$base/$_1",
+            },
+            {
+                "regex": r"\}[^{}\[\]]*\{\*?(?:tropmi|morftupni|morfedulcni)\\",
+                "extensions": [e[1:] for e in get_tex_extensions()],
+                "strip_extensions": [".tex"],
+                "post_regex": (
+                    r"\\(?:import|includefrom|inputfrom)\*?" r"\{([^{}\[\]]*)\}\{[^\}]*?$"
+                ),
+                "folder": "$_1",
+            },
+            {"regex": r"(?:\][^{}\[\]]*\[)?ecruoserbibdda\\", "extensions": ["bib"]},
+            {
+                "regex": r"yhpargoilbib\\",
+                "extensions": ["bib"],
+                "strip_extensions": [".bib"],
+                "comma_separated": True,
+            },
+        ]
+    )
 
     # update the fields of the entries
     _update_input_entries(_fillall_entries)
 
-    _fillall_entries.extend([
-        {
-            "regex": r'([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?ssalctnemucod\\',
-            "type": "cached",
-            "cache_name": "cls"
-        },
-        {
-            "regex": r'([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?egakcapesu\\',
-            "type": "cached",
-            "cache_name": "pkg"
-        },
-        {
-            "regex": r'([^{}\[\]]*)\{elytsyhpargoilbib\\',
-            "type": "cached",
-            "cache_name": "bst"
-        }
-    ])
+    _fillall_entries.extend(
+        [
+            {
+                "regex": r"([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?ssalctnemucod\\",
+                "type": "cached",
+                "cache_name": "cls",
+            },
+            {
+                "regex": r"([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?egakcapesu\\",
+                "type": "cached",
+                "cache_name": "pkg",
+            },
+            {
+                "regex": r"([^{}\[\]]*)\{elytsyhpargoilbib\\",
+                "type": "cached",
+                "cache_name": "bst",
+            },
+        ]
+    )
 
     global _TEX_INPUT_GROUP_MAPPING, TEX_INPUT_FILE_REGEX
     _TEX_INPUT_GROUP_MAPPING = dict((i, v) for i, v in enumerate(_fillall_entries))
@@ -167,8 +164,14 @@ def plugin_loaded():
 
 
 # Get all file by types
-def get_file_list(root, types, filter_exts=[], base_path=None,
-                  output_directory=None, aux_directory=None):
+def get_file_list(
+    root,
+    types,
+    filter_exts=[],
+    base_path=None,
+    output_directory=None,
+    aux_directory=None,
+):
     if not base_path:
         base_path = os.path.dirname(root)
 
@@ -182,11 +185,7 @@ def get_file_list(root, types, filter_exts=[], base_path=None,
 
     def dir_match(d):
         _d = os.path.realpath(os.path.join(dir_name, d))
-        if (
-            _d in handled_directories or
-            _d == output_directory or
-            _d == aux_directory
-        ):
+        if _d in handled_directories or _d == output_directory or _d == aux_directory:
             return False
 
         return True
@@ -195,8 +194,8 @@ def get_file_list(root, types, filter_exts=[], base_path=None,
     handled_directories = set([])
     for dir_name, dirs, files in os.walk(base_path, followlinks=True):
         handled_directories.add(os.path.realpath(dir_name))
-        files = [f for f in files if f[0] != '.' and file_match(f)]
-        dirs[:] = [d for d in dirs if d[0] != '.' and dir_match(d)]
+        files = [f for f in files if f[0] != "." and file_match(f)]
+        dirs[:] = [d for d in dirs if d[0] != "." and dir_match(d)]
         for f in files:
             full_path = os.path.join(dir_name, f)
             # Exclude image file have the same name of root file,
@@ -207,11 +206,9 @@ def get_file_list(root, types, filter_exts=[], base_path=None,
 
             for ext in filter_exts:
                 if f.endswith(ext):
-                    f = f[:-len(ext)]
+                    f = f[: -len(ext)]
 
-            completions.append(
-                (base_path, os.path.relpath(dir_name, base_path), f)
-            )
+            completions.append((base_path, os.path.relpath(dir_name, base_path), f))
 
     return completions
 
@@ -221,8 +218,7 @@ def _get_dyn_entries():
     if dyn_entries:
         _filter_invalid_entries(dyn_entries)
         _update_input_entries(dyn_entries)
-        dyn_regex = re.compile("(?:{0})".format(
-            "|".join(entry["regex"] for entry in dyn_entries)))
+        dyn_regex = re.compile("(?:{0})".format("|".join(entry["regex"] for entry in dyn_entries)))
         return dyn_entries, dyn_regex
     else:
         return [], None
@@ -251,8 +247,7 @@ def parse_completions(view, line):
 
     try:
         # extract the first group and the prefix from the maching regex
-        group = next(i for i, v in enumerate(search.groups())
-                     if v is not None)
+        group = next(i for i, v in enumerate(search.groups()) if v is not None)
         entry = entries[group]
     except Exception as e:
         logger.error("Error occurred while extracting entry from matching group.\n%s", e)
@@ -273,8 +268,8 @@ def parse_completions(view, line):
             }
 
             # only set graphics_path if one exists
-            if graphics_path != '':
-                sub['graphics_path'] = graphics_path
+            if graphics_path != "":
+                sub["graphics_path"] = graphics_path
 
             if "post_regex" in entry:
                 m = re.search(entry["post_regex"], line[::-1])
@@ -291,13 +286,16 @@ def parse_completions(view, line):
             for base_path in folders:
                 output_directory = get_output_directory(view)
                 aux_directory = get_aux_directory(view)
-                completions.extend(get_file_list(
-                    root, entry["extensions"],
-                    entry.get("strip_extensions", []),
-                    base_path=base_path,
-                    output_directory=output_directory,
-                    aux_directory=aux_directory
-                ))
+                completions.extend(
+                    get_file_list(
+                        root,
+                        entry["extensions"],
+                        entry.get("strip_extensions", []),
+                        base_path=base_path,
+                        output_directory=output_directory,
+                        aux_directory=aux_directory,
+                    )
+                )
         else:
             # file is unsaved
             completions = []
@@ -309,8 +307,7 @@ def parse_completions(view, line):
         logger.error("Unknown entry type %s.", entry["type"])
 
     if "post_process" in entry:
-        fkt = globals().get(
-            "_post_process_{0}".format(entry["post_process"]), None)
+        fkt = globals().get("_post_process_{0}".format(entry["post_process"]), None)
         if fkt:
             completions = fkt(completions)
 
@@ -318,11 +315,9 @@ def parse_completions(view, line):
 
 
 def _get_cache():
-    cache_path = os.path.normpath(
-        os.path.join(sublime.cache_path(), "LaTeXTools"))
+    cache_path = os.path.normpath(os.path.join(sublime.cache_path(), "LaTeXTools"))
 
-    pkg_cache_file = os.path.normpath(
-        os.path.join(cache_path, 'pkg_cache.cache'))
+    pkg_cache_file = os.path.normpath(os.path.join(cache_path, "pkg_cache.cache"))
 
     cache = None
     if not os.path.exists(pkg_cache_file):
@@ -354,9 +349,7 @@ class InputFillAllHelper(FillAllHelper):
             return [
                 # Replace backslash with forward slash to fix Windows paths
                 # LaTeX does not support forward slashes in paths
-                os.path.normpath(
-                    os.path.join(relpath, filename)
-                ).replace('\\', '/')
+                os.path.normpath(os.path.join(relpath, filename)).replace("\\", "/")
                 for base_path, relpath, filename in completions
             ]
 
@@ -371,15 +364,16 @@ class InputFillAllHelper(FillAllHelper):
             formatted_completions = []
             normal_completions = []
             for base_path, relpath, filename in completions:
-                latex_formatted = os.path.normpath(os.path.join(
-                    relpath, filename)).replace('\\', '/')
+                latex_formatted = os.path.normpath(os.path.join(relpath, filename)).replace(
+                    "\\", "/"
+                )
 
-                formatted_completions.append([
-                    latex_formatted,
-                    os.path.normpath(os.path.join(
-                        base_path, relpath, filename)
-                    )
-                ])
+                formatted_completions.append(
+                    [
+                        latex_formatted,
+                        os.path.normpath(os.path.join(base_path, relpath, filename)),
+                    ]
+                )
 
                 normal_completions.append(latex_formatted)
 
@@ -390,9 +384,7 @@ class InputFillAllHelper(FillAllHelper):
             return True
 
         _, dyn_regex = _get_dyn_entries()
-        return bool(
-            dyn_regex and dyn_regex.match(line)
-        )
+        return bool(dyn_regex and dyn_regex.match(line))
 
     def is_enabled(self):
-        return get_setting('fill_auto_trigger', True)
+        return get_setting("fill_auto_trigger", True)

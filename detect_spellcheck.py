@@ -8,14 +8,16 @@ from .latextools_utils.tex_directives import parse_tex_directives
 
 try:  # check whether the dictionaries package is installed
     import Dictionaries
+
     _DICT_INSTALLED = True
 except Exception:
     _DICT_INSTALLED = False
 
 __all__ = [
     "LatextoolsAutoDetectSpellcheckListener",
-    "LatextoolsDetectSpellcheckCommand"
+    "LatextoolsDetectSpellcheckCommand",
 ]
+
 
 class DictMissing(Exception):
     pass
@@ -106,7 +108,7 @@ if _DICT_INSTALLED:
         "uk": "Ukrainian_uk_UA.dic",
         "uk-ua": "Ukrainian_uk_UA.dic",
         "vi": "Vietnamese_vi_VN.dic",
-        "vi-vn": "Vietnamese_vi_VN.dic"
+        "vi-vn": "Vietnamese_vi_VN.dic",
     }
 
     def get_dict_path(loc):
@@ -117,7 +119,9 @@ if _DICT_INSTALLED:
             raise DictMissing()
         dict_path = "Packages/Dictionaries/" + dict_name
         return dict_path
+
 else:
+
     def get_dict_path(loc):
         loc = normalize_locale(loc)
         if loc == "en-gb":
@@ -141,8 +145,7 @@ def _get_locale_from_tex_root(view):
 
 
 def update_dict_language(view, extract_from_root):
-    loc = (_get_locale(view) or
-           extract_from_root and _get_locale_from_tex_root(view))
+    loc = _get_locale(view) or extract_from_root and _get_locale_from_tex_root(view)
     if not loc:
         return  # no spellcheck directive found
 
@@ -169,6 +172,7 @@ class LatextoolsAutoDetectSpellcheckListener(sublime_plugin.EventListener):
         if not view.match_selector(0, "text.tex.latex"):
             return
         update_dict_language(view, True)
+
     on_load_async = on_load_event
 
 
@@ -178,4 +182,5 @@ class LatextoolsDetectSpellcheckCommand(sublime_plugin.WindowCommand):
         if view:
             update_dict_language(view)
 
-deprecate(globals(), 'LatexDetectSpellcheckCommand', LatextoolsDetectSpellcheckCommand)
+
+deprecate(globals(), "LatexDetectSpellcheckCommand", LatextoolsDetectSpellcheckCommand)

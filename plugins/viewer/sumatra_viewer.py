@@ -22,7 +22,7 @@ class SumatraViewer(BaseViewer):
         super(SumatraViewer, self).__init__(*args, **kwargs)
 
     def _find_sumatra_exe(self):
-        if hasattr(SumatraViewer, '_sumatra_exe'):
+        if hasattr(SumatraViewer, "_sumatra_exe"):
             return SumatraViewer._sumatra_exe
 
         # Sumatra's installer writes the location of the exe to the
@@ -31,10 +31,9 @@ class SumatraViewer(BaseViewer):
         try:
             with winreg.OpenKey(
                 winreg.HKEY_LOCAL_MACHINE,
-                'SOFTWARE\\Microsoft\\Windows\\CurrentVersion'
-                '\\App Paths\\SumatraPDF.exe'
+                "SOFTWARE\\Microsoft\\Windows\\CurrentVersion" "\\App Paths\\SumatraPDF.exe",
             ) as hndl:
-                SumatraViewer._sumatra_exe = winreg.QueryValue(hndl, '')
+                SumatraViewer._sumatra_exe = winreg.QueryValue(hndl, "")
                 return SumatraViewer._sumatra_exe
         except WindowsError:
             pass
@@ -42,12 +41,12 @@ class SumatraViewer(BaseViewer):
         paths = [
             os.path.expandvars("%PROGRAMFILES%\\SumatraPDF"),
             os.path.expandvars("%ProgramW6432%\\SumatraPDF"),
-            os.path.expandvars("%PROGRAMFILES(x86)%\\SumatraPDF")
+            os.path.expandvars("%PROGRAMFILES(x86)%\\SumatraPDF"),
         ]
 
         for path in paths:
             if os.path.exists(path):
-                exe = os.path.join(path, 'SumatraPDF.exe')
+                exe = os.path.join(path, "SumatraPDF.exe")
                 if os.path.exists(exe):
                     SumatraViewer._sumatra_exe = exe
                     return exe
@@ -57,10 +56,10 @@ class SumatraViewer(BaseViewer):
     def _run_with_sumatra_exe(self, commands):
         def _no_binary():
             message = (
-                'Could not find SumatraPDF.exe. '
+                "Could not find SumatraPDF.exe. "
                 'Please ensure the "sumatra" setting in your '
-                'LaTeXTools settings is set and points to the location '
-                'of Sumatra on your computer.'
+                "LaTeXTools settings is set and points to the location "
+                "of Sumatra on your computer."
             )
 
             def _error_msg():
@@ -75,25 +74,22 @@ class SumatraViewer(BaseViewer):
 
         # favour 'sumatra' setting under viewer_settings if
         # it exists, otherwise, use the platform setting
-        sumatra_binary = get_setting('viewer_settings', {}).\
-            get('sumatra', get_setting('windows', {}).
-                get('sumatra', 'SumatraPDF.exe')) or 'SumatraPDF.exe'
+        sumatra_binary = (
+            get_setting("viewer_settings", {}).get(
+                "sumatra", get_setting("windows", {}).get("sumatra", "SumatraPDF.exe")
+            )
+            or "SumatraPDF.exe"
+        )
 
         try:
-            external_command(
-                [sumatra_binary] + commands,
-                use_texpath=False, show_window=True
-            )
+            external_command([sumatra_binary] + commands, use_texpath=False, show_window=True)
         except Exception:
             exc_info = sys.exc_info()
 
             sumatra_exe = self._find_sumatra_exe()
             if sumatra_exe is not None and sumatra_exe != sumatra_binary:
                 try:
-                    external_command(
-                        [sumatra_exe] + commands,
-                        use_texpath=False, show_window=True
-                    )
+                    external_command([sumatra_exe] + commands, use_texpath=False, show_window=True)
                 except Exception:
                     traceback.print_exc()
                     _no_binary()
@@ -106,16 +102,12 @@ class SumatraViewer(BaseViewer):
     def forward_sync(self, pdf_file, tex_file, line, col, **kwargs):
         src_file = tex_file
 
-        self._run_with_sumatra_exe([
-            '-reuse-instance',
-            '-forward-search',
-            src_file,
-            str(line),
-            pdf_file
-        ])
+        self._run_with_sumatra_exe(
+            ["-reuse-instance", "-forward-search", src_file, str(line), pdf_file]
+        )
 
     def view_file(self, pdf_file, **kwargs):
-        self._run_with_sumatra_exe(['-reuse-instance', pdf_file])
+        self._run_with_sumatra_exe(["-reuse-instance", pdf_file])
 
     def supports_platform(self, platform):
-        return platform == 'windows'
+        return platform == "windows"

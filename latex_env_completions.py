@@ -12,21 +12,17 @@ class EnvFillAllHelper(FillAllHelper):
         if not is_cwl_available():
             return
 
-        completions = (
-            get_cwl_completions().get_completions(env=True) +
-            get_own_env_completion(view))
+        completions = get_cwl_completions().get_completions(env=True) + get_own_env_completion(view)
 
         if prefix:
             completions = [c for c in completions if c[1].startswith(prefix)]
 
-        show_entries = [c[0].split('\t') for c in completions]
+        show_entries = [c[0].split("\t") for c in completions]
         completions = [c[1] for c in completions]
         return show_entries, completions
 
     def matches_line(self, line):
-        return bool(
-            BEGIN_END_BEFORE_REGEX.match(line)
-        )
+        return bool(BEGIN_END_BEFORE_REGEX.match(line))
 
     def is_enabled(self):
-        return get_setting('env_auto_trigger', True)
+        return get_setting("env_auto_trigger", True)

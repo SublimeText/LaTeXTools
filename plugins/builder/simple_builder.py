@@ -24,7 +24,12 @@ class SimpleBuilder(PdfBuilder):
         # Print greeting
         self.display("\n\nSimpleBuilder: ")
 
-        pdflatex = ["pdflatex", "-interaction=nonstopmode", "-shell-escape", "-synctex=1"]
+        pdflatex = [
+            "pdflatex",
+            "-interaction=nonstopmode",
+            "-shell-escape",
+            "-synctex=1",
+        ]
         bibtex = ["bibtex"]
 
         # Regex to look for missing citations
@@ -37,13 +42,13 @@ class SimpleBuilder(PdfBuilder):
         # This is for debugging purposes
         def display_results(n):
             if self.display_log:
-                self.display("Command results, run %d:\n" % (n,) )
+                self.display("Command results, run %d:\n" % (n,))
                 self.display(self.out)
                 self.display("\n")
 
         run = 1
         brun = 0
-        yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run, ))
+        yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run,))
         display_results(run)
 
         # Check for citations
@@ -54,10 +59,10 @@ class SimpleBuilder(PdfBuilder):
             yield (bibtex + [self.base_name], "bibtex run %d; " % (brun,))
             display_results(1)
             run = run + 1
-            yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run, ))
+            yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run,))
             display_results(run)
             run = run + 1
-            yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run, ))
+            yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run,))
             display_results(run)
 
         # Apparently natbib needs separate processing
@@ -66,10 +71,10 @@ class SimpleBuilder(PdfBuilder):
             yield (bibtex + [self.base_name], "bibtex run %d; " % (brun,))
             display_results(2)
             run = run + 1
-            yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run, ))
+            yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run,))
             display_results(run)
             run = run + 1
-            yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run, ))
+            yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run,))
             display_results(run)
 
         # Check for changed labels
@@ -77,15 +82,7 @@ class SimpleBuilder(PdfBuilder):
         # we may save one pdflatex run
         if "Rerun to get cross-references right." in self.out:
             run = run + 1
-            yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run, ))
+            yield (pdflatex + [self.base_name], "pdflatex run %d; " % (run,))
             display_results(run)
 
         self.display("done.\n")
-
-
-
-
-
-
-
-

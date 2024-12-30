@@ -1,4 +1,4 @@
-'''
+"""
 This module implements the cite-completion behaviour, largely by relying on
 implementations registered with latextools_plugin and configured using the
 `bibliograph_plugins` configuration key.
@@ -14,7 +14,8 @@ At present, there is one supported method on custom plugins.
     entries that have no `journal` but use the `journaltitle` field. Plugins
     can override this behaviour, however, by explicitly setting a value for
     whatever key they like.
-'''
+"""
+
 import os
 import re
 import sublime
@@ -153,7 +154,9 @@ NEW_STYLE_CITE_REGEX = re.compile(
                 (?:>[^<]*<)?(?:(?:PN)?(?:raey|rohtua)|PN|A)?etic
                 (?:lluf|trohs)?(?:ksam)?)|
             (?:(?P<prefix10>[^{},]*)\{yrtnebib)
-        )\\""", re.X)
+        )\\""",
+    re.X,
+)
 
 
 def match(rex, str):
@@ -170,50 +173,39 @@ def match(rex, str):
 # the absolute filepaths of the bib files
 
 # known bibliography commands
-SINGLE_BIBCOMMANDS = set([
-    'addbibresource',
-    'addglobalbib',
-    'addsectionbib'
-])
+SINGLE_BIBCOMMANDS = set(["addbibresource", "addglobalbib", "addsectionbib"])
 
-MULTI_BIBCOMMANDS = set([
-    'bibliography',
-    'nobibliography'
-])
+MULTI_BIBCOMMANDS = set(["bibliography", "nobibliography"])
 
 
 # filter for find_bib_files
 def _bibfile_filter(c):
     return (
-        c.command in SINGLE_BIBCOMMANDS or
-        c.command in MULTI_BIBCOMMANDS or
-        c.command == 'newrefsection' or
-        (
-            c.command == 'begin' and
-            c.args == 'refsection'
-        )
+        c.command in SINGLE_BIBCOMMANDS
+        or c.command in MULTI_BIBCOMMANDS
+        or c.command == "newrefsection"
+        or (c.command == "begin" and c.args == "refsection")
     )
 
 
 def kpsewhich(filename, file_format=None):
-    command = ['kpsewhich']
+    command = ["kpsewhich"]
     if file_format is not None:
-        command.append('-format={0}'.format(file_format))
+        command.append("-format={0}".format(file_format))
     command.append(filename)
 
     try:
         return check_output(command)
     except CalledProcessError as e:
         logger.error(
-            'An error occurred while trying to run kpsewhich. '
-            'Files in your TEXINPUTS could not be accessed.'
+            "An error occurred while trying to run kpsewhich. "
+            "Files in your TEXINPUTS could not be accessed."
         )
         if e.output:
             logger.debug(e.output)
     except OSError as e:
         logger.error(
-            'Could not run kpsewhich. Please ensure that your texpath '
-            'setting is correct.'
+            "Could not run kpsewhich. Please ensure that your texpath " "setting is correct."
         )
         logger.debug(e)
 
@@ -232,34 +224,30 @@ def find_bib_files(root):
         # we use ALL_COMMANDS here as any flag will filter some command
         # we want to support
         flags = analysis.ALL_COMMANDS | analysis.ONLY_COMMANDS_WITH_ARGS
-        for c in doc.filter_commands(
-            _bibfile_filter, flags=flags
-        ):
+        for c in doc.filter_commands(_bibfile_filter, flags=flags):
             # process the matching commands
             # \begin{refsection} / \newrefsection
             # resource is specified as an optional argument argument
-            if (
-                c.command == 'begin' or c.command == 'newrefsection'
-            ):
+            if c.command == "begin" or c.command == "newrefsection":
                 # NB if the resource doesn't end with .bib, assume its a label
                 # for a bibliography defined elsewhere or a non-.bib file
                 # which we don't handle
-                resources.extend([
-                    s.strip() for s in (c.optargs or '').split(',')
-                    if s.endswith('.bib')])
+                resources.extend(
+                    [s.strip() for s in (c.optargs or "").split(",") if s.endswith(".bib")]
+                )
             # \bibliography / \nobibliography
             elif c.command in MULTI_BIBCOMMANDS:
-                for s in c.args.split(','):
+                for s in c.args.split(","):
                     s = s.strip()
                     if not s:
                         continue
-                    if not s.endswith('.bib'):
-                        s += '.bib'
+                    if not s.endswith(".bib"):
+                        s += ".bib"
                     resources.append(s)
             # standard biblatex commands
             else:
                 # bib file must be followed by .bib
-                if c.args.endswith('.bib'):
+                if c.args.endswith(".bib"):
                     resources.append(c.args)
 
         # extract absolute filepath for each bib file
@@ -269,7 +257,7 @@ def find_bib_files(root):
             candidate_file = os.path.normpath(os.path.join(rootdir, res))
             # if the file doesn't exist, search the default tex paths
             if not os.path.exists(candidate_file):
-                candidate_file = kpsewhich(res, 'mlbib')
+                candidate_file = kpsewhich(res, "mlbib")
 
             if candidate_file is not None and os.path.exists(candidate_file):
                 result.append(candidate_file)
@@ -278,17 +266,18 @@ def find_bib_files(root):
         return list(set(result))
 
     # since the processing can be a bit intensive, cache the results
-    result = cache.LocalCache(root).cache('bib_files', _find_bib_files)
+    result = cache.LocalCache(root).cache("bib_files", _find_bib_files)
     # TODO temporary workaround to ensure the result is a sequence
-    if not hasattr(type(result), '__iter__'):
+    if not hasattr(type(result), "__iter__"):
         result = _find_bib_files()
         try:
-            cache.LocalCache(root).set('bib_files', result)
+            cache.LocalCache(root).set("bib_files", result)
         except Exception:
             pass
     # if a an additional_file is set append it to the result
     additional_file = get_setting("additional_bibliography_file")
     if additional_file:
+
         def _make_abs_path(file_path):
             if not file_path.endswith(".bib"):
                 file_path += ".bib"
@@ -296,6 +285,7 @@ def find_bib_files(root):
                 root_folder, _ = os.path.split(root)
                 file_path = os.path.join(root_folder, file_path)
             return os.path.normpath(file_path)
+
         if isinstance(additional_file, str):
             additional_file = [additional_file]
         additional_file = map(_make_abs_path, additional_file)
@@ -310,16 +300,16 @@ def find_open_bib_files():
         return []
 
     result = set()
-    for v in window.views() :
+    for v in window.views():
         fname = v.file_name()
-        if fname and fname.endswith('.bib'):
+        if fname and fname.endswith(".bib"):
             result.add(fname)
 
     return list(result)
 
 
 def run_plugin_command(command, *args, **kwargs):
-    '''
+    """
     This function is intended to run a command against a user-configurable list
     of bibliography plugins set using the `bibliography` setting.
 
@@ -348,9 +338,9 @@ def run_plugin_command(command, *args, **kwargs):
     handle a request will either not implement the method or implement a
     version of the method which raises a NotImplementedError if that plugin
     should not handle the current situation.
-    '''
-    stop_on_first = kwargs.pop('stop_on_first', True)
-    expect_result = kwargs.pop('expect_result', True)
+    """
+    stop_on_first = kwargs.pop("stop_on_first", True)
+    expect_result = kwargs.pop("expect_result", True)
 
     def _run_command(plugin_name):
         plugin = None
@@ -361,9 +351,10 @@ def run_plugin_command(command, *args, **kwargs):
 
         if not plugin:
             error_message = (
-                'Could not find bibliography plugin named {0}. '
-                'Please ensure your LaTeXTools.sublime-settings is configured'
-                'correctly.'.format(plugin_name))
+                "Could not find bibliography plugin named {0}. "
+                "Please ensure your LaTeXTools.sublime-settings is configured"
+                "correctly.".format(plugin_name)
+            )
             logger.error(error_message)
             raise BibPluginError(error_message)
 
@@ -372,8 +363,11 @@ def run_plugin_command(command, *args, **kwargs):
             plugin = plugin()
         except Exception:
             error_message = (
-                'Could not instantiate {0}. {0} must have a no-args __init__ '
-                'method'.format(type(plugin).__name__,))
+                "Could not instantiate {0}. {0} must have a no-args __init__ "
+                "method".format(
+                    type(plugin).__name__,
+                )
+            )
             logger.error(error_message)
             raise BibPluginError(error_message)
 
@@ -381,18 +375,18 @@ def run_plugin_command(command, *args, **kwargs):
             result = getattr(plugin, command)(*args, **kwargs)
         except TypeError as e:
             if "'{0}()'".format(command) in str(e):
-                error_message = (
-                    '{1} is not properly implemented by {0}.'.format(
-                        type(plugin).__name__,
-                        command))
+                error_message = "{1} is not properly implemented by {0}.".format(
+                    type(plugin).__name__, command
+                )
                 logger.error(error_message)
                 raise BibPluginError(error_message)
             else:
                 raise e
         except AttributeError as e:
             if "'{0}'".format(command) in str(e):
-                error_message = '{0} does not implement `{1}`'.format(
-                    type(plugin).__name__, command)
+                error_message = "{0} does not implement `{1}`".format(
+                    type(plugin).__name__, command
+                )
                 logger.error(error_message)
                 raise BibPluginError(error_message)
             else:
@@ -402,20 +396,20 @@ def run_plugin_command(command, *args, **kwargs):
 
         return result
 
-    plugins = get_setting('bibliography', ['traditional'])
+    plugins = get_setting("bibliography", ["traditional"])
     if not plugins:
-        logger.warning('bibliography setting is blank. Loading traditional plugin.')
-        plugins = 'traditional'
+        logger.warning("bibliography setting is blank. Loading traditional plugin.")
+        plugins = "traditional"
 
     result = None
     if isinstance(plugins, str):
-        if not plugins.endswith('_bibliography'):
-            plugins = '{0}_bibliography'.format(plugins)
+        if not plugins.endswith("_bibliography"):
+            plugins = "{0}_bibliography".format(plugins)
         result = _run_command(plugins)
     else:
         for plugin_name in plugins:
-            if not plugin_name.endswith('_bibliography'):
-                plugin_name = '{0}_bibliography'.format(plugin_name)
+            if not plugin_name.endswith("_bibliography"):
+                plugin_name = "{0}_bibliography".format(plugin_name)
             try:
                 result = _run_command(plugin_name)
             except BibPluginError:
@@ -426,7 +420,8 @@ def run_plugin_command(command, *args, **kwargs):
     if expect_result and result is None:
         raise BibPluginError(
             "Could not find a plugin to handle '{0}'. "
-            "See the console for more details".format(command))
+            "See the console for more details".format(command)
+        )
 
     return result
 
@@ -439,7 +434,7 @@ def get_cite_completions(view):
         logger.debug("TEX root: %s", root)
         bib_files = find_bib_files(root)
         logger.debug("Bib files found:\n  %s", bib_files)
-    
+
     if not bib_files:
         # Check the open files, in case the current file is TEX root,
         # but doesn't reference anything
@@ -450,7 +445,7 @@ def get_cite_completions(view):
         # sublime.error_message("No bib files found!") # here we can!
         raise NoBibFilesError()
 
-    return run_plugin_command('get_entries', *bib_files)
+    return run_plugin_command("get_entries", *bib_files)
 
 
 # called by LatextoolsFillAllCommand; provides citations for cite commands
@@ -476,8 +471,7 @@ class CiteFillAllHelper(FillAllHelper):
             sublime.status_message("No bib files found!")
             return []
         except BibParsingError as e:
-            message = "Error occurred parsing {0}. {1}.".format(
-                e.filename, e.message)
+            message = "Error occurred parsing {0}. {1}.".format(e.filename, e.message)
             logger.error(message)
             traceback.print_exc()
 
@@ -486,33 +480,23 @@ class CiteFillAllHelper(FillAllHelper):
 
         if prefix:
             lower_prefix = prefix.lower()
-            completions = [
-                c for c in completions
-                if _is_prefix(lower_prefix, c)
-            ]
+            completions = [c for c in completions if _is_prefix(lower_prefix, c)]
 
         if len(completions) == 0:
             return []
 
-        cite_autocomplete_format = get_setting(
-            'cite_autocomplete_format', '{keyword}: {title}'
-        )
+        cite_autocomplete_format = get_setting("cite_autocomplete_format", "{keyword}: {title}")
 
         def formatted_entry(entry):
             try:
-                return entry['<autocomplete_formatted>']
+                return entry["<autocomplete_formatted>"]
             except Exception:
                 return bibformat.format_entry(cite_autocomplete_format, entry)
 
-        completions = [
-            (
-                formatted_entry(c),
-                c['keyword']
-            ) for c in completions
-        ]
+        completions = [(formatted_entry(c), c["keyword"]) for c in completions]
 
         if old_style:
-            return completions, '{'
+            return completions, "{"
         else:
             return completions
 
@@ -524,30 +508,20 @@ class CiteFillAllHelper(FillAllHelper):
             return
         except BibParsingError as e:
             traceback.print_exc()
-            sublime.status_message(
-                "Error occurred parsing {0}. {1}.".format(
-                    e.filename, e.message
-                )
-            )
+            sublime.status_message("Error occurred parsing {0}. {1}.".format(e.filename, e.message))
             return
 
         if prefix:
             lower_prefix = prefix.lower()
-            completions = [
-                c for c in completions
-                if _is_prefix(lower_prefix, c)
-            ]
+            completions = [c for c in completions if _is_prefix(lower_prefix, c)]
 
         completions_length = len(completions)
         if completions_length == 0:
             return
         elif completions_length == 1:
-            return [completions[0]['keyword']]
+            return [completions[0]["keyword"]]
 
-        cite_panel_format = get_setting(
-            'cite_panel_format',
-            ["{title} ({keyword})", "{author}"]
-        )
+        cite_panel_format = get_setting("cite_panel_format", ["{title} ({keyword})", "{author}"])
 
         def formatted_entry(entry):
             try:
@@ -556,30 +530,24 @@ class CiteFillAllHelper(FillAllHelper):
                     result = list(result)
                 return result
             except Exception:
-                return [
-                    bibformat.format_entry(s, entry)
-                    for s in cite_panel_format
-                ]
+                return [bibformat.format_entry(s, entry) for s in cite_panel_format]
 
         formatted_completions = []
         result_completions = []
         for completion in completions:
             formatted_completions.append(formatted_entry(completion))
-            result_completions.append(completion['keyword'])
+            result_completions.append(completion["keyword"])
 
         return formatted_completions, result_completions
 
     def matches_line(self, line):
-        return bool(
-            OLD_STYLE_CITE_REGEX.match(line) or
-            NEW_STYLE_CITE_REGEX.match(line)
-        )
+        return bool(OLD_STYLE_CITE_REGEX.match(line) or NEW_STYLE_CITE_REGEX.match(line))
 
     def matches_fancy_prefix(self, line):
         return bool(OLD_STYLE_CITE_REGEX.match(line))
 
     def is_enabled(self):
-        return get_setting('cite_auto_trigger', True)
+        return get_setting("cite_auto_trigger", True)
 
 
 def _is_prefix(lower_prefix, entry):
@@ -594,5 +562,5 @@ def plugin_loaded():
     # this allows us to have pre-packaged plugins that won't require any user
     # setup
     latextools_plugin.add_plugin_path(
-        os.path.join(sublime.packages_path(), 'LaTeXTools', 'plugins', 'bibliography')
+        os.path.join(sublime.packages_path(), "LaTeXTools", "plugins", "bibliography")
     )

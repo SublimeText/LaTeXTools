@@ -20,9 +20,9 @@ class TeXSyntaxListener(sublime_plugin.EventListener):
         if view.match_selector(0, "text.tex"):
             return
 
-        if not get_setting('latextools_set_syntax', True):
+        if not get_setting("latextools_set_syntax", True):
             return
 
         file_name = view.file_name()
         if is_tex_file(file_name):
-            view.set_syntax_file('Packages/LaTeX/LaTeX.sublime-syntax')
+            view.set_syntax_file("Packages/LaTeX/LaTeX.sublime-syntax")

@@ -10,6 +10,7 @@ __all__ = [
     "LatextoolsAutoInserLabelListener",
 ]
 
+
 def _RE_FIND_SECTION(command_mapping):
     return re.compile(
         r"\\(?P<command>" + "|".join(command_mapping.keys()) + r"|caption)"
@@ -72,7 +73,7 @@ def _find_label_content(view, pos, find_region):
     else:
         label_content = "label"
     # change the label if we are inside a equation and it is not set already
-    if (label_type == "???" and view.match_selector(pos, "meta.environment.math")):
+    if label_type == "???" and view.match_selector(pos, "meta.environment.math"):
         env_mapping = get_setting("auto_label_env_mapping", {})
         label_type = env_mapping.get("<math>", "eq")
     elif label_type == "???":
@@ -101,8 +102,7 @@ class LatextoolsAutoInsertLabelCommand(sublime_plugin.TextCommand):
             line_above = view.line(view.line(pos).a - 1)
             find_region = sublime.Region(line_above.a, pos)
 
-            label_type, label_content = _find_label_content(
-                view, pos, find_region)
+            label_type, label_content = _find_label_content(view, pos, find_region)
 
             before_text, after_text = _create_surrounding_text(view, pos)
 
@@ -113,16 +113,14 @@ class LatextoolsAutoInsertLabelCommand(sublime_plugin.TextCommand):
                     "{before_text}"  # leading \label{
                     "${{1:{label_type}}}:${{2:{label_content}}}"
                     "{after_text}"  # trailing }
-                    "$0"
-                    .format(**locals())
+                    "$0".format(**locals())
                 )
                 view.run_command("insert_snippet", {"contents": snippet})
             else:
                 content = (
                     "{before_text}"  # leading \label{
                     "{label_type}:{label_content}"
-                    "{after_text}"  # trailing }
-                    .format(**locals())
+                    "{after_text}".format(**locals())  # trailing }
                 )
                 view.insert(edit, pos, content)
 
@@ -139,5 +137,6 @@ class LatextoolsAutoInserLabelListener(sublime_plugin.EventListener):
         else:
             raise Exception(
                 "latextools.setting.auto_label_auto_trigger; "
-                "Invalid operator must be EQUAL or NOT_EQUAL.")
+                "Invalid operator must be EQUAL or NOT_EQUAL."
+            )
         return result

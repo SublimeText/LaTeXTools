@@ -39,8 +39,7 @@ _name = "preview_image"
 
 
 def _on_setting_change():
-    max_threads = get_setting(
-        "preview_max_convert_threads", default=None, view={})
+    max_threads = get_setting("preview_max_convert_threads", default=None, view={})
     if max_threads is not None:
         pv_threading.set_max_threads(max_threads)
 
@@ -70,7 +69,7 @@ def plugin_unloaded():
     _lt_settings.clear_on_change("lt_preview_image_main")
 
 
-_GS_EXTS = set(['ps', 'eps', 'pdf'])
+_GS_EXTS = set(["ps", "eps", "pdf"])
 
 
 def _uses_gs(file):
@@ -94,16 +93,23 @@ def create_thumbnail(image_path, thumbnail_path, width, height):
         return
 
     if _uses_gs(image_path):
-        run_ghostscript_command([
-            '-sDEVICE=pngalpha', '-dLastPage=1',
-            '-sOutputFile={thumbnail_path}'.format(**locals()),
-            '-g{width}x{height}'.format(**locals())
-        ])
+        run_ghostscript_command(
+            [
+                "-sDEVICE=pngalpha",
+                "-dLastPage=1",
+                "-sOutputFile={thumbnail_path}".format(**locals()),
+                "-g{width}x{height}".format(**locals()),
+            ]
+        )
     else:
-        run_convert_command([
-            '-thumbnail', '{width}x{height}'.format(**locals()),
-            image_path, thumbnail_path
-        ])
+        run_convert_command(
+            [
+                "-thumbnail",
+                "{width}x{height}".format(**locals()),
+                image_path,
+                thumbnail_path,
+            ]
+        )
 
     if not os.path.exists(thumbnail_path):
         with open(thumbnail_path + _ERROR_EXTENSION, "w") as f:
@@ -137,42 +143,42 @@ def _run_image_jobs():
 # see https://bugs.python.org/issue16512#msg198034
 # not added to imghdr.tests because of potential issues with reloads
 def _is_jpg(h):
-    return h.startswith(b'\xff\xd8')
+    return h.startswith(b"\xff\xd8")
 
 
 # from https://stackoverflow.com/a/20380514/5963435
 # somewhat enhanced from https://stackoverflow.com/a/39778771
 def get_image_size(image_path):
-    '''Determine the image type of image_path and return its size.
-    from draco'''
-    with open(image_path, 'rb') as fhandle:
+    """Determine the image type of image_path and return its size.
+    from draco"""
+    with open(image_path, "rb") as fhandle:
         # read 32 as we pass this to imghdr
         head = fhandle.read(32)
         if len(head) != 32:
             return
         what = imghdr.what(image_path, head)
-        if what == 'png':
-            check = struct.unpack('>i', head[4:8])[0]
-            if check != 0x0d0a1a0a:
+        if what == "png":
+            check = struct.unpack(">i", head[4:8])[0]
+            if check != 0x0D0A1A0A:
                 return
-            width, height = struct.unpack('>ii', head[16:24])
-        elif what == 'gif':
-            width, height = struct.unpack('<HH', head[6:10])
-        elif what == 'jpeg' or _is_jpg(head):
+            width, height = struct.unpack(">ii", head[16:24])
+        elif what == "gif":
+            width, height = struct.unpack("<HH", head[6:10])
+        elif what == "jpeg" or _is_jpg(head):
             try:
                 fhandle.seek(0)  # Read 0xff next
                 size = 2
                 ftype = 0
-                while not 0xc0 <= ftype <= 0xcf or ftype in (0xc4, 0xc8, 0xcc):
+                while not 0xC0 <= ftype <= 0xCF or ftype in (0xC4, 0xC8, 0xCC):
                     fhandle.seek(size, 1)
                     byte = fhandle.read(1)
-                    while ord(byte) == 0xff:
+                    while ord(byte) == 0xFF:
                         byte = fhandle.read(1)
                     ftype = ord(byte)
-                    size = struct.unpack('>H', fhandle.read(2))[0] - 2
+                    size = struct.unpack(">H", fhandle.read(2))[0] - 2
                 # We are at a SOFn block
                 fhandle.seek(1, 1)  # Skip `precision' byte.
-                height, width = struct.unpack('>HH', fhandle.read(4))
+                height, width = struct.unpack(">HH", fhandle.read(4))
             except Exception:  # IGNORE:W0703
                 return
         else:
@@ -196,8 +202,7 @@ def _adapt_image_size(thumbnail_path, width, height):
 
 def open_image_folder(image_path):
     folder_path, image_name = os.path.split(image_path)
-    sublime.active_window().run_command(
-        "open_dir", {"dir": folder_path, "file": image_name})
+    sublime.active_window().run_command("open_dir", {"dir": folder_path, "file": image_name})
 
 
 def _validate_thumbnail_currentness(image_path, thumbnail_path):
@@ -220,11 +225,9 @@ def _get_thumbnail_path(image_path, width, height):
         thumbnail_path = image_path
     else:
         fingerprint = cache.hash_digest(
-            "{width}x{height}\n{image_path}"
-            .format(**locals()),
+            "{width}x{height}\n{image_path}".format(**locals()),
         )
-        thumbnail_path = os.path.join(
-            temp_path, fingerprint + _IMAGE_EXTENSION)
+        thumbnail_path = os.path.join(temp_path, fingerprint + _IMAGE_EXTENSION)
 
         # remove the thumbnail if it is outdated
         _validate_thumbnail_currentness(image_path, thumbnail_path)
@@ -239,8 +242,7 @@ def _get_popup_html(image_path, thumbnail_path, width, height):
         img_tag = (
             '<img src="file://{thumbnail_path}"'
             ' width="{width}" '
-            'height="{height}">'
-            .format(**locals())
+            'height="{height}">'.format(**locals())
         )
     elif _uses_gs(image_path) and not ghostscript_installed():
         img_tag = "Install Ghostscript to enable preview."
@@ -258,7 +260,9 @@ def _get_popup_html(image_path, thumbnail_path, width, height):
         <a href="open_folder">(Open folder)</a>
     </div>
     </body>
-    """.format(**locals())
+    """.format(
+        **locals()
+    )
     return html_content
 
 
@@ -274,19 +278,17 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
         mode = get_setting("preview_image_mode", view=view)
         if mode != "hover":
             return
-        containing_scopes = view.find_by_selector(
-            "meta.function.includegraphics.latex")
+        containing_scopes = view.find_by_selector("meta.function.includegraphics.latex")
         try:
-            containing_scope = next(
-                c for c in containing_scopes if c.contains(point))
+            containing_scope = next(c for c in containing_scopes if c.contains(point))
         except StopIteration:
             logger.error("Not inside an image scope.")
             return
         image_scopes = view.find_by_selector(
-            "meta.function.includegraphics.latex meta.group.brace.latex")
+            "meta.function.includegraphics.latex meta.group.brace.latex"
+        )
         try:
-            image_scope = next(
-                i for i in image_scopes if containing_scope.contains(i))
+            image_scope = next(i for i in image_scopes if containing_scope.contains(i))
         except StopIteration:
             logger.error("No file name scope found.")
             return
@@ -298,15 +300,18 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
         if not tex_root:
             view.show_popup(
                 "Save your file to show an image preview.",
-                location=location, flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY)
+                location=location,
+                flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY,
+            )
             return
-        image_path = find_image(
-            tex_root, file_name, tex_file_name=view.file_name())
+        image_path = find_image(tex_root, file_name, tex_file_name=view.file_name())
         if not image_path:
             # image does not exists
             view.show_popup(
-                "Image not found.", location=location,
-                flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY)
+                "Image not found.",
+                location=location,
+                flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY,
+            )
             return
 
         size = get_setting("preview_popup_image_size", view=view)
@@ -318,11 +323,9 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
         scale = get_setting("preview_image_scale_quotient", view=view)
 
         tn_width, tn_height = scale * width, scale * height
-        thumbnail_path = _get_thumbnail_path(
-            image_path, tn_width, tn_height)
+        thumbnail_path = _get_thumbnail_path(image_path, tn_width, tn_height)
 
-        html_content = _get_popup_html(
-            image_path, thumbnail_path, width, height)
+        html_content = _get_popup_html(image_path, thumbnail_path, width, height)
 
         def on_navigate(href):
             if href == "open_image":
@@ -332,34 +335,42 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
 
         def on_hide():
             on_hide.hidden = True
+
         on_hide.hidden = False
 
         view.show_popup(
-            html_content, location=location,
-            flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY, on_navigate=on_navigate,
-            on_hide=on_hide)
+            html_content,
+            location=location,
+            flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY,
+            on_navigate=on_navigate,
+            on_hide=on_hide,
+        )
 
         # if the thumbnail does not exists, create it and update the popup
-        if (_can_create_preview(image_path) and
-                not os.path.exists(thumbnail_path)):
+        if _can_create_preview(image_path) and not os.path.exists(thumbnail_path):
+
             def update_popup():
-                html_content = _get_popup_html(
-                    image_path, thumbnail_path, width, height)
+                html_content = _get_popup_html(image_path, thumbnail_path, width, height)
                 if on_hide.hidden:
                     return
                 view.show_popup(
-                    html_content, location=location,
+                    html_content,
+                    location=location,
                     flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY,
-                    on_navigate=on_navigate)
+                    on_navigate=on_navigate,
+                )
 
             _append_image_job(
-                image_path, thumbnail_path, width=tn_width, height=tn_height,
-                cont=update_popup)
+                image_path,
+                thumbnail_path,
+                width=tn_width,
+                height=tn_height,
+                cont=update_popup,
+            )
             _run_image_jobs()
 
 
-class PreviewImagePhantomListener(sublime_plugin.ViewEventListener,
-                                  PreviewSettingsListener):
+class PreviewImagePhantomListener(sublime_plugin.ViewEventListener, PreviewSettingsListener):
     key = "preview_image"
 
     def __init__(self, view):
@@ -388,15 +399,15 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener,
         view_attr = {
             "visible_mode": {
                 "setting": "preview_image_mode",
-                "call_after": self.update_phantoms
+                "call_after": self.update_phantoms,
             },
             "image_size": {
                 "setting": "preview_phantom_image_size",
-                "call_after": update_image_size
+                "call_after": update_image_size,
             },
             "image_scale": {
                 "setting": "preview_image_scale_quotient",
-                "call_after": self.reset_phantoms
+                "call_after": self.reset_phantoms,
             },
         }
 
@@ -409,11 +420,11 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener,
     @classmethod
     def is_applicable(cls, settings):
         try:
-            view = inspect.currentframe().f_back.f_locals['view']
-            return view and view.match_selector(0, 'text.tex.latex')
+            view = inspect.currentframe().f_back.f_locals["view"]
+            return view and view.match_selector(0, "text.tex.latex")
         except KeyError:
-            syntax = settings.get('syntax')
-            return syntax == 'Packages/LaTeX/LaTeX.sublime-syntax'
+            syntax = settings.get("syntax")
+            return syntax == "Packages/LaTeX/LaTeX.sublime-syntax"
 
     @classmethod
     def applies_to_primary_view_only(cls):
@@ -453,7 +464,9 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener,
             <div>
                 <a href="show {p.index}">(Show)</a>
             </div>
-            """.format(**locals())
+            """.format(
+                **locals()
+            )
         else:
             html_content = """
             <div>
@@ -462,31 +475,35 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener,
                 <a href="open_image {p.index}">(Open image)</a>
                 <a href="open_folder {p.index}">(Open folder)</a>
             </div>
-            """.format(**locals())
+            """.format(
+                **locals()
+            )
             if os.path.exists(p.thumbnail_path):
                 width, height = _adapt_image_size(
-                    p.thumbnail_path, self.image_width, self.image_height)
+                    p.thumbnail_path, self.image_width, self.image_height
+                )
                 html_content += """
                 <div>
                 <img src="file://{p.thumbnail_path}"
                  width="{width}"
                  height="{height}">
                 </div>
-                """.format(**locals())
+                """.format(
+                    **locals()
+                )
             elif convert_installed():
                 html_content += """Preparing image for preview..."""
             elif os.path.exists(p.thumbnail_path + _ERROR_EXTENSION):
                 img_tag = "ERROR: Failed to create preview thumbnail."
             else:
-                html_content += (
-                    "Install ImageMagick to enable a preview for "
-                    "this image type."
-                )
+                html_content += "Install ImageMagick to enable a preview for " "this image type."
         html_content = """
         <body id="latextools-preview-image-phantom">
             {html_content}
         </body>
-        """.format(html_content=html_content)
+        """.format(
+            html_content=html_content
+        )
         return html_content
 
     def on_navigate(self, href):
@@ -531,8 +548,8 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener,
         html_content = self._create_html_content(p)
         layout = sublime.LAYOUT_BLOCK
         p.id = view.add_phantom(
-            self.key, p.region, html_content, layout,
-            on_navigate=self.on_navigate)
+            self.key, p.region, html_content, layout, on_navigate=self.on_navigate
+        )
 
     def update_phantoms(self):
         with self._phantom_lock:
@@ -546,21 +563,19 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener,
 
         if self.visible_mode == "all":
             scopes = view.find_by_selector(
-                "meta.function.includegraphics.latex meta.group.brace.latex")
+                "meta.function.includegraphics.latex meta.group.brace.latex"
+            )
         elif self.visible_mode == "selected":
-            graphic_scopes = view.find_by_selector(
-                "meta.function.includegraphics.latex")
+            graphic_scopes = view.find_by_selector("meta.function.includegraphics.latex")
             selected_scopes = [
-                scope for scope in graphic_scopes
-                if any(scope.contains(sel) for sel in view.sel())
+                scope for scope in graphic_scopes if any(scope.contains(sel) for sel in view.sel())
             ]
             if selected_scopes:
                 content_scopes = view.find_by_selector(
-                    "meta.function.includegraphics.latex "
-                    "meta.group.brace.latex")
+                    "meta.function.includegraphics.latex " "meta.group.brace.latex"
+                )
                 scopes = [
-                    s for s in content_scopes
-                    if any(scope.contains(s) for scope in selected_scopes)
+                    s for s in content_scopes if any(scope.contains(s) for scope in selected_scopes)
                 ]
             else:
                 scopes = []
@@ -578,18 +593,16 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener,
         tn_height = self.image_scale * self.image_height
         for scope in scopes:
             file_name = view.substr(scope)[1:-1]
-            image_path = find_image(
-                tex_root, file_name, tex_file_name=view.file_name())
+            image_path = find_image(tex_root, file_name, tex_file_name=view.file_name())
 
-            thumbnail_path = _get_thumbnail_path(
-                image_path, tn_width, tn_height)
+            thumbnail_path = _get_thumbnail_path(image_path, tn_width, tn_height)
 
             region = sublime.Region(scope.end())
 
             try:
                 p = next(
-                    x for x in self.phantoms
-                    if x.region == region and x.file_name == file_name)
+                    x for x in self.phantoms if x.region == region and x.file_name == file_name
+                )
                 new_phantoms.append(p)
                 # self._update_phantom(p)
                 continue
@@ -602,7 +615,7 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener,
                 file_name=file_name,
                 hidden=False,
                 image_path=image_path,
-                thumbnail_path=thumbnail_path
+                thumbnail_path=thumbnail_path,
             )
 
             self._update_phantom(p)
@@ -612,8 +625,7 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener,
 
             new_phantoms.append(p)
 
-        delete_phantoms = [x for x in self.phantoms
-                           if x not in new_phantoms]
+        delete_phantoms = [x for x in self.phantoms if x not in new_phantoms]
         for p in delete_phantoms:
             if p.region != sublime.Region(-1):
                 view.erase_phantom_by_id(p.id)
@@ -623,8 +635,11 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener,
         if _can_create_preview():
             for p in need_thumbnails:
                 _append_image_job(
-                    p.image_path, p.thumbnail_path,
-                    width=tn_width, height=tn_height,
-                    cont=lambda: self.update_phantom(p))
+                    p.image_path,
+                    p.thumbnail_path,
+                    width=tn_width,
+                    height=tn_height,
+                    cont=lambda: self.update_phantom(p),
+                )
             if need_thumbnails:
                 _run_image_jobs()
