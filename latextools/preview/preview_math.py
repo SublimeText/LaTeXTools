@@ -93,9 +93,6 @@ def _on_setting_change():
     _hires = _lt_settings.get("preview_math_hires", _hires)
     _max_bitmap = _lt_settings.get("preview_math_max_bitmap", _max_bitmap)
     _bufferspace = _lt_settings.get("preview_math_bufferspace", _bufferspace)
-    max_threads = get_setting("preview_max_convert_threads", default=None, view={})
-    if max_threads is not None:
-        pv_threading.set_max_threads(max_threads)
 
 
 def latextools_plugin_loaded():

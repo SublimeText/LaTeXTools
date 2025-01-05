@@ -2,9 +2,9 @@ import threading
 import traceback
 
 from ..utils.logging import logger
+from ..utils.settings import get_setting
 from .preview_utils import try_delete_temp_files
 
-_max_threads = 2
 _thread_num_lock = threading.Lock()
 _thread_num = 0
 _jobs_lock = threading.Lock()
@@ -18,10 +18,11 @@ _temp_folder_paths = {}
 _thread_functions = {}
 
 
-def set_max_threads(max_threads):
-    global _max_threads
-    if max_threads > 0 and max_threads != _max_threads:
-        _max_threads = max_threads
+def get_max_threads():
+    try:
+        return max(1, int(get_setting("preview_max_convert_threads", 2, {})))
+    except ValueError:
+        return 2
 
 
 def has_function(_name):
@@ -97,6 +98,8 @@ def _start_threads(name, thread_id):
             _working_sets[name] = set()
         working_set = _working_sets[name]
 
+    max_threads = get_max_threads()
+
     while True:
         try:
             with lock:
@@ -124,7 +127,7 @@ def _start_threads(name, thread_id):
         except Exception:
             traceback.print_exc()
             break
-        if thread_id >= _max_threads:
+        if thread_id >= max_threads:
             break
 
 
@@ -165,8 +168,10 @@ def start_threads(name, thread_id):
 
 
 def run_jobs(name):
-    global _thread_num, _max_threads
+    global _thread_num
     thread_id = -1
+
+    max_threads = get_max_threads()
 
     with _jobs_lock:
         try:
@@ -178,7 +183,7 @@ def run_jobs(name):
             rem_len = len(job_list)
         with _thread_num_lock:
             before_num = _thread_num
-            after_num = min(_max_threads, rem_len)
+            after_num = min(max_threads, rem_len)
             start_threads_count = after_num - before_num
             if start_threads_count > 0:
                 _thread_num += start_threads_count

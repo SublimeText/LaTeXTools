@@ -32,28 +32,14 @@ _IMAGE_EXTENSION = ".png"
 # we add this extension to log error information
 _ERROR_EXTENSION = ".err"
 
-_lt_settings = {}
-
 # the name is used as identifier and to extract folder and file names
 _name = "preview_image"
 
 
-def _on_setting_change():
-    max_threads = get_setting("preview_max_convert_threads", default=None, view={})
-    if max_threads is not None:
-        pv_threading.set_max_threads(max_threads)
-
-
 def latextools_plugin_loaded():
-    global _lt_settings, temp_path
-    _lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
+    global temp_path
 
     temp_path = os.path.join(cache._global_cache_path(), _name)
-
-    # init all variables
-    _on_setting_change()
-    # add a callback to setting changes
-    _lt_settings.add_on_change("lt_preview_image_main", _on_setting_change)
 
     # register the temp folder for auto deletion
     pv_threading.register_temp_folder(_name, temp_path)
@@ -65,17 +51,13 @@ def latextools_plugin_unloaded():
             v.erase_phantoms(_name)
             v.settings().clear_on_change(_name)
 
-    _lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
-    _lt_settings.clear_on_change(_name)
-    _lt_settings.clear_on_change("lt_preview_image_main")
-
-
-_GS_EXTS = set(["ps", "eps", "pdf"])
+    lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
+    lt_settings.clear_on_change(_name)
 
 
 def _uses_gs(file):
-    file, ext = os.path.splitext(file)
-    return ext.lower() in _GS_EXTS
+    _, ext = os.path.splitext(file)
+    return ext.lower() in ("ps", "eps", "pdf")
 
 
 def _can_create_preview(file=None):
