@@ -435,12 +435,11 @@ class SystemCheckThread(threading.Thread):
             else:
                 location = which(program, path=texpath)
 
-            # convert.exe on Windows can refer to %sysroot%\convert.exe,
+            # convert.exe on Windows can refer to %systemroot%\convert.exe,
             # which should not be used; in that case, simple report magick.exe
             # as not existing
             if program == "convert" and sublime.platform() == "windows":
-                system_root = get_system_root().lower()
-                if location.lower().startswith(system_root):
+                if os.path.samefile(location, os.path.join(get_system_root(), "convert.exe")):
                     program = "magick"
                     location = None
 

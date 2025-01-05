@@ -36,15 +36,15 @@ def _get_convert_command():
         return _get_convert_command.result
 
     texpath = get_texpath() or os.environ["PATH"]
-    _get_convert_command.result = which("magick", path=texpath) or which("convert", path=texpath)
+    convert_cmd = which("magick", path=texpath) or which("convert", path=texpath) or ""
 
     # DO NOT RUN THE CONVERT COMMAND IN THE SYSTEM ROOT ON WINDOWS
-    if sublime.platform() == "windows" and _get_convert_command.result.lower().endswith(
-        "convert.exe"
-    ):
-        system_root = get_system_root().lower()
-        if _get_convert_command.result.lower().startswith(system_root):
-            _get_convert_command.result = None
+    if sublime.platform() == "windows":
+        sys_convert = os.path.join(get_system_root(), "convert.exe")
+        if os.path.samefile(convert_cmd, sys_convert):
+            return None
+
+    _get_convert_command.result = convert_cmd
     return _get_convert_command.result
 
 
