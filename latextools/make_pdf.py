@@ -684,8 +684,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         except Exception:
             logger.error("Cannot compile file regex.")
             return
-        lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
-        level_name = lt_settings.get("show_error_phantoms")
+        level_name = get_setting("show_error_phantoms", "warnings", {})
         level = {"none": 0, "errors": 1, "warnings": 2, "badboxes": 3}.get(level_name, 2)
 
         if level >= 1:
