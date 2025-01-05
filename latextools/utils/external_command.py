@@ -37,13 +37,6 @@ import os
 import re
 import sys
 
-try:
-    # python 3.8+
-    from importlib import reload
-except ImportError:
-    # python 3.3
-    from imp import reload
-
 from shlex import split, quote
 from shutil import which
 
@@ -55,23 +48,6 @@ import sublime
 from .logging import logger
 from .settings import get_setting
 
-def expand_vars(texpath):
-    return os.path.expandvars(texpath)
-
-
-def update_env(old_env, new_env):
-    old_env.update(new_env)
-
-
-# reraise implementation from 6
-def reraise(tp, value, tb=None):
-    if value is None:
-        value = tp()
-    if value.__traceback__ is not tb:
-        raise value.with_traceback(tb)
-    raise value
-
-
 __all__ = [
     "external_command",
     "execute_command",
@@ -81,30 +57,21 @@ __all__ = [
     "update_env",
 ]
 
+__sentinel__ = object()
+
+
+def update_env(old_env, new_env):
+    old_env.update(new_env)
+
 
 def get_texpath():
     """
     Returns the texpath setting with any environment variables expanded
     """
-    try:
-        texpath = get_setting(sublime.platform(), {}).get("texpath")
-    except AttributeError:
-        # hack to reload this module in case the calling module was
-        # reloaded
-        exc_info = sys.exc_info
-        try:
-            reload(sys.modules[get_texpath.__module__])
-            texpath = get_setting(sublime.platform(), {}).get("texpath")
-        except Exception:
-            reraise(*exc_info)
-
-    return expand_vars(texpath) if texpath is not None else None
-
-
-# marker object used to indicate default behaviour
-# (avoid overwrite while module reloads)
-if "__sentinel__" not in globals():
-    __sentinel__ = object()
+    texpath = get_setting(sublime.platform(), {}).get("texpath")
+    if texpath is not None:
+        return os.path.expandvars(texpath)
+    return None
 
 
 # wrapper to handle common logic for executing subprocesses
