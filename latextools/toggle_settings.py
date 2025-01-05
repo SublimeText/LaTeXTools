@@ -68,15 +68,16 @@ class LatextoolsToggleKeysCommand(sublime_plugin.WindowCommand):
             return
 
         setting_keys = get_setting("toggle_setting_keys", [], view={})
-        toggle_keys = {k: v for v, k, *_ in setting_keys}
-        if prefix:
-            keys = {k[len(prefix) :]: v for k, v in toggle_keys.items() if k.startswith(prefix)}
-        else:
-            keys = toggle_keys
-        if character in keys:
-            # change the settings value
-            setting_name = keys[character]
-            _toggle_setting(setting_name, view)
-        else:
-            # show the overlay with all settings
-            _show_toggle_overlay(self.window, view, prefix, setting_keys)
+        for v, k, *_ in setting_keys:
+            if prefix:
+                if not k.startswith(prefix):
+                    continue
+                k = k[len(prefix) :]
+
+            if character and k == character:
+                # change the settings value
+                _toggle_setting(v, view)
+                return
+
+        # show the overlay with all settings
+        _show_toggle_overlay(self.window, view, prefix, setting_keys)
