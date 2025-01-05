@@ -485,7 +485,7 @@ class CiteFillAllHelper(FillAllHelper):
         if len(completions) == 0:
             return []
 
-        cite_autocomplete_format = get_setting("cite_autocomplete_format", "{keyword}: {title}")
+        cite_autocomplete_format = get_setting("cite_autocomplete_format", "{keyword}: {title}", view)
 
         def formatted_entry(entry):
             try:
@@ -521,7 +521,7 @@ class CiteFillAllHelper(FillAllHelper):
         elif completions_length == 1:
             return [completions[0]["keyword"]]
 
-        cite_panel_format = get_setting("cite_panel_format", ["{title} ({keyword})", "{author}"])
+        cite_panel_format = get_setting("cite_panel_format", ["{title} ({keyword})", "{author}"], view)
 
         def formatted_entry(entry):
             try:

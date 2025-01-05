@@ -25,7 +25,9 @@ class LatextoolsRevealAuxDirectoryCommand(sublime_plugin.WindowCommand):
     def is_visible(self, *args):
         view = self.window.active_view()
         return (
-            view and view.match_selector(0, "text.tex.latex") and bool(get_setting("aux_directory"))
+            view
+            and view.match_selector(0, "text.tex.latex")
+            and bool(get_setting("aux_directory", False, view))
         )
 
     def run(self):
@@ -57,7 +59,7 @@ class LatextoolsRevealOutputDirectoryCommand(sublime_plugin.WindowCommand):
         return (
             view
             and view.match_selector(0, "text.tex.latex")
-            and bool(get_setting("output_directory"))
+            and bool(get_setting("output_directory", False, view))
         )
 
     def run(self):

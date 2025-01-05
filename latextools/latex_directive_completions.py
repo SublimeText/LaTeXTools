@@ -79,7 +79,7 @@ def _directive_root_completions(view, value, ac=True):
 
 
 def _directive_spellcheck_completions(view, value, ac=True):
-    user_sc = get_setting("tex_spellcheck_paths", view=view, default={})
+    user_sc = get_setting("tex_spellcheck_paths", {}, view)
     locales = sorted(user_sc.keys())
 
     locales.extend(installed_locales)

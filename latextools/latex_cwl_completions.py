@@ -252,7 +252,7 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
         is_env = bool(BEGIN_END_BEFORE_REGEX.match(line))
 
         # default completion level is "prefixed"
-        completion_level = get_setting("command_completion", "prefixed")
+        completion_level = get_setting("command_completion", "prefixed", view)
 
         do_complete = {
             "never": False,
@@ -347,7 +347,7 @@ def _check_if_cwl_enabled(view=None):
     if view is None or not view.match_selector(0, "text.tex.latex"):
         return
 
-    if get_setting("command_completion", "prefixed", view=view) == "never":
+    if get_setting("command_completion", "prefixed", view) == "never":
         return
 
     # Checking whether LaTeX-cwl is installed

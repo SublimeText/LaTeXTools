@@ -67,7 +67,6 @@ def latextools_plugin_loaded():
 
 
 class LatextoolsClearCacheCommand(sublime_plugin.WindowCommand):
-
     def run(self):
         try:
             shutil.rmtree(cache._global_cache_path())
@@ -83,7 +82,6 @@ class LatextoolsClearCacheCommand(sublime_plugin.WindowCommand):
 
 
 class LatextoolsClearLocalCacheCommand(sublime_plugin.WindowCommand):
-
     def is_visible(self, *args):
         view = self.window.active_view()
         return view and view.match_selector(0, "text.tex.latex")
@@ -101,7 +99,6 @@ class LatextoolsClearLocalCacheCommand(sublime_plugin.WindowCommand):
 
 
 class LatextoolsClearBibliographyCacheCommand(sublime_plugin.WindowCommand):
-
     def is_visible(self, *args):
         view = self.window.active_view()
         return view and view.match_selector(0, "text.tex.latex, text.bibtex, text.biblatex")
@@ -149,7 +146,6 @@ class LatextoolsClearBibliographyCacheCommand(sublime_plugin.WindowCommand):
 
 
 class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
-
     def is_visible(self, *args):
         view = self.window.active_view()
         return view and view.match_selector(0, "text.tex.latex")
@@ -215,6 +211,7 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
             sublime.status_message("Deleted temp files")
 
     def delete_temp_files(self, path):
+        view = self.window.active_view()
         # Load the files to delete from the settings
         temp_files_exts = get_setting(
             "temp_files_exts",
@@ -238,11 +235,12 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
                 ".ilg",
                 ".idx",
             ],
+            view,
         )
 
-        ignored_folders = get_setting("temp_files_ignored_folders", [".git", ".svn", ".hg"])
-
-        ignored_folders = set(ignored_folders)
+        ignored_folders = set(
+            get_setting("temp_files_ignored_folders", [".git", ".svn", ".hg"], view)
+        )
 
         files = []
         for dir_path, dir_names, file_names in os.walk(path):
@@ -255,7 +253,7 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
         if not files:
             return False
 
-        if get_setting("temp_files_prompt_on_delete", False):
+        if get_setting("temp_files_prompt_on_delete", False, view):
             msg = "Are you sure you want to delete the following files?\n"
             msg = "{0}\n{1}".format(msg, "".join(["\n{0}".format(f) for f in files]))
             if not sublime.ok_cancel_dialog(msg):

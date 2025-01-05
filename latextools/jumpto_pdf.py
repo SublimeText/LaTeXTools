@@ -88,8 +88,8 @@ class LatextoolsJumptoPdfCommand(sublime_plugin.WindowCommand):
             return
 
         # Check prefs for PDF focus and sync
-        keep_focus = args.get("keep_focus", get_setting("keep_focus", True))
-        forward_sync = args.get("forward_sync", get_setting("forward_sync", True))
+        keep_focus = args.get("keep_focus", get_setting("keep_focus", True, view))
+        forward_sync = args.get("forward_sync", get_setting("forward_sync", True, view))
 
         # If invoked from keybinding, we sync
         # Rationale: if the user invokes the jump command, s/he wants to see

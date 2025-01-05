@@ -84,7 +84,7 @@ class LatexFillHelper(object):
 
                     self.update_selections(view, new_regions)
                     return
-            elif get_setting("smart_bracket_auto_trigger", True):
+            elif get_setting("smart_bracket_auto_trigger", True, view):
                 # more complex: if we do not have an insert_char, try to close
                 # the nearest bracket that occurs before each selection
                 new_regions = []
@@ -159,7 +159,7 @@ class LatexFillHelper(object):
 
         if not hasattr(self, "last_view") or self.last_view != view.id():
             self.last_view = view.id()
-            self.use_full_scan = get_setting("smart_bracket_scan_full_document", False)
+            self.use_full_scan = get_setting("smart_bracket_scan_full_document", False, view)
             candidates = self.candidates = {}
 
         if not self.use_full_scan:
@@ -168,7 +168,7 @@ class LatexFillHelper(object):
             # when not using a full scan, get the number of lines to
             # look-behind
             try:
-                look_around = int(get_setting("smart_bracket_look_around", 5))
+                look_around = int(get_setting("smart_bracket_look_around", 5, view))
             except ValueError:
                 look_around = 5
 

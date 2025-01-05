@@ -25,7 +25,7 @@ class BibLaTeXSyntaxListener(sublime_plugin.EventListener):
         if current_syntax == BIBLATEX_SYNTAX:
             return
 
-        if not get_setting("use_biblatex", False):
+        if not get_setting("use_biblatex", False, view):
             return
 
         file_name = view.file_name()

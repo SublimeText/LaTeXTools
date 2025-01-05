@@ -129,7 +129,7 @@ class LatextoolsAutoInserLabelListener(sublime_plugin.EventListener):
     def on_query_context(self, view, key, operator, operand, match_all):
         if key != "latextools.setting.auto_label_auto_trigger":
             return
-        result = get_setting("auto_label_auto_trigger", False)
+        result = get_setting("auto_label_auto_trigger", False, view)
         if operator == sublime.OP_EQUAL:
             result = result == operand
         elif operator == sublime.OP_NOT_EQUAL:

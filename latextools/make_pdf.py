@@ -453,7 +453,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         output_view_settings.set("gutter", False)
         output_view_settings.set("scroll_past_end", False)
 
-        if get_setting("highlight_build_panel", True, view=view):
+        if get_setting("highlight_build_panel", True, view):
             output_view_settings.set(
                 "syntax", "Packages/LaTeXTools/LaTeXTools Console.sublime-syntax"
             )
@@ -464,7 +464,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         # up as the result buffer
         self.window.get_output_panel("latextools")
 
-        self.hide_panel_level = get_setting("hide_build_panel", "no_warnings", view=view)
+        self.hide_panel_level = get_setting("hide_build_panel", "no_warnings", view)
         if self.hide_panel_level == "never":
             self.show_output_panel(force=True)
 
@@ -480,13 +480,13 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             return
 
         # Get platform settings, builder, and builder settings
-        platform_settings = get_setting(self.plat, {}, view=view)
-        self.display_bad_boxes = get_setting("display_bad_boxes", False, view=view)
+        platform_settings = get_setting(self.plat, {}, view)
+        self.display_bad_boxes = get_setting("display_bad_boxes", False, view)
 
         if builder is not None:
             builder_name = builder
         else:
-            builder_name = get_setting("builder", "traditional", view=view)
+            builder_name = get_setting("builder", "traditional", view)
 
         # Default to 'traditional' builder
         if builder_name in ["", "default"]:
@@ -496,7 +496,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         # to new style plugin names (a_really_long_name)
         builder_name = _classname_to_internal_name(builder_name)
 
-        builder_settings = get_setting("builder_settings", {}, view=view)
+        builder_settings = get_setting("builder_settings", {}, view)
 
         # override the command
         if command is not None:
@@ -564,7 +564,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             builder_path = None
         else:
             # relative to ST packages dir!
-            builder_path = get_setting("builder_path", "", view=view)
+            builder_path = get_setting("builder_path", "", view)
 
         if builder_path:
             bld_path = os.path.join(sublime.packages_path(), builder_path)
@@ -641,7 +641,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             # if using output_directory, follow the copy_output_on_build setting
             # files are copied to the same directory as the main tex file
             if self.output_directory is not None:
-                copy_on_build = get_setting("copy_output_on_build", True, view=self.view)
+                copy_on_build = get_setting("copy_output_on_build", True, self.view)
                 if copy_on_build is None or copy_on_build is True:
                     shutil.copy2(
                         os.path.join(self.output_directory, self.tex_base + ".pdf"),
@@ -653,7 +653,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
                         if os.path.isfile(copy_file):
                             shutil.copy2(copy_file, os.path.dirname(self.file_name))
 
-            if get_setting("open_pdf_on_build", True, view=self.view):
+            if get_setting("open_pdf_on_build", True, self.view):
                 self.window.run_command("latextools_jumpto_pdf", {"from_keybinding": False})
 
     def _find_errors(self, errors, error_class):

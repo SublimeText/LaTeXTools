@@ -80,7 +80,7 @@ def _post_process_path_only(completions):
 
 def latextools_plugin_loaded():
     # get additional entries from the settings
-    _setting_entries = get_setting("fillall_helper_entries", [])
+    _setting_entries = get_setting("fillall_helper_entries", [], {})
     _filter_invalid_entries(_setting_entries)
     _fillall_entries.extend(_setting_entries)
 
@@ -95,7 +95,7 @@ def latextools_plugin_loaded():
             # includegraphics
             {
                 "regex": r"(?:\][^{}\[\]]*\[)?scihpargedulcni\\",
-                "extensions": get_setting("image_types", ["pdf", "png", "jpeg", "jpg", "eps"]),
+                "extensions": get_setting("image_types", ["pdf", "png", "jpeg", "jpg", "eps"], {}),
                 "folder": "${graphics_path:$base}",
             },
             # import/subimport
