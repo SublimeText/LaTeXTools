@@ -23,7 +23,7 @@ __all__ = [
 ]
 
 
-def plugin_loaded():
+def latextools_plugin_loaded():
     """
     unfortunately, there is no reliable way to do clean-up on exit in ST
     see https://github.com/SublimeTextIssues/Core/issues/10

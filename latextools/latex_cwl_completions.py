@@ -71,7 +71,9 @@ def get_cwl_file_name(package):
 
 # returns the cwl completions instances
 def get_cwl_completions():
-    plugin_loaded()
+    global CWL_COMPLETIONS
+    if CWL_COMPLETIONS is None:
+        CWL_COMPLETIONS = CwlCompletions()
     return CWL_COMPLETIONS
 
 
@@ -502,7 +504,7 @@ def parse_cwl_file(cwl, s):
 
 # ensure that CWL_COMPLETIONS has a value
 # its better to do it here because its more stable across reloads
-def plugin_loaded():
+def latextools_plugin_loaded():
     global CWL_COMPLETIONS
     _create_cwl_packages_paths()
     if CWL_COMPLETIONS is None:

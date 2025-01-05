@@ -78,7 +78,7 @@ def _post_process_path_only(completions):
     return result
 
 
-def plugin_loaded():
+def latextools_plugin_loaded():
     # get additional entries from the settings
     _setting_entries = get_setting("fillall_helper_entries", [])
     _filter_invalid_entries(_setting_entries)

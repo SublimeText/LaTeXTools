@@ -829,7 +829,7 @@ class LatextoolsExecEventListener(sublime_plugin.EventListener):
         )
 
 
-def plugin_loaded():
+def latextools_plugin_loaded():
     # load the plugins from the builders dir
     ltt_path = os.path.join(sublime.packages_path(), "LaTeXTools", "plugins", "builder")
     # ensure that pdfBuilder is loaded first as otherwise, the other builders

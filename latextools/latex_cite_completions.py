@@ -557,7 +557,7 @@ def _is_prefix(lower_prefix, entry):
         return lower_prefix in bibformat.create_prefix_match_str(entry)
 
 
-def plugin_loaded():
+def latextools_plugin_loaded():
     # load plugins from the plugins/bibliography dir of LaTeXTools if it exists
     # this allows us to have pre-packaged plugins that won't require any user
     # setup

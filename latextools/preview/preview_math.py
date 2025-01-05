@@ -98,7 +98,7 @@ def _on_setting_change():
         pv_threading.set_max_threads(max_threads)
 
 
-def plugin_loaded():
+def latextools_plugin_loaded():
     global _lt_settings, temp_path
     _lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
 
@@ -113,7 +113,7 @@ def plugin_loaded():
     pv_threading.register_temp_folder(_name, temp_path)
 
 
-def plugin_unloaded():
+def latextools_plugin_unloaded():
     global _IS_ENABLED
     _IS_ENABLED = False
 

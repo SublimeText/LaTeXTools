@@ -428,7 +428,7 @@ def _load_plugins():
 
 
 # load plugins when the Sublime API is available, just in case...
-def plugin_loaded():
+def latextools_plugin_loaded():
     global _REGISTRY
     _REGISTRY = LaTeXToolsPluginRegistry()
 
