@@ -14,7 +14,7 @@ __all__ = ["BiblatexCrossrefCompletions"]
 # constructing them here
 #
 # VALUE_REGEX is a common suffix to hand the `= {<value>,<value>}` part
-VALUE_REGEX = r"(?!.*\})\s*(?P<ENTRIES>(?:,[^,]*)+\b)?\s*(?P<OPEN>\{)?" r"(?P<EQUALS>\s*=\s*)?"
+VALUE_REGEX = r"(?!.*\})\s*(?P<ENTRIES>(?:,[^,]*)+\b)?\s*(?P<OPEN>\{)?(?P<EQUALS>\s*=\s*)?"
 
 CROSSREF_REGEX = re.compile(VALUE_REGEX + r"crossref"[::-1] + r"\b", re.IGNORECASE)
 

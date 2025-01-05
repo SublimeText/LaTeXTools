@@ -17,7 +17,7 @@ NAME_FIELDS = Name.NAME_FIELDS
 # constructing them here
 #
 # VALUE_REGEX is a common suffix to handle the `= {<value> and <value>}` part
-VALUE_REGEX = r"[\s~]*(?P<ENTRIES>(?:dna[\s~]+.+)+)?[\s~]*" r"(?P<OPEN>\{)?(?P<EQUALS>\s*=\s*)?"
+VALUE_REGEX = r"[\s~]*(?P<ENTRIES>(?:dna[\s~]+.+)+)?[\s~]*(?P<OPEN>\{)?(?P<EQUALS>\s*=\s*)?"
 
 ON_NAME_FIELD_REGEX = re.compile(
     VALUE_REGEX + r"(?:" + r"|".join((s[::-1] for s in NAME_FIELDS)) + r")\b",

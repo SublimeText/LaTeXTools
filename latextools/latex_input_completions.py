@@ -110,7 +110,7 @@ def latextools_plugin_loaded():
                 "extensions": [e[1:] for e in get_tex_extensions()],
                 "strip_extensions": [".tex"],
                 "post_regex": (
-                    r"\\sub(?:import|includefrom|inputfrom)\*?" r"\{([^{}\[\]]*)\}\{[^\}]*?$"
+                    r"\\sub(?:import|includefrom|inputfrom)\*?\{([^{}\[\]]*)\}\{[^\}]*?$"
                 ),
                 "folder": "$base/$_1",
             },
@@ -119,7 +119,7 @@ def latextools_plugin_loaded():
                 "extensions": [e[1:] for e in get_tex_extensions()],
                 "strip_extensions": [".tex"],
                 "post_regex": (
-                    r"\\(?:import|includefrom|inputfrom)\*?" r"\{([^{}\[\]]*)\}\{[^\}]*?$"
+                    r"\\(?:import|includefrom|inputfrom)\*?\{([^{}\[\]]*)\}\{[^\}]*?$"
                 ),
                 "folder": "$_1",
             },
