@@ -211,8 +211,9 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
             return False
 
         if get_setting("temp_files_prompt_on_delete", False, view):
-            msg = "Are you sure you want to delete the following files?\n"
-            msg = "{0}\n{1}".format(msg, "".join(["\n{0}".format(f) for f in files]))
+            msg = "Are you sure you want to delete the following files?\n\n" + "\n".join(files[:20])
+            if len(files) > 20:
+                msg += "\n..."
             if not sublime.ok_cancel_dialog(msg):
                 return False
 
