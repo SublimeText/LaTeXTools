@@ -40,20 +40,21 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
 
     def on_query_context(self, view, key, operator, operand, match_all):
         if not key.startswith("latextools."):
-            return
+            return False
+
         if not view.match_selector(0, "text.tex.latex"):
-            return
+            return False
 
         key_array = key.split(".")
 
         try:
-            method_name = "_ctx_{}".format(key_array[1])
+            method_name = "_ctx_" + key_array[1]
             context_method = getattr(self, method_name)
         except IndexError:
-            return
+            return False
         except AttributeError:
             logger.error("Unsupported LaTeXTools context: %s", key)
-            return
+            return False
 
         try:
             foreach = context_method.foreach
@@ -67,13 +68,12 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
             except AttributeError:
                 pass
 
-        keys = key_array[2:]
         op = operator_map[operator]
         kwargs = {
             "view": view,
             "operator": operator,
             "operand": operand,
-            "keys": keys,
+            "keys": key_array[2:],
             "consume_operand": consume_operand,
             "state": {},
         }
