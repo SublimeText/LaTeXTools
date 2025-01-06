@@ -45,7 +45,6 @@ else:
     from .latextools.delete_temp_files import (
         LatextoolsClearCacheCommand,
         LatextoolsClearLocalCacheCommand,
-        LatextoolsClearBibliographyCacheCommand,
         LatextoolsDeleteTempFilesCommand,
     )
     from .latextools.deprecated_command import (

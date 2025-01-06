@@ -18,7 +18,6 @@ from .utils.tex_directives import get_tex_root
 __all__ = [
     "LatextoolsClearCacheCommand",
     "LatextoolsClearLocalCacheCommand",
-    "LatextoolsClearBibliographyCacheCommand",
     "LatextoolsDeleteTempFilesCommand",
 ]
 
@@ -75,10 +74,15 @@ class LatextoolsClearCacheCommand(sublime_plugin.WindowCommand):
         except OSError as e:
             logger.error("Can't delete global cache: %s", e)
 
-        view = self.window.active_view()
-        if view and view.match_selector(0, "text.tex.latex"):
-            self.window.run_command("latextools_clear_local_cache")
-            self.window.run_command("latextools_clear_bibliography_cache")
+        tex_root = get_tex_root(self.window.active_view())
+        if not tex_root:
+            return
+
+        try:
+            cache.LocalCache(tex_root).invalidate()
+        except Exception:
+            logger.error("Error while trying to delete local cache")
+            traceback.print_exc()
 
 
 class LatextoolsClearLocalCacheCommand(sublime_plugin.WindowCommand):
@@ -96,53 +100,6 @@ class LatextoolsClearLocalCacheCommand(sublime_plugin.WindowCommand):
         except Exception:
             logger.error("Error while trying to delete local cache")
             traceback.print_exc()
-
-
-class LatextoolsClearBibliographyCacheCommand(sublime_plugin.WindowCommand):
-    def is_visible(self, *args):
-        view = self.window.active_view()
-        return view and view.match_selector(0, "text.tex.latex, text.bibtex, text.biblatex")
-
-    def run(self):
-        view = self.window.active_view()
-        if view is None:
-            return
-
-        if not view.match_selector(0, "text.tex.latex, text.bibtex, text.biblatex"):
-            return
-
-        # find the instance of LatextoolsCacheUpdateListener, if any
-        cache_listener = None
-        for callback in sublime_plugin.all_callbacks["on_close"]:
-            try:
-                instance = callback.__self__
-            except Exception:
-                continue
-
-            if instance.__class__.__name__ == "LatextoolsCacheUpdateListener":
-                cache_listener = instance
-                break
-
-        if cache_listener is None:
-            return
-
-        # if run from a TeX file, clear all bib caches associated with this
-        # document
-        if view.match_selector(0, "text.tex.latex"):
-            tex_root = get_tex_root(view)
-            for bib_cache in cache_listener._BIB_CACHES.get(tex_root, []):
-                bib_cache.invalidate()
-        # if run from a bib file, clear all bib caches that reflect this
-        # document
-        else:
-            file_name = view.file_name()
-            if not file_name:
-                return
-
-            for bib_caches in cache_listener._BIB_CACHES.values():
-                for bib_cache in bib_caches:
-                    if bib_cache.bib_file == file_name:
-                        bib_cache.invalidate()
 
 
 class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
@@ -294,5 +251,4 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
 
 
 deprecate(globals(), "ClearLocalLatexCacheCommand", LatextoolsClearLocalCacheCommand)
-deprecate(globals(), "ClearBibliographyCacheCommand", LatextoolsClearBibliographyCacheCommand)
 deprecate(globals(), "DeleteTempFilesCommand", LatextoolsDeleteTempFilesCommand)

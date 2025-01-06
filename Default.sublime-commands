@@ -16,10 +16,6 @@
 		"command": "latextools_clear_local_cache"
 	},
 	{
-		"caption": "LaTeXTools: Clear current bibliography cache",
-		"command": "latextools_clear_bibliography_cache"
-	},
-	{
 		"caption": "LaTeXTools: Fill All Helper",
 		"command": "latextools_fill_all"
 	},
