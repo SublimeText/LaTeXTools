@@ -108,8 +108,8 @@ else:
         LatextoolsMigrateCommand
     )
     from .latextools.preview.preview_image import (
-        PreviewImageHoverListener,
-        PreviewImagePhantomListener
+        ImagePreviewHoverListener,
+        ImagePreviewPhantomListener
     )
     from .latextools.preview.preview_math import (
         MathPreviewPhantomListener

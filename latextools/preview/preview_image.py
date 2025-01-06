@@ -23,7 +23,7 @@ from .preview_utils import run_ghostscript_command
 from . import preview_threading as pv_threading
 
 # export the listeners
-__all__ = ["PreviewImageHoverListener", "PreviewImagePhantomListener"]
+__all__ = ["ImagePreviewHoverListener", "ImagePreviewPhantomListener"]
 
 # the path to the temp files (set on loading)
 temp_path = None
@@ -250,7 +250,7 @@ def _get_popup_html(image_path, thumbnail_path, width, height):
     return html_content
 
 
-class PreviewImageHoverListener(sublime_plugin.EventListener):
+class ImagePreviewHoverListener(sublime_plugin.EventListener):
     def on_hover(self, view, point, hover_zone):
         if hover_zone != sublime.HOVER_TEXT:
             return
@@ -354,7 +354,7 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
             _run_image_jobs()
 
 
-class PreviewImagePhantomListener(sublime_plugin.ViewEventListener, PreviewSettingsListener):
+class ImagePreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSettingsListener):
     key = "preview_image"
 
     def __init__(self, view):
