@@ -11,6 +11,7 @@ import sublime_plugin
 from ..jumpto_tex_file import find_image
 from ..jumpto_tex_file import open_image
 from ..utils import cache
+from ..utils.debounce import debounce
 from ..utils.logging import logger
 from ..utils.settings import get_setting
 from ..utils.tex_directives import get_tex_root
@@ -359,7 +360,6 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener, PreviewSetti
     def __init__(self, view):
         self.view = view
         self.phantoms = []
-        self._selection_modifications = 0
 
         self._phantom_lock = threading.Lock()
 
@@ -417,17 +417,9 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener, PreviewSetti
     # MODIFICATION LISTENER
     #######################
 
-    def on_after_selection_modified_async(self):
-        self.update_phantoms()
-
-    def _validate_after_selection_modified(self):
-        self._selection_modifications -= 1
-        if self._selection_modifications == 0:
-            sublime.set_timeout_async(self.on_after_selection_modified_async)
-
+    @debounce(600)
     def on_selection_modified(self):
-        self._selection_modifications += 1
-        sublime.set_timeout(self._validate_after_selection_modified, 600)
+        self.update_phantoms()
 
     #########
     # METHODS

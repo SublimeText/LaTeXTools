@@ -13,6 +13,7 @@ import sublime
 import sublime_plugin
 
 from ..utils import cache
+from ..utils.debounce import debounce
 from ..utils.external_command import execute_command
 from ..utils.logging import logger
 from ..utils.settings import get_setting
@@ -444,9 +445,6 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSettin
 
         self._phantom_lock = threading.Lock()
 
-        self._modifications = 0
-        self._selection_modifications = 0
-
         self._init_watch_settings()
 
         if self.latex_template_file:
@@ -597,32 +595,10 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSettin
     # MODIFICATION LISTENER
     #######################
 
-    def on_after_modified_async(self):
-        self.update_phantoms()
-
-    def _validate_after_modified(self):
-        self._modifications -= 1
-        if self._modifications == 0:
-            sublime.set_timeout_async(self.on_after_modified_async)
-
-    def on_modified(self):
-        self._modifications += 1
-        sublime.set_timeout(self._validate_after_modified, 600)
-
-    def on_after_selection_modified_async(self):
+    @debounce(600)
+    def on_selection_modified(self):
         if self.visible_mode == "selected" or not self.phantoms:
             self.update_phantoms()
-
-    def _validate_after_selection_modified(self):
-        self._selection_modifications -= 1
-        if self._selection_modifications == 0:
-            sublime.set_timeout_async(self.on_after_selection_modified_async)
-
-    def on_selection_modified(self):
-        if self._modifications:
-            return
-        self._selection_modifications += 1
-        sublime.set_timeout(self._validate_after_selection_modified, 600)
 
     #########
     # METHODS
