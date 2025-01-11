@@ -8,6 +8,8 @@ import types
 import sublime
 import sublime_plugin
 
+from textwrap import dedent
+
 from ..jumpto_tex_file import find_image
 from ..jumpto_tex_file import open_image
 from ..jumpto_tex_file import open_image_folder
@@ -221,8 +223,8 @@ def _get_popup_html(image_path, thumbnail_path, width, height):
         width, height = _adapt_image_size(thumbnail_path, width, height)
         img_tag = (
             '<img src="file://{thumbnail_path}"'
-            ' width="{width}" '
-            'height="{height}">'.format(**locals())
+            ' width="{width}"'
+            ' height="{height}">'.format(**locals())
         )
     elif _uses_gs(image_path) and not ghostscript_installed():
         img_tag = "Install Ghostscript to enable preview."
@@ -232,18 +234,37 @@ def _get_popup_html(image_path, thumbnail_path, width, height):
         img_tag = "ERROR: Failed to create preview thumbnail."
     else:
         img_tag = "Preparing image for preview..."
-    html_content = """
-    <body id="latextools-preview-image-popup">
-    <div>{img_tag}</div>
-    <div>
-        <a href="open_image">(Open image)</a>
-        <a href="open_folder">(Open folder)</a>
-    </div>
-    </body>
-    """.format(
-        **locals()
+
+    return dedent(
+        """
+        <style>
+            html {{
+                margin: 0;
+                padding: 0;
+            }}
+            body {{
+                margin: 0;
+                padding: 6pt;
+            }}
+            a {{
+                text-decoration: none;
+            }}
+            div {{
+                margin: 1rem 0 0 0;
+                padding: 0;
+            }}
+        </style>
+        <body id="latextools-preview-image-popup">
+        {img_tag}
+        <div>
+            <a href="open_image">(Open image)</a>
+            <a href="open_folder">(Open folder)</a>
+        </div>
+        </body>
+        """.format(
+            **locals()
+        )
     )
-    return html_content
 
 
 class ImagePreviewHoverListener(sublime_plugin.EventListener):
@@ -430,53 +451,68 @@ class ImagePreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSetti
     def _create_html_content(self, p):
         iden = str(p.id)
         if p.thumbnail_path is None:
-            html_content = """Image not found!"""
+            nav_tag = ""
+            img_tag = """Image not found!"""
+
         elif p.hidden:
-            html_content = """
-            <div>
+            nav_tag = """<div>
                 <a href="show {p.index}">(Show)</a>
-            </div>
-            """.format(
-                **locals()
+            </div>""".format(
+                p=p
             )
+            img_tag = ""
+
         else:
-            html_content = """
-            <div>
-                <a href="show {p.index}">(Show)</a>
+            nav_tag = """<div>
                 <a href="hide {p.index}">(Hide)</a>
                 <a href="open_image {p.index}">(Open image)</a>
                 <a href="open_folder {p.index}">(Open folder)</a>
-            </div>
-            """.format(
-                **locals()
+            </div>""".format(
+                p=p
             )
+
             if os.path.exists(p.thumbnail_path):
                 width, height = _adapt_image_size(
                     p.thumbnail_path, self.image_width, self.image_height
                 )
-                html_content += """
-                <div>
-                <img src="file://{p.thumbnail_path}"
-                 width="{width}"
-                 height="{height}">
-                </div>
-                """.format(
-                    **locals()
+                img_tag = (
+                    '<img src="file://{p.thumbnail_path}"'
+                    ' width="{width}"'
+                    ' height="{height}">'.format(**locals())
                 )
             elif convert_installed():
-                html_content += """Preparing image for preview..."""
+                img_tag = "Preparing image for preview..."
             elif os.path.exists(p.thumbnail_path + _ERROR_EXTENSION):
                 img_tag = "ERROR: Failed to create preview thumbnail."
             else:
-                html_content += "Install ImageMagick to enable a preview for " "this image type."
-        html_content = """
-        <body id="latextools-preview-image-phantom">
-            {html_content}
-        </body>
-        """.format(
-            html_content=html_content
+                img_tag = "Install ImageMagick to enable a preview for this image type."
+
+        return dedent(
+            """
+            <style>
+                html, body {{
+                    margin: 0;
+                    padding: 0;
+                }}
+                body {{
+                    padding: 0 0 6pt 10pt;
+                }}
+                a {{
+                    text-decoration: none;
+                }}
+                div {{
+                    padding: 0 0 6pt 0;
+                }}
+            </style>
+            <body id="latextools-preview-image-phantom">
+            {nav_tag}
+            {img_tag}
+            </body>
+            """.format(
+                nav_tag=nav_tag,
+                img_tag=img_tag,
+            )
         )
-        return html_content
 
     def on_navigate(self, href):
         command, index = href.split(" ")
