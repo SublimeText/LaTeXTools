@@ -258,23 +258,24 @@ class ImagePreviewHoverListener(sublime_plugin.EventListener):
         mode = get_setting("preview_image_mode", view=view)
         if mode != "hover":
             return
-        containing_scopes = view.find_by_selector("meta.function.includegraphics.latex")
+        cmd_regions = view.find_by_selector("meta.function.includegraphics.latex")
         try:
-            containing_scope = next(c for c in containing_scopes if c.contains(point))
+            cmd_region = next(c for c in cmd_regions if c.contains(point))
         except StopIteration:
             logger.error("Not inside an image scope.")
             return
-        image_scopes = view.find_by_selector(
-            "meta.function.includegraphics.latex meta.group.brace.latex"
+        args_regions = view.find_by_selector(
+            "meta.function.includegraphics.latex meta.group.brace"
+            " - punctuation.definition.group - punctuation.section.group"
         )
         try:
-            image_scope = next(i for i in image_scopes if containing_scope.contains(i))
+            arg_region = next(a for a in args_regions if cmd_region.contains(a))
         except StopIteration:
             logger.error("No file name scope found.")
             return
 
-        file_name = view.substr(image_scope)[1:-1].strip()
-        location = containing_scope.begin() + 1
+        file_name = view.substr(arg_region).strip()
+        location = cmd_region.begin() + 1
 
         tex_root = get_tex_root(view)
         if not tex_root:
@@ -528,47 +529,53 @@ class ImagePreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSetti
 
     def _update_phantoms(self):
         view = self.view
-        tex_root = get_tex_root(view)
-        if not tex_root:
-            return
+
+        cmd_regions = []
 
         if self.visible_mode == "all":
-            scopes = view.find_by_selector(
-                "meta.function.includegraphics.latex meta.group.brace.latex"
+            cmd_regions = view.find_by_selector(
+                "meta.function.includegraphics.latex meta.group.brace"
+                " - punctuation.definition.group - punctuation.section.group"
             )
+
         elif self.visible_mode == "selected":
-            graphic_scopes = view.find_by_selector("meta.function.includegraphics.latex")
-            selected_scopes = [
-                scope for scope in graphic_scopes if any(scope.contains(sel) for sel in view.sel())
-            ]
-            if selected_scopes:
-                content_scopes = view.find_by_selector(
-                    "meta.function.includegraphics.latex " "meta.group.brace.latex"
+            selected_cmds = tuple(
+                cmd
+                for cmd in view.find_by_selector("meta.function.includegraphics.latex")
+                if any(cmd.contains(sel) for sel in view.sel())
+            )
+            if selected_cmds:
+                cmd_regions = (
+                    s
+                    for s in view.find_by_selector(
+                        "meta.function.includegraphics.latex meta.group.brace"
+                        " - punctuation.definition.group - punctuation.section.group"
+                    )
+                    if any(cmd.contains(s) for cmd in selected_cmds)
                 )
-                scopes = [
-                    s for s in content_scopes if any(scope.contains(s) for scope in selected_scopes)
-                ]
-            else:
-                scopes = []
-        else:
-            if not self.phantoms:
-                return
-            scopes = []
+
+        elif not self.phantoms:
+            return
 
         new_phantoms = []
         need_thumbnails = []
 
         self._update_phantom_regions()
 
+        tex_root = get_tex_root(view)
+        if not tex_root:
+            return
+
+        tex_file_name = view.file_name()
         tn_width = self.image_scale * self.image_width
         tn_height = self.image_scale * self.image_height
-        for scope in scopes:
-            file_name = view.substr(scope)[1:-1]
-            image_path = find_image(tex_root, file_name, tex_file_name=view.file_name())
+        for cmd_region in cmd_regions:
+            file_name = view.substr(cmd_region).strip()
+            image_path = find_image(tex_root, file_name, tex_file_name)
 
             thumbnail_path = _get_thumbnail_path(image_path, tn_width, tn_height)
 
-            region = sublime.Region(scope.end())
+            region = sublime.Region(cmd_region.end())
 
             try:
                 p = next(
