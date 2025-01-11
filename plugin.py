@@ -107,12 +107,9 @@ else:
     from .latextools.migrate import (
         LatextoolsMigrateCommand
     )
-    from .latextools.preview.preview_image import (
+    from .latextools.preview import (
         ImagePreviewHoverListener,
-        ImagePreviewPhantomListener
-    )
-    from .latextools.preview.preview_math import (
-        MathPreviewPhantomListener
+        PreviewPhantomListener
     )
     from .latextools.reveal_folders import (
         LatextoolsRevealAuxDirectoryCommand,

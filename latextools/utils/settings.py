@@ -2,10 +2,41 @@ from functools import reduce
 import sublime
 
 
-def get_setting(key, default=None, view=None):
-    advanced_settings = sublime.load_settings("LaTeXTools (Advanced).sublime-settings")
-    global_settings = sublime.load_settings("LaTeXTools.sublime-settings")
+def advanced_settings():
+    try:
+        return advanced_settings.cache
+    except AttributeError:
+        advanced_settings.cache = sublime.load_settings("LaTeXTools (Advanced).sublime-settings")
+        return advanced_settings.cache
 
+
+def global_settings():
+    try:
+        return global_settings.cache
+    except AttributeError:
+        global_settings.cache = sublime.load_settings("LaTeXTools.sublime-settings")
+        return global_settings.cache
+
+
+def subscribe_settings_change(key, callback, view=None):
+    if view and view.is_valid():
+        key = "{}_{}".format(key, view.id())
+        view.settings().add_on_change(key, callback)
+
+    advanced_settings().add_on_change(key, callback)
+    global_settings().add_on_change(key, callback)
+
+
+def unsubscribe_settings_change(key, view=None):
+    if view:
+        key = "{}_{}".format(key, view.id())
+        view.settings().clear_on_change(key)
+
+    advanced_settings().clear_on_change(key)
+    global_settings().clear_on_change(key)
+
+
+def get_setting(key, default=None, view=None):
     if view is None:
         window = sublime.active_window()
         if window:
@@ -19,18 +50,18 @@ def get_setting(key, default=None, view=None):
     result = view_settings.get("latextools." + key)
 
     if result is None:
-        result = global_settings.get(key)
+        result = global_settings().get(key)
 
     if result is None:
-        result = advanced_settings.get(key, default)
+        result = advanced_settings().get(key, default)
 
     if result is None or "":
         result = default
 
     elif isinstance(result, dict):
         result = merge_dicts(
-            advanced_settings.get(key, {}),
-            global_settings.get(key, {}),
+            advanced_settings().get(key, {}),
+            global_settings().get(key, {}),
             view_settings.get("latextools." + key, {}),
         )
 

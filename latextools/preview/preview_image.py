@@ -1,5 +1,4 @@
 import imghdr
-import inspect
 import os
 import struct
 import threading
@@ -14,19 +13,16 @@ from ..jumpto_tex_file import find_image
 from ..jumpto_tex_file import open_image
 from ..jumpto_tex_file import open_image_folder
 from ..utils import cache
-from ..utils.debounce import debounce
 from ..utils.logging import logger
 from ..utils.settings import get_setting
+from ..utils.settings import subscribe_settings_change
+from ..utils.settings import unsubscribe_settings_change
 from ..utils.tex_directives import get_tex_root
-from .preview_utils import SettingsListener as PreviewSettingsListener
 from .preview_utils import convert_installed
 from .preview_utils import ghostscript_installed
 from .preview_utils import run_convert_command
 from .preview_utils import run_ghostscript_command
 from . import preview_threading as pv_threading
-
-# export the listeners
-__all__ = ["ImagePreviewHoverListener", "ImagePreviewPhantomListener"]
 
 # the path to the temp files (set on loading)
 temp_path = None
@@ -47,16 +43,6 @@ def latextools_plugin_loaded():
 
     # register the temp folder for auto deletion
     pv_threading.register_temp_folder(_name, temp_path)
-
-
-def latextools_plugin_unloaded():
-    for w in sublime.windows():
-        for v in w.views():
-            v.erase_phantoms(_name)
-            v.settings().clear_on_change(_name)
-
-    lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
-    lt_settings.clear_on_change(_name)
 
 
 def _uses_gs(file):
@@ -372,76 +358,52 @@ class ImagePreviewHoverListener(sublime_plugin.EventListener):
             _run_image_jobs()
 
 
-class ImagePreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSettingsListener):
+class ImagePreviewPhantomProvider:
     key = "preview_image"
 
     def __init__(self, view):
         self.view = view
         self.phantoms = []
-
         self._phantom_lock = threading.Lock()
 
-        self._init_watch_settings()
+        self.mode = "hover"
+        self.image_size = 150
+        self.image_width = 150
+        self.image_height = 150
+        self.image_scale_quotient = 1
 
-        view.erase_phantoms(self.key)
-        # self.update_phantoms()
-        sublime.set_timeout_async(self.update_phantoms)
+        subscribe_settings_change(self.key, self._on_settings_changed, view)
+        self._on_settings_changed()
 
-    def _init_watch_settings(self):
-        def update_image_size(init=False):
-            size = self.image_size
-            if isinstance(size, list):
-                self.image_width, self.image_height = size
+    def unsubscribe(self):
+        unsubscribe_settings_change(self.key, self.view)
+        self.delete_phantoms()
+
+    def _on_settings_changed(self):
+        reset = False
+
+        value = get_setting("preview_image_mode", view=self.view)
+        if value is not None and self.mode != value:
+            self.mode = value
+            reset = True
+
+        value = get_setting("preview_phantom_image_size", view=self.view)
+        if value is not None and self.image_size != value:
+            self.image_size = value
+            if isinstance(value, list):
+                self.image_width, self.image_height = value
             else:
-                self.image_width = self.image_height = size
-            if not init:
-                self.reset_phantoms()
+                self.image_width = self.image_height = value
 
-        view_attr = {
-            "visible_mode": {
-                "setting": "preview_image_mode",
-                "call_after": self.update_phantoms,
-            },
-            "image_size": {
-                "setting": "preview_phantom_image_size",
-                "call_after": update_image_size,
-            },
-            "image_scale": {
-                "setting": "preview_image_scale_quotient",
-                "call_after": self.reset_phantoms,
-            },
-        }
+            reset = True
 
-        lt_attr_updates = view_attr.copy()
+        value = get_setting("preview_image_scale_quotient", view=self.view)
+        if value is not None and self.image_scale_quotient != value:
+            self.image_scale_quotient = value
+            reset = True
 
-        self._init_list_add_on_change(_name, view_attr, lt_attr_updates)
-
-        update_image_size(init=True)
-
-    @classmethod
-    def is_applicable(cls, settings):
-        try:
-            view = inspect.currentframe().f_back.f_locals["view"]
-            return view and view.match_selector(0, "text.tex.latex")
-        except KeyError:
-            syntax = settings.get("syntax")
-            return syntax == "Packages/LaTeX/LaTeX.sublime-syntax"
-
-    @classmethod
-    def applies_to_primary_view_only(cls):
-        return True
-
-    #######################
-    # MODIFICATION LISTENER
-    #######################
-
-    @debounce(600)
-    def on_selection_modified(self):
-        self.update_phantoms()
-
-    #########
-    # METHODS
-    #########
+        if reset:
+            sublime.set_timeout_async(self.reset_phantoms)
 
     def _update_phantom_regions(self):
         regions = self.view.query_phantoms([p.id for p in self.phantoms])
@@ -568,13 +530,13 @@ class ImagePreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSetti
 
         cmd_regions = []
 
-        if self.visible_mode == "all":
+        if self.mode == "all":
             cmd_regions = view.find_by_selector(
                 "meta.function.includegraphics.latex meta.group.brace"
                 " - punctuation.definition.group - punctuation.section.group"
             )
 
-        elif self.visible_mode == "selected":
+        elif self.mode == "selected":
             selected_cmds = tuple(
                 cmd
                 for cmd in view.find_by_selector("meta.function.includegraphics.latex")
@@ -603,8 +565,8 @@ class ImagePreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSetti
             return
 
         tex_file_name = view.file_name()
-        tn_width = self.image_scale * self.image_width
-        tn_height = self.image_scale * self.image_height
+        tn_width = self.image_scale_quotient * self.image_width
+        tn_height = self.image_scale_quotient * self.image_height
         for cmd_region in cmd_regions:
             file_name = view.substr(cmd_region).strip()
             image_path = find_image(tex_root, file_name, tex_file_name)
