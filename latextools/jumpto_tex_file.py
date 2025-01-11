@@ -196,6 +196,11 @@ def open_image(window, file_path):
             window.open_file(file_path)
 
 
+def open_image_folder(window, image_path):
+    folder_path, image_name = os.path.split(image_path)
+    window.run_command("open_dir", {"dir": folder_path, "file": image_name})
+
+
 def _jumpto_image_file(view, window, tex_root, file_name):
     file_path = find_image(tex_root, file_name, tex_file_name=view.file_name())
     if not file_path:

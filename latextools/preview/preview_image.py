@@ -10,6 +10,7 @@ import sublime_plugin
 
 from ..jumpto_tex_file import find_image
 from ..jumpto_tex_file import open_image
+from ..jumpto_tex_file import open_image_folder
 from ..utils import cache
 from ..utils.debounce import debounce
 from ..utils.logging import logger
@@ -184,11 +185,6 @@ def _adapt_image_size(thumbnail_path, width, height):
     return width, height
 
 
-def open_image_folder(image_path):
-    folder_path, image_name = os.path.split(image_path)
-    sublime.active_window().run_command("open_dir", {"dir": folder_path, "file": image_name})
-
-
 def _validate_thumbnail_currentness(image_path, thumbnail_path):
     """Remove the thumbnail if it is outdated"""
     if not os.path.exists(thumbnail_path) or image_path == thumbnail_path:
@@ -315,7 +311,7 @@ class ImagePreviewHoverListener(sublime_plugin.EventListener):
             if href == "open_image":
                 open_image(view.window(), image_path)
             elif href == "open_folder":
-                open_image_folder(image_path)
+                open_image_folder(view.window(), image_path)
 
         def on_hide():
             on_hide.hidden = True
@@ -496,7 +492,7 @@ class ImagePreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSetti
         elif command == "open_image":
             open_image(self.view.window(), p.image_path)
         elif command == "open_folder":
-            open_image_folder(p.image_path)
+            open_image_folder(self.view.window(), p.image_path)
 
     def reset_phantoms(self):
         self.delete_phantoms()
