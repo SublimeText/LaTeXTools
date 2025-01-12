@@ -336,6 +336,6 @@ NUMBER              = re.compile(r'\d+', re.UNICODE)
 KEY                 = re.compile(r'([^\W\d][^,\s=]*)\s*=\s*', re.UNICODE)
 
 # These are used internally by the more complex "tokens"
-NEXT_QUOTE_BREAK    = re.compile(r'\n|"|\{')
-NEXT_BRACKET_BREAK  = re.compile(r'\{|}|\n')
+NEXT_QUOTE_BREAK    = re.compile(r'[\n"{]')
+NEXT_BRACKET_BREAK  = re.compile(r'[{}\n]')
 SPACE               = re.compile(r'\s+', re.UNICODE)
