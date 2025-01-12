@@ -67,18 +67,12 @@ class Lexer(object):
                             self.comment_token() or
                             self.preamble_token() or
                             self.string_token() or
-                            self.entry_start_token() or
+                            self.entry_token() or
                             self.token_error()
                         )
 
                     else:
                         self.token_error()
-
-            elif self.tokens[-1][0] == 'ENTRY_START':
-                consumed = (
-                    self.entry_type_token() or
-                    self.token_error()
-                )
 
             else:
                 consumed = (
@@ -136,19 +130,12 @@ class Lexer(object):
 
         return len(match.group(0))
 
-    def entry_start_token(self):
-        match = ENTRY_START.match(self.code, self.current_index)
+    def entry_token(self):
+        match = ENTRY.match(self.code, self.current_index)
         if not match:
             return 0
-        self.add_token('ENTRY_START', match.group(0))
-
-        return len(match.group(0))
-
-    def entry_type_token(self):
-        match = ENTRY_TYPE.match(self.code, self.current_index)
-        if not match:
-            return 0
-        self.add_token('ENTRY_TYPE', match.group(1))
+        self.add_token('ENTRY_START', match.group(1))
+        self.add_token('ENTRY_TYPE', match.group(2))
 
         return len(match.group(0))
 
@@ -343,8 +330,7 @@ WHITESPACE          = re.compile(r'([\s\n]+)', re.UNICODE)
 PREAMBLE            = re.compile(r'@(preamble)\s*\{', re.UNICODE | re.IGNORECASE)
 STRING              = re.compile(r'@(string)\s*\{', re.UNICODE | re.IGNORECASE)
 COMMENT             = re.compile(r'@(comment)[^\n]+', re.UNICODE | re.IGNORECASE)
-ENTRY_START         = re.compile(r'@(?=[^\W][^,\s]*\s*\{)', re.UNICODE)
-ENTRY_TYPE          = re.compile(r'([^\W\d_][^,\s]*)\s*\{', re.UNICODE)
+ENTRY               = re.compile(r'(@)([^\W\d_][^,\s]*)\s*\{', re.UNICODE)
 IDENTIFIER          = re.compile(r'[^,\s}#]+(?=\s*[,]|\s*#\s*|\s*\}?(?:\n|$))', re.UNICODE)
 NUMBER              = re.compile(r'\d+', re.UNICODE)
 KEY                 = re.compile(r'([^\W\d][^,\s=]*)\s*=\s*', re.UNICODE)
