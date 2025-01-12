@@ -57,22 +57,18 @@ class Lexer(object):
             if not self.in_entry:
                 consumed = (
                     self.whitespace_token() or
-                    self.line_comment_token()
+                    self.line_comment_token() or
+                    self.comment_token()
                 )
 
                 if not consumed:
-                    self.in_entry = self.code[self.current_index] == '@'
-                    if self.in_entry:
-                        consumed = (
-                            self.comment_token() or
-                            self.preamble_token() or
-                            self.string_token() or
-                            self.entry_token() or
-                            self.token_error()
-                        )
-
-                    else:
+                    consumed = (
+                        self.preamble_token() or
+                        self.string_token() or
+                        self.entry_token() or
                         self.token_error()
+                    )
+                    self.in_entry = consumed > 0
 
             else:
                 consumed = (
