@@ -14,9 +14,9 @@ entering extended mode
 (./Analysis-I.tex
 LaTeX2e <2023-06-01> patch level 1
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
-#       ^^^^^^^^^^^^ string.quoted.other.log.latex
-#       ^ punctuation.definition.string.begin.log.latex
-#                  ^ punctuation.definition.string.end.log.latex
+#       ^^^^^^^^^^^^ string.quoted.other.log
+#       ^ punctuation.definition.string.begin.log
+#                  ^ punctuation.definition.string.end.log
 
 ! fatal error
 #^^^^^^^^^^^^ meta.block.log markup.error.log
@@ -24,16 +24,16 @@ LaTeX2e <2023-06-01> patch level 1
 Package hyperref Error: Option `pdfauthor' not found,
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
 #^^^^^^^^^^^^^^^^^^^^^^ markup.error.log
-#                              ^^^^^^^^^^^ string.quoted.single.log.latex
-#                              ^ punctuation.definition.string.begin.log.latex
-#                                        ^ punctuation.definition.string.end.log.latex
+#                              ^^^^^^^^^^^ string.quoted.single.log
+#                              ^ punctuation.definition.string.begin.log
+#                                        ^ punctuation.definition.string.end.log
 
 Package hyperref Warning: Option `pdfauthor' has already been used,
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
 #^^^^^^^^^^^^^^^^^^^^^^^^ markup.warning.log
-#                                ^^^^^^^^^^^ string.quoted.single.log.latex
-#                                ^ punctuation.definition.string.begin.log.latex
-#                                          ^ punctuation.definition.string.end.log.latex
+#                                ^^^^^^^^^^^ string.quoted.single.log
+#                                ^ punctuation.definition.string.begin.log
+#                                          ^ punctuation.definition.string.end.log
 (hyperref)                setting the option has no effect on input line 13.
 # <- meta.block.log meta.group.log punctuation.section.group.begin.log
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
@@ -71,11 +71,11 @@ Underfull \hbox (badness 10000) in paragraph at lines 3417--3445
 (/opt/TeX/texmf-dist/tex/latex/base/fontenc.sty
 Package: fontenc 2021/04/29 v2.0v Standard LaTeX package
 <<t1.cmap>>)
-# <- meta.block.log meta.block.log string.quoted.other.log.latex punctuation.definition.string.begin.log.latex
+# <- meta.block.log meta.block.log string.quoted.other.log punctuation.definition.string.begin.log
 #^^^^^^^^^^^ meta.block.log meta.block.log
-#^^^^^^^^^^ string.quoted.other.log.latex
-#^ punctuation.definition.string.begin.log.latex
-#        ^^ punctuation.definition.string.end.log.latex
+#^^^^^^^^^^ string.quoted.other.log
+#^ punctuation.definition.string.begin.log
+#        ^^ punctuation.definition.string.end.log
 #          ^ punctuation.section.block.end.log
 
 (/opt/TeX/texmf-dist/tex/latex/koma-script/scrbook.cls
@@ -101,19 +101,33 @@ d comment continued on next line (book)
 Class scrbook Info: using compatibility default `runin=bysign'
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
 #^^^^^^^^^^^^^^^^^^ markup.info.log
-#                                               ^^^^^^^^^^^^^^ string.quoted.single.log.latex
-#                                               ^ punctuation.definition.string.begin.log.latex
-#                                                            ^ punctuation.definition.string.end.log.latex
+#                                               ^^^^^^^^^^^^^^ string.quoted.single.log
+#                                               ^ punctuation.definition.string.begin.log
+#                                                            ^ punctuation.definition.string.end.log
 
 (scrbook)           for `\section on input line 6001.
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
 #^^^^^^^^ meta.group.log
 #       ^ punctuation.section.group.end.log
-#                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string.quoted.single.log.latex
-#                       ^ punctuation.definition.string.begin.log.latex
-#                                                   ^ punctuation.definition.string.end.log.latex
+#                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string.quoted.single.log
+#                       ^ punctuation.definition.string.begin.log
+#                                                   ^ punctuation.definition.string.end.log
 
 ))
 # <- meta.block.log meta.block.log punctuation.section.block.end.log
 #^ meta.block.log punctuation.section.block.end.log - meta.block meta.block
 # ^ - meta.block
+
+# wrapped block file names
+(/opt/TeX/texmf-dist/tex/latex/koma-scri
+pt/scrbook.cls
+# <- meta.block.log meta.toc-list.log entity.name.section.filename.log
+#^^^^^^^^^^^^^ meta.block.log meta.toc-list.log entity.name.section.filename.log
+)
+
+(/opt/TeX/texmf-dist/tex/latex/koma-scri
+pt/scrbook.cls
+File: tikzlibrarytopaths.code.tex 2023-01-15 v3.1.10 (3.1.10)
+# <- meta.block.log comment.line.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log comment.line.log
+)

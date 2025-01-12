@@ -27,13 +27,30 @@ contexts:
 ###[ BLOCKS ]##################################################################
 
   blocks:
-    - match: (\()((?:\\.|[^\s?!*])+\.[A-Za-z]{2,})
+    # block begin with full file name
+    - match: (\()((?:\\.|[^\s?!*)])+\.[A-Za-z]{2,}\b)
       captures:
         1: punctuation.section.block.begin.log
         2: meta.toc-list.log entity.name.section.filename.log
       push:
         - block-body
         - block-comment
+    # block begin with wrapped file name
+    - match: (\()((?:\\.|[^\s?!*)])+\n)
+      captures:
+        1: punctuation.section.block.begin.log
+        2: meta.toc-list.log entity.name.section.filename.log
+      push:
+        - block-body
+        - block-comment
+        - filename-continuation
+
+  filename-continuation:
+    - match: ((?:\\.|[^\s?!*)])+\.[A-Za-z]{2,}\b)
+      scope: meta.toc-list.log entity.name.section.filename.log
+      pop: true
+    - match: (?=\S)
+      pop: true
 
   block-body:
     - meta_scope: meta.block.log
