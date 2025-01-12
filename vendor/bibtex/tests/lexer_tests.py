@@ -71,6 +71,18 @@ class TestPreambleToken(LexerTest):
             )
         )
 
+    def test_preamble_token_fails_match_in_comment(self):
+        self.lexer.code = '% @preamble{'
+        result = self.lexer.preamble_token()
+
+        self.assertEqual(
+            result,
+            0,
+            'expecting 0 characters to be consumed, found {0}'.format(
+                result
+            )
+        )
+
     def test_preamble_token_fails_match_without_bracket(self):
         self.lexer.code = '@preamble'
         result = self.lexer.preamble_token()
@@ -170,6 +182,18 @@ class TestStringToken(LexerTest):
             )
         )
 
+    def test_string_token_fails_match_in_comment(self):
+        self.lexer.code = '% @string{'
+        result = self.lexer.string_token()
+
+        self.assertEqual(
+            result,
+            0,
+            'expecting 0 characters to be consumed, found {0}'.format(
+                result
+            )
+        )
+
     def test_string_token_fails_match_without_bracket(self):
         self.lexer.code = '@string'
         result = self.lexer.string_token()
@@ -235,6 +259,18 @@ class TestCommentToken(LexerTest):
 
     def test_comment_token_fails_match_without_at(self):
         self.lexer.code = 'comment{'
+        result = self.lexer.comment_token()
+
+        self.assertEqual(
+            result,
+            0,
+            'expecting 0 characters to be consumed, found {0}'.format(
+                result
+            )
+        )
+
+    def test_comment_token_fails_match_in_comment(self):
+        self.lexer.code = '% @comment{'
         result = self.lexer.comment_token()
 
         self.assertEqual(
@@ -334,6 +370,18 @@ class TestEntryStartToken(LexerTest):
 
     def test_entry_start_token_fails_match_without_bracket(self):
         self.lexer.code = '@entry'
+        result = self.lexer.entry_start_token()
+
+        self.assertEqual(
+            result,
+            0,
+            'expecting 0 characters to be consumed, found {0}'.format(
+                result
+            )
+        )
+
+    def test_entry_start_token_fails_match_in_comment(self):
+        self.lexer.code = '% @entry{'
         result = self.lexer.entry_start_token()
 
         self.assertEqual(
