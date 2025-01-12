@@ -323,15 +323,12 @@ class Lexer(object):
             column
         )
 
-    def add_token(self, tag, value, offset=0, length=None):
-        if length is None:
-            length = len(value)
-
+    def add_token(self, tag, value, offset=0):
         location_data = {}
         location_data['first_line'], location_data['first_column'] = \
             self.get_line_and_column(offset)
         location_data['last_line'], location_data['last_column'] = \
-            self.get_line_and_column(offset + length)
+            self.get_line_and_column(offset + len(value))
 
         self.tokens.append((tag, value, location_data))
 
