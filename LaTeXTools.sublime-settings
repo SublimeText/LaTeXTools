@@ -56,6 +56,7 @@
 	// If you are on Windows or Linux and using ST2, you may need to set the
 	// "sublime_executable" setting for this to work in your platform settings.
 	"keep_focus": true,
+
 	// Sync PDF to current editor position after building (true) or not
 	"forward_sync": true,
 
@@ -156,6 +157,7 @@
 
 	// The density of the preview image. The higher the density the larger the phantom.
 	"preview_math_density": 150,
+
 	// If the image is not sharp enough increase this scale to get a better resolution.
 	// However also change the density by the same factor to keep the size the
 	// same.
@@ -393,7 +395,6 @@
 	//
 	// NOTE: custom builders CANNOT have the same name as an existing
 	// built-in build engine (including "default")
-
 	"builder": "traditional",
 
 	// OPTION: "builder_path"
@@ -404,7 +405,6 @@
 	// (Note: if you choose "User", you may get a Python import error in the
 	// console, but things will still work).
 	// Leave empty ("") for a built-in builder.
-
 	"builder_path": "",
 
 	// OPTION: "builder_settings"
@@ -412,7 +412,6 @@
 	// Possible values: see README or documentation provided with
 	// third-party build engine.
 	// Builder setting can be general or OS-dependent
-
 	"builder_settings" : {
 
 		// General settings:

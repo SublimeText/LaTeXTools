@@ -17,6 +17,7 @@
 		"addsec",
 		"minisec"
 	],
+
 	// a mapping from each section command to its indent
 	"toc_indentations": {
 		"part": 0,
@@ -31,6 +32,7 @@
 		"minisec": 2,
 		"label": 0
 	},
+
 	// the label commands, i.e. the commands,
 	// which will be shown/hidden using "Show Label" and "Hide Label"
 	"toc_labels": [
@@ -237,6 +239,7 @@
 	// 
 	// Controls the maximum size of the image stored in memory
 	"preview_math_max_bitmap": 1000000,
+
 	// Controls the maximum buffer space for images that do not fit
 	// in the `preview_math_max_bitmap` space
 	"preview_math_bufferspace": 4000000,
