@@ -7,6 +7,7 @@ import tempfile
 from .distro_utils import using_miktex
 from .logging import logger
 from .settings import get_setting
+from .settings import global_settings
 from .sublime_utils import get_project_file_name
 from .tex_directives import get_tex_root
 from .tex_directives import parse_tex_directives
@@ -65,8 +66,7 @@ def get_aux_directory(view_or_root, return_setting=False):
         else:
             return aux_dir
 
-    settings = sublime.load_settings("LaTeXTools.sublime-settings")
-    aux_directory = settings.get("aux_directory")
+    aux_directory = global_settings().get("aux_directory")
 
     if aux_directory is not None and aux_directory != "":
         aux_dir = resolve_to_absolute_path(root, aux_directory, _get_root_directory(root))
@@ -126,8 +126,7 @@ def get_output_directory(view_or_root, return_setting=False):
         else:
             return out_dir
 
-    settings = sublime.load_settings("LaTeXTools.sublime-settings")
-    output_directory = settings.get("output_directory")
+    output_directory = global_settings().get("output_directory")
 
     if output_directory is not None and output_directory != "":
         out_dir = resolve_to_absolute_path(root, output_directory, _get_root_directory(root))

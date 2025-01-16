@@ -3,6 +3,7 @@ import sublime_plugin
 
 from .utils.logging import logger
 from .utils.settings import get_setting
+from .utils.settings import global_settings
 
 __all__ = ["LatextoolsToggleKeysCommand"]
 
@@ -29,7 +30,7 @@ def _toggle_setting(setting_name, view):
 
 
 def _show_toggle_overlay(window, view, prefix, setting_keys):
-    default_settings = sublime.load_settings("LaTeXTools.sublime-settings")
+    default_settings = global_settings()
     setting_keys = [t for t in setting_keys if t[1].startswith(prefix)]
     prefix_map = {k: [v, rest] for k, v, *rest in setting_keys}
 
