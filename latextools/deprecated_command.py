@@ -2,6 +2,7 @@ import sublime
 import sublime_plugin
 
 from .utils.logging import logger
+from .utils.settings import global_settings
 
 __all__ = ["deprecate", "LatextoolsFindDeprecatedCommandsCommand"]
 
@@ -13,7 +14,7 @@ class LatextoolsDeprecatedCommand(object):
     new_classname = ""
 
     def run(self, *args, **kwargs):
-        settings = sublime.load_settings("LaTeXTools.sublime-settings")
+        settings = global_settings()
         backward_compatible = settings.get(_setting_name, False)
         if not backward_compatible:
             # check whether the new command shall be executed

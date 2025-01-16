@@ -22,7 +22,8 @@ class LatextoolsTexcountCommand(sublime_plugin.WindowCommand):
         return view and view.match_selector(0, "text.tex.latex")
 
     def run(self, **args):
-        tex_root = get_tex_root(self.window.active_view())
+        view = self.window.active_view()
+        tex_root = get_tex_root(view)
 
         if not tex_root or not os.path.exists(tex_root):
             sublime.error_message(
@@ -31,7 +32,7 @@ class LatextoolsTexcountCommand(sublime_plugin.WindowCommand):
             )
             return
 
-        sub_level = args.get("sub_level", get_setting("word_count_sub_level", "none"))
+        sub_level = args.get("sub_level", get_setting("word_count_sub_level", "none", view))
 
         if sub_level not in ["none", "part", "chapter", "section"]:
             sub_level = "none"

@@ -18,7 +18,7 @@ from .utils.tex_directives import get_tex_root
 __all__ = ["LatextoolsJumptoFileCommand"]
 
 INPUT_REG = re.compile(
-    r"\\(?:input|include|subfile|loadglsentries)" r"\{(?P<file>[^}]+)\}", re.UNICODE
+    r"\\(?:input|include|subfile|loadglsentries)\{(?P<file>[^}]+)\}", re.UNICODE
 )
 
 IMPORT_REG = re.compile(
@@ -36,7 +36,7 @@ BIB_REG = re.compile(
     re.UNICODE,
 )
 
-IMAGE_REG = re.compile(r"\\includegraphics" r"(?:\[[^\]]*\])?" r"\{(?P<file>[^\}]+)\}", re.UNICODE)
+IMAGE_REG = re.compile(r"\\includegraphics(?:\[[^\]]*\])?\{(?P<file>[^\}]+)\}", re.UNICODE)
 
 
 def _jumpto_tex_file(
@@ -194,6 +194,11 @@ def open_image(window, file_path):
         else:
             sublime.status_message("No opening command for {0} defined".format(extension))
             window.open_file(file_path)
+
+
+def open_image_folder(window, image_path):
+    folder_path, image_name = os.path.split(image_path)
+    window.run_command("open_dir", {"dir": folder_path, "file": image_name})
 
 
 def _jumpto_image_file(view, window, tex_root, file_name):

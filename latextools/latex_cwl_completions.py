@@ -38,11 +38,11 @@ ENV_DONOT_AUTO_COM = [
 ESCAPE_REGEX = re.compile(r"\w*(\\\\)+([^\\]|$)")
 
 # regex to detect that the cursor is predecended by a \begin{
-BEGIN_END_BEFORE_REGEX = re.compile(r"([^{}\[\]]*)\{" r"(?:\][^{}\[\]]*\[)?" r"(?:nigeb|dne)\\")
+BEGIN_END_BEFORE_REGEX = re.compile(r"([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?(?:nigeb|dne)\\")
 
 # regex to parse a environment line from the cwl file
 # only search for \end to create a list without duplicates
-ENVIRONMENT_REGEX = re.compile(r"\\end" r"\{(?P<name>[^\}]+)\}")
+ENVIRONMENT_REGEX = re.compile(r"\\end\{(?P<name>[^\}]+)\}")
 
 # global setting to check whether the LaTeX-cwl package is available or not
 CWL_COMPLETION_ENABLED = None
@@ -71,7 +71,9 @@ def get_cwl_file_name(package):
 
 # returns the cwl completions instances
 def get_cwl_completions():
-    plugin_loaded()
+    global CWL_COMPLETIONS
+    if CWL_COMPLETIONS is None:
+        CWL_COMPLETIONS = CwlCompletions()
     return CWL_COMPLETIONS
 
 
@@ -250,7 +252,7 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
         is_env = bool(BEGIN_END_BEFORE_REGEX.match(line))
 
         # default completion level is "prefixed"
-        completion_level = get_setting("command_completion", "prefixed")
+        completion_level = get_setting("command_completion", "prefixed", view)
 
         do_complete = {
             "never": False,
@@ -345,7 +347,7 @@ def _check_if_cwl_enabled(view=None):
     if view is None or not view.match_selector(0, "text.tex.latex"):
         return
 
-    if get_setting("command_completion", "prefixed", view=view) == "never":
+    if get_setting("command_completion", "prefixed", view) == "never":
         return
 
     # Checking whether LaTeX-cwl is installed
@@ -502,7 +504,7 @@ def parse_cwl_file(cwl, s):
 
 # ensure that CWL_COMPLETIONS has a value
 # its better to do it here because its more stable across reloads
-def plugin_loaded():
+def latextools_plugin_loaded():
     global CWL_COMPLETIONS
     _create_cwl_packages_paths()
     if CWL_COMPLETIONS is None:

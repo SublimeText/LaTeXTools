@@ -150,7 +150,7 @@ def update_dict_language(view, extract_from_root):
         return  # no spellcheck directive found
 
     try:
-        user_sc = get_setting("tex_spellcheck_paths", {})
+        user_sc = get_setting("tex_spellcheck_paths", {}, view)
         dict_path = user_sc.get(loc) or get_dict_path(loc)
     except DictMissing:
         logger.error("dict definition missing for locale '%s'", loc)

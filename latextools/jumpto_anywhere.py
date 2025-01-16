@@ -24,7 +24,7 @@ __all__ = ["LatextoolsJumptoAnywhereCommand", "LatextoolsJumptoAnywhereByMouseCo
 INPUT_REG_EXPS = [INPUT_REG, IMPORT_REG, BIB_REG, IMAGE_REG]
 
 COMMAND_REG = re.compile(
-    r"\\(?P<command>[\w]+)" r"\*?\s*" r"(?:\[[^\]]*\]\s*)?" r"\{(?P<args>[^}]*)\}",
+    r"\\(?P<command>[\w]+)\*?\s*(?:\[[^\]]*\]\s*)?\{(?P<args>[^}]*)\}",
     re.UNICODE,
 )
 

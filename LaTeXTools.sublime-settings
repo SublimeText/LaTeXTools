@@ -56,6 +56,7 @@
 	// If you are on Windows or Linux and using ST2, you may need to set the
 	// "sublime_executable" setting for this to work in your platform settings.
 	"keep_focus": true,
+
 	// Sync PDF to current editor position after building (true) or not
 	"forward_sync": true,
 
@@ -101,10 +102,40 @@
 	"word_count_sub_level": "none",
 
 // ------------------------------------------------------------------
-// Preview settings
+// Image Preview Settings
 // ------------------------------------------------------------------
 
-	// MATH LIVE PREVIEW
+	// The preview mode for image preview, possible values are:
+	// "all"       to show a phantom for each includegraphics command
+	// "selected"  to show a phantom only for the currently selected includegraphics command
+	// "hover"     to show a popup if you hover over an includegraphics command
+	// "none"      to disable image preview
+	"preview_image_mode": "hover",
+
+	// The image size in the preview popup.
+	// These are the outer dimensions of the maximal size.
+	// The image will be scaled down to fit into these dimensions.
+	// It can either be an number or an array, which consist of two numbers
+	// e.g. [200, 150]
+	"preview_popup_image_size": 200,
+
+	// The image size in the preview phantoms.
+	// These are the outer dimensions of the maximal size.
+	// The image will be scaled down to fit into these dimensions.
+	// It can either be an number or an array, which consist of two numbers
+	// e.g. [200, 150]
+	"preview_phantom_image_size": 150,
+
+	// Increase this number to get a better resolution on high dpi displays.
+	// Control the thumbnail image size, which will be generated to preview
+	// images, that are not natively supported like pdf files.
+	// E.g. a image size of 300 with a scale of 2 will create a
+	// thumbnail with the size 600, which is scaled down in the popup.
+	"preview_image_scale_quotient": 1,
+
+// ------------------------------------------------------------------
+// Math Preview Settings
+// ------------------------------------------------------------------
 
 	// The preview mode for math live preview, possible values are:
 	// "all"       to show a phantom for each math environment
@@ -123,6 +154,14 @@
 	// pdflatex, xelatex, lualatex, latex
 	// DON'T(!) use tex engines like pdftex
 	"preview_math_latex_compile_program": "pdflatex",
+
+	// The density of the preview image. The higher the density the larger the phantom.
+	"preview_math_density": 150,
+
+	// If the image is not sharp enough increase this scale to get a better resolution.
+	// However also change the density by the same factor to keep the size the
+	// same.
+	"preview_math_scale_quotient": 1,
 
 	// The color of the text in the preview math phantoms.
 	// Ensure you have the latex xcolor package available to change the color.
@@ -160,36 +199,6 @@
 	// equation numbers. This may not be possible with each environment,
 	// therefore you can create a blacklist of such environments here.
 	"preview_math_no_star_envs": ["displaymath"],
-
-	// IMAGE PREVIEW
-
-	// The preview mode for image preview, possible values are:
-	// "all"       to show a phantom for each includegraphics command
-	// "selected"  to show a phantom only for the currently selected includegraphics command
-	// "hover"     to show a popup if you hover over an includegraphics command
-	// "none"      to disable image preview
-	"preview_image_mode": "hover",
-
-	// The image size in the preview popup.
-	// These are the outer dimensions of the maximal size.
-	// The image will be scaled down to fit into these dimensions.
-	// It can either be an number or an array, which consist of two numbers
-	// e.g. [200, 150]
-	"preview_popup_image_size": 200,
-
-	// The image size in the preview phantoms.
-	// These are the outer dimensions of the maximal size.
-	// The image will be scaled down to fit into these dimensions.
-	// It can either be an number or an array, which consist of two numbers
-	// e.g. [200, 150]
-	"preview_phantom_image_size": 150,
-
-	// Increase this number to get a better resolution on high dpi displays.
-	// Control the thumbnail image size, which will be generated to preview
-	// images, that are not natively supported like pdf files.
-	// E.g. a image size of 300 with a scale of 2 will create a
-	// thumbnail with the size 600, which is scaled down in the popup.
-	"preview_image_scale_quotient": 1,
 
 // ------------------------------------------------------------------
 // Temporary file settings
@@ -386,7 +395,6 @@
 	//
 	// NOTE: custom builders CANNOT have the same name as an existing
 	// built-in build engine (including "default")
-
 	"builder": "traditional",
 
 	// OPTION: "builder_path"
@@ -397,7 +405,6 @@
 	// (Note: if you choose "User", you may get a Python import error in the
 	// console, but things will still work).
 	// Leave empty ("") for a built-in builder.
-
 	"builder_path": "",
 
 	// OPTION: "builder_settings"
@@ -405,7 +412,6 @@
 	// Possible values: see README or documentation provided with
 	// third-party build engine.
 	// Builder setting can be general or OS-dependent
-
 	"builder_settings" : {
 
 		// General settings:
@@ -557,7 +563,6 @@
 	//						formatting and additional fields, but may
 	//						be slower
 	"bibliography": "traditional",
-
 
 	// OPTION: "additional_bibliography_file"
 	// With this setting you can add the path to one or more additional

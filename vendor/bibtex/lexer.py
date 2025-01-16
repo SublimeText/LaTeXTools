@@ -44,7 +44,7 @@ class Lexer(object):
 
     def tokenize(self, code):
         self.code = code
-        code_len = self.code_len = len(code)
+        self.code_len = len(code)
 
         # reset values
         self.tokens = []
@@ -53,40 +53,37 @@ class Lexer(object):
         self.current_index = 0
         self.in_entry = False
 
-        while self.current_index < code_len:
+        while self.current_index < self.code_len:
             if not self.in_entry:
-                consumed = self.until_entry()
-                self.in_entry = True
-                start_entry = True
-            else:
-                if start_entry:
-                    consumed = (
-                        self.preamble_token()       or
-                        self.string_token()         or
-                        self.comment_token()        or
-                        self.entry_start_token()    or
-                        self.token_error()
-                    )
+                consumed = (
+                    self.whitespace_token() or
+                    self.line_comment_token() or
+                    self.comment_token()
+                )
 
-                    start_entry = False
-                elif self.tokens[-1][0] == 'ENTRY_START':
+                if not consumed:
                     consumed = (
-                        self.entry_type_token()     or
+                        self.preamble_token() or
+                        self.string_token() or
+                        self.entry_token() or
                         self.token_error()
                     )
-                else:
-                    consumed = (
-                        self.whitespace_token()     or
-                        self.comma_token()          or
-                        self.key_token()            or
-                        self.value_token()          or
-                        self.quoted_string_token()  or
-                        self.identifier_token()     or
-                        self.number_token()         or
-                        self.hash_token()           or
-                        self.entry_end_token()      or
-                        self.token_error()
-                    )
+                    self.in_entry = consumed > 0
+
+            else:
+                consumed = (
+                    self.whitespace_token() or
+                    self.line_comment_token() or
+                    self.comma_token() or
+                    self.key_token() or
+                    self.value_token() or
+                    self.quoted_string_token() or
+                    self.identifier_token() or
+                    self.number_token() or
+                    self.hash_token() or
+                    self.entry_end_token() or
+                    self.token_error()
+                )
 
             self.current_line, self.current_column = \
                 self.get_line_and_column(consumed)
@@ -97,13 +94,21 @@ class Lexer(object):
 
         return self.tokens
 
-    def until_entry(self):
-        match = ENTRY_START.search(self.code, self.current_index)
-        if match:
-            # don't consume the @
-            return match.start() - self.current_index
+    def line_comment_token(self):
+        match = LINE_COMMENT.match(self.code, self.current_index)
+        if not match:
+            return 0
+        return len(match.group(0))
 
-        return self.code_len - self.current_index
+    def comment_token(self):
+        match = COMMENT.match(self.code, self.current_index)
+        if not match:
+            return 0
+
+        # we consume the whole line
+        self.in_entry = False
+
+        return len(match.group(0))
 
     def preamble_token(self):
         match = PREAMBLE.match(self.code, self.current_index)
@@ -121,29 +126,12 @@ class Lexer(object):
 
         return len(match.group(0))
 
-    def comment_token(self):
-        match = COMMENT.match(self.code, self.current_index)
+    def entry_token(self):
+        match = ENTRY.match(self.code, self.current_index)
         if not match:
             return 0
-
-        # we consume the whole line
-        self.in_entry = False
-
-        return len(match.group(0))
-
-    def entry_start_token(self):
-        match = ENTRY_START.match(self.code, self.current_index)
-        if not match:
-            return 0
-        self.add_token('ENTRY_START', match.group(0))
-
-        return len(match.group(0))
-
-    def entry_type_token(self):
-        match = ENTRY_TYPE.match(self.code, self.current_index)
-        if not match:
-            return 0
-        self.add_token('ENTRY_TYPE', match.group(1))
+        self.add_token('ENTRY_START', match.group(1))
+        self.add_token('ENTRY_TYPE', match.group(2))
 
         return len(match.group(0))
 
@@ -323,30 +311,27 @@ class Lexer(object):
             column
         )
 
-    def add_token(self, tag, value, offset=0, length=None):
-        if length is None:
-            length = len(value)
-
+    def add_token(self, tag, value, offset=0):
         location_data = {}
         location_data['first_line'], location_data['first_column'] = \
             self.get_line_and_column(offset)
         location_data['last_line'], location_data['last_column'] = \
-            self.get_line_and_column(offset + length)
+            self.get_line_and_column(offset + len(value))
 
         self.tokens.append((tag, value, location_data))
 
 # Roughly speaking, these are the tokens
+LINE_COMMENT        = re.compile(r'%[^\n]*', re.UNICODE)
 WHITESPACE          = re.compile(r'([\s\n]+)', re.UNICODE)
 PREAMBLE            = re.compile(r'@(preamble)\s*\{', re.UNICODE | re.IGNORECASE)
 STRING              = re.compile(r'@(string)\s*\{', re.UNICODE | re.IGNORECASE)
 COMMENT             = re.compile(r'@(comment)[^\n]+', re.UNICODE | re.IGNORECASE)
-ENTRY_START         = re.compile(r'@(?=[^\W][^,\s]*\s*\{)', re.UNICODE)
-ENTRY_TYPE          = re.compile(r'([^\W\d_][^,\s]*)\s*\{', re.UNICODE)
+ENTRY               = re.compile(r'(@)([^\W\d_][^,\s]*)\s*\{', re.UNICODE)
 IDENTIFIER          = re.compile(r'[^,\s}#]+(?=\s*[,]|\s*#\s*|\s*\}?(?:\n|$))', re.UNICODE)
 NUMBER              = re.compile(r'\d+', re.UNICODE)
 KEY                 = re.compile(r'([^\W\d][^,\s=]*)\s*=\s*', re.UNICODE)
 
 # These are used internally by the more complex "tokens"
-NEXT_QUOTE_BREAK    = re.compile(r'\n|"|\{')
-NEXT_BRACKET_BREAK  = re.compile(r'\{|}|\n')
+NEXT_QUOTE_BREAK    = re.compile(r'[\n"{]')
+NEXT_BRACKET_BREAK  = re.compile(r'[{}\n]')
 SPACE               = re.compile(r'\s+', re.UNICODE)

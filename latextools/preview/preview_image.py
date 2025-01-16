@@ -1,5 +1,4 @@
 import imghdr
-import inspect
 import os
 import struct
 import threading
@@ -8,21 +7,22 @@ import types
 import sublime
 import sublime_plugin
 
+from textwrap import dedent
+
 from ..jumpto_tex_file import find_image
 from ..jumpto_tex_file import open_image
+from ..jumpto_tex_file import open_image_folder
 from ..utils import cache
 from ..utils.logging import logger
 from ..utils.settings import get_setting
+from ..utils.settings import subscribe_settings_change
+from ..utils.settings import unsubscribe_settings_change
 from ..utils.tex_directives import get_tex_root
-from .preview_utils import SettingsListener as PreviewSettingsListener
 from .preview_utils import convert_installed
 from .preview_utils import ghostscript_installed
 from .preview_utils import run_convert_command
 from .preview_utils import run_ghostscript_command
 from . import preview_threading as pv_threading
-
-# export the listeners
-__all__ = ["PreviewImageHoverListener", "PreviewImagePhantomListener"]
 
 # the path to the temp files (set on loading)
 temp_path = None
@@ -32,50 +32,22 @@ _IMAGE_EXTENSION = ".png"
 # we add this extension to log error information
 _ERROR_EXTENSION = ".err"
 
-_lt_settings = {}
-
 # the name is used as identifier and to extract folder and file names
 _name = "preview_image"
 
 
-def _on_setting_change():
-    max_threads = get_setting("preview_max_convert_threads", default=None, view={})
-    if max_threads is not None:
-        pv_threading.set_max_threads(max_threads)
-
-
-def plugin_loaded():
-    global _lt_settings, temp_path
-    _lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
+def latextools_plugin_loaded():
+    global temp_path
 
     temp_path = os.path.join(cache._global_cache_path(), _name)
-
-    # init all variables
-    _on_setting_change()
-    # add a callback to setting changes
-    _lt_settings.add_on_change("lt_preview_image_main", _on_setting_change)
 
     # register the temp folder for auto deletion
     pv_threading.register_temp_folder(_name, temp_path)
 
 
-def plugin_unloaded():
-    for w in sublime.windows():
-        for v in w.views():
-            v.erase_phantoms(_name)
-            v.settings().clear_on_change(_name)
-
-    _lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
-    _lt_settings.clear_on_change(_name)
-    _lt_settings.clear_on_change("lt_preview_image_main")
-
-
-_GS_EXTS = set(["ps", "eps", "pdf"])
-
-
 def _uses_gs(file):
-    file, ext = os.path.splitext(file)
-    return ext.lower() in _GS_EXTS
+    _, ext = os.path.splitext(file)
+    return ext.lower() in ("ps", "eps", "pdf")
 
 
 def _can_create_preview(file=None):
@@ -201,11 +173,6 @@ def _adapt_image_size(thumbnail_path, width, height):
     return width, height
 
 
-def open_image_folder(image_path):
-    folder_path, image_name = os.path.split(image_path)
-    sublime.active_window().run_command("open_dir", {"dir": folder_path, "file": image_name})
-
-
 def _validate_thumbnail_currentness(image_path, thumbnail_path):
     """Remove the thumbnail if it is outdated"""
     if not os.path.exists(thumbnail_path) or image_path == thumbnail_path:
@@ -242,8 +209,8 @@ def _get_popup_html(image_path, thumbnail_path, width, height):
         width, height = _adapt_image_size(thumbnail_path, width, height)
         img_tag = (
             '<img src="file://{thumbnail_path}"'
-            ' width="{width}" '
-            'height="{height}">'.format(**locals())
+            ' width="{width}"'
+            ' height="{height}">'.format(**locals())
         )
     elif _uses_gs(image_path) and not ghostscript_installed():
         img_tag = "Install Ghostscript to enable preview."
@@ -253,21 +220,40 @@ def _get_popup_html(image_path, thumbnail_path, width, height):
         img_tag = "ERROR: Failed to create preview thumbnail."
     else:
         img_tag = "Preparing image for preview..."
-    html_content = """
-    <body id="latextools-preview-image-popup">
-    <div>{img_tag}</div>
-    <div>
-        <a href="open_image">(Open image)</a>
-        <a href="open_folder">(Open folder)</a>
-    </div>
-    </body>
-    """.format(
-        **locals()
+
+    return dedent(
+        """
+        <style>
+            html {{
+                margin: 0;
+                padding: 0;
+            }}
+            body {{
+                margin: 0;
+                padding: 6pt;
+            }}
+            a {{
+                text-decoration: none;
+            }}
+            div {{
+                margin: 1rem 0 0 0;
+                padding: 0;
+            }}
+        </style>
+        <body id="latextools-preview-image-popup">
+        {img_tag}
+        <div>
+            <a href="open_image">(Open image)</a>
+            <a href="open_folder">(Open folder)</a>
+        </div>
+        </body>
+        """.format(
+            **locals()
+        )
     )
-    return html_content
 
 
-class PreviewImageHoverListener(sublime_plugin.EventListener):
+class ImagePreviewHoverListener(sublime_plugin.EventListener):
     def on_hover(self, view, point, hover_zone):
         if hover_zone != sublime.HOVER_TEXT:
             return
@@ -279,23 +265,24 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
         mode = get_setting("preview_image_mode", view=view)
         if mode != "hover":
             return
-        containing_scopes = view.find_by_selector("meta.function.includegraphics.latex")
+        cmd_regions = view.find_by_selector("meta.function.includegraphics.latex")
         try:
-            containing_scope = next(c for c in containing_scopes if c.contains(point))
+            cmd_region = next(c for c in cmd_regions if c.contains(point))
         except StopIteration:
             logger.error("Not inside an image scope.")
             return
-        image_scopes = view.find_by_selector(
-            "meta.function.includegraphics.latex meta.group.brace.latex"
+        args_regions = view.find_by_selector(
+            "meta.function.includegraphics.latex meta.group.brace"
+            " - punctuation.definition.group - punctuation.section.group"
         )
         try:
-            image_scope = next(i for i in image_scopes if containing_scope.contains(i))
+            arg_region = next(a for a in args_regions if cmd_region.contains(a))
         except StopIteration:
             logger.error("No file name scope found.")
             return
 
-        file_name = view.substr(image_scope)[1:-1].strip()
-        location = containing_scope.begin() + 1
+        file_name = view.substr(arg_region).strip()
+        location = cmd_region.begin() + 1
 
         tex_root = get_tex_root(view)
         if not tex_root:
@@ -332,7 +319,7 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
             if href == "open_image":
                 open_image(view.window(), image_path)
             elif href == "open_folder":
-                open_image_folder(image_path)
+                open_image_folder(view.window(), image_path)
 
         def on_hide():
             on_hide.hidden = True
@@ -371,85 +358,52 @@ class PreviewImageHoverListener(sublime_plugin.EventListener):
             _run_image_jobs()
 
 
-class PreviewImagePhantomListener(sublime_plugin.ViewEventListener, PreviewSettingsListener):
+class ImagePreviewPhantomProvider:
     key = "preview_image"
 
     def __init__(self, view):
         self.view = view
         self.phantoms = []
-        self._selection_modifications = 0
-
         self._phantom_lock = threading.Lock()
 
-        self._init_watch_settings()
+        self.mode = "hover"
+        self.image_size = 150
+        self.image_width = 150
+        self.image_height = 150
+        self.image_scale_quotient = 1
 
-        view.erase_phantoms(self.key)
-        # self.update_phantoms()
-        sublime.set_timeout_async(self.update_phantoms)
+        subscribe_settings_change(self.key, self._on_settings_changed, view)
+        self._on_settings_changed()
 
-    def _init_watch_settings(self):
-        def update_image_size(init=False):
-            size = self.image_size
-            if isinstance(size, list):
-                self.image_width, self.image_height = size
+    def unsubscribe(self):
+        unsubscribe_settings_change(self.key, self.view)
+        self.delete_phantoms()
+
+    def _on_settings_changed(self):
+        reset = False
+
+        value = get_setting("preview_image_mode", view=self.view)
+        if value is not None and self.mode != value:
+            self.mode = value
+            reset = True
+
+        value = get_setting("preview_phantom_image_size", view=self.view)
+        if value is not None and self.image_size != value:
+            self.image_size = value
+            if isinstance(value, list):
+                self.image_width, self.image_height = value
             else:
-                self.image_width = self.image_height = size
-            if not init:
-                self.reset_phantoms()
+                self.image_width = self.image_height = value
 
-        view_attr = {
-            "visible_mode": {
-                "setting": "preview_image_mode",
-                "call_after": self.update_phantoms,
-            },
-            "image_size": {
-                "setting": "preview_phantom_image_size",
-                "call_after": update_image_size,
-            },
-            "image_scale": {
-                "setting": "preview_image_scale_quotient",
-                "call_after": self.reset_phantoms,
-            },
-        }
+            reset = True
 
-        lt_attr_updates = view_attr.copy()
+        value = get_setting("preview_image_scale_quotient", view=self.view)
+        if value is not None and self.image_scale_quotient != value:
+            self.image_scale_quotient = value
+            reset = True
 
-        self._init_list_add_on_change(_name, view_attr, lt_attr_updates)
-
-        update_image_size(init=True)
-
-    @classmethod
-    def is_applicable(cls, settings):
-        try:
-            view = inspect.currentframe().f_back.f_locals["view"]
-            return view and view.match_selector(0, "text.tex.latex")
-        except KeyError:
-            syntax = settings.get("syntax")
-            return syntax == "Packages/LaTeX/LaTeX.sublime-syntax"
-
-    @classmethod
-    def applies_to_primary_view_only(cls):
-        return True
-
-    #######################
-    # MODIFICATION LISTENER
-    #######################
-
-    def on_after_selection_modified_async(self):
-        self.update_phantoms()
-
-    def _validate_after_selection_modified(self):
-        self._selection_modifications -= 1
-        if self._selection_modifications == 0:
-            sublime.set_timeout_async(self.on_after_selection_modified_async)
-
-    def on_selection_modified(self):
-        self._selection_modifications += 1
-        sublime.set_timeout(self._validate_after_selection_modified, 600)
-
-    #########
-    # METHODS
-    #########
+        if reset:
+            sublime.set_timeout_async(self.reset_phantoms)
 
     def _update_phantom_regions(self):
         regions = self.view.query_phantoms([p.id for p in self.phantoms])
@@ -459,53 +413,68 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener, PreviewSetti
     def _create_html_content(self, p):
         iden = str(p.id)
         if p.thumbnail_path is None:
-            html_content = """Image not found!"""
+            nav_tag = ""
+            img_tag = """Image not found!"""
+
         elif p.hidden:
-            html_content = """
-            <div>
+            nav_tag = """<div>
                 <a href="show {p.index}">(Show)</a>
-            </div>
-            """.format(
-                **locals()
+            </div>""".format(
+                p=p
             )
+            img_tag = ""
+
         else:
-            html_content = """
-            <div>
-                <a href="show {p.index}">(Show)</a>
+            nav_tag = """<div>
                 <a href="hide {p.index}">(Hide)</a>
                 <a href="open_image {p.index}">(Open image)</a>
                 <a href="open_folder {p.index}">(Open folder)</a>
-            </div>
-            """.format(
-                **locals()
+            </div>""".format(
+                p=p
             )
+
             if os.path.exists(p.thumbnail_path):
                 width, height = _adapt_image_size(
                     p.thumbnail_path, self.image_width, self.image_height
                 )
-                html_content += """
-                <div>
-                <img src="file://{p.thumbnail_path}"
-                 width="{width}"
-                 height="{height}">
-                </div>
-                """.format(
-                    **locals()
+                img_tag = (
+                    '<img src="file://{p.thumbnail_path}"'
+                    ' width="{width}"'
+                    ' height="{height}">'.format(**locals())
                 )
             elif convert_installed():
-                html_content += """Preparing image for preview..."""
+                img_tag = "Preparing image for preview..."
             elif os.path.exists(p.thumbnail_path + _ERROR_EXTENSION):
                 img_tag = "ERROR: Failed to create preview thumbnail."
             else:
-                html_content += "Install ImageMagick to enable a preview for " "this image type."
-        html_content = """
-        <body id="latextools-preview-image-phantom">
-            {html_content}
-        </body>
-        """.format(
-            html_content=html_content
+                img_tag = "Install ImageMagick to enable a preview for this image type."
+
+        return dedent(
+            """
+            <style>
+                html, body {{
+                    margin: 0;
+                    padding: 0;
+                }}
+                body {{
+                    padding: 0 0 6pt 10pt;
+                }}
+                a {{
+                    text-decoration: none;
+                }}
+                div {{
+                    padding: 0 0 6pt 0;
+                }}
+            </style>
+            <body id="latextools-preview-image-phantom">
+            {nav_tag}
+            {img_tag}
+            </body>
+            """.format(
+                nav_tag=nav_tag,
+                img_tag=img_tag,
+            )
         )
-        return html_content
 
     def on_navigate(self, href):
         command, index = href.split(" ")
@@ -522,7 +491,7 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener, PreviewSetti
         elif command == "open_image":
             open_image(self.view.window(), p.image_path)
         elif command == "open_folder":
-            open_image_folder(p.image_path)
+            open_image_folder(self.view.window(), p.image_path)
 
     def reset_phantoms(self):
         self.delete_phantoms()
@@ -558,47 +527,53 @@ class PreviewImagePhantomListener(sublime_plugin.ViewEventListener, PreviewSetti
 
     def _update_phantoms(self):
         view = self.view
-        tex_root = get_tex_root(view)
-        if not tex_root:
-            return
 
-        if self.visible_mode == "all":
-            scopes = view.find_by_selector(
-                "meta.function.includegraphics.latex meta.group.brace.latex"
+        cmd_regions = []
+
+        if self.mode == "all":
+            cmd_regions = view.find_by_selector(
+                "meta.function.includegraphics.latex meta.group.brace"
+                " - punctuation.definition.group - punctuation.section.group"
             )
-        elif self.visible_mode == "selected":
-            graphic_scopes = view.find_by_selector("meta.function.includegraphics.latex")
-            selected_scopes = [
-                scope for scope in graphic_scopes if any(scope.contains(sel) for sel in view.sel())
-            ]
-            if selected_scopes:
-                content_scopes = view.find_by_selector(
-                    "meta.function.includegraphics.latex " "meta.group.brace.latex"
+
+        elif self.mode == "selected":
+            selected_cmds = tuple(
+                cmd
+                for cmd in view.find_by_selector("meta.function.includegraphics.latex")
+                if any(cmd.contains(sel) for sel in view.sel())
+            )
+            if selected_cmds:
+                cmd_regions = (
+                    s
+                    for s in view.find_by_selector(
+                        "meta.function.includegraphics.latex meta.group.brace"
+                        " - punctuation.definition.group - punctuation.section.group"
+                    )
+                    if any(cmd.contains(s) for cmd in selected_cmds)
                 )
-                scopes = [
-                    s for s in content_scopes if any(scope.contains(s) for scope in selected_scopes)
-                ]
-            else:
-                scopes = []
-        else:
-            if not self.phantoms:
-                return
-            scopes = []
+
+        elif not self.phantoms:
+            return
 
         new_phantoms = []
         need_thumbnails = []
 
         self._update_phantom_regions()
 
-        tn_width = self.image_scale * self.image_width
-        tn_height = self.image_scale * self.image_height
-        for scope in scopes:
-            file_name = view.substr(scope)[1:-1]
-            image_path = find_image(tex_root, file_name, tex_file_name=view.file_name())
+        tex_root = get_tex_root(view)
+        if not tex_root:
+            return
+
+        tex_file_name = view.file_name()
+        tn_width = self.image_scale_quotient * self.image_width
+        tn_height = self.image_scale_quotient * self.image_height
+        for cmd_region in cmd_regions:
+            file_name = view.substr(cmd_region).strip()
+            image_path = find_image(tex_root, file_name, tex_file_name)
 
             thumbnail_path = _get_thumbnail_path(image_path, tn_width, tn_height)
 
-            region = sublime.Region(scope.end())
+            region = sublime.Region(cmd_region.end())
 
             try:
                 p = next(

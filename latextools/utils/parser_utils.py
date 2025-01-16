@@ -6,14 +6,14 @@ BRACES_MATCH_RX = re.compile(r"\{([^\}]*)\}|\[([^\]]*)\]")
 ALPHAS_RX = re.compile(r"^[a-zA-Z]+$")
 
 BEGIN_ENV_RX = re.compile(
-    r"\\begin{(?P<name>[^\}]*)\}" r"(?:(?P<remainder1>.*)(?P<item>\\item)|(?P<remainder2>.*))"
+    r"\\begin{(?P<name>[^\}]*)\}(?:(?P<remainder1>.*)(?P<item>\\item)|(?P<remainder2>.*))"
 )
 
 
 def command_to_snippet(keyword):
     """
-    converts a LaTeX command, like \dosomething{arg1}{arg2} into a ST snippet
-    like \dosomething{$1:arg1}{$2:arg2}
+    converts a LaTeX command, like \\dosomething{arg1}{arg2} into a ST snippet
+    like \\dosomething{$1:arg1}{$2:arg2}
     """
 
     # replace strings in [] and {} with snippet syntax

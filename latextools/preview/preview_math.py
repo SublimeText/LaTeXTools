@@ -1,6 +1,5 @@
 import base64
 import html
-import inspect
 import os
 import re
 import struct
@@ -10,22 +9,19 @@ import time
 import types
 
 import sublime
-import sublime_plugin
 
 from ..utils import cache
 from ..utils.external_command import execute_command
 from ..utils.logging import logger
 from ..utils.settings import get_setting
+from ..utils.settings import subscribe_settings_change
+from ..utils.settings import unsubscribe_settings_change
 from ..utils.tex_log import parse_tex_log
 from ..utils.utils import cpu_count
-from .preview_utils import SettingsListener as PreviewSettingsListener
 from .preview_utils import ghostscript_installed
 from .preview_utils import get_ghostscript_version
 from .preview_utils import run_ghostscript_command
 from . import preview_threading as pv_threading
-
-# export the listener
-__all__ = ["MathPreviewPhantomListener"]
 
 # increase this number if you change the convert command to mark the
 # generated images as expired
@@ -67,67 +63,35 @@ default_latex_template = """
 
 
 # the path to the temp files (set on loading)
-temp_path = None
+temp_path = ""
 
 # we use png files for the html popup
 _IMAGE_EXTENSION = ".png"
 # we add this extension to log error information
 _ERROR_EXTENSION = ".err"
 
-_scale_quotient = 1
-_density = 150
-_hires = True
-# these are the default values derived from gxdevice.h in the
-# Ghostscript source code
-_max_bitmap = 1000000
-_bufferspace = 4000000
-_lt_settings = {}
-
 _name = "preview_math"
 
 
-def _on_setting_change():
-    global _density, _scale_quotient, _hires, _max_bitmap, _bufferspace
-    _scale_quotient = _lt_settings.get("preview_math_scale_quotient", _scale_quotient)
-    _density = _lt_settings.get("preview_math_density", _density)
-    _hires = _lt_settings.get("preview_math_hires", _hires)
-    _max_bitmap = _lt_settings.get("preview_math_max_bitmap", _max_bitmap)
-    _bufferspace = _lt_settings.get("preview_math_bufferspace", _bufferspace)
-    max_threads = get_setting("preview_max_convert_threads", default=None, view={})
-    if max_threads is not None:
-        pv_threading.set_max_threads(max_threads)
-
-
-def plugin_loaded():
-    global _lt_settings, temp_path
-    _lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
-
-    temp_path = os.path.join(cache._global_cache_path(), _name)
-
-    # init all variables
-    _on_setting_change()
-    # add a callback to setting changes
-    _lt_settings.add_on_change("lt_preview_math_main", _on_setting_change)
+def latextools_plugin_loaded():
+    global temp_path
 
     # register the temp folder for auto deletion
+    temp_path = os.path.join(cache._global_cache_path(), _name)
     pv_threading.register_temp_folder(_name, temp_path)
 
 
-def plugin_unloaded():
-    global _IS_ENABLED
-    _IS_ENABLED = False
-
-    for w in sublime.windows():
-        for v in w.views():
-            v.erase_phantoms(_name)
-            v.settings().clear_on_change(_name)
-
-    _lt_settings = sublime.load_settings("LaTeXTools.sublime-settings")
-    _lt_settings.clear_on_change(_name)
-    _lt_settings.clear_on_change("lt_preview_math_main")
-
-
-def _create_image(latex_program, latex_document, base_name, color, **kwargs):
+def _create_image(
+    latex_program,
+    latex_document,
+    base_name,
+    color,
+    density,
+    hires,
+    max_bitmap,
+    bufferspace,
+    **kwargs
+):
     """Create an image for a latex document."""
     rel_source_path = base_name + ".tex"
     pdf_path = os.path.join(temp_path, base_name + ".pdf")
@@ -182,7 +146,7 @@ def _create_image(latex_program, latex_document, base_name, color, **kwargs):
             bbox = None
 
         # hires renders the image at 8 times the dpi, then scales it down
-        scale_factor = 8 if _hires and get_ghostscript_version() >= (9, 14) else 1
+        scale_factor = 8 if hires else 1
 
         # allow Ghostscript to use multiple CPUs, up to two less than the
         # total number (so that sublime_text and plugin_host are minimally
@@ -194,13 +158,13 @@ def _create_image(latex_program, latex_document, base_name, color, **kwargs):
             "-sDEVICE=pngalpha",
             "-dLastPage=1",
             "-sOutputFile={image_path}".format(image_path=image_path),
-            "-r{density}".format(density=_density * scale_factor),
+            "-r{density}".format(density=density * scale_factor),
             "-dDownScaleFactor={0}".format(scale_factor),
             "-dTextAlphaBits=4",
             "-dGraphicsAlphaBits=4",
             "-dNumRenderingThreads={0}".format(cpus),
-            "-dMaxBitmap={0}".format(_max_bitmap),
-            "-dBufferSpace={0}".format(_bufferspace),
+            "-dMaxBitmap={0}".format(max_bitmap),
+            "-dBufferSpace={0}".format(bufferspace),
         ]
 
         # calculate and apply cropping boundaries, if we have them
@@ -211,8 +175,8 @@ def _create_image(latex_program, latex_document, base_name, color, **kwargs):
             # 4pts are added to each length for some padding
             # these are then multiplied by the ratio of the final density to
             # the PDFs DPI (72) to get the final size of the image in pixels
-            width = round((bbox[2] - bbox[0] + 4) * _density * scale_factor / 72)
-            height = round((bbox[3] - bbox[1] + 4) * _density * scale_factor / 72)
+            width = round((bbox[2] - bbox[0] + 4) * density * scale_factor / 72)
+            height = round((bbox[3] - bbox[1] + 4) * density * scale_factor / 72)
             command.extend(
                 [
                     "-g{width}x{height}".format(**locals()),
@@ -245,7 +209,7 @@ def _create_image(latex_program, latex_document, base_name, color, **kwargs):
             err_log.append(
                 "Ghostscript could not produce an image. "
                 "Please try changing the preview_math_bufferspace setting "
-                "to a larger value. Currently: {0}. ".format(_bufferspace)
+                "to a larger value. Currently: {0}. ".format(bufferspace)
                 + "This setting can be found in the LaTeXTools (Advanced) "
                 "settings file."
             )
@@ -359,70 +323,6 @@ def _run_image_jobs():
     pv_threading.run_jobs(_name)
 
 
-def _wrap_html(html_content, color=None, background_color=None):
-    if color or background_color:
-        style = "<style>"
-        style += "body {"
-        if color:
-            style += "color: {0};".format(color)
-        if background_color:
-            style += "background-color: {0};".format(background_color)
-        style += "}"
-        style += "</style>"
-    else:
-        style = ""
-    html_content = (
-        '<body id="latextools-preview-math-phantom">'
-        "{style}"
-        "{html_content}"
-        "</body>".format(**locals())
-    )
-    return html_content
-
-
-def _generate_error_html(view, image_path, style_kwargs):
-    content = "ERROR: "
-    err_file = image_path + _ERROR_EXTENSION
-    with open(err_file, "r") as f:
-        content += f.readline()
-
-    html_content = html.escape(content, quote=False)
-    html_content += (
-        "<br>"
-        '<a href="check_system">(Check System)</a> '
-        '<a href="report-{err_file}">(Show Report)</a> '
-        '<a href="disable">(Disable)</a>'.format(**locals())
-    )
-
-    html_content = _wrap_html(html_content, **style_kwargs)
-    return html_content
-
-
-def _generate_html(view, image_path, style_kwargs):
-    with open(image_path, "rb") as f:
-        image_raw_data = f.read()
-
-    if len(image_raw_data) < 24:
-        width = height = 0
-    else:
-        width, height = struct.unpack(">ii", image_raw_data[16:24])
-
-    if width <= 1 and height <= 1:
-        html_content = "&nbsp;"
-    else:
-        if _scale_quotient != 1:
-            width /= _scale_quotient
-            height /= _scale_quotient
-            style = 'style="width: {width}; height: {height};"'.format(**locals())
-        else:
-            style = ""
-        img_data_b64 = base64.b64encode(image_raw_data).decode("ascii")
-        html_content = '<img {style} src="data:image/png;base64,{img_data_b64}">'.format(**locals())
-    # wrap the html content in a body and style
-    html_content = _wrap_html(html_content, **style_kwargs)
-    return html_content
-
-
 class PhantomNamepace(types.SimpleNamespace):
     """
     A hashable SimpleNamespace required for python 3.8 compatibility
@@ -432,14 +332,13 @@ class PhantomNamepace(types.SimpleNamespace):
         return self.id
 
 
-class MathPreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSettingsListener):
+class MathPreviewPhantomProvider:
     key = "preview_math"
     # a dict from the file name to the content to avoid storing it for
     # every view
     template_contents = {}
     # cache to check refresh the template
     template_mtime = {}
-    template_lock = threading.Lock()
 
     def __init__(self, view):
         self.view = view
@@ -447,189 +346,102 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSettin
 
         self._phantom_lock = threading.Lock()
 
-        self._modifications = 0
-        self._selection_modifications = 0
+        self.mode = "selected"
+        self.latex_compile_program = ""
+        self.no_star_envs = []
+        self.color = None
+        self.background_color = None
+        self.scope = ""
+        self.scale_quotient = 1
+        self.density = 150
+        self.hires = True
+        self.max_bitmap = 1000000
+        self.bufferspace = 4000000
 
-        self._init_watch_settings()
+        self.template_file = ""
+        self.template_packages = ""
+        self.template_preamble = ""
 
-        if self.latex_template_file:
-            sublime.set_timeout_async(self._read_latex_template_file)
+        subscribe_settings_change(self.key, self._on_settings_changed, view)
+        self._on_settings_changed()
 
-        view.erase_phantoms(self.key)
-        # start with updating the phantoms
-        sublime.set_timeout_async(self.update_phantoms)
+    def unsubscribe(self):
+        unsubscribe_settings_change(self.key, self.view)
+        self.delete_phantoms()
 
-    def _init_watch_settings(self):
-        # listen to setting changes to update the phantoms
-        def update_packages_str(init=False):
-            self.packages_str = "\n".join(self.packages)
-            if not init:
-                self.reset_phantoms()
+    def _on_settings_changed(self):
+        reset = False
+        prefix_len = len("preview_math_")
+        for key in (
+            "preview_math_mode",
+            "preview_math_latex_compile_program",
+            "preview_math_no_star_envs",
+            "preview_math_color",
+            "preview_math_background_color",
+            "preview_math_scope",
+            "preview_math_scale_quotient",
+            "preview_math_density",
+            "preview_math_hires",
+            "preview_math_max_bitmap",
+            "preview_math_bufferspace",
+        ):
+            value = get_setting(key, view=self.view)
+            attr = key[prefix_len:]
+            if value is not None and getattr(self, attr) != value:
+                setattr(self, attr, value)
+                reset = True
 
-        def update_preamble_str(init=False):
-            if isinstance(self.preamble, str):
-                self.preamble_str = self.preamble
-            else:
-                self.preamble_str = "\n".join(self.preamble)
+        # custom setter
 
-            if not init:
-                self.reset_phantoms()
+        value = get_setting("preview_math_template_packages", view=self.view)
+        if isinstance(value, list):
+            value = "\n".join(value)
+        if value is not None and self.template_packages != value:
+            self.template_packages = value
+            reset = True
 
-        def update_template_file(init=False):
+        value = get_setting("preview_math_template_preamble", view=self.view)
+        if isinstance(value, list):
+            value = "\n".join(value)
+        if value is not None and self.template_preamble != value:
+            self.template_preamble = value
+            reset = True
+
+        value = get_setting("preview_math_template_file", view=self.view)
+        if value is not None and self.template_file != value:
+            self.template_file = value
+            reset = True
             self._read_latex_template_file(refresh=True)
-            if not init:
-                self.reset_phantoms()
 
-        view_attr = {
-            "visible_mode": {
-                "setting": "preview_math_mode",
-                "call_after": self.update_phantoms,
-            },
-            "latex_program": {
-                "setting": "preview_math_latex_compile_program",
-                "call_after": self.reset_phantoms,
-            },
-            "no_star_env": {
-                "setting": "preview_math_no_star_envs",
-                "call_after": self.reset_phantoms,
-            },
-            "color": {
-                "setting": "preview_math_color",
-                "call_after": self.reset_phantoms,
-            },
-            "background_color": {
-                "setting": "preview_math_background_color",
-                "call_after": self.reset_phantoms,
-            },
-            "math_scope": {
-                "setting": "preview_math_scope",
-                "call_after": self.reset_phantoms,
-            },
-            "packages": {
-                "setting": "preview_math_template_packages",
-                "call_after": update_packages_str,
-            },
-            "preamble": {
-                "setting": "preview_math_template_preamble",
-                "call_after": update_preamble_str,
-            },
-            "latex_template_file": {
-                "setting": "preview_math_template_file",
-                "call_after": update_template_file,
-            },
-        }
-
-        lt_attr = view_attr.copy()
-
-        # watch these attributes for setting changes to reset the phantoms
-        watch_attr = {
-            "_watch_scale_quotient": {
-                "setting": "preview_math_scale_quotient",
-                "call_after": self.reset_phantoms,
-            },
-            "_watch_density": {
-                "setting": "preview_math_density",
-                "call_after": self.reset_phantoms,
-            },
-            "_watch_hires": {
-                "setting": "preview_math_hires",
-                "call_after": self.reset_phantoms,
-            },
-            "_watch_max_bitmap": {
-                "setting": "preview_math_max_bitmap",
-                "call_after": self.reset_phantoms,
-            },
-            "_watch_bufferspace": {
-                "setting": "preview_math_bufferspace",
-                "call_after": self.reset_phantoms,
-            },
-        }
-        for attr_name, d in watch_attr.items():
-            settings_name = d["setting"]
-            self.__dict__[attr_name] = _lt_settings.get(settings_name)
-
-        lt_attr.update(watch_attr)
-
-        self._init_list_add_on_change(_name, view_attr, lt_attr)
-        update_packages_str(init=True)
-        update_preamble_str(init=True)
-        update_template_file(init=True)
+        if reset:
+            sublime.set_timeout_async(self.reset_phantoms)
 
     def _read_latex_template_file(self, refresh=False):
-        with self.template_lock:
-            if not self.latex_template_file:
+        if not self.template_file:
+            return
+
+        if self.template_file in self.template_contents:
+            if not refresh:
+                return
+            try:
+                mtime = os.path.getmtime(self.template_file)
+                old_mtime = self.template_mtime[self.template_file]
+                if old_mtime == mtime:
+                    return
+            except Exception:
                 return
 
-            if self.latex_template_file in self.template_contents:
-                if not refresh:
-                    return
-                try:
-                    mtime = os.path.getmtime(self.latex_template_file)
-                    old_mtime = self.template_mtime[self.latex_template_file]
-                    if old_mtime == mtime:
-                        return
-                except Exception:
-                    return
-
-            mtime = 0
-            try:
-                with open(self.latex_template_file, "r", encoding="utf8") as f:
-                    file_content = f.read()
-                mtime = os.path.getmtime(self.latex_template_file)
-                logger.info("Load math preview template file for '%s'", self.latex_template_file)
-            except Exception as e:
-                logger.error("Error while reading math preview template file: %s", e)
-                file_content = None
-            self.template_contents[self.latex_template_file] = file_content
-            self.template_mtime[self.latex_template_file] = mtime
-
-    @classmethod
-    def is_applicable(cls, settings):
+        mtime = 0
         try:
-            view = inspect.currentframe().f_back.f_locals["view"]
-            return len(view.find_by_selector("text.tex.latex")) > 0
-        except KeyError:
-            syntax = settings.get("syntax")
-            return syntax == "Packages/LaTeX/LaTeX.sublime-syntax"
-
-    @classmethod
-    def applies_to_primary_view_only(cls):
-        return True
-
-    #######################
-    # MODIFICATION LISTENER
-    #######################
-
-    def on_after_modified_async(self):
-        self.update_phantoms()
-
-    def _validate_after_modified(self):
-        self._modifications -= 1
-        if self._modifications == 0:
-            sublime.set_timeout_async(self.on_after_modified_async)
-
-    def on_modified(self):
-        self._modifications += 1
-        sublime.set_timeout(self._validate_after_modified, 600)
-
-    def on_after_selection_modified_async(self):
-        if self.visible_mode == "selected" or not self.phantoms:
-            self.update_phantoms()
-
-    def _validate_after_selection_modified(self):
-        self._selection_modifications -= 1
-        if self._selection_modifications == 0:
-            sublime.set_timeout_async(self.on_after_selection_modified_async)
-
-    def on_selection_modified(self):
-        if self._modifications:
-            return
-        self._selection_modifications += 1
-        sublime.set_timeout(self._validate_after_selection_modified, 600)
-
-    #########
-    # METHODS
-    #########
+            with open(self.template_file, "r", encoding="utf-8") as f:
+                file_content = f.read()
+            mtime = os.path.getmtime(self.template_file)
+            logger.info("Load math preview template file for '%s'", self.template_file)
+        except Exception as e:
+            logger.error("Error while reading math preview template file: %s", e)
+            file_content = None
+        self.template_contents[self.template_file] = file_content
+        self.template_mtime[self.template_file] = mtime
 
     def on_navigate(self, href):
         global _IS_ENABLED
@@ -675,46 +487,34 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSettin
             self._update_phantoms()
 
     def _update_phantoms(self):
-        if not self.view.is_primary():
+        view = self.view
+        if not view.is_primary():
             return
         # not sure why this happens, but ignore these cases
-        if self.view.window() is None:
+        window = view.window()
+        if window is None:
             return
         if not ghostscript_installed():
             return
-
-        view = self.view
-        window = view.window()
-
-        # see #980; in any case window is None only for newly created views
-        # where there isn't much point in running the phantom update.
-        if window is None or not any(
-            window.active_view_in_group(g) == view for g in range(window.num_groups())
-        ):
-            return
-
-        # TODO we may only want to apply if the view is visible
-        # if view != view.window().active_view():
-        #     return
 
         # update the regions of the phantoms
         self._update_phantom_regions()
 
         new_phantoms = []
         job_args = []
-        if not _IS_ENABLED or self.visible_mode == "none" or self.math_scope is None:
+        if not _IS_ENABLED or self.mode == "none" or self.scope is None:
             if not self.phantoms:
                 return
             scopes = []
-        elif self.visible_mode == "all":
-            scopes = view.find_by_selector(self.math_scope)
-        elif self.visible_mode == "selected":
-            math_scopes = view.find_by_selector(self.math_scope)
+        elif self.mode == "all":
+            scopes = view.find_by_selector(self.scope)
+        elif self.mode == "selected":
+            math_scopes = view.find_by_selector(self.scope)
             scopes = [
                 scope for scope in math_scopes if any(scope.contains(sel) for sel in view.sel())
             ]
         else:
-            self.visible_mode = "none"
+            self.mode = "none"
             scopes = []
 
         # avoid creating a preview if someone just inserts $|$ and
@@ -731,7 +531,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSettin
         if not color:
             color = get_color(view)
 
-        style_kwargs = {"color": color, "background_color": self.background_color}
+        hires = self.hires and get_ghostscript_version() >= (9, 14)
 
         for scope in scopes:
             content = view.substr(scope)
@@ -739,16 +539,10 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSettin
 
             layout = (
                 sublime.LAYOUT_BLOCK
-                if multline or self.visible_mode == "selected"
+                if multline or self.mode == "selected"
                 else sublime.LAYOUT_INLINE
             )
-            BE_BLOCK = view.match_selector(scope.begin(), "meta.environment.math.block.be")
-
-            # avoid jumping around in begin end block
-            if multline and BE_BLOCK:
-                region = sublime.Region(scope.end() + 4)
-            else:
-                region = sublime.Region(scope.end())
+            region = sublime.Region(scope.end())
 
             try:
                 p = next(e for e in self.phantoms if e.region == region)
@@ -775,9 +569,9 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSettin
             id_str = "\n".join(
                 [
                     str(_version),
-                    self.latex_program,
-                    str(_density),
-                    str(_hires and get_ghostscript_version() >= (9, 14)),
+                    self.latex_compile_program,
+                    str(self.density),
+                    str(hires),
                     color,
                     latex_document,
                 ]
@@ -790,7 +584,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSettin
                 if p.id is not None:
                     view.erase_phantom_by_id(p.id)
                     _cancel_image_jobs(view.id(), p)
-                html_content = _generate_html(view, image_path, style_kwargs)
+                html_content = self._generate_html(image_path)
                 p.id = view.add_phantom(
                     self.key, region, html_content, layout, on_navigate=self.on_navigate
                 )
@@ -802,7 +596,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSettin
                 p.id = view.add_phantom(
                     self.key,
                     region,
-                    _wrap_html("\u231B", **style_kwargs),
+                    self._wrap_html("\u231B"),
                     layout,
                     on_navigate=self.on_navigate,
                 )
@@ -812,8 +606,12 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSettin
                     "latex_document": latex_document,
                     "base_name": base_name,
                     "color": color,
+                    "density": self.density,
+                    "hires": self.hires,
+                    "max_bitmap": self.max_bitmap,
+                    "bufferspace": self.bufferspace,
                     "p": p,
-                    "cont": self._make_cont(p, image_path, time.time(), style_kwargs),
+                    "cont": self._make_cont(p, image_path, time.time()),
                 }
             )
 
@@ -831,7 +629,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSettin
 
         # run the jobs to create the remaining images
         if job_args:
-            _extend_image_jobs(view.id(), self.latex_program, job_args)
+            _extend_image_jobs(view.id(), self.latex_compile_program, job_args)
             _run_image_jobs()
 
     def _create_document(self, scope, color):
@@ -864,7 +662,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSettin
             # strip those strings from the content
             content = content[offset:-offset]
         elif env:
-            star = "*" if env not in self.no_star_env or m.group(2) else ""
+            star = "*" if env not in self.no_star_envs or m.group(2) else ""
             # add a * to the env to avoid numbers in the resulting image
             open_str = "\\begin{{{env}{star}}}".format(**locals())
             close_str = "\\end{{{env}{star}}}".format(**locals())
@@ -878,7 +676,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSettin
         document_content = "{open_str}\n{content}\n{close_str}".format(**locals())
 
         try:
-            latex_template = self.template_contents[self.latex_template_file]
+            latex_template = self.template_contents[self.template_file]
             if not latex_template:
                 raise Exception("Template must not be empty!")
         except Exception:
@@ -893,25 +691,25 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSettin
         latex_document = (
             latex_template.replace("<<content>>", document_content, 1)
             .replace("<<set_color>>", set_color, 1)
-            .replace("<<packages>>", self.packages_str, 1)
-            .replace("<<preamble>>", self.preamble_str, 1)
+            .replace("<<packages>>", self.template_packages, 1)
+            .replace("<<preamble>>", self.template_preamble, 1)
         )
 
         return latex_document
 
-    def _make_cont(self, p, image_path, update_time, style_kwargs):
+    def _make_cont(self, p, image_path, update_time):
         def cont():
             # if the image does not exists do nothing
             if os.path.exists(image_path):
                 # generate the html
-                html_content = _generate_html(self.view, image_path, style_kwargs)
+                html_content = self._generate_html(image_path)
             elif os.path.exists(image_path + _ERROR_EXTENSION):
                 # inform the user about the error
-                html_content = _generate_error_html(self.view, image_path, style_kwargs)
+                html_content = self._generate_error_html(image_path)
             else:
                 return
             # move to main thread and update the phantom
-            sublime.set_timeout(self._update_phantom_content(p, html_content, update_time))
+            sublime.set_timeout(lambda: self._update_phantom_content(p, html_content, update_time))
 
         return cont
 
@@ -940,3 +738,55 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener, PreviewSettin
 
         # update the phantoms update time
         p.update_time = update_time
+
+    def _generate_error_html(self, image_path):
+        content = "ERROR: "
+        err_file = image_path + _ERROR_EXTENSION
+        with open(err_file, "r") as f:
+            content += f.readline()
+
+        html_content = html.escape(content, quote=False) + (
+            "<br>"
+            '<a href="check_system">(Check System)</a> '
+            '<a href="report-{err_file}">(Show Report)</a> '
+            '<a href="disable">(Disable)</a>'.format(err_file=err_file)
+        )
+
+        return self._wrap_html(html_content)
+
+    def _generate_html(self, image_path):
+        with open(image_path, "rb") as f:
+            image_raw_data = f.read()
+
+        if len(image_raw_data) < 24:
+            width = height = 0
+        else:
+            width, height = struct.unpack(">ii", image_raw_data[16:24])
+
+        if width <= 1 and height <= 1:
+            html_content = "&nbsp;"
+        else:
+            if self.scale_quotient != 1:
+                width /= self.scale_quotient
+                height /= self.scale_quotient
+                style = 'style="width: {width}; height: {height};"'.format(**locals())
+            else:
+                style = ""
+            img_data_b64 = base64.b64encode(image_raw_data).decode("ascii")
+            html_content = '<img {style} src="data:image/png;base64,{img_data_b64}">'.format(**locals())
+
+        # wrap the html content in a body and style
+        return self._wrap_html(html_content)
+
+    def _wrap_html(self, html_content):
+        if self.color or self.background_color:
+            style = "<style> body {"
+            if self.color:
+                style += "color: {0};".format(self.color)
+            if self.background_color:
+                style += "background-color: {0};".format(self.background_color)
+            style += "} </style>"
+        else:
+            style = ""
+
+        return '<body id="latextools-preview-math-phantom">' + style + html_content + "</body>"

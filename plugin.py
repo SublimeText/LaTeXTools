@@ -42,7 +42,6 @@ else:
     from .latextools.delete_temp_files import (
         LatextoolsClearCacheCommand,
         LatextoolsClearLocalCacheCommand,
-        LatextoolsClearBibliographyCacheCommand,
         LatextoolsDeleteTempFilesCommand,
     )
     from .latextools.deprecated_command import (
@@ -105,12 +104,9 @@ else:
     from .latextools.migrate import (
         LatextoolsMigrateCommand
     )
-    from .latextools.preview.preview_image import (
-        PreviewImageHoverListener,
-        PreviewImagePhantomListener
-    )
-    from .latextools.preview.preview_math import (
-        MathPreviewPhantomListener
+    from .latextools.preview import (
+        ImagePreviewHoverListener,
+        PreviewPhantomListener
     )
     from .latextools.reveal_folders import (
         LatextoolsRevealAuxDirectoryCommand,
@@ -149,23 +145,23 @@ else:
 
 
     def _filter_func(name):
-        return name.startswith(prefix) and name not in (__name__, "latextools")
+        return name.startswith(prefix) and name != __name__
 
 
     def plugin_loaded():
         init_logger()
         for name in sorted(filter(_filter_func, sys.modules)):
             module = sys.modules[name]
-            if hasattr(module, "plugin_loaded"):
-                logger.debug("calling %s.plugin_loaded()", name)
-                module.plugin_loaded()
+            if hasattr(module, "latextools_plugin_loaded"):
+                logger.debug("calling %s.latextools_plugin_loaded()", name)
+                module.latextools_plugin_loaded()
 
 
     def plugin_unloaded():
         for name in sorted(filter(_filter_func, sys.modules)):
             module = sys.modules[name]
-            if hasattr(module, "plugin_unloaded"):
-                logger.debug("calling %s.plugin_unloaded()", name)
-                module.plugin_unloaded()
+            if hasattr(module, "latextools_plugin_unloaded"):
+                logger.debug("calling %s.latextools_plugin_unloaded()", name)
+                module.latextools_plugin_unloaded()
 
         shutdown_logger()

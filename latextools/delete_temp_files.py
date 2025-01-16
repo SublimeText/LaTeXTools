@@ -1,7 +1,9 @@
+import json
 import os
 import shutil
 import sublime
 import sublime_plugin
+import tempfile
 import traceback
 
 from .deprecated_command import deprecate
@@ -16,13 +18,54 @@ from .utils.tex_directives import get_tex_root
 __all__ = [
     "LatextoolsClearCacheCommand",
     "LatextoolsClearLocalCacheCommand",
-    "LatextoolsClearBibliographyCacheCommand",
     "LatextoolsDeleteTempFilesCommand",
 ]
 
 
-class LatextoolsClearCacheCommand(sublime_plugin.WindowCommand):
+def latextools_plugin_loaded():
+    """
+    unfortunately, there is no reliable way to do clean-up on exit in ST
+    see https://github.com/SublimeTextIssues/Core/issues/10
+    here we cleanup any directories listed in the temporary_output_dirs
+    file as having been previously created by the plugin
+    """
+    temporary_output_dirs = os.path.join(
+        sublime.cache_path(), "LaTeXTools", "temporary_output_dirs"
+    )
 
+    if os.path.exists(temporary_output_dirs):
+        with open(temporary_output_dirs, "r") as f:
+            data = json.load(f)
+
+        tempdir = tempfile.gettempdir()
+
+        try:
+            for directory in data["directories"]:
+                # shutil.rmtree is a rather blunt tool, so here we try to
+                # ensure we are only deleting legitimate temporary files
+                if (
+                    directory is None
+                    or not isinstance(directory, str)
+                    or not directory.startswith(tempdir)
+                ):
+                    continue
+
+                try:
+                    shutil.rmtree(directory)
+                except OSError:
+                    pass
+                else:
+                    logger.info("Deleted old temp directory %s", directory)
+        except KeyError:
+            pass
+
+        try:
+            os.remove(temporary_output_dirs)
+        except OSError:
+            pass
+
+
+class LatextoolsClearCacheCommand(sublime_plugin.WindowCommand):
     def run(self):
         try:
             shutil.rmtree(cache._global_cache_path())
@@ -31,14 +74,18 @@ class LatextoolsClearCacheCommand(sublime_plugin.WindowCommand):
         except OSError as e:
             logger.error("Can't delete global cache: %s", e)
 
-        view = self.window.active_view()
-        if view and view.match_selector(0, "text.tex.latex"):
-            self.window.run_command("latextools_clear_local_cache")
-            self.window.run_command("latextools_clear_bibliography_cache")
+        tex_root = get_tex_root(self.window.active_view())
+        if not tex_root:
+            return
+
+        try:
+            cache.LocalCache(tex_root).invalidate()
+        except Exception:
+            logger.error("Error while trying to delete local cache")
+            traceback.print_exc()
 
 
 class LatextoolsClearLocalCacheCommand(sublime_plugin.WindowCommand):
-
     def is_visible(self, *args):
         view = self.window.active_view()
         return view and view.match_selector(0, "text.tex.latex")
@@ -55,56 +102,7 @@ class LatextoolsClearLocalCacheCommand(sublime_plugin.WindowCommand):
             traceback.print_exc()
 
 
-class LatextoolsClearBibliographyCacheCommand(sublime_plugin.WindowCommand):
-
-    def is_visible(self, *args):
-        view = self.window.active_view()
-        return view and view.match_selector(0, "text.tex.latex, text.bibtex, text.biblatex")
-
-    def run(self):
-        view = self.window.active_view()
-        if view is None:
-            return
-
-        if not view.match_selector(0, "text.tex.latex, text.bibtex, text.biblatex"):
-            return
-
-        # find the instance of LatextoolsCacheUpdateListener, if any
-        cache_listener = None
-        for callback in sublime_plugin.all_callbacks["on_close"]:
-            try:
-                instance = callback.__self__
-            except Exception:
-                continue
-
-            if instance.__class__.__name__ == "LatextoolsCacheUpdateListener":
-                cache_listener = instance
-                break
-
-        if cache_listener is None:
-            return
-
-        # if run from a TeX file, clear all bib caches associated with this
-        # document
-        if view.match_selector(0, "text.tex.latex"):
-            tex_root = get_tex_root(view)
-            for bib_cache in cache_listener._BIB_CACHES.get(tex_root, []):
-                bib_cache.invalidate()
-        # if run from a bib file, clear all bib caches that reflect this
-        # document
-        else:
-            file_name = view.file_name()
-            if not file_name:
-                return
-
-            for bib_caches in cache_listener._BIB_CACHES.values():
-                for bib_cache in bib_caches:
-                    if bib_cache.bib_file == file_name:
-                        bib_cache.invalidate()
-
-
 class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
-
     def is_visible(self, *args):
         view = self.window.active_view()
         return view and view.match_selector(0, "text.tex.latex")
@@ -170,6 +168,7 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
             sublime.status_message("Deleted temp files")
 
     def delete_temp_files(self, path):
+        view = self.window.active_view()
         # Load the files to delete from the settings
         temp_files_exts = get_setting(
             "temp_files_exts",
@@ -193,11 +192,12 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
                 ".ilg",
                 ".idx",
             ],
+            view,
         )
 
-        ignored_folders = get_setting("temp_files_ignored_folders", [".git", ".svn", ".hg"])
-
-        ignored_folders = set(ignored_folders)
+        ignored_folders = set(
+            get_setting("temp_files_ignored_folders", [".git", ".svn", ".hg"], view)
+        )
 
         files = []
         for dir_path, dir_names, file_names in os.walk(path):
@@ -210,9 +210,10 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
         if not files:
             return False
 
-        if get_setting("temp_files_prompt_on_delete", False):
-            msg = "Are you sure you want to delete the following files?\n"
-            msg = "{0}\n{1}".format(msg, "".join(["\n{0}".format(f) for f in files]))
+        if get_setting("temp_files_prompt_on_delete", False, view):
+            msg = "Are you sure you want to delete the following files?\n\n" + "\n".join(files[:20])
+            if len(files) > 20:
+                msg += "\n..."
             if not sublime.ok_cancel_dialog(msg):
                 return False
 
@@ -251,5 +252,4 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
 
 
 deprecate(globals(), "ClearLocalLatexCacheCommand", LatextoolsClearLocalCacheCommand)
-deprecate(globals(), "ClearBibliographyCacheCommand", LatextoolsClearBibliographyCacheCommand)
 deprecate(globals(), "DeleteTempFilesCommand", LatextoolsDeleteTempFilesCommand)

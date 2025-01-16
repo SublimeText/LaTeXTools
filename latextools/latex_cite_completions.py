@@ -485,7 +485,7 @@ class CiteFillAllHelper(FillAllHelper):
         if len(completions) == 0:
             return []
 
-        cite_autocomplete_format = get_setting("cite_autocomplete_format", "{keyword}: {title}")
+        cite_autocomplete_format = get_setting("cite_autocomplete_format", "{keyword}: {title}", view)
 
         def formatted_entry(entry):
             try:
@@ -521,7 +521,7 @@ class CiteFillAllHelper(FillAllHelper):
         elif completions_length == 1:
             return [completions[0]["keyword"]]
 
-        cite_panel_format = get_setting("cite_panel_format", ["{title} ({keyword})", "{author}"])
+        cite_panel_format = get_setting("cite_panel_format", ["{title} ({keyword})", "{author}"], view)
 
         def formatted_entry(entry):
             try:
@@ -557,7 +557,7 @@ def _is_prefix(lower_prefix, entry):
         return lower_prefix in bibformat.create_prefix_match_str(entry)
 
 
-def plugin_loaded():
+def latextools_plugin_loaded():
     # load plugins from the plugins/bibliography dir of LaTeXTools if it exists
     # this allows us to have pre-packaged plugins that won't require any user
     # setup

@@ -79,7 +79,7 @@ def _directive_root_completions(view, value, ac=True):
 
 
 def _directive_spellcheck_completions(view, value, ac=True):
-    user_sc = get_setting("tex_spellcheck_paths", view=view, default={})
+    user_sc = get_setting("tex_spellcheck_paths", {}, view)
     locales = sorted(user_sc.keys())
 
     locales.extend(installed_locales)
@@ -151,8 +151,8 @@ def _directive_output_directory_completions(view, value, ac=True):
 _directive_aux_directory_completions = _directive_output_directory_completions
 
 
-_EXCLAMATION_MARK_RE = re.compile(r"%+\s*!" r"$", re.UNICODE | re.IGNORECASE)
-_TEX_PREFIX_RE = re.compile(r"%+\s*!" r"TEX\s+" r"$", re.UNICODE | re.IGNORECASE)
+_EXCLAMATION_MARK_RE = re.compile(r"%+\s*!$", re.UNICODE | re.IGNORECASE)
+_TEX_PREFIX_RE = re.compile(r"%+\s*!TEX\s+$", re.UNICODE | re.IGNORECASE)
 _LINE_RE = re.compile(
     r"%+\s*!"
     r"TEX\s+"

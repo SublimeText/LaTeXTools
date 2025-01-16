@@ -78,9 +78,9 @@ def _post_process_path_only(completions):
     return result
 
 
-def plugin_loaded():
+def latextools_plugin_loaded():
     # get additional entries from the settings
-    _setting_entries = get_setting("fillall_helper_entries", [])
+    _setting_entries = get_setting("fillall_helper_entries", [], {})
     _filter_invalid_entries(_setting_entries)
     _fillall_entries.extend(_setting_entries)
 
@@ -95,7 +95,7 @@ def plugin_loaded():
             # includegraphics
             {
                 "regex": r"(?:\][^{}\[\]]*\[)?scihpargedulcni\\",
-                "extensions": get_setting("image_types", ["pdf", "png", "jpeg", "jpg", "eps"]),
+                "extensions": get_setting("image_types", ["pdf", "png", "jpeg", "jpg", "eps"], {}),
                 "folder": "${graphics_path:$base}",
             },
             # import/subimport
@@ -110,7 +110,7 @@ def plugin_loaded():
                 "extensions": [e[1:] for e in get_tex_extensions()],
                 "strip_extensions": [".tex"],
                 "post_regex": (
-                    r"\\sub(?:import|includefrom|inputfrom)\*?" r"\{([^{}\[\]]*)\}\{[^\}]*?$"
+                    r"\\sub(?:import|includefrom|inputfrom)\*?\{([^{}\[\]]*)\}\{[^\}]*?$"
                 ),
                 "folder": "$base/$_1",
             },
@@ -119,7 +119,7 @@ def plugin_loaded():
                 "extensions": [e[1:] for e in get_tex_extensions()],
                 "strip_extensions": [".tex"],
                 "post_regex": (
-                    r"\\(?:import|includefrom|inputfrom)\*?" r"\{([^{}\[\]]*)\}\{[^\}]*?$"
+                    r"\\(?:import|includefrom|inputfrom)\*?\{([^{}\[\]]*)\}\{[^\}]*?$"
                 ),
                 "folder": "$_1",
             },

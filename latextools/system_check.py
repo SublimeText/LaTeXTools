@@ -435,12 +435,11 @@ class SystemCheckThread(threading.Thread):
             else:
                 location = which(program, path=texpath)
 
-            # convert.exe on Windows can refer to %sysroot%\convert.exe,
+            # convert.exe on Windows can refer to %systemroot%\convert.exe,
             # which should not be used; in that case, simple report magick.exe
             # as not existing
             if program == "convert" and sublime.platform() == "windows":
-                system_root = get_system_root().lower()
-                if location.lower().startswith(system_root):
+                if os.path.samefile(location, os.path.join(get_system_root(), "convert.exe")):
                     program = "magick"
                     location = None
 
@@ -500,7 +499,7 @@ class SystemCheckThread(threading.Thread):
         # included package depends on
         if (
             ghostscript_installed()
-            and get_setting("preview_math_template_file") is None
+            and get_setting("preview_math_template_file", view=self.view) is None
             and get_setting("preview_math_mode", view=self.view) != "none"
         ):
 
@@ -616,7 +615,7 @@ class SystemCheckThread(threading.Thread):
                 results.append(table)
 
         default_viewer = DEFAULT_VIEWERS.get(sublime.platform(), None)
-        viewer_name = get_setting("viewer", default_viewer)
+        viewer_name = get_setting("viewer", default_viewer, self.view)
         if viewer_name in ["", "default"]:
             viewer_name = default_viewer
 
@@ -670,9 +669,9 @@ class SystemCheckThread(threading.Thread):
                 viewer_available = False if not viewer_location else os.path.exists(viewer_location)
             elif viewer_name == "sumatra":
                 sumatra_exe = (
-                    get_setting("viewer_settings", {}).get(
+                    get_setting("viewer_settings", {}, self.view).get(
                         "sumatra",
-                        get_setting("windows", {}).get("sumatra", "SumatraPDF.exe"),
+                        get_setting("windows", {}, self.view).get("sumatra", "SumatraPDF.exe"),
                     )
                     or "SumatraPDF.exe"
                 )
@@ -709,7 +708,7 @@ class LatextoolsSystemCheckCommand(sublime_plugin.ApplicationCommand):
             sublime_exe=get_sublime_exe(),
             uses_miktex=using_miktex(),
             texpath=_get_texpath(view) or os.environ["PATH"],
-            build_env=get_setting("builder_settings", {}).get(sublime.platform(), {}).get("env"),
+            build_env=get_setting("builder_settings", {}, view).get(sublime.platform(), {}).get("env"),
             view=view,
             on_done=self.on_done,
         )

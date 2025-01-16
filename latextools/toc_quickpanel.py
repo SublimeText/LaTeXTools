@@ -29,11 +29,11 @@ class show_toc_quickpanel(quickpanel.CancelEntriesQuickpanel):
     __hide_string = "Hide Labels"
     __toggles = [__show_string, __hide_string]
 
-    def __init__(self, ana, only_file=None):
+    def __init__(self, view, ana, only_file=None):
         # retrieve the labels and the sections
-        toc_section_commands = get_setting("toc_section_commands", [])
-        toc_indentations = get_setting("toc_indentations", {})
-        toc_labels = get_setting("toc_labels", [])
+        toc_section_commands = get_setting("toc_section_commands", [], view)
+        toc_indentations = get_setting("toc_indentations", {}, view)
+        toc_labels = get_setting("toc_labels", [], view)
 
         labels = ana.filter_commands(toc_section_commands + toc_labels)
         # filter the labels and sections to only get the labels
@@ -117,14 +117,14 @@ class LatextoolsTocQuickpanelCommand(sublime_plugin.WindowCommand):
         ana = analysis.analyze_document(tex_root)
 
         only_file = None if not only_current_file else view.file_name()
-        show_toc_quickpanel(ana, only_file=only_file)
+        show_toc_quickpanel(view, ana, only_file=only_file)
 
 
 class LatextoolsTocQuickpanelContext(sublime_plugin.EventListener):
     def on_query_context(self, view, key, *args):
         if key != "overwrite_goto_overlay" or not view.match_selector(0, "text.tex.latex"):
             return None
-        return get_setting("overwrite_goto_overlay")
+        return get_setting("overwrite_goto_overlay", view=view)
 
 
 deprecate(globals(), "LatexTocQuickpanelCommand", LatextoolsTocQuickpanelCommand)

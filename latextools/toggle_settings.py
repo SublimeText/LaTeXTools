@@ -3,6 +3,7 @@ import sublime_plugin
 
 from .utils.logging import logger
 from .utils.settings import get_setting
+from .utils.settings import global_settings
 
 __all__ = ["LatextoolsToggleKeysCommand"]
 
@@ -29,7 +30,7 @@ def _toggle_setting(setting_name, view):
 
 
 def _show_toggle_overlay(window, view, prefix, setting_keys):
-    default_settings = sublime.load_settings("LaTeXTools.sublime-settings")
+    default_settings = global_settings()
     setting_keys = [t for t in setting_keys if t[1].startswith(prefix)]
     prefix_map = {k: [v, rest] for k, v, *rest in setting_keys}
 
@@ -68,15 +69,16 @@ class LatextoolsToggleKeysCommand(sublime_plugin.WindowCommand):
             return
 
         setting_keys = get_setting("toggle_setting_keys", [], view={})
-        toggle_keys = {k: v for v, k, *_ in setting_keys}
-        if prefix:
-            keys = {k[len(prefix) :]: v for k, v in toggle_keys.items() if k.startswith(prefix)}
-        else:
-            keys = toggle_keys
-        if character in keys:
-            # change the settings value
-            setting_name = keys[character]
-            _toggle_setting(setting_name, view)
-        else:
-            # show the overlay with all settings
-            _show_toggle_overlay(self.window, view, prefix, setting_keys)
+        for v, k, *_ in setting_keys:
+            if prefix:
+                if not k.startswith(prefix):
+                    continue
+                k = k[len(prefix) :]
+
+            if character and k == character:
+                # change the settings value
+                _toggle_setting(v, view)
+                return
+
+        # show the overlay with all settings
+        _show_toggle_overlay(self.window, view, prefix, setting_keys)
