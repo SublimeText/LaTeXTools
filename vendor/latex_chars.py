@@ -40,11 +40,6 @@ def _registry(encoding):
     else:
         return None
 
-    # something akin to https://bugs.python.org/issue14847 appears to
-    # occur in ST3 b3083; this apparently-redundant reimport resolves
-    # the issue
-    import codecs
-
     class Codec(codecs.Codec):
         def encode(self, input, errors='strict'):
             """Convert unicode string to latex."""
@@ -67,16 +62,7 @@ def _registry(encoding):
             if encoding:
                 input = codecs.decode(input,encoding,errors)
 
-            # Note: we may get buffer objects here.
-            # It is not permussable to call join on buffer objects
-            # but we can make them joinable by calling unicode.
-            # This should always be safe since we are supposed
-            # to be producing unicode output anyway.
-            try:
-                x = map(unicode, _unlatex(input))
-            except NameError:
-                # Python 3
-                x = _unlatex(input)
+            x = _unlatex(input)
             return ''.join(x), len(input)
 
     class StreamWriter(Codec, codecs.StreamWriter):
@@ -91,12 +77,7 @@ def _tokenize(tex):
     """Convert latex source into sequence of single-token substrings."""
     start = 0
     try:
-        # skip quickly across boring stuff
-        try:
-            pos = _stoppers.finditer(tex).next().span()[0]
-        except AttributeError:
-            # Python 3
-            pos = _stoppers.finditer(tex).__next__().span()[0]
+        pos = next(_stoppers.finditer(tex)).span()[0]
     except StopIteration:
         yield tex
         return
@@ -170,22 +151,13 @@ class _unlatex(object):
         for delta, c in self.candidates(0):
             if c in _l2u:
                 self.pos += delta
-                try:
-                    return unichr(_l2u[c])
-                except NameError:
-                    return chr(_l2u[c])
+                return chr(_l2u[c])
             elif len(c) == 2 and c[1] == 'i' and (c[0], '\\i') in _l2u:
                 self.pos += delta       # correct failure to undot i
-                try:
-                    return unichr(_l2u[(c[0], '\\i')])
-                except NameError:
-                    return chr(_l2u[(c[0], '\\i')])
+                return chr(_l2u[(c[0], '\\i')])
             elif len(c) == 1 and c[0].startswith('\\char') and c[0][5:].isdigit():
                 self.pos += delta
-                try:
-                    return unichr(int(c[0][5:]))
-                except NameError:
-                    return chr(int(c[0][5:]))
+                return chr(int(c[0][5:]))
 
         # nothing matches, just pass through token as-is
         self.pos += 1
@@ -219,8 +191,8 @@ class _unlatex(object):
 latex_equivalents = {
     0x0009: ' ',
     0x000a: '\n',
-    0x0023: '{\#}',
-    0x0026: '{\&}',
+    0x0023: '{\\#}',
+    0x0026: '{\\&}',
     0x00a0: '{~}',
     0x00a1: '{!`}',
     0x00a2: '{\\not{c}}',
@@ -508,7 +480,7 @@ _blacklist.add(None)    # shortcut candidate generation at end of data
 
 # Construction of inverse translation table
 _l2u = {
-    '\ ': ord(' ')   # unexpanding space makes no sense in non-TeX contexts
+    '\\ ': ord(' ')   # unexpanding space makes no sense in non-TeX contexts
 }
 
 for _tex in latex_equivalents:
