@@ -65,7 +65,7 @@ class LatexFillHelper(object):
         :param insert_char:
             the character to try to automatch
         """
-        if sublime.load_settings("Preferences.sublime-settings").get("auto_match_enabled", True):
+        if view.settings().get("auto_match_enabled", True):
             # simple case: we have an insert char, insert closing char,
             # if its defined
             if insert_char:
