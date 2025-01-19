@@ -159,7 +159,7 @@ class Analysis:
         This is usually the folder of the tex root, but can change if
         the import package is used.
         Use this instead of the tex root path to implement functions
-        like the \input command completion.
+        like the \\input command completion.
         """
         file_path = os.path.normpath(file_path)
         try:
@@ -341,7 +341,8 @@ def get_analysis(tex_root):
         raise TypeError("tex_root must be a string or view")
 
     result = LocalCache(tex_root).cache("analysis", partial(analyze_document, tex_root))
-    result._freeze()
+    if result:
+        result._freeze()
     return result
 
 
