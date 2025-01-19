@@ -1,4 +1,4 @@
-class AstNode(object):
+class AstNode:
 
     def __repr__(self):
         return '<AstNode>'

@@ -119,7 +119,7 @@ def _tokenize(tex):
                     pos += 1
 
 
-class _unlatex(object):
+class _unlatex:
     """Convert tokenized tex into sequence of unicode strings.  Helper for decode()."""
 
     def __init__(self, tex):

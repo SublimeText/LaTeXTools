@@ -172,7 +172,7 @@ def _global_cache_path():
 
 
 # marker class for invalidated result
-class InvalidObject(object):
+class InvalidObject:
     _HASH = hash("_LaTeXTools_InvalidObject")
 
     def __eq__(self, other):
@@ -196,7 +196,7 @@ except NameError:
     _invalid_object = InvalidObject()
 
 
-class Cache(object):
+class Cache:
     """
     default cache object and definition
 

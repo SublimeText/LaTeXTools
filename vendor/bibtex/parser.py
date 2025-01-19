@@ -41,7 +41,7 @@ if sys.version_info > (3, 0):
 __all__ = ['Parser']
 
 
-class Parser(object):
+class Parser:
 
     def __init__(self, lexer=Lexer()):
         super(Parser, self).__init__()

@@ -76,7 +76,7 @@ class Entry:
         self.end = self.region.end()
 
 
-class EntriesQuickpanel(object):
+class EntriesQuickpanel:
     """
     A Class to show latex commands in a quickpanel
     """

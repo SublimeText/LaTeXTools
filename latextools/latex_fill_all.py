@@ -28,7 +28,7 @@ def reraise(tp, value, tb=None):
     raise value
 
 
-class LatexFillHelper(object):
+class LatexFillHelper:
     """
     Base class for some LaTeXTools TextCommands. Implements several methods
     helpful for inserting text into the view and updating the cursor posiiton.
@@ -569,7 +569,7 @@ class LatexFillHelper(object):
         return all(view.match_selector(sel.b, selector) for sel in view.sel())
 
 
-class LatexFillAllPluginConsumer(object):
+class LatexFillAllPluginConsumer:
     """
     Base class for classes which use FillAllHelper plugins
     """

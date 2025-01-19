@@ -9,7 +9,7 @@ __all__ = ["deprecate", "LatextoolsFindDeprecatedCommandsCommand"]
 _setting_name = "compatibility_enable_version3_commands"
 
 
-class LatextoolsDeprecatedCommand(object):
+class LatextoolsDeprecatedCommand:
     # every subclass should overwrite this attribute
     new_classname = ""
 

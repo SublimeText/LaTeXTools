@@ -121,7 +121,7 @@ except NameError:
     __sentinel__ = object()
 
 
-class ThreadPool(object):
+class ThreadPool:
     """A relatively simple ThreadPool designed to maintain a number of thread
     workers
 
@@ -258,7 +258,7 @@ class _ThreadPoolWorker(threading.Thread):
                 self._task_queue.task_done()
 
 
-class _ThreadPoolResult(object):
+class _ThreadPoolResult:
 
     def __init__(self, job, result_cache):
         self._ready = threading.Event()

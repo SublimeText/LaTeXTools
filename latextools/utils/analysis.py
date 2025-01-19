@@ -131,7 +131,7 @@ class FileNotAnalyzed(Exception):
     pass
 
 
-class Analysis(object):
+class Analysis:
 
     def __init__(self, tex_root):
         self._tex_root = tex_root
@@ -575,7 +575,7 @@ def make_rowcol(string):
     return rowcol
 
 
-class objectview(object):
+class objectview:
     """
     Converts an dict into an object, such that every dict entry
     is an attribute of the object

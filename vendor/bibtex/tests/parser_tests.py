@@ -846,7 +846,7 @@ class TestPreamble(ParserTest):
 
 class TestParse(unittest.TestCase):
 
-    class DummyLexer(object):
+    class DummyLexer:
         def __init__(self, tokens):
             self.tokens = tokens
 
