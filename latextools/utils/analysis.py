@@ -2,10 +2,11 @@ import copy
 import itertools
 import os
 import regex
-import traceback
-from functools import partial
-
 import sublime
+import traceback
+
+from collections.abc import Iterable
+from functools import partial
 
 from ...vendor.frozendict import frozendict
 
@@ -241,7 +242,7 @@ class Analysis:
             def command_filter(c):
                 return c.command == how
 
-        elif isinstance(how, list):
+        elif isinstance(how, Iterable):
 
             def command_filter(c):
                 return c.command in how
@@ -254,7 +255,7 @@ class Analysis:
         else:
             raise Exception("Unsupported filter type: " + str(type(how)))
         com = self._commands(flags)
-        return tuple(filter(command_filter, com))
+        return filter(command_filter, com)
 
     def graphics_paths(self):
         try:
