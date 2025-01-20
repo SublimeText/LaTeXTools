@@ -423,7 +423,7 @@ class Cache:
                     del _objs[k]
                     file_path = os.path.join(self.cache_path, key)
                     try:
-                        os.path.remove(file_path)
+                        os.remove(file_path)
                     except OSError:
                         pass
 
@@ -445,7 +445,7 @@ class Cache:
                 if _objs[key] == _invalid_object:
                     file_path = os.path.join(self.cache_path, key)
                     try:
-                        os.path.remove(file_path)
+                        os.remove(file_path)
                     except OSError as e:
                         logger.error("error while deleting %s: %s", file_path, e)
                         traceback.print_exc()
