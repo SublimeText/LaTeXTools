@@ -725,31 +725,30 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
         is used on every cache read
         """
 
-        def __parse_life_span_string():
+        def __parse_life_span_string(life_span_str):
             try:
-                return int(life_span_string)
+                return int(life_span_str)
             except ValueError:
                 try:
-                    (d, h, m, s) = TIME_RE.match(life_span_string).groups()
+                    (d, h, m, s) = TIME_RE.match(life_span_str).groups()
                     # time conversions in seconds
                     times = [(s, 1), (m, 60), (h, 3600), (d, 86400)]
                     # sum the converted times
                     # if not specified (None) use 0
                     return sum(int(t[0] or 0) * t[1] for t in times)
                 except Exception as e:
-                    logger.error("error parsing life_span_string %s", life_span_string)
-                    traceback.print_exc()
+                    logger.error("error parsing cache.life_span: %s", life_span_str)
                     # default 30 minutes in seconds
                     return 1800
 
         with cls._LIFE_SPAN_LOCK:
-            life_span_string = get_setting("cache.life_span")
+            life_span_str = get_setting("cache.life_span")
             try:
-                if cls._PREV_LIFE_SPAN_STR == life_span_string:
+                if cls._PREV_LIFE_SPAN_STR == life_span_str:
                     return cls._PREV_LIFE_SPAN
             except AttributeError:
                 pass
 
-            cls._PREV_LIFE_SPAN_STR = life_span_string
-            cls._PREV_LIFE_SPAN = life_span = __parse_life_span_string()
+            cls._PREV_LIFE_SPAN_STR = life_span_str
+            cls._PREV_LIFE_SPAN = life_span = __parse_life_span_string(life_span_str)
             return life_span
