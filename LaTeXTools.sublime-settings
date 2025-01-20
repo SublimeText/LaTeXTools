@@ -102,6 +102,24 @@
 	"word_count_sub_level": "none",
 
 // ------------------------------------------------------------------
+// LaTeX Completions Settings
+// ------------------------------------------------------------------
+
+	// Controls loading completions based on packages in current document
+	// *in addition* to those specified in `cwl_list`.
+	"cwl_autoload": true,
+
+	// A list of cwl files to load by default, if available.
+	"cwl_list": [
+		"latex-document.cwl",
+		"tex.cwl",
+		"latex-dev.cwl",
+		"latex-209.cwl",
+		"latex-l2tabu.cwl",
+		"latex-mathsymbols.cwl",
+	],
+
+// ------------------------------------------------------------------
 // Image Preview Settings
 // ------------------------------------------------------------------
 
