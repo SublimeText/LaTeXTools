@@ -19,14 +19,6 @@
 	// valid values are, "error", "warning", "info", "debug"
 	"log_level": "warning",
 
-	// Keep focus on Sublime Text after building (true) or switch to PDF viewer (false)
-	// If you are on Windows or Linux and using ST2, you may need to set the
-	// "sublime_executable" setting for this to work in your platform settings.
-	"keep_focus": true,
-
-	// Sync PDF to current editor position after building (true) or not
-	"forward_sync": true,
-
 	// Set this to false to disable the overwriting of the goto overlay for the hotkey `C-r` and `C-shift-r`
 	// You can still access the "table of content quickpanel" via `C-l, C-r` and  `C-shift-l, C-r`
 	"overwrite_goto_overlay": true,
@@ -37,12 +29,12 @@
 	// download the image and create a figure environment.
 	"enable_smart_paste": true,
 
-	// valid texfile extensions
-	"tex_file_exts": [".tex"],
-
 	// controls whether or not syntax is automatically set to LaTeX for
 	// files that match one of the configured `tex_file_exts`
 	"latextools_set_syntax": true,
+
+	// valid texfile extensions
+	"tex_file_exts": [".tex"],
 
 	// the mapping from the locales to the dictionaries for the
 	// `%!TEX spellcheck` directive, where the locales must be all lowercase
@@ -490,6 +482,14 @@
 // ------------------------------------------------------------------
 // Viewer settings
 // ------------------------------------------------------------------
+
+	// Sync PDF to current editor position after building (true) or not
+	"forward_sync": true,
+
+	// Keep focus on Sublime Text after building (true) or switch to PDF viewer (false)
+	// If you are on Windows or Linux and using ST2, you may need to set the
+	// "sublime_executable" setting for this to work in your platform settings.
+	"keep_focus": true,
 
 	// OPTION: "viewer"
 	// Specifies which viewer to use
