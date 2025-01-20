@@ -106,7 +106,6 @@ class EntryWrapper(collections.abc.Mapping):
 
 
 class NewBibliographyPlugin(LaTeXToolsPlugin):
-
     def get_entries(self, *bib_files):
         entries = []
         parser = Parser()
@@ -128,30 +127,31 @@ class NewBibliographyPlugin(LaTeXToolsPlugin):
                 sublime.status_message(msg)
                 continue
             else:
-                bib_data = parser.parse(bibf.read())
-
-                logger.info("Loaded %d bibitems", len(bib_data))
-
                 bib_entries = []
-                for key in bib_data:
-                    entry = bib_data[key]
-                    if entry.entry_type in ("xdata", "comment", "string"):
+
+                excluded_types = ("xdata", "comment", "string")
+                excluded_fields = (
+                    "abstract",
+                    "annotation",
+                    "annote",
+                    "execute",
+                    "langidopts",
+                    "options",
+                )
+
+                for key, entry in parser.parse(bibf.read()).items():
+                    if entry.entry_type in excluded_types:
                         continue
 
                     # purge some unnecessary fields from the bib entry to save
                     # some space and time reloading
-                    for k in [
-                        "abstract",
-                        "annotation",
-                        "annote",
-                        "execute",
-                        "langidopts",
-                        "options",
-                    ]:
+                    for k in excluded_fields:
                         if k in entry:
                             del entry[k]
 
                     bib_entries.append(EntryWrapper(entry))
+
+                logger.info("Loaded %d bibitems", len(bib_entries))
 
                 try:
                     bib_cache.set(bib_entries)

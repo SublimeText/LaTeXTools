@@ -133,7 +133,7 @@ def tokenize_name(name_str):
         raise ValueError('Unrecognised name format for "{0}"'.format(name_str))
 
 
-class Name(object):
+class Name:
     '''
     Represents a BibLaTeX name entry. __str__ will return a name formatted in
     the preferred format

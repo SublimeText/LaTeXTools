@@ -11,7 +11,6 @@ from .latextools_plugin import get_plugins_by_type
 from .utils.logging import logger
 from .utils.settings import get_setting
 from .utils.internal_types import FillAllHelper
-from .utils.input_quickpanel import show_input_quick_panel
 
 __all__ = [
     "LatexFillAllEventListener",
@@ -19,6 +18,8 @@ __all__ = [
     "LatexToolsFillAllCompleteBracket",
     "LatexToolsReplaceWord",
 ]
+
+VISIBLE_OVERLAYS = set()
 
 def reraise(tp, value, tb=None):
     if value is None:
@@ -28,7 +29,7 @@ def reraise(tp, value, tb=None):
     raise value
 
 
-class LatexFillHelper(object):
+class LatexFillHelper:
     """
     Base class for some LaTeXTools TextCommands. Implements several methods
     helpful for inserting text into the view and updating the cursor posiiton.
@@ -65,7 +66,7 @@ class LatexFillHelper(object):
         :param insert_char:
             the character to try to automatch
         """
-        if sublime.load_settings("Preferences.sublime-settings").get("auto_match_enabled", True):
+        if view.settings().get("auto_match_enabled", True):
             # simple case: we have an insert char, insert closing char,
             # if its defined
             if insert_char:
@@ -569,7 +570,7 @@ class LatexFillHelper(object):
         return all(view.match_selector(sel.b, selector) for sel in view.sel())
 
 
-class LatexFillAllPluginConsumer(object):
+class LatexFillAllPluginConsumer:
     """
     Base class for classes which use FillAllHelper plugins
     """
@@ -628,6 +629,14 @@ class LatexFillAllEventListener(
         key is "lt_fill_all_{name}" where name is the short name of the
         completion type, e.g. "lt_fill_all_cite", etc.
         """
+
+        # autofill input quick panel visible
+        if key == "latextools.input_overlay_visible":
+            try:
+                return view.window().id() in VISIBLE_OVERLAYS
+            except:
+                return False
+
         # quick exit conditions
         if not key.startswith("lt_fill_all_"):
             return None
@@ -991,8 +1000,13 @@ class LatextoolsFillAllCommand(
                 self.remove_regions(view, edit, remove_regions)
             self.clear_bracket_cache()
         else:
+            window = view.window()
+            if not window:
+                self.clear_bracket_cache()
+                return
 
             def on_done(i, text=""):
+                VISIBLE_OVERLAYS.discard(window.id())
                 if i is None:
                     insert_text = text
                 elif i < 0:
@@ -1019,7 +1033,10 @@ class LatextoolsFillAllCommand(
                         },
                     )
 
-            show_input_quick_panel(view.window(), formatted_completions, on_done)
+            # track visible input quick panels to provide key binding context
+            VISIBLE_OVERLAYS.add(window.id())
+            window.show_quick_panel(formatted_completions, on_done)
+
             self.clear_bracket_cache()
 
 

@@ -172,7 +172,7 @@ def _global_cache_path():
 
 
 # marker class for invalidated result
-class InvalidObject(object):
+class InvalidObject:
     _HASH = hash("_LaTeXTools_InvalidObject")
 
     def __eq__(self, other):
@@ -196,7 +196,7 @@ except NameError:
     _invalid_object = InvalidObject()
 
 
-class Cache(object):
+class Cache:
     """
     default cache object and definition
 
@@ -370,7 +370,7 @@ class Cache(object):
             if key is None:
                 for entry in os.listdir(self.cache_path):
                     if os.path.isfile(entry):
-                        entry_name = os.path.basename[entry]
+                        entry_name = os.path.basename(entry)
                         try:
                             self._objects[entry_name] = self._read(entry_name)
                         except Exception:
@@ -423,7 +423,7 @@ class Cache(object):
                     del _objs[k]
                     file_path = os.path.join(self.cache_path, key)
                     try:
-                        os.path.remove(file_path)
+                        os.remove(file_path)
                     except OSError:
                         pass
 
@@ -440,15 +440,14 @@ class Cache(object):
                         shutil.rmtree(self.cache_path)
                     except OSError as e:
                         logger.error("error while deleting %s: %s", self.cache_path, e)
-                        traceback.print_exc()
+
             elif key in _objs:
                 if _objs[key] == _invalid_object:
                     file_path = os.path.join(self.cache_path, key)
                     try:
-                        os.path.remove(file_path)
+                        os.remove(file_path)
                     except OSError as e:
                         logger.error("error while deleting %s: %s", file_path, e)
-                        traceback.print_exc()
                 else:
                     os.makedirs(self.cache_path, exist_ok=True)
                     self._write(key, _objs)
@@ -473,7 +472,6 @@ class Cache(object):
                 pickle.dump(_obj, f, protocol=-1)
         except OSError as e:
             logger.error("error while writing to %s: %s", key, e)
-            traceback.print_exc()
             raise CacheMiss()
 
     def _schedule_save(self):
@@ -727,31 +725,30 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
         is used on every cache read
         """
 
-        def __parse_life_span_string():
+        def __parse_life_span_string(life_span_str):
             try:
-                return int(life_span_string)
+                return int(life_span_str)
             except ValueError:
                 try:
-                    (d, h, m, s) = TIME_RE.match(life_span_string).groups()
+                    (d, h, m, s) = TIME_RE.match(life_span_str).groups()
                     # time conversions in seconds
                     times = [(s, 1), (m, 60), (h, 3600), (d, 86400)]
                     # sum the converted times
                     # if not specified (None) use 0
                     return sum(int(t[0] or 0) * t[1] for t in times)
                 except Exception as e:
-                    logger.error("error parsing life_span_string %s", life_span_string)
-                    traceback.print_exc()
+                    logger.error("error parsing cache.life_span: %s", life_span_str)
                     # default 30 minutes in seconds
                     return 1800
 
         with cls._LIFE_SPAN_LOCK:
-            life_span_string = get_setting("cache.life_span")
+            life_span_str = get_setting("cache.life_span")
             try:
-                if cls._PREV_LIFE_SPAN_STR == life_span_string:
+                if cls._PREV_LIFE_SPAN_STR == life_span_str:
                     return cls._PREV_LIFE_SPAN
             except AttributeError:
                 pass
 
-            cls._PREV_LIFE_SPAN_STR = life_span_string
-            cls._PREV_LIFE_SPAN = life_span = __parse_life_span_string()
+            cls._PREV_LIFE_SPAN_STR = life_span_str
+            cls._PREV_LIFE_SPAN = life_span = __parse_life_span_string(life_span_str)
             return life_span

@@ -424,10 +424,11 @@ LaTeX Package keymap for Linux
 
 	{
 		"keys": ["tab"],
-		"command": "latextools_confirm_quickpanel",
+		"command": "select",
 		"context": [
 			{ "key": "overlay_visible" },
-			{ "key": "latextools.input_overlay_visible" },
+			{ "key": "setting.auto_complete_commit_on_tab" },
+			{ "key": "latextools.input_overlay_visible" }
 		],
 	},
 

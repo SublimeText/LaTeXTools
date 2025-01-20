@@ -507,8 +507,9 @@ class CiteFillAllHelper(FillAllHelper):
             sublime.status_message("No bib files found!")
             return
         except BibParsingError as e:
-            traceback.print_exc()
-            sublime.status_message("Error occurred parsing {0}. {1}.".format(e.filename, e.message))
+            msg = "Error occurred parsing {0}. {1}.".format(e.filename, e.message)
+            logger.error(msg)
+            sublime.status_message(msg)
             return
 
         if prefix:

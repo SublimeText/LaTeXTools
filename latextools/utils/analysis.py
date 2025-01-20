@@ -131,7 +131,7 @@ class FileNotAnalyzed(Exception):
     pass
 
 
-class Analysis(object):
+class Analysis:
 
     def __init__(self, tex_root):
         self._tex_root = tex_root
@@ -159,7 +159,7 @@ class Analysis(object):
         This is usually the folder of the tex root, but can change if
         the import package is used.
         Use this instead of the tex root path to implement functions
-        like the \input command completion.
+        like the \\input command completion.
         """
         file_path = os.path.normpath(file_path)
         try:
@@ -341,7 +341,8 @@ def get_analysis(tex_root):
         raise TypeError("tex_root must be a string or view")
 
     result = LocalCache(tex_root).cache("analysis", partial(analyze_document, tex_root))
-    result._freeze()
+    if result:
+        result._freeze()
     return result
 
 
@@ -575,7 +576,7 @@ def make_rowcol(string):
     return rowcol
 
 
-class objectview(object):
+class objectview:
     """
     Converts an dict into an object, such that every dict entry
     is an attribute of the object

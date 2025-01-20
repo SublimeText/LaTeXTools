@@ -1,7 +1,7 @@
 <snippet>
 	<content><![CDATA[
 \\begin{${1:env}}
-$0
+	$0
 \\end{$1}
 ]]></content>
 	<scope>text.tex.latex</scope>

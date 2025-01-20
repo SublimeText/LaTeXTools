@@ -30,7 +30,7 @@ import re
 __all__ = ['Lexer']
 
 
-class Lexer(object):
+class Lexer:
 
     def __init__(self):
         super(Lexer, self).__init__()

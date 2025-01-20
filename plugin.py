@@ -138,10 +138,6 @@ else:
     from .latextools.toggle_settings import (
         LatextoolsToggleKeysCommand
     )
-    from .latextools.utils.input_quickpanel import (
-        InputQuickpanelListener,
-        LatextoolsConfirmQuickpanelCommand
-    )
 
 
     def _filter_func(name):

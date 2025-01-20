@@ -77,7 +77,7 @@ def get_cwl_completions():
     return CWL_COMPLETIONS
 
 
-class CwlCompletions(object):
+class CwlCompletions:
     """
     Completion manager that coordinates between between the event listener and
     the thread that does the actual parsing. It also stores the completions

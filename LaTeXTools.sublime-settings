@@ -206,9 +206,9 @@
 
 	// Ends of the names of temporary files to be deleted
 	"temp_files_exts": [
-		".blg",".bbl",".aux",".log",".brf",".nlo",".out",".dvi",".ps",
-		".lof",".toc",".fls",".fdb_latexmk",".pdfsync",".synctex.gz",
-		".ind",".ilg",".idx"
+		".aux", ".bbl", ".blg", ".brf", ".dvi", ".fdb_latexmk", ".fls",
+		".glo", ".idx", ".ilg", ".ind", ".lof", ".log", ".nlo", ".out",
+		".pdfsync", ".ps", ".synctex.gz", ".thm", ".toc", ".xdy",
 	],
 
 	// Folders that are not traversed when deleting temp files
@@ -550,19 +550,17 @@
 // ------------------------------------------------------------------
 
 	// OPTION: "bibliography"
-	// Either a single  bibliography plugin to use or a list of plugins
+	// Either a single bibliography plugin to use or a list of plugins
 	// which will be executed in order, stopping after the first result
-	// found
+	// found.
 	//
 	// Possible values:
 	//
-	// "traditional" 		the default, regex-based bibliography
-	//						parsing
+	// "traditional" 		simple regex-based bibliography parsing
 	//
-	// "new"				a newer parser which supports more complex
-	//						formatting and additional fields, but may
-	//						be slower
-	"bibliography": "traditional",
+	// "new"				(default) a parser which supports more
+	// 						complex formatting and additional fields.
+	"bibliography": "new",
 
 	// OPTION: "additional_bibliography_file"
 	// With this setting you can add the path to one or more additional
