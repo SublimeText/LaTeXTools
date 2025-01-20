@@ -19,19 +19,78 @@
 	// valid values are, "error", "warning", "info", "debug"
 	"log_level": "warning",
 
+	// Set this to false to disable the overwriting of the goto overlay for the hotkey `C-r` and `C-shift-r`
+	// You can still access the "table of content quickpanel" via `C-l, C-r` and  `C-shift-l, C-r`
+	"overwrite_goto_overlay": true,
+
+	// If smart paste is enabled LaTeXTools will overwrite the C-v command and
+	// analyze the clipboard content to check whether it should execute an action.
+	// So you can just paste image urls or paths into Sublime Text and it will automatically
+	// download the image and create a figure environment.
+	"enable_smart_paste": true,
+
+	// controls whether or not syntax is automatically set to LaTeX for
+	// files that match one of the configured `tex_file_exts`
+	"latextools_set_syntax": true,
+
+	// valid texfile extensions
+	"tex_file_exts": [".tex"],
+
+	// the mapping from the locales to the dictionaries for the
+	// `%!TEX spellcheck` directive, where the locales must be all lowercase
+	// and separated by a minus sign (-). The dictionaries must be valid path
+	// and compatible with the ST integrated spellcheck
+	// e.g.
+	// { "en-en": "Packages/Language - English/en_GB.dic" }
+	"tex_spellcheck_paths": {},
+
+	// sublevel to show counts for
+	// passed to texcount via the -sub= paramater
+	// valid values: "none", "part", "chapter", "section"
+	"word_count_sub_level": "none",
+
+// ------------------------------------------------------------------
+// LaTeX Completions Settings
+// ------------------------------------------------------------------
+
+	// When to trigger cwl-command completion (requires the LaTeX-cwl package)
+	// possible values are:
+	// "always" (always show command completions)
+	// "prefixed" (default, show command completions if the current word is prefixed with '\')
+	// "never" (never show command completions)
+	"command_completion": "prefixed",
+
+	// Controls loading completions based on packages in current document
+	// *in addition* to those specified in `cwl_list`.
+	"cwl_autoload": true,
+
+	// A list of cwl files to load by default, if available.
+	"cwl_list": [
+		"latex-document.cwl",
+		"tex.cwl",
+		"latex-dev.cwl",
+		"latex-209.cwl",
+		"latex-l2tabu.cwl",
+		"latex-mathsymbols.cwl",
+	],
+
+	// Controls whether the labels should automatically filled with a suggestion based
+	// on the section command.
+	"auto_label_auto_trigger": true,
+
 	// Cite/ref autocompletion by default is triggered after e.g. \ref{. If you don't like this,
 	// set to false. You can also use toggles: C-l,t,a,c and C-l,t,a,r.
 	"cite_auto_trigger": true,
 	"ref_auto_trigger": true,
 
-	// Fill-helper autocompletion triggered for a wide range of references to external
-	// files. You can also use toggle: C-l,t,a,f
-	"fill_auto_trigger": true,
-
 	// Fill-helper autocompletion trigger for environment names after \begin{ and \end{
 	// this requires the LaTeX-cwl package and might not have a complete list of all environments.
 	// You can also use toggle: C-l,t,a,e
 	"env_auto_trigger": false,
+
+	// Fill-helper autocompletion triggered for a wide range of references to external
+	// files. You can also use toggle: C-l,t,a,f
+	"fill_auto_trigger": true,
 
 	// Fill-helper autocompletion trigger for glossary entries \gls{ and \acrfull{
 	"glossary_auto_trigger": true,
@@ -47,59 +106,6 @@
 	// when a command is spread across mutliple lines.
 	// You can also use the toggle C-l,t,a,b
 	"smart_bracket_auto_trigger": true,
-
-	// Controls whether the labels should automatically filled with a suggestion based
-	// on the section command.
-	"auto_label_auto_trigger": true,
-
-	// Keep focus on Sublime Text after building (true) or switch to PDF viewer (false)
-	// If you are on Windows or Linux and using ST2, you may need to set the
-	// "sublime_executable" setting for this to work in your platform settings.
-	"keep_focus": true,
-
-	// Sync PDF to current editor position after building (true) or not
-	"forward_sync": true,
-
-	// Set this to false to disable the overwriting of the goto overlay for the hotkey `C-r` and `C-shift-r`
-	// You can still access the "table of content quickpanel" via `C-l, C-r` and  `C-shift-l, C-r`
-	"overwrite_goto_overlay": true,
-
-	// If smart paste is enabled LaTeXTools will overwrite the C-v command and
-	// analyze the clipboard content to check whether it should execute an action.
-	// So you can just paste image urls or paths into Sublime Text and it will automatically
-	// download the image and create a figure environment.
-	"enable_smart_paste": true,
-
-	// When to trigger cwl-command completion (requires the LaTeX-cwl package)
-	// possible values are:
-	// "always" (always show command completions)
-	// "prefixed" (default, show command completions if the current word is prefixed with '\')
-	// "never" (never show command completions)
-	"command_completion": "prefixed",
-
-	// valid texfile extensions
-	"tex_file_exts": [".tex"],
-
-	// controls whether or not syntax is automatically set to LaTeX for
-	// files that match one of the configured `tex_file_exts`
-	"latextools_set_syntax": true,
-
-	// set to true to use BibLaTeX instead of BibTex for bibliography completions
-	// can also be set on a per-project basis
-	"use_biblatex": false,
-
-	// the mapping from the locales to the dictionaries for the
-	// `%!TEX spellcheck` directive, where the locales must be all lowercase
-	// and separated by a minus sign (-). The dictionaries must be valid path
-	// and compatible with the ST integrated spellcheck
-	// e.g.
-	// { "en-en": "Packages/Language - English/en_GB.dic" }
-	"tex_spellcheck_paths": {},
-
-	// sublevel to show counts for
-	// passed to texcount via the -sub= paramater
-	// valid values: "none", "part", "chapter", "section"
-	"word_count_sub_level": "none",
 
 // ------------------------------------------------------------------
 // Image Preview Settings
@@ -477,6 +483,14 @@
 // Viewer settings
 // ------------------------------------------------------------------
 
+	// Sync PDF to current editor position after building (true) or not
+	"forward_sync": true,
+
+	// Keep focus on Sublime Text after building (true) or switch to PDF viewer (false)
+	// If you are on Windows or Linux and using ST2, you may need to set the
+	// "sublime_executable" setting for this to work in your platform settings.
+	"keep_focus": true,
+
 	// OPTION: "viewer"
 	// Specifies which viewer to use
 	// Possible values:
@@ -548,6 +562,9 @@
 // ------------------------------------------------------------------
 // Bibliographic references
 // ------------------------------------------------------------------
+
+	// Set to `true` to use BibLaTeX instead of BibTex for bibliography completions.
+	"use_biblatex": false,
 
 	// OPTION: "bibliography"
 	// Either a single bibliography plugin to use or a list of plugins
