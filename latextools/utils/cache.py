@@ -440,7 +440,7 @@ class Cache:
                         shutil.rmtree(self.cache_path)
                     except OSError as e:
                         logger.error("error while deleting %s: %s", self.cache_path, e)
-                        traceback.print_exc()
+
             elif key in _objs:
                 if _objs[key] == _invalid_object:
                     file_path = os.path.join(self.cache_path, key)
@@ -448,7 +448,6 @@ class Cache:
                         os.remove(file_path)
                     except OSError as e:
                         logger.error("error while deleting %s: %s", file_path, e)
-                        traceback.print_exc()
                 else:
                     os.makedirs(self.cache_path, exist_ok=True)
                     self._write(key, _objs)
@@ -473,7 +472,6 @@ class Cache:
                 pickle.dump(_obj, f, protocol=-1)
         except OSError as e:
             logger.error("error while writing to %s: %s", key, e)
-            traceback.print_exc()
             raise CacheMiss()
 
     def _schedule_save(self):
