@@ -370,7 +370,7 @@ class Cache:
             if key is None:
                 for entry in os.listdir(self.cache_path):
                     if os.path.isfile(entry):
-                        entry_name = os.path.basename[entry]
+                        entry_name = os.path.basename(entry)
                         try:
                             self._objects[entry_name] = self._read(entry_name)
                         except Exception:
