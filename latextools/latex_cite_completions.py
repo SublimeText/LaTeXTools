@@ -24,7 +24,7 @@ import traceback
 from .latex_fill_all import FillAllHelper
 from .utils import analysis
 from .utils import bibformat
-from .utils import cache
+from .utils.cache import LocalCache
 from .utils.external_command import CalledProcessError
 from .utils.external_command import check_output
 from .utils.logging import logger
@@ -215,7 +215,7 @@ def kpsewhich(filename, file_format=None):
 def find_bib_files(root):
     def _find_bib_files():
         # the final list of bib files
-        result = []
+        result = set()
         # a list of candidates bib files to check
         resources = []
 
@@ -260,20 +260,13 @@ def find_bib_files(root):
                 candidate_file = kpsewhich(res, "mlbib")
 
             if candidate_file is not None and os.path.exists(candidate_file):
-                result.append(candidate_file)
+                result.add(candidate_file)
 
-        # remove duplicates
-        return list(set(result))
+        return tuple(result)
 
     # since the processing can be a bit intensive, cache the results
-    result = cache.LocalCache(root).cache("bib_files", _find_bib_files)
-    # TODO temporary workaround to ensure the result is a sequence
-    if not hasattr(type(result), "__iter__"):
-        result = _find_bib_files()
-        try:
-            cache.LocalCache(root).set("bib_files", result)
-        except Exception:
-            pass
+    result = LocalCache(root).cache("bib_files", _find_bib_files)
+
     # if a an additional_file is set append it to the result
     additional_file = get_setting("additional_bibliography_file")
     if additional_file:
@@ -290,8 +283,9 @@ def find_bib_files(root):
             additional_file = [additional_file]
         additional_file = map(_make_abs_path, additional_file)
         additional_file = filter(os.path.isfile, additional_file)
-        result = list(additional_file) + list(result)
-    return result
+        result = set(additional_file) + set(result)
+
+    return tuple(result)
 
 
 def find_open_bib_files():
@@ -305,7 +299,7 @@ def find_open_bib_files():
         if fname and fname.endswith(".bib"):
             result.add(fname)
 
-    return list(result)
+    return tuple(result)
 
 
 def run_plugin_command(command, *args, **kwargs):
