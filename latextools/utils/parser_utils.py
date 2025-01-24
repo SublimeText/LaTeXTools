@@ -37,7 +37,7 @@ def command_to_snippet(keyword):
         # \begin{}, no environment
         if not name:
             replace, n = BRACES_MATCH_RX.subn(replace_braces, keyword)
-            final = replace + "\n${0}\n\\end{{$1}}$0".format(replace_braces.index + 1)
+            final = replace + "\n\t${0}\n\\end{{$1}}$0".format(replace_braces.index + 1)
 
             return keyword, final
         # \begin{} with environment
@@ -48,9 +48,9 @@ def command_to_snippet(keyword):
 
             final = "\\begin{{{0}}}{1}\n".format(name, replace or "")
             if item:
-                final += "\\item ${0}\n".format(replace_braces.index + 1)
+                final += "\t\\item ${0}\n".format(replace_braces.index + 1)
             else:
-                final += "${0}\n".format(replace_braces.index + 1)
+                final += "\t${0}\n".format(replace_braces.index + 1)
             final += "\\end{{{0}}}$0".format(name)
 
             # having \item at the end of the display value messes with
