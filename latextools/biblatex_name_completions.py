@@ -6,6 +6,7 @@ import sublime_plugin
 
 from ..vendor.bibtex.names import Name
 from ..vendor.bibtex.tex import tokenize_list
+from .utils.sublime_utils import async_completions
 
 __all__ = ["BiblatexNameCompletions"]
 
@@ -110,7 +111,7 @@ def get_names(contents):
 
 
 class BiblatexNameCompletions(sublime_plugin.EventListener):
-
+    @async_completions
     def on_query_completions(self, view, prefix, locations):
         if not view.match_selector(locations[0], "text.bibtex, text.biblatex"):
             return []
@@ -126,7 +127,7 @@ class BiblatexNameCompletions(sublime_plugin.EventListener):
 
         KIND_INFO = [sublime.KindId.VARIABLE, "n", "Name"]
 
-        completions = [
+        return [
             sublime.CompletionItem(
                 trigger=name,
                 completion=_get_replacement(matcher, name),
@@ -135,5 +136,3 @@ class BiblatexNameCompletions(sublime_plugin.EventListener):
             )
             for name in get_names_from_view(view)
         ]
-
-        return sublime.CompletionList(completions, sublime.INHIBIT_WORD_COMPLETIONS)

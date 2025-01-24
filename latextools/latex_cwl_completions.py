@@ -20,6 +20,7 @@ from .utils import utils
 from .utils.parser_utils import command_to_snippet
 from .utils.logging import logger
 from .utils.settings import get_setting
+from .utils.sublime_utils import async_completions
 from .utils.tex_directives import get_tex_root
 
 __all__ = ["LatexCwlCompletion"]
@@ -235,6 +236,7 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
     Event listener to supply cwl completions at appropriate points
     """
 
+    @async_completions
     def on_query_completions(self, view, prefix, locations):
         if not is_cwl_available():
             return []
@@ -305,7 +307,7 @@ class LatexCwlCompletion(sublime_plugin.EventListener):
                 for c in completions
             ]
 
-        return (completions, sublime.INHIBIT_WORD_COMPLETIONS)
+        return completions
 
     # This functions is to determine whether LaTeX-cwl is installed,
     # if so, trigger auto-completion in latex buffers by '\'

@@ -3,6 +3,8 @@ import re
 import sublime
 import sublime_plugin
 
+from .utils.sublime_utils import async_completions
+
 __all__ = ["BiblatexCrossrefCompletions"]
 
 # Regexes to detect the various types of crossref fields
@@ -125,10 +127,11 @@ def get_completions_if_matches(regex, line, get_key_list_func, view):
         for name in get_key_list_func(view)
     ]
 
-    return sublime.CompletionList(completions, sublime.INHIBIT_WORD_COMPLETIONS)
+    return completions
 
 
 class BiblatexCrossrefCompletions(sublime_plugin.EventListener):
+    @async_completions
     def on_query_completions(self, view, prefix, locations):
         if not view.match_selector(locations[0], "text.bibtex, text.biblatex"):
             return []

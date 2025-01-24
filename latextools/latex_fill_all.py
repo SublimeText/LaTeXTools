@@ -11,6 +11,7 @@ from .latextools_plugin import get_plugins_by_type
 from .utils.logging import logger
 from .utils.settings import get_setting
 from .utils.internal_types import FillAllHelper
+from .utils.sublime_utils import async_completions
 
 __all__ = [
     "LatexFillAllEventListener",
@@ -687,6 +688,7 @@ class LatexFillAllEventListener(
 
         return result if operator == sublime.OP_EQUAL else not result
 
+    @async_completions
     def on_query_completions(self, view, prefix, locations):
         for location in locations:
             if not view.match_selector(location, "text.tex.latex"):
@@ -795,7 +797,7 @@ class LatexFillAllEventListener(
 
         self.clear_bracket_cache()
 
-        return (zip(show, completions), sublime.INHIBIT_WORD_COMPLETIONS)
+        return zip(show, completions)
 
 
 class LatextoolsFillAllCommand(
