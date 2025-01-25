@@ -421,7 +421,7 @@ class Cache:
 
                 for k in delete_keys:
                     del _objs[k]
-                    file_path = os.path.join(self.cache_path, key)
+                    file_path = os.path.join(self.cache_path, k)
                     try:
                         os.remove(file_path)
                     except OSError:
