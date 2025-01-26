@@ -164,10 +164,9 @@ class Analysis:
         """
         file_path = os.path.normpath(file_path)
         try:
-            base_path = self._import_base_paths[file_path]
+            return self._import_base_paths[file_path]
         except KeyError:
-            base_path, _ = os.path.split(self._tex_root)
-        return base_path
+            return os.path.dirname(self._tex_root)
 
     def content(self, file_name):
         """
