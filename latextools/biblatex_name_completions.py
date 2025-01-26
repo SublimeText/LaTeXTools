@@ -6,7 +6,7 @@ import sublime_plugin
 
 from ..vendor.bibtex.names import Name
 from ..vendor.bibtex.tex import tokenize_list
-from .utils.sublime_utils import async_completions
+from .utils.decorators import async_completions
 
 __all__ = ["BiblatexNameCompletions"]
 

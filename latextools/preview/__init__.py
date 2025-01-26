@@ -2,7 +2,7 @@ from inspect import currentframe
 
 import sublime_plugin
 
-from ..utils.debounce import debounce
+from ..utils.decorators import debounce
 
 from .preview_image import ImagePreviewHoverListener
 from .preview_image import ImagePreviewPhantomProvider

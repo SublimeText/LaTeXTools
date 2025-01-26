@@ -16,27 +16,6 @@ from .settings import get_setting
 SUBLIME_VERSION = re.compile(r"Build (\d{4})", re.UNICODE)
 
 
-def async_completions(func):
-    def decorator(*args, **kwargs):
-        completion_list = sublime.CompletionList()
-
-        def query():
-            completions = func(*args, **kwargs)
-            if completions:
-                flags = sublime.AutoCompleteFlags.INHIBIT_WORD_COMPLETIONS
-            else:
-                flags = sublime.AutoCompleteFlags.NONE
-                completions = []
-
-            completion_list.set_completions(completions, flags)
-
-        sublime.set_timeout_async(query)
-
-        return completion_list
-
-    return decorator
-
-
 # returns the focus to ST
 # NB its probably good to call this as little as possible since focus-stealing
 # annoys people

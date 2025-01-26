@@ -3,7 +3,7 @@ import re
 import sublime
 import sublime_plugin
 
-from .utils.sublime_utils import async_completions
+from .utils.decorators import async_completions
 
 __all__ = ["BiblatexCrossrefCompletions"]
 

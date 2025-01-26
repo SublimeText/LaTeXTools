@@ -17,10 +17,10 @@ from .latex_ref_completions import NEW_STYLE_REF_REGEX
 from .latex_ref_completions import OLD_STYLE_REF_REGEX
 from .utils import analysis
 from .utils import utils
-from .utils.parser_utils import command_to_snippet
+from .utils.decorators import async_completions
 from .utils.logging import logger
+from .utils.parser_utils import command_to_snippet
 from .utils.settings import get_setting
-from .utils.sublime_utils import async_completions
 from .utils.tex_directives import get_tex_root
 
 __all__ = ["LatexCwlCompletion"]

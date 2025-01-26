@@ -8,10 +8,10 @@ import sublime_plugin
 from .deprecated_command import deprecate
 from .latextools_plugin import _classname_to_internal_name
 from .latextools_plugin import get_plugins_by_type
+from .utils.decorators import async_completions
 from .utils.logging import logger
 from .utils.settings import get_setting
 from .utils.internal_types import FillAllHelper
-from .utils.sublime_utils import async_completions
 
 __all__ = [
     "LatexFillAllEventListener",

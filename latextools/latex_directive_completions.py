@@ -6,8 +6,8 @@ import sublime_plugin
 
 from . import detect_spellcheck
 from .latex_fill_all import FillAllHelper
+from .utils.decorators import async_completions
 from .utils.settings import get_setting
-from .utils.sublime_utils import async_completions
 
 try:
     installed_locales = sorted(detect_spellcheck._dictionary_mappings.keys())
