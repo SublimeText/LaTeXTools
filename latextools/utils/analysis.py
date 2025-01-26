@@ -299,6 +299,8 @@ class Analysis:
         return self._command_cache[flags]
 
     def _freeze(self):
+        if self.__frozen:
+            return
         self._content = frozendict(**self._content)
         self._raw_content = frozendict(**self._raw_content)
         self._all_commands = tuple(c for c in self._all_commands)
@@ -340,10 +342,7 @@ def get_analysis(tex_root):
     elif not isinstance(tex_root, str):
         raise TypeError("tex_root must be a string or view")
 
-    result = LocalCache(tex_root).cache("analysis", partial(analyze_document, tex_root))
-    if result:
-        result._freeze()
-    return result
+    return LocalCache(tex_root).cache("analysis", partial(analyze_document, tex_root))
 
 
 def _generate_entries(m, file_name, offset=0):
@@ -407,6 +406,8 @@ def analyze_document(tex_root):
         raise TypeError("tex_root must be a string or view")
 
     result = _analyze_tex_file(tex_root)
+    if result:
+        result._freeze()
     return result
 
 
