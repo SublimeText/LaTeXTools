@@ -233,28 +233,19 @@ class Analysis:
             NO_BEGIN_END_COMMANDS | ONLY_COMMANDS_WITH_ARGS
 
         Returns:
-        A list of all commands, which are preprocessed with the flags
+        A `generator` expression producing all commands, which are preprocessed
+        with the flags.
         """
-        # convert the filter into a function
         if isinstance(how, str):
+            return (c for c in self._commands(flags) if c.command == how)
 
-            def command_filter(c):
-                return c.command == how
-
-        elif isinstance(how, list):
-
-            def command_filter(c):
-                return c.command in how
+        elif isinstance(how, (list, tuple)):
+            return (c for c in self._commands(flags) if c.command in how)
 
         elif callable(how):
+            return (c for c in self._commands(flags) if how(c))
 
-            def command_filter(c):
-                return how(c)
-
-        else:
-            raise Exception("Unsupported filter type: " + str(type(how)))
-        com = self._commands(flags)
-        return tuple(filter(command_filter, com))
+        raise Exception(f"Unsupported filter type: {type(how)}")
 
     def graphics_paths(self):
         try:
