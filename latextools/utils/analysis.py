@@ -142,6 +142,7 @@ class Analysis:
         self._command_cache = {}
 
         self._import_base_paths = {}
+        self._graphics_path = None
 
         self.__frozen = False
 
@@ -248,19 +249,18 @@ class Analysis:
         raise Exception(f"Unsupported filter type: {type(how)}")
 
     def graphics_paths(self):
-        try:
-            return self._graphics_path
-        except AttributeError:
-            pass
-        self._graphics_path = []
-        commands = self.filter_commands("graphicspath")
-        for com in commands:
-            base_path = os.path.join(self.tex_base_path(com.file_name))
-            paths = (p.rstrip("}") for p in com.args.split("{") if p)
-            self._graphics_path.extend(
-                os.path.normpath(p if os.path.isabs(p) else os.path.join(base_path, p))
-                for p in paths
-            )
+        if self._graphics_path is None:
+            result = []
+            commands = self.filter_commands("graphicspath")
+            for com in commands:
+                base_path = os.path.join(self.tex_base_path(com.file_name))
+                paths = (p.rstrip("}") for p in com.args.split("{") if p)
+                result.extend(
+                    os.path.normpath(p if os.path.isabs(p) else os.path.join(base_path, p))
+                    for p in paths
+                )
+            # freeze result
+            self._graphics_path = tuple(result)
 
         return self._graphics_path
 
