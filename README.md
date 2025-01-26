@@ -1,4 +1,4 @@
-# LateXTools: A LaTeX Plugin for Sublime Text
+# LaTeXTools: A LaTeX Plugin for Sublime Text
 
 by Ian Bacher, Marciano Siniscalchi, and Richard Stein
 
