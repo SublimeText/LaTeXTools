@@ -143,6 +143,7 @@ class Analysis:
         self._command_cache = {}
 
         self._import_base_paths = {}
+        self._graphics_path = None
 
         self.__frozen = False
 
@@ -164,10 +165,9 @@ class Analysis:
         """
         file_path = os.path.normpath(file_path)
         try:
-            base_path = self._import_base_paths[file_path]
+            return self._import_base_paths[file_path]
         except KeyError:
-            base_path, _ = os.path.split(self._tex_root)
-        return base_path
+            return os.path.dirname(self._tex_root)
 
     def content(self, file_name):
         """
@@ -234,43 +234,33 @@ class Analysis:
             NO_BEGIN_END_COMMANDS | ONLY_COMMANDS_WITH_ARGS
 
         Returns:
-        A list of all commands, which are preprocessed with the flags
+        A `generator` expression producing all commands, which are preprocessed
+        with the flags.
         """
-        # convert the filter into a function
         if isinstance(how, str):
-
-            def command_filter(c):
-                return c.command == how
+            return (c for c in self._commands(flags) if c.command == how)
 
         elif isinstance(how, Iterable):
-
-            def command_filter(c):
-                return c.command in how
+            return (c for c in self._commands(flags) if c.command in how)
 
         elif callable(how):
+            return (c for c in self._commands(flags) if how(c))
 
-            def command_filter(c):
-                return how(c)
-
-        else:
-            raise Exception("Unsupported filter type: " + str(type(how)))
-        com = self._commands(flags)
-        return filter(command_filter, com)
+        raise Exception(f"Unsupported filter type: {type(how)}")
 
     def graphics_paths(self):
-        try:
-            return self._graphics_path
-        except AttributeError:
-            pass
-        self._graphics_path = []
-        commands = self.filter_commands("graphicspath")
-        for com in commands:
-            base_path = os.path.join(self.tex_base_path(com.file_name))
-            paths = (p.rstrip("}") for p in com.args.split("{") if p)
-            self._graphics_path.extend(
-                os.path.normpath(p if os.path.isabs(p) else os.path.join(base_path, p))
-                for p in paths
-            )
+        if self._graphics_path is None:
+            result = []
+            commands = self.filter_commands("graphicspath")
+            for com in commands:
+                base_path = os.path.join(self.tex_base_path(com.file_name))
+                paths = (p.rstrip("}") for p in com.args.split("{") if p)
+                result.extend(
+                    os.path.normpath(p if os.path.isabs(p) else os.path.join(base_path, p))
+                    for p in paths
+                )
+            # freeze result
+            self._graphics_path = tuple(result)
 
         return self._graphics_path
 
@@ -300,6 +290,8 @@ class Analysis:
         return self._command_cache[flags]
 
     def _freeze(self):
+        if self.__frozen:
+            return
         self._content = frozendict(**self._content)
         self._raw_content = frozendict(**self._raw_content)
         self._all_commands = tuple(c for c in self._all_commands)
@@ -341,10 +333,7 @@ def get_analysis(tex_root):
     elif not isinstance(tex_root, str):
         raise TypeError("tex_root must be a string or view")
 
-    result = LocalCache(tex_root).cache("analysis", partial(analyze_document, tex_root))
-    if result:
-        result._freeze()
-    return result
+    return LocalCache(tex_root).cache("analysis", partial(analyze_document, tex_root))
 
 
 def _generate_entries(m, file_name, offset=0):
@@ -408,6 +397,8 @@ def analyze_document(tex_root):
         raise TypeError("tex_root must be a string or view")
 
     result = _analyze_tex_file(tex_root)
+    if result:
+        result._freeze()
     return result
 
 
