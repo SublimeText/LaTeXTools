@@ -285,11 +285,6 @@ class Cache:
         if key is None:
             raise ValueError("key cannot be None")
 
-        try:
-            pickle.dumps(obj, protocol=-1)
-        except pickle.PicklingError:
-            raise ValueError("obj must be picklable")
-
         if isinstance(obj, list):
             obj = tuple(obj)
         elif isinstance(obj, dict):
@@ -413,7 +408,7 @@ class Cache:
         with self._disk_lock:
             # operate on a stable copy of the object
             with self._write_lock:
-                _objs = pickle.loads(pickle.dumps(self._objects, protocol=-1))
+                _objs = self._objects.copy()
                 self._dirty = False
 
             if key is None:
