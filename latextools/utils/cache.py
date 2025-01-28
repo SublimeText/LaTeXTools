@@ -173,27 +173,28 @@ def _global_cache_path():
 
 # marker class for invalidated result
 class InvalidObject:
-    _HASH = hash("_LaTeXTools_InvalidObject")
+    __slots__ = []
+    __hash = hash("_LaTeXTools_InvalidObject")
 
-    def __eq__(self, other):
+    @classmethod
+    def __hash__(cls):
+        return cls.__hash
+
+    @classmethod
+    def __eq__(cls, other):
         # in general, this is a bad pattern, since it will treat the
         # literal string "_LaTeXTools_InvalidObject" as being an invalid
         # object; nevertheless, we need an object identity that persists
         # across reloads, and this seems to be the only way to guarantee
         # that
-        return self._HASH == hash(other)
+        try:
+            return cls.__hash == hash(other)
+        except TypeError:
+            return False
 
-    def __ne__(self, other):
-        return not self == other
-
-    def __hash__(self):
-        return self._HASH
-
-
-try:
-    _invalid_object
-except NameError:
-    _invalid_object = InvalidObject()
+    @classmethod
+    def __ne__(cls, other):
+        return not cls == other
 
 
 class Cache:
@@ -247,7 +248,7 @@ class Cache:
             # note: will raise CacheMiss if can't be found
             result = self.load(key)
 
-        if result == _invalid_object:
+        if result == InvalidObject:
             raise CacheMiss("{0} is invalid".format(key))
 
         # return a copy of any objects
@@ -269,7 +270,7 @@ class Cache:
         if key is None:
             raise ValueError("key cannot be None")
 
-        return key in self._objects and self._objects[key] != _invalid_object
+        return key in self._objects and self._objects[key] != InvalidObject
 
     def set(self, key, obj):
         """
@@ -336,7 +337,7 @@ class Cache:
 
         def _invalidate(key):
             try:
-                self._objects[key] = _invalid_object
+                self._objects[key] = InvalidObject
             except Exception:
                 logger.error("error occurred while invalidating %s", key)
                 traceback.print_exc()
@@ -417,7 +418,7 @@ class Cache:
 
             if key is None:
                 # remove all InvalidObjects
-                delete_keys = [k for k in _objs if _objs[k] == _invalid_object]
+                delete_keys = [k for k in _objs if _objs[k] == InvalidObject]
 
                 for k in delete_keys:
                     del _objs[k]
@@ -442,7 +443,7 @@ class Cache:
                         logger.error("error while deleting %s: %s", self.cache_path, e)
 
             elif key in _objs:
-                if _objs[key] == _invalid_object:
+                if _objs[key] == InvalidObject:
                     file_path = os.path.join(self.cache_path, key)
                     try:
                         os.remove(file_path)
