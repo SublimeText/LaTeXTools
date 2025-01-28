@@ -557,8 +557,6 @@ class ValidatingCache(Cache):
 
         return super(ValidatingCache, self).get(key)
 
-    get.__doc__ = Cache.get.__doc__
-
     def set(self, key, obj):
         if key is None:
             raise ValueError("key cannot be None")
@@ -566,8 +564,6 @@ class ValidatingCache(Cache):
         self.validate_on_set(key, obj)
 
         return super(ValidatingCache, self).set(key, obj)
-
-    set.__doc__ = Cache.set.__doc__
 
 
 class InstanceTrackingCache(Cache):
