@@ -245,7 +245,7 @@ class Analysis:
         elif callable(how):
             return (c for c in self._commands(flags) if how(c))
 
-        raise Exception(f"Unsupported filter type: {type(how)}")
+        raise Exception("Unsupported filter type: {}".format(type(how)))
 
     def graphics_paths(self):
         if self._graphics_path is None:
