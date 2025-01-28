@@ -50,9 +50,7 @@ def hash_digest(text):
     Arguments:
     text -- the text for which the digest should be created
     """
-    text_encoded = text.encode("utf8")
-    hash_result = hashlib.md5(text_encoded)
-    return hash_result.hexdigest()
+    return hashlib.md5(text.encode("utf-8")).hexdigest()
 
 
 def cache_local(tex_root, key, func):
