@@ -65,6 +65,11 @@ def update_cache(cache, doc, bib):
 
 
 class LatextoolsCacheUpdateListener(sublime_plugin.EventListener):
+    def on_init(self, views):
+        for view in views:
+            if view.match_selector(0, "text.tex.latex"):
+                self.on_load(view)
+
     def on_load(self, view):
         if not view.is_primary():
             return
