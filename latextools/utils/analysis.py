@@ -259,7 +259,7 @@ class Analysis:
                     for p in paths
                 )
             # freeze result
-            self._graphics_path = tuple(result)
+            self._graphics_path = result
 
         return self._graphics_path
 
