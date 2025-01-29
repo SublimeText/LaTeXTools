@@ -260,7 +260,7 @@ class Analysis:
                     for p in paths
                 )
             # freeze result
-            self._graphics_path = tuple(result)
+            self._graphics_path = result
 
         return self._graphics_path
 
@@ -425,17 +425,14 @@ def _analyze_tex_file(
         logger.error("File appears cyclic: %s\n%s", file_name, process_file_stack)
         return ana
 
-    if not import_path:
-        base_path, _ = os.path.split(tex_root)
-    else:
-        base_path = import_path
+    base_path = import_path if import_path else os.path.dirname(tex_root)
 
     # store import path at the base path, such that it can be accessed
     if import_path:
         if file_name in ana._import_base_paths:
             if ana._import_base_paths[file_name] != import_path:
                 logger.warning(
-                    "'%s' is imported twice. " "Cannot handle this correctly in the analysis.",
+                    "'%s' is imported twice. Cannot handle this correctly in the analysis.",
                     file_name,
                 )
         else:
@@ -473,6 +470,7 @@ def _analyze_tex_file(
             # check that we still need to analyze
             if only_preamble and ana._state.get("preamble_finished", False):
                 return ana
+
         elif g("command") in _import_commands and g("args") is not None and g("args2") is not None:
             if g("command").startswith("sub"):
                 next_import_path = os.path.join(base_path, g("args").strip('"'))
@@ -495,6 +493,7 @@ def _analyze_tex_file(
             # check that we still need to analyze
             if only_preamble and ana._state.get("preamble_finished", False):
                 return ana
+
         # subfile support:
         # if we are not in the root file (i.e. not call from included files)
         # and have the command \documentclass[main.tex]{subfiles}
@@ -518,6 +517,22 @@ def _analyze_tex_file(
                 del ana._state["preamble_finished"]
             except KeyError:
                 pass
+
+        # usepackage(local) support:
+        # analyze existing local packages or stylesheets
+        elif g("command") == "usepackage" and g("args") is not None:
+            fn = os.path.join(base_path, os.path.splitext(g("args").strip('"'))[0])
+            for ext in (".sty", ".tex"):
+                open_file = fn + ext
+                if os.path.isfile(open_file):
+                    process_file_stack.append(file_name)
+                    _analyze_tex_file(tex_root, open_file, process_file_stack, ana)
+                    process_file_stack.pop()
+                    break
+
+            # check that we still need to analyze
+            if only_preamble and ana._state.get("preamble_finished", False):
+                return ana
 
     return ana
 

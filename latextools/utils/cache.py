@@ -50,9 +50,7 @@ def hash_digest(text):
     Arguments:
     text -- the text for which the digest should be created
     """
-    text_encoded = text.encode("utf8")
-    hash_result = hashlib.md5(text_encoded)
-    return hash_result.hexdigest()
+    return hashlib.md5(text.encode("utf-8")).hexdigest()
 
 
 def cache_local(tex_root, key, func):
@@ -173,27 +171,28 @@ def _global_cache_path():
 
 # marker class for invalidated result
 class InvalidObject:
-    _HASH = hash("_LaTeXTools_InvalidObject")
+    __slots__ = []
+    __hash = hash("_LaTeXTools_InvalidObject")
 
-    def __eq__(self, other):
+    @classmethod
+    def __hash__(cls):
+        return cls.__hash
+
+    @classmethod
+    def __eq__(cls, other):
         # in general, this is a bad pattern, since it will treat the
         # literal string "_LaTeXTools_InvalidObject" as being an invalid
         # object; nevertheless, we need an object identity that persists
         # across reloads, and this seems to be the only way to guarantee
         # that
-        return self._HASH == hash(other)
+        try:
+            return cls.__hash == hash(other)
+        except TypeError:
+            return False
 
-    def __ne__(self, other):
-        return not self == other
-
-    def __hash__(self):
-        return self._HASH
-
-
-try:
-    _invalid_object
-except NameError:
-    _invalid_object = InvalidObject()
+    @classmethod
+    def __ne__(cls, other):
+        return not cls == other
 
 
 class Cache:
@@ -216,14 +215,12 @@ class Cache:
             self._disk_lock = threading.Lock()
         if not hasattr(self, "_write_lock"):
             self._write_lock = threading.Lock()
-        if not hasattr(self, "_save_lock"):
-            self._save_lock = threading.Lock()
         if not hasattr(self, "_objects"):
             self._objects = {}
         if not hasattr(self, "_dirty"):
             self._dirty = False
         if not hasattr(self, "_save_queue"):
-            self._save_queue = []
+            self._save_queue = 0
         if not hasattr(self, "_pool"):
             self._pool = ThreadPool(2)
 
@@ -247,7 +244,7 @@ class Cache:
             # note: will raise CacheMiss if can't be found
             result = self.load(key)
 
-        if result == _invalid_object:
+        if result == InvalidObject:
             raise CacheMiss("{0} is invalid".format(key))
 
         # return a copy of any objects
@@ -269,7 +266,7 @@ class Cache:
         if key is None:
             raise ValueError("key cannot be None")
 
-        return key in self._objects and self._objects[key] != _invalid_object
+        return key in self._objects and self._objects[key] != InvalidObject
 
     def set(self, key, obj):
         """
@@ -283,11 +280,6 @@ class Cache:
         """
         if key is None:
             raise ValueError("key cannot be None")
-
-        try:
-            pickle.dumps(obj, protocol=-1)
-        except pickle.PicklingError:
-            raise ValueError("obj must be picklable")
 
         if isinstance(obj, list):
             obj = tuple(obj)
@@ -336,7 +328,7 @@ class Cache:
 
         def _invalidate(key):
             try:
-                self._objects[key] = _invalid_object
+                self._objects[key] = InvalidObject
             except Exception:
                 logger.error("error occurred while invalidating %s", key)
                 traceback.print_exc()
@@ -412,12 +404,12 @@ class Cache:
         with self._disk_lock:
             # operate on a stable copy of the object
             with self._write_lock:
-                _objs = pickle.loads(pickle.dumps(self._objects, protocol=-1))
+                _objs = self._objects.copy()
                 self._dirty = False
 
             if key is None:
                 # remove all InvalidObjects
-                delete_keys = [k for k in _objs if _objs[k] == _invalid_object]
+                delete_keys = [k for k in _objs if _objs[k] == InvalidObject]
 
                 for k in delete_keys:
                     del _objs[k]
@@ -442,7 +434,7 @@ class Cache:
                         logger.error("error while deleting %s: %s", self.cache_path, e)
 
             elif key in _objs:
-                if _objs[key] == _invalid_object:
+                if _objs[key] == InvalidObject:
                     file_path = os.path.join(self.cache_path, key)
                     try:
                         os.remove(file_path)
@@ -475,17 +467,16 @@ class Cache:
             raise CacheMiss()
 
     def _schedule_save(self):
-        with self._save_lock:
-            self._save_queue.append(0)
-            threading.Timer(0.5, self._debounce_save).start()
-
-    def _debounce_save(self):
-        with self._save_lock:
-            if len(self._save_queue) > 1:
-                self._save_queue.pop()
+        def _debounce():
+            self._save_queue -= 1
+            if self._save_queue > 0:
+                sublime.set_timeout(_debounce, 1000)
             else:
-                self._save_queue = []
-                sublime.set_timeout(self.save_async, 0)
+                self._save_queue = 0
+                self.save_async()
+
+        self._save_queue += 1
+        sublime.set_timeout(_debounce, 1000)
 
     # ensure cache is saved to disk when removed from memory
     def __del__(self):
@@ -561,8 +552,6 @@ class ValidatingCache(Cache):
 
         return super(ValidatingCache, self).get(key)
 
-    get.__doc__ = Cache.get.__doc__
-
     def set(self, key, obj):
         if key is None:
             raise ValueError("key cannot be None")
@@ -570,8 +559,6 @@ class ValidatingCache(Cache):
         self.validate_on_set(key, obj)
 
         return super(ValidatingCache, self).set(key, obj)
-
-    set.__doc__ = Cache.set.__doc__
 
 
 class InstanceTrackingCache(Cache):
