@@ -215,14 +215,12 @@ class Cache:
             self._disk_lock = threading.Lock()
         if not hasattr(self, "_write_lock"):
             self._write_lock = threading.Lock()
-        if not hasattr(self, "_save_lock"):
-            self._save_lock = threading.Lock()
         if not hasattr(self, "_objects"):
             self._objects = {}
         if not hasattr(self, "_dirty"):
             self._dirty = False
         if not hasattr(self, "_save_queue"):
-            self._save_queue = []
+            self._save_queue = 0
         if not hasattr(self, "_pool"):
             self._pool = ThreadPool(2)
 
@@ -469,17 +467,16 @@ class Cache:
             raise CacheMiss()
 
     def _schedule_save(self):
-        with self._save_lock:
-            self._save_queue.append(0)
-            threading.Timer(0.5, self._debounce_save).start()
-
-    def _debounce_save(self):
-        with self._save_lock:
-            if len(self._save_queue) > 1:
-                self._save_queue.pop()
+        def _debounce():
+            self._save_queue -= 1
+            if self._save_queue > 0:
+                sublime.set_timeout(_debounce, 1000)
             else:
-                self._save_queue = []
-                sublime.set_timeout(self.save_async, 0)
+                self._save_queue = 0
+                self.save_async()
+
+        self._save_queue += 1
+        sublime.set_timeout(_debounce, 1000)
 
     # ensure cache is saved to disk when removed from memory
     def __del__(self):
