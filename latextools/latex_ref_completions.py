@@ -37,6 +37,7 @@ _ref_special_commands = "|".join(
         "S",
         "title",
         "headname",
+        "th",
         "tocname",
     ]
 )[::-1]
@@ -66,14 +67,14 @@ def get_ref_completions(view):
     if window:
         for view in window.views():
             if view.is_primary() and view.match_selector(0, "text.tex.latex"):
-                view.find_all(r"\\label\{([^\{\}]+)\}", 0, "\\1", completions)
+                view.find_all(r"\\(?:th)?label\{([^\{\}]+)\}", 0, "\\1", completions)
 
     # Finds labels in associated files.
     root = get_tex_root(view)
     if root:
         ana = analysis.get_analysis(root)
         if ana:
-            for command in ana.filter_commands("label"):
+            for command in ana.filter_commands(["label", "thlabel"]):
                 completions.append(command.args)
 
     # remove duplicates
