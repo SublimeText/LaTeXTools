@@ -126,7 +126,14 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
     def _create_formatted_entries(self, bib_entries):
         # create the formatted entries
         autocomplete_format = get_setting("cite_autocomplete_format")
+        if isinstance(autocomplete_format, str):
+            autocomplete_format = [autocomplete_format, "", ""]
+        while len(autocomplete_format) < 3:
+            autocomplete_format.append("")
+
         panel_format = get_setting("cite_panel_format")
+        if isinstance(panel_format, str):
+            panel_format = [panel_format]
 
         meta_data = frozendict(
             cache_time=int(time.time()),
