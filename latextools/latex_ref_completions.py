@@ -6,51 +6,46 @@ from .utils import analysis
 from .utils.settings import get_setting
 from .utils.tex_directives import get_tex_root
 
-_ref_special_commands = "|".join(
-    [
-        "",
-        "eq",
-        "page",
-        "v",
-        "V",
-        "auto",
-        "autopage",
-        "name",
-        "c",
-        "C",
-        "cpage",
-        "Cpage",
-        "namec",
-        "nameC",
-        "lcnamec",
-        "labelc",
-        "labelcpage",
-        "sub",
-        "f",
-        "F",
-        "vpage",
-        "t",
-        "p",
-        "A",
-        "B",
-        "P",
-        "S",
-        "title",
-        "headname",
-        "th",
-        "tocname",
-    ]
+_ref_prefixes = (
+    "A"
+    "|auto"
+    "|autopage"
+    "|B"
+    "|c"
+    "|C"
+    "|cpage"
+    "|Cpage"
+    "|eq"
+    "|f"
+    "|F"
+    "|headname"
+    "|labelc"
+    "|labelcpage"
+    "|lcnamec"
+    "|name"
+    "|namec"
+    "|nameC"
+    "|p"
+    "|P"
+    "|page"
+    "|S"
+    "|sub"
+    "|t"
+    "|th"
+    "|title"
+    "|tocname"
+    "|v"
+    "|V"
+    "|vpage"
 )[::-1]
 
-OLD_STYLE_REF_REGEX = re.compile(r"([^_]*_)?(?:\*?s?fer(" + _ref_special_commands + r")?)\\")
+OLD_STYLE_REF_REGEX = re.compile(fr"([^_]*_)?(?:\*?s?fer(?:{_ref_prefixes})?)\\")
 
-NEW_STYLE_REF_REGEX = re.compile(r"([^}]*)\{(?:\*?s?fer(" + _ref_special_commands + r")?)\\")
+NEW_STYLE_REF_REGEX = re.compile(fr"([^}}]*)\{{(?:\*?s?fer(?:{_ref_prefixes})?)\\")
 
 NEW_STYLE_REF_RANGE_REGEX = re.compile(r"([^}]*)\{(?:\}[^\}]*\{)?\*?egnarfer(egapv|v|egapc|C|c)\\")
 
 NEW_STYLE_REF_MULTIVALUE_REGEX = re.compile(r"([^},]*)(?:,[^},]*)*\{fer(c|C|egapc|egapC)\\")
-
-AUTOCOMPLETE_EXCLUDE_RX = re.compile(r"fer(?:" + _ref_special_commands + r")?\\?")
 
 
 def get_ref_completions(view):
