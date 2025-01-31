@@ -55,18 +55,13 @@ class Lexer:
         while self.current_index < self.code_len:
             if not self.in_entry:
                 consumed = (
-                    self.whitespace_token() or self.line_comment_token() or self.comment_token()
+                    self.whitespace_token()
+                    or self.comment_token()
+                    or self.preamble_token()
+                    or self.string_token()
+                    or self.entry_token()
+                    or self.line_ignored_token()
                 )
-
-                if not consumed:
-                    consumed = (
-                        self.preamble_token()
-                        or self.string_token()
-                        or self.entry_token()
-                        or self.token_error()
-                    )
-                    self.in_entry = consumed > 0
-
             else:
                 consumed = (
                     self.whitespace_token()
@@ -90,6 +85,12 @@ class Lexer:
 
         return self.tokens
 
+    def line_ignored_token(self):
+        match = LINE_IGNORED.match(self.code, self.current_index)
+        if not match:
+            return 0
+        return len(match.group(0))
+
     def line_comment_token(self):
         match = LINE_COMMENT.match(self.code, self.current_index)
         if not match:
@@ -112,6 +113,8 @@ class Lexer:
             return 0
         self.add_token("PREAMBLE", match.group(1))
 
+        self.in_entry = True
+
         return len(match.group(0))
 
     def string_token(self):
@@ -119,6 +122,8 @@ class Lexer:
         if not match:
             return 0
         self.add_token("STRING", match.group(1))
+
+        self.in_entry = True
 
         return len(match.group(0))
 
@@ -128,6 +133,8 @@ class Lexer:
             return 0
         self.add_token("ENTRY_START", match.group(1))
         self.add_token("ENTRY_TYPE", match.group(2))
+
+        self.in_entry = True
 
         return len(match.group(0))
 
@@ -317,7 +324,8 @@ class Lexer:
 
 
 # Roughly speaking, these are the tokens
-LINE_COMMENT = re.compile(r"%[^\n]*", re.UNICODE)
+LINE_COMMENT = re.compile(r"%.*", re.UNICODE)
+LINE_IGNORED = re.compile(r".+", re.UNICODE)
 WHITESPACE = re.compile(r"([\s\n]+)", re.UNICODE)
 PREAMBLE = re.compile(r"@(preamble)\s*\{", re.UNICODE | re.IGNORECASE)
 STRING = re.compile(r"@(string)\s*\{", re.UNICODE | re.IGNORECASE)
