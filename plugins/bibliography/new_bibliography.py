@@ -120,52 +120,47 @@ class NewBibliographyPlugin(LaTeXToolsPlugin):
                 pass
 
             try:
-                bibf = codecs.open(bibfname, "r", "UTF-8", "ignore")  # 'ignore' to be safe
-            except IOError:
+                with open(bibfname, "r", encoding="utf-8", errors="ignore") as bibf:
+                    bib_entries = []
+
+                    excluded_types = ("xdata", "comment", "string")
+                    excluded_fields = (
+                        "abstract",
+                        "annotation",
+                        "annote",
+                        "execute",
+                        "langidopts",
+                        "options",
+                    )
+
+                    for key, entry in parser.parse(bibf.read()).items():
+                        if entry.entry_type in excluded_types:
+                            continue
+
+                        # purge some unnecessary fields from the bib entry to save
+                        # some space and time reloading
+                        for k in excluded_fields:
+                            if k in entry:
+                                del entry[k]
+
+                        bib_entries.append(EntryWrapper(entry))
+
+                    logger.info("Loaded %d bibitems", len(bib_entries))
+
+                    try:
+                        bib_cache.set(bib_entries)
+                        fmt_entries = bib_cache.get()
+                        entries.extend(fmt_entries)
+                    except Exception:
+                        traceback.print_exc()
+                        logger.warning("Using bibliography without caching it")
+                        entries.extend(bib_entries)
+
+            except OSError:
                 msg = "Cannot open bibliography file %s !" % bibfname
                 logger.error(msg)
                 sublime.status_message(msg)
                 continue
-            else:
-                bib_entries = []
-
-                excluded_types = ("xdata", "comment", "string")
-                excluded_fields = (
-                    "abstract",
-                    "annotation",
-                    "annote",
-                    "execute",
-                    "langidopts",
-                    "options",
-                )
-
-                for key, entry in parser.parse(bibf.read()).items():
-                    if entry.entry_type in excluded_types:
-                        continue
-
-                    # purge some unnecessary fields from the bib entry to save
-                    # some space and time reloading
-                    for k in excluded_fields:
-                        if k in entry:
-                            del entry[k]
-
-                    bib_entries.append(EntryWrapper(entry))
-
-                logger.info("Loaded %d bibitems", len(bib_entries))
-
-                try:
-                    bib_cache.set(bib_entries)
-                    fmt_entries = bib_cache.get()
-                    entries.extend(fmt_entries)
-                except Exception:
-                    traceback.print_exc()
-                    logger.warning("Using bibliography without caching it")
-                    entries.extend(bib_entries)
-            finally:
-                try:
-                    bibf.close()
-                except Exception:
-                    pass
 
             logger.info("Found %d total bib entries", len(entries))
 
