@@ -5,12 +5,14 @@ class AstNode:
 
 
 class PreambleNode(AstNode):
+    __slots__ = ["contents"]
 
     def __repr__(self):
         return '<Preamble>'
 
 
 class StringNode(AstNode):
+    __slots__ = ["key", "value"]
 
     def __repr__(self):
         if self.key:
@@ -20,6 +22,7 @@ class StringNode(AstNode):
 
 
 class EntryNode(AstNode):
+    __slots__ = ["entry_type", "key", "fields"]
 
     def __repr__(self):
         if self.key:
@@ -29,6 +32,7 @@ class EntryNode(AstNode):
 
 
 class EntryKeyNode(AstNode):
+    __slots__ = ["value"]
 
     def __repr__(self):
         return '<EntryKeyNode>'
@@ -41,10 +45,11 @@ class EntryKeyNode(AstNode):
 
 
 class KeyValueNode(AstNode):
-    pass
+    __slots__ = ["key", "value"]
 
 
 class LiteralNode(AstNode):
+    __slots__ = ["value"]
 
     def __str__(self):
         try:
@@ -56,6 +61,7 @@ class LiteralNode(AstNode):
 
 
 class NumberNode(AstNode):
+    __slots__ = ["value"]
 
     def __str__(self):
         try:
@@ -67,6 +73,7 @@ class NumberNode(AstNode):
 
 
 class QuotedLiteralNode(AstNode):
+    __slots__ = ["value"]
 
     def __str__(self):
         try:
@@ -78,6 +85,7 @@ class QuotedLiteralNode(AstNode):
 
 
 class ConcatenationNode(AstNode):
+    __slots__ = ["lhs", "rhs"]
 
     def __str__(self):
         return ''.join(str(s) for s in (self.lhs, self.rhs))
