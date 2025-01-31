@@ -1,4 +1,4 @@
-'''
+"""
 parser for the bibtex lexer
 
 expected tokens:
@@ -25,7 +25,7 @@ grammar (roughly):
     field_value = concatenated_values* | value;
     concatenated_values = value # field_value;
     value = IDENTIFIER | NUMBER | VALUE | QUOTED_STRING;
-'''
+"""
 
 from .ast import *
 from .lexer import Lexer
@@ -35,14 +35,10 @@ from .tex import tokenize_list
 
 import sys
 
-if sys.version_info > (3, 0):
-    unicode = str
-
-__all__ = ['Parser']
+__all__ = ["Parser"]
 
 
 class Parser:
-
     def __init__(self, lexer=Lexer()):
         super(Parser, self).__init__()
         self.lexer = lexer
@@ -60,7 +56,7 @@ class Parser:
         self._mark_locations = []
 
         if self._tokens_len < 0:
-            raise SyntaxError('could not find any entries')
+            raise SyntaxError("could not find any entries")
 
         self.database = database = Database()
 
@@ -68,47 +64,39 @@ class Parser:
             try:
                 self._advance()
             except IndexError:
-                self.unexpected_token('preamble, string, entry_start, or eof')
+                self.unexpected_token("preamble, string, entry_start, or eof")
 
             token_type = self.token_type
-            if token_type == 'PREAMBLE':
+            if token_type == "PREAMBLE":
                 preamble = self.preamble()
-                database.add_preamble(
-                    self._handle_value(preamble.contents)
-                )
-            elif token_type == 'STRING':
+                database.add_preamble(self._handle_value(preamble.contents))
+            elif token_type == "STRING":
                 string = self.string()
-                database.add_macro(
-                    string.key,
-                    self._handle_value(string.value)
-                )
-            elif token_type == 'ENTRY_START':
+                database.add_macro(string.key, self._handle_value(string.value))
+            elif token_type == "ENTRY_START":
                 entry_node = self.entry()
 
-                entry = Entry(
-                    entry_node.entry_type,
-                    entry_node.key.value
-                )
+                entry = Entry(entry_node.entry_type, entry_node.key.value)
 
                 for field in entry_node.fields:
                     entry[field.key] = self._handle_value(field.value)
                     if field.key in Name.NAME_FIELDS:
-                        entry[field.key] = ' and '.join(
-                            (unicode(Name(s)) for s in
-                                tokenize_list(entry[field.key])))
+                        entry[field.key] = " and ".join(
+                            (str(Name(s)) for s in tokenize_list(entry[field.key]))
+                        )
 
                 database.add_entry(entry)
-            elif token_type == 'EOF':
+            elif token_type == "EOF":
                 return database
             else:
-                self.unexpected_token('preamble, string, entry_start, or eof')
+                self.unexpected_token("preamble, string, entry_start, or eof")
 
     def _advance(self):
         token_len = self._tokens_len
 
         current_token = self._current_token
         if current_token >= token_len:
-            raise IndexError('no more tokens')
+            raise IndexError("no more tokens")
 
         self.token_type, self.token_value, self.line_info = self.tokens[current_token]
         self._current_token += 1
@@ -125,7 +113,7 @@ class Parser:
             self._current_token = last_mark
         except IndexError:
             if self._current_token <= 0:
-                raise Exception('attempted to rewind before the beginning')
+                raise Exception("attempted to rewind before the beginning")
 
             self._current_token -= 1
 
@@ -146,10 +134,10 @@ class Parser:
         try:
             self._advance()
         except IndexError:
-            self.unexpected_token('entry_end')
+            self.unexpected_token("entry_end")
 
-        if self.token_type != 'ENTRY_END':
-            self.unexpected_token('entry_end')
+        if self.token_type != "ENTRY_END":
+            self.unexpected_token("entry_end")
 
         return node
 
@@ -159,10 +147,10 @@ class Parser:
         try:
             self._advance()
         except IndexError:
-            self.unexpected_token('key')
+            self.unexpected_token("key")
 
-        if self.token_type != 'KEY':
-            self.unexpected_token('key')
+        if self.token_type != "KEY":
+            self.unexpected_token("key")
 
         node.key = self.token_value
         node.value = self.field_value()
@@ -170,10 +158,10 @@ class Parser:
         try:
             self._advance()
         except IndexError:
-            self.unexpected_token('entry_end')
+            self.unexpected_token("entry_end")
 
-        if self.token_type != 'ENTRY_END':
-            self.unexpected_token('entry_end')
+        if self.token_type != "ENTRY_END":
+            self.unexpected_token("entry_end")
 
         return node
 
@@ -181,10 +169,10 @@ class Parser:
         try:
             self._advance()
         except IndexError:
-            self.unexpected_token('entry_type')
+            self.unexpected_token("entry_type")
 
-        if self.token_type != 'ENTRY_TYPE':
-            self.unexpected_token('entry_type')
+        if self.token_type != "ENTRY_TYPE":
+            self.unexpected_token("entry_type")
 
         node = EntryNode()
         node.entry_type = self.token_value
@@ -194,10 +182,10 @@ class Parser:
         try:
             self._advance()
         except IndexError:
-            self.unexpected_token('entry_end')
+            self.unexpected_token("entry_end")
 
-        if self.token_type != 'ENTRY_END':
-            self.unexpected_token('entry_end')
+        if self.token_type != "ENTRY_END":
+            self.unexpected_token("entry_end")
 
         return node
 
@@ -205,14 +193,14 @@ class Parser:
         try:
             self._advance()
         except IndexError:
-            self.unexpected_token('identifier')
+            self.unexpected_token("identifier")
 
-        if self.token_type in ('IDENTIFIER', 'NUMBER'):
+        if self.token_type in ("IDENTIFIER", "NUMBER"):
             node = EntryKeyNode()
             node.value = self.token_value
             return node
         else:
-            self.unexpected_token('identifier')
+            self.unexpected_token("identifier")
 
     def key_values(self):
         values = []
@@ -223,7 +211,7 @@ class Parser:
             except IndexError:
                 break
 
-            if self.token_type == 'KEY':
+            if self.token_type == "KEY":
                 node = KeyValueNode()
                 node.key = self.token_value
                 node.value = self.field_value()
@@ -252,7 +240,7 @@ class Parser:
             self._rewind()
             return False
 
-        if self.token_type != '#':
+        if self.token_type != "#":
             self._rewind()
             return False
 
@@ -274,64 +262,49 @@ class Parser:
         try:
             self._advance()
         except IndexError:
-            self.unexpected_token('quoted_string, value, identifier, or number')
+            self.unexpected_token("quoted_string, value, identifier, or number")
 
         token_type = self.token_type
-        if token_type == 'QUOTED_STRING':
+        if token_type == "QUOTED_STRING":
             node = QuotedLiteralNode()
-        elif token_type == 'VALUE':
+        elif token_type == "VALUE":
             node = QuotedLiteralNode()
-        elif token_type == 'IDENTIFIER':
+        elif token_type == "IDENTIFIER":
             node = LiteralNode()
-        elif token_type == 'NUMBER':
+        elif token_type == "NUMBER":
             node = NumberNode()
         else:
-            self.unexpected_token('quoted_string, value, identifier, or number')
+            self.unexpected_token("quoted_string, value, identifier, or number")
 
         node.value = self.token_value
         return node
 
     def unexpected_token(self, expecting=None):
         try:
-            line    = self.line_info['first_line']
-            column  = self.line_info['first_column']
+            line, column = self.line_info[0]
         except (AttributeError, KeyError):
             line, column = -1, -1
 
         if expecting is not None:
-            expecting = '; expecting {0}'.format(expecting)
+            expecting = "; expecting {0}".format(expecting)
         else:
-            expecting = ''
+            expecting = ""
 
         try:
             token_type = self.token_type.lower()
         except (AttributeError, NameError):
-            token_type = 'eof'
+            token_type = "eof"
 
         if line > 0 and column > 0:
-            raise SyntaxError('{0}:{1} - unexpected {2}{3}'.format(
-                line + 1,
-                column + 1,
-                token_type,
-                expecting
-            ))
+            raise SyntaxError(
+                "{0}:{1} - unexpected {2}{3}".format(line + 1, column + 1, token_type, expecting)
+            )
         else:
-            raise SyntaxError('unexpected {0}{1}'.format(
-                token_type,
-                expecting
-            ))
+            raise SyntaxError("unexpected {0}{1}".format(token_type, expecting))
 
     def _handle_value(self, value):
         if isinstance(value, ConcatenationNode):
-            return ''.join((
-                self._handle_value(value.lhs),
-                self._handle_value(value.rhs)
-            ))
+            return self._handle_value(value.lhs) + self._handle_value(value.rhs)
         elif isinstance(value, LiteralNode):
-            macro_code = value.value
-            try:
-                return self.database.get_macro(macro_code)
-            except KeyError:
-                return macro_code
-        else:
-            return value.value
+            return self.database.get_macro(value.value)
+        return value.value
