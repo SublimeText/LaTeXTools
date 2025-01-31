@@ -2,16 +2,16 @@ import re
 
 
 def split_tex_string(string, maxsplit=-1, sep=None):
-    '''
+    """
     A variation of string.split() to support tex strings
 
     In particular, ignores text in brackets, no matter how deeply nested and
     defaults to breaking on any space char or ~.
-    '''
+    """
 
     if sep is None:
         # tilde == non-breaking space
-        sep = r'(?u)[\s~]+'
+        sep = r"(?u)[\s~]+"
 
     result = []
 
@@ -23,20 +23,20 @@ def split_tex_string(string, maxsplit=-1, sep=None):
     splits = 0
 
     i = 0
-    next_break = re.compile(r'\{|}|(?P<sep>' + sep + ')')
+    next_break = re.compile(r"\{|}|(?P<sep>" + sep + ")")
 
     while i < string_len:
         match = next_break.search(string, i)
         if match:
             matched = match.group(0)
-            if matched == '{':
+            if matched == "{":
                 brace_level += 1
-            elif matched == '}':
+            elif matched == "}":
                 brace_level -= 1
-            elif brace_level == 0 and match.start('sep') > 0:
-                if match.end('sep') <= string_len:
-                    result.append(string[word_start:match.start('sep')])
-                    word_start = match.end('sep')
+            elif brace_level == 0 and match.start("sep") > 0:
+                if match.end("sep") <= string_len:
+                    result.append(string[word_start : match.start("sep")])
+                    word_start = match.end("sep")
 
                     splits += 1
                     if splits == maxsplit:
@@ -51,5 +51,5 @@ def split_tex_string(string, maxsplit=-1, sep=None):
     return [part.strip() for part in result if part]
 
 
-def tokenize_list(list_str, _and='and'):
-    return split_tex_string(list_str, sep=r'(?iu)(?:|([\s~])+)' + _and + r'(?:[\s~]+|$)')
+def tokenize_list(list_str, _and="and"):
+    return split_tex_string(list_str, sep=r"(?iu)(?:|([\s~])+)" + _and + r"(?:[\s~]+|$)")

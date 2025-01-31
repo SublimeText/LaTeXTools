@@ -2,7 +2,6 @@ from collections import OrderedDict
 
 
 class CaseInsensitiveOrderedDict(OrderedDict):
-
     def __getitem__(self, key):
         return super(CaseInsensitiveOrderedDict, self).__getitem__(key.lower())
 

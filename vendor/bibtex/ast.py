@@ -1,14 +1,13 @@
 class AstNode:
-
     def __repr__(self):
-        return '<AstNode>'
+        return "<AstNode>"
 
 
 class PreambleNode(AstNode):
     __slots__ = ["contents"]
 
     def __repr__(self):
-        return '<Preamble>'
+        return "<Preamble>"
 
 
 class StringNode(AstNode):
@@ -16,9 +15,9 @@ class StringNode(AstNode):
 
     def __repr__(self):
         if self.key:
-            return '<String [{0!s}]>'.format(self.key)
+            return "<String [{0!s}]>".format(self.key)
         else:
-            return '<String>'
+            return "<String>"
 
 
 class EntryNode(AstNode):
@@ -26,22 +25,22 @@ class EntryNode(AstNode):
 
     def __repr__(self):
         if self.key:
-            return '<Entry [{0!s}]>'.format(self.key)
+            return "<Entry [{0!s}]>".format(self.key)
         else:
-            return '<Entry>'
+            return "<Entry>"
 
 
 class EntryKeyNode(AstNode):
     __slots__ = ["value"]
 
     def __repr__(self):
-        return '<EntryKeyNode>'
+        return "<EntryKeyNode>"
 
     def __str__(self):
         try:
             return self.value
         except (AttributeError, NameError):
-            return ''
+            return ""
 
 
 class KeyValueNode(AstNode):
@@ -55,7 +54,7 @@ class LiteralNode(AstNode):
         try:
             return self.value
         except (AttributeError, NameError):
-            return ''
+            return ""
 
     __repr__ = __str__
 
@@ -67,7 +66,7 @@ class NumberNode(AstNode):
         try:
             return self.value
         except (AttributeError, NameError):
-            return ''
+            return ""
 
     __repr__ = __str__
 
@@ -79,7 +78,7 @@ class QuotedLiteralNode(AstNode):
         try:
             return self.value
         except (AttributeError, NameError):
-            return ''
+            return ""
 
     __repr__ = __str__
 
@@ -88,6 +87,6 @@ class ConcatenationNode(AstNode):
     __slots__ = ["lhs", "rhs"]
 
     def __str__(self):
-        return ''.join(str(s) for s in (self.lhs, self.rhs))
+        return "".join(str(s) for s in (self.lhs, self.rhs))
 
     __repr__ = __str__

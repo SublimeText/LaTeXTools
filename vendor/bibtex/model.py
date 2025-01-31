@@ -4,7 +4,7 @@ from collections.abc import MutableMapping
 
 from .utils import CaseInsensitiveOrderedDict
 
-__all__ = ['Database', 'Entry']
+__all__ = ["Database", "Entry"]
 
 
 def reraise(tp, value, tb=None):
@@ -16,23 +16,24 @@ def reraise(tp, value, tb=None):
 
 
 class Database(MutableMapping):
-
     def __init__(self):
         self._preamble = []
-        self._macros = CaseInsensitiveOrderedDict([
-            ('jan', 'January'),
-            ('feb', 'February'),
-            ('mar', 'March'),
-            ('apr', 'April'),
-            ('may', 'May'),
-            ('jun', 'June'),
-            ('jul', 'July'),
-            ('aug', 'August'),
-            ('sep', 'September'),
-            ('oct', 'October'),
-            ('nov', 'November'),
-            ('dec', 'December')
-        ])
+        self._macros = CaseInsensitiveOrderedDict(
+            (
+                ("jan", "January"),
+                ("feb", "February"),
+                ("mar", "March"),
+                ("apr", "April"),
+                ("may", "May"),
+                ("jun", "June"),
+                ("jul", "July"),
+                ("aug", "August"),
+                ("sep", "September"),
+                ("oct", "October"),
+                ("nov", "November"),
+                ("dec", "December"),
+            )
+        )
 
         self._entries = CaseInsensitiveOrderedDict()
 
@@ -54,7 +55,7 @@ class Database(MutableMapping):
         entry.database = self
 
     def get_preamble(self):
-        return ''.join(self._preamble)
+        return "".join(self._preamble)
 
     def get_macro(self, key):
         return self._macros[key]
@@ -85,7 +86,6 @@ class Database(MutableMapping):
 
 
 class Entry(MutableMapping):
-
     def __init__(self, entry_type, cite_key, *args, **kwargs):
         self.entry_type = entry_type.lower()
         self.cite_key = cite_key
@@ -97,7 +97,7 @@ class Entry(MutableMapping):
             return None
 
         try:
-            return self.database[self['crossref']]
+            return self.database[self["crossref"]]
         except KeyError:
             return None
 
@@ -109,7 +109,7 @@ class Entry(MutableMapping):
             return self._attributes[key]
         except KeyError:
             exc_info = sys.exc_info()
-            if key.lower() != 'crossref':
+            if key.lower() != "crossref":
                 try:
                     return self.get_crossref()[key]
                 except TypeError:
@@ -130,4 +130,4 @@ class Entry(MutableMapping):
         return len(self._attributes)
 
     def __repr__(self):
-        return '<Entry [{0}]>'.format(self.cite_key)
+        return "<Entry [{0}]>".format(self.cite_key)
