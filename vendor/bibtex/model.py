@@ -1,20 +1,18 @@
-from .utils import CaseInsensitiveOrderedDict
-from collections import MutableMapping
 import sys
+
+from collections.abc import MutableMapping
+
+from .utils import CaseInsensitiveOrderedDict
 
 __all__ = ['Database', 'Entry']
 
-if sys.version_info > (3, 0):
-    def reraise(tp, value, tb=None):
-        if value is None:
-            value = tp()
-        if value.__traceback__ is not tb:
-            raise value.with_traceback(tb)
-        raise value
-else:
-    exec("""def reraise(tp, value, tb=None):
-    raise tp, value, tb
-""")
+
+def reraise(tp, value, tb=None):
+    if value is None:
+        value = tp()
+    if value.__traceback__ is not tb:
+        raise value.with_traceback(tb)
+    raise value
 
 
 class Database(MutableMapping):
@@ -111,7 +109,6 @@ class Entry(MutableMapping):
             return self._attributes[key]
         except KeyError:
             exc_info = sys.exc_info()
-
             if key.lower() != 'crossref':
                 try:
                     return self.get_crossref()[key]

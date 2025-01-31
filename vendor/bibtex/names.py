@@ -4,12 +4,6 @@ import sys
 
 __all__ = ['Name']
 
-if sys.version_info > (3, 0):
-    strbase = str
-    unicode = str
-else:
-    strbase = basestring
-
 NameResult = namedtuple('NameResult', ['first', 'middle', 'prefix', 'last', 'generation'])
 
 
@@ -160,26 +154,16 @@ class Name:
     ))
 
     def __init__(self, name_str):
-        self.first = None
-        self.middle = None
-        self.prefix = None
-        self.last = None
-        self.generation = None
+        self.first, self.middle, self.prefix, self.last, self.generation = tokenize_name(name_str)
 
-        self.first, self.middle, self.prefix, self.last, self.generation = \
-            tokenize_name(name_str)
-
-    def __unicode__(self):
+    def __str__(self):
         if not self.last:
             return self.first
 
-        result = ' '.join((self.prefix, self.last)) if self.prefix else unicode(self.last)
+        result = ' '.join((self.prefix, self.last)) if self.prefix else str(self.last)
         if self.generation:
             result = ', '.join((result, self.generation))
         result = ', '.join((result, self.first))
         if self.middle:
             result = ' '.join((result, self.middle))
         return result
-
-    __str__ = __unicode__
-    __repr__ = __unicode__

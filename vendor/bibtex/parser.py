@@ -35,9 +35,6 @@ from .tex import tokenize_list
 
 import sys
 
-if sys.version_info > (3, 0):
-    unicode = str
-
 __all__ = ['Parser']
 
 
@@ -94,7 +91,7 @@ class Parser:
                     entry[field.key] = self._handle_value(field.value)
                     if field.key in Name.NAME_FIELDS:
                         entry[field.key] = ' and '.join(
-                            (unicode(Name(s)) for s in
+                            (str(Name(s)) for s in
                                 tokenize_list(entry[field.key])))
 
                 database.add_entry(entry)
