@@ -96,7 +96,7 @@ def get_own_command_completions(tex_root):
                 sublime.CompletionItem(
                     trigger=trigger,
                     completion=completion,
-                    completion_format=sublime.CompletionFormat.SNIPPET,
+                    completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
                     annotation="local",
                     details=f"from {os.path.basename(c.file_name)}",
                     kind=kind,
@@ -108,7 +108,7 @@ def get_own_command_completions(tex_root):
                 sublime.CompletionItem(
                     trigger=f"\\begin{{{c.args}}}",
                     completion=f"\\begin{{{c.args}}}\n\t$0\n\\end{{{c.args}}}",
-                    completion_format=sublime.CompletionFormat.SNIPPET,
+                    completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
                     annotation="local",
                     details=f"from {os.path.basename(c.file_name)}",
                     kind=kind,

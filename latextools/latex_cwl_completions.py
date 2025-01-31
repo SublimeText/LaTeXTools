@@ -223,7 +223,7 @@ def parse_cwl_file(
                 trigger=trigger,
                 annotation=cwl_name,
                 completion=snippet,
-                completion_format=sublime.CompletionFormat.SNIPPET,
+                completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
                 details=" ",
                 kind=cmd_kind,
             )

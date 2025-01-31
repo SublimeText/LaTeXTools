@@ -185,7 +185,7 @@ bibtex_fields = [
         kind=sublime.KIND_VARIABLE,
         details="BibTeX field",
         completion=content,
-        completion_format=sublime.CompletionFormat.SNIPPET,
+        completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
     )
     for trigger, content in bibtex_fields
 ]
@@ -196,7 +196,7 @@ biblatex_fields = [
         kind=sublime.KIND_VARIABLE,
         details="BibLaTeX field",
         completion=content,
-        completion_format=sublime.CompletionFormat.SNIPPET,
+        completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
     )
     for trigger, content in biblatex_fields
 ]
