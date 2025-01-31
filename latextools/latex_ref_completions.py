@@ -62,18 +62,17 @@ def get_ref_completions(view):
     if window:
         for view in window.views():
             if view.is_primary() and view.match_selector(0, "text.tex.latex"):
-                view.find_all(r"\\(?:th)?label\{([^\{\}]+)\}", 0, "\\1", completions)
+                view.find_all(r"\\(?:th)?label\{([^\{\}]+)\}", 0, r"\1", completions)
+
+    completions = set(completions)
 
     # Finds labels in associated files.
-    root = get_tex_root(view)
-    if root:
-        ana = analysis.get_analysis(root)
-        if ana:
-            for command in ana.filter_commands(["label", "thlabel"]):
-                completions.append(command.args)
+    ana = analysis.get_analysis(view)
+    if ana:
+        for command in ana.filter_commands(["label", "thlabel"]):
+            completions.add(command.args)
 
-    # remove duplicates
-    return set(completions)
+    return completions
 
 
 class RefFillAllHelper(FillAllHelper):
