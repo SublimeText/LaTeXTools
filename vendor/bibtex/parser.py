@@ -281,8 +281,7 @@ class Parser:
 
     def unexpected_token(self, expecting=None):
         try:
-            line = self.line_info["first_line"]
-            column = self.line_info["first_column"]
+            line, column = self.line_info[0]
         except (AttributeError, KeyError):
             line, column = -1, -1
 
