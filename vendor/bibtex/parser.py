@@ -305,12 +305,7 @@ class Parser:
 
     def _handle_value(self, value):
         if isinstance(value, ConcatenationNode):
-            return "".join((self._handle_value(value.lhs), self._handle_value(value.rhs)))
+            return self._handle_value(value.lhs) + self._handle_value(value.rhs)
         elif isinstance(value, LiteralNode):
-            macro_code = value.value
-            try:
-                return self.database.get_macro(macro_code)
-            except KeyError:
-                return macro_code
-        else:
-            return value.value
+            return self.database.get_macro(value.value)
+        return value.value

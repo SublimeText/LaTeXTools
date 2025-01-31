@@ -58,7 +58,7 @@ class Database(MutableMapping):
         return "".join(self._preamble)
 
     def get_macro(self, key):
-        return self._macros[key]
+        return self._macros.get(key, key)
 
     def get_entries(self, *keys):
         entries = []
