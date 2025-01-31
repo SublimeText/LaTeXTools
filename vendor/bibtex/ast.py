@@ -9,15 +9,21 @@ class PreambleNode(AstNode):
     def __repr__(self):
         return "<Preamble>"
 
+    def __str__(self):
+        return self.contents
+
 
 class StringNode(AstNode):
     __slots__ = ["key", "value"]
 
     def __repr__(self):
         if self.key:
-            return "<String [{0!s}]>".format(self.key)
+            return f"<String [{self.key!s}]>"
         else:
             return "<String>"
+
+    def __str__(self):
+        return self.key
 
 
 class EntryNode(AstNode):
@@ -25,9 +31,12 @@ class EntryNode(AstNode):
 
     def __repr__(self):
         if self.key:
-            return "<Entry [{0!s}]>".format(self.key)
+            return f"<Entry [{self.key!s}]>"
         else:
             return "<Entry>"
+
+    def __str__(self):
+        return self.key
 
 
 class EntryKeyNode(AstNode):
@@ -37,56 +46,54 @@ class EntryKeyNode(AstNode):
         return "<EntryKeyNode>"
 
     def __str__(self):
-        try:
-            return self.value
-        except (AttributeError, NameError):
-            return ""
+        return self.value
 
 
 class KeyValueNode(AstNode):
     __slots__ = ["key", "value"]
 
+    def __repr__(self):
+        if self.key:
+            return f"<KeyValue [{self.key!s}]>"
+        else:
+            return "<KeyValue>"
+
 
 class LiteralNode(AstNode):
     __slots__ = ["value"]
 
-    def __str__(self):
-        try:
-            return self.value
-        except (AttributeError, NameError):
-            return ""
+    def __repr__(self):
+        return f"<LiteralNode '{self.value!s}'>"
 
-    __repr__ = __str__
+    def __str__(self):
+        return self.value
 
 
 class NumberNode(AstNode):
     __slots__ = ["value"]
 
-    def __str__(self):
-        try:
-            return self.value
-        except (AttributeError, NameError):
-            return ""
+    def __repr__(self):
+        return f"<LiteralNode '{self.value!s}'>"
 
-    __repr__ = __str__
+    def __str__(self):
+        return self.value
 
 
 class QuotedLiteralNode(AstNode):
     __slots__ = ["value"]
 
-    def __str__(self):
-        try:
-            return self.value
-        except (AttributeError, NameError):
-            return ""
+    def __repr__(self):
+        return f"<LiteralNode '{self.value!s}'>"
 
-    __repr__ = __str__
+    def __str__(self):
+        return self.value
 
 
 class ConcatenationNode(AstNode):
     __slots__ = ["lhs", "rhs"]
 
-    def __str__(self):
-        return "".join(str(s) for s in (self.lhs, self.rhs))
+    def __repr__(self):
+        return f"<ConcatenationNode {self.lhs!r}, {self.rhs!r}>"
 
-    __repr__ = __str__
+    def __str__(self):
+        return f"{self.lhs!s}{self.rhs!s}"

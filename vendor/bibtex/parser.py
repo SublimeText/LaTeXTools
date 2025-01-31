@@ -286,7 +286,7 @@ class Parser:
             line, column = -1, -1
 
         if expecting is not None:
-            expecting = "; expecting {0}".format(expecting)
+            expecting = f"; expecting {expecting}"
         else:
             expecting = ""
 
@@ -296,11 +296,9 @@ class Parser:
             token_type = "eof"
 
         if line > 0 and column > 0:
-            raise SyntaxError(
-                "{0}:{1} - unexpected {2}{3}".format(line + 1, column + 1, token_type, expecting)
-            )
+            raise SyntaxError(f"{line + 1}:{ column + 1} - unexpected {token_type}{expecting}")
         else:
-            raise SyntaxError("unexpected {0}{1}".format(token_type, expecting))
+            raise SyntaxError(f"unexpected {token_type}{expecting}")
 
     def _handle_value(self, value):
         if isinstance(value, ConcatenationNode):

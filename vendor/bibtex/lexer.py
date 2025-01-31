@@ -287,11 +287,8 @@ class Lexer:
 
     def token_error(self):
         line, column = self.get_line_and_column()
-        raise SyntaxError(
-            '{0}:{1} - unrecognised token "{2}"'.format(
-                line + 1, column + 1, self.code[self.current_index :].split("\n", 1)[0]
-            )
-        )
+        token = self.code[self.current_index:].split("\n", 1)[0]
+        raise SyntaxError(f'{line + 1}:{column + 1} - unrecognised token "{token}"')
 
     def get_line_and_column(self, offset=0):
         if offset == 0:
