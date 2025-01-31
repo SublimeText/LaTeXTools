@@ -50,15 +50,9 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
 
     def set(self, bib_entries):
         def _write_bib_cache():
-            try:
-                cache.pickle.dumps(bib_entries, protocol=-1)
-            except cache.pickle.PicklingError:
-                logger.error("bib_entries must be pickleable")
-                traceback.print_exc()
-            else:
-                with self._disk_lock:
-                    os.makedirs(self.cache_path, exist_ok=True)
-                    self._write(self.cache_name, {self.cache_name: bib_entries})
+            with self._disk_lock:
+                os.makedirs(self.cache_path, exist_ok=True)
+                self._write(self.cache_name, {self.cache_name: bib_entries})
 
         # write bib_entries to disk
         self._pool.apply_async(_write_bib_cache)
