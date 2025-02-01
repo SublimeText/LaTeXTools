@@ -251,7 +251,7 @@ class Analysis:
     def graphics_paths(self):
         if self._graphics_path is None:
             result = []
-            commands = self.filter_commands("graphicspath")
+            commands = self.filter_commands(["appendtographicspath", "graphicspath"])
             for com in commands:
                 base_path = os.path.join(self.tex_base_path(com.file_name))
                 paths = (p.rstrip("}") for p in com.args.split("{") if p)
