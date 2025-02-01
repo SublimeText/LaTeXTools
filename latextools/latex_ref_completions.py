@@ -47,6 +47,8 @@ NEW_STYLE_REF_RANGE_REGEX = re.compile(r"([^}]*)\{(?:\}[^\}]*\{)?\*?egnarfer(ega
 
 NEW_STYLE_REF_MULTIVALUE_REGEX = re.compile(r"([^},]*)(?:,[^},]*)*\{fer(c|C|egapc|egapC)\\")
 
+LSTSET_LABEL_REGEX = re.compile(r"label\s*=\s*([^\s,}]*)")
+
 
 def get_ref_completions(view):
     """
@@ -62,15 +64,27 @@ def get_ref_completions(view):
     if window:
         for view in window.views():
             if view.is_primary() and view.match_selector(0, "text.tex.latex"):
+                # \label, \thlabel
                 view.find_all(r"\\(?:th)?label\{([^\{\}]+)\}", 0, r"\1", completions)
+                # \lstset
+                view.find_all(r"\\lstset\{[^{}]*label\s*=\s*([^\s,}]+)", 0, r"\1", completions)
 
     completions = set(completions)
 
     # Finds labels in associated files.
     ana = analysis.get_analysis(view)
     if ana:
+        # Find labels
+        # \label{code:label}
         for command in ana.filter_commands(["label", "thlabel"]):
             completions.add(command.args)
+
+        # Find lstset labels
+        # \lstset{language=Pascal, label=code:label, caption={caption text}}
+        for command in ana.filter_commands("lstset"):
+            match = LSTSET_LABEL_REGEX.search(command.args)
+            if match:
+                completions.add(match.group(1))
 
     return completions
 
