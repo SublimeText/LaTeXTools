@@ -871,6 +871,30 @@ LaTeX Package keymap for OS X
 	},
 
 	// ------------------------------------------------------------------
+	// automatic addition of new \task when hitting Shift+Enter in a list environment
+	// create a \task[] in a description environment
+	// ------------------------------------------------------------------
+
+	{
+		"keys": ["shift+enter"],
+		"command": "insert_snippet",
+		"args": { "contents": "\n\\task ${0:$SELECTION}" },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" },
+			{ "key": "latextools.env_selector", "operand": "tasks"},
+		]
+	},
+	{
+		"keys": ["shift+keypad_enter"],
+		"command": "insert_snippet",
+		"args": { "contents": "\n\\task ${0:$SELECTION}" },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" },
+			{ "key": "latextools.env_selector", "operand": "tasks"},
+		]
+	},
+
+	// ------------------------------------------------------------------
 	// shift+super+{up,down} for super/subscripts with braces
 	// (courtesy of Tobias Schmidt; I only changed the keybindings)
 	// ------------------------------------------------------------------
