@@ -62,12 +62,12 @@ def get_ref_completions(view):
     # Finds labels in open files.
     window = view.window()
     if window:
-        for view in window.views():
-            if view.is_primary() and view.match_selector(0, "text.tex.latex"):
+        for v in window.views():
+            if v.is_primary() and v.match_selector(0, "text.tex.latex"):
                 # \label, \thlabel
-                view.find_all(r"\\(?:th)?label\{([^\{\}]+)\}", 0, r"\1", completions)
+                v.find_all(r"\\(?:th)?label\{([^\{\}]+)\}", 0, r"\1", completions)
                 # \lstset
-                view.find_all(r"\\lstset\{[^{}]*label\s*=\s*([^\s,}]+)", 0, r"\1", completions)
+                v.find_all(r"\\lstset\{[^{}]*label\s*=\s*([^\s,}]+)", 0, r"\1", completions)
 
     completions = set(completions)
 
