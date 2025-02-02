@@ -103,7 +103,7 @@ class RefFillAllHelper(FillAllHelper):
         if old_style and not prefix:
             return []
 
-        kind = (sublime.KindId.NAVIGATION, "l", "Label")
+        kind = (sublime.KIND_ID_NAVIGATION, "l", "Label")
 
         completions = [
             sublime.CompletionItem(trigger=c, completion=c, details=" ", kind=kind)
@@ -116,7 +116,7 @@ class RefFillAllHelper(FillAllHelper):
         display = []
         value = []
 
-        kind = (sublime.KindId.NAVIGATION, "l", "Label")
+        kind = (sublime.KIND_ID_NAVIGATION, "l", "Label")
 
         for c in get_ref_completions(view):
             display.append(sublime.QuickPanelItem(trigger=c, annotation="label", kind=kind))

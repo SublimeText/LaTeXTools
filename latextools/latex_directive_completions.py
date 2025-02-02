@@ -83,7 +83,7 @@ def _directive_root_completions(view, value, ac=True):
         if tex_file.startswith(value) or (not len_prefix and tex_file.startswith("./" + value))
     ]
 
-    kind = (sublime.KindId.VARIABLE, "v", "TeX file")
+    kind = (sublime.KIND_ID_VARIABLE, "v", "TeX file")
 
     if ac:
         comp = [
@@ -129,7 +129,7 @@ def _directive_spellcheck_completions(view, value, ac=True):
             dic = "locale"
         return dic
 
-    kind = (sublime.KindId.VARIABLE, "v", "Locale")
+    kind = (sublime.KIND_ID_VARIABLE, "v", "Locale")
 
     if ac:
         comp = [
@@ -155,7 +155,7 @@ def _directive_program_completions(view, value, ac=True):
     engines = ("pdflatex", "xelatex", "lualatex", "pdftex", "xetex", "luatex")
     engines = [e for e in engines if e.startswith(value)]
 
-    kind = (sublime.KindId.VARIABLE, "v", "Engine")
+    kind = (sublime.KIND_ID_VARIABLE, "v", "Engine")
 
     if ac:
         comp = [sublime.CompletionItem(trigger=e, completion=e, kind=kind) for e in engines]
@@ -170,7 +170,7 @@ def _directive_program_completions(view, value, ac=True):
 
 
 def _directive_output_directory_completions(view, value, ac=True):
-    kind = (sublime.KindId.VARIABLE, "v", "Output")
+    kind = (sublime.KIND_ID_VARIABLE, "v", "Output")
 
     if not ac:
         comp = [
@@ -305,7 +305,7 @@ class LatexDirectiveCompletion(sublime_plugin.EventListener):
             "options",
         ]
 
-        kind = [sublime.KindId.KEYWORD, "d", "Directive"]
+        kind = [sublime.KIND_ID_KEYWORD, "d", "Directive"]
 
         if _EXCLAMATION_MARK_RE.match(line_str):
             row, _ = view.rowcol(pt)

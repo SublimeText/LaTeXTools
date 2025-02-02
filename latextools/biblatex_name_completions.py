@@ -125,7 +125,7 @@ class BiblatexNameCompletions(sublime_plugin.EventListener):
         if not matcher:
             return []
 
-        KIND_INFO = [sublime.KindId.VARIABLE, "n", "Name"]
+        KIND_INFO = [sublime.KIND_ID_VARIABLE, "n", "Name"]
 
         return [
             sublime.CompletionItem(

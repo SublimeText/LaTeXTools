@@ -47,7 +47,7 @@ def get_own_operator_completions(tex_root):
 
     ana = analysis.get_analysis(tex_root)
     if ana:
-        kind = (sublime.KindId.FUNCTION, "o", "Operator")
+        kind = (sublime.KIND_ID_FUNCTION, "o", "Operator")
         for c in get_own_operators(ana):
             res.append(
                 sublime.CompletionItem(
@@ -70,7 +70,7 @@ def get_own_command_completions(tex_root):
 
     ana = analysis.get_analysis(tex_root)
     if ana:
-        kind = (sublime.KindId.FUNCTION, "f", "Command")
+        kind = (sublime.KIND_ID_FUNCTION, "f", "Command")
 
         for c in get_own_commands(ana):
             try:

@@ -479,7 +479,7 @@ class CiteFillAllHelper(FillAllHelper):
             ["{keyword}", "{title_short}", "{author_short} {year} - {title}"],
             view,
         )
-        kind = (sublime.KindId.TYPE, "b", "Bibliography")
+        kind = (sublime.KIND_ID_TYPE, "b", "Bibliography")
 
         def formatted_entry(entry):
             try:
@@ -525,7 +525,7 @@ class CiteFillAllHelper(FillAllHelper):
         panel_format = get_setting(
             "cite_panel_format", ["{title} ({keyword})", "{author}"], view
         )
-        kind = (sublime.KindId.TYPE, "b", "Bibliography")
+        kind = (sublime.KIND_ID_TYPE, "b", "Bibliography")
 
         for c in completions:
             try:

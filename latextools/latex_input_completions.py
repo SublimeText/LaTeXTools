@@ -337,7 +337,7 @@ def _get_cache():
 
 class InputFillAllHelper(FillAllHelper):
     def get_auto_completions(self, view, prefix, line):
-        kind = (sublime.KindId.VARIABLE, "f", "File")
+        kind = (sublime.KIND_ID_VARIABLE, "f", "File")
         completions = parse_completions(view, line)
 
         if not completions:
@@ -362,7 +362,7 @@ class InputFillAllHelper(FillAllHelper):
         return comp
 
     def get_completions(self, view, prefix, line):
-        kind = (sublime.KindId.VARIABLE, "f", "File")
+        kind = (sublime.KIND_ID_VARIABLE, "f", "File")
         completions = parse_completions(view, line)
 
         if not completions:

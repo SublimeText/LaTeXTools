@@ -116,7 +116,7 @@ def get_completions_if_matches(regex, line, get_key_list_func, view):
     if not matcher:
         return []
 
-    KIND_INFO = [sublime.KindId.NAVIGATION, "r", "Reference"]
+    KIND_INFO = [sublime.KIND_ID_NAVIGATION, "r", "Reference"]
 
     completions = [
         sublime.CompletionItem(

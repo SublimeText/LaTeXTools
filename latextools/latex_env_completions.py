@@ -24,7 +24,7 @@ def get_own_env_auto_completion(tex_root):
     if not ana:
         return []
 
-    kind = (sublime.KindId.NAMESPACE, "e", "Environment")
+    kind = (sublime.KIND_ID_NAMESPACE, "e", "Environment")
     return [
         sublime.CompletionItem(
             trigger=e.args,

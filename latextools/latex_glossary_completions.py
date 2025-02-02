@@ -32,7 +32,7 @@ def _get_acr_completion_items(ana):
 
 
 def _get_acr_auto_completions(ana):
-    kind = (sublime.KindId.VARIABLE, "a", "Acronym")
+    kind = (sublime.KIND_ID_VARIABLE, "a", "Acronym")
 
     return [
         sublime.CompletionItem(
@@ -43,7 +43,7 @@ def _get_acr_auto_completions(ana):
 
 
 def _get_acr_kbd_completions(ana):
-    kind = (sublime.KindId.VARIABLE, "a", "Acronym")
+    kind = (sublime.KIND_ID_VARIABLE, "a", "Acronym")
 
     display = []
     value = []
@@ -69,7 +69,7 @@ def _get_glo_completion_items(ana):
 
 
 def _get_glo_auto_completions(ana):
-    kind = (sublime.KindId.VARIABLE, "g", "Glossary")
+    kind = (sublime.KIND_ID_VARIABLE, "g", "Glossary")
 
     return [
         sublime.CompletionItem(
@@ -84,7 +84,7 @@ def _get_glo_auto_completions(ana):
 
 
 def _get_glo_kbd_completions(ana):
-    kind = (sublime.KindId.VARIABLE, "g", "Glossary")
+    kind = (sublime.KIND_ID_VARIABLE, "g", "Glossary")
 
     display = []
     value = []

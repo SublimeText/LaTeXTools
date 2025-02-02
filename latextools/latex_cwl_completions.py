@@ -183,8 +183,8 @@ def parse_cwl_file(
 
     cwl_name = cwl_file[: -len(".cwl")]
 
-    cmd_kind = (sublime.KindId.FUNCTION, "f", "Command")
-    env_kind = (sublime.KindId.NAMESPACE, "e", "Environment")
+    cmd_kind = (sublime.KIND_ID_FUNCTION, "f", "Command")
+    env_kind = (sublime.KIND_ID_NAMESPACE, "e", "Environment")
 
     # we need some state tracking to ignore keyval data
     # it could be useful at a later date

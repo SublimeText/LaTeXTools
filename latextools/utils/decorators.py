@@ -25,9 +25,9 @@ def async_completions(func):
             try:
                 completions = func(*args, **kwargs)
                 if completions:
-                    flags = sublime.AutoCompleteFlags.INHIBIT_WORD_COMPLETIONS
+                    flags = sublime.INHIBIT_WORD_COMPLETIONS
                 else:
-                    flags = sublime.AutoCompleteFlags.NONE
+                    flags = 0
                     completions = []
             except Exception:
                 completion_list.set_completions([])
