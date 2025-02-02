@@ -78,10 +78,17 @@ _RE_COMMAND = regex.compile(
         )
         for name in _COMMAND_ARG_NAMES
     ),
-    regex.MULTILINE | regex.UNICODE | regex.VERBOSE,
+    flags=regex.MULTILINE | regex.UNICODE | regex.VERBOSE | regex.VERSION1,
+    cache_pattern=False,
+    ignore_unused=True,
 )
 # this regex is used to remove comments
-_RE_COMMENT = regex.compile(r"((?<=^)|(?<=[^\\]))%.*", regex.UNICODE)
+_RE_COMMENT = regex.compile(
+    r"((?<=^)|(?<=[^\\]))%.*",
+    flags=regex.UNICODE | regex.VERSION1,
+    cache_pattern=False,
+    ignore_unused=True,
+)
 # the analysis will walk recursively into the included files
 # i.e. the 'args' field of the command
 _input_commands = ["input", "include", "subfile", "loadglsentries"]
@@ -133,7 +140,6 @@ class FileNotAnalyzed(Exception):
 
 
 class Analysis:
-
     def __init__(self, tex_root):
         self._tex_root = tex_root
         self._content = {}
