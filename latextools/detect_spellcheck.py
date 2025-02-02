@@ -163,24 +163,20 @@ def update_dict_language(view, extract_from_root):
 
 
 class LatextoolsAutoDetectSpellcheckListener(sublime_plugin.EventListener):
-    def on_post_save(self, view):
-        if not view.match_selector(0, "text.tex.latex"):
-            return
-        update_dict_language(view, False)
+    def on_post_save_async(self, view):
+        if view.match_selector(0, "text.tex.latex"):
+            update_dict_language(view, False)
 
-    def on_load_event(self, view):
-        if not view.match_selector(0, "text.tex.latex"):
-            return
-        update_dict_language(view, True)
-
-    on_load_async = on_load_event
+    def on_load_async(self, view):
+        if view.match_selector(0, "text.tex.latex"):
+            update_dict_language(view, True)
 
 
 class LatextoolsDetectSpellcheckCommand(sublime_plugin.WindowCommand):
     def run(self):
         view = self.window.active_view()
         if view:
-            update_dict_language(view)
+            update_dict_language(view, True)
 
 
 deprecate(globals(), "LatexDetectSpellcheckCommand", LatextoolsDetectSpellcheckCommand)
