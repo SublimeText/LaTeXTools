@@ -51,80 +51,72 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                 pass
 
             try:
-                bibf = codecs.open(bibfname, "r", "UTF-8", "ignore")  # 'ignore' to be safe
-            except IOError:
+                with open(bibfname, "r", encoding="utf-8", errors="ignore", newline="\n") as bibf:
+                    bib_entries = []
+                    entry = {}
+                    for line in bibf.readline():
+                        line = line.strip()
+                        # Let's get rid of irrelevant lines first
+                        if line == "" or line[0] == "%":
+                            continue
+                        if line.lower()[0:8] == "@comment":
+                            continue
+                        if line.lower()[0:7] == "@string":
+                            continue
+                        if line.lower()[0:9] == "@preamble":
+                            continue
+                        if line[0] == "@":
+                            if "keyword" in entry:
+                                bib_entries.append(entry)
+                                entry = {}
+
+                            kp_match = kp.search(line)
+                            if kp_match:
+                                entry["keyword"] = kp_match.group(1)
+                            else:
+                                logger.error("Cannot process this @ line: %s", line)
+                                logger.error(
+                                    "Previous keyword (if any): %s",
+                                    entry.get("keyword", ""),
+                                )
+                            continue
+
+                        # Now test for title, author, etc.
+                        # Note: we capture only the first line, but that's OK for our purposes
+                        multip_match = multip.search(line)
+                        if multip_match:
+                            key = multip_match.group(1).lower()
+                            value = codecs.decode(multip_match.group(2), "latex")
+
+                            if key == "title":
+                                value = (
+                                    value.replace("{\\textquoteright}", "")
+                                    .replace("{", "")
+                                    .replace("}", "")
+                                )
+                            entry[key] = value
+                        continue
+                    # at the end, we have a single record
+                    if "keyword" in entry:
+                        bib_entries.append(entry)
+
+                    logger.info("Loaded %d bibitems", len(bib_data))
+
+                    try:
+                        bib_cache.set(bib_entries)
+                        fmt_entries = bib_cache.get()
+                        entries.extend(fmt_entries)
+                    except Exception:
+                        traceback.print_exc()
+                        logger.warning("Using bibliography without caching it")
+                        entries.extend(bib_entries)
+
+            except OSError:
                 msg = "Cannot open bibliography file %s !" % bibfname
                 logger.error(msg)
                 sublime.status_message(msg)
                 continue
-            else:
-                bib_data = bibf.readlines()
-                bib_entries = []
 
-                entry = {}
-                for line in bib_data:
-                    line = line.strip()
-                    # Let's get rid of irrelevant lines first
-                    if line == "" or line[0] == "%":
-                        continue
-                    if line.lower()[0:8] == "@comment":
-                        continue
-                    if line.lower()[0:7] == "@string":
-                        continue
-                    if line.lower()[0:9] == "@preamble":
-                        continue
-                    if line[0] == "@":
-                        if "keyword" in entry:
-                            bib_entries.append(entry)
-                            entry = {}
-
-                        kp_match = kp.search(line)
-                        if kp_match:
-                            entry["keyword"] = kp_match.group(1)
-                        else:
-                            logger.error("Cannot process this @ line: %s", line)
-                            logger.error(
-                                "Previous keyword (if any): %s",
-                                entry.get("keyword", ""),
-                            )
-                        continue
-
-                    # Now test for title, author, etc.
-                    # Note: we capture only the first line, but that's OK for our purposes
-                    multip_match = multip.search(line)
-                    if multip_match:
-                        key = multip_match.group(1).lower()
-                        value = codecs.decode(multip_match.group(2), "latex")
-
-                        if key == "title":
-                            value = (
-                                value.replace("{\\textquoteright}", "")
-                                .replace("{", "")
-                                .replace("}", "")
-                            )
-                        entry[key] = value
-                    continue
-
-                # at the end, we have a single record
-                if "keyword" in entry:
-                    bib_entries.append(entry)
-
-                logger.info("Loaded %d bibitems", len(bib_data))
-
-                try:
-                    bib_cache.set(bib_entries)
-                    fmt_entries = bib_cache.get()
-                    entries.extend(fmt_entries)
-                except Exception:
-                    traceback.print_exc()
-                    logger.warning("Using bibliography without caching it")
-                    entries.extend(bib_entries)
-            finally:
-                try:
-                    bibf.close()
-                except Exception:
-                    pass
-
-            logger.info("Found %d total bib entries", len(entries))
+        logger.info("Found %d total bib entries", len(entries))
 
         return entries

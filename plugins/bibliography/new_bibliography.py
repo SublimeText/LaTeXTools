@@ -120,7 +120,7 @@ class NewBibliographyPlugin(LaTeXToolsPlugin):
                 pass
 
             try:
-                with open(bibfname, "r", encoding="utf-8", errors="ignore") as bibf:
+                with open(bibfname, "r", encoding="utf-8", errors="ignore", newline="\n") as bibf:
                     bib_entries = []
 
                     excluded_types = ("xdata", "comment", "string")
@@ -162,6 +162,6 @@ class NewBibliographyPlugin(LaTeXToolsPlugin):
                 sublime.status_message(msg)
                 continue
 
-            logger.info("Found %d total bib entries", len(entries))
+        logger.info("Found %d total bib entries", len(entries))
 
         return entries
