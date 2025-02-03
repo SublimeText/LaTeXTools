@@ -466,22 +466,24 @@ def _analyze_tex_file(
             return ana
 
         ana._extend_commands(_generate_entries(m, file_name))
+        cmd = g("command")
+        args = g("args")
 
         # read child files if it is an input command
-        if g("command") in _input_commands and g("args") is not None:
+        if cmd in _input_commands and args is not None:
             process_file_stack.append(file_name)
-            open_file = os.path.join(base_path, g("args").strip('"'))
+            open_file = os.path.join(base_path, args.strip('"'))
             _analyze_tex_file(tex_root, open_file, process_file_stack, ana)
             process_file_stack.pop()
             # check that we still need to analyze
             if only_preamble and ana._state.get("preamble_finished", False):
                 return ana
 
-        elif g("command") in _import_commands and g("args") is not None and g("args2") is not None:
-            if g("command").startswith("sub"):
-                next_import_path = os.path.join(base_path, g("args").strip('"'))
+        elif cmd in _import_commands and args is not None and g("args2") is not None:
+            if cmd.startswith("sub"):
+                next_import_path = os.path.join(base_path, args.strip('"'))
             else:
-                next_import_path = g("args").strip('"')
+                next_import_path = args.strip('"')
             # normalize the path
             next_import_path = os.path.normpath(next_import_path)
             open_file = os.path.join(next_import_path, g("args2"))
@@ -500,34 +502,53 @@ def _analyze_tex_file(
             if only_preamble and ana._state.get("preamble_finished", False):
                 return ana
 
-        # subfile support:
-        # if we are not in the root file (i.e. not call from included files)
-        # and have the command \documentclass[main.tex]{subfiles}
-        # analyze the root file
-        elif tex_root != file_name and g("command") == "documentclass" and g("args") == "subfiles":
-            main_file = g("optargs")
-            if not main_file:
-                continue
-            main_file = os.path.join(base_path, main_file)
-            process_file_stack.append(file_name)
-            _analyze_tex_file(
-                main_file,
-                main_file,
-                process_file_stack,
-                ana,
-                import_path=None,
-                only_preamble=True,
-            )
-            process_file_stack.pop()
-            try:
-                del ana._state["preamble_finished"]
-            except KeyError:
-                pass
+        elif cmd == "documentclass":
+
+            # subfile support:
+            # if we are not in the root file (i.e. not call from included files)
+            # and have the command \documentclass[main.tex]{subfiles}
+            # analyze the root file
+            if tex_root != file_name and args == "subfiles":
+                main_file = g("optargs")
+                if not main_file:
+                    continue
+                main_file = os.path.join(base_path, main_file)
+                process_file_stack.append(file_name)
+                _analyze_tex_file(
+                    main_file,
+                    main_file,
+                    process_file_stack,
+                    ana,
+                    import_path=None,
+                    only_preamble=True,
+                )
+                process_file_stack.pop()
+                try:
+                    del ana._state["preamble_finished"]
+                except KeyError:
+                    pass
+
+            # For given \documentclass{myclass} analyze locally available myclass.cls
+            # as part of main document to load packages, commands or bibliography from.
+            # resolves: issue #317
+            elif args is not None:
+                fn = os.path.join(base_path, os.path.splitext(args.strip('"'))[0])
+                for ext in (".cls", ):
+                    open_file = fn + ext
+                    if os.path.isfile(open_file):
+                        process_file_stack.append(file_name)
+                        _analyze_tex_file(tex_root, open_file, process_file_stack, ana)
+                        process_file_stack.pop()
+                        break
+
+                # check that we still need to analyze
+                if only_preamble and ana._state.get("preamble_finished", False):
+                    return ana
 
         # usepackage(local) support:
         # analyze existing local packages or stylesheets
-        elif g("command") == "usepackage" and g("args") is not None:
-            fn = os.path.join(base_path, os.path.splitext(g("args").strip('"'))[0])
+        elif cmd == "usepackage" and args is not None:
+            fn = os.path.join(base_path, os.path.splitext(args.strip('"'))[0])
             for ext in (".sty", ".tex"):
                 open_file = fn + ext
                 if os.path.isfile(open_file):
