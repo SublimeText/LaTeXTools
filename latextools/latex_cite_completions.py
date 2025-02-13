@@ -284,7 +284,7 @@ def find_bib_files(root):
             additional_file = [additional_file]
         additional_file = map(_make_abs_path, additional_file)
         additional_file = filter(os.path.isfile, additional_file)
-        result = set(additional_file) + set(result)
+        result = set(additional_file) | set(result)
 
     return tuple(result)
 
