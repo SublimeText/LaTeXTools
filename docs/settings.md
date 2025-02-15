@@ -142,8 +142,8 @@ Any other value will be interpreted as the default.
 
 ## Viewer Settings
 
- * `viewer` (`""`): the viewer you want to use. Leave blank (`""`) or set to `"default"`for the platform-specific viewer. Can also be set to `"preview"` if you want to use Preview on OS X, `"okular"` if you want to use Okular on Linux, `"zathura"` is you want to use Zathura on Linux, or `"command"` to run arbitrary commands. For details on the `"command"` option, see the section on the [Command Viewer](#command-viewer).
- * `viewer_settings`: these are viewer-specific settings. Please see the section on [Viewers](#viewers) or the documentation on [Alternate Viewers](#alternate-viewers) for details of what should be set here.
+ * `viewer` (`""`): the viewer you want to use. Leave blank (`""`) or set to `"default"`for the platform-specific viewer. Can also be set to `"preview"` if you want to use Preview on OS X, `"okular"` if you want to use Okular on Linux, `"zathura"` is you want to use Zathura on Linux, or `"command"` to run arbitrary commands. For details on the `"command"` option, see the section on the [Command Viewer](available-viewers.md#command-viewer).
+ * `viewer_settings`: these are viewer-specific settings. Please see the section on [Viewers](available-viewers.md#viewers) or the documentation on [Alternate Viewers](available-viewers.md#alternate-viewers) for details of what should be set here.
  * `open_pdf_on_build` (`true`): Controls whether LaTeXTools will automatically open the configured PDF viewer on a successful build. If set to `false`, the PDF viewer will only be launched if explicitly requested using `C-l,v` or `C-l,j`.
   * `disable_focus_hack` (`false`): if `true`, the focus hack that LaTeXTools uses to return focus to Sublime in some circumstances will not be run. **Note**: This does not mean that the *viewer* won't steal the focus, only that LaTeXTools won't try to steal the focus back.
 
@@ -181,7 +181,7 @@ Other example formats are provided in the settings file.
 
 ## Project-Specific Settings
 
-Any settings can be overridden on a project-specific basis if you are using SublimeText's [project system](https://www.sublimetext.com/docs/3/projects.html). In addition, you can use the `tex_root` setting in the project file only to specify the master tex file instead of using `%!TEX root =` magic comments. If specified in the project file, the `tex_root` will be resolved relative to the location of your `.sublime-project` file. Similarly, if you use `output_directory` or `aux_directory` in the project file, they will be resolved relative to the location of the project file.
+Any settings can be overridden on a project-specific basis if you are using SublimeText's [project system](https://www.sublimetext.com/docs/projects.html). In addition, you can use the `tex_root` setting in the project file only to specify the master tex file instead of using `%!TEX root =` magic comments. If specified in the project file, the `tex_root` will be resolved relative to the location of your `.sublime-project` file. Similarly, if you use `output_directory` or `aux_directory` in the project file, they will be resolved relative to the location of the project file.
 
 To use project-specific settings, simply create a [`"settings"` section in your project file](https://docs.sublimetext.info/en/latest/file_management/file_management.html#the-sublime-project-format). The structure and format is the same as for the `LaTeXTools.sublime-settings` file, but the first level settings are prefixed with `latextools.` to avoid collisions with other packages. Here is an example:
 

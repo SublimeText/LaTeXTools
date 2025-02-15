@@ -171,7 +171,7 @@ Finally, please remember that script commands on Windows are run using `cmd.exe`
 
 ## Sublime Build Files
 
-LaTeXTools now has some support for custom `.sublime-build` files or builders specified in your project settings. For an overview of `.sublime-build` files in general, please see [the Unofficial Documentation](https://sublime-text-unofficial-documentation.readthedocs.io/en/latest/reference/build_systems.html) (which is generally a great resource about Sublime Text). For more on adding builders to project files, see [the relevant section of the Sublime documentation](https://www.sublimetext.com/docs/3/projects.html). This section will cover the basics of creating a `.sublime-build` file that works with LaTeXTools.
+LaTeXTools supports custom `.sublime-build` files or builders specified in project settings. For an overview of `.sublime-build` files in general, please refer to [Sublime Text build system documentation](https://www.sublimetext.com/docs/build_systems.html). For more on adding builders to project files, refer to [Sublime Text project file documentation](https://www.sublimetext.com/docs/projects.html). This section covers the basics of creating a `.sublime-build` file that works with LaTeXTools.
 
 At a minimum, your `.sublime-build` file must have the following elements:
 
