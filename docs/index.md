@@ -1,4 +1,4 @@
-# LaTeXTools: A LaTeX Plugin for Sublime Text 2 and 3
+# LaTeXTools: A LaTeX Plugin for Sublime Text
 
 # Introduction
 
