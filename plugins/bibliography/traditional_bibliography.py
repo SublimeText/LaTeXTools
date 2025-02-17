@@ -100,7 +100,7 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                     if "keyword" in entry:
                         bib_entries.append(entry)
 
-                    logger.info("Loaded %d bibitems", len(bib_data))
+                    logger.info("Loaded %d bibitems", len(bib_entries))
 
                     try:
                         bib_cache.set(bib_entries)
