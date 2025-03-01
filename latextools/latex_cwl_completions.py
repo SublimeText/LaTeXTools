@@ -127,10 +127,12 @@ def get_cwl_files(tex_root: str) -> tuple[str]:
                 flags = analysis.ONLY_PREAMBLE | analysis.ONLY_COMMANDS_WITH_ARGS
 
                 for documentclass in ana.filter_commands("documentclass", flags):
-                    cwl_files.add(package_to_cwl(f"class-{documentclass.args}"))
+                    for package in documentclass.args.split(","):
+                        cwl_files.add(package_to_cwl(f"class-{package.strip()}"))
 
-                for package in ana.filter_commands("usepackage", flags):
-                    cwl_files.add(package_to_cwl(package.args))
+                for usepackage in ana.filter_commands("usepackage", flags):
+                    for package in usepackage.args.split(","):
+                        cwl_files.add(package_to_cwl(package.strip()))
 
                 # recursively resolve dependencies
                 flag = True
