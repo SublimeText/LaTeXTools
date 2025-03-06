@@ -46,7 +46,43 @@ def tokenize_name(name_str):
     name_str = name_str.strip()
 
     parts = split_tex_string(name_str, sep=r",[\s~]*")
-    if len(parts) == 1:
+    if all("=" in parts for parts in parts):
+        first = ""
+        middle = ""
+        prefix = ""
+        last = ""
+        generation = ""
+
+        for part in parts:
+            key, value = split_tex_string(part, sep=r"\s*=\s*", maxsplit=1)
+            if key == "family" or key == "last":
+                last = value.strip()
+            elif key == "middle":
+                middle = value.strip()
+            elif key == "given" or key == "first":
+                fist = value.strip()
+            elif key == "prefix" or key == "particle":
+                prefix = value.strip()
+            elif key == "suffix" or key == "generation":
+                generation = value.strip()
+
+        if first and not middle:
+            forenames = extract_middle_names(first)
+            if len(forenames) > 0:
+                first = forenames[0]
+            if len(forenames) > 1:
+                middle = forenames[1]
+
+        if last and not prefix:
+            lastnames = extract_name_prefix(last)
+            if len(lastnames) > 0:
+                last = lastnames[0]
+            if len(lastnames) > 1:
+                prefix = lastnames[1]
+
+        return NameResult(first, middle, prefix, last, generation)
+
+    elif len(parts) == 1:
         # first last
         # reverse the string so split only selects the right-most instance of the token
         try:
@@ -79,6 +115,7 @@ def tokenize_name(name_str):
             lastnames[1] if len(lastnames) > 1 else lastnames[0],
             "",
         )
+
     elif len(parts) == 2:
         # last, first
         last, first = parts
@@ -105,6 +142,7 @@ def tokenize_name(name_str):
             " ".join(lastnames[name_index:]) if len(lastnames) > 1 else lastnames[0],
             "",
         )
+
     elif len(parts) == 3:
         # last, generation, first
         last, generation, first = parts
@@ -117,6 +155,7 @@ def tokenize_name(name_str):
             lastnames[1] if len(lastnames) > 1 else lastnames[0],
             generation,
         )
+
     else:
         raise ValueError('Unrecognised name format for "{0}"'.format(name_str))
 
