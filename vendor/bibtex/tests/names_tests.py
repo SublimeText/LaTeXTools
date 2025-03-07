@@ -198,6 +198,18 @@ class TestTokenizeName(unittest.TestCase):
             NameResult(first="T.", middle="", prefix="", last="Hobbes", generation=""),
         )
 
+    def test_keyval_name_initial(self):
+        self.assertEqual(
+            tokenize_name("given=T., family=Hobbes"),
+            NameResult(first="T.", middle="", prefix="", last="Hobbes", generation=""),
+        )
+
+    def test_keyval_name_complex(self):
+        self.assertEqual(
+            tokenize_name("given=Hendrik D., family=Ettinger, prefix=van"),
+            NameResult(first="Hendrik", middle="D.", prefix="van", last="Ettinger", generation=""),
+        )
+
 
 class TestNameClass(unittest.TestCase):
     def test_simple(self):
