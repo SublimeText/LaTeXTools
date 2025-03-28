@@ -60,32 +60,25 @@ def debounce(delay_in_ms, sync=False):
     set_timeout = sublime.set_timeout if sync else sublime.set_timeout_async
 
     def decorator(func):
-        to_call_times = {}
+        call_at = {}
 
         def _debounced_callback(view, callback):
-            vid = view.id()
-            threshold = to_call_times.get(vid)
-            if not threshold:
-                return
             if not view.is_valid():
-                del to_call_times[vid]
+                del call_at[view.view_id]
                 return
-            diff = threshold - default_timer() * 1000
+            diff = call_at[view.view_id] - default_timer() * 1000
             if diff > 0:
                 set_timeout(partial(_debounced_callback, view, callback), diff)
             else:
-                del to_call_times[vid]
+                del call_at[view.view_id]
                 callback()
 
         @wraps(func)
         def wrapper(self, *args, **kwargs):
             view = self.view if hasattr(self, 'view') else args[0]
-            if not view.is_valid():
-                return
-            vid = view.id()
-            busy = vid in to_call_times
-            to_call_times[vid] = default_timer() * 1000 + delay_in_ms
-            if busy:
+            pending = view.view_id in call_at
+            call_at[view.view_id] = default_timer() * 1000 + delay_in_ms
+            if pending:
                 return
             callback = partial(func, self, *args, **kwargs)
             set_timeout(partial(_debounced_callback, view, callback), delay_in_ms)
