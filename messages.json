@@ -1,4 +1,5 @@
 {
 	"install": "messages/install.txt",
-	"st3-4.0.0": "messages/st3-4.0.0.txt"
+	"st3-4.0.0": "messages/st3-4.0.0.txt",
+	"st4-4.3.0": "messages/st4-4.3.0.txt"
 }
