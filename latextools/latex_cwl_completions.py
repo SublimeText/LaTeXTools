@@ -41,40 +41,20 @@ Translation from package names to cwl files.
 Package name and cwl file name are equal with some exceptions.
 """
 
-CWL_COMPLETION_ENABLED = None
-"""
-global setting to check whether the LaTeX-cwl package is available or not
-"""
-
 CMD_COMPLETIONS = {}
 ENV_COMPLETIONS = {}
 CWL_DEPENDENCIES = {}
 
 
-def is_cwl_available() -> bool:
-    global CWL_COMPLETION_ENABLED
-    if CWL_COMPLETION_ENABLED is None:
-        # Checking whether LaTeX-cwl is installed
-        cwl_package = sublime.find_resources("latex-document.cwl")
-        CWL_COMPLETION_ENABLED = bool(
-            cwl_package
-            and cwl_package[0].startswith("Packages/LaTeX-cwl/")
-            or os.path.isdir(os.path.join(sublime.packages_path(), "User", "cwl"))
-        )
-
-    return CWL_COMPLETION_ENABLED
-
-
 def get_cwl_command_completions(tex_root: str) -> list[sublime.CompletionItem]:
     completions = []
 
-    if is_cwl_available():
-        for cwl_file in get_cwl_files(tex_root):
-            cwl_exists = cwl_file in CMD_COMPLETIONS
-            if not cwl_exists:  # todo: reload if cwl file was modified
-                cwl_exists = load_cwl_file(cwl_file)
-            if cwl_exists:
-                completions.extend(CMD_COMPLETIONS[cwl_file])
+    for cwl_file in get_cwl_files(tex_root):
+        cwl_exists = cwl_file in CMD_COMPLETIONS
+        if not cwl_exists:  # todo: reload if cwl file was modified
+            cwl_exists = load_cwl_file(cwl_file)
+        if cwl_exists:
+            completions.extend(CMD_COMPLETIONS[cwl_file])
 
     return completions
 
@@ -82,13 +62,12 @@ def get_cwl_command_completions(tex_root: str) -> list[sublime.CompletionItem]:
 def get_cwl_env_completions(tex_root: str) -> list[sublime.CompletionItem]:
     completions = []
 
-    if is_cwl_available():
-        for cwl_file in get_cwl_files(tex_root):
-            cwl_exists = cwl_file in ENV_COMPLETIONS
-            if not cwl_exists:  # todo: reload if cwl file was modified
-                cwl_exists = load_cwl_file(cwl_file)
-            if cwl_exists:
-                completions.extend(ENV_COMPLETIONS[cwl_file])
+    for cwl_file in get_cwl_files(tex_root):
+        cwl_exists = cwl_file in ENV_COMPLETIONS
+        if not cwl_exists:  # todo: reload if cwl file was modified
+            cwl_exists = load_cwl_file(cwl_file)
+        if cwl_exists:
+            completions.extend(ENV_COMPLETIONS[cwl_file])
 
     return completions
 
@@ -155,7 +134,7 @@ def package_to_cwl(package: str) -> str:
 
 
 def load_cwl_file(base_name: str) -> bool:
-    for cwl_file in (f"Packages/LaTeX-cwl/{base_name}", f"Packages/User/cwl/{base_name}"):
+    for cwl_file in (f"Packages/LaTeXTools/cwl/{base_name}", f"Packages/User/cwl/{base_name}"):
         try:
             text = sublime.load_resource(cwl_file)
         except FileNotFoundError:

@@ -18,8 +18,8 @@ If at any time you wish to erase your customizations and start afresh, you can s
 * `env_auto_trigger` (`true`): ditto, but for environment completions
 * `glossary_auto_trigger` (`true`): ditto, but for glossary completions
 * `tex_directive_auto_trigger` (`true`): ditto, but for tex directive completions
-* `cwl_autoload` (`true`): whether to load cwl completions based on packages (see the LaTeX-cwl feature)
-* `cwl_completion` (`prefixed`): when to activate the cwl completion poput (see LaTeX-cwl feature above)
+* `cwl_autoload` (`true`): whether to load cwl completions based on packages (see the CWL feature)
+* `cwl_completion` (`prefixed`): when to activate the cwl completion poput (see CWL feature above)
 * `cwl_list` (`["latex-document.cwl", "tex.cwl", "latex-dev", "latex-209.cwl", "latex-l2tabu.cwl", "latex-mathsymbols.cwl"]`): list of cwl files to load
 * `keep_focus` (`true`): if `true`, after compiling a tex file, ST retains the focus; if `false`, the PDF viewer gets the focus. Also note that you can *temporarily* toggle this behavior with `C-l,t,f`.This can also be overridden via a key-binding by passing a `keep_focus` argument to `latextools_jumpto_pdf`.
  **Note**: In general, `keep_focus` set to `true` tries to mean "do not *change* the focus". This isn't always possible, since several of the viewers will steal focus by default. In those circumstances, LaTeXTools tries to actively return the focus to Sublime. To disable this, set the `disable_focus_hack` setting to `true`.

@@ -53,7 +53,7 @@
 // LaTeX Completions Settings
 // ------------------------------------------------------------------
 
-	// When to trigger cwl-command completion (requires the LaTeX-cwl package)
+	// When to trigger cwl-command completion
 	// possible values are:
 	// "always" (always show command completions)
 	// "prefixed" (default, show command completions if the current word is prefixed with '\')
@@ -84,7 +84,7 @@
 	"ref_auto_trigger": true,
 
 	// Fill-helper autocompletion trigger for environment names after \begin{ and \end{
-	// this requires the LaTeX-cwl package and might not have a complete list of all environments.
+	// this might not have a complete list of all environments.
 	// You can also use toggle: C-l,t,a,e
 	"env_auto_trigger": false,
 

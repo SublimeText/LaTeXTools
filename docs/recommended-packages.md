@@ -11,10 +11,6 @@ This is neither a full list of all packages you may possible want to install nor
 
 You should install these packages. They provide data, which is used by LaTeXTools or Sublime Text.
 
-### LaTeX-cwl
-
-The [LaTeX-cwl] package contains cwl files. These files are used by LaTeXTools to provide completions for commands and environments. *It is highly recommended to install that package.*
-
 ### Dictionaries
 
 You are a non-native English speaker and write your LaTeX documents in an other language? You still want Sublime Text to spellcheck your documents? You need [Dictionaries] package, because it contains spellcheck files for many languages. With LaTeXTools you can add a TeX directive a the top of the root document. E.g. `% !TEX spellcheck=de_DE` to spellcheck your document in German.
@@ -111,7 +107,6 @@ Example settings (Open *Preferences > Package Settings > Inc-Dec-Value > Setting
 The packages [FileManager], [SideBarTools], and [SideBarEnhancement] all add features to manipulate files and the corresponding entries to the side bar and the quickpanel. Since there was a discussion about SideBarEnhancement violating the users privacy by collection anonymised statistics, there there has been published a fork with a subset of the features called SideBarTools. In addition to these FileManager is an additional package with a similar feature set. If you are unsure which package you want to use you may start with FileManager.
 
 [Package Control]:https://packagecontrol.io/
-[LaTeX-cwl]:https://github.com/LaTeXing/LaTeX-cwl
 [Dictionaries]:https://github.com/titoBouzout/Dictionaries
 [LaTeXSmartQuotes]:https://github.com/r-stein/sublime-text-latex-smart-quotes
 [LaTeXYZ]:https://github.com/randy3k/LaTeXYZ

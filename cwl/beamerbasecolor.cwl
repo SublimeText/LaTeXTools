@@ -1,0 +1,56 @@
+# beamerbasecolor package
+# Matthew Bertucci 2025/02/05 for v3.72
+
+\setbeamercolor{beamer-color name}{options%keyvals}
+\setbeamercolor*{beamer-color name}{options%keyvals}
+
+#keyvals:\setbeamercolor,\setbeamercolor*
+fg=#%color
+bg=#%color
+parent={%<parent beamer colors%>}
+use=%<beamer color%>
+#endkeyvals
+
+\ifbeamercolorempty{beamer-color name}{if undefined}{if defined}
+\ifbeamercolorempty[fg or bg%keyvals]{beamer-color name}{if undefined}{if defined}
+\usebeamercolor{beamer-color name}
+\usebeamercolor[fg or bg%keyvals]{beamer-color name}
+\usebeamercolor*{beamer-color name}
+\usebeamercolor*[fg or bg%keyvals]{beamer-color name}
+
+#keyvals:\ifbeamercolorempty,\usebeamercolor,\usebeamercolor*
+fg
+bg
+#endkeyvals
+
+fg#B
+bg#B
+structure#B
+averagebackgroundcolor#B
+alert#B
+
+\begin{beamercolorbox}{beamer color}
+\begin{beamercolorbox}[options%keyvals]{beamer color}
+\end{beamercolorbox}
+
+#keyvals:\begin{beamercolorbox}
+wd=##L
+dp=##L
+ht=##L
+left
+right
+center
+leftskip=##L
+rightskip=##L
+sep=##L
+colsep=##L
+colsep*=##L
+shadow#true,false
+rounded#true,false
+ignorebg
+vmode
+bgopacity=%<factor%>
+#endkeyvals
+
+\donotcoloroutermaths#*
+\donotcolorouterdisplaymaths#*
