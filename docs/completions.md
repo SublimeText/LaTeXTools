@@ -6,9 +6,11 @@ By default, ST provides a number of snippets for LaTeX editing; the LaTeXTools p
 
 In addition, the LaTeXTools plugin provides useful completions for both regular and math text; check out files [`LaTeX.sublime-completions`](https://github.com/SublimeText/LaTeXTools/blob/master/LaTeX.sublime-completions) and [`LaTeX math.sublime-completions`](https://github.com/SublimeText/LaTeXTools/blob/master/LaTeX%20math.sublime-completions) in the LaTeXTools directory for details. Some of these are semi-intelligent: i.e. `bf` expands to `\textbf{}` if you are typing text, and to `\mathbf{}` if you are in math mode. Others allow you to cycle among different completions: e.g. `f` in math mode expands to `\phi` first, but if you hit Tab again you get `\varphi`; if you hit Tab a third time, you get back `\phi`.
 
-## LaTeX-cwl support
+## CWL support
 
-LaTeXTools provides support for the [LaTeX-cwl](https://packagecontrol.io/packages/LaTeX-cwl) autocompletion word lists. If the package is installed, support is automatically enabled. In addition, support will be enabled if any custom cwl files are installed in the `Packages/User/cwl` directory.
+LaTeXTools ships [TeXStudio Completion Word Lists][] to support command completions.
+
+Additional user defined CWL files can be placed in  `Packages/User/cwl` directory.
 
 By default, as soon as one starts typing a command, e.g., `\te`, a popup is shown displaying possible completions, e.g. including `\textit` and the like.
 
@@ -25,3 +27,5 @@ The following settings are provided to control LaTeXTools cwl behavior.
 ## User defined completions
 
 LaTeXTools provides support for custom user-defined completions through modification of the `LaTeX.sublime-completions` file. The user modified version should be placed in your `User` directory, otherwise it will be overwritten by future updates.
+
+[TeXStudio Completion Word Lists]: https://htmlpreview.github.io/?https://github.com/texstudio-org/texstudio/master/utilities/manual/usermanual_en.html#description-of-the-cwl-format
