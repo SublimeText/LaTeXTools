@@ -531,7 +531,7 @@ class CiteFillAllHelper(FillAllHelper):
             try:
                 result = c["<panel_formatted>"]
             except Exception:
-                result = (bibformat.format_entry(s, c) for s in panel_format)
+                result = [bibformat.format_entry(s, c) for s in panel_format]
 
             keyword = c["keyword"]
 
