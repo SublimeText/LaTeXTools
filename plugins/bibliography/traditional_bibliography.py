@@ -103,8 +103,7 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                     logger.info("Loaded %d bibitems", len(bib_entries))
 
                     try:
-                        bib_cache.set(bib_entries)
-                        fmt_entries = bib_cache.get()
+                        fmt_entries = bib_cache.set(bib_entries)
                         entries.extend(fmt_entries)
                     except Exception:
                         traceback.print_exc()

@@ -64,6 +64,8 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
             self._dirty = True
         self._schedule_save()
 
+        return formatted_entries[1]
+
     def cache(self, func):
         try:
             return self.get()
