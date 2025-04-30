@@ -1,5 +1,6 @@
 import codecs
 import itertools
+import os
 import sys
 import threading
 import time
@@ -34,8 +35,7 @@ def open_and_select_region(view, file_name, region):
         view.sel().add(region)
         view.show(region)
 
-    # TODO better compare?
-    if view.file_name() != file_name:
+    if not os.path.samefile(view.file_name(), file_name):
         new_view = view.window().open_file(file_name)
         run_after_loading(new_view, select_label)
     else:
