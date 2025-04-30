@@ -65,14 +65,17 @@ def _get_selected_arg(view, com_reg, pos):
 def _show_usage_label(view, args):
     tex_root = get_tex_root(view)
     if not tex_root:
-        return False
+        return
+
     ana = analysis.analyze_document(tex_root)
+    if not ana:
+        return
 
     def is_correct_ref(c):
-        command = ("\\" + c.command + "{")[::-1]
+        command = (f"\\{c.command}{{")[::-1]
         return NEW_STYLE_REF_REGEX.match(command) and c.args == args
 
-    refs = ana.filter_commands(is_correct_ref)
+    refs = list(ana.filter_commands(is_correct_ref))
 
     if len(refs) == 0:
         sublime.error_message("No references for '{0}' found.".format(args))
@@ -102,7 +105,7 @@ def _jumpto_ref(view, com_reg, pos):
 
     labels = ana.filter_commands(is_correct_label)
     try:
-        label = labels[0]
+        label = next(labels)
     except Exception:
         message = "No matching label found for '{0}'.".format(label_id)
         logger.error(message)
@@ -238,9 +241,9 @@ def _opt_jumpto_self_def_command(view, com_reg):
     return True
 
 
-class LatextoolsJumptoAnywhereCommand(sublime_plugin.WindowCommand):
-    def run(self, position=None):
-        view = self.window.active_view()
+class LatextoolsJumptoAnywhereCommand(sublime_plugin.TextCommand):
+    def run(self, edit, position=None):
+        view = self.view
         if not view:
             return
 
