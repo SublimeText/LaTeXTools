@@ -37,7 +37,7 @@ def open_and_select_region(view, file_name, region):
 
     if not os.path.samefile(view.file_name(), file_name):
         new_view = view.window().open_file(file_name)
-        run_after_loading(new_view, select_label)
+        run_after_loading(new_view, lambda: select_label(new_view))
     else:
         select_label(view)
 
