@@ -308,10 +308,15 @@ class LatextoolsJumptoAnywhereCommand(sublime_plugin.TextCommand):
             _jumpto_glo(view, com_reg, pos, acr=True)
         # check if it is any kind of input command
         elif any(reg.match(com_reg.group(0)) for reg in INPUT_REG_EXPS):
-            kwargs = {"auto_create_missing_folders": False, "auto_insert_root": False}
-            if pos is not None:
-                kwargs.update({"position": position})
-            self.window.run_command("latextools_jumpto_file", kwargs)
+            sublime.status_message("Jump to file '{0}'".format(args))
+            self.view.run_command(
+                "latextools_jumpto_file",
+                {
+                    "auto_create_missing_folders": False,
+                    "auto_insert_root": False,
+                    "position": position
+                }
+            )
         elif command in ["usepackage", "Requirepackage"]:
             _jumpto_pkg_doc(view, com_reg, pos)
         else:
@@ -324,33 +329,31 @@ class LatextoolsJumptoAnywhereCommand(sublime_plugin.TextCommand):
                 _opt_jumpto_self_def_command(view, com_reg)
 
 
-class LatextoolsJumptoAnywhereByMouseCommand(sublime_plugin.WindowCommand):
+class LatextoolsJumptoAnywhereByMouseCommand(sublime_plugin.TextCommand):
     def want_event(self):
         return True
 
-    def run(self, event=None, fallback_command="", set_caret=False):
-        view = self.window.active_view()
-        if not view:
-            return
+    def run(self, edit, event, fallback_command="", set_caret=False):
 
         def match_selector(selector):
-            point = view.sel()[0].b if len(view.sel()) else 0
-            return view.match_selector(point, selector)
+            point = self.view.sel()[0].b if len(self.view.sel()) else 0
+            return self.view.match_selector(point, selector)
 
         if match_selector("text.tex.latex"):
             logger.debug("Jump in tex file.")
-            pos = view.window_to_text((event["x"], event["y"]))
-            self.window.run_command("latextools_jumpto_anywhere", {"position": pos})
+            pos = self.view.window_to_text((event["x"], event["y"]))
+            self.view.run_command("latextools_jumpto_anywhere", {"position": pos})
         elif fallback_command:
             if set_caret:
-                self._set_caret(view, event)
+                self._set_caret(event)
             logger.debug("Run command '%s'", fallback_command)
-            self.window.run_command(fallback_command)
+            self.view.run_command(fallback_command)
 
-    def _set_caret(self, view, event):
-        pos = view.window_to_text((event["x"], event["y"]))
-        view.sel().clear()
-        view.sel().add(sublime.Region(pos, pos))
+    def _set_caret(self, event):
+        pos = self.view.window_to_text((event["x"], event["y"]))
+        if pos >= 0:
+            self.view.sel().clear()
+            self.view.sel().add(pos)
 
 
 deprecate(globals(), "JumptoTexAnywhereCommand", LatextoolsJumptoAnywhereCommand)
