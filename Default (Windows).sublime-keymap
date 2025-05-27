@@ -446,19 +446,6 @@ LaTeX Package keymap for Linux
 	// Auto-pair braces/brackets/parentheses
 	// ------------------------------------------------------------------
 
-	// Override default "wrap_block" binding
-	{
-		"keys": ["{"],
-		"command": "insert_snippet", "args": { "contents": "{$0}" },
-		"context": [
-			{ "key": "indented_block", "match_all": true },
-			{ "key": "setting.auto_match_enabled" },
-			{ "key": "selection_empty", "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex" },
-			{ "key": "following_text", "operator": "regex_match", "operand": "^$", "match_all": true }
-		]
-	},
-
 	// Auto-pair curly brackets (also in front of $)
 	{
 		"keys": ["{"],
@@ -466,8 +453,8 @@ LaTeX Package keymap for Linux
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" },
-			{ "key": "preceding_text", "operator": "not_regex_contains", "operand": "\\\\$", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*$", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\$|$)", "match_all": true }
 		]
 	},
@@ -479,8 +466,8 @@ LaTeX Package keymap for Linux
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" },
-			{ "key": "preceding_text", "operator": "not_regex_contains", "operand": "\\\\$", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*$", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\$|$)", "match_all": true }
 		]
 	},
@@ -492,8 +479,8 @@ LaTeX Package keymap for Linux
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" },
-			{ "key": "preceding_text", "operator": "not_regex_contains", "operand": "\\\\$", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*$", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\$|$)", "match_all": true }
 		]
 	},
@@ -506,7 +493,7 @@ LaTeX Package keymap for Linux
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
-			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\$", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\$", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\\\|\\$|$)", "match_all": true },
 		]
 	},
@@ -517,7 +504,7 @@ LaTeX Package keymap for Linux
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
-			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\\\{$", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\\\{$", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\\\}", "match_all": true },
 		]
 	},
@@ -530,7 +517,7 @@ LaTeX Package keymap for Linux
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
-			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\$", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\$", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\\\|\\$|$)", "match_all": true },
 		]
 	},
@@ -541,7 +528,7 @@ LaTeX Package keymap for Linux
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
-			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\\\[$", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\\\[$", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\\\]", "match_all": true },
 		]
 	},
@@ -554,7 +541,7 @@ LaTeX Package keymap for Linux
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
-			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\$", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\$", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\\\|\\$|$)", "match_all": true },
 		]
 	},
@@ -565,7 +552,7 @@ LaTeX Package keymap for Linux
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
-			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\\\($", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\\\($", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\\\)", "match_all": true },
 		]
 	},
@@ -578,8 +565,19 @@ LaTeX Package keymap for Linux
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
-			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\left\\\\$", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\\\$", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\\\|\\$|$)", "match_all": true },
+		]
+	},
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Bracket 2.sublime-macro"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\\\\\{$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\right\\\\\\}", "match_all": true },
 		]
 	},
 
@@ -591,8 +589,19 @@ LaTeX Package keymap for Linux
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
-			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\left$", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left$", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\\\|\\$|$)", "match_all": true },
+		]
+	},
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Bracket 1.sublime-macro"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\[$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\right\\]", "match_all": true },
 		]
 	},
 
@@ -604,54 +613,19 @@ LaTeX Package keymap for Linux
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
-			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\left$", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left$", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\\\|\\$|$)", "match_all": true },
 		]
 	},
-
-	// Remove auto-paired escaped brackets in math blocks
 	{
 		"keys": ["backspace"],
 		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Bracket 1.sublime-macro"},
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
-			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\left.$", "match_all": true },
-			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\right.", "match_all": true },
-		]
-	},
-	{
-		"keys": ["backspace"],
-		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Bracket 2 1.sublime-macro"},
-		"context": [
-			{ "key": "setting.auto_match_enabled" },
-			{ "key": "selection_empty", "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
-			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\left\\\\.$", "match_all": true },
-			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\right.", "match_all": true },
-		]
-	},
-	{
-		"keys": ["backspace"],
-		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Bracket 1 2.sublime-macro"},
-		"context": [
-			{ "key": "setting.auto_match_enabled" },
-			{ "key": "selection_empty", "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
-			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\left.$", "match_all": true },
-			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\right\\\\.", "match_all": true },
-		]
-	},
-	{
-		"keys": ["backspace"],
-		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Bracket 2.sublime-macro"},
-		"context": [
-			{ "key": "setting.auto_match_enabled" },
-			{ "key": "selection_empty", "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
-			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\left\\\\.$", "match_all": true },
-			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\right\\\\.", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\($", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\right\\)", "match_all": true },
 		]
 	},
 
@@ -659,16 +633,16 @@ LaTeX Package keymap for Linux
 	{
 		"keys": ["enter"], "command": "insert_snippet", "args": {"contents": "\n\t$0\n"},
 		"context": [
-			{ "key": "selector", "operand": "text.tex.latex" },
-			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:\\\\left)?(?:\\\\)?(\\(|\\[|{)$", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*(?:\\\\left)?(?:\\\\)?(\\(|\\[|{)$", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\\\right)?(?:\\\\)?(\\)|\\]|})", "match_all": true },
 		]
 	},
 	{
 		"keys": ["keypad_enter"], "command": "insert_snippet", "args": {"contents": "\n\t$0\n"},
 		"context": [
-			{ "key": "selector", "operand": "text.tex.latex" },
-			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:\\\\left)?(?:\\\\)?(\\(|\\[|{)$", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*(?:\\\\left)?(?:\\\\)?(\\(|\\[|{)$", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\\\right)?(?:\\\\)?(\\)|\\]|})", "match_all": true },
 		]
 	},
@@ -687,7 +661,7 @@ LaTeX Package keymap for Linux
 			// don't insert, it inside math environments
 			{ "key": "selector", "operand": "text.tex.latex - meta.environment.math - string.other.math", "match_all": true },
 			// do not insert this if it is escaped
-			{ "key": "preceding_text", "operator": "not_regex_contains", "operand": "(?:\\\\\\\\)*(?:\\\\|\\$)$", "match_all": true },
+			{ "key": "preceding_text", "operator": "not_regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*(?:\\\\|\\$)$", "match_all": true },
 			// don't insert, if there is an open dollar math environment at the end of the line
 			{ "key": "eol_selector", "operator": "not_equal",
 			  "operand": "meta.environment.math.inline.dollar - punctuation.definition.string.end, string.other.math - punctuation.definition.string.end",
@@ -737,7 +711,7 @@ LaTeX Package keymap for Linux
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math.block.dollar" },
 			// do not insert this if it is escaped
-			{ "key": "preceding_text", "operator": "not_regex_contains", "operand": "(?:\\\\{2})*(?:\\\\|\\$)$", "match_all": true }
+			{ "key": "preceding_text", "operator": "not_regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*(?:\\\\|\\$)$", "match_all": true }
 		]
 	},
 
