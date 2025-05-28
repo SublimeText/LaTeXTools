@@ -557,7 +557,7 @@ LaTeX Package keymap for OS X
 		]
 	},
 
-	// Auto-pair escaped curly braces in math blocks
+	// Auto-pair left/right curly braces in math blocks
 	{
 		"keys": ["{"],
 		"command": "insert_snippet", "args": {"contents": "{$0\\\\right\\\\}"},
@@ -566,7 +566,7 @@ LaTeX Package keymap for OS X
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\\\$", "match_all": true },
-			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\\\|\\$|$)", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\\\(?!right\\\\\\})|\\$|$)", "match_all": true },
 		]
 	},
 	{
@@ -590,7 +590,7 @@ LaTeX Package keymap for OS X
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left$", "match_all": true },
-			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\\\|\\$|$)", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\\\(?!right\\])|\\$|$)", "match_all": true },
 		]
 	},
 	{
@@ -614,7 +614,7 @@ LaTeX Package keymap for OS X
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left$", "match_all": true },
-			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\\\|\\$|$)", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\\\(?!right\\))|\\$|$)", "match_all": true },
 		]
 	},
 	{
@@ -629,21 +629,73 @@ LaTeX Package keymap for OS X
 		]
 	},
 
+	// Auto-pair left/right slashes in math blocks
+	{
+		"keys": ["/"],
+		"command": "insert_snippet", "args": {"contents": "/$0\\\\right/"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\\\(?!right/)|\\$|$)", "match_all": true },
+		]
+	},
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Bracket 1.sublime-macro"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left/$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\right/", "match_all": true },
+		]
+	},
+
+	// Auto-pair left/right pipes in math blocks
+	{
+		"keys": ["|"],
+		"command": "insert_snippet", "args": {"contents": "|$0\\\\right|"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\\\(?!right\\|)|\\$|$)", "match_all": true },
+		]
+	},
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Bracket 1.sublime-macro"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\|$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\right\\|", "match_all": true },
+		]
+	},
+
+	// ------------------------------------------------------------------
+	// Indent content between braces/brackets/parentheses
+	// ------------------------------------------------------------------
+
 	// Indent content
 	{
 		"keys": ["enter"], "command": "insert_snippet", "args": {"contents": "\n\t$0\n"},
 		"context": [
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" },
-			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*(?:\\\\left)?(?:\\\\)?(\\(|\\[|{)$", "match_all": true },
-			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\\\right)?(?:\\\\)?(\\)|\\]|})", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*(?:\\\\left)?(?:\\\\)?[(\\[{/|]$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\\\right)?(?:\\\\)?[)\\]}/|]", "match_all": true },
 		]
 	},
 	{
 		"keys": ["keypad_enter"], "command": "insert_snippet", "args": {"contents": "\n\t$0\n"},
 		"context": [
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" },
-			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*(?:\\\\left)?(?:\\\\)?(\\(|\\[|{)$", "match_all": true },
-			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\\\right)?(?:\\\\)?(\\)|\\]|})", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*(?:\\\\left)?(?:\\\\)?[(\\[{/|]$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\\\right)?(?:\\\\)?[)\\]}/|]", "match_all": true },
 		]
 	},
 
