@@ -49,6 +49,14 @@
 	// valid values: "none", "part", "chapter", "section"
 	"word_count_sub_level": "none",
 
+	// auto-pair escaped brackets when typing
+	// e.g. \[ expands to \[\]
+	"auto_match_escaped_brackets": true,
+
+	// auto-pair special math related brackets when typing
+	// e.g. \left[ expands to \left[\right]
+	"auto_match_math_brackets": true,
+
 // ------------------------------------------------------------------
 // LaTeX Completions Settings
 // ------------------------------------------------------------------
