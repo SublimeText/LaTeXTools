@@ -36,6 +36,7 @@ If at any time you wish to erase your customizations and start afresh, you can s
 * `temp_files_ignored_folders`: subdirectories to skip when deleting temp files.
 * `auto_match_escaped_brackets`: auto-pair escaped brackets when typing (e.g. `\[` expands to `\[\]`)
 * `auto_match_math_brackets`: auto-pair special math related brackets when typing (e.g. `\left[` expands to `\left[\right]`)
+* `auto_match_spaces`: auto-pair leading and trailing spaces between brackets e.g. `(|)` expands to `( | )` by pressing <kbd>space</kbd> and `( | )` to `(|)` by pressing <kbd>backspace</kbd>
 
 ## Preview Settings
 

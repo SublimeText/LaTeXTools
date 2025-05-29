@@ -57,6 +57,11 @@
 	// e.g. \left[ expands to \left[\right]
 	"auto_match_math_brackets": true,
 
+	// auto-pair leading and trailing spaces between brackets
+	// e.g. (|) expands to ( | ) by pressing "space"
+	// and ( | ) to (|) by pressing "backspace"
+	"auto_match_spaces": true,
+
 // ------------------------------------------------------------------
 // LaTeX Completions Settings
 // ------------------------------------------------------------------

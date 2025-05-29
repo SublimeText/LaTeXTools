@@ -462,6 +462,7 @@ LaTeX Package keymap for OS X
 		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\{$", "match_all": true },
@@ -473,6 +474,7 @@ LaTeX Package keymap for OS X
 		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\{ $", "match_all": true },
@@ -496,6 +498,7 @@ LaTeX Package keymap for OS X
 		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\[$", "match_all": true },
@@ -507,6 +510,7 @@ LaTeX Package keymap for OS X
 		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\[ $", "match_all": true },
@@ -530,6 +534,7 @@ LaTeX Package keymap for OS X
 		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\($", "match_all": true },
@@ -541,6 +546,7 @@ LaTeX Package keymap for OS X
 		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\( $", "match_all": true },
@@ -577,7 +583,7 @@ LaTeX Package keymap for OS X
 		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
-			{ "key": "latextools.setting.auto_match_escaped_brackets" },
+			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\\\{$", "match_all": true },
@@ -589,7 +595,7 @@ LaTeX Package keymap for OS X
 		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
-			{ "key": "latextools.setting.auto_match_escaped_brackets" },
+			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\\\{ $", "match_all": true },
@@ -626,7 +632,7 @@ LaTeX Package keymap for OS X
 		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
-			{ "key": "latextools.setting.auto_match_escaped_brackets" },
+			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\\\[$", "match_all": true },
@@ -638,7 +644,7 @@ LaTeX Package keymap for OS X
 		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
-			{ "key": "latextools.setting.auto_match_escaped_brackets" },
+			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\\\[ $", "match_all": true },
@@ -675,7 +681,7 @@ LaTeX Package keymap for OS X
 		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
-			{ "key": "latextools.setting.auto_match_escaped_brackets" },
+			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\\\($", "match_all": true },
@@ -687,7 +693,7 @@ LaTeX Package keymap for OS X
 		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
-			{ "key": "latextools.setting.auto_match_escaped_brackets" },
+			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\\\( $", "match_all": true },
@@ -724,7 +730,7 @@ LaTeX Package keymap for OS X
 		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
-			{ "key": "latextools.setting.auto_match_math_brackets" },
+			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\\\\\{$", "match_all": true },
@@ -736,7 +742,7 @@ LaTeX Package keymap for OS X
 		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
-			{ "key": "latextools.setting.auto_match_math_brackets" },
+			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\\\\\{ $", "match_all": true },
@@ -773,7 +779,7 @@ LaTeX Package keymap for OS X
 		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
-			{ "key": "latextools.setting.auto_match_math_brackets" },
+			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\[$", "match_all": true },
@@ -785,7 +791,7 @@ LaTeX Package keymap for OS X
 		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
-			{ "key": "latextools.setting.auto_match_math_brackets" },
+			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\[ $", "match_all": true },
@@ -822,7 +828,7 @@ LaTeX Package keymap for OS X
 		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
-			{ "key": "latextools.setting.auto_match_math_brackets" },
+			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\($", "match_all": true },
@@ -834,7 +840,7 @@ LaTeX Package keymap for OS X
 		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
-			{ "key": "latextools.setting.auto_match_math_brackets" },
+			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\( $", "match_all": true },
@@ -871,7 +877,7 @@ LaTeX Package keymap for OS X
 		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
-			{ "key": "latextools.setting.auto_match_math_brackets" },
+			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left/$", "match_all": true },
@@ -883,7 +889,7 @@ LaTeX Package keymap for OS X
 		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
-			{ "key": "latextools.setting.auto_match_math_brackets" },
+			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left/ $", "match_all": true },
@@ -920,7 +926,7 @@ LaTeX Package keymap for OS X
 		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
-			{ "key": "latextools.setting.auto_match_math_brackets" },
+			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\|$", "match_all": true },
@@ -932,7 +938,7 @@ LaTeX Package keymap for OS X
 		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
-			{ "key": "latextools.setting.auto_match_math_brackets" },
+			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\| $", "match_all": true },
