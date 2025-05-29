@@ -34,6 +34,8 @@ If at any time you wish to erase your customizations and start afresh, you can s
 * `word_count_sub_level` (`"none"`): controls the level at which subcounts of words can be generated. Valid values are: `"none"`, `"part"`, `"chapter"`, and `"section"`.
 * `temp_files_exts`: list of file extensions to be considered temporary, and hence deleted using the `C-l, backspace` command.
 * `temp_files_ignored_folders`: subdirectories to skip when deleting temp files.
+* `auto_match_escaped_brackets`: auto-pair escaped brackets when typing (e.g. `\[` expands to `\[\]`)
+* `auto_match_math_brackets`: auto-pair special math related brackets when typing (e.g. `\left[` expands to `\left[\right]`)
 
 ## Preview Settings
 
