@@ -453,7 +453,7 @@ LaTeX Package keymap for OS X
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex" },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math - meta.function.citation - meta.function.reference" },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*$", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\$|$)", "match_all": true }
 		]
@@ -489,7 +489,7 @@ LaTeX Package keymap for OS X
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex" },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math - meta.function.citation - meta.function.reference" },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*$", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\$|$)", "match_all": true }
 		]
@@ -525,7 +525,7 @@ LaTeX Package keymap for OS X
 		"context": [
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex" },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math - meta.function.citation - meta.function.reference" },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*$", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\$|$)", "match_all": true }
 		]
