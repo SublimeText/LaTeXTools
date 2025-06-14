@@ -94,7 +94,7 @@ def latextools_plugin_loaded():
             },
             # includegraphics
             {
-                "regex": r"(?:\][^{}\[\]]*\[)?scihpargedulcni\\",
+                "regex": r"(?:\][^{}\[\]]*\[)?(?:>[^>]*<)?scihpargedulcni\\",
                 "extensions": get_setting("image_types", ["pdf", "png", "jpeg", "jpg", "eps"], {}),
                 "folder": "${graphics_path:$base}",
             },

@@ -36,7 +36,10 @@ BIB_REG = re.compile(
     re.UNICODE,
 )
 
-IMAGE_REG = re.compile(r"\\includegraphics(?:\[[^\]]*\])?\{(?P<file>[^\}]+)\}", re.UNICODE)
+IMAGE_REG = re.compile(
+    r"\\includegraphics(?:<[^>]*>)?(?:\[[^\]]*\])?\{(?P<file>[^\}]+)\}"
+    , re.UNICODE
+)
 
 
 def _jumpto_tex_file(
