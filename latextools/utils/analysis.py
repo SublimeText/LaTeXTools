@@ -256,17 +256,18 @@ class Analysis:
 
     def graphics_paths(self):
         if self._graphics_path is None:
-            result = []
+            result = set()
             commands = self.filter_commands(["appendtographicspath", "graphicspath"])
             for com in commands:
                 base_path = os.path.join(self.tex_base_path(com.file_name))
-                paths = (p.rstrip("}") for p in com.args.split("{") if p)
-                result.extend(
-                    os.path.normpath(p if os.path.isabs(p) else os.path.join(base_path, p))
-                    for p in paths
-                )
+                for p in com.args.split("{"):
+                    p = p.strip(" \t\n,").rstrip("}")
+                    if not p:
+                        continue
+                    result.add(os.path.normpath(p if os.path.isabs(p) else os.path.join(base_path, p)))
+
             # freeze result
-            self._graphics_path = result
+            self._graphics_path = sorted(result)
 
         return self._graphics_path
 
