@@ -141,7 +141,7 @@ else:
 
 
     def _filter_func(name):
-        return name.startswith(prefix) and name != __name__
+        return name.startswith(prefix) and name != __spec__.name
 
 
     def plugin_loaded():

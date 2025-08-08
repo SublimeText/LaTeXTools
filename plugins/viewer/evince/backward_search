@@ -147,7 +147,7 @@ class EvinceWindowProxy:
 
 # This file offers backward search in any editor.
 #  evince_dbus pdf_file line_source input_file
-if __name__ == '__main__':
+if __spec__.name == '__main__':
     import dbus.mainloop.glib
     import sys
     import os

@@ -816,7 +816,7 @@ def parse_tex_log(data, root_dir):
 
 # If invoked from the command line, parse provided log file
 
-if __name__ == "__main__":
+if __spec__.name == "__main__":
     print_debug = True
     interactive = True
     try:
