@@ -405,12 +405,12 @@ class LatexFillHelper:
     def get_fancy_prefix(self, view, location):
         """
         Gets the prefix for the command assuming it takes a form like:
-            \cite_prefix
-            \ref_prefix
+            \\cite_prefix
+            \\ref_prefix
 
         These are also supported:
-            \cite_prefix{
-            \ref_prefix{
+            \\cite_prefix{
+            \\ref_prefix{
 
         The prefix is defined by everything *after* the underscore
 
