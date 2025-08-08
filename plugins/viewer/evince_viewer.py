@@ -18,11 +18,32 @@ class EvinceViewer(BaseViewer):
     PYTHON = None
 
     def _get_evince_folder(self):
-        return os.path.join(os.path.dirname(__file__), "evince")
+        script_dir = os.path.join(sublime.cache_path(), "LaTeXTools", "viewer", "evince")
+        os.makedirs(script_dir, exist_ok=True)
+
+        # extract scripts to cache dir and run them from there
+        for script_name in ("backward_search", "forward_search", "sync"):
+            script_file = os.path.join(script_dir, script_name)
+            if os.path.exists(script_file):
+                continue
+            try:
+                data = sublime.load_binary_resource(
+                    f"Packages/LaTeXTools/plugins/viewer/evince/{script_name}"
+                )
+            except FileNotFoundError:
+                sublime.error_message(
+                    f"Cannot find required script '{script_name}'\n"
+                    "for 'evince' viewer in LaTeXTools package."
+                )
+            else:
+                with open(script_file, "wb") as fobj:
+                    fobj.write(data)
+
+        return script_dir
 
     def _is_evince_running(self, pdf_file):
         try:
-            return ("evince {0}".format(pdf_file)) in check_output(["ps", "xv"], use_texpath=False)
+            return f"evince {pdf_file}" in check_output(["ps", "xv"], use_texpath=False)
         except Exception:
             return False
 

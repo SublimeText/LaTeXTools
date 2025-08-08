@@ -1,5 +1,7 @@
 import os
 
+import sublime
+
 from ...latextools.utils.external_command import check_output
 from ...latextools.utils.external_command import external_command
 
@@ -38,12 +40,23 @@ class SkimViewer(BaseViewer):
 
     def view_file(self, pdf_file, **kwargs):
         keep_focus = kwargs.pop("keep_focus", True)
+        script_dir = os.path.join(sublime.cache_path(), "LaTeXTools", "viewer", "skim")
+        script_file = os.path.join(script_dir, "displayfile")
+        if not os.path.exists(script_file):
+            try:
+                data = sublime.load_binary_resource(
+                    f"Packages/LaTeXTools/plugins/viewer/skim/displayfile"
+                )
+            except FileNotFoundError:
+                sublime.error_message(
+                    "Cannot find required scripts\n"
+                    "for 'skim' viewer in LaTeXTools package."
+                )
+            else:
+                with open(script_file, "wb") as fobj:
+                     fobj.write(data)
 
-        command = [
-            "/bin/sh",
-            os.path.join(os.path.dirname(__file__), "skim", "displayfile"),
-            "-r",
-        ]
+        command = ["/bin/sh", script_file, "-r"]
 
         if keep_focus:
             command.append("-g")
