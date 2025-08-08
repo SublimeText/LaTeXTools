@@ -163,6 +163,3 @@ def testall(list, recursive, toplevel):
                 print(what(filename))
             except OSError:
                 print('*** not found ***')
-
-if __name__ == '__main__':
-    test()
