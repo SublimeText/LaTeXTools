@@ -6,7 +6,6 @@ import sublime
 import sublime_plugin
 
 from .deprecated_command import deprecate
-from .latextools_plugin import add_plugin_path
 from .latextools_plugin import get_plugin
 from .latextools_plugin import NoSuchPluginException
 from .utils.is_tex_file import is_tex_file
@@ -255,14 +254,6 @@ class LatextoolsViewPdfCommand(sublime_plugin.WindowCommand):
                 "Please contact the plugin author."
             )
             return
-
-
-def latextools_plugin_loaded():
-    viewers_path = os.path.join(sublime.packages_path(), "LaTeXTools", "plugins", "viewer")
-    # ensure that base_viewer is loaded first so that other viewers are registered
-    # as plugins
-    add_plugin_path(os.path.join(viewers_path, "base_viewer.py"))
-    add_plugin_path(viewers_path)
 
 
 deprecate(globals(), "JumpToPdf", LatextoolsJumptoPdfCommand)

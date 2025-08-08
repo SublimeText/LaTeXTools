@@ -4,11 +4,13 @@ import sublime
 import subprocess
 import sys
 
-from LaTeXTools.latextools.utils.external_command import external_command
-from LaTeXTools.latextools.utils.external_command import get_texpath
-from LaTeXTools.latextools.utils.logging import logger
+from ...latextools.utils.external_command import external_command
+from ...latextools.utils.external_command import get_texpath
+from ...latextools.utils.logging import logger
 
-from pdf_builder import PdfBuilder
+from .pdf_builder import PdfBuilder
+
+__all__ = ["BasicBuilder"]
 
 # Standard LaTeX warning
 CITATIONS_REGEX = re.compile(

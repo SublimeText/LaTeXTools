@@ -2,8 +2,10 @@ import os
 import sublime
 import sys
 
-from LaTeXTools.latextools.latextools_plugin import LaTeXToolsPlugin
-from LaTeXTools.latextools.utils.logging import logger
+from ...latextools.latextools_plugin import LaTeXToolsPlugin
+from ...latextools.utils.logging import logger
+
+__all__ = ["PdfBuilder"]
 
 
 class PdfBuilder(LaTeXToolsPlugin):

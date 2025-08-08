@@ -1,4 +1,3 @@
-import imghdr
 import os
 import struct
 import threading
@@ -9,6 +8,7 @@ import sublime_plugin
 
 from textwrap import dedent
 
+from ...vendor import imghdr
 from ..jumpto_tex_file import find_image
 from ..jumpto_tex_file import open_image
 from ..jumpto_tex_file import open_image_folder
@@ -24,9 +24,6 @@ from .preview_utils import run_convert_command
 from .preview_utils import run_ghostscript_command
 from . import preview_threading as pv_threading
 
-# the path to the temp files (set on loading)
-temp_path = None
-
 # we use png files for the html popup
 _IMAGE_EXTENSION = ".png"
 # we add this extension to log error information
@@ -35,14 +32,9 @@ _ERROR_EXTENSION = ".err"
 # the name is used as identifier and to extract folder and file names
 _name = "preview_image"
 
-
-def latextools_plugin_loaded():
-    global temp_path
-
-    temp_path = os.path.join(cache._global_cache_path(), _name)
-
-    # register the temp folder for auto deletion
-    pv_threading.register_temp_folder(_name, temp_path)
+# register the temp folder for auto deletion
+temp_path = os.path.join(cache._global_cache_path(), _name)
+pv_threading.register_temp_folder(_name, temp_path)
 
 
 def _uses_gs(file):

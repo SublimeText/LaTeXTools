@@ -15,8 +15,7 @@ import sublime
 import sublime_plugin
 
 from .jumpto_pdf import DEFAULT_VIEWERS
-from .latextools_plugin import _classname_to_internal_name
-from .latextools_plugin import add_plugin_path
+from .latextools_plugin import classname_to_plugin_name
 from .latextools_plugin import get_plugin
 from .latextools_plugin import NoSuchPluginException
 from .utils.activity_indicator import ActivityIndicator
@@ -535,15 +534,7 @@ class SystemCheckThread(threading.Thread):
             builder_name = "traditional"
 
         builder_settings = get_setting("builder_settings", view=self.view)
-        builder_path = get_setting("builder_path", view=self.view)
-
-        if builder_name in ["simple", "traditional", "script"]:
-            builder_path = None
-        else:
-            bld_path = os.path.join(sublime.packages_path(), builder_path)
-            add_plugin_path(bld_path)
-
-        builder_name = _classname_to_internal_name(builder_name)
+        builder_name = classname_to_plugin_name(builder_name)
 
         try:
             get_plugin("{0}_builder".format(builder_name))
@@ -558,9 +549,6 @@ class SystemCheckThread(threading.Thread):
                 [builder_name, "available" if builder_available else "missing"],
             ]
         )
-
-        if builder_path:
-            results.append([["Builder Path"], [builder_path]])
 
         if builder_settings is not None:
             table = [["Builder Setting", "Value"]]

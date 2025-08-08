@@ -9,11 +9,13 @@ except ImportError:
     # not on Windows
     pass
 
-from LaTeXTools.latextools.utils.external_command import external_command
-from LaTeXTools.latextools.utils.logging import logger
-from LaTeXTools.latextools.utils.settings import get_setting
+from ...latextools.utils.external_command import external_command
+from ...latextools.utils.logging import logger
+from ...latextools.utils.settings import get_setting
 
-from base_viewer import BaseViewer
+from .base_viewer import BaseViewer
+
+__all__ = ["SumatraViewer"]
 
 
 class SumatraViewer(BaseViewer):

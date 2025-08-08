@@ -22,6 +22,8 @@ import sublime
 import traceback
 
 from .latex_fill_all import FillAllHelper
+from .latextools_plugin import get_plugin
+from .latextools_plugin import NoSuchPluginException
 from .utils import analysis
 from .utils import bibformat
 from .utils.cache import cache_local
@@ -30,7 +32,6 @@ from .utils.external_command import check_output
 from .utils.logging import logger
 from .utils.settings import get_setting
 from .utils.tex_directives import get_tex_root
-from . import latextools_plugin
 
 
 class NoBibFilesError(Exception):
@@ -340,14 +341,14 @@ def run_plugin_command(command, *args, **kwargs):
     def _run_command(plugin_name):
         plugin = None
         try:
-            plugin = latextools_plugin.get_plugin(plugin_name)
-        except latextools_plugin.NoSuchPluginException:
+            plugin = get_plugin(plugin_name)
+        except NoSuchPluginException:
             pass
 
         if not plugin:
             error_message = (
                 "Could not find bibliography plugin named {0}. "
-                "Please ensure your LaTeXTools.sublime-settings is configured"
+                "Please ensure your LaTeXTools.sublime-settings is configured "
                 "correctly.".format(plugin_name)
             )
             logger.error(error_message)
@@ -553,12 +554,3 @@ class CiteFillAllHelper(FillAllHelper):
 
     def is_enabled(self):
         return get_setting("cite_auto_trigger", True)
-
-
-def latextools_plugin_loaded():
-    # load plugins from the plugins/bibliography dir of LaTeXTools if it exists
-    # this allows us to have pre-packaged plugins that won't require any user
-    # setup
-    latextools_plugin.add_plugin_path(
-        os.path.join(sublime.packages_path(), "LaTeXTools", "plugins", "bibliography")
-    )

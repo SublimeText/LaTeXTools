@@ -72,13 +72,9 @@ _ERROR_EXTENSION = ".err"
 
 _name = "preview_math"
 
-
-def latextools_plugin_loaded():
-    global temp_path
-
-    # register the temp folder for auto deletion
-    temp_path = os.path.join(cache._global_cache_path(), _name)
-    pv_threading.register_temp_folder(_name, temp_path)
+# register the temp folder for auto deletion
+temp_path = os.path.join(cache._global_cache_path(), _name)
+pv_threading.register_temp_folder(_name, temp_path)
 
 
 def _create_image(

@@ -1,13 +1,18 @@
 import sys
 
-from LaTeXTools.latextools.latextools_plugin import LaTeXToolsPlugin
-from LaTeXTools.latextools.utils import sublime_utils as st_utils
+from ...latextools.latextools_plugin import LaTeXToolsPlugin
+from ...latextools.utils import sublime_utils as st_utils
 
-# most methods take a kwargs variable, which currently only consists of the
-# `keep_focus` setting
+__all__ = ["BaseViewer"]
 
 
 class BaseViewer(LaTeXToolsPlugin):
+    """
+    This class describes a base viewer.
+
+    Note: Most methods take a kwargs variable, which currently only consists
+          of the `keep_focus` setting
+    """
 
     def forward_sync(self, pdf_file, tex_file, line, col, **kwargs):
         """

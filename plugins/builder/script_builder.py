@@ -6,11 +6,13 @@ import subprocess
 from shlex import quote
 from string import Template
 
-from LaTeXTools.latextools.utils.external_command import external_command
-from LaTeXTools.latextools.utils.external_command import get_texpath
-from LaTeXTools.latextools.utils.external_command import update_env
+from ...latextools.utils.external_command import external_command
+from ...latextools.utils.external_command import get_texpath
+from ...latextools.utils.external_command import update_env
 
-from pdf_builder import PdfBuilder
+from .pdf_builder import PdfBuilder
+
+__all__ = ["ScriptBuilder"]
 
 
 class ScriptBuilder(PdfBuilder):

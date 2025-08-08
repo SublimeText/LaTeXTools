@@ -1,0 +1,2 @@
+from .new_bibliography import NewBibliographyPlugin
+from .traditional_bibliography import TraditionalBibliographyPlugin

@@ -1,11 +1,13 @@
 from shutil import which
 
-from LaTeXTools.latextools.utils.external_command import check_output
-from LaTeXTools.latextools.utils.external_command import external_command
-from LaTeXTools.latextools.utils.settings import get_setting
-from LaTeXTools.latextools.utils.sublime_utils import get_sublime_exe
+from ...latextools.utils.external_command import check_output
+from ...latextools.utils.external_command import external_command
+from ...latextools.utils.settings import get_setting
+from ...latextools.utils.sublime_utils import get_sublime_exe
 
-from base_viewer import BaseViewer
+from .base_viewer import BaseViewer
+
+__all__ = ["ZathuraViewer"]
 
 
 class ZathuraViewer(BaseViewer):

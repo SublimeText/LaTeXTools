@@ -1,6 +1,8 @@
-from LaTeXTools.latextools.utils.external_command import external_command
+from ...latextools.utils.external_command import external_command
 
-from base_viewer import BaseViewer
+from .base_viewer import BaseViewer
+
+__all__ = ["PreviewViewer"]
 
 
 class PreviewViewer(BaseViewer):
