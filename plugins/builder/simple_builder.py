@@ -1,7 +1,9 @@
 import os.path
 import re
 
-from pdf_builder import PdfBuilder
+from .pdf_builder import PdfBuilder
+
+__all__ = ["SimpleBuilder"]
 
 
 class SimpleBuilder(PdfBuilder):

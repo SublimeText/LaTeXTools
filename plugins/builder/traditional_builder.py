@@ -1,7 +1,9 @@
 import shlex
 import sublime
 
-from pdf_builder import PdfBuilder
+from .pdf_builder import PdfBuilder
+
+__all__ = ["TraditionalBuilder"]
 
 DEFAULT_COMMAND_LATEXMK = [
     "latexmk",

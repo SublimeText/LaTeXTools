@@ -3,10 +3,12 @@ import re
 import sublime
 import traceback
 
-from LaTeXTools.latextools.latextools_plugin import LaTeXToolsPlugin
-from LaTeXTools.latextools.utils import bibcache
-from LaTeXTools.latextools.utils.logging import logger
-from LaTeXTools.vendor import latex_chars
+from ...latextools.latextools_plugin import LaTeXToolsPlugin
+from ...latextools.utils import bibcache
+from ...latextools.utils.logging import logger
+from ...vendor import latex_chars
+
+__all__ = ["TraditionalBibliographyPlugin"]
 
 kp = re.compile(r"@[^\{]+\{\s*(.+)\s*,")
 # new and improved regex

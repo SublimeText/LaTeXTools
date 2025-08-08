@@ -6,7 +6,7 @@ import sublime
 import sublime_plugin
 
 from .deprecated_command import deprecate
-from .latextools_plugin import _classname_to_internal_name
+from .latextools_plugin import classname_to_plugin_name
 from .latextools_plugin import get_plugins_by_type
 from .utils.decorators import async_completions
 from .utils.logging import logger
@@ -585,7 +585,7 @@ class LatexFillAllPluginConsumer:
         """
         self.COMPLETION_TYPES = {}
         for plugin in get_plugins_by_type(FillAllHelper):
-            name = _classname_to_internal_name(plugin.__name__)
+            name = classname_to_plugin_name(plugin.__name__)
             if name.endswith("_fill_all_helper"):
                 name = name[:-16]
                 self.COMPLETION_TYPES[name] = plugin()

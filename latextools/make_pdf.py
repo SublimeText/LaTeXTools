@@ -18,8 +18,7 @@ import sublime
 import sublime_plugin
 
 from .deprecated_command import deprecate
-from .latextools_plugin import _classname_to_internal_name
-from .latextools_plugin import add_plugin_path
+from .latextools_plugin import classname_to_plugin_name
 from .latextools_plugin import get_plugin
 from .latextools_plugin import NoSuchPluginException
 from .utils.activity_indicator import ActivityIndicator
@@ -36,6 +35,7 @@ from .utils.settings import get_setting
 from .utils.tex_directives import get_tex_root
 from .utils.tex_directives import parse_tex_directives
 from .utils.tex_log import parse_tex_log
+
 
 __all__ = [
     "LatextoolsMakePdfCommand",
@@ -458,7 +458,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
         # this is to convert old-style names (e.g. AReallyLongName)
         # to new style plugin names (a_really_long_name)
-        builder_name = _classname_to_internal_name(builder_name)
+        builder_name = classname_to_plugin_name(builder_name)
 
         builder_settings = get_setting("builder_settings", {}, view)
 
@@ -521,18 +521,6 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             self.env = builder_platform_settings.get("env", None)
         else:
             self.env = None
-
-        # Safety check: if we are using a built-in builder, disregard
-        # builder_path, even if it was specified in the pref file
-        if builder_name in ["simple", "traditional", "script", "basic"]:
-            builder_path = None
-        else:
-            # relative to ST packages dir!
-            builder_path = get_setting("builder_path", "", view)
-
-        if builder_path:
-            bld_path = os.path.join(sublime.packages_path(), builder_path)
-            add_plugin_path(bld_path)
 
         try:
             builder = get_plugin("{0}_builder".format(builder_name))
@@ -790,15 +778,6 @@ class LatextoolsExecEventListener(sublime_plugin.EventListener):
         raise Exception(
             "latextools_inline_errors_visible; " "Invalid operator must be EQUAL or NOT_EQUAL."
         )
-
-
-def latextools_plugin_loaded():
-    # load the plugins from the builders dir
-    ltt_path = os.path.join(sublime.packages_path(), "LaTeXTools", "plugins", "builder")
-    # ensure that pdfBuilder is loaded first as otherwise, the other builders
-    # will not be registered as plugins
-    add_plugin_path(os.path.join(ltt_path, "pdf_builder.py"))
-    add_plugin_path(ltt_path)
 
 
 deprecate(globals(), "make_pdfCommand", LatextoolsMakePdfCommand)

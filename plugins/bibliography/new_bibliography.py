@@ -3,14 +3,16 @@ import collections
 import sublime
 import traceback
 
-from LaTeXTools.latextools.latextools_plugin import LaTeXToolsPlugin
-from LaTeXTools.latextools.utils import bibcache
-from LaTeXTools.latextools.utils.logging import logger
+from ...latextools.latextools_plugin import LaTeXToolsPlugin
+from ...latextools.utils import bibcache
+from ...latextools.utils.logging import logger
 
-from LaTeXTools.vendor.bibtex import Parser
-from LaTeXTools.vendor.bibtex.names import Name
-from LaTeXTools.vendor.bibtex.tex import tokenize_list
-from LaTeXTools.vendor import latex_chars
+from ...vendor.bibtex import Parser
+from ...vendor.bibtex.names import Name
+from ...vendor.bibtex.tex import tokenize_list
+from ...vendor import latex_chars
+
+__all__ = ["NewBibliographyPlugin"]
 
 # LaTeX -> Unicode decoder
 latex_chars.register()

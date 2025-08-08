@@ -1,9 +1,11 @@
 import os
 
-from LaTeXTools.latextools.utils.external_command import check_output
-from LaTeXTools.latextools.utils.external_command import external_command
+from ...latextools.utils.external_command import check_output
+from ...latextools.utils.external_command import external_command
 
-from base_viewer import BaseViewer
+from .base_viewer import BaseViewer
+
+__all__ = ["SkimViewer"]
 
 
 class SkimViewer(BaseViewer):

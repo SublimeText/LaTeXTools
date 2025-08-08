@@ -4,17 +4,21 @@ import shlex
 import sublime
 import string
 
-from LaTeXTools.latextools.utils.external_command import external_command
-from LaTeXTools.latextools.utils.settings import get_setting
-from LaTeXTools.latextools.utils.sublime_utils import get_sublime_exe
+from ...latextools.utils.external_command import external_command
+from ...latextools.utils.settings import get_setting
+from ...latextools.utils.sublime_utils import get_sublime_exe
 
-from base_viewer import BaseViewer
+from .base_viewer import BaseViewer
+
+__all__ = ["CommandViewer"]
 
 WINDOWS_SHELL = re.compile(r"\b(?:cmd|powershell)(?:.exe)?\b", re.UNICODE)
 
 
-# a viewer that runs a user-specified command
 class CommandViewer(BaseViewer):
+    """
+    This class describes a viewer that runs a user-specified command.
+    """
 
     CONTAINS_VARIABLE = re.compile(
         r"\$(?:(?:pdf|src)_file(?:_(?:name|ext|base_name|path))?"
