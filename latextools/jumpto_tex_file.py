@@ -7,7 +7,6 @@ import traceback
 import sublime
 import sublime_plugin
 
-from .deprecated_command import deprecate
 from .utils import analysis
 from .utils import utils
 from .utils.external_command import external_command
@@ -288,6 +287,3 @@ class LatextoolsJumptoFileCommand(sublime_plugin.TextCommand):
                 file_name = g.group("file")
                 logger.info("Jumpto image file '%s'", file_name)
                 _jumpto_image_file(view, window, tex_root, file_name)
-
-
-deprecate(globals(), "JumptoTexFileCommand", LatextoolsJumptoFileCommand)

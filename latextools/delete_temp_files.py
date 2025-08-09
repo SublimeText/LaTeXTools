@@ -6,8 +6,6 @@ import sublime_plugin
 import tempfile
 import traceback
 
-from .deprecated_command import deprecate
-
 from .utils import cache
 from .utils.logging import logger
 from .utils.output_directory import get_aux_directory
@@ -249,7 +247,3 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
                 self._rmtree(os.path.join(root, directory))
             for file_name in file_names:
                 self._rmfile(os.path.join(root, file_name))
-
-
-deprecate(globals(), "ClearLocalLatexCacheCommand", LatextoolsClearLocalCacheCommand)
-deprecate(globals(), "DeleteTempFilesCommand", LatextoolsDeleteTempFilesCommand)

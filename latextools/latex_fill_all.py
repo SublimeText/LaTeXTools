@@ -5,7 +5,6 @@ import traceback
 import sublime
 import sublime_plugin
 
-from .deprecated_command import deprecate
 from .latextools_plugin import classname_to_plugin_name
 from .latextools_plugin import get_plugins_by_type
 from .latextools_plugin import LaTeXToolsPlugin
@@ -1164,6 +1163,3 @@ class LatexToolsFillAllCompleteBracket(sublime_plugin.TextCommand, LatexFillHelp
 
     def run(self, edit, insert_char="", remove_regions=[]):
         self.complete_brackets(self.view, edit, insert_char, self.tuples_to_regions(remove_regions))
-
-
-deprecate(globals(), "LatexFillAllCommand", LatextoolsFillAllCommand)

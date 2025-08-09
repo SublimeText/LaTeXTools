@@ -1,8 +1,6 @@
 import sublime
 import sublime_plugin
 
-from .deprecated_command import deprecate
-
 __all__ = ["LatextoolsLatexEnvCloserCommand"]
 
 # Insert environment closer
@@ -38,6 +36,3 @@ class LatextoolsLatexEnvCloserCommand(sublime_plugin.TextCommand):
         else:
             # for some reason insert does not work
             view.run_command("insert_snippet", {"contents": "\\\\end" + b[-1] + "\n"})
-
-
-deprecate(globals(), "latex_env_closerCommand", LatextoolsLatexEnvCloserCommand)

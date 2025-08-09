@@ -3,7 +3,6 @@ import os
 import sublime
 import sublime_plugin
 
-from .deprecated_command import deprecate
 from .utils.external_command import CalledProcessError
 from .utils.external_command import check_output
 from .utils.settings import get_setting
@@ -56,6 +55,3 @@ class LatextoolsTexcountCommand(sublime_plugin.WindowCommand):
                 "installed and that your texpath setting includes the path "
                 "containing the TeXcount executable."
             )
-
-
-deprecate(globals(), "TexcountCommand", LatextoolsTexcountCommand)

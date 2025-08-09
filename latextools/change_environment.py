@@ -2,8 +2,6 @@ import sublime
 import sublime_plugin
 import re
 
-from .deprecated_command import deprecate
-
 __all__ = [
     "LatextoolsChangeEnvironmentCommand",
     "LatextoolsToggleEnvironmentStarCommand",
@@ -163,11 +161,3 @@ def _get_closest_end(end_after, begin_after):
         if not e.begin() > b.begin():
             break
     return e
-
-
-deprecate(globals(), "LatexChangeEnvironmentCommand", LatextoolsChangeEnvironmentCommand)
-deprecate(
-    globals(),
-    "LatexToggleEnvironmentStarCommand",
-    LatextoolsToggleEnvironmentStarCommand,
-)

@@ -11,7 +11,6 @@ import traceback
 import sublime
 import sublime_plugin
 
-from .deprecated_command import deprecate
 from .utils.external_command import CalledProcessError
 from .utils.external_command import check_output
 from .utils.logging import logger
@@ -130,6 +129,3 @@ class LatextoolsGenPkgCacheCommand(sublime_plugin.ApplicationCommand):
         thread = threading.Thread(target=_generate_package_cache)
         thread.daemon = True
         thread.start()
-
-
-deprecate(globals(), "LatexGenPkgCacheCommand", LatextoolsGenPkgCacheCommand)
