@@ -1,5 +1,5 @@
 # LuaTeX primitives
-# Matthew Bertucci updated 2025/02/10 for v1.21
+# Matthew Bertucci updated 2025/06/28 for v1.23.3
 
 ### from LuaTeX Reference Manual ###
 ## 2 Basic TeX enhancements ##
@@ -73,7 +73,7 @@
 \ifcondition#*
 
 # 2.9 Boxes, rules and leaders #
-\outputbox = %<<integer>%>#*
+\outputbox=%<<integer>%>#*
 \vpack#*
 \hpack#*
 \tpack#*
@@ -337,12 +337,6 @@
 \Umathinnerinnerspacing#*
 \mathdisplayskipmode=%<<0,1,2,or 3>%>#*
 \matheqdirmode=%<<integer>%>#*
-\Umathnolimitsupfactor#*
-\Umathnolimitsubfactor#*
-\mathnolimitsmode=%<<mode>%>#*
-\mathitalicsmode=%<<0 or 1>%>#*
-\mathscriptboxmode=%<<0,1,2,or 3>%>#*
-\mathscriptcharmode=%<<mode>%>#*
 \mathscriptsmode=%<<mode>%>#*
 \mathpenaltiesmode=%<<mode>%>#*
 \prebinoppenalty=%<<penalty>%>#*
@@ -350,7 +344,6 @@
 \matheqnogapstep=%<<integer>%>#*
 
 # 7.6 Math constructs #
-\mathdelimitersmode=%<<mode>%>#*
 \Uhextensible#*
 \Uvextensible#*
 \Uskewed#*
@@ -365,7 +358,7 @@
 \Umathcharclass%<<char>%>#*
 \Umathcharfam%<<char>%>#*
 \Umathcharslot%<<char>%>#*
-\predisplaygapfactor = %<<factor>%>#*
+\predisplaygapfactor=%<<factor>%>#*
 
 # 7.8 Math mode #
 \Usuperscript#*
@@ -378,9 +371,7 @@
 \Unosubscript{text%plain}#*
 
 # 7.9 Goodies #
-\mathflattenmode=%<<mode>%>#*
-\mathdefaultsmode=%<<mode>%>#*
-\mathoption#*
+\mathflattenmode=%<<integer>%>#*
 
 ## 8 Nodes ##
 \localinterlinepenalty#*
@@ -400,7 +391,18 @@
 \luacopyinputnodes#*
 \mathrulesfam#*
 \mathrulesmode#*
-\mathrulethicknessmode#*
+
+## deprecated
+\mathdefaultsmode#S
+\mathdelimitersmode#S
+\mathitalicsmode#S
+\mathnolimitsmode#S
+\mathoption#S
+\mathrulethicknessmode#S
+\mathscriptboxmode#S
+\mathscriptcharmode#S
+\Umathnolimitsubfactor#S
+\Umathnolimitsupfactor#S
 
 ### from ltluatex.tex v1.1x ###
 \newattribute{attribute%cmd}#*d

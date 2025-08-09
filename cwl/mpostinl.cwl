@@ -1,9 +1,10 @@
 # mpostinl package
-# Matthew Bertucci 1/10/2022 for v1.5
+# Matthew Bertucci 2025/04/26 for v1.5.2
 
 #include:graphicx
 #include:keyval
 #include:verbatim
+#include:shellesc
 
 \mpostsetup{options%keyvals}
 
@@ -56,7 +57,9 @@ twice#true,false
 \mpostuse[options%keyvals]{label}
 
 #keyvals:\mpostuse
+actualtext={%<text%>}
 alt={%<alt text%>}
+artifact#true,false
 bb=%<llx lly urx ury%>
 bbllx=
 bblly=

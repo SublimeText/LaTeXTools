@@ -1,9 +1,8 @@
 # nicematrix package
-# Matthew Bertucci 2025/02/03 for v7.1
+# Matthew Bertucci 2025/07/25 for v7.1e
 
 #include:amsmath
 #include:array
-#include:l3keys2e
 #include:pgfcore
 
 #keyvals:\usepackage/nicematrix#c
@@ -31,38 +30,47 @@ no-test-for-array#true,false
 \NiceMatrixOptions{keyvals}
 
 \begin{NiceTabular}{preamble}#\tabular
+\begin{NiceTabular}{preamble}[options%keyvals]#\tabular
 \begin{NiceTabular}[options%keyvals]{preamble}#\tabular
 \begin{NiceTabular}[options%keyvals]{preamble}[options%keyvals]#S\tabular
 \end{NiceTabular}
 \begin{NiceTabular*}{preamble}#\tabular
+\begin{NiceTabular*}{preamble}[options%keyvals]#\tabular
 \begin{NiceTabular*}[options%keyvals]{preamble}#\tabular
 \begin{NiceTabular*}[options%keyvals]{preamble}[options%keyvals]#S\tabular
 \end{NiceTabular*}
 \begin{NiceTabularX}{width}{preamble}#\tabular
+\begin{NiceTabularX}{width}{preamble}[options%keyvals]#\tabular
 \begin{NiceTabularX}{width}[options%keyvals]{preamble}#\tabular
 \begin{NiceTabularX}{width}[options%keyvals]{preamble}[options%keyvals]#S\tabular
 \end{NiceTabularX}
 \begin{NiceArray}{preamble}#m\array
+\begin{NiceArray}{preamble}[options%keyvals]#m\array
 \begin{NiceArray}[options%keyvals]{preamble}#m\array
 \begin{NiceArray}[options%keyvals]{preamble}[options%keyvals]#Sm\array
 \end{NiceArray}#m
 \begin{pNiceArray}{preamble}#m\array
+\begin{pNiceArray}{preamble}[options%keyvals]#m\array
 \begin{pNiceArray}[options%keyvals]{preamble}#m\array
 \begin{pNiceArray}[options%keyvals]{preamble}[options%keyvals]#Sm\array
 \end{pNiceArray}#m
 \begin{bNiceArray}{preamble}#m\array
+\begin{bNiceArray}{preamble}[options%keyvals]#m\array
 \begin{bNiceArray}[options%keyvals]{preamble}#m\array
 \begin{bNiceArray}[options%keyvals]{preamble}[options%keyvals]#Sm\array
 \end{bNiceArray}#m
 \begin{BNiceArray}{preamble}#m\array
+\begin{BNiceArray}{preamble}[options%keyvals]#m\array
 \begin{BNiceArray}[options%keyvals]{preamble}#m\array
 \begin{BNiceArray}[options%keyvals]{preamble}[options%keyvals]#Sm\array
 \end{BNiceArray}#m
 \begin{vNiceArray}{preamble}#m\array
+\begin{vNiceArray}{preamble}[options%keyvals]#m\array
 \begin{vNiceArray}[options%keyvals]{preamble}#m\array
 \begin{vNiceArray}[options%keyvals]{preamble}[options%keyvals]#Sm\array
 \end{vNiceArray}#m
 \begin{VNiceArray}{preamble}#m\array
+\begin{VNiceArray}{preamble}[options%keyvals]#m\array
 \begin{VNiceArray}[options%keyvals]{preamble}#m\array
 \begin{VNiceArray}[options%keyvals]{preamble}[options%keyvals]#Sm\array
 \end{VNiceArray}#m
@@ -304,13 +312,15 @@ auto-columns-width
 
 #keyvals:\Ldots,\Cdots,\Vdots,\Ddots,\Iddots,\line
 horizontal-labels
+horizontal-label
 color=#%color
 radius=##L
 shorten-start=##L
 shorten-end=##L
 shorten=##L
 inter=##L
-line-style=#standard,solid,dotted,densely dotted,loosely dotted,dashed,densely dashed,loosely dashed
+line-style=#standard,solid,dotted,densely dotted,loosely dotted,dashed,densely dashed,loosely dashed#c
+Vbrace
 #endkeyvals
 
 #keyvals:\Ddots,\Iddots
@@ -359,7 +369,7 @@ xdots/shorten-start=##L
 xdots/shorten-end=##L
 xdots/shorten=##L
 xdots/inter=##L
-xdots/line-style=#standard,solid,dotted,densely dotted,loosely dotted,dashed,densely dashed,loosely dashed
+xdots/line-style=#standard,solid,dotted,densely dotted,loosely dotted,dashed,densely dashed,loosely dashed#c
 #endkeyvals
 
 \SubMatrix{delim1}{i-j}{k-l}{delim2}#t

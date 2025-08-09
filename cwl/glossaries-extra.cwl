@@ -1,5 +1,5 @@
 # glossaries-extra package
-# Matthew Bertucci 2025/02/03 for v1.55
+# Matthew Bertucci 2025/04/14 for v1.6
 
 #include:glossaries
 
@@ -1795,6 +1795,7 @@ theHvalue=%<<prefix><location>%>
 \GlsXtrSetDefaultRangeFormat{encap}
 \GlsXtrAutoAddOnFormat{format list}{glsadd options%keyvals}
 \GlsXtrAutoAddOnFormat[label]{format list}{glsadd options%keyvals}
+\GlsXtrClearAutoAddOnFormat
 \glsxtrdowrglossaryhook{label}#*
 \glsentryindexcount{label}#*r
 \glsifindexed{label}{true}{false}#*r
@@ -2378,6 +2379,8 @@ leveloffset=%<<n> or ++<n>%>
 \glsentrypdfsymbol{label}#*r
 \glossentrynameother{label}{field}#*r
 \Glossentrynameother{label}{field}#*r
+\GLOSSentrynameother{label}{field}#*r
+\GlossEntryNameOther{label}{field}#*r
 \glsxtrprenamehook{label}#*r
 \glsxtrpostnamehook{label}#*r
 \glsdefpostname{category}{definition}#*

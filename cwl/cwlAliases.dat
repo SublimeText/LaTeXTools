@@ -1038,10 +1038,6 @@ utexasthesis:
 class-utexasthesis
 latex-document
 tex
-uuthesis2e:
-class-uuthesis2e
-latex-document
-tex
 verifica:
 class-verifica
 latex-document
@@ -1600,5 +1596,13 @@ latex-document
 tex
 anima:
 class-anima
+latex-document
+tex
+scrjrnl:
+class-scrjrnl
+latex-document
+tex
+ltx-talk:
+class-ltx-talk
 latex-document
 tex

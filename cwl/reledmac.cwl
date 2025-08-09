@@ -1,5 +1,5 @@
 # reledmac package
-# Matthew Bertucci 2023/09/30 for v2.39.7
+# Matthew Bertucci 2025/07/25 for v2.42.0
 
 #include:xargs
 #include:etoolbox
@@ -89,6 +89,8 @@ outer
 \Xsublinesepside{separator}
 \startlock
 \endlock
+\stanzastartlock#*
+\stanzaendlock#*
 \lockdisp{type%keyvals}
 #keyvals:\lockdisp
 first
@@ -441,6 +443,16 @@ C
 \notefontsizeX[series]{fontsize commands}
 \Xendnotefontsize{fontsize commands}
 \Xendnotefontsize[series]{fontsize commands}
+\Xwrapcomponents{command}
+\Xwrapcomponents[series]{command}
+\Xendwrapcomponents{command}
+\Xendwrapcomponents[series]{command}
+\wrapcomponentsX{command}
+\wrapcomponentsX[series]{command}
+\Xwrapnumbers{command}
+\Xwrapnumbers[series]{command}
+\Xendwrapnumbers{command}
+\Xendwrapnumbers[series]{command}
 \Xwraplemma{command}
 \Xwraplemma[series]{command}
 \Xwrapendlemma{command}

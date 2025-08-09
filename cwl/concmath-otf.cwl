@@ -12,6 +12,7 @@ math-style=#ISO,TeX,french,upright
 bold-style=#ISO,TeX,upright
 nabla=#italic,upright,literal
 partial=#italic,upright,literal
+CharacterVariant=%<number%>
 CharacterVariant={%<glyph num list%>:%<variety num%>}
 StylisticSet=#4,5,6
 Style=#leqslant,smaller,subsetneq,upint
@@ -52,6 +53,7 @@ Style=#leqslant,smaller,subsetneq,upint
 \gvertneqq#m
 \harrowextender#*m
 \intextender#*m
+\Join#m
 \leftdasharrow#m
 \leqqslant#m
 \lesseqqslantgtr#m

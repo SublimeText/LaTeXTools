@@ -1,28 +1,28 @@
 # cloze package
-# Matthew Bertucci 11/26/2021 for v1.6
+# Matthew Bertucci 2025/07/09 for v2.0.0
 
 #include:luatex
-#include:fontspec
-#include:luatexbase
-#include:kvoptions
 #include:setspace
-#include:xcolor
-#include:stackengine
-#include:ulem
-#include:transparent
+#include:luakeys
 
 #keyvals:\usepackage/cloze#c
 align=#left,center,right
 boxheight=##L
+boxrule=##L
 boxwidth=##L
 distance=##L
 hide
 linecolor=#%color
 margin=##L
+minlines=%<integer%>
 spacing=%<number%>
+spread=%<number%>
 textcolor=#%color
 thickness=##L
 width=##L
+extension_count=%<integer%>
+extension_height=##L
+extension_width=##L
 #endkeyvals
 
 \cloze{text}
@@ -38,8 +38,9 @@ width=##L
 \begin{clozepar}
 \begin{clozepar}[options%keyvals]
 \end{clozepar}
-\clozeparcmd{text}
-\clozeparcmd[options%keyvals]{text}
+\clozeparplain{text}
+\clozeparplain[options%keyvals]{text}
+\clozeparcapture
 \begin{clozebox}
 \begin{clozebox}[options%keyvals]
 \begin{clozebox}*
@@ -54,32 +55,42 @@ width=##L
 \clozelinefil[options%keyvals]
 \clozestrike{wrong text%text}{correct text%text}
 \clozestrike[options%keyvals]{wrong text%text}{correct text%text}
-\clozesetoption{option}{value}
 \clozeset{options%keyvals}
 \clozereset
 \clozeshow
 \clozehide
 
-#keyvals:\cloze,\clozefix,\clozenol,\clozefil,\begin{clozepar},\clozeparcmd,\begin{clozebox},\begin{clozebox}*,\begin{clozespace},\clozeline,\clozelinefil,\clozestrike,\clozeset,\ClozeSetLocalOptions
+#keyvals:\cloze,\clozefix,\clozenol,\clozefil,\begin{clozepar},\clozeparplain,\begin{clozebox},\begin{clozebox}*,\begin{clozespace},\clozeline,\clozelinefil,\clozestrike,\clozeset
 show
 hide
 distance=##L
-linecolor=#%color
-textcolor=#%color
+line_color=#%color
+text_color=#%color
 thickness=##L
+debug
+font=%<font commands%>
+visibility#true,false
 #endkeyvals
 
 #keyvals:\clozefix,\clozeset
 align=#left,center,right
+#endkeyvals
+
+#keyvals:\clozefix,\clozeline,\clozeset
 width=##L
 #endkeyvals
 
-#keyvals:\begin{clozebox},\begin{clozebox}*,\clozeset
-boxheight=##L
-boxwidth=##L
+#keyvals:\begin{clozepar},\clozeparplain,\clozeset
+min_lines=%<integer%>
 #endkeyvals
 
-#keyvals:\cloze,\clozefix,\clozefil,\clozeset
+#keyvals:\begin{clozebox},\begin{clozebox}*,\clozeset
+box_height=##L
+box_rule=##L
+box_width=##L
+#endkeyvals
+
+#keyvals:\cloze,\clozefix,\clozenol,\clozefil,\clozeset
 margin=##L
 #endkeyvals
 
@@ -87,18 +98,28 @@ margin=##L
 spacing=%<number%>
 #endkeyvals
 
-\ifclozeshow#*
-\clozeshowtrue#*
-\clozeshowfalse#*
-\ClozeSetToGlobal#*
-\ClozeSetToLocal#*
-\ClozeGetOption{arg}#*
-\ClozeColor{color}#*
-\ClozeStartMarker{arg}#*
-\ClozeStopMarker{arg}#*
-\ClozeMargin{arg}#*
+#keyvals:\cloze,\clozenol,\clozeset
+spread=%<number%>
+#endkeyvals
+
+#keyvals:\clozeset
+extend_count=%<integer%>
+extend_height=##L
+extend_width=##L
+#endkeyvals
+
 \clozefont#*
-\ClozeSetLocalOptions{options%keyvals}#*
-\ClozeTextColor{color}#*
-\ClozeStrikeLine#*
-\ClozeBox#*
+
+\Cloze{arg1}{arg2}{arg3}#S
+\ClozeExtend{arg}#S
+\ClozeFil{arg1}{arg2}#S
+\ClozeLine{arg}#S
+\ClozeLinefil{arg}#S
+\ClozeGetOption{arg}#S
+\ClozeStartMarker{arg1}{arg2}#S
+\ClozeStopMarker{arg}#S
+\ClozeStrike{arg1}{arg2}{arg3}#S
+\ClozeMargin{arg}#S
+\ClozePar{arg1}{arg2}#S
+\ClozeWrapWithFont{arg}#S
+\ClozeBox#S
