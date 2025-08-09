@@ -8,10 +8,10 @@ import sublime_plugin
 from .deprecated_command import deprecate
 from .latextools_plugin import classname_to_plugin_name
 from .latextools_plugin import get_plugins_by_type
+from .latextools_plugin import LaTeXToolsPlugin
 from .utils.decorators import async_completions
 from .utils.logging import logger
 from .utils.settings import get_setting
-from .utils.internal_types import FillAllHelper
 
 __all__ = [
     "LatexFillAllEventListener",
@@ -28,6 +28,125 @@ def reraise(tp, value, tb=None):
     if value.__traceback__ is not tb:
         raise value.with_traceback(tb)
     raise value
+
+
+class LatexFillAllPlugin(LaTeXToolsPlugin):
+    """
+    Interface for LatextoolsFillAllCommand plugins
+
+    Note: All sub-classes' identifiers MUST end with `LatexFillAllPlugin` and
+          start with the completion type (e.g. `Ref`, `Cite`, etc.)
+          for `LatexFillAllPluginAdapter` to identify and associate them with
+          completion types correctly.
+    """
+
+    def get_auto_completions(self, view, prefix, line):
+        """
+        Gets the completions to display with Sublime's autocomplete
+
+        Should return a list of completions or a tuple consisting of a list of
+        completions and a single character to be inserted. This second option
+        is to allow completing, e.g., \\ref -> \\ref{}
+
+        :param view:
+            The view the completions are requested for
+
+        :param prefix:
+            The current word the user has selected
+
+        :param line:
+            The contents of the first selected line, used by some plugins to
+            determine the correct completions
+        """
+        return []
+
+    def get_completions(self, view, prefix, line):
+        """
+        Gets the completions to display in the quick panel
+
+        Should return a list of completions formatted to be displayed in the
+        quick panel.
+
+        :param view:
+            The view the completions are requested for
+
+        :param prefix:
+            The current word the user has selected
+            Note that if completions are entered using { , etc. this will be
+            blank
+
+        :param line:
+            The contents of the first selected line, used by some plugins to
+            determine the correct completions
+        """
+        return None
+
+    def matches_line(self, line):
+        """
+        Checks if this plugin matches the current line
+
+        :param line:
+            The current line to check
+        """
+        return False
+
+    def get_supported_scope_selector(self):
+        """
+        Returns the scope selector, in which the completion should be
+        enabled. Default value is outside comments (- comment).
+        Omit text.tex.latex, because it is always checked.
+        """
+        return "- comment"
+
+    # subclass may implement matches_fancy_prefix(self, line) to
+    # support a fancy prefix, such as \cite_prefix, etc.
+
+    def is_enabled(self):
+        """
+        Checks whether this plugin should be used for triggered completions
+        """
+        return False
+
+
+class LatexFillAllPluginAdapter:
+    """
+    Base class for classes which use LatexFillAllPlugin plugins
+    """
+
+    _plugins = None
+
+    def _load_plugins(self):
+        """
+        Loads the LatexFillAllPlugin plugins
+        """
+        self._plugins = {}
+        for plugin in get_plugins_by_type(LatexFillAllPlugin):
+            name = plugin.plugin_name()
+            if name.endswith("_latex_fill_all"):
+                name = name[:-len("_latex_fill_all")]
+                if name:
+                    self._plugins[name] = plugin()
+
+    def get_completion_plugins(self):
+        """
+        Gets the list of plugin names
+        """
+        if self._plugins is None:
+            self._load_plugins()
+        return self._plugins.values()
+
+    def get_completion_types(self):
+        """
+        Gets the list of plugin names
+        """
+        if self._plugins is None:
+            self._load_plugins()
+        return self._plugins.keys()
+
+    def get_completion_type(self, name):
+        if self._plugins is None:
+            self._load_plugins()
+        return self._plugins.get(name)
 
 
 class LatexFillHelper:
@@ -571,43 +690,8 @@ class LatexFillHelper:
         return all(view.match_selector(sel.b, selector) for sel in view.sel())
 
 
-class LatexFillAllPluginConsumer:
-    """
-    Base class for classes which use FillAllHelper plugins
-    """
-
-    COMPLETION_TYPE_NAMES = []
-    COMPLETION_TYPES = None
-
-    def _load_plugins(self):
-        """
-        Loads the FillAllHelper plugins
-        """
-        self.COMPLETION_TYPES = {}
-        for plugin in get_plugins_by_type(FillAllHelper):
-            name = classname_to_plugin_name(plugin.__name__)
-            if name.endswith("_fill_all_helper"):
-                name = name[:-16]
-                self.COMPLETION_TYPES[name] = plugin()
-
-        self.COMPLETION_TYPE_NAMES = list(self.COMPLETION_TYPES.keys())
-
-    def get_completion_types(self):
-        """
-        Gets the list of plugin names
-        """
-        if self.COMPLETION_TYPES is None:
-            self._load_plugins()
-        return self.COMPLETION_TYPE_NAMES
-
-    def get_completion_type(self, name):
-        if self.COMPLETION_TYPES is None:
-            self._load_plugins()
-        return self.COMPLETION_TYPES.get(name)
-
-
 class LatexFillAllEventListener(
-    sublime_plugin.EventListener, LatexFillHelper, LatexFillAllPluginConsumer
+    sublime_plugin.EventListener, LatexFillHelper, LatexFillAllPluginAdapter
 ):
     """
     Implements the query completions and query context functionality for some
@@ -648,9 +732,10 @@ class LatexFillAllEventListener(
 
         # load the plugins
         if self.SUPPORTED_KEYS is None:
-            self.SUPPORTED_KEYS = dict(
-                ("lt_fill_all_{0}".format(name), name) for name in self.get_completion_types()
-            )
+            self.SUPPORTED_KEYS = {
+                f"lt_fill_all_{name}": name
+                for name in self.get_completion_types()
+            }
 
         try:
             key, insert_char = key.split(".")
@@ -694,8 +779,6 @@ class LatexFillAllEventListener(
             if not view.match_selector(location, "text.tex.latex"):
                 return
 
-        completion_types = self.get_completion_types()
-
         orig_prefix = prefix
 
         # tracks any regions to be removed
@@ -714,11 +797,11 @@ class LatexFillAllEventListener(
         line = view.substr(sublime.Region(view.line(locations[0]).begin(), locations[0]))[::-1]
 
         completion_type = None
-        for name in completion_types:
-            ct = self.get_completion_type(name)
+        for ct in self.get_completion_plugins():
             if fancy_prefixed_line is not None and hasattr(ct, "matches_fancy_prefix"):
                 if ct.matches_fancy_prefix(fancy_prefixed_line):
                     line = fancy_prefixed_line
+
                     prefix = fancy_prefix
                     completion_type = ct
                     break
@@ -797,7 +880,7 @@ class LatexFillAllEventListener(
 
 
 class LatextoolsFillAllCommand(
-    sublime_plugin.TextCommand, LatexFillHelper, LatexFillAllPluginConsumer
+    sublime_plugin.TextCommand, LatexFillHelper, LatexFillAllPluginAdapter
 ):
     """
     Implements the quick panel for auto-triggered completions and the
@@ -863,7 +946,7 @@ class LatextoolsFillAllCommand(
         prefix = ""
 
         # handle the _ prefix, if necessary
-        if not isinstance(completion_type, FillAllHelper) or hasattr(
+        if not isinstance(completion_type, LatexFillAllPlugin) or hasattr(
             completion_type, "matches_fancy_prefix"
         ):
             fancy_prefix, remove_regions = self.get_common_fancy_prefix(view, view.sel())
@@ -904,12 +987,8 @@ class LatextoolsFillAllCommand(
                 self.complete_brackets(view, edit, insert_char)
                 return
         # unknown completion type
-        elif completion_type is None or not isinstance(completion_type, FillAllHelper):
-            for name in self.get_completion_types():
-                ct = self.get_completion_type(name)
-                if ct is None:
-                    continue
-
+        elif completion_type is None or not isinstance(completion_type, LatexFillAllPlugin):
+            for ct in self.get_completion_plugins():
                 if fancy_prefixed_line is not None and hasattr(ct, "matches_fancy_prefix"):
                     if ct.matches_fancy_prefix(fancy_prefixed_line):
                         completion_type = ct

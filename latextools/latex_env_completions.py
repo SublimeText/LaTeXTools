@@ -3,7 +3,7 @@ import re
 import sublime
 
 from .latex_cwl_completions import get_cwl_env_completions
-from .latex_fill_all import FillAllHelper
+from .latex_fill_all import LatexFillAllPlugin
 
 from .utils import analysis
 from .utils.settings import get_setting
@@ -37,7 +37,7 @@ def get_own_env_auto_completion(tex_root):
     ]
 
 
-class EnvFillAllHelper(FillAllHelper):
+class EnvLatexFillAllPlugin(LatexFillAllPlugin):
     def get_auto_completions(self, view, prefix, line):
         tex_root = get_tex_root(view)
         if not tex_root:

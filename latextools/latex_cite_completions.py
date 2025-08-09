@@ -21,7 +21,7 @@ import re
 import sublime
 import traceback
 
-from .latex_fill_all import FillAllHelper
+from .latex_fill_all import LatexFillAllPlugin
 from .latextools_plugin import get_plugin
 from .latextools_plugin import NoSuchPluginException
 from .utils import analysis
@@ -444,8 +444,13 @@ def get_cite_completions(view):
     return run_plugin_command("get_entries", *bib_files)
 
 
-# called by LatextoolsFillAllCommand; provides citations for cite commands
-class CiteFillAllHelper(FillAllHelper):
+class CiteLatexFillAllPlugin(LatexFillAllPlugin):
+    """
+    This class describes a cite latex fill all plugin.
+
+    called by LatextoolsFillAllCommand; provides citations for cite commands
+    """
+
     def get_auto_completions(self, view, prefix, line):
         # Reverse, to simulate having the regex
         # match backwards (cool trick jps btw!)

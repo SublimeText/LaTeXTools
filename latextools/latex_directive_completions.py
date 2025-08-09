@@ -5,7 +5,7 @@ import sublime
 import sublime_plugin
 
 from . import detect_spellcheck
-from .latex_fill_all import FillAllHelper
+from .latex_fill_all import LatexFillAllPlugin
 from .utils.decorators import async_completions
 from .utils.is_tex_file import get_tex_extensions
 from .utils.is_tex_file import is_tex_file
@@ -231,7 +231,7 @@ def _directive_output_directory_completions(view, value, ac=True):
 _directive_aux_directory_completions = _directive_output_directory_completions
 
 
-class DirectiveFillAllHelper(FillAllHelper):
+class DirectiveLatexFillAllPlugin(LatexFillAllPlugin):
     def _get_completions(self, view, prefix, line, ac=False):
         m = re.match(_LINE_RE, line)
         if not m:
