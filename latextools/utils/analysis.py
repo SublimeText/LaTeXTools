@@ -472,36 +472,42 @@ def _analyze_tex_file(
 
         # read child files if it is an input command
         if cmd in _input_commands and args is not None:
-            process_file_stack.append(file_name)
-            open_file = os.path.join(base_path, args.strip('"'))
-            _analyze_tex_file(tex_root, open_file, process_file_stack, ana)
-            process_file_stack.pop()
-            # check that we still need to analyze
-            if only_preamble and ana._state.get("preamble_finished", False):
-                return ana
+            args2 = g("args2")
+            if args2 is None:
+                process_file_stack.append(file_name)
+                open_file = args.strip('"')
+                if open_file:
+                    open_file = os.path.join(base_path, open_file)
+                    _analyze_tex_file(tex_root, open_file, process_file_stack, ana)
+                    process_file_stack.pop()
+                    # check that we still need to analyze
+                    if only_preamble and ana._state.get("preamble_finished", False):
+                        return ana
 
-        elif cmd in _import_commands and args is not None and g("args2") is not None:
-            if cmd.startswith("sub"):
-                next_import_path = os.path.join(base_path, args.strip('"'))
             else:
-                next_import_path = args.strip('"')
-            # normalize the path
-            next_import_path = os.path.normpath(next_import_path)
-            open_file = os.path.join(next_import_path, g("args2"))
+                open_file = args2.strip('"')
+                if open_file:
+                    if cmd.startswith("sub"):
+                        next_import_path = os.path.join(base_path, args.strip('"'))
+                    else:
+                        next_import_path = args.strip('"')
+                    # normalize the path
+                    next_import_path = os.path.normpath(next_import_path)
+                    open_file = os.path.join(next_import_path, open_file)
 
-            process_file_stack.append(file_name)
-            _analyze_tex_file(
-                tex_root,
-                open_file,
-                process_file_stack,
-                ana,
-                import_path=next_import_path,
-                only_preamble=only_preamble,
-            )
-            process_file_stack.pop()
-            # check that we still need to analyze
-            if only_preamble and ana._state.get("preamble_finished", False):
-                return ana
+                    process_file_stack.append(file_name)
+                    _analyze_tex_file(
+                        tex_root,
+                        open_file,
+                        process_file_stack,
+                        ana,
+                        import_path=next_import_path,
+                        only_preamble=only_preamble,
+                    )
+                    process_file_stack.pop()
+                    # check that we still need to analyze
+                    if only_preamble and ana._state.get("preamble_finished", False):
+                        return ana
 
         elif cmd == "documentclass":
 
