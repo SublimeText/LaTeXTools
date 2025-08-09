@@ -1,12 +1,14 @@
 # upmethodology-fmt package
-# Matthew Bertucci 2022/10/05 for release 2022/10/04
+# Matthew Bertucci 2025/03/24 for release 2025/03/23
 
 #include:upmethodology-p-common
+#include:titlesec
 #include:graphicx
 #include:subcaption
 #include:tabularx
 #include:multicol
 #include:colortbl
+#include:tcolorbox
 #include:picinpar
 #include:amsmath
 #include:amsthm
@@ -20,6 +22,10 @@
 #include:hyphenat
 #include:bbm
 #include:environ
+#include:xcolor
+#include:tikz
+#include:fontawesome5
+#include:tocbibind
 
 #keyvals:\usepackage/upmethodology-fmt#c
 french
@@ -73,8 +79,6 @@ standardlists
 \mfigurewtex[position]{options%keyvals}{imagefile}{caption%text}{label}#g
 \mfigurewtex*{options%keyvals}{imagefile}{caption%text}{label}#g
 \mfigurewtex*[position]{options%keyvals}{imagefile}{caption%text}{label}#g
-backtableheader#B
-fronttableheader#B
 \tabularheaderstyle{text}#*
 \tabulartitlespec{colspec}
 \begin{mtabular}{N}{cols}#\tabular
@@ -94,6 +98,13 @@ fronttableheader#B
 sectiontitlecolor#B
 chaptertitlecolor#B
 parttitlecolor#B
+chaptertitlenumcolor#B
+sectiontitlenumcolor#B
+subsectiontitlecolor#B
+subsectiontitlenumcolor#B
+subsubsectiontitlecolor#B
+paragraphtitlecolor#B
+subparagraphtitlecolor#B
 \parttoc{title}#L0
 \parttoc[short title]{title}#L0
 \parttoc*{title}#L0
@@ -223,17 +234,16 @@ definitionbackground#B
 definitionheaderforeground#B
 definitionborder#B
 definitiontextforeground#B
+definitionsourceforeground#B
 \definitionname#*
 \listdefinitionname#*
-#keyvals:\theoremstyle#c
-upmdefinition
-#endkeyvals
-\declareupmtheorem{envname}{label%text}{list title%text}#N
-\declareupmtheorem[theoremstyle]{envname}{label%text}{list title%text}#N
-\upmtheoremopt{arg}#*
+\declareupmtheorem{envname}{label%text}{list title%text}{prefix}{format macro}#N
+\declareupmtheorem[tcb style]{envname}{label%text}{list title%text}{prefix}{format macro}#N
 \begin{definition}
 \begin{definition}[header%text]
 \end{definition}
+\defref{label}#r
+\defpageref{label}#r
 emphboxbackground#B
 emphboxborder#B
 emphboxtext#B
@@ -253,9 +263,19 @@ emphboxbackgroundc#B
 \end{titleemphbox3}
 \overridedescriptionenvironment#*
 \restoredescriptionenvironment#*
+\sectionhoffset#*L
+figuresourceforeground#B
+\figuresourcename#*
+\mfigureformatsource{arg}#*
+\definitionsourcename#*
+algorithmcaptionlabel#B
+algorithmcaption#B
+algorithmborder#B
 
 #keyvals:\mfigure,\mfigure*,\msubfigure,\mfigurewtex,\mfigurewtex*
+actualtext={%<text%>}
 alt={%<alt text%>}
+artifact#true,false
 bb=%<llx lly urx ury%>
 bbllx=
 bblly=

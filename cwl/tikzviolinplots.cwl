@@ -1,5 +1,5 @@
 # tikzviolinplots package
-# Matthew Bertucci 2023/01/30 for v0.7.1
+# Matthew Bertucci 2025/04/22 for v0.9.0
 
 #include:pgfplots
 #include:pgfplotstable
@@ -28,6 +28,7 @@ reverse axis
 #keyvals:\violinplot,\violinplotwholefile
 col sep=#space,tab,comma,colon,semicolon,braces,ampersand
 index=%<column name%>
+frequencies=%<column name%>
 kernel=#gaussian,logistic,parabolic,uniform,triangular
 bandwidth=%<number%>
 samples=%<integer%>
@@ -47,6 +48,7 @@ average fill=#%color
 dataset fill=#%color
 average fill opacity=%<factor%>
 dataset fill opacity=%<factor%>
+dataset jitter=%<factor%>
 #endkeyvals
 
 # keys only for \violinplotwholefile

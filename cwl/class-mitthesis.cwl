@@ -1,9 +1,8 @@
 # mitthesis class
-# Matthew Bertucci 2025/01/28 for v1.19
+# Matthew Bertucci 2025/05/07 for v1.20
 
 #include:class-report
 #include:etoolbox
-#include:iftex
 #include:geometry
 #include:mathtools
 #include:graphicx
@@ -11,7 +10,7 @@
 #include:doi
 #include:bm
 #include:unicode-math
-#include:pdfmanagement-testphase
+#include:pdfmanagement
 
 #keyvals:\documentclass/mitthesis#c
 fontset=#fira-newtxsf,newtx,newtx-sans-text,defaultfonts,libertine,lucida,heros-stix2,stix2,termes,termes-stix2
@@ -47,6 +46,12 @@ twoside
 \begin{nomenclature}[space][heading%text][level]
 \begin{nomenclature}[space][heading%text][level][style]
 \end{nomenclature}
+\begin{nomenclature*}
+\begin{nomenclature*}[space]
+\begin{nomenclature*}[space][heading%text]
+\begin{nomenclature*}[space][heading%text][level]
+\begin{nomenclature*}[space][heading%text][level][style]
+\end{nomenclature*}
 
 \EntryHeading{text}
 \entry{symbol}{description%text}

@@ -1,5 +1,5 @@
 # citation-style-language package
-# Matthew Bertucci 2024/11/18 for v0.6.6
+# Matthew Bertucci 2025/04/28 for v0.8.0
 
 #include:filehook
 #include:url
@@ -23,7 +23,11 @@ suffix-separator=%<separator%>
 #endkeyvals
 
 \addbibresource{bib file}
-\addbibresource[options]{bib file}#S
+\addbibresource[options%keyvals]{bib file}
+
+#keyvals:\addbibresource
+journal-abbreviation#true,false
+#endkeyvals
 
 \cite[options%keyvals]{keylist}
 \cite*[options%keyvals]{keylist}
@@ -78,6 +82,7 @@ supplement=%<number%>
 table=%<number%>
 timestamp=%<number%>
 title=%<number%>
+unsorted#true,false
 verse=%<number%>
 version=%<number%>
 volume=%<number%>
@@ -117,6 +122,8 @@ locale=%<language code%>
 
 # not documented
 \addtocategory{category}{keys%plain}#S
+\autocite{keylist}#S
+\autocite[options%keyvals]{keylist}#S
 \backref{arg}#S
 \cslcitation{arg1}{arg2}#S
 \cslcite{arg1}{arg2}#S
@@ -125,6 +132,8 @@ locale=%<language code%>
 \DeclareBibliographyCategory{category}#S
 \defbibenvironment{name}{begdef}{enddef}{item code}#S
 \defbibnote{name}{text}#S
+\parencites{%<key1%>}{%<key2%>}%<...{keyN}%>#S
+\parencites[%<options%>]{%<key1%>}[%<options%>]{%<key2%>}%<...[options]{keyN}%>#S
 \printbibheading#S
 \printbibheading[options%keyvals]#S
 #keyvals:\printbibheading

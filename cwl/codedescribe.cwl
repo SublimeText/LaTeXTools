@@ -1,5 +1,5 @@
 # codedescribe package
-# Matthew Bertucci 2023/11/22 for v1.2
+# Matthew Bertucci 2025/06/07 for v1.10
 
 #include:xcolor
 #include:pifont
@@ -7,6 +7,7 @@
 
 #keyvals:\usepackage/codedescribe#c
 nolisting
+base skip=##L
 #endkeyvals
 
 \defgroupfmt{format-group}{format-keys%keyvals}
@@ -92,16 +93,21 @@ pack
 #endkeyvals
 
 #keyvals:\begin{codedescribe}#c
-rulecolor=%<color%>
 new=%<date%>
 update=%<date%>
 note=%<text%>
+rulecolor=%<color%>
 EXP
 rEXP
 #endkeyvals
 
 #keyvals:\typesetobj#c,\tsobj#c
+mid sep=%<separator%>
 sep=%<separator%>
+comma
+bnf or
+meta or
+par or
 #endkeyvals
 
 \typesettitle{title-keys%keyvals}#*
