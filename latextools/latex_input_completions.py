@@ -4,7 +4,7 @@ import re
 
 import sublime
 
-from .latex_fill_all import FillAllHelper
+from .latex_fill_all import LatexFillAllPlugin
 from .utils import analysis
 from .utils.is_tex_file import get_tex_extensions
 from .utils.output_directory import get_aux_directory
@@ -335,7 +335,7 @@ def _get_cache():
     return cache
 
 
-class InputFillAllHelper(FillAllHelper):
+class InputLatexFillAllPlugin(LatexFillAllPlugin):
     def get_auto_completions(self, view, prefix, line):
         kind = (sublime.KIND_ID_VARIABLE, "f", "File")
         completions = parse_completions(view, line)

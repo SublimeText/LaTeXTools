@@ -1,7 +1,7 @@
 import re
 import sublime
 
-from .latex_fill_all import FillAllHelper
+from .latex_fill_all import LatexFillAllPlugin
 from .utils import analysis
 from .utils.settings import get_setting
 from .utils.tex_directives import get_tex_root
@@ -89,7 +89,7 @@ def get_ref_completions(view):
     return completions
 
 
-class RefFillAllHelper(FillAllHelper):
+class RefLatexFillAllPlugin(LatexFillAllPlugin):
     def get_auto_completions(self, view, prefix, line):
         # Reverse, to simulate having the regex
         # match backwards (cool trick jps btw!)
