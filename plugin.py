@@ -40,9 +40,6 @@ from .latextools.delete_temp_files import (
     LatextoolsClearLocalCacheCommand,
     LatextoolsDeleteTempFilesCommand,
 )
-from .latextools.deprecated_command import (
-    LatextoolsFindDeprecatedCommandsCommand
-)
 from .latextools.detect_spellcheck import (
     LatextoolsAutoDetectSpellcheckListener,
     LatextoolsDetectSpellcheckCommand

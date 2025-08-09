@@ -1,6 +1,5 @@
 import sublime_plugin
 
-from .deprecated_command import deprecate
 from .utils.logging import logger
 from .utils.settings import get_setting
 from .utils.tex_directives import get_tex_root
@@ -177,6 +176,3 @@ class LatextoolsDetectSpellcheckCommand(sublime_plugin.WindowCommand):
         view = self.window.active_view()
         if view:
             update_dict_language(view, True)
-
-
-deprecate(globals(), "LatexDetectSpellcheckCommand", LatextoolsDetectSpellcheckCommand)

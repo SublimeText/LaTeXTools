@@ -81,10 +81,6 @@
 		"command": "latextools_smart_paste"
 	},
 	{
-		"caption": "LaTeXTools: Find deprecated commands",
-		"command": "latextools_find_deprecated_commands"
-	},
-	{
 		"caption": "LaTeXTools: Clear inline build error messages",
 		"command": "latextools_make_pdf",
 		"args": { "hide_annotations_only": true }

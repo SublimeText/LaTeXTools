@@ -2,8 +2,6 @@ import sublime
 import sublime_plugin
 import re
 
-from .deprecated_command import deprecate
-
 __all__ = ["LatextoolsLatexEnvCommand"]
 
 # Insert LaTeX environment based on current word
@@ -36,6 +34,3 @@ class LatextoolsLatexEnvCommand(sublime_plugin.TextCommand):
             sublime.status_message(
                 "LATEXTOOLS INTERNAL ERROR: could not find environment to expand"
             )
-
-
-deprecate(globals(), "latexenvCommand", LatextoolsLatexEnvCommand)

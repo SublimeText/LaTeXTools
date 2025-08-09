@@ -17,7 +17,6 @@ import traceback
 import sublime
 import sublime_plugin
 
-from .deprecated_command import deprecate
 from .latextools_plugin import classname_to_plugin_name
 from .latextools_plugin import get_plugin
 from .latextools_plugin import NoSuchPluginException
@@ -778,8 +777,3 @@ class LatextoolsExecEventListener(sublime_plugin.EventListener):
         raise Exception(
             "latextools_inline_errors_visible; " "Invalid operator must be EQUAL or NOT_EQUAL."
         )
-
-
-deprecate(globals(), "make_pdfCommand", LatextoolsMakePdfCommand)
-deprecate(globals(), "DoOutputEditCommand", LatextoolsDoOutputEditCommand)
-deprecate(globals(), "DoFinishEditCommand", LatextoolsDoFinishEditCommand)

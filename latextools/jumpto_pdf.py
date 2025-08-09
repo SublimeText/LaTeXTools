@@ -5,7 +5,6 @@ import traceback
 import sublime
 import sublime_plugin
 
-from .deprecated_command import deprecate
 from .latextools_plugin import get_plugin
 from .latextools_plugin import NoSuchPluginException
 from .utils.is_tex_file import is_tex_file
@@ -254,7 +253,3 @@ class LatextoolsViewPdfCommand(sublime_plugin.WindowCommand):
                 "Please contact the plugin author."
             )
             return
-
-
-deprecate(globals(), "JumpToPdf", LatextoolsJumptoPdfCommand)
-deprecate(globals(), "ViewPdf", LatextoolsViewPdfCommand)

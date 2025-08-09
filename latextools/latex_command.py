@@ -3,8 +3,6 @@ import sublime
 import sublime_plugin
 import re
 
-from .deprecated_command import deprecate
-
 __all__ = ["LatextoolsLatexCmdCommand"]
 
 # Insert LaTeX command based on current word
@@ -38,6 +36,3 @@ class LatextoolsLatexCmdCommand(sublime_plugin.TextCommand):
             view.run_command("insert_snippet", {"contents": snippet})
         else:
             sublime.status_message("LATEXTOOLS INTERNAL ERROR: could not find command to expand")
-
-
-deprecate(globals(), "latexcmdCommand", LatextoolsLatexCmdCommand)

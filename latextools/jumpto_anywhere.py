@@ -4,7 +4,6 @@ import re
 import sublime
 import sublime_plugin
 
-from .deprecated_command import deprecate
 from .utils import analysis
 from .utils import ana_utils
 from .utils import quickpanel
@@ -354,7 +353,3 @@ class LatextoolsJumptoAnywhereByMouseCommand(sublime_plugin.TextCommand):
         if pos >= 0:
             self.view.sel().clear()
             self.view.sel().add(pos)
-
-
-deprecate(globals(), "JumptoTexAnywhereCommand", LatextoolsJumptoAnywhereCommand)
-deprecate(globals(), "JumptoTexAnywhereByMouseCommand", LatextoolsJumptoAnywhereByMouseCommand)

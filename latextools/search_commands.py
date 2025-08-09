@@ -1,6 +1,5 @@
 import sublime_plugin
 
-from .deprecated_command import deprecate
 from .utils import analysis
 from .utils import ana_utils
 from .utils import quickpanel
@@ -48,7 +47,3 @@ class LatextoolsSearchCommandInputCommand(sublime_plugin.WindowCommand):
 
         caption = "Search for commands in a comma (,) separated list"
         self.window.show_input_panel(caption, "", on_done, do_nothing, do_nothing)
-
-
-deprecate(globals(), "LatexSearchCommandCommand", LatextoolsSearchCommandCommand)
-deprecate(globals(), "LatexSearchCommandInputCommand", LatextoolsSearchCommandInputCommand)

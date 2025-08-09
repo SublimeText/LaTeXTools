@@ -1,6 +1,5 @@
 import sublime_plugin
 
-from .deprecated_command import deprecate
 from .utils import analysis
 from .utils import quickpanel
 from .utils.settings import get_setting
@@ -125,6 +124,3 @@ class LatextoolsTocQuickpanelContext(sublime_plugin.EventListener):
         if key != "overwrite_goto_overlay" or not view.match_selector(0, "text.tex.latex"):
             return None
         return get_setting("overwrite_goto_overlay", view=view)
-
-
-deprecate(globals(), "LatexTocQuickpanelCommand", LatextoolsTocQuickpanelCommand)
