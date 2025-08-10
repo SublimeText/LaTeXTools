@@ -1,3 +1,4 @@
+from .command_viewer import CommandViewer
 from .evince_viewer import EvinceViewer
 from .okular_viewer import OkularViewer
 from .preview_viewer import PreviewViewer
