@@ -1,5 +1,4 @@
 import sys
-import sublime
 
 # clear modules cache if package is reloaded (after update?)
 prefix = __spec__.parent + "."  # don't clear the base package
