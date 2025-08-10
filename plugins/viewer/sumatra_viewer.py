@@ -33,7 +33,7 @@ class SumatraViewer(BaseViewer):
         try:
             with winreg.OpenKey(
                 winreg.HKEY_LOCAL_MACHINE,
-                "SOFTWARE\\Microsoft\\Windows\\CurrentVersion" "\\App Paths\\SumatraPDF.exe",
+                "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\SumatraPDF.exe",
             ) as hndl:
                 SumatraViewer._sumatra_exe = winreg.QueryValue(hndl, "")
                 return SumatraViewer._sumatra_exe
