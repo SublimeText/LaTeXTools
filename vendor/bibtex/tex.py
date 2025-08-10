@@ -11,7 +11,7 @@ def split_tex_string(string, maxsplit=-1, sep=None):
 
     if sep is None:
         # tilde == non-breaking space
-        sep = r"(?u)[\s~]+"
+        sep = r"[\s~]+"
 
     result = []
 
@@ -23,7 +23,7 @@ def split_tex_string(string, maxsplit=-1, sep=None):
     splits = 0
 
     i = 0
-    next_break = re.compile(r"\{|}|(?P<sep>" + sep + ")")
+    next_break = re.compile(r"\{|\}|(?P<sep>" + sep + r")", re.IGNORECASE | re.UNICODE)
 
     while i < string_len:
         match = next_break.search(string, i)
@@ -52,4 +52,4 @@ def split_tex_string(string, maxsplit=-1, sep=None):
 
 
 def tokenize_list(list_str, _and="and"):
-    return split_tex_string(list_str, sep=r"(?iu)(?:|([\s~])+)" + _and + r"(?:[\s~]+|$)")
+    return split_tex_string(list_str, sep=r"(?:|([\s~])+)" + _and + r"(?:[\s~]+|$)")
