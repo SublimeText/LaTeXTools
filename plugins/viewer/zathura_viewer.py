@@ -18,11 +18,7 @@ class ZathuraViewer(BaseViewer):
         ).pid
 
     def _get_synctex_editor(self):
-        st_binary = get_sublime_exe()
-        if st_binary is None:
-            st_binary = get_setting("linux", {}).get("sublime", "sublime_text")
-
-        return "--synctex-editor-command={0} %{{input}}:%{{line}}".format(st_binary)
+        return f"--synctex-editor-command={get_sublime_exe()} %{{input}}:%{{line}}"
 
     def _get_zathura_pid(self, pdf_file):
         try:

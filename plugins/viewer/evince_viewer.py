@@ -79,11 +79,7 @@ class EvinceViewer(BaseViewer):
     def _launch_evince(self, pdf_file):
         ev_path = self._get_evince_folder()
         py_binary, _ = self._get_settings()
-
         st_binary = get_sublime_exe()
-        if st_binary is None:
-            linux_settings = get_setting("linux", {})
-            st_binary = linux_settings.get("sublime", "sublime_text")
 
         external_command(
             ["sh", os.path.join(ev_path, "sync"), py_binary, st_binary, pdf_file],
