@@ -8,8 +8,8 @@ for module_name in [
     if module_name.startswith(prefix) and module_name != __spec__.name
 ]:
     del sys.modules[module_name]
-
-from .latextools.utils.logging import logger, init_logger, shutdown_logger
+globals().pop("module_name", None)
+del globals()["prefix"]
 
 from .latextools.auto_label import (
     LatextoolsAutoInsertLabelCommand,
@@ -132,18 +132,21 @@ from .latextools.toggle_settings import (
 )
 
 
-def _filter_func(name):
-    return name.startswith(prefix) and name != __spec__.name
-
-
 def plugin_loaded():
+    from .latextools.utils.logging import init_logger
     init_logger()
+
+    prefix = __spec__.parent + "."
+
+    def _filter_func(name):
+        return name.startswith(prefix) and name != __spec__.name
+
     for name in sorted(filter(_filter_func, sys.modules)):
         module = sys.modules[name]
         if hasattr(module, "latextools_plugin_loaded"):
-            logger.debug("calling %s.latextools_plugin_loaded()", name)
             module.latextools_plugin_loaded()
 
 
 def plugin_unloaded():
+    from .latextools.utils.logging import shutdown_logger
     shutdown_logger()
