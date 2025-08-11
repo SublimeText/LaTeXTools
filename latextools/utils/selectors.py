@@ -51,7 +51,7 @@ class AstNode(Ast):
         )
 
     def __repr__(self):
-        return "({op} {left} {right})".format(**self.__dict__)
+        return f"({self.op} {self.left} {self.right})"
 
 
 class AstLeaf(Ast):
@@ -81,7 +81,7 @@ class _Operator:
         return self._symbol
 
     def __repr__(self):
-        return "[{}]".format(self._symbol)
+        return f"[{self._symbol}]"
 
 
 # format - symbol: (precedence, is_right_assoc, evaluation_function)
@@ -186,9 +186,9 @@ def _build_ast(postfix_list):
 
 def build_ast(selector):
     tokens = _parse_selector(selector)
-    logger.debug("tokens: %s", tokens)
+    logger.debug(f"tokens: {tokens}")
     postfix_list = _convert_infix_to_postfix(tokens)
-    logger.debug("postfix_list: %s", postfix_list)
+    logger.debug(f"postfix_list: {postfix_list}")
     ast = _build_ast(postfix_list)
     return ast
 

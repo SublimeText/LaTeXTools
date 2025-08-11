@@ -74,7 +74,7 @@ class PdfBuilder(LaTeXToolsPlugin):
     # Save command output
     # Usually no need to override
     def set_output(self, out):
-        logger.debug("Setting out\n%s", out)
+        logger.debug(f"Setting out\n{out}")
         self.out = out
 
     # This is where the real work is done. This generator must yield (cmd, msg) tuples,

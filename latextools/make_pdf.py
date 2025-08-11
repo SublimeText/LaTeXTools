@@ -57,8 +57,8 @@ class CmdThread(threading.Thread):
             self.worker(activity_indicator)
 
     def worker(self, activity_indicator):
-        logger.debug("Welcome to thread %s", self.getName())
-        self.caller.output("[Compiling " + self.caller.file_name + "]")
+        logger.debug(f"Welcome to thread {self.getName()}")
+        self.caller.output(f"[Compiling {self.caller.file_name}]")
 
         env = dict(os.environ)
         if self.caller.path:
@@ -102,7 +102,7 @@ class CmdThread(threading.Thread):
                         self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
                         self.caller.output("Attempted command:")
                         self.caller.output(subprocess.list2cmdline(cmd))
-                        self.caller.output("\nBuild engine: " + self.caller.builder.name)
+                        self.caller.output(f"\nBuild engine: {self.caller.builder.name}")
                         self.caller.proc = None
                         traceback.print_exc()
                         return
@@ -128,7 +128,7 @@ class CmdThread(threading.Thread):
                 with self.caller.proc_lock:
                     if not self.caller.proc:
                         logger.info("Build canceled")
-                        logger.debug("with returncode %d", proc.returncode)
+                        logger.debug(f"with returncode {proc.returncode}")
                         self.caller.output("\n\n[User terminated compilation process]\n")
                         self.caller.finish(False)  # We kill, so won't switch to PDF anyway
                         return
@@ -136,13 +136,13 @@ class CmdThread(threading.Thread):
                 with self.caller.proc_lock:
                     self.caller.proc = None
                 logger.info("Finished normally")
-                logger.debug("with returncode %d", proc.returncode)
+                logger.debug(f"with returncode {proc.returncode}")
                 # At this point, out contains the output from the current command;
                 # we pass it to the cmd_iterator and get the next command, until completion
         except Exception:
             self.caller.show_output_panel()
             self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
-            self.caller.output("\nBuild engine: " + self.caller.builder.name)
+            self.caller.output(f"\nBuild engine: {self.caller.builder.name}")
             self.caller.proc = None
             traceback.print_exc()
             return
@@ -201,7 +201,7 @@ class CmdThread(threading.Thread):
 
             content = [
                 "",
-                "Could not read log file {0}.log".format(self.caller.tex_base),
+                f"Could not read log file {self.caller.tex_base}.log",
                 "",
             ]
             if out is not None:
@@ -295,14 +295,17 @@ class CmdThread(threading.Thread):
             except Exception as e:
                 activity_indicator.finish("Build failed!")
                 self.caller.show_output_panel()
-                content = ["", ""]
-                content.append("LaTeXTools could not parse the TeX log file {0}".format(log_file))
-                content.append("(actually, we never should have gotten here)")
-                content.append("")
-                content.append("Python exception: {0!r}".format(e))
-                content.append("")
-                content.append("The full error description can be found on the console.")
-                content.append("Please let us know on GitHub. Thanks!")
+                content = [
+                    "",
+                    "",
+                    f"LaTeXTools could not parse the TeX log file {log_file}",
+                    "(actually, we never should have gotten here)",
+                    "",
+                    f"Python exception: {e!r}",
+                    "",
+                    "The full error description can be found on the console.",
+                    "Please let us know on GitHub. Thanks!",
+                ]
 
                 traceback.print_exc()
 
@@ -362,7 +365,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
                 try:
                     if sublime.platform() == "windows":
                         execute_command(
-                            "taskkill /t /f /pid {pid}".format(pid=self.proc.pid),
+                            f"taskkill /t /f /pid {self.proc.pid}",
                             use_texpath=False,
                             shell=True,
                         )
@@ -392,8 +395,11 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             view.run_command("save")  # call this on view, not self.window
 
         self.file_name = get_tex_root(view)
+        if not self.file_name:
+            sublime.error_message(f"Main TeX file not found.")
+            return
         if not os.path.isfile(self.file_name):
-            sublime.error_message(self.file_name + ": file not found.")
+            sublime.error_message(f"{self.file_name}: file not found.")
             return
 
         self.tex_base = get_jobname(view)
@@ -401,8 +407,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
         if not is_tex_file(self.file_name):
             sublime.error_message(
-                "%s is not a TeX source file: cannot compile."
-                % (os.path.basename(view.file_name()),)
+                f"{os.path.basename(view.file_name())} is not a TeX source file: cannot compile."
             )
             return
 
@@ -523,14 +528,14 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             self.env = None
 
         try:
-            builder = get_plugin("{0}_builder".format(builder_name))
+            builder = get_plugin(f"{builder_name}_builder")
         except NoSuchPluginException:
             try:
                 builder = get_plugin(builder_name)
             except NoSuchPluginException:
                 sublime.error_message(
-                    "Cannot find builder {0}.\n"
-                    "Check your LaTeXTools Preferences".format(builder_name)
+                    f"Cannot find builder {builder_name}.\n"
+                    "Check your LaTeXTools Preferences"
                 )
                 self.window.run_command("hide_panel", {"panel": "output.latextools"})
                 return
@@ -694,17 +699,15 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
                 for line, column, text, error_class in errs:
                     pt = view.text_point(line - 1, column - 1)
                     html_text = html.escape(text, quote=False)
-                    phantom_content = """
+                    phantom_content = f"""
                         <body id="inline-error">
                             {stylesheet}
                             <div class="lt-error {error_class}">
                                 <span class="message">{html_text}</span>
-                                <a href="hide">{cancel_char}</a>
+                                <a href="hide">{chr(0x00D7)}</a>
                             </div>
                         </body>
-                    """.format(
-                        cancel_char=chr(0x00D7), **locals()
-                    )
+                    """
                     phantoms.append(
                         sublime.Phantom(
                             sublime.Region(pt, view.line(pt).b),

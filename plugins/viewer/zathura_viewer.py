@@ -54,7 +54,7 @@ class ZathuraViewer(BaseViewer):
         except Exception:
             pass
         else:
-            pid = " {0} ".format(pid)
+            pid = f" {pid} "
             for window in windows.splitlines():
                 if pid in window:
                     window_id = window.split(" ", 1)[0]
@@ -95,13 +95,13 @@ class ZathuraViewer(BaseViewer):
         command = [
             "zathura",
             "--synctex-forward",
-            "{line}:{col}:{tex_file}".format(**locals()),
+            f"{line}:{col}:{tex_file}",
         ]
 
         if pid is None:
             command.append(self._get_synctex_editor())
         else:
-            command.append("--synctex-pid={pid}".format(pid=pid))
+            command.append(f"--synctex-pid={pid}")
 
         command.append(pdf_file)
 

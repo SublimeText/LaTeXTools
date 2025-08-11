@@ -19,25 +19,24 @@ def _filter_invalid_entries(entries):
     remove_entries = []
     for i, entry in enumerate(entries):
         if "extensions" not in entry:
-            logger.error("Missing field 'extensions' in entry %s", entry)
+            logger.error(f"Missing field 'extensions' in entry {entry}")
             remove_entries.append(i)
             continue
         if "regex" not in entry:
-            logger.error("Missing field 'regex' in entry %s", entry)
+            logger.error(f"Missing field 'regex' in entry {entry}")
             remove_entries.append(i)
             continue
 
         try:
             reg = re.compile(entry["regex"])
         except Exception as e:
-            logger.error("Invalid regex: '%s' (%s)", entry["regex"], e)
+            logger.error(f"Invalid regex: '{entry['regex']}' ({e})")
             remove_entries.append(i)
             continue
         if reg.groups != 0:
             logger.error(
                 "The regex must not have a capturing group, invalidated in "
-                "entry %s. You might escape your group with (?:...)",
-                entry,
+                f"entry {entry}. You might escape your group with (?:...)",
             )
             remove_entries.append(i)
             continue
@@ -156,9 +155,7 @@ def latextools_plugin_loaded():
 
     global _TEX_INPUT_GROUP_MAPPING, TEX_INPUT_FILE_REGEX
     _TEX_INPUT_GROUP_MAPPING = dict((i, v) for i, v in enumerate(_fillall_entries))
-    TEX_INPUT_FILE_REGEX = re.compile(
-        "(?:{0})".format("|".join(entry["regex"] for entry in _fillall_entries))
-    )
+    TEX_INPUT_FILE_REGEX = re.compile(rf"(?:{'|'.join(entry['regex'] for entry in _fillall_entries)})")
 
 
 # Get all file by types
@@ -216,7 +213,7 @@ def _get_dyn_entries():
     if dyn_entries:
         _filter_invalid_entries(dyn_entries)
         _update_input_entries(dyn_entries)
-        dyn_regex = re.compile("(?:{0})".format("|".join(entry["regex"] for entry in dyn_entries)))
+        dyn_regex = re.compile(rf"(?:{'|'.join(entry['regex'] for entry in dyn_entries)})")
         return dyn_entries, dyn_regex
     else:
         return [], None
@@ -248,7 +245,7 @@ def parse_completions(view, line):
         group = next(i for i, v in enumerate(search.groups()) if v is not None)
         entry = entries[group]
     except Exception as e:
-        logger.error("Error occurred while extracting entry from matching group.\n%s", e)
+        logger.error(f"Error occurred while extracting entry from matching group.\n{e}")
         return []
 
     completions = []
@@ -273,7 +270,7 @@ def parse_completions(view, line):
                 m = re.search(entry["post_regex"], line[::-1])
                 if m:
                     for i in range(1, len(m.groups()) + 1):
-                        sub["_{0}".format(i)] = m.group(i)
+                        sub[f"_{i}"] = m.group(i)
             if "folder" in entry:
                 folders = []
                 for folder in entry["folder"].split(";"):
@@ -302,7 +299,7 @@ def parse_completions(view, line):
         if cache is not None:
             completions = cache.get(entry["cache_name"])
     else:
-        logger.error("Unknown entry type %s.", entry["type"])
+        logger.error(f"Unknown entry type {entry['type']}")
 
     pp = entry.get("post_process")
     if pp:

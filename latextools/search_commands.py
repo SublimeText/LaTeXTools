@@ -11,7 +11,7 @@ __all__ = ["LatextoolsSearchCommandCommand", "LatextoolsSearchCommandInputComman
 def _make_caption(ana, entry):
     text = entry.text
     file_pos_str = ana_utils.create_rel_file_str(ana, entry)
-    return "{text} ({file_pos_str})".format(**locals())
+    return f"{text} ({file_pos_str})"
 
 
 class LatextoolsSearchCommandCommand(sublime_plugin.WindowCommand):

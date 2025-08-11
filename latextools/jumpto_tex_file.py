@@ -71,10 +71,10 @@ def _jumpto_tex_file(
             os.makedirs(containing_folder)
         except OSError:
             # most likely a permissions error
-            logger.error('Error occurred while creating path "%s"', containing_folder)
+            logger.error(f'Error occurred while creating path "{containing_folder}"')
             traceback.print_last()
         else:
-            logger.info('Created folder: "%s"', containing_folder)
+            logger.info(f'Created folder: "{containing_folder}"')
 
     if not os.path.exists(containing_folder):
         sublime.status_message("Cannot open tex file as folders are missing")
@@ -93,17 +93,17 @@ def _jumpto_tex_file(
         if sublime.platform() == "windows" and not isabs:
             root_path = root_path.replace("\\", "/")
 
-        root_string = "%!TEX root = {0}\n".format(root_path)
+        root_string = f"%!TEX root = {root_path}\n"
         try:
             with open(full_new_path, "w", encoding="utf-8") as new_file:
                 new_file.write(root_string)
             is_root_inserted = True
         except OSError:
-            logger.error('An error occurred while creating file "%s"', file_name)
+            logger.error(f'An error occurred while creating file "{file_name}"')
             traceback.print_last()
 
     # open the file
-    logger.info("Open the file '%s'", full_new_path)
+    logger.info(f"Open the file '{full_new_path}'")
 
     # await opening and move cursor to end of the new view
     if auto_insert_root and is_root_inserted:
@@ -132,9 +132,9 @@ def _validate_image(file_path, image_types):
     else:
         for ext in image_types:
             test_path = file_path + "." + ext
-            logger.debug("Test file: '%s'", test_path)
+            logger.debug(f"Test file: '{test_path}'")
             if os.path.exists(test_path):
-                logger.debug("Found file: '%s'", test_path)
+                logger.debug(f"Found file: '{test_path}'")
                 return test_path
 
 
@@ -168,8 +168,8 @@ def open_image(window, file_path):
     extension = extension[1:]  # strip the leading point
     psystem = sublime.platform()
     commands = get_setting("open_image_command", {}).get(psystem, None)
-    logger.debug("Commands: '%s'", commands)
-    logger.info("Open File: '%s'", file_path)
+    logger.debug(f"Commands: '{commands}'")
+    logger.info(f"Open File: '{file_path}'")
 
     if commands is None:
         window.open_file(file_path)
@@ -180,7 +180,7 @@ def open_image(window, file_path):
             logger.debug(d)
             # validate the entry
             if "command" not in d:
-                message = "Invalid entry {0}, missing: 'command'".format(d)
+                message = f"Invalid entry {d}, missing: 'command'"
                 sublime.status_message(message)
                 logger.error(message)
                 continue
@@ -194,7 +194,7 @@ def open_image(window, file_path):
                 run_command(d["command"])
                 break
         else:
-            sublime.status_message("No opening command for {0} defined".format(extension))
+            sublime.status_message(f"No opening command for {extension} defined")
             window.open_file(file_path)
 
 
@@ -206,7 +206,7 @@ def open_image_folder(window, image_path):
 def _jumpto_image_file(view, window, tex_root, file_name):
     file_path = find_image(tex_root, file_name, tex_file_name=view.file_name())
     if not file_path:
-        sublime.status_message("file does not exists: '{0}'".format(file_path))
+        sublime.status_message(f"file does not exists: '{file_path}'")
         return
     open_image(window, file_path)
 
@@ -215,7 +215,7 @@ def _split_bib_args(bib_args):
     if "," in bib_args:
         file_names = bib_args.split(",")
         file_names = [f.strip() for f in file_names]
-        logger.debug("Bib files: %s", file_names)
+        logger.debug(f"Bib files: {file_names}")
     else:
         file_names = [bib_args]
     return file_names
@@ -252,7 +252,7 @@ class LatextoolsJumptoFileCommand(sublime_plugin.TextCommand):
 
             for g in filter(is_inside, INPUT_REG.finditer(line)):
                 file_name = g.group("file")
-                logger.info("Jumpto tex file '%s'", file_name)
+                logger.info(f"Jumpto tex file '{file_name}'")
                 _jumpto_tex_file(
                     view,
                     window,
@@ -266,7 +266,7 @@ class LatextoolsJumptoFileCommand(sublime_plugin.TextCommand):
                 if not g.group("file"):
                     continue
                 file_name = os.path.join(g.group("path"), g.group("file"))
-                logger.info("Jumpto tex file '%s'", file_name)
+                logger.info(f"Jumpto tex file '{file_name}'")
                 _jumpto_tex_file(
                     view,
                     window,
@@ -280,10 +280,10 @@ class LatextoolsJumptoFileCommand(sublime_plugin.TextCommand):
                 file_group = g.group("file")
                 file_names = _split_bib_args(file_group)
                 for file_name in file_names:
-                    logger.info("Jumpto bib file '%s'", file_name)
+                    logger.info(f"Jumpto bib file '{file_name}'")
                     _jumpto_bib_file(view, window, tex_root, file_name, auto_create_missing_folders)
 
             for g in filter(is_inside, IMAGE_REG.finditer(line)):
                 file_name = g.group("file")
-                logger.info("Jumpto image file '%s'", file_name)
+                logger.info(f"Jumpto image file '{file_name}'")
                 _jumpto_image_file(view, window, tex_root, file_name)

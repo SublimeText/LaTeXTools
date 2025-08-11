@@ -112,7 +112,7 @@ class SubprocessTimeoutThread(threading.Thread):
                 startupinfo = subprocess.STARTUPINFO()
                 startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
                 subprocess.call(
-                    "taskkill /t /f /pid {pid}".format(pid=self._p.pid),
+                    f"taskkill /t /f /pid {self._p.pid}",
                     startupinfo=startupinfo,
                     shell=True,
                 )
@@ -123,7 +123,7 @@ class SubprocessTimeoutThread(threading.Thread):
 
 
 def get_version_info(executable, env=None):
-    logger.info("Checking %s...", executable)
+    logger.info(f"Checking {executable}...")
 
     if env is None:
         env = os.environ
@@ -165,7 +165,7 @@ def get_tex_path_variable_texlive(variable, env=None):
     Uses kpsewhich to read the value of a given TeX PATH variable, such as
     TEXINPUTS.
     """
-    logger.info("Reading path for %s...", variable)
+    logger.info(f"Reading path for {variable}...")
 
     if env is None:
         env = os.environ
@@ -196,7 +196,7 @@ def get_tex_path_variable_miktex(variable, env=None):
     Uses findtexmf to find the values of a given TeX PATH variable, such as
     TEXINPUTS
     """
-    logger.info("Reading path for %s...", variable)
+    logger.info(f"Reading path for {variable}...")
 
     if env is None:
         env = os.environ
@@ -537,7 +537,7 @@ class SystemCheckThread(threading.Thread):
         builder_name = classname_to_plugin_name(builder_name)
 
         try:
-            get_plugin("{0}_builder".format(builder_name))
+            get_plugin(f"{builder_name}_builder")
             builder_available = True
         except NoSuchPluginException:
             traceback.print_exc()

@@ -84,7 +84,7 @@ class EntryWrapper(collections.abc.Mapping):
                 try:
                     people.append(Name(x))
                 except Exception:
-                    logger.error('Error handling field "%s" with value "%s"', key, x)
+                    logger.error(f'Error handling field "{key}" with value "{x}"')
                     traceback.print_exc()
 
             if len(people) == 0:
@@ -147,7 +147,7 @@ class NewBibliographyPlugin(LaTeXToolsPlugin):
 
                         bib_entries.append(EntryWrapper(entry))
 
-                    logger.info("Loaded %d bibitems", len(bib_entries))
+                    logger.info(f"Loaded {len(bib_entries)} bibitems")
 
                     try:
                         fmt_entries = bib_cache.set(bib_entries)
@@ -158,11 +158,11 @@ class NewBibliographyPlugin(LaTeXToolsPlugin):
                         entries.extend(bib_entries)
 
             except OSError:
-                msg = "Cannot open bibliography file %s !" % bibfname
+                msg = f'Cannot open bibliography file "{bibfname}"!'
                 logger.error(msg)
                 sublime.status_message(msg)
                 continue
 
-        logger.info("Found %d total bib entries", len(entries))
+        logger.info(f"Found {len(entries)} total bib entries")
 
         return entries

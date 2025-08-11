@@ -26,7 +26,7 @@ class LatextoolsLatexEnvCloserCommand(sublime_plugin.TextCommand):
                     b.pop()
                 else:
                     sublime.error_message(
-                        "\\begin%s closed with %s on line %d" % (b[-1], be, view.rowcol(point)[0])
+                        f"\\begin{b[-1]} closed with {be} on line {view.rowcol(point)[0]}"
                     )
                     return
             r = view.find(pattern, point)
@@ -35,4 +35,4 @@ class LatextoolsLatexEnvCloserCommand(sublime_plugin.TextCommand):
             sublime.error_message("Every environment is closed")
         else:
             # for some reason insert does not work
-            view.run_command("insert_snippet", {"contents": "\\\\end" + b[-1] + "\n"})
+            view.run_command("insert_snippet", {"contents": f"\\\\end{b[-1]}\n"})

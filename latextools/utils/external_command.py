@@ -125,13 +125,13 @@ def external_command(
         stderr = None
 
     if isinstance(command, str):
-        logger.debug('Running "%s"', command)
+        logger.debug(f'Running "{command}"')
     else:
         try:
-            logger.debug('Running "%s"', " ".join(map(quote, command)))
+            logger.debug('Running "%s"', ' '.join(map(quote, command)))
         except UnicodeError:
             try:
-                logger.debug('Running "%s"', command)
+                logger.debug(f'Running "{command}"')
             except Exception:
                 pass
 

@@ -38,4 +38,4 @@ def create_rel_file_str(ana, entry):
         if sublime.platform() == "windows":
             show_path = show_path.replace("\\", "/")
     line = line_nr(ana, entry)
-    return "{show_path}:{line}".format(**locals())
+    return f"{show_path}:{line}"

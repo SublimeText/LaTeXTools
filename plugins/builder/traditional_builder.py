@@ -76,7 +76,7 @@ class TraditionalBuilder(PdfBuilder):
         if not engine_used:
             self.display("Your custom command does not allow the engine to be selected\n\n")
         else:
-            self.display("Engine: {0}. ".format(engine))
+            self.display(f"Engine: {engine}. ")
 
             if texify:
                 # texify's --engine option takes pdftex/xetex/luatex as acceptable values

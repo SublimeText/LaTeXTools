@@ -49,13 +49,13 @@ def parse_tex_directives(view_or_path, multi_values=[], key_maps={}, only_for=[]
             lines = codecs.open(view_or_path, "r", "utf-8", "ignore")
         except IOError:
             # fail (relatively) silently if view_or_path is not a valid path
-            logger.error("Caught IOError while handling %s as file", view_or_path)
+            logger.error(f"Caught IOError while handling {view_or_path} as file")
             traceback.print_exc()
             return result
         else:
             is_file = True
     else:
-        logger.error("%s is not supported by parse_tex_directives()", type(view_or_path))
+        logger.error(f"{type(view_or_path)} is not supported by parse_tex_directives()")
         return result
 
     try:

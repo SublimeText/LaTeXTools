@@ -83,9 +83,8 @@ class ScriptBuilder(PdfBuilder):
                     cmd.append(self.base_name)
 
             if not isinstance(cmd, str):
-                self.display("Invoking '{0}'... ".format(" ".join([quote(s) for s in cmd])))
-            else:
-                self.display("Invoking '{0}'... ".format(cmd))
+                cmd = " ".join(map(quote, cmd))
+            self.display(f"Invoking '{cmd}'... ")
 
             yield (
                 # run with use_texpath=False as we have already configured

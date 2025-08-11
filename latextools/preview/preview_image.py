@@ -62,15 +62,15 @@ def create_thumbnail(image_path, thumbnail_path, width, height):
             [
                 "-sDEVICE=pngalpha",
                 "-dLastPage=1",
-                "-sOutputFile={thumbnail_path}".format(**locals()),
-                "-g{width}x{height}".format(**locals()),
+                f"-sOutputFile={thumbnail_path}",
+                f"-g{width}x{height}",
             ]
         )
     else:
         run_convert_command(
             [
                 "-thumbnail",
-                "{width}x{height}".format(**locals()),
+                f"{width}x{height}",
                 image_path,
                 thumbnail_path,
             ]
@@ -184,9 +184,7 @@ def _get_thumbnail_path(image_path, width, height):
     if ext in [".png", ".jpg", ".jpeg", ".gif"]:
         thumbnail_path = image_path
     else:
-        fingerprint = cache.hash_digest(
-            "{width}x{height}\n{image_path}".format(**locals()),
-        )
+        fingerprint = cache.hash_digest(f"{width}x{height}\n{image_path}")
         thumbnail_path = os.path.join(temp_path, fingerprint + _IMAGE_EXTENSION)
 
         # remove the thumbnail if it is outdated
@@ -199,11 +197,7 @@ def _get_popup_html(image_path, thumbnail_path, width, height):
         # adapt the size to keep the width/height ratio, but stay inside
         # the image dimensions
         width, height = _adapt_image_size(thumbnail_path, width, height)
-        img_tag = (
-            '<img src="file://{thumbnail_path}"'
-            ' width="{width}"'
-            ' height="{height}">'.format(**locals())
-        )
+        img_tag = f'<img src="file://{thumbnail_path}" width="{width}" height="{height}">'
     elif _uses_gs(image_path) and not ghostscript_installed():
         img_tag = "Install Ghostscript to enable preview."
     elif not _uses_gs(image_path) and not convert_installed():
@@ -214,7 +208,7 @@ def _get_popup_html(image_path, thumbnail_path, width, height):
         img_tag = "Preparing image for preview..."
 
     return dedent(
-        """
+        f"""
         <style>
             html {{
                 margin: 0;
@@ -239,9 +233,7 @@ def _get_popup_html(image_path, thumbnail_path, width, height):
             <a href="open_folder">(Open folder)</a>
         </div>
         </body>
-        """.format(
-            **locals()
-        )
+        """
     )
 
 
@@ -409,31 +401,23 @@ class ImagePreviewPhantomProvider:
             img_tag = """Image not found!"""
 
         elif p.hidden:
-            nav_tag = """<div>
+            nav_tag = f"""<div>
                 <a href="show {p.index}">(Show)</a>
-            </div>""".format(
-                p=p
-            )
+            </div>"""
             img_tag = ""
 
         else:
-            nav_tag = """<div>
+            nav_tag = f"""<div>
                 <a href="hide {p.index}">(Hide)</a>
                 <a href="open_image {p.index}">(Open image)</a>
                 <a href="open_folder {p.index}">(Open folder)</a>
-            </div>""".format(
-                p=p
-            )
+            </div>"""
 
             if os.path.exists(p.thumbnail_path):
                 width, height = _adapt_image_size(
                     p.thumbnail_path, self.image_width, self.image_height
                 )
-                img_tag = (
-                    '<img src="file://{p.thumbnail_path}"'
-                    ' width="{width}"'
-                    ' height="{height}">'.format(**locals())
-                )
+                img_tag = f'<img src="file://{p.thumbnail_path}" width="{width}" height="{height}">'
             elif convert_installed():
                 img_tag = "Preparing image for preview..."
             elif os.path.exists(p.thumbnail_path + _ERROR_EXTENSION):
@@ -442,7 +426,7 @@ class ImagePreviewPhantomProvider:
                 img_tag = "Install ImageMagick to enable a preview for this image type."
 
         return dedent(
-            """
+            f"""
             <style>
                 html, body {{
                     margin: 0;
@@ -462,10 +446,7 @@ class ImagePreviewPhantomProvider:
             {nav_tag}
             {img_tag}
             </body>
-            """.format(
-                nav_tag=nav_tag,
-                img_tag=img_tag,
-            )
+            """
         )
 
     def on_navigate(self, href):

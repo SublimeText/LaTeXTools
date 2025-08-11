@@ -77,7 +77,7 @@ def _show_usage_label(view, args):
     refs = list(ana.filter_commands(is_correct_ref))
 
     if len(refs) == 0:
-        sublime.error_message("No references for '{0}' found.".format(args))
+        sublime.error_message(f"No references for '{args}' found.")
         return
     elif len(refs) == 1:
         ref = refs[0]
@@ -93,7 +93,7 @@ def _jumpto_ref(view, com_reg, pos):
     label_id = _get_selected_arg(view, com_reg, pos)
     if not label_id:
         return
-    sublime.status_message("Scanning document for label '{0}'...".format(label_id))
+    sublime.status_message(f"Scanning document for label '{label_id}'...")
     tex_root = get_tex_root(view)
     ana = analysis.analyze_document(tex_root)
     if ana is None:
@@ -106,12 +106,12 @@ def _jumpto_ref(view, com_reg, pos):
     try:
         label = next(labels)
     except Exception:
-        message = "No matching label found for '{0}'.".format(label_id)
+        message = f"No matching label found for '{label_id}'."
         logger.error(message)
         sublime.status_message(message)
         return
     label_region = label.region
-    message = "Jumping to label '{0}'.".format(label_id)
+    message = f"Jumping to label '{label_id}'"
     logger.info(message)
     sublime.status_message(message)
     utils.open_and_select_region(view, label.file_name, label_region)
@@ -122,7 +122,7 @@ def _jumpto_cite(view, com_reg, pos):
     bib_key = _get_selected_arg(view, com_reg, pos)
     if tex_root is None or not bib_key:
         return
-    message = "Scanning bibliography files for key '{0}'...".format(bib_key)
+    message = f"Scanning bibliography files for key '{bib_key}'..."
     logger.info(message)
     sublime.status_message(message)
     base_dir = os.path.dirname(tex_root)
@@ -146,15 +146,15 @@ def _jumpto_cite(view, com_reg, pos):
                 ):
                     continue
                 region = sublime.Region(start, end)
-                message = "Jumping to bibliography key '{0}'.".format(bib_key)
+                message = f"Jumping to bibliography key '{bib_key}'."
                 logger.info(message)
                 sublime.status_message(message)
                 utils.open_and_select_region(view, bib_file, region)
                 return
             except Exception as e:
-                logger.error("Failed to open file %s:\n  %s", bib_file, e)
+                logger.error(f"Failed to open file {bib_file}:\n  {e}")
                 continue
-    message = "Entry '{0}' not found in bibliography.".format(bib_key)
+    message = f"Entry '{bib_key}' not found in bibliography."
     logger.error(message)
     sublime.status_message(message)
 
@@ -173,11 +173,11 @@ def _jumpto_glo(view, com_reg, pos, acr=False):
     try:
         entry = next(c for c in commands if c.args == iden)
     except Exception:
-        message = "Glossary definition not found for '{0}'".format(iden)
+        message = f"Glossary definition not found for '{iden}'"
         logger.error(message)
         sublime.status_message(message)
         return
-    message = "Jumping to Glossary '{0}'.".format(iden)
+    message = f"Jumping to Glossary '{iden}'."
     logger.info(message)
     sublime.status_message(message)
     utils.open_and_select_region(view, entry.file_name, entry.args_region)
@@ -185,7 +185,7 @@ def _jumpto_glo(view, com_reg, pos, acr=False):
 
 def _jumpto_pkg_doc(view, com_reg, pos):
     def view_doc(package):
-        message = "Try opening documentation for package '{0}'".format(package)
+        message = f"Try opening documentation for package '{package}'"
         logger.info(message)
         sublime.status_message(message)
         view.window().run_command("latextools_view_doc", {"file": package})
@@ -215,10 +215,10 @@ def _opt_jumpto_self_def_command(view, com_reg):
     cana = analysis.get_analysis(tex_root)
     new_commands = cana.filter_commands(newcommand_keywords)
     if command not in [c.args for c in new_commands]:
-        logger.error("Command not defined (cached) '%s'", command)
+        logger.error(f"Command not defined (cached) '{command}'")
         return False
 
-    message = "Scanning document for command definition of '{0}'".format(command)
+    message = f"Scanning document for command definition of '{command}'"
     logger.info(message)
     sublime.status_message(message)
     # analyze the document to retrieve the correct position of the
@@ -228,12 +228,12 @@ def _opt_jumpto_self_def_command(view, com_reg):
     try:
         new_com_def = next(filter(lambda c: c.args == command, new_commands))
     except Exception:
-        logger.error("Command not self defined '%s'", command)
+        logger.error(f"Command not self defined '{command}'")
         return False
     file_name = new_com_def.file_name
     region = new_com_def.args_region
 
-    message = "Jumping to definition of '{0}'".format(command)
+    message = f"Jumping to definition of '{command}'"
     logger.info(message)
     sublime.status_message(message)
     utils.open_and_select_region(view, file_name, region)
@@ -291,23 +291,23 @@ class LatextoolsJumptoAnywhereCommand(sublime_plugin.TextCommand):
         pos = sel.b - line_r.begin() - com_reg.start()
         # check if its a ref
         if NEW_STYLE_REF_REGEX.match(reversed_command):
-            sublime.status_message("Jump to reference '{0}'".format(args))
+            sublime.status_message(f"Jump to reference '{args}'")
             _jumpto_ref(view, com_reg, pos)
         # check if it is a cite
         elif NEW_STYLE_CITE_REGEX.match(reversed_command):
-            sublime.status_message("Jump to citation '{0}'".format(args))
+            sublime.status_message(f"Jump to citation '{args}'")
             _jumpto_cite(view, com_reg, pos)
         elif command == "label":
             _show_usage_label(view, args)
         elif GLO_LINE_RE.match(reversed_command):
-            sublime.status_message("Jump to glossary '{0}'".format(args))
+            sublime.status_message(f"Jump to glossary '{args}'")
             _jumpto_glo(view, com_reg, pos)
         elif ACR_LINE_RE.match(reversed_command):
-            sublime.status_message("Jump to acronym '{0}'".format(args))
+            sublime.status_message(f"Jump to acronym '{args}'")
             _jumpto_glo(view, com_reg, pos, acr=True)
         # check if it is any kind of input command
         elif any(reg.match(com_reg.group(0)) for reg in INPUT_REG_EXPS):
-            sublime.status_message("Jump to file '{0}'".format(args))
+            sublime.status_message(f"Jump to file '{args}'")
             self.view.run_command(
                 "latextools_jumpto_file",
                 {
@@ -345,7 +345,7 @@ class LatextoolsJumptoAnywhereByMouseCommand(sublime_plugin.TextCommand):
         elif fallback_command:
             if set_caret:
                 self._set_caret(event)
-            logger.debug("Run command '%s'", fallback_command)
+            logger.debug(f"Run command '{fallback_command}'")
             self.view.run_command(fallback_command)
 
     def _set_caret(self, event):

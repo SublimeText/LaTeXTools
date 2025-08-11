@@ -20,7 +20,7 @@ def global_settings():
 
 def subscribe_settings_change(key, callback, view=None):
     if view and view.is_valid():
-        key = "{}_{}".format(key, view.id())
+        key = f"{key}_{view.id()}"
         view.settings().add_on_change(key, callback)
 
     advanced_settings().add_on_change(key, callback)
@@ -29,7 +29,7 @@ def subscribe_settings_change(key, callback, view=None):
 
 def unsubscribe_settings_change(key, view=None):
     if view:
-        key = "{}_{}".format(key, view.id())
+        key = f"{key}_{view.id()}"
         view.settings().clear_on_change(key)
 
     advanced_settings().clear_on_change(key)

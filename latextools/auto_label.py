@@ -110,17 +110,17 @@ class LatextoolsAutoInsertLabelCommand(sublime_plugin.TextCommand):
             # else insert the label as it is
             if len(view.sel()) == 1:
                 snippet = (
-                    "{before_text}"  # leading \label{
-                    "${{1:{label_type}}}:${{2:{label_content}}}"
-                    "{after_text}"  # trailing }
-                    "$0".format(**locals())
+                    f"{before_text}"  # leading \label{
+                    f"${{1:{label_type}}}:${{2:{label_content}}}"
+                    f"{after_text}"   # trailing }
+                    "$0"
                 )
                 view.run_command("insert_snippet", {"contents": snippet})
             else:
                 content = (
-                    "{before_text}"  # leading \label{
-                    "{label_type}:{label_content}"
-                    "{after_text}".format(**locals())  # trailing }
+                    f"{before_text}"  # leading \label{
+                    f"{label_type}:{label_content}"
+                    f"{after_text}"   # trailing }
                 )
                 view.insert(edit, pos, content)
 

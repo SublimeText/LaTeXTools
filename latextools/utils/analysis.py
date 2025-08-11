@@ -429,7 +429,7 @@ def _analyze_tex_file(
     file_name = os.path.normpath(file_name)
     # ensure not to go into infinite recursion
     if file_name in process_file_stack:
-        logger.error("File appears cyclic: %s\n%s", file_name, process_file_stack)
+        logger.error(f"File appears cyclic: {file_name}\n{process_file_stack}")
         return ana
 
     base_path = import_path if import_path else os.path.dirname(tex_root)
@@ -439,8 +439,8 @@ def _analyze_tex_file(
         if file_name in ana._import_base_paths:
             if ana._import_base_paths[file_name] != import_path:
                 logger.warning(
-                    "'%s' is imported twice. Cannot handle this correctly in the analysis.",
-                    file_name,
+                    f"'{file_name}' is imported twice. "
+                    "Cannot handle this correctly in the analysis."
                 )
         else:
             ana._import_base_paths[file_name] = base_path
@@ -449,7 +449,7 @@ def _analyze_tex_file(
     try:
         raw_content, content = _preprocess_file(file_name)
     except Exception:
-        logger.error("Error occurred while preprocessing %s", file_name)
+        logger.error(f"Error occurred while preprocessing {file_name}")
         traceback.print_exc()
         logger.info("Continuing...")
         return ana

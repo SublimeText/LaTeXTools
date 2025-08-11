@@ -245,7 +245,7 @@ class Cache:
             result = self.load(key)
 
         if result == InvalidObject:
-            raise CacheMiss("{0} is invalid".format(key))
+            raise CacheMiss(f"{key} is invalid")
 
         # return a copy of any objects
         try:
@@ -330,7 +330,7 @@ class Cache:
             try:
                 self._objects[key] = InvalidObject
             except Exception:
-                logger.error("error occurred while invalidating %s", key)
+                logger.error(f"error occurred while invalidating {key}")
                 traceback.print_exc()
 
         with self._write_lock:
@@ -366,7 +366,7 @@ class Cache:
                         try:
                             self._objects[entry_name] = self._read(entry_name)
                         except Exception:
-                            logger.error("error while loading %s", entry_name)
+                            logger.error(f"error while loading {entry_name}")
             else:
                 self._objects[key] = self._read(key)
 
@@ -386,7 +386,7 @@ class Cache:
                 with open(file_path, "rb") as f:
                     return pickle.load(f)
             except Exception:
-                raise CacheMiss("cannot read cache file {0}".format(key))
+                raise CacheMiss(f"cannot read cache file {key}")
 
     def save(self, key=None):
         """
@@ -431,7 +431,7 @@ class Cache:
                     try:
                         shutil.rmtree(self.cache_path)
                     except OSError as e:
-                        logger.error("error while deleting %s: %s", self.cache_path, e)
+                        logger.error(f"error while deleting {self.cache_path}: {e}")
 
             elif key in _objs:
                 if _objs[key] == InvalidObject:
@@ -439,7 +439,7 @@ class Cache:
                     try:
                         os.remove(file_path)
                     except OSError as e:
-                        logger.error("error while deleting %s: %s", file_path, e)
+                        logger.error(f"error while deleting {file_path}: {e}")
                 else:
                     os.makedirs(self.cache_path, exist_ok=True)
                     self._write(key, _objs)
@@ -463,7 +463,7 @@ class Cache:
             with open(os.path.join(self.cache_path, key), "wb") as f:
                 pickle.dump(_obj, f, protocol=-1)
         except OSError as e:
-            logger.error("error while writing to %s: %s", key, e)
+            logger.error(f"error while writing to {key}: {e}")
             raise CacheMiss()
 
     def _schedule_save(self):
@@ -724,7 +724,7 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
                     # if not specified (None) use 0
                     return sum(int(t[0] or 0) * t[1] for t in times)
                 except Exception as e:
-                    logger.error("error parsing cache.life_span: %s", life_span_str)
+                    logger.error(f"error parsing cache.life_span: {life_span_str}")
                     # default 30 minutes in seconds
                     return 1800
 

@@ -42,16 +42,14 @@ def get_viewer():
         raise NoViewerException()
 
     try:
-        viewer = get_plugin(viewer_name + "_viewer")
+        viewer = get_plugin(f"{viewer_name}_viewer")
     except NoSuchPluginException:
         try:
             viewer = get_plugin(viewer_name)
         except NoSuchPluginException:
             sublime.error_message(
-                "Cannot find viewer "
-                + viewer_name
-                + ".\n"
-                + "Please check your LaTeXTools Preferences."
+                f"Cannot find viewer {viewer_name}.\n"
+                "Please check your LaTeXTools Preferences."
             )
             raise NoViewerException()
 
@@ -62,7 +60,7 @@ def get_viewer():
 
     if not viewer.supports_platform(sublime.platform()):
         sublime.error_message(
-            viewer_name + " does not support the current platform. "
+            f"{viewer_name} does not support the current platform. "
             "Please change the viewer in your LaTeXTools Preferences."
         )
         raise NoViewerException()
@@ -102,19 +100,13 @@ class LatextoolsJumptoPdfCommand(sublime_plugin.WindowCommand):
         if from_keybinding:
             forward_sync = True
 
-        logger.debug(
-            "from_keybinding=%s, keep_focus=%s, forward_sync=%s",
-            from_keybinding,
-            keep_focus,
-            forward_sync,
-        )
+        logger.debug(f"from_keybinding={from_keybinding}, keep_focus={keep_focus}, forward_sync={forward_sync}")
 
         file_name = view.file_name()
         if not is_tex_file(file_name):
             if from_keybinding:
-                sublime.error_message(
-                    "%s is not a TeX source file: cannot jump." % (os.path.basename(file_name),)
-                )
+                file_name = os.path.basename(file_name) if file_name else 'untitled'
+                sublime.error_message(f"{file_name} is not a TeX source file: cannot jump.")
                 return
             # If not invoked from keybinding, it is invoked by the
             # compilation process. Then, we should go forward with
@@ -136,13 +128,13 @@ class LatextoolsJumptoPdfCommand(sublime_plugin.WindowCommand):
                 pdffile = os.path.join(os.path.dirname(root), file_name + ".pdf")
 
         if not os.path.exists(pdffile):
-            logger.error("Expected PDF file %s not found", pdffile)
+            logger.error(f"Expected PDF file {pdffile} not found")
             return
 
         pdffile = os.path.realpath(pdffile)
 
         (row, col) = view.rowcol(view.sel()[0].end())
-        logger.debug("Jump to row: %d col: %d", row, col)
+        logger.debug(f"Jump to row: {row} col: {col}")
         # column is actually ignored up to 0.94
         # HACK? It seems we get better results incrementing row
         row += 1
@@ -224,7 +216,7 @@ class LatextoolsViewPdfCommand(sublime_plugin.WindowCommand):
 
         pdffile = os.path.normpath(pdffile)
         if not os.path.exists(pdffile):
-            logger.error("Expected PDF file %s not found", pdffile)
+            logger.error(f"Expected PDF file {pdffile} not found")
             return
 
         pdffile = os.path.realpath(pdffile)
@@ -236,7 +228,7 @@ class LatextoolsViewPdfCommand(sublime_plugin.WindowCommand):
             return
         elif not os.path.exists(pdffile):
             # note: error_message() already logs to console
-            sublime.error_message('PDF file "{0}" does not exist.'.format(pdffile))
+            sublime.error_message(f'PDF file "{pdffile}" does not exist.')
             return
 
         try:

@@ -76,10 +76,9 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                             if kp_match:
                                 entry["keyword"] = kp_match.group(1)
                             else:
-                                logger.error("Cannot process this @ line: %s", line)
+                                logger.error(f"Cannot process this @ line: {line}")
                                 logger.error(
-                                    "Previous keyword (if any): %s",
-                                    entry.get("keyword", ""),
+                                    "Previous keyword (if any): " + entry.get("keyword", ""),
                                 )
                             continue
 
@@ -102,7 +101,7 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                     if "keyword" in entry:
                         bib_entries.append(entry)
 
-                    logger.info("Loaded %d bibitems", len(bib_entries))
+                    logger.info(f"Loaded {len(bib_entries)} bibitems")
 
                     try:
                         fmt_entries = bib_cache.set(bib_entries)
@@ -113,11 +112,11 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                         entries.extend(bib_entries)
 
             except OSError:
-                msg = "Cannot open bibliography file %s !" % bibfname
+                msg = f'Cannot open bibliography file "{bibfname}"!'
                 logger.error(msg)
                 sublime.status_message(msg)
                 continue
 
-        logger.info("Found %d total bib entries", len(entries))
+        logger.info(f"Found {len(entries)} total bib entries")
 
         return entries

@@ -142,8 +142,8 @@ def get_plugin(name):
     """
     if _REGISTRY is None:
         raise NoSuchPluginException(
-            "Could not load plugin {0} because the registry either hasn't "
-            + "been loaded or has just been unloaded.".format(name)
+            f"Could not load plugin {name} because the registry either hasn't "
+            "been loaded or has just been unloaded."
         )
     return _REGISTRY[name]
 

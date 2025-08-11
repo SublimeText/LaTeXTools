@@ -86,7 +86,7 @@ def _start_threads(name, thread_id):
     try:
         func = _thread_functions[name]
     except KeyError:
-        logger.error("Thread function missing for '%s'", name)
+        logger.error(f"Thread function missing for '{name}'")
         return
     try:
         lock, job_list = _jobs[name]

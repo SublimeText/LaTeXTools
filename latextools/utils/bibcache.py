@@ -31,8 +31,8 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
 
         file_hash = cache.hash_digest(bib_file)
         self.bib_file = bib_file
-        self.cache_name = "bib_{0}_{1}".format(bib_plugin_name, file_hash)
-        self.formatted_cache_name = "bib_{0}_fmt_{1}".format(bib_plugin_name, file_hash)
+        self.cache_name = f"bib_{bib_plugin_name}_{file_hash}"
+        self.formatted_cache_name = f"bib_{bib_plugin_name}_fmt_{file_hash}"
 
     def get(self):
         try:

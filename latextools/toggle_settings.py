@@ -12,8 +12,8 @@ def _make_panel_entry(t, prefix_map):
     entry_info = prefix_map.get(t[0], [])
     kbd = next(iter(entry_info or []), "")
     key_name = t[0].replace("_", " ")
-    default_value = "{0}  (default: {1})".format(t[1], t[2])
-    trigger = "Trigger: C-l,t,{0}".format(",".join(kbd)) if kbd else ""
+    default_value = f"{t[1]}  (default: {t[2]})"
+    trigger = f"Trigger: C-l,t,{','.join(kbd)}" if kbd else ""
     try:
         description = entry_info[1][0]
     except IndexError:
@@ -23,8 +23,8 @@ def _make_panel_entry(t, prefix_map):
 
 def _toggle_setting(setting_name, view):
     new_value = not get_setting(setting_name, True, view=view)
-    view.settings().set("latextools.{}".format(setting_name), new_value)
-    message = "Set '{0}' to '{1}'.".format(setting_name, new_value)
+    view.settings().set(f"latextools.{setting_name}", new_value)
+    message = f"Set '{setting_name}' to '{new_value}'."
     sublime.status_message(message)
     logger.info(message)
 
@@ -43,11 +43,11 @@ def _show_toggle_overlay(window, view, prefix, setting_keys):
             return
         name, value = current_settings[index][0:2]
         new_value = not value
-        message = "Set '{0}' to {1}".format(name, new_value)
+        message = f"Set '{name}' to {new_value}"
         sublime.status_message(message)
         logger.info(message)
         current_settings[index][1] = new_value
-        view.settings().set("latextools.{}".format(name), new_value)
+        view.settings().set(f"latextools.{name}", new_value)
         panel_entries[index] = _make_panel_entry(current_settings[index], prefix_map)
 
         window.show_quick_panel(panel_entries, toggle_setting, selected_index=index)

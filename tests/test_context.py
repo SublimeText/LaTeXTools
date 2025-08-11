@@ -35,18 +35,12 @@ class ContextTest(TestCase):
 
     def test_version(self):
         ctx = "latextools.st_version"
-        self.assertTrue(
-            self.query_context(ctx, operand=">={}".format(ST_VER)))
-        self.assertTrue(
-            self.query_context(ctx, operand="={}".format(ST_VER)))
-        self.assertFalse(
-            self.query_context(ctx, operand="<{}".format(ST_VER)))
-        self.assertTrue(
-            self.query_context(ctx, operand="<{}".format(ST_VER + 1)))
-        self.assertTrue(
-            self.query_context(ctx, operand="<={}".format(ST_VER + 1)))
-        self.assertFalse(
-            self.query_context(ctx, operand="<={}".format(ST_VER - 1)))
+        self.assertTrue(self.query_context(ctx, operand=f">={ST_VER}"))
+        self.assertTrue(self.query_context(ctx, operand=f"={ST_VER}"))
+        self.assertFalse(self.query_context(ctx, operand=f"<{ST_VER}"))
+        self.assertTrue(self.query_context(ctx, operand=f"<{ST_VER + 1}"))
+        self.assertTrue(self.query_context(ctx, operand=f"<={ST_VER + 1}"))
+        self.assertFalse(self.query_context(ctx, operand=f"<={ST_VER - 1}"))
 
     def test_documentclass(self):
         ctx = "latextools.documentclass"

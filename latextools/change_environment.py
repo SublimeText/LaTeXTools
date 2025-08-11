@@ -97,7 +97,7 @@ def _find_env_regions(view):
         elif one_sel:
             sublime.status_message(
                 "The environment begin and end does not match:"
-                "'{0}' and '{1}'".format(view.substr(begin_region), view.substr(end_region))
+                f" '{view.substr(begin_region)}' and '{view.substr(end_region)}'"
             )
     if not new_regions:
         sublime.status_message("Environment detection failed")

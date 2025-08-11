@@ -53,7 +53,7 @@ def latextools_plugin_loaded():
                 except OSError:
                     pass
                 else:
-                    logger.info("Deleted old temp directory %s", directory)
+                    logger.info(f"Deleted old temp directory {directory}")
         except KeyError:
             pass
 
@@ -70,7 +70,7 @@ class LatextoolsClearCacheCommand(sublime_plugin.WindowCommand):
         except FileNotFoundError:
             pass
         except OSError as e:
-            logger.error("Can't delete global cache: %s", e)
+            logger.error(f"Can't delete global cache: {e}")
 
         tex_root = get_tex_root(self.window.active_view())
         if not tex_root:
@@ -120,7 +120,7 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
             return
 
         if not os.path.isfile(root_file):
-            message = "Could not find TEX root {0}.".format(root_file)
+            message = f"Could not find TEX root {root_file}."
             sublime.status_message(message)
             logger.error(message)
             return
@@ -227,7 +227,7 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
             pass
         except OSError:
             # report the exception if the folder didn't end up deleted
-            logger.error("Error while trying to delete %s", path)
+            logger.error(f"Error while trying to delete {path}")
             traceback.print_exc()
 
     def _rmfile(self, path):
@@ -238,7 +238,7 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
         except OSError:
             # basically here for locked files in Windows,
             # but who knows what we might find?
-            logger.error("Error while trying to delete %s", path)
+            logger.error(f"Error while trying to delete {path}")
             traceback.print_exc()
 
     def _clear_dir(self, path):

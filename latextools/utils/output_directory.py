@@ -227,7 +227,7 @@ def resolve_to_absolute_path(root, value, root_path):
         elif value == "<<cache>>":
             result = os.path.join(get_cache_directory(), root_hash)
         else:
-            logger.error("unrecognized special value: %s", value)
+            logger.error(f"unrecognized special value: {value}")
 
             # NOTE this assumes that the value provided is a typo, etc.
             # and tries not to do anything harmful. This may not be the

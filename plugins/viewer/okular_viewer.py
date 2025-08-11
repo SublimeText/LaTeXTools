@@ -41,7 +41,7 @@ class OkularViewer(BaseViewer):
 
     def forward_sync(self, pdf_file, tex_file, line, col, **kwargs):
         self._ensure_okular()
-        self._run_okular("file:{pdf_file}#src:{line}{tex_file}".format(**locals()), **kwargs)
+        self._run_okular(f"file:{pdf_file}#src:{line}{tex_file}", **kwargs)
 
     def view_file(self, pdf_file, **kwargs):
         self._ensure_okular()

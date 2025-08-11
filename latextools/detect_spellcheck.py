@@ -152,13 +152,13 @@ def update_dict_language(view, extract_from_root):
         user_sc = get_setting("tex_spellcheck_paths", {}, view)
         dict_path = user_sc.get(loc) or get_dict_path(loc)
     except DictMissing:
-        logger.error("dict definition missing for locale '%s'", loc)
+        logger.error(f"dict definition missing for locale '{loc}'")
         return  # no dict defined for locale
     current_dict = view.settings().get("dictionary")
     if current_dict == dict_path:
         return  # the locale is already set
     view.settings().set("dictionary", dict_path)
-    logger.info("Changed dictionary to '%s'", dict_path)
+    logger.info(f"Changed dictionary to '{dict_path}'")
 
 
 class LatextoolsAutoDetectSpellcheckListener(sublime_plugin.EventListener):

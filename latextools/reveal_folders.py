@@ -39,12 +39,12 @@ class LatextoolsRevealAuxDirectoryCommand(sublime_plugin.WindowCommand):
             sublime.error_message(message)
             return
         if not os.path.isdir(folder):
-            message = "'aux directory' does not exist: '{}'".format(folder)
+            message = f"'aux directory' does not exist: '{folder}'"
             logger.error(message)
             sublime.error_message(message)
             return
 
-        logger.debug("open folder '%s'", folder)
+        logger.debug(f"open folder '{folder}'")
         self.window.run_command("open_dir", {"dir": folder})
 
 
@@ -71,12 +71,12 @@ class LatextoolsRevealOutputDirectoryCommand(sublime_plugin.WindowCommand):
             sublime.error_message(message)
             return
         if not os.path.isdir(folder):
-            message = "'output directory' does not exist: '{}'".format(folder)
+            message = f"'output directory' does not exist: '{folder}'"
             logger.error(message)
             sublime.error_message(message)
             return
 
-        logger.debug("open folder '%s'", folder)
+        logger.debug(f"open folder '{folder}'")
         self.window.run_command("open_dir", {"dir": folder})
 
 
@@ -97,5 +97,5 @@ class LatextoolsRevealTexRootDirectoryCommand(sublime_plugin.WindowCommand):
 
         folder, file = os.path.split(tex_root)
 
-        logger.debug("open folder '%s', file: %s", folder, file)
+        logger.debug(f"open folder '{folder}', file: {file}")
         self.window.run_command("open_dir", {"dir": folder, "file": file})

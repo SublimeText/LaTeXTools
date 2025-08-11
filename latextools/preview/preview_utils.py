@@ -115,7 +115,7 @@ def _update_gs_version():
             if m:
                 _GS_VERSION = tuple(int(x) for x in m.groups())
         except Exception:
-            logger.error("Error finding Ghostscript version for %s", _GS_COMMAND)
+            logger.error(f"Error finding Ghostscript version for {_GS_COMMAND}")
             traceback.print_exc()
             return None
 
@@ -184,7 +184,7 @@ def _get_gs_exe_from_registry():
     # find the most recent version of Ghostscript installed
     for product in ["GPL Ghostscript", "AFPL Ghostscript"]:
         try:
-            hndl = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\{0}".format(product))
+            hndl = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, f"SOFTWARE\\{product}")
 
             try:
                 for i in range(winreg.QueryInfoKey(hndl)[0]):
@@ -208,7 +208,7 @@ def _get_gs_exe_from_registry():
         try:
             hndl = winreg.OpenKey(
                 winreg.HKEY_LOCAL_MACHINE,
-                "SOFTWARE\\{0}\\{1}.{2:02}".format(product_family, major_version, minor_version),
+                f"SOFTWARE\\{product_family}\\{major_version}.{minor_version:02}",
             )
 
             try:
@@ -219,7 +219,7 @@ def _get_gs_exe_from_registry():
             finally:
                 winreg.CloseKey(hndl)
         except OSError:
-            logger.error("Could not find GS_DLL value for %s", product_family)
+            logger.error(f"Could not find GS_DLL value for {product_family}")
 
     return result
 

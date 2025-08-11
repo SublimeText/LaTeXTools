@@ -48,7 +48,7 @@ class LatextoolsTexcountCommand(sublime_plugin.WindowCommand):
             res_split = result.splitlines()
             self.window.show_quick_panel(res_split[1:4] + res_split[9:], lambda _: None)
         except CalledProcessError as e:
-            sublime.error_message("Error while running TeXCount: {0}".format(e.output or e))
+            sublime.error_message(f"Error while running TeXCount: {e.output or e}")
         except OSError:
             sublime.error_message(
                 "Could not run texcount. Please ensure that TeXcount is "

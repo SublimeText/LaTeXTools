@@ -153,14 +153,14 @@ def _create_image(
         command = [
             "-sDEVICE=pngalpha",
             "-dLastPage=1",
-            "-sOutputFile={image_path}".format(image_path=image_path),
-            "-r{density}".format(density=density * scale_factor),
-            "-dDownScaleFactor={0}".format(scale_factor),
+            f"-sOutputFile={image_path}",
+            f"-r{density * scale_factor}",
+            f"-dDownScaleFactor={scale_factor}",
             "-dTextAlphaBits=4",
             "-dGraphicsAlphaBits=4",
-            "-dNumRenderingThreads={0}".format(cpus),
-            "-dMaxBitmap={0}".format(max_bitmap),
-            "-dBufferSpace={0}".format(bufferspace),
+            f"-dNumRenderingThreads={cpus}",
+            f"-dMaxBitmap={max_bitmap}",
+            f"-dBufferSpace={bufferspace}",
         ]
 
         # calculate and apply cropping boundaries, if we have them
@@ -175,14 +175,12 @@ def _create_image(
             height = round((bbox[3] - bbox[1] + 4) * density * scale_factor / 72)
             command.extend(
                 [
-                    "-g{width}x{height}".format(**locals()),
+                    f"-g{width}x{height}",
                     "-c",
                     # this is the command that does the clipping starting from
                     # the lower left of the displayed contents; we subtract 2pts
                     # to properly center the final image with our padding
-                    "<</Install {{{0} {1} translate}}>> setpagedevice".format(
-                        -1 * (bbox[0] - 2), -1 * (bbox[1] - 2)
-                    ),
+                    f"<</Install {{{-1 * (bbox[0] - 2)} {-1 * (bbox[1] - 2)} translate}}>> setpagedevice",
                     "-f",
                 ]
             )
@@ -195,7 +193,7 @@ def _create_image(
 
         if rc != 0:
             gs_error_occurred = True
-            err_log.append("Error while running Ghostscript. {0}".format(output))
+            err_log.append(f"Error while running Ghostscript. {output}")
 
         # Ghostscript will output a 0 byte sized image if certain issues
         # occur. Deal with this here.
@@ -205,8 +203,8 @@ def _create_image(
             err_log.append(
                 "Ghostscript could not produce an image. "
                 "Please try changing the preview_math_bufferspace setting "
-                "to a larger value. Currently: {0}. ".format(bufferspace)
-                + "This setting can be found in the LaTeXTools (Advanced) "
+                f"to a larger value. Currently: {bufferspace}. "
+                "This setting can be found in the LaTeXTools (Advanced) "
                 "settings file."
             )
 
@@ -214,9 +212,7 @@ def _create_image(
             err_log.append("")
 
     if not pdf_exists:
-        err_log.append(
-            "Failed to run '{latex_program}' to create pdf to preview.".format(**locals())
-        )
+        err_log.append(f"Failed to run '{latex_program}' to create pdf to preview.")
         err_log.append("")
         err_log.append("")
 
@@ -232,7 +228,7 @@ def _create_image(
             try:
                 errors, warnings, _ = parse_tex_log(log_data, temp_path)
             except Exception as e:
-                err_log.append("Error while parsing log file: {0}".format(e))
+                err_log.append(f"Error while parsing log file: {e}")
                 errors = warnings = []
 
             if errors:
@@ -432,9 +428,9 @@ class MathPreviewPhantomProvider:
             with open(self.template_file, "r", encoding="utf-8") as f:
                 file_content = f.read()
             mtime = os.path.getmtime(self.template_file)
-            logger.info("Load math preview template file for '%s'", self.template_file)
+            logger.info(f"Load math preview template file for '{self.template_file}'")
         except Exception as e:
-            logger.error("Error while reading math preview template file: %s", e)
+            logger.error(f"Error while reading math preview template file: {e}")
             file_content = None
         self.template_contents[self.template_file] = file_content
         self.template_mtime[self.template_file] = mtime
@@ -462,7 +458,7 @@ class MathPreviewPhantomProvider:
         elif href.startswith("report-"):
             file_path = href[len("report-") :]
             if not os.path.exists(file_path):
-                sublime.error_message("Report file missing: {0}.".format(file_path))
+                sublime.error_message(f"Report file missing: {file_path}.")
                 return
             self.view.window().open_file(file_path)
 
@@ -660,8 +656,8 @@ class MathPreviewPhantomProvider:
         elif env:
             star = "*" if env not in self.no_star_envs or m.group(2) else ""
             # add a * to the env to avoid numbers in the resulting image
-            open_str = "\\begin{{{env}{star}}}".format(**locals())
-            close_str = "\\end{{{env}{star}}}".format(**locals())
+            open_str = f"\\begin{{{env}{star}}}"
+            close_str = f"\\end{{{env}{star}}}"
         else:
             open_str = "\\("
             close_str = "\\)"
@@ -669,7 +665,7 @@ class MathPreviewPhantomProvider:
         # strip the content
         content = content.strip()
 
-        document_content = "{open_str}\n{content}\n{close_str}".format(**locals())
+        document_content = f"{open_str}\n{content}\n{close_str}"
 
         try:
             latex_template = self.template_contents[self.template_file]
@@ -680,9 +676,9 @@ class MathPreviewPhantomProvider:
 
         if color.startswith("#"):
             color = color[1:].upper()
-            set_color = "\\color[HTML]{{{color}}}".format(color=color)
+            set_color = f"\\color[HTML]{{{color}}}"
         else:
-            set_color = "\\color{{{color}}}".format(color=color)
+            set_color = f"\\color{{{color}}}"
 
         latex_document = (
             latex_template.replace("<<content>>", document_content, 1)
@@ -744,8 +740,8 @@ class MathPreviewPhantomProvider:
         html_content = html.escape(content, quote=False) + (
             "<br>"
             '<a href="check_system">(Check System)</a> '
-            '<a href="report-{err_file}">(Show Report)</a> '
-            '<a href="disable">(Disable)</a>'.format(err_file=err_file)
+            f'<a href="report-{err_file}">(Show Report)</a> '
+            '<a href="disable">(Disable)</a>'
         )
 
         return self._wrap_html(html_content)
@@ -765,11 +761,11 @@ class MathPreviewPhantomProvider:
             if self.scale_quotient != 1:
                 width /= self.scale_quotient
                 height /= self.scale_quotient
-                style = 'style="width: {width}; height: {height};"'.format(**locals())
+                style = f'style="width: {width}; height: {height};"'
             else:
                 style = ""
             img_data_b64 = base64.b64encode(image_raw_data).decode("ascii")
-            html_content = '<img {style} src="data:image/png;base64,{img_data_b64}">'.format(**locals())
+            html_content = f'<img {style} src="data:image/png;base64,{img_data_b64}">'
 
         # wrap the html content in a body and style
         return self._wrap_html(html_content)
@@ -778,9 +774,9 @@ class MathPreviewPhantomProvider:
         if self.color or self.background_color:
             style = "<style> body {"
             if self.color:
-                style += "color: {0};".format(self.color)
+                style += f"color: {self.color};"
             if self.background_color:
-                style += "background-color: {0};".format(self.background_color)
+                style += f"background-color: {self.background_color};"
             style += "} </style>"
         else:
             style = ""

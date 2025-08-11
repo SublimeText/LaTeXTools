@@ -10,7 +10,7 @@ extra_file_ext = []
 
 def debug(s):
     if print_debug:
-        print("parseTeXlog: {0}".format(s))
+        print(f"parseTeXlog: {s}")
 
 
 # The following function is only used when debugging interactively.
@@ -220,7 +220,7 @@ def parse_tex_log(data, root_dir):
         if files == []:
             location = "[no file]"
             parsing.append("PERR [handle_warning no files] " + l)
-            debug("PERR [handle_warning no files] (%d)" % (line_num,))
+            debug(f"PERR [handle_warning no files] ({line_num})")
         else:
             location = files[-1]
 
@@ -228,16 +228,16 @@ def parse_tex_log(data, root_dir):
 
         if warn_match_line:
             warn_line = warn_match_line.group(1)
-            warnings.append(location + ":" + warn_line + ": " + l)
+            warnings.append(f"{location}:{warn_line}: {l}")
         else:
-            warnings.append(location + ": " + l)
+            warnings.append(f"{location}: {l}")
 
     # Support function to handle bad boxes
     def handle_badbox(l):
         if files == []:
             location = "[no file]"
             parsing.append("PERR [handle_badbox no files] " + l)
-            debug("PERR [handle_badbox no files] (%d)" % (line_num,))
+            debug(f"PERR [handle_badbox no files] ({line_num})")
         else:
             location = files[-1]
 
@@ -245,9 +245,9 @@ def parse_tex_log(data, root_dir):
 
         if badbox_match_line:
             badbox_line = badbox_match_line.group(1)
-            badboxes.append(location + ":" + badbox_line + ": " + l)
+            badboxes.append(f"{location}:{badbox_line}: {l}")
         else:
-            badboxes.append(location + ": " + l)
+            badboxes.append(f"{location}: {l}")
 
     # State definitions
     STATE_NORMAL = 0
@@ -298,9 +298,7 @@ def parse_tex_log(data, root_dir):
         # We make sure we are NOT reprocessing a line!!!
         # Also, we make sure we do not have a filename match, or it would be clobbered by exending!
         if (not reprocess_extra) and line_num > 1 and linelen >= 79 and line[0:2] != "**":
-            debug(
-                "Line %d is %d characters long; last char is %s" % (line_num, len(line), line[-1])
-            )
+            debug(f"Line {line_num} is {len(line)} characters long; last char is {line[-1]}")
             # HEURISTICS HERE
             extend_line = True
             recycle_extra = False
@@ -435,11 +433,11 @@ def parse_tex_log(data, root_dir):
             if files == []:
                 location = "[no file]"
                 parsing.append("PERR [STATE_REPORT_ERROR no files] " + line)
-                debug("PERR [STATE_REPORT_ERROR no files] (%d)" % (line_num,))
+                debug(f"PERR [STATE_REPORT_ERROR no files] ({line_num})")
             else:
                 location = files[-1]
             debug("Found error: " + err_msg)
-            errors.append(location + ":" + err_line + ": " + err_msg + " [" + err_text + "]")
+            errors.append(f"{location}:{err_line}: {err_msg} [{err_text}]")
             continue
         if state == STATE_REPORT_WARNING:
             # add current line and check if we are done or not
@@ -540,10 +538,10 @@ def parse_tex_log(data, root_dir):
                 try:
                     line, linelen = next(log_iterator)  # will fail when no more lines
                 except StopIteration:
-                    debug("Over/underfull: StopIteration (%d)" % line_num)
+                    debug(f"Over/underfull: StopIteration ({line_num})")
                     break
                 line_num += 1
-                debug("Over/underfull: skip " + line + " (%d) " % line_num)
+                debug(f"Over/underfull: skip " + line + " ({line_num}) ")
                 # Sometimes it's " []" and sometimes it's "[]"...
                 #               if len(line)>0 and line[:3] == " []" or line[:2] == "[]":
                 # NO, it really should be just " []"
@@ -570,9 +568,9 @@ def parse_tex_log(data, root_dir):
             and "bibgerm" in files[-1]
         ):
             debug("special case: bibgerm")
-            debug(" " * len(files) + files[-1] + " (%d)" % (line_num,))
+            debug(f"{files[-1]:>{len(files)}} ({line_num})")
             f = files.pop()
-            debug("Popped file: {0} ({1})".format(f, line_num))
+            debug(f"Popped file: {f} ({line_num})")
             continue
 
         # Special case: the relsize package, which puts ")" at the end of a
@@ -585,9 +583,9 @@ def parse_tex_log(data, root_dir):
             and "relsize" in files[-1]
         ):
             debug("special case: relsize")
-            debug(" " * len(files) + files[-1] + " (%d)" % (line_num,))
+            debug(f"{files[-1]:>{len(files)}} ({line_num})")
             f = files.pop()
-            debug("Popped file: {0} ({1})".format(f, line_num))
+            debug(f"Popped file: {f} ({line_num})")
             continue
 
         # Special case: the comment package, which puts ")" at the end of a
@@ -612,9 +610,9 @@ def parse_tex_log(data, root_dir):
             and "numprint" in files[-1]
         ):
             debug("special case: numprint")
-            debug(" " * len(files) + files[-1] + " (%d)" % (line_num,))
+            debug(f"{files[-1]:>{len(files)}} ({line_num})")
             f = files.pop()
-            debug("Popped file: {0} ({1})".format(f, line_num))
+            debug(f"Popped file: {f} ({line_num})")
             continue
 
         # Special case: xypic's "loaded)" at the BEGINNING of a line. Will check later
@@ -625,9 +623,9 @@ def parse_tex_log(data, root_dir):
             # Do an extra check to make sure we are not too eager: is the topmost file
             # likely to be an xypic file? Look for xypic in the file name
             if files and "xypic" in files[-1]:
-                debug(" " * len(files) + files[-1] + " (%d)" % (line_num,))
+                debug(f"{files[-1]:>{len(files)}} ({line_num})")
                 f = files.pop()
-                debug("Popped file: {0} ({1})".format(f, line_num))
+                debug(f"Popped file: {f} ({line_num})")
                 extra = xypic_match.group(1)
                 debug("Reprocessing " + extra)
                 reprocess_extra = True
@@ -646,16 +644,16 @@ def parse_tex_log(data, root_dir):
         # denotes end of processing of current file: pop it from stack
         if len(line) > 0 and line[0] == ")":
             if files:
-                debug(" " * len(files) + files[-1] + " (%d)" % (line_num,))
+                debug(f"{files[-1]:>{len(files)}} ({line_num})")
                 f = files.pop()
-                debug("Popped file: {0} ({1})".format(f, line_num))
+                debug(f"Popped file: {f} ({line_num})")
                 extra = line[1:]
                 debug("Reprocessing " + extra)
                 reprocess_extra = True
                 continue
             else:
                 parsing.append("PERR [')' no files]")
-                debug("PERR [')' no files] (%d)" % (line_num,))
+                debug(f"PERR [')' no files] ({line_num})")
                 break
 
         # Opening page indicators: skip and reprocess
@@ -726,7 +724,7 @@ def parse_tex_log(data, root_dir):
             else:
                 debug("IT'S A FILE!")
                 files.append(file_name)
-                debug(" " * len(files) + files[-1] + " (%d)" % (line_num,))
+                debug(f"{files[-1]:>{len(files)}} ({line_num})")
                 # Check if it's a xypic file
                 if (not xypic_flag) and "xypic" in file_name:
                     xypic_flag = True
@@ -747,9 +745,9 @@ def parse_tex_log(data, root_dir):
             # Do an extra check to make sure we are not too eager: is the topmost file
             # likely to be an xypic file? Look for xypic in the file name
             if files and "xypic" in files[-1]:
-                debug(" " * len(files) + files[-1] + " (%d)" % (line_num,))
+                debug(f"{files[-1]:>{len(files)}} ({line_num})")
                 f = files.pop()
-                debug("Popped file: {0} ({1})".format(f, line_num))
+                debug(f"Popped file: {f} ({line_num})")
                 extra = xypic_match.group(1)
                 debug("Reprocessing " + extra)
                 reprocess_extra = True

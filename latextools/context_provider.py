@@ -53,7 +53,7 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
         except IndexError:
             return False
         except AttributeError:
-            logger.error("Unsupported LaTeXTools context: %s", key)
+            logger.error(f"Unsupported LaTeXTools context: {key}")
             return False
 
         try:
@@ -160,8 +160,8 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
                 env.endswith("*"): r"\*",
             }.get(True, r"\*?")
             env = env.rstrip("*!")
-            benv = r"\\begin(?:\[[^\]]\])?{{{}{}}}".format(env, star)
-            eenv = r"\\end{{{}{}}}".format(env, star)
+            benv = fr"\\begin(?:\[[^\]]\])?{{{env}{star}}}"
+            eenv = fr"\\end{{{env}{star}}}"
 
             if only_nearest:
                 real_benv = benv

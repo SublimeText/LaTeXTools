@@ -48,8 +48,8 @@ def _get_replacement(matcher, key):
 
     if matcher.group("ENTRIES").startswith("dna"):
         if match.startswith(" "):
-            return "{0}".format(key)
-        return " {0}".format(key)
+            return str(key)
+        return f" {key}"
     else:
         return "{0}{1}".format(" " if matcher.group("ENTRIES").startswith(" ") != " " else "", key)
 

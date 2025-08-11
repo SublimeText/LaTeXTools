@@ -89,7 +89,7 @@ class BasicBuilder(PdfBuilder):
         if output_directory:
             self.make_directory(output_directory)
 
-        yield (latex, "running {0}...".format(engine))
+        yield (latex, f"running {engine}...")
         self.display("done.\n")
         self.log_output()
 
@@ -104,7 +104,7 @@ class BasicBuilder(PdfBuilder):
                         os.path.normpath(os.path.join(output_directory, match.group(1)))
                     )
 
-                yield (latex, "running {0}...".format(engine))
+                yield (latex, f"running {engine}...")
                 self.display("done.\n")
                 self.log_output()
 
@@ -129,7 +129,7 @@ class BasicBuilder(PdfBuilder):
             if use_bibtex:
                 yield (
                     self.run_bibtex(bibtex),
-                    "running {0}...".format(bibtex or "bibtex"),
+                    f"running {bibtex or 'bibtex'}...",
                 )
             else:
                 yield (biber + [self.job_name], "running biber...")
@@ -138,7 +138,7 @@ class BasicBuilder(PdfBuilder):
             self.log_output()
 
             for i in range(2):
-                yield (latex, "running {0}...".format(engine))
+                yield (latex, f"running {engine}...")
                 self.display("done.\n")
                 self.log_output()
 
@@ -146,7 +146,7 @@ class BasicBuilder(PdfBuilder):
         # Do this at the end, so if there are also citations to resolve,
         # we may save one pdflatex run
         if "Rerun to get cross-references right." in self.out:
-            yield (latex, "running {0}...".format(engine))
+            yield (latex, f"running {engine}...")
             self.display("done.\n")
             self.log_output()
 
@@ -158,7 +158,7 @@ class BasicBuilder(PdfBuilder):
 
     def make_directory(self, directory):
         if not os.path.exists(directory):
-            logger.debug("making directory %s", directory)
+            logger.debug(f"making directory {directory}")
             os.makedirs(directory)
 
     def run_bibtex(self, command=None):

@@ -192,7 +192,7 @@ def _bibfile_filter(c):
 def kpsewhich(filename, file_format=None):
     command = ["kpsewhich"]
     if file_format is not None:
-        command.append("-format={0}".format(file_format))
+        command.append(f"-format={file_format}")
     command.append(filename)
 
     try:
@@ -348,9 +348,9 @@ def run_plugin_command(command, *args, **kwargs):
 
         if not plugin:
             error_message = (
-                "Could not find bibliography plugin named {0}. "
+                f"Could not find bibliography plugin named {plugin_name}. "
                 "Please ensure your LaTeXTools.sublime-settings is configured "
-                "correctly.".format(plugin_name)
+                "correctly."
             )
             logger.error(error_message)
             raise BibPluginError(error_message)
@@ -360,10 +360,8 @@ def run_plugin_command(command, *args, **kwargs):
             plugin = plugin()
         except Exception:
             error_message = (
-                "Could not instantiate {0}. {0} must have a no-args __init__ "
-                "method".format(
-                    type(plugin).__name__,
-                )
+                f"Could not instantiate {type(plugin).__name__}. "
+                f"{type(plugin).__name__} must have a no-args __init__ method."
             )
             logger.error(error_message)
             raise BibPluginError(error_message)
@@ -371,19 +369,15 @@ def run_plugin_command(command, *args, **kwargs):
         try:
             result = getattr(plugin, command)(*args, **kwargs)
         except TypeError as e:
-            if "'{0}()'".format(command) in str(e):
-                error_message = "{1} is not properly implemented by {0}.".format(
-                    type(plugin).__name__, command
-                )
+            if f"'{command}()'" in str(e):
+                error_message = f"{command} is not properly implemented by {type(plugin).__name__}."
                 logger.error(error_message)
                 raise BibPluginError(error_message)
             else:
                 raise e
         except AttributeError as e:
-            if "'{0}'".format(command) in str(e):
-                error_message = "{0} does not implement `{1}`".format(
-                    type(plugin).__name__, command
-                )
+            if f"'{command}'" in str(e):
+                error_message = f"{command} does not implement `{type(plugin).__name__}`"
                 logger.error(error_message)
                 raise BibPluginError(error_message)
             else:
@@ -401,12 +395,12 @@ def run_plugin_command(command, *args, **kwargs):
     result = None
     if isinstance(plugins, str):
         if not plugins.endswith("_bibliography"):
-            plugins = "{0}_bibliography".format(plugins)
+            plugins = f"{plugins}_bibliography"
         result = _run_command(plugins)
     else:
         for plugin_name in plugins:
             if not plugin_name.endswith("_bibliography"):
-                plugin_name = "{0}_bibliography".format(plugin_name)
+                plugin_name = f"{plugin_name}_bibliography"
             try:
                 result = _run_command(plugin_name)
             except BibPluginError:
@@ -416,8 +410,8 @@ def run_plugin_command(command, *args, **kwargs):
 
     if expect_result and result is None:
         raise BibPluginError(
-            "Could not find a plugin to handle '{0}'. "
-            "See the console for more details".format(command)
+            f"Could not find a plugin to handle '{command}'. "
+            "See the console for more details"
         )
 
     return result
@@ -428,15 +422,15 @@ def get_cite_completions(view):
 
     root = get_tex_root(view)
     if root:
-        logger.debug("TEX root: %s", root)
+        logger.debug(f"TEX root: {root}")
         bib_files = find_bib_files(root)
-        logger.debug("Bib files found:\n  %s", bib_files)
+        logger.debug(f"Bib files found:\n  {bib_files}")
 
     if not bib_files:
         # Check the open files, in case the current file is TEX root,
         # but doesn't reference anything
         bib_files = find_open_bib_files()
-        logger.debug("Open Bib files found:\n  %s", bib_files)
+        logger.debug(f"Open Bib files found:\n  {bib_files}")
 
     if not bib_files:
         # sublime.error_message("No bib files found!") # here we can!

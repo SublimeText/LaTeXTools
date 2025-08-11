@@ -50,10 +50,10 @@ def update_cache(cache, doc, bib):
             try:
                 cache.invalidate()
                 if doc:
-                    logger.debug("Updating analysis cache for %s", cache.tex_root)
+                    logger.debug(f"Updating analysis cache for {cache.tex_root}")
                     cache.set("analysis", analysis.analyze_document(cache.tex_root))
                 if bib:
-                    logger.debug("Updating bibliography cache for %s", cache.tex_root)
+                    logger.debug(f"Updating bibliography cache for {cache.tex_root}")
                     run_plugin_command("get_entries", *(find_bib_files(cache.tex_root) or []))
 
                 get_cwl_command_completions(cache.tex_root)

@@ -101,7 +101,7 @@ def _download_insert_image(window, view, image_url, offline=False):
         sublime.status_message("Need to save the view before downloading image.")
         return
     ext = image_url.split(".")[-1]
-    caption = "Include graphics path (.{})".format(ext)
+    caption = f"Include graphics path (.{ext})"
 
     def on_cancel():
         window.run_command("paste")

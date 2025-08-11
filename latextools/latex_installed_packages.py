@@ -23,7 +23,7 @@ def _get_tex_searchpath(file_type):
         raise Exception("file_type must be set for _get_tex_searchpath")
 
     command = ["kpsewhich"]
-    command.append("--show-path={0}".format(file_type))
+    command.append(f"--show-path={file_type}")
 
     try:
         return check_output(command)
