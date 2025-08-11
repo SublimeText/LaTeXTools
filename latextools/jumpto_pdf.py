@@ -243,7 +243,7 @@ class LatextoolsViewPdfCommand(sublime_plugin.WindowCommand):
         try:
             viewer.view_file(pdffile, keep_focus=False)
         except (AttributeError, NotImplementedError):
-            traceback.print_exception()
+            traceback.print_exc()
             sublime.error_message(
                 "Your viewer does not appear to be a proper"
                 "LaTeXTools viewer plugin. "
