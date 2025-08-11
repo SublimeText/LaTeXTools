@@ -76,20 +76,19 @@ This section refers to setting that can be found in a platform-specific block fo
 ### All Platforms
 
   * `texpath` (varies): the path to TeX & friends. Note that this should always include `$PATH` to ensure the default path is loaded as well.
+  * `sublime_executable` (`""`): absolute path to `sublime_text.exe` to construct subl command line calls, if the path to sublime_text executable cannot be discovered automatically.
+  * `keep_focus_delay` (`0.5`): this is used if `keep_focus` is set to true. It controls how long (in seconds) the delay is between the completion of the `latextools_jumpto_pdf` command and the attempt to refocus on Sublime Text. This may need to be adjusted depending on your machine or configuration.
 
 ### Windows
 
   * `distro` (`miktex`): either `miktex` or `texlive`, depending on your TeX distribution
   * `sumatra` (`""`): leave blank or omit if the SumatraPDF executable is in your `PATH` and is called `SumatraPDF.exe`, as in a default installation; otherwise, specify the *full path and file name* of the SumatraPDF executable.
-  * `sublime_executable` (`""`): this is used if `keep_focus` is set to true and the path to your sublime_text executable cannot be discovered automatically. It should point to the full path to your executable `sublime_text.exe`.
-  * `keep_focus_delay` (`0.5`): this is used if `keep_focus` is set to true. It controls how long (in seconds) the delay is between the completion of the `latextools_jumpto_pdf` command and the attempt to refocus on Sublime Text. This may need to be adjusted depending on your machine or configuration.
 
 ### Linux
+
   * `python` (`""`, i.e. empty string): name of the Python executable. This is useful if you've installed Python in a non-standard location or want to ensure that LaTeXTools uses a particular Python version. Note that the Python interpreter you select must have the DBus bindings installed.
   * `sublime` (`sublime-text`): name of the ST executable. Ubuntu supports both `sublime-text` and `subl`; other distros may vary.
   * `sync_wait` (1.0): when you ask LaTeXTools to do a forward search, and the PDF file is not yet open (for example, right after compiling a tex file for the first time), LaTeXTools first launches evince, then waits a bit for it to come up, and then it performs the forward search. This parameter controls how long LaTeXTools should wait. If you notice that your machine opens the PDF, then sits there doing nothing, and finally performs the search, you can decrease this value to 1.0 or 0.5; if instead the PDF file comes up but the forward search does not seem to happen, increase it to 2.0.
-  * `sublime_executable`: this is used if `keep_focus` is set to true and the path to your sublime_text executable cannot be discovered automatically. It should point to the full path to your executable `sublime_text`.
-  * `keep_focus_delay`: this is used if `keep_focus` is set to true. It controls how long (in seconds) the delay is between the completion of the `latextools_jumpto_pdf` command and the attempt to refocus on Sublime Text. This may need to be adjusted depending on your machine or configuration.
 
 ## Output Directory Settings
 

@@ -16,41 +16,23 @@ from .settings import get_setting
 SUBLIME_VERSION = re.compile(r"Build (\d{4})", re.UNICODE)
 
 
-# returns the focus to ST
-# NB its probably good to call this as little as possible since focus-stealing
-# annoys people
 def focus_st():
+    """
+    Bring active Sublime Text window to front and (re-)focus it.
+    """
     if get_setting("disable_focus_hack", False):
         return
 
-    sublime_command = get_sublime_exe()
+    platform = sublime.platform()
+    plat_settings = get_setting(platform, {})
+    wait_time = plat_settings.get("keep_focus_delay", 1.0)
 
-    if sublime_command is not None:
-        platform = sublime.platform()
-        plat_settings = get_setting(platform, {})
-        wait_time = plat_settings.get("keep_focus_delay", 0.5)
+    def focus():
+        active_window = sublime.active_window()
+        if active_window:
+            active_window.bring_to_front()
 
-        # osx is a special snowflake
-        if platform == "osx":
-            # sublime_command should be /path/to/Sublime Text.app/Contents/...
-            sublime_app = sublime_command.split("/Contents/")[0]
-
-            def keep_focus():
-                external_command(
-                    [
-                        "osascript",
-                        "-e",
-                        'tell application "{0}" to activate'.format(sublime_app),
-                    ],
-                    use_texpath=False,
-                )
-
-        else:
-
-            def keep_focus():
-                external_command([sublime_command], use_texpath=False)
-
-        sublime.set_timeout_async(keep_focus, int(wait_time * 1000))
+    sublime.set_timeout(focus, int(wait_time * 1000))
 
 
 # returns the path to the sublime executable

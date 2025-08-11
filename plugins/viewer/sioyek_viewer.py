@@ -32,6 +32,8 @@ class SioyekViewer(BaseViewer):
 
         command += args
         external_command(command, use_texpath=False, show_window=True)
+        if keep_focus:
+            self.focus_st()
 
     def forward_sync(self, pdf_file, tex_file, line, col, **kwargs):
         self._run_sioyek(

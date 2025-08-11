@@ -248,7 +248,15 @@
 		// Path used when invoking tex & friends; MUST include $PATH
 		"texpath": "/Library/TeX/texbin:/usr/texbin:/usr/local/bin:/opt/local/bin:$PATH",
 		// Command to invoke Sioyek. If blank, "sioyek.exe" is used (it has to be on your PATH)
-		"sioyek": ""
+		"sioyek": "",
+		// Absolute path to `sublime_text.exe` to construct subl command line calls,
+		// if the path to sublime_text executable cannot be discovered automatically.
+		// If blank, "subl" will be used.
+		"sublime_executable": "",
+		// how long (in ms) to wait after the latextools_jumpto_pdf command completes
+		// before switching focus back to Sublime Text. This may need to be
+		// adjusted depending on your machine and configuration.
+		"keep_focus_delay": 0.5,
 	},
 
 	"windows": {
@@ -262,13 +270,14 @@
 		"sioyek": "",
 		// Command to invoke Sumatra. If blank, "SumatraPDF.exe" is used (it has to be on your PATH)
 		"sumatra": "",
-		// Command to invoke Sublime Text. Used if the keep_focus toggle is true.
+		// Absolute path to `sublime_text.exe` to construct subl command line calls,
+		// if the path to sublime_text executable cannot be discovered automatically.
 		// If blank, "subl.exe" or "sublime_text.exe" will be used.
 		"sublime_executable": "",
 		// how long (in seconds) to wait after the latextools_jumpto_pdf command completes
 		// before switching focus back to Sublime Text. This may need to be
 		// adjusted depending on your machine and configuration.
-		"keep_focus_delay": 0.5
+		"keep_focus_delay": 1.0,
 	},
 
 	"linux" : {
@@ -287,13 +296,14 @@
 		// or if the PDF viewer opens instantly and you don't want to wait.
 		// Default: 1.5 (works on my MBP4,1...)
 		"sync_wait": 1.5,
-		// Command to invoke Sublime Text. Used if the keep_focus toggle is true.
-		// If blank, "subl" or "sublime_text" will be used.
+		// Absolute path to `sublime_text.exe` to construct subl command line calls,
+		// if the path to sublime_text executable cannot be discovered automatically.
+		// If blank, "subl" will be used.
 		"sublime_executable": "",
 		// how long (in ms) to wait after the latextools_jumpto_pdf command completes
 		// before switching focus back to Sublime Text. This may need to be
 		// adjusted depending on your machine and configuration.
-		"keep_focus_delay": 0.5
+		"keep_focus_delay": 0.5,
 	},
 
 // ------------------------------------------------------------------
