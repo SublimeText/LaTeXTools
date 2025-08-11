@@ -5,6 +5,7 @@ import traceback
 import sublime
 import sublime_plugin
 
+from ..plugins.viewer import *  # register internal viewer plugins
 from .latextools_plugin import get_plugin
 from .latextools_plugin import NoSuchPluginException
 from .utils.is_tex_file import is_tex_file

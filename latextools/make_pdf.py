@@ -17,6 +17,7 @@ import traceback
 import sublime
 import sublime_plugin
 
+from ..plugins.builder import *  # register internal builder plugins
 from .latextools_plugin import classname_to_plugin_name
 from .latextools_plugin import get_plugin
 from .latextools_plugin import NoSuchPluginException

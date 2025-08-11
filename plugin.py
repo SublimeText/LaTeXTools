@@ -131,8 +131,6 @@ from .latextools.toggle_settings import (
     LatextoolsToggleKeysCommand
 )
 
-from . import plugins
-
 
 def _filter_func(name):
     return name.startswith(prefix) and name != __spec__.name

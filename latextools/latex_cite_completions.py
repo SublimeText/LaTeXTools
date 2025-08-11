@@ -21,6 +21,7 @@ import re
 import sublime
 import traceback
 
+from ..plugins.bibliography import *  # register internal bibliography plugins
 from .latex_fill_all import LatexFillAllPlugin
 from .latextools_plugin import get_plugin
 from .latextools_plugin import NoSuchPluginException
