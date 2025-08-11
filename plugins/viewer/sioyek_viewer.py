@@ -2,6 +2,7 @@ import sublime
 
 from ...latextools.utils.external_command import external_command
 from ...latextools.utils.settings import get_setting
+from ...latextools.utils.sublime_utils import get_sublime_exe
 
 from .base_viewer import BaseViewer
 
@@ -33,7 +34,6 @@ class SioyekViewer(BaseViewer):
         external_command(command, use_texpath=False, show_window=True)
 
     def forward_sync(self, pdf_file, tex_file, line, col, **kwargs):
-        sublime_text = get_setting(sublime.platform(), {}).get("sublime_executable") or "subl"
         self._run_sioyek(
             "--execute-command",
             "turn_on_synctex",
@@ -44,7 +44,7 @@ class SioyekViewer(BaseViewer):
             "--forward-search-column",
             f"{col}",
             "--inverse-search",
-            f"{sublime_text} %1:%2",
+            f"{get_sublime_exe()} %1:%2",
             pdf_file,
             **kwargs
         )
