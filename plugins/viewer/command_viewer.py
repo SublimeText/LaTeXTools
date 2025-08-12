@@ -1,9 +1,10 @@
 from __future__ import annotations
-import os
 import re
 import shlex
 import sublime
 import string
+
+from pathlib import Path
 
 from ...latextools.utils.external_command import external_command
 from ...latextools.utils.settings import get_setting
@@ -27,7 +28,7 @@ class CommandViewer(BaseViewer):
         re.IGNORECASE,
     )
 
-    def _replace_vars(self, text: str, pdf_file: str, tex_file: str | None, line: int, col: int):
+    def _replace_vars(self, text: str, pdf_file: Path, tex_file: Path | None, line: int, col: int):
         """
         Function to substitute various values into a user-provided string
 
@@ -57,9 +58,6 @@ class CommandViewer(BaseViewer):
         if not self.CONTAINS_VARIABLE.search(text):
             return (text, False)
 
-        pdf_file_path, pdf_file_name = os.path.split(pdf_file)
-        pdf_file_base_name, pdf_file_ext = os.path.splitext(pdf_file_name)
-
         if tex_file is None:
             src_file = ""
             src_file_path = ""
@@ -67,30 +65,28 @@ class CommandViewer(BaseViewer):
             src_file_ext = ""
             src_file_base_name = ""
         else:
-            if os.path.isabs(tex_file):
-                src_file = tex_file
-            else:
-                src_file = os.path.normpath(os.path.join(pdf_file_path, tex_file))
-
-            src_file_path, src_file_name = os.path.split(src_file)
-            src_file_base_name, src_file_ext = os.path.splitext(src_file_name)
+            src_file = tex_file if tex_file.is_absolute() else pdf_file.parent / tex_file
+            src_file_path = src_file.parent
+            src_file_name = src_file.name
+            src_file_ext = src_file.suffix
+            src_file_base_name = src_file.stem
 
         template = string.Template(text)
         return (
             template.safe_substitute(
                 pdf_file=pdf_file,
-                pdf_file_path=pdf_file_path,
-                pdf_file_name=pdf_file_name,
-                pdf_file_ext=pdf_file_ext,
-                pdf_file_base_name=pdf_file_base_name,
+                pdf_file_path=pdf_file.parent,
+                pdf_file_name=pdf_file.name,
+                pdf_file_ext=pdf_file.suffix,
+                pdf_file_base_name=pdf_file.stem,
                 sublime_binary=get_sublime_exe(),
                 src_file=src_file,
                 src_file_path=src_file_path,
                 src_file_name=src_file_name,
                 src_file_ext=src_file_ext,
                 src_file_base_name=src_file_base_name,
-                line=str(line),
-                col=str(col),
+                line=line,
+                col=col,
             ),
             True,
         )
@@ -98,8 +94,8 @@ class CommandViewer(BaseViewer):
     def _run_command(
         self,
         command: list[str] | str,
-        pdf_file: str,
-        tex_file: str | None = None,
+        pdf_file: Path,
+        tex_file: Path | None = None,
         line: int = 0,
         col: int = 0,
         keep_focus: bool = True,
@@ -113,11 +109,11 @@ class CommandViewer(BaseViewer):
             substitution_made = substitution_made or replaced
 
         if not replaced:
-            command.append(pdf_file)
+            command.append(str(pdf_file))
 
         external_command(
             command,
-            cwd=os.path.dirname(pdf_file),
+            cwd=pdf_file.parent,
             # show the Window if not using a Windows shell, i.e., powershell or
             # cmd
             show_window=(
@@ -142,8 +138,8 @@ class CommandViewer(BaseViewer):
 
         self._run_command(
             command=command,
-            pdf_file=pdf_file,
-            tex_file=tex_file,
+            pdf_file=Path(pdf_file),
+            tex_file=Path(tex_file),
             line=line,
             col=col,
             keep_focus=kwargs.get("keep_focus", True),
@@ -161,5 +157,5 @@ class CommandViewer(BaseViewer):
             return
 
         self._run_command(
-            command=command, pdf_file=pdf_file, keep_focus=kwargs.get("keep_focus", True)
+            command=command, pdf_file=Path(pdf_file), keep_focus=kwargs.get("keep_focus", True)
         )
