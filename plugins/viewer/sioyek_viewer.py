@@ -46,7 +46,7 @@ class SioyekViewer(BaseViewer):
             "--forward-search-column",
             f"{col}",
             "--inverse-search",
-            f'\"{get_sublime_exe()}\" \"%1:%2\"',
+            f'"{get_sublime_exe()}" "%1:%2"',
             pdf_file,
             **kwargs
         )

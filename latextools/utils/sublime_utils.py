@@ -32,7 +32,7 @@ def focus_st():
     sublime.set_timeout(focus, int(wait_time * 1000))
 
 
-def get_sublime_exe() -> Path:
+def get_sublime_exe() -> str:
     """
     Get the full path to the currently executing Sublime instance.
 
@@ -42,8 +42,8 @@ def get_sublime_exe() -> Path:
     platform = sublime.platform()
     plat_settings = cast(dict, get_setting(platform, {}))
     sublime_executable = plat_settings.get("sublime_executable")
-    if sublime_executable:
-        return Path(sublime_executable)
+    if sublime_executable and isinstance(sublime_executable, str):
+        return sublime_executable
 
     # we cache the results of the other checks, if possible
     if hasattr(get_sublime_exe, "result"):
@@ -62,7 +62,7 @@ def get_sublime_exe() -> Path:
     elif platform == "windows":
         executable = executable.parent / "subl.exe"
 
-    get_sublime_exe.result = executable
+    get_sublime_exe.result = str(executable)
     return get_sublime_exe.result
 
 

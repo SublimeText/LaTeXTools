@@ -56,7 +56,7 @@ class CommandViewer(BaseViewer):
         if not self.CONTAINS_VARIABLE.search(s):
             return (s, False)
 
-        sublime_binary = get_sublime_exe() or ""
+        sublime_binary = get_sublime_exe()
 
         pdf_file_path = os.path.split(pdf_file)[0]
         pdf_file_name = os.path.basename(pdf_file)
