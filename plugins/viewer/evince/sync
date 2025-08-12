@@ -10,7 +10,7 @@ SUBLIME="$2"
 # f=%f; sublime-text "${f#file://}:%l"
 #
 # where sublime-text is the name of the sublime-text binary
-EDITORCMD="f=\"%f\"; $SUBLIME \"\${f#file://}:%l\""
+EDITORCMD="f=\"%f\"; \"$SUBLIME\" \"\${f#file://}:%l\""
 
 PDFFILE="$3"
 
@@ -26,7 +26,7 @@ if [ -f "$PDFFILE" ];then
 	fi
 fi
 
-/usr/bin/evince "$3"
+/usr/bin/evince "$PDFFILE"
 
 if [ "$BACKWARD_SEARCH_PID" ];then
 	echo "Killing $BACKWARD_SEARCH_PID"

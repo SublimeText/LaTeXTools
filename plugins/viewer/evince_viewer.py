@@ -1,6 +1,9 @@
-import os
+from __future__ import annotations
+import stat
 import sublime
-import time
+
+from pathlib import Path
+from typing import cast
 
 from ...latextools.utils.external_command import check_call
 from ...latextools.utils.external_command import check_output
@@ -15,114 +18,113 @@ __all__ = ["EvinceViewer"]
 
 class EvinceViewer(BaseViewer):
 
-    PYTHON = None
+    _cached_python = None
 
-    def _get_evince_folder(self):
-        script_dir = os.path.join(sublime.cache_path(), "LaTeXTools", "viewer", "evince")
-        os.makedirs(script_dir, exist_ok=True)
+    @property
+    def _evince_folder(self) -> Path:
+        script_dir = Path(sublime.cache_path()) / "LaTeXTools" / "viewer" / "evince"
+        script_dir.mkdir(parents=True, exist_ok=True)
 
         # extract scripts to cache dir and run them from there
         for script_name in ("backward_search", "forward_search", "sync"):
-            script_file = os.path.join(script_dir, script_name)
-            if os.path.exists(script_file):
-                continue
-            try:
-                data = sublime.load_binary_resource(
-                    f"Packages/LaTeXTools/plugins/viewer/evince/{script_name}"
-                )
-            except FileNotFoundError:
-                sublime.error_message(
-                    f"Cannot find required script '{script_name}'\n"
-                    "for 'evince' viewer in LaTeXTools package."
-                )
-            else:
-                with open(script_file, "wb") as fobj:
-                    fobj.write(data)
+            script_file = script_dir / script_name
+            if not script_file.exists():
+                try:
+                    data = (
+                        sublime.load_binary_resource(
+                            f"Packages/LaTeXTools/plugins/viewer/evince/{script_name}"
+                        )
+                        .replace(b"\r\n", b"\n")
+                        .replace(b"\r", b"\n")
+                    )
+                except FileNotFoundError:
+                    sublime.error_message(
+                        f"Cannot find required script '{script_name}'\n"
+                        "for 'evince' viewer in LaTeXTools package."
+                    )
+                    continue
+
+                script_file.write_bytes(data)
+                script_file.chmod(script_file.stat().st_mode | stat.S_IXUSR)
 
         return script_dir
 
-    def _is_evince_running(self, pdf_file):
+    def _is_evince_running(self, pdf_file: str) -> bool:
         try:
             return f"evince {pdf_file}" in check_output(["ps", "xv"], use_texpath=False)
         except Exception:
             return False
 
-    def _get_settings(self):
-        """
-        returns evince-related settings as a tuple
-        (python, sync_wait)
-        """
-        linux_settings = get_setting("linux", {})
+    @property
+    def _python_binary(self) -> str:
+        linux_settings = cast(dict, get_setting("linux", {}))
         python = linux_settings.get("python")
-        if python is None or python == "":
-            if self.PYTHON is not None:
-                python = self.PYTHON
-            else:
+        if python and isinstance(python, str):
+            return python
+
+        if self._cached_python is None:
+            try:
+                check_call(["python3", "-c", "import dbus"], use_texpath=False)
+                self._cached_python = "python3"
+            except Exception:
                 try:
                     check_call(["python", "-c", "import dbus"], use_texpath=False)
-                    python = "python"
+                    self._cached_python = "python"
                 except Exception:
-                    try:
-                        check_call(["python3", "-c", "import dbus"], use_texpath=False)
-                        python = "python3"
-                    except Exception:
-                        sublime.error_message(
-                            """Cannot find a valid Python interpreter.
-                            Please set the python setting in your LaTeXTools
-                            settings.""".strip()
-                        )
-                        # exit the viewer process
-                        raise Exception("Cannot find a valid interpreter")
-                self.PYTHON = python
-        return (python, linux_settings.get("sync_wait") or 1.0)
+                    sublime.error_message(
+                        "Cannot find a valid Python interpreter.\n"
+                        "Please set the python setting in your LaTeXTools settings."
+                    )
+                    # exit the viewer process
+                    raise RuntimeError("Cannot find a valid python interpreter!")
 
-    def _launch_evince(self, pdf_file):
-        ev_path = self._get_evince_folder()
-        py_binary, _ = self._get_settings()
-        st_binary = get_sublime_exe()
+        return self._cached_python
 
-        external_command(
-            ["sh", os.path.join(ev_path, "sync"), py_binary, st_binary, pdf_file],
-            cwd=ev_path,
-            use_texpath=False,
-        )
+    def forward_sync(self, pdf_file: str, tex_file: str, line: int, col: int, **kwargs) -> None:
+        viewer_settings = cast(dict, get_setting("viewer_settings", {}))
+        bring_evince_forward = viewer_settings.get("bring_evince_forward", False)
+        keep_focus = kwargs.get("keep_focus", True)
+        evince_folder = self._evince_folder
+        python_binary = self._python_binary
 
-    def forward_sync(self, pdf_file, tex_file, line, col, **kwargs):
-        keep_focus = kwargs.pop("keep_focus", True)
-        bring_evince_forward = get_setting("viewer_settings", {}).get("bring_evince_forward", False)
+        def forward_search():
+            external_command(
+                [python_binary, "./forward_search", pdf_file, str(line), tex_file],
+                cwd=evince_folder,
+                use_texpath=False,
+            )
 
-        ev_path = self._get_evince_folder()
-        py_binary, sync_wait = self._get_settings()
-
-        evince_running = self._is_evince_running(pdf_file)
-        if not keep_focus or not evince_running or bring_evince_forward:
-            self._launch_evince(pdf_file)
+        if bring_evince_forward or not keep_focus or not self._is_evince_running(pdf_file):
+            external_command(
+                ["/bin/sh", "./sync", python_binary, get_sublime_exe(), pdf_file],
+                cwd=evince_folder,
+                use_texpath=False,
+            )
             if keep_focus:
                 self.focus_st()
 
-            time.sleep(sync_wait)
+            linux_settings = cast(dict, get_setting("linux", {}))
+            sync_wait = linux_settings.get("sync_wait", 1.0)
+            sublime.set_timeout(forward_search, int(1000 * sync_wait))
+
+        else:
+            forward_search()
+
+    def view_file(self, pdf_file: str, **kwargs) -> None:
+        keep_focus = kwargs.get("keep_focus", True)
+        if keep_focus and self._is_evince_running(pdf_file):
+            return
 
         external_command(
-            [
-                py_binary,
-                os.path.join(ev_path, "forward_search"),
-                pdf_file,
-                str(line),
-                tex_file,
-            ],
+            ["/bin/sh", "./sync", self._python_binary, get_sublime_exe(), pdf_file],
+            cwd=self._evince_folder,
             use_texpath=False,
         )
+        if keep_focus:
+            self.focus_st()
 
-    def view_file(self, pdf_file, **kwargs):
-        keep_focus = kwargs.pop("keep_focus", True)
-
-        if not keep_focus or not self._is_evince_running(pdf_file):
-            self._launch_evince(pdf_file)
-            if keep_focus:
-                self.focus_st()
-
-    def supports_platform(self, platform):
+    def supports_platform(self, platform: str) -> bool:
         return platform == "linux"
 
-    def supports_keep_focus(self):
+    def supports_keep_focus(self) -> bool:
         return True

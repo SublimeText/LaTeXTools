@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 2010 Jose Aliste <jose.aliste@gmail.com>
@@ -147,7 +147,7 @@ class EvinceWindowProxy:
 
 # This file offers backward search in any editor.
 #  evince_dbus pdf_file line_source input_file
-if __spec__.name == '__main__':
+if __name__ == '__main__':
     import dbus.mainloop.glib
     import sys
     import os
