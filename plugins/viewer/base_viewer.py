@@ -1,4 +1,4 @@
-import sys
+from __future__ import annotations
 
 from ...latextools.latextools_plugin import LaTeXToolsPlugin
 from ...latextools.utils import sublime_utils as st_utils
@@ -14,7 +14,7 @@ class BaseViewer(LaTeXToolsPlugin):
           of the `keep_focus` setting
     """
 
-    def forward_sync(self, pdf_file, tex_file, line, col, **kwargs):
+    def forward_sync(self, pdf_file: str, tex_file: str, line: int, col: int, **kwargs) -> None:
         """
         command to jump to the file at a specified line and column
 
@@ -31,7 +31,7 @@ class BaseViewer(LaTeXToolsPlugin):
         """
         raise NotImplementedError()
 
-    def view_file(self, pdf_file, **kwargs):
+    def view_file(self, pdf_file: str, **kwargs) -> None:
         """
         command to open a file
 
@@ -40,7 +40,7 @@ class BaseViewer(LaTeXToolsPlugin):
         """
         raise NotImplementedError()
 
-    def supports_keep_focus(self):
+    def supports_keep_focus(self) -> bool:
         """
         return True to indicate that this plugin supports the keep_focus
         setting or False (the default) to use the default refocus
@@ -48,7 +48,7 @@ class BaseViewer(LaTeXToolsPlugin):
         """
         return False
 
-    def supports_platform(self, platform):
+    def supports_platform(self, platform: str) -> bool:
         """
         return True to indicate that this plugin supports the reported
         platform or False to indicate that it is not supported in the
@@ -56,5 +56,5 @@ class BaseViewer(LaTeXToolsPlugin):
         """
         return True
 
-    def focus_st(self):
+    def focus_st(self) -> None:
         st_utils.focus_st()
