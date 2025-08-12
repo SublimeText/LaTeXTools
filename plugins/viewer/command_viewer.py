@@ -1,3 +1,4 @@
+from __future__ import annotations
 import os
 import re
 import shlex
@@ -12,7 +13,7 @@ from .base_viewer import BaseViewer
 
 __all__ = ["CommandViewer"]
 
-WINDOWS_SHELL = re.compile(r"\b(?:cmd|powershell)(?:.exe)?\b", re.UNICODE)
+WINDOWS_SHELL = re.compile(r"\b(?:cmd|powershell)(?:.exe)?\b", re.IGNORECASE | re.UNICODE)
 
 
 class CommandViewer(BaseViewer):
@@ -26,7 +27,7 @@ class CommandViewer(BaseViewer):
         re.IGNORECASE,
     )
 
-    def _replace_vars(self, s, pdf_file, tex_file=None, line="", col=""):
+    def _replace_vars(self, text: str, pdf_file: str, tex_file: str | None, line: int, col: int):
         """
         Function to substitute various values into a user-provided string
 
@@ -53,13 +54,10 @@ class CommandViewer(BaseViewer):
         $col                | column to sync to
         """
         # only do the rest if we must
-        if not self.CONTAINS_VARIABLE.search(s):
-            return (s, False)
+        if not self.CONTAINS_VARIABLE.search(text):
+            return (text, False)
 
-        sublime_binary = get_sublime_exe()
-
-        pdf_file_path = os.path.split(pdf_file)[0]
-        pdf_file_name = os.path.basename(pdf_file)
+        pdf_file_path, pdf_file_name = os.path.split(pdf_file)
         pdf_file_base_name, pdf_file_ext = os.path.splitext(pdf_file_name)
 
         if tex_file is None:
@@ -74,11 +72,10 @@ class CommandViewer(BaseViewer):
             else:
                 src_file = os.path.normpath(os.path.join(pdf_file_path, tex_file))
 
-            src_file_path = os.path.split(src_file)[0]
-            src_file_name = os.path.basename(src_file)
+            src_file_path, src_file_name = os.path.split(src_file)
             src_file_base_name, src_file_ext = os.path.splitext(src_file_name)
 
-        template = string.Template(s)
+        template = string.Template(text)
         return (
             template.safe_substitute(
                 pdf_file=pdf_file,
@@ -86,19 +83,27 @@ class CommandViewer(BaseViewer):
                 pdf_file_name=pdf_file_name,
                 pdf_file_ext=pdf_file_ext,
                 pdf_file_base_name=pdf_file_base_name,
-                sublime_binary=sublime_binary,
+                sublime_binary=get_sublime_exe(),
                 src_file=src_file,
                 src_file_path=src_file_path,
                 src_file_name=src_file_name,
                 src_file_ext=src_file_ext,
                 src_file_base_name=src_file_base_name,
-                line=line,
-                col=col,
+                line=str(line),
+                col=str(col),
             ),
             True,
         )
 
-    def _run_command(self, command, pdf_file, tex_file=None, line="", col=""):
+    def _run_command(
+        self,
+        command: list[str] | str,
+        pdf_file: str,
+        tex_file: str | None = None,
+        line: int = 0,
+        col: int = 0,
+        keep_focus: bool = True,
+    ):
         if isinstance(command, str):
             command = shlex.split(command, False, False)
 
@@ -112,7 +117,7 @@ class CommandViewer(BaseViewer):
 
         external_command(
             command,
-            cwd=os.path.split(pdf_file)[0],
+            cwd=os.path.dirname(pdf_file),
             # show the Window if not using a Windows shell, i.e., powershell or
             # cmd
             show_window=(
@@ -121,9 +126,11 @@ class CommandViewer(BaseViewer):
                 else False
             ),
         )
+        if keep_focus:
+            self.focus_st()
 
-    def forward_sync(self, pdf_file, tex_file, line, col, **kwargs):
-        command = (
+    def forward_sync(self, pdf_file: str, tex_file: str, line: int, col: int, **kwargs) -> None:
+        command: str = (
             get_setting("viewer_settings", {})
             .get(sublime.platform(), {})
             .get("forward_sync_command")
@@ -133,15 +140,26 @@ class CommandViewer(BaseViewer):
             self.view_file(pdf_file)
             return
 
-        self._run_command(command, pdf_file, tex_file, line, col)
+        self._run_command(
+            command=command,
+            pdf_file=pdf_file,
+            tex_file=tex_file,
+            line=line,
+            col=col,
+            keep_focus=kwargs.get("keep_focus", True),
+        )
 
-    def view_file(self, pdf_file, **kwargs):
-        command = get_setting("viewer_settings", {}).get(sublime.platform(), {}).get("view_command")
+    def view_file(self, pdf_file: str, **kwargs) -> None:
+        command: str = (
+            get_setting("viewer_settings", {}).get(sublime.platform(), {}).get("view_command")
+        )
 
         if command is None:
             sublime.error_message(
-                "You must set the command setting in viewer_settings before " "using the viewer."
+                "You must set the command setting in viewer_settings before using the viewer."
             )
             return
 
-        self._run_command(command, pdf_file)
+        self._run_command(
+            command=command, pdf_file=pdf_file, keep_focus=kwargs.get("keep_focus", True)
+        )
