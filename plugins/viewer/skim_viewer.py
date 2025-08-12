@@ -80,3 +80,10 @@ class SkimViewer(BaseViewer):
 
     def supports_platform(self, platform: str) -> bool:
         return platform == "osx"
+
+
+def latextools_plugin_loaded():
+    # ensure to work with up-to-date scripts after package updates
+    from shutil import rmtree
+    script_dir = Path(sublime.cache_path()) / "LaTeXTools" / "viewer" / "skim"
+    rmtree(script_dir, ignore_errors=True)

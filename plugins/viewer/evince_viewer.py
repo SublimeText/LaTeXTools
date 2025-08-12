@@ -128,3 +128,10 @@ class EvinceViewer(BaseViewer):
 
     def supports_keep_focus(self) -> bool:
         return True
+
+
+def latextools_plugin_loaded():
+    # ensure to work with up-to-date scripts after package updates
+    from shutil import rmtree
+    script_dir = Path(sublime.cache_path()) / "LaTeXTools" / "viewer" / "evince"
+    rmtree(script_dir, ignore_errors=True)
