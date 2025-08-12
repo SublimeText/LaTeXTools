@@ -26,7 +26,7 @@ class SioyekViewer(BaseViewer):
 
         command = [sioyek_binary]
 
-        keep_focus = kwargs.pop("keep_focus", True)
+        keep_focus = kwargs.get("keep_focus", True)
         if keep_focus:
             command.append("--nofocus")
 
