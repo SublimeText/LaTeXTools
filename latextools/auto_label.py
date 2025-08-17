@@ -1,4 +1,5 @@
 import re
+import unicodedata
 
 import sublime
 import sublime_plugin
@@ -30,17 +31,28 @@ def _create_label_content(command_content):
     char_replace = get_setting("auto_label_char_replace", {})
     for c in command_content:
         c = c.lower()
-        if re.match(r"[a-z0-9]", c):
-            label_content.append(c)
-            is_underscore = False
-        elif c in char_replace:
+        if c in char_replace:
             label_content.append(char_replace[c])
+            is_underscore = False
+            continue
+        decomposed = unicodedata.normalize("NFKD", c)
+        added = False
+        for ch in decomposed:
+            if unicodedata.category(ch) == "Mn":
+                continue
+            if ch == "ß":
+                label_content.extend(["s", "s"])
+                added = True
+                continue
+            if ("a" <= ch <= "z") or ("0" <= ch <= "9"):
+                label_content.append(ch)
+                added = True
+        if added:
             is_underscore = False
         elif not is_underscore:
             label_content.append("_")
             is_underscore = True
-    label_content = "".join(label_content)
-    return label_content
+    return "".join(label_content)
 
 
 def _find_label_type_by_env(view, pos):
