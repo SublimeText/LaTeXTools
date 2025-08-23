@@ -64,7 +64,7 @@ class SkimViewer(BaseViewer):
             script_file.write_bytes(data)
             script_file.chmod(script_file.stat().st_mode | stat.S_IXUSR)
 
-        command = ["/bin/sh", script_file, "-r"]
+        command = ["/bin/sh", str(script_file), "-r"]
 
         if keep_focus:
             command.append("-g")
