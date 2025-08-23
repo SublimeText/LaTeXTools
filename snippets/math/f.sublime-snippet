@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[\phi]]></content>
+	<tabTrigger>f</tabTrigger>
+	<scope>text.tex.latex meta.environment.math</scope>
+	<description>\phi</description>
+</snippet>

@@ -1,5 +1,0 @@
-LaTeXTools Plugin version 3.7.5 (2016-04-20) changelog:
-
-Bugfix:
-
-- Fix delete_temp_files reported in #692

@@ -17,6 +17,7 @@
 		"addsec",
 		"minisec"
 	],
+
 	// a mapping from each section command to its indent
 	"toc_indentations": {
 		"part": 0,
@@ -31,6 +32,7 @@
 		"minisec": 2,
 		"label": 0
 	},
+
 	// the label commands, i.e. the commands,
 	// which will be shown/hidden using "Show Label" and "Hide Label"
 	"toc_labels": [
@@ -48,7 +50,7 @@
 	//   "command": "latextools_toggle_keys", "args": {"prefix": "ab"},
 	//   "context":
 	//   [
-	//     {"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
+	//     {"key": "selector", "operand": "text.tex.latex"}
 	//   ]
 	// },
 	"toggle_setting_keys": [
@@ -64,8 +66,6 @@
 		["auto_label_auto_trigger", "aa"],
 		["smart_bracket_auto_trigger", "ab"],
 	],
-
-
 
 // ------------------------------------------------------------------
 // Smart-paste config
@@ -85,10 +85,10 @@
 		"\\end{figure}",
 	],
 
-
 // ------------------------------------------------------------------
 // Auto-label config
 // ------------------------------------------------------------------
+
 	// A mapping from the commands to their abbreviation, i.e. \label{abbrv:text}
 	"auto_label_command_mapping": {
 		"part": "part",
@@ -118,12 +118,11 @@
 		"ß": "ss",
 	},
 
-
-
 // ------------------------------------------------------------------
 // Opening files included into the tex source code
 // ------------------------------------------------------------------
-// the commands to open image files. The extensions will be matched from top to bottom.
+
+	// The commands to open image files. The extensions will be matched from top to bottom.
 	// If no extension is given, all extensions will be matched.
 	// If there is no match the image will be opened with Sublime Text.
 	// the extension:
@@ -179,10 +178,35 @@
 		]
 	},
 
+// ------------------------------------------------------------------
+// Preview Settings
+// ------------------------------------------------------------------
+
+	// The maximal number of thread used to convert images for the math live preview
+	// and the image preview (which requires this to convert pdf files to png thumbnails).
+	// Decrease this number if you are running in performance issues while editing math
+	// or viewing images.
+	// This must be greater than 0.
+	"preview_max_convert_threads": 2,
+
+	// The duration in which this exceeding will be checked in hours.
+	// Use -1 to not automatically delete the files.
+	"preview_temp_delete_period": 24,
 
 // ------------------------------------------------------------------
-// Math Preview
+// Image Preview Settings
 // ------------------------------------------------------------------
+
+	// Setting for the temporary folder, which hold the preview images.
+	// For performance reasons the images are cached and not directly deleted.
+	// The max size of the image and math preview folders in MB. If the folders
+	// exceed the size images will be deleted until the folders are 10% of that size.
+	"preview_image_temp_size": 30,
+
+// ------------------------------------------------------------------
+// Math Preview Settings
+// ------------------------------------------------------------------
+
 	// It is recommended to use the "preview_math_template_packages" and
 	// "preview_math_template_preamble" setting to define your template file.
 	// However if you don't like this you can also also set the absolute path to
@@ -196,31 +220,14 @@
 	// add the field <<set_color>> at the begin of the document (above <<content>>).
 	"preview_math_template_file": null,
 
-	// The maximal number of thread used to convert images for the math live preview
-	// and the image preview (which requires this to convert pdf files to png thumbnails).
-	// Decrease this number if you are running in performance issues while editing math
-	// or viewing images.
-	// This must be greater than 0.
-	"preview_max_convert_threads": 2,
-
 	// Setting for the temporary folder, which hold the preview images.
 	// For performance reasons the images are cached and not directly deleted.
 	// The max size of the image and math preview folders in MB. If the folders
 	// exceed the size images will be deleted until the folders are 10% of that size.
 	"preview_math_temp_size": 50,
-	"preview_image_temp_size": 30,
-
-	// The duration in which this exceeding will be checked in hours.
-	// Use -1 to not automatically delete the files.
-	"preview_temp_delete_period": 24,
 
 	// --- Settings for Ghostscript conversion to PNG ---
-	// The density of the preview image. The higher the density the larger the phantom.
-	"preview_math_density": 150,
-	// If the image is not sharp enough increase this scale to get a better resolution.
-	// However also change the density by the same factor to keep the size the
-	// same.
-	"preview_math_scale_quotient": 1,
+
 	// If this is true, the image will be rendered at a higher resolution and
 	// then scaled down. This generally results in a clearer image.
 	"preview_math_hires": true,
@@ -232,14 +239,15 @@
 	// 
 	// Controls the maximum size of the image stored in memory
 	"preview_math_max_bitmap": 1000000,
+
 	// Controls the maximum buffer space for images that do not fit
 	// in the `preview_math_max_bitmap` space
 	"preview_math_bufferspace": 4000000,
 
-
 // ------------------------------------------------------------------
 // Additional fill all helper settings (for experts)
 // ------------------------------------------------------------------
+
 	// entries for the fill all helper
 	// each entry can have the following keys:
 	// regex: the regex before the opening bracket in reversed order,

@@ -1,0 +1,12 @@
+%YAML 1.2
+---
+# https://www.sublimetext.com/docs/syntax.html
+name: BibLaTeX
+scope: text.biblatex
+
+file_extensions:
+  - bib
+
+contexts:
+  main:
+    - include: scope:text.bibtex

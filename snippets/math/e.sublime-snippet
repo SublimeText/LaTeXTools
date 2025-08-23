@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[\epsilon]]></content>
+	<tabTrigger>e</tabTrigger>
+	<scope>text.tex.latex meta.environment.math</scope>
+	<description>\epsilon</description>
+</snippet>

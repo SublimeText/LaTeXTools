@@ -1,0 +1,16 @@
+# Skip the following content from *.sublime-package files
+
+# Git & Github
+.github/            export-ignore
+.gitattributes      export-ignore
+.gitignore          export-ignore
+
+# Documentation
+docs/               export-ignore
+mkdocs.yml          export-ignore
+
+# Development
+.venv/              export-ignore
+tests/              export-ignore
+*.py[co]            export-ignore
+pyproject.toml      export-ignore

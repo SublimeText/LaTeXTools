@@ -1,0 +1,13 @@
+LaTeXTools Plugin version 4.0.0
+-------------------------------
+
+This is a major update targetting ST 3143+ and ST 4107+.
+
+ST2 support is completely removed and support for ST 4107+ and python 3.8 is added.
+
+All commnands have been renamed to follow a common naming schema.
+Therefore customized key bindings need to be updated.
+
+To easily find them, run `LaTeXTools: Find deprecated commands` from Command Palette,
+if a key bindings file is opened. Note: It requires PackageDev to be installed.
+

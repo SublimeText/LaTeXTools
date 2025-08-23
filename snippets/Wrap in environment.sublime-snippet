@@ -1,0 +1,9 @@
+<snippet>
+	<content><![CDATA[
+\\begin{${1:env}}
+	$SELECTION
+\\end{$1}
+]]></content>
+	<scope>text.tex.latex</scope>
+	<description>Turn selection into LaTeX environment</description>
+</snippet>

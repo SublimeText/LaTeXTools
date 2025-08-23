@@ -1,0 +1,20 @@
+LaTeXTools 4.4.0
+----------------
+
+  LaTeXTools is now installed as normal sublime-package file.
+
+  Sublime Text needs to be restarted for the plugin to function again.
+
+  File based LaTeXTools specific plugin ecosystem has been replaced
+  to maintain compatibility with future versions of python and Sublime Text.
+
+  Plugins are therefore no longer searched and loaded by file name.
+  Instead all sub-classes of `LaTeXToolsPlugin` class are automatically
+  registered if their owning python module is loaded.
+
+  This should also resolve an issue, which caused builder or viewer plugins
+  to no longer work after upgrades, until ST is restarted.
+
+  If you encounter any issues, please open an issue at:
+
+     https://github.com/SublimeText/LaTeXTools/issues

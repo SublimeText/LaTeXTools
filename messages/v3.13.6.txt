@@ -1,4 +1,0 @@
-LaTeXTools Plugin version 3.13.6 (2017-04-25) changelog:
-
-Bugfixes:
-- Various minor bugfixes

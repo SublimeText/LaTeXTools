@@ -1,0 +1,6 @@
+LaTeXTools 4.3.0
+----------------
+
+LaTeXTools ships more recent cwl files from TeXStudio, directly.
+
+LaTeX-cwl package is therefore no longer required and can be removed.

@@ -1,9 +1,0 @@
-LaTeXTools Plugin version 3.12.8 (2016-11-15) changelog:
-
-Features:
-- Added a disable button to the math-live preview
-
-Bugfixes:
-- Fixed wrong math environment detection in some cases (#936)
-- Fixed a bug, which may lead to a decoding error (#934)
-- Fixed a bug in which SumatraPDF wasn't open (#941)

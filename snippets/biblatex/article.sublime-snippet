@@ -1,0 +1,14 @@
+<snippet>
+	<content><![CDATA[
+% Optional fields: translator, annotator, commentator, subtitle, titleaddon, editor, editora, editorb, editorc, journalsubtitle, issuetitle, issuesubtitle, language, origlanguage, series, volume, number, eid, issue, month, pages, version, note, issn, addendum, pubstate, doi, eprint, eprintclass, eprinttype, url, urldate
+@article{${1:Key},
+	author = {${2:Author}},
+	title = {${3:Title}},
+	journaltitle = {${4:Journaltitle}},
+	year = {${5:Year}}
+}
+]]></content>
+	<tabTrigger>article</tabTrigger>
+	<scope>text.biblatex - meta.entry.braces.bibtex - meta.entry.parenthesis.bibtex - meta.entry.arguments.bibtex</scope>
+	<description>BibLaTeX Article</description>
+</snippet>

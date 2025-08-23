@@ -1,6 +1,6 @@
 # Recommended Packages
 
-This sections is an overview of other Sublime Text packages, which have LaTeX or general text writing support and work together with LaTeXTools.
+This section is an overview of other Sublime Text packages, which have LaTeX or general text writing support and work together with LaTeXTools.
 It is recommended to install the packages using [Package Control].
 This is neither a full list of all packages you may possible want to install nor a list of "must have" packages. However they are a collection of packages useful for tex writing you may consider to install.
 
@@ -10,10 +10,6 @@ This is neither a full list of all packages you may possible want to install nor
 ## Packages used by LaTeXTools
 
 You should install these packages. They provide data, which is used by LaTeXTools or Sublime Text.
-
-### LaTeX-cwl
-
-The [LaTeX-cwl] package contains cwl files. These files are used by LaTeXTools to provide completions for commands and environments. *It is highly recommended to install that package.*
 
 ### Dictionaries
 
@@ -57,7 +53,7 @@ With [MultiEditUtils] you improve the control of your multiple selections. It ha
 
 [AlignTab] adds a command to align tables. This can be useful for `tabular` and `align` environments.
 
-``` js
+``` json
 // aligntab in tabular environment (context only available ST build 3127+)
 {
     "keys": ["ctrl+l", "ctrl+alt+f"],
@@ -65,9 +61,8 @@ With [MultiEditUtils] you improve the control of your multiple selections. It ha
     "args": {
         "user_input": "\\&"
     },
-    "context":
-    [
-        { "key": "selector", "operator": "equal", "operand": "text.tex.latex meta.environment.tabular" }
+    "context": [
+        { "key": "selector", "operand": "text.tex.latex meta.environment.tabular" }
     ]
 },
 // aligntab in math environments (for align)
@@ -77,9 +72,8 @@ With [MultiEditUtils] you improve the control of your multiple selections. It ha
     "args": {
         "user_input": "\\&"
     },
-    "context":
-    [
-        { "key": "selector", "operator": "equal", "operand": "text.tex.latex meta.environment.math.block.be" }
+    "context": [
+        { "key": "selector", "operand": "text.tex.latex meta.environment.math.block.be" }
     ]
 },
 ```
@@ -92,7 +86,7 @@ Just select the word (eg. with ExpandRegion) and press the increase or decrease 
 
 Example settings (Open *Preferences > Package Settings > Inc-Dec-Value > Settings - User*):
 
-``` js
+``` json
 {
     "action_inc_all":  1,
     "action_dec_all": -1,
@@ -113,7 +107,6 @@ Example settings (Open *Preferences > Package Settings > Inc-Dec-Value > Setting
 The packages [FileManager], [SideBarTools], and [SideBarEnhancement] all add features to manipulate files and the corresponding entries to the side bar and the quickpanel. Since there was a discussion about SideBarEnhancement violating the users privacy by collection anonymised statistics, there there has been published a fork with a subset of the features called SideBarTools. In addition to these FileManager is an additional package with a similar feature set. If you are unsure which package you want to use you may start with FileManager.
 
 [Package Control]:https://packagecontrol.io/
-[LaTeX-cwl]:https://github.com/LaTeXing/LaTeX-cwl
 [Dictionaries]:https://github.com/titoBouzout/Dictionaries
 [LaTeXSmartQuotes]:https://github.com/r-stein/sublime-text-latex-smart-quotes
 [LaTeXYZ]:https://github.com/randy3k/LaTeXYZ

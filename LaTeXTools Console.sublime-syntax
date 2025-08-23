@@ -1,0 +1,39 @@
+%YAML 1.2
+---
+# https://www.sublimetext.com/docs/syntax.html
+name: LaTeXTools Console
+scope: latextools.console
+hidden: true
+
+contexts:
+  main:
+    - match: No errors.
+      scope: latextools.console.heading.no.error
+    - match: (Errors:)$\n?
+      captures:
+        1: latextools.console.heading.error
+      push:
+        - match: (?=Warnings:|No warnings.|\[Done!\])
+          pop: true
+        - match: .+
+          scope: latextools.console.message.error markup.deleted
+    - match: No warnings.
+      scope: latextools.console.heading.no.warning
+    - match: (Warnings:)$\n?
+      captures:
+        1: latextools.console.heading.warning
+      push:
+        - match: ^(?=Bad Boxes:|No bad boxes.|\[Done!\])
+          pop: true
+        - match: .+
+          scope: latextools.console.message.warning markup.changed
+    - match: No bad boxes.
+      scope: latextools.console.heading.no.badbox
+    - match: (Bad Boxes:)$\n?
+      captures:
+        1: latextools.console.heading.badbox
+      push:
+        - match: ^(?=\[Done!\])
+          pop: true
+        - match: .+
+          scope: latextools.console.message.badbox constant.numeric

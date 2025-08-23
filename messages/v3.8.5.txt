@@ -1,6 +1,0 @@
-LaTeXTools Plugin version 3.8.5 (2016-07-07) changelog:
-
-Bugfixes:
-
-- Improve log parsing to resolve several reported errors (#751, #750, #654 and #539)
-- Fix the Basic builder to support output_directory when no aux_directory is specified (unreported)

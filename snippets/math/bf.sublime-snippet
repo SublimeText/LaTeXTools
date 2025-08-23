@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[\mathbf{${1:$SELECTION}}]]></content>
+	<tabTrigger>bf</tabTrigger>
+	<scope>text.tex.latex meta.environment.math</scope>
+	<description>\mathbf{}</description>
+</snippet>

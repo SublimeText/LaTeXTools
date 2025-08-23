@@ -1,16 +1,6 @@
-LaTeXTools Plugin version 3.14.1 (2017-06-01)
-
 Thank you for installing the LaTeXTools plugin!
 
-To learn about the features of this plugin, go to the Github page:
+To learn about the features of this plugin, go to:
 
-https://github.com/SublimeText/LaTeXTools
-
-and scroll down to the README file. Actually, the Markdown source of that file is in the plugin directory, which you can open using "Browse Packages..." in Sublime Text.
-
-You can also check out Marciano's blog at
-
-tekonomist.wordpress.com
-
-Happy TeXing!
-Ian Bacher, Marciano Siniscalchi, and Richard Stein
+- https://latextools.readthedocs.io
+- https://github.com/SublimeText/LaTeXTools

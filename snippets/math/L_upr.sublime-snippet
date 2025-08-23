@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[\Lambda]]></content>
+	<tabTrigger>L</tabTrigger>
+	<scope>text.tex.latex meta.environment.math</scope>
+	<description>\Lambda</description>
+</snippet>

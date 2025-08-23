@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[\cup]]></content>
+	<tabTrigger>cu</tabTrigger>
+	<scope>text.tex.latex meta.environment.math</scope>
+	<description>\cup</description>
+</snippet>

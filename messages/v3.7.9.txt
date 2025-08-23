@@ -1,6 +1,0 @@
-LaTeXTools Plugin version 3.7.9 (2016-04-28) changelog:
-
-Bugfixes:
-
-- Better support for custom syntax files as ST3's new sublime-syntax
-- Forward sync again send the full path to the source file (#707)

@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[\nu]]></content>
+	<tabTrigger>n</tabTrigger>
+	<scope>text.tex.latex meta.environment.math</scope>
+	<description>\nu</description>
+</snippet>

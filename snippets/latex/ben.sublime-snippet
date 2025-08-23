@@ -1,0 +1,9 @@
+<snippet>
+	<content><![CDATA[\begin{enumerate}
+	\item $0
+\end{enumerate}
+]]></content>
+	<tabTrigger>ben</tabTrigger>
+	<scope>text.tex.latex - text.tex.latex meta.environment.math</scope>
+	<description>\begin{enumerate}</description>
+</snippet>

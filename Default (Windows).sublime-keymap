@@ -1,16 +1,24 @@
 /*
-LaTeX Package keymap for Windows
+LaTeX Package keymap for Linux
 */
 [
-	// these also override ST3 commands
+	// Hide inline build error phantoms
+	{
+		"keys": ["escape"],
+		"command": "latextools_make_pdf", "args": { "hide_annotations_only": true },
+		"context": [
+			{ "key": "latextools_inline_errors_visible" }
+		]
+	},
+
+	// these also override ST commands
 	{
 		"keys": ["ctrl+v"],
 		"command": "latextools_smart_paste",
-		"context":
-		[
+		"context": [
 			{ "key": "selector", "operand": "text.tex.latex" },
-			{ "key": "latextools.setting.enable_smart_paste" },
-		],
+			{ "key": "latextools.setting.enable_smart_paste" }
+		]
 	},
 
 	// New-style keybindings use "ctrl+l" as a prefix
@@ -20,153 +28,207 @@ LaTeX Package keymap for Windows
 	// pollute the standard bindings
 
 	// Reassign expand_selection to ctrl+l, ctrl+l
-	{ 	"keys": ["ctrl+l","ctrl+l"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "expand_selection", "args": {"to": "line"} },
-
-	// Avoid weird brace-matching behavior with indented text
-	{ "keys": ["{"], "command": "insert_snippet", "args": {"contents": "{$0}"}, "context":
-		[
-			{ "key": "indented_block", "match_all": true },
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
-			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
-			{ "key": "following_text", "operator": "regex_match", "operand": "^$", "match_all": true }
+	{
+		"keys": ["ctrl+l","ctrl+l"],
+		"command": "expand_selection", "args": { "to": "line" },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" }
 		]
 	},
 
 	// Insert latex command or environment, and close current environment
-	{ 	"keys": ["ctrl+l","c"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latextools_latex_cmd"},
-	{ 	"keys": ["ctrl+l","e"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latextools_latex_env"},
-	{ 	"keys": ["ctrl+l","."],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latextools_latex_env_closer"},
+	{
+		"keys": ["ctrl+l","c"],
+		"command": "latextools_latex_cmd",
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
+	{
+		"keys": ["ctrl+l","e"],
+		"command": "latextools_latex_env",
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
+	{
+		"keys": ["ctrl+l","."],
+		"command": "latextools_latex_env_closer",
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
 
+	// ------------------------------------------------------------------
 	// Bindings for completions
-	// ctrl+l,ctrl+space suggests ST2's standard autocompletion keybinding, but for LaTeX;
+	// ctrl+l,alt+/ suggests ST2's standard autocompletion keybinding, but for LaTeX;
 	// ctrl+l,x suggests "cross" references, which both cites and refs are
 	// TODO: remove ctrl+l,ctrl+space
-	{ 	"keys": ["ctrl+l","ctrl+space"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latextools_fill_all"},
-	{ 	"keys": ["ctrl+l","x"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latextools_fill_all", "args": {"completion_type": ["cite", "ref"]}},
+	// ------------------------------------------------------------------
 
+	{
+		"keys": ["ctrl+l","ctrl+space"],
+		"command": "latextools_fill_all",
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
+	{
+		"keys": ["ctrl+l","x"],
+		"command": "latextools_fill_all", "args": { "completion_type": ["cite", "ref"] },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
+	{
+		"keys": ["ctrl+l","alt+x","c"],
+		"command": "latextools_fill_all", "args": { "completion_type": "cite", "force": true },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
+	{
+		"keys": ["ctrl+l","alt+x","r"],
+		"command": "latextools_fill_all", "args": { "completion_type": "ref", "force": true },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
+
+	// ------------------------------------------------------------------
 	// Fill helper command
-	{	"keys": ["ctrl+l","ctrl+f"],
+	// ------------------------------------------------------------------
+
+	{
+		"keys": ["ctrl+l","ctrl+f"],
+		"command": "latextools_fill_all",
 		"context": [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latextools_fill_all"},
-	{	"keys": ["ctrl+l","ctrl+alt+f"],
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
+	{
+		"keys": ["ctrl+l","ctrl+alt+f"],
+		"command": "latextools_fill_all", "args": { "overwrite": true },
 		"context": [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latextools_fill_all", "args": {"overwrite": true}},
-	{	"keys": ["ctrl+l","alt+x","c"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latextools_fill_all", "args": {"completion_type": "cite", "force": true}},
-	{	"keys": ["ctrl+l","alt+x","r"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latextools_fill_all", "args": {"completion_type": "ref", "force": true}},
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
 
-	{	"keys": ["{"],
-		"context":  [
-			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
-			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
-			{"key": "lt_fill_all_ref.open_curly", "operator": "equal", "match_all": true, "operand": true}],
-		"command": "latextools_fill_all", "args": {"completion_type": "ref", "insert_char": "{"}},
+	// \cite{,}
+	{
+		"keys": ["{"],
+		"command": "latextools_fill_all", "args": { "completion_type": "cite", "insert_char": "{" },
+		"context": [
+			{ "key": "setting.disable_latex_ref_cite_auto_trigger", "operand": false },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex - comment" },
+			{ "key": "lt_fill_all_cite.open_curly", "match_all": true }
+		]
+	},
+	{
+		"keys": ["["],
+		"command": "latextools_fill_all", "args": { "completion_type": "cite", "insert_char": "[" },
+		"context": [
+			{ "key": "setting.disable_latex_ref_cite_auto_trigger", "operand": false },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex - comment" },
+			{ "key": "lt_fill_all_cite.open_square", "match_all": true }
+		]
+	},
+	{
+		"keys": [","],
+		"command": "latextools_fill_all", "args": { "completion_type": "cite", "insert_char": "," },
+		"context": [
+			{ "key": "setting.disable_latex_ref_cite_auto_trigger", "operand": false },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex - comment" },
+			{ "key": "lt_fill_all_cite.comma", "match_all": true }
+		]
+	},
 
-	{	"keys": ["{"],
-		"context":  [
-			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
-			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
-			{"key": "lt_fill_all_cite.open_curly", "operator": "equal", "match_all": true, "operand": true}],
-		"command": "latextools_fill_all", "args": {"completion_type": "cite", "insert_char": "{"}},
+	// \ref{,}
+	{
+		"keys": ["{"],
+		"command": "latextools_fill_all", "args": { "completion_type": "ref", "insert_char": "{" },
+		"context": [
+			{ "key": "setting.disable_latex_ref_cite_auto_trigger", "operand": false },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex - comment" },
+			{ "key": "lt_fill_all_ref.open_curly", "match_all": true }
+		]
+	},
+	{
+		"keys": [","],
+		"command": "latextools_fill_all", "args": { "completion_type": "ref", "insert_char": "," },
+		"context": [
+			{ "key": "setting.disable_latex_ref_cite_auto_trigger", "operand": false },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex - comment" },
+			{ "key": "lt_fill_all_ref.comma", "match_all": true }
+		]
+	},
+	{
+		"keys": ["="],
+		"command": "latextools_fill_all", "args": { "completion_type": "directive", "insert_char": "=" },
+		"context": [
+			{ "key": "setting.disable_latex_ref_cite_auto_trigger", "operand": false },
+			{ "key": "selector", "operand": "text.tex.latex comment.line.percentage" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "lt_fill_all_directive.equal_sign", "match_all": true }
+		]
+	},
 
-	{	"keys": [","],
-		"context":  [
-			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
-			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
-			{"key": "lt_fill_all_cite.comma", "operator": "equal", "match_all": true, "operand": true}],
-		"command": "latextools_fill_all", "args": {"completion_type": "cite", "insert_char": ","}},
+	// \input{,}
+	{
+		"keys": ["{"],
+		"command": "latextools_fill_all", "args": { "completion_type": "input", "insert_char": "{" },
+		"context": [
+			{ "key": "setting.disable_latex_ref_cite_auto_trigger", "operand": false },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex - comment" },
+			{ "key": "lt_fill_all_input.open_curly", "match_all": true }
+		]
+	},
+	{
+		"keys": [","],
+		"command": "latextools_fill_all", "args": { "completion_type": "input", "insert_char": "," },
+		"context": [
+			{ "key": "setting.disable_latex_ref_cite_auto_trigger", "operand": false },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex - comment" },
+			{ "key": "lt_fill_all_input.comma", "match_all": true }
+		]
+	},
 
-	{	"keys": [","],
-		"context":  [
-			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
-			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
-			{"key": "lt_fill_all_ref.comma", "operator": "equal", "match_all": true, "operand": true}],
-		"command": "latextools_fill_all", "args": {"completion_type": "ref", "insert_char": ","}},
+	// \begin{env}
+	{
+		"keys": ["{"],
+		"command": "latextools_fill_all", "args": { "completion_type": "env", "insert_char": "{" },
+		"context": [
+			{ "key": "setting.disable_latex_ref_cite_auto_trigger", "operand": false },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex - comment" },
+			{ "key": "lt_fill_all_env.open_curly", "match_all": true }
+		]
+	},
 
-	{	"keys": ["["],
-		"context":  [
-			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
-			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
-			{"key": "lt_fill_all_cite.open_square", "operator": "equal", "match_all": true, "operand": true}],
-		"command": "latextools_fill_all", "args": {"completion_type": "cite", "insert_char": "["}},
-
-	{	"keys": ["{"],
-		"context":  [
-			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
-			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
-			{"key": "lt_fill_all_input.open_curly", "operator": "equal", "operand": true, "match_all": true}],
-		"command": "latextools_fill_all", "args": {"completion_type": "input", "insert_char": "{"}},
-
-	{	"keys": [","],
-		"context":  [
-			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
-			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
-			{"key": "lt_fill_all_input.comma", "operator": "equal", "operand": true, "match_all": true}],
-		"command": "latextools_fill_all", "args": {"completion_type": "input", "insert_char": ","}},
-
-	{	"keys": ["{"],
-		"context":  [
-			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
-			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
-			{"key": "lt_fill_all_env.open_curly", "operator": "equal", "operand": true, "match_all": true}],
-		"command": "latextools_fill_all", "args": {"completion_type": "env", "insert_char": "{"}},
-
-	{	"keys": ["{"],
-		"context":  [
-			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - comment"},
-			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
-			{"key": "lt_fill_all_glossary.open_curly", "operator": "equal", "operand": true, "match_all": true}],
-		"command": "latextools_fill_all", "args": {"completion_type": "glossary", "insert_char": "{"}},
-
-	{	"keys": ["="],
-		"context":  [
-			{"key": "setting.disable_latex_ref_cite_auto_trigger", "operator": "not_equal", "operand": true},
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex comment.line.percentage"},
-			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true},
-			{"key": "lt_fill_all_directive.equal_sign", "operator": "equal", "match_all": true, "operand": true}],
-		"command": "latextools_fill_all", "args": {"completion_type": "directive", "insert_char": "="}},
+	// \glossary{env}
+	{
+		"keys": ["{"],
+		"command": "latextools_fill_all", "args": { "completion_type": "glossary", "insert_char": "{" },
+		"context": [
+			{ "key": "setting.disable_latex_ref_cite_auto_trigger", "operand": false },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex - comment" },
+			{ "key": "lt_fill_all_glossary.open_curly", "match_all": true }
+		]
+	},
 
 	// add a keybinding to auto-insert labels similar to the fill-all helper
 	{
 		"keys": ["ctrl+l","ctrl+f"],
 		"command": "latextools_auto_insert_label",
-		"context":
-		[
+		"context": [
 			{ "key": "selector", "operand": "text.tex.latex" },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\label\\{$", "match_all": true },
 			{ "key": "following_text", "operator": "regex_match", "operand": "\\}", "match_all": true }
@@ -176,313 +238,1020 @@ LaTeX Package keymap for Windows
 	{
 		"keys": ["{"],
 		"command": "latextools_auto_insert_label",
-		"context":
-		[
+		"context": [
+			{ "key": "latextools.setting.auto_label_auto_trigger" },
 			{ "key": "selector", "operand": "text.tex.latex" },
-			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\label$", "match_all": true },
-			{ "key": "latextools.setting.auto_label_auto_trigger" }
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\label$", "match_all": true }
 		]
 	},
 
-	// View PDF, jump to point, toggle editor/viewer focus
-	{ 	"keys": ["ctrl+l","v"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latextools_view_pdf"},
-	{ 	"keys": ["ctrl+l","j"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latextools_jump_to_pdf", "args": {"from_keybinding": true}},
+	// View PDF, jump to point, toggle editor/viewer focus and syncing behavior
 	{
-		"keys": ["ctrl+l", "t", "<character>"], "command": "latextools_toggle_keys",
-		"context":
-		[
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
-		],
+		"keys": ["ctrl+l","v"],
+		"command": "latextools_view_pdf",
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
 	},
 	{
-		"keys": ["ctrl+l", "t", "a", "<character>"], "command": "latextools_toggle_keys",
-		"args": {"prefix": "a"},
-		"context":
-		[
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}
-		],
+		"keys": ["ctrl+l","j"],
+		"command": "latextools_jumpto_pdf", "args": { "from_keybinding": true },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
+	{
+		"keys": ["ctrl+l", "t", "<character>"],
+		"command": "latextools_toggle_keys",
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
+	{
+		"keys": ["ctrl+l", "t", "a", "<character>"],
+		"command": "latextools_toggle_keys", "args": { "prefix": "a" },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
 	},
 
 	// Jump to a tex file (will create the file if it does not exists)
-	{ "keys": ["ctrl+l", "ctrl+o"],
+	{
+		"keys": ["ctrl+l", "ctrl+o"],
+		"command": "latextools_jumpto_file", "args": { "auto_create_missing_folders": true, "auto_insert_root": true },
 		"context": [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latextools_jumpto_file", "args": {"auto_create_missing_folders": true, "auto_insert_root": true}},
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
 	// Jump to anywhere
 	// This will select the executed jump according to the context,
 	// e.g. if the cursor is inside a ref command it will jump to the corresponding label
-	{ "keys": ["ctrl+l", "ctrl+j"],
+	{
+		"keys": ["ctrl+l", "ctrl+j"],
+		"command": "latextools_jumpto_anywhere",
 		"context": [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latextools_jumpto_anywhere"},
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
 
 	// Wrap selected text in command or environment
-	{ "keys": ["ctrl+l","ctrl+c"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Wrap in command.sublime-snippet"}},
-	{ "keys": ["ctrl+l","ctrl+n"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Wrap in environment.sublime-snippet"}},
-	{ "keys": ["ctrl+l","ctrl+n"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Insert environment.sublime-snippet"}},
+	{
+		"keys": ["ctrl+l","ctrl+c"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/Wrap in command.sublime-snippet" },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
+	{
+		"keys": ["ctrl+l","ctrl+n"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/Wrap in environment.sublime-snippet" },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
+	{
+		"keys": ["ctrl+l","ctrl+n"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/Insert environment.sublime-snippet" },
+		"context": [
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
 	// Change the surrounding environment
-	{ "keys": ["ctrl+l", "ctrl+shift+n"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latextools_change_environment"},
+	{
+		"keys": ["ctrl+l", "ctrl+shift+n"],
+		"command": "latextools_change_environment",
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
 	// Toggle the starred version of environment
-	{ "keys": ["ctrl+l", "ctrl+shift+8"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latextools_toggle_environment_star"},
+	{
+		"keys": ["ctrl+l", "ctrl+shift+8"],
+		"command": "latextools_toggle_environment_star",
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
 
 	// Wrap selected text in emph, bold or underline
-	{ "keys": ["ctrl+l","ctrl+e"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text emphasize.sublime-snippet"}},
-	{ "keys": ["ctrl+l","ctrl+b"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text boldface.sublime-snippet"}},
-	{ "keys": ["ctrl+l","ctrl+u"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text underline.sublime-snippet"}},
-	{ "keys": ["ctrl+l","ctrl+t"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "insert_snippet", "args": {"name":"Packages/LaTeXTools/Text monospace.sublime-snippet"}},
+	{
+		"keys": ["ctrl+l","ctrl+b"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/bf.sublime-snippet" },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
+		]
+	},
+	{
+		"keys": ["ctrl+l","ctrl+b"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/math/bf.sublime-snippet" },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" }
+		]
+	},
+	{
+		"keys": ["ctrl+l","ctrl+e"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/em.sublime-snippet" },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
+	{
+		"keys": ["ctrl+l","ctrl+s"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/sl.sublime-snippet" },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
+		]
+	},
+	{
+		"keys": ["ctrl+l","ctrl+t"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/tt.sublime-snippet" },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
+		]
+	},
+	{
+		"keys": ["ctrl+l","ctrl+t"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/math/tt.sublime-snippet" },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" }
+		]
+	},
+	{
+		"keys": ["ctrl+l","ctrl+u"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/un.sublime-snippet" },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
 
+	// ------------------------------------------------------------------
 	// Replace the `C-r` overlay and the `C-shift-r` overlay with a
 	// whole document overlay as opt-out
 	// Also add these overlays to `C-l, C-r` and `C-l, C-shift-r`
-	{ "keys": ["ctrl+r"], "command": "latextools_toc_quickpanel",
-		"args": {"only_current_file": true},
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex"},
-			{"key": "overwrite_goto_overlay"}]
+	// ------------------------------------------------------------------
+
+	{
+		"keys": ["ctrl+r"],
+		"command": "latextools_toc_quickpanel", "args": { "only_current_file": true },
+		"context": [
+			{ "key": "selector", "operand": "text.tex" },
+			{ "key": "overwrite_goto_overlay" }
+		]
 	},
-	{ "keys": ["ctrl+shift+r"], "command": "latextools_toc_quickpanel",
-		"args": {"only_current_file": false},
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex"},
-			{"key": "overwrite_goto_overlay"}]
+	{
+		"keys": ["ctrl+shift+r"],
+		"command": "latextools_toc_quickpanel", "args": { "only_current_file": false },
+		"context": [
+			{ "key": "selector", "operand": "text.tex" },
+			{ "key": "overwrite_goto_overlay" }
+		]
 	},
-	{ "keys": ["ctrl+l","ctrl+r"],
-		"args": {"only_current_file": true},
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex"}],
-		"command": "latextools_toc_quickpanel"},
-	{ "keys": ["ctrl+l","ctrl+shift+r"], "command": "latextools_toc_quickpanel",
-		"args": {"only_current_file": false},
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex"}],
-		"command": "latextools_toc_quickpanel"},
+	{
+		"keys": ["ctrl+l","ctrl+r"],
+		"command": "latextools_toc_quickpanel", "args": { "only_current_file": true },
+		"context": [
+			{ "key": "selector", "operand": "text.tex" }
+		]
+	},
+	{
+		"keys": ["ctrl+l","ctrl+shift+r"],
+		"command": "latextools_toc_quickpanel", "args": { "only_current_file": false },
+		"context": [
+			{ "key": "selector", "operand": "text.tex" }
+		]
+	},
+
+	{
+		"keys": ["tab"],
+		"command": "select",
+		"context": [
+			{ "key": "overlay_visible" },
+			{ "key": "setting.auto_complete_commit_on_tab" },
+			{ "key": "latextools.input_overlay_visible" }
+		],
+	},
 
 	// Show panel
-	{ "keys": ["shift+escape"],
+	{
+		"keys": ["shift+escape"],
+		"command": "show_panel", "args": { "panel": "output.latextools" },
 		"context": [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{"key": "panel_visible", "operator": "equal", "operand": false }],
-		"command": "show_panel", "args": {"panel": "output.latextools"}},
+			{ "key": "selector", "operand": "text.tex.latex" },
+			{ "key": "panel_visible", "operand": false }
+		]
+	},
 
-		// Auto-pair ``$''
-		// Lifted from default file
-	// insert matching $
-	// note the "key": "selector" line!
-	{ "keys": ["$"], "command": "insert_snippet", "args": {"contents": "\\$$0\\$"},
-	"context":
-		[
-			{ "key": "setting.command_mode", "operator": "equal", "operand": false },
-			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex" },
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
-			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
-			// do not insert this if it is escaped
-			{ "key": "preceding_text", "operator": "not_regex_contains", "operand": "(?:\\\\\\\\)*(?:\\\\|\\$)$", "match_all": true },
+	// ------------------------------------------------------------------
+	// Auto-pair braces/brackets/parentheses
+	// ------------------------------------------------------------------
+
+	// Auto-pair curly brackets (also in front of $)
+	{
+		"keys": ["{"],
+		"command": "insert_snippet", "args": {"contents": "{$0}"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math - meta.function.citation - meta.function.reference" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\$|$)", "match_all": true }
+		]
+	},
+	{
+		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\{$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\}", "match_all": true },
+		]
+	},
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\{ $", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^ \\}", "match_all": true },
+		]
+	},
+
+	// Auto-pair square brackets (also in front of $)
+	{
+		"keys": ["["],
+		"command": "insert_snippet", "args": {"contents": "[$0]"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math - meta.function.citation - meta.function.reference" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\$|$)", "match_all": true }
+		]
+	},
+	{
+		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\[$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\]", "match_all": true },
+		]
+	},
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\[ $", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^ \\]", "match_all": true },
+		]
+	},
+
+	// Auto-pair parentheses (also in front of $)
+	{
+		"keys": ["("],
+		"command": "insert_snippet", "args": {"contents": "($0)"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math - meta.function.citation - meta.function.reference" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\$|$)", "match_all": true }
+		]
+	},
+	{
+		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\($", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\)", "match_all": true },
+		]
+	},
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\( $", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^ \\)", "match_all": true },
+		]
+	},
+
+	// Auto-pair escaped curly braces
+	{
+		"keys": ["{"],
+		"command": "insert_snippet", "args": {"contents": "{$0\\\\}"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_escaped_brackets" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\\\|\\$|$)", "match_all": true },
+		]
+	},
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Twice.sublime-macro"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_escaped_brackets" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\\\{$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\\\}", "match_all": true },
+		]
+	},
+	{
+		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\\\{$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\\\}", "match_all": true },
+		]
+	},
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\\\{ $", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^ \\\\\\}", "match_all": true },
+		]
+	},
+
+	// Auto-pair escaped square brackets
+	{
+		"keys": ["["],
+		"command": "insert_snippet", "args": {"contents": "[$0\\\\]"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_escaped_brackets" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\\\|\\$|$)", "match_all": true },
+		]
+	},
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Twice.sublime-macro"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_escaped_brackets" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\\\[$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\\\]", "match_all": true },
+		]
+	},
+	{
+		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\\\[$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\\\]", "match_all": true },
+		]
+	},
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\\\[ $", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^ \\\\\\]", "match_all": true },
+		]
+	},
+
+	// Auto-pair escaped parentheses
+	{
+		"keys": ["("],
+		"command": "insert_snippet", "args": {"contents": "($0\\\\)"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_escaped_brackets" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\\\|\\$|$)", "match_all": true },
+		]
+	},
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Twice.sublime-macro"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_escaped_brackets" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\\\($", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\\\)", "match_all": true },
+		]
+	},
+	{
+		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\\\($", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\\\)", "match_all": true },
+		]
+	},
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\\\( $", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^ \\\\\\)", "match_all": true },
+		]
+	},
+
+	// Auto-pair left/right curly braces in math blocks
+	{
+		"keys": ["{"],
+		"command": "insert_snippet", "args": {"contents": "{$0\\\\right\\\\}"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_math_brackets" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\\\$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\\\(?!right\\\\\\})|\\$|$)", "match_all": true },
+		]
+	},
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Bracket 2.sublime-macro"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_math_brackets" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\\\\\{$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\right\\\\\\}", "match_all": true },
+		]
+	},
+	{
+		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\\\\\{$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\right\\\\\\}", "match_all": true },
+		]
+	},
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\\\\\{ $", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^ \\\\right\\\\\\}", "match_all": true },
+		]
+	},
+
+	// Auto-pair escaped square brackets in math blocks
+	{
+		"keys": ["["],
+		"command": "insert_snippet", "args": {"contents": "[$0\\\\right]"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_math_brackets" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\\\(?!right\\])|\\$|$)", "match_all": true },
+		]
+	},
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Bracket 1.sublime-macro"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_math_brackets" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\[$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\right\\]", "match_all": true },
+		]
+	},
+	{
+		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\[$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\right\\]", "match_all": true },
+		]
+	},
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\[ $", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^ \\\\right\\]", "match_all": true },
+		]
+	},
+
+	// Auto-pair escpaed parentheses in math blocks
+	{
+		"keys": ["("],
+		"command": "insert_snippet", "args": {"contents": "($0\\\\right)"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_math_brackets" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\\\(?!right\\))|\\$|$)", "match_all": true },
+		]
+	},
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Bracket 1.sublime-macro"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_math_brackets" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\($", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\right\\)", "match_all": true },
+		]
+	},
+	{
+		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\($", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\right\\)", "match_all": true },
+		]
+	},
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\( $", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^ \\\\right\\)", "match_all": true },
+		]
+	},
+
+	// Auto-pair left/right slashes in math blocks
+	{
+		"keys": ["/"],
+		"command": "insert_snippet", "args": {"contents": "/$0\\\\right/"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_math_brackets" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\\\(?!right/)|\\$|$)", "match_all": true },
+		]
+	},
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Bracket 1.sublime-macro"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_math_brackets" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left/$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\right/", "match_all": true },
+		]
+	},
+	{
+		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left/$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\right/", "match_all": true },
+		]
+	},
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left/ $", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^ \\\\right/", "match_all": true },
+		]
+	},
+
+	// Auto-pair left/right pipes in math blocks
+	{
+		"keys": ["|"],
+		"command": "insert_snippet", "args": {"contents": "|$0\\\\right|"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_math_brackets" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\s|\\)|\\]|\\}|\\\\(?!right\\|)|\\$|$)", "match_all": true },
+		]
+	},
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Bracket 1.sublime-macro"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_math_brackets" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\|$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\right\\|", "match_all": true },
+		]
+	},
+	{
+		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\|$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\\\right\\|", "match_all": true },
+		]
+	},
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "latextools.setting.auto_match_spaces" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math", "match_all": true },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*\\\\left\\| $", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^ \\\\right\\|", "match_all": true },
+		]
+	},
+
+	// ------------------------------------------------------------------
+	// Indent content between braces/brackets/parentheses
+	// ------------------------------------------------------------------
+
+	// Indent content
+	{
+		"keys": ["enter"], "command": "insert_snippet", "args": {"contents": "\n\t$0\n"},
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*(?:\\\\left)?(?:\\\\)?[(\\[{/|]$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\\\right)?(?:\\\\)?[)\\]}/|]", "match_all": true },
+		]
+	},
+	{
+		"keys": ["keypad_enter"], "command": "insert_snippet", "args": {"contents": "\n\t$0\n"},
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*(?:\\\\left)?(?:\\\\)?[(\\[{/|]$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\\\right)?(?:\\\\)?[)\\]}/|]", "match_all": true },
+		]
+	},
+
+	// ------------------------------------------------------------------
+	// Auto-pair |
+	// ------------------------------------------------------------------
+
+	{
+		"keys": ["|"],
+		"command": "insert_snippet", "args": {"contents": "|${0:$SELECTION}|"},
+		"context": [
+			{ "key": "setting.command_mode", "operand": false },
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "operand": false, "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
+
+	// ------------------------------------------------------------------
+	// Auto-pair $
+	// ------------------------------------------------------------------
+
+	{
+		"keys": ["$"],
+		"command": "insert_snippet", "args": { "contents": "\\$$0\\$" },
+		"context": [
+			{ "key": "setting.command_mode", "operand": false },
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "match_all": true },
 			// don't insert, it inside math environments
-			{ "key": "selector", "operator": "not_equal", "operand": "meta.environment.math, string.other.math", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex - meta.environment.math - string.other.math", "match_all": true },
+			// do not insert this if it is escaped
+			{ "key": "preceding_text", "operator": "not_regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*(?:\\\\|\\$)$", "match_all": true },
 			// don't insert, if there is an open dollar math environment at the end of the line
 			{ "key": "eol_selector", "operator": "not_equal",
 			  "operand": "meta.environment.math.inline.dollar - punctuation.definition.string.end, string.other.math - punctuation.definition.string.end",
 			  "match_all": true }
 		]
 	},
-	// fully close $$ environments
-	{ "keys": ["$"], "command": "insert", "args": {"characters": "$$"},
-	"context":
-		[
-			{ "key": "setting.command_mode", "operator": "equal", "operand": false },
-			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex meta.environment.math.block.dollar" },
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
-			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
-			// do not insert this if it is escaped
-			{ "key": "preceding_text", "operator": "not_regex_contains", "operand": "(?:\\\\\\\\)*(?:\\\\|\\$)$", "match_all": true }
+	{
+		"keys": ["$"],
+		"command": "insert_snippet", "args": { "contents": "\\$${0:$SELECTION}\\$" },
+		"context": [
+			{ "key": "setting.command_mode", "operand": false },
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "operand": false, "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex" }
 		]
 	},
-	// wrap in $
-	{ "keys": ["$"], "command": "insert_snippet", "args": {"contents": "\\$${0:$SELECTION}\\$"}, "context":
-		[
-			{ "key": "setting.command_mode", "operator": "equal", "operand": false },
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
-			{ "key": "selection_empty", "operator": "equal", "operand": false, "match_all": true }
-		]
-	},
-	// move over closing $
-	{ "keys": ["$"], "command": "move", "args": {"by": "characters", "forward": true}, "context":
-		[
-			{ "key": "setting.command_mode", "operator": "equal", "operand": false },
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
-			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
+	{
+		"keys": ["$"],
+		"command": "move", "args": { "by": "characters", "forward": true},
+		"context": [
+			{ "key": "setting.command_mode", "operand": false },
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selector", "operand": "text.tex.latex" },
+			{ "key": "selection_empty", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\$", "match_all": true }
 		]
 	},
-	// delete $ pair
-	{ "keys": ["backspace"], "command": "run_macro_file", "args": {"file": "Packages/Default/Delete Left Right.sublime-macro"}, "context":
-		[
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
-			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": { "file": "Packages/Default/Delete Left Right.sublime-macro" },
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex" },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\$$", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\$", "match_all": true }
 		]
 	},
 
-		// overlay specifications (Tobias Schmidt)
-	// FIXME: the scope for the four following should actually be text.tex.latex.beamer, but for some reason this does not seem to work
-	{ "keys": ["<"], "command": "insert_snippet", "args": {"contents": "<${1:+-}>$0"},
-	"context":
-		[
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex - (string.other.math, meta.environment.math)"},
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
-			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
+	// close math block
+	{
+		"keys": ["$"],
+		"command": "insert", "args": { "characters": "$$" },
+		"context": [
+			{ "key": "setting.command_mode", "operand": false },
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math.block.dollar" },
+			// do not insert this if it is escaped
+			{ "key": "preceding_text", "operator": "not_regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*(?:\\\\|\\$)$", "match_all": true }
+		]
+	},
+
+	// ------------------------------------------------------------------
+	// overlay specifications (Tobias Schmidt)
+	// FIXME: the scope for the four following should actually be text.tex.latex.beamer,
+	// but for some reason this does not seem to work
+	// ------------------------------------------------------------------
+
+	{
+		"keys": ["<"],
+		"command": "insert_snippet", "args": { "contents": "<${1:+-}>$0" },
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex - (string.other.math, meta.environment.math)" },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\(?:item|only|textbf|color|onslide|only|uncover|visible|invisible|alt|temporal)$", "match_all": true }
 		]
 	},
-	// wrap in <>
-	{ "keys": ["<"], "command": "insert_snippet", "args": {"contents": "<${0:$SELECTION}>"}, "context":
-		[
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
-			{ "key": "selection_empty", "operator": "equal", "operand": false, "match_all": true }
+	{
+		"keys": ["<"],
+		"command": "insert_snippet", "args": { "contents": "<${0:$SELECTION}>" },
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "operand": false, "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex" }
 		]
 	},
-	// move over closing >
-	{ "keys": [">"], "command": "move", "args": {"by": "characters", "forward": true}, "context":
-		[
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
-			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
+	{
+		"keys": [">"],
+		"command": "move", "args": { "by": "characters", "forward": true},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex" },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^>", "match_all": true }
 		]
 	},
-	// delete <> pair
-	{ "keys": ["backspace"], "command": "run_macro_file", "args": {"file": "Packages/Default/Delete Left Right.sublime-macro"}, "context":
-		[
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": { "file": "Packages/Default/Delete Left Right.sublime-macro" },
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex" },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "<$", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^>", "match_all": true }
 		]
 	},
-	// autopair quotation marks (`')
-	{ "keys": ["`"], "command": "insert_snippet", "args": {"contents": "`$0'"}, "context":
-		[
-			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
-			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
+
+	// ------------------------------------------------------------------
+	// Auto-pair quotation marks (`')
+	// ------------------------------------------------------------------
+
+	{
+		"keys": ["`"],
+		"command": "insert_snippet", "args": { "contents": "`$0'" },
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex" },
 		]
 	},
-	{ "keys": ["`"], "command": "insert_snippet", "args": {"contents": "`${0:$SELECTION}'"}, "context":
-		[
-			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
-			{ "key": "selection_empty", "operator": "equal", "operand": false, "match_all": true }
+	{
+		"keys": ["`"],
+		"command": "insert_snippet", "args": { "contents": "`${0:$SELECTION}'" },
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "operand": false, "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex" },
 		]
 	},
-	{ "keys": ["'"], "command": "move", "args": {"by": "characters", "forward": true}, "context":
-		[
-			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
-			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
+	{
+		"keys": ["'"],
+		"command": "move", "args": { "by": "characters", "forward": true},
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex" },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^'", "match_all": true }
 		]
 	},
-	{ "keys": ["backspace"], "command": "run_macro_file", "args": {"file": "Packages/Default/Delete Left Right.sublime-macro"}, "context":
-		[
-			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex"},
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
-			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true },
+	{
+		"keys": ["backspace"],
+		"command": "run_macro_file", "args": { "file": "Packages/Default/Delete Left Right.sublime-macro" },
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex" },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "`$", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^'", "match_all": true }
 		]
 	},
+
+	// ------------------------------------------------------------------
 	// automatic addition of new \items when hitting Shift+Enter in a list environment
-	{ "keys": ["shift+enter"], "command": "insert_snippet", "args": {"contents": "\n\\item $0"},
-	"context":
-		[
-			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex meta.environment.list, meta.function.environment.list.latex"},
-			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
-		]
-	},
 	// create a \item[] in a description environment
-	{ "keys": ["shift+enter"], "command": "insert_snippet", "args": {"contents": "\n\\item[$1] $0"},
-	"context":
-		[
-			{ "key": "selector", "operator": "equal", "operand": "text.tex.latex meta.environment.list.description"},
-			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
+	// ------------------------------------------------------------------
+
+	{
+		"keys": ["shift+enter"],
+		"command": "insert_snippet", "args": { "contents": "\n\\item $0" },
+		"context": [
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.list, meta.function.environment.list.latex" }
+		]
+	},
+	{
+		"keys": ["shift+keypad_enter"],
+		"command": "insert_snippet", "args": { "contents": "\n\\item $0" },
+		"context": [
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.list, meta.function.environment.list.latex" }
+		]
+	},
+	{
+		"keys": ["shift+enter"],
+		"command": "insert_snippet", "args": { "contents": "\n\\item[$1] $0" },
+		"context": [
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.list.description" }
+		]
+	},
+	{
+		"keys": ["shift+keypad_enter"],
+		"command": "insert_snippet", "args": { "contents": "\n\\item[$1] $0" },
+		"context": [
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.list.description" }
 		]
 	},
 
+	// ------------------------------------------------------------------
+	// automatic addition of new \task when hitting Shift+Enter in a list environment
+	// create a \task[] in a description environment
+	// ------------------------------------------------------------------
 
-	// shift+super+{up,down} for super/subscripts with braces
+	{
+		"keys": ["shift+enter"],
+		"command": "insert_snippet",
+		"args": { "contents": "\n\\task ${0:$SELECTION}" },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" },
+			{ "key": "latextools.env_selector", "operand": "tasks"},
+		]
+	},
+	{
+		"keys": ["shift+keypad_enter"],
+		"command": "insert_snippet",
+		"args": { "contents": "\n\\task ${0:$SELECTION}" },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" },
+			{ "key": "latextools.env_selector", "operand": "tasks"},
+		]
+	},
+
+	// ------------------------------------------------------------------
+	// ctrl+shift+{up,down} for ctrl/subscripts with braces
 	// (courtesy of Tobias Schmidt; I only changed the keybindings)
-	{ "keys": ["shift+super+down"], "command": "insert_snippet", "args": {"contents": "_{$1}$0"},
-	"context":
-		[
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex meta.environment.math"},
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
-			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
+	// ------------------------------------------------------------------
+
+	{
+		"keys": ["ctrl+shift+down"],
+		"command": "insert_snippet", "args": { "contents": "_{$1}$0" },
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" },
 		]
 	},
-
-	{ "keys": ["shift+super+up"], "command": "insert_snippet", "args": {"contents": "^{$1}$0"},
-	"context":
-		[
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex meta.environment.math"},
-			{ "key": "setting.auto_match_enabled", "operator": "equal", "operand": true },
-			{ "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
+	{
+		"keys": ["ctrl+shift+up"],
+		"command": "insert_snippet", "args": { "contents": "^{$1}$0" },
+		"context": [
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" },
 		]
 	},
-
 
 	// ctrl+l,backspace to remove temporary files
-	{ 	"keys": ["ctrl+l","backspace"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latextools_delete_temp_files"},
+	{
+		"keys": ["ctrl+l","backspace"],
+		"command": "latextools_delete_temp_files",
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
+
 	// Delete/clear local Cache
-	{ 	"keys": ["ctrl+l","ctrl+d","ctrl+c"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latextools_clear_local_cache"},
+	{
+		"keys": ["ctrl+l","ctrl+d","ctrl+c"],
+		"command": "latextools_clear_local_cache",
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
 
 	// ctrl+l,w to display word count
-	{	"keys": ["ctrl+l", "w"],
-		"context":  [
-			{"key": "selector", "operator": "equal", "operand": "text.tex.latex"}],
-		"command": "latextools_texcount" }
+	{
+		"keys": ["ctrl+l", "w"],
+		"command": "latextools_texcount",
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	}
 ]

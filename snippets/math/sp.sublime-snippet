@@ -1,0 +1,12 @@
+<snippet>
+	<content><![CDATA[\begin{split}
+$0
+\end{split}
+]]></content>
+	<tabTrigger>sp</tabTrigger>
+	<scope>text.tex.latex meta.environment.math</scope>
+	<description>\begin{split}
+
+\end{split}
+</description>
+</snippet>

@@ -11,24 +11,99 @@
 
 {
 
-
 // ------------------------------------------------------------------
 // General settings
 // ------------------------------------------------------------------
+
+	// Verbosity of console messages
+	// valid values are, "error", "warning", "info", "debug"
+	"log_level": "warning",
+
+	// Set this to false to disable the overwriting of the goto overlay for the hotkey `C-r` and `C-shift-r`
+	// You can still access the "table of content quickpanel" via `C-l, C-r` and  `C-shift-l, C-r`
+	"overwrite_goto_overlay": true,
+
+	// If smart paste is enabled LaTeXTools will overwrite the C-v command and
+	// analyze the clipboard content to check whether it should execute an action.
+	// So you can just paste image urls or paths into Sublime Text and it will automatically
+	// download the image and create a figure environment.
+	"enable_smart_paste": true,
+
+	// controls whether or not syntax is automatically set to LaTeX for
+	// files that match one of the configured `tex_file_exts`
+	"latextools_set_syntax": true,
+
+	// valid texfile extensions
+	"tex_file_exts": [".tex"],
+
+	// the mapping from the locales to the dictionaries for the
+	// `%!TEX spellcheck` directive, where the locales must be all lowercase
+	// and separated by a minus sign (-). The dictionaries must be valid path
+	// and compatible with the ST integrated spellcheck
+	// e.g.
+	// { "en-en": "Packages/Language - English/en_GB.dic" }
+	"tex_spellcheck_paths": {},
+
+	// sublevel to show counts for
+	// passed to texcount via the -sub= paramater
+	// valid values: "none", "part", "chapter", "section"
+	"word_count_sub_level": "none",
+
+	// auto-pair escaped brackets when typing
+	// e.g. \[ expands to \[\]
+	"auto_match_escaped_brackets": true,
+
+	// auto-pair special math related brackets when typing
+	// e.g. \left[ expands to \left[\right]
+	"auto_match_math_brackets": true,
+
+	// auto-pair leading and trailing spaces between brackets
+	// e.g. (|) expands to ( | ) by pressing "space"
+	// and ( | ) to (|) by pressing "backspace"
+	"auto_match_spaces": true,
+
+// ------------------------------------------------------------------
+// LaTeX Completions Settings
+// ------------------------------------------------------------------
+
+	// When to trigger cwl-command completion
+	// possible values are:
+	// "always" (always show command completions)
+	// "prefixed" (default, show command completions if the current word is prefixed with '\')
+	// "never" (never show command completions)
+	"command_completion": "prefixed",
+
+	// Controls loading completions based on packages in current document
+	// *in addition* to those specified in `cwl_list`.
+	"cwl_autoload": true,
+
+	// A list of cwl files to load by default, if available.
+	"cwl_list": [
+		"latex-document.cwl",
+		"tex.cwl",
+		"latex-dev.cwl",
+		"latex-209.cwl",
+		"latex-l2tabu.cwl",
+		"latex-mathsymbols.cwl",
+	],
+
+	// Controls whether the labels should automatically filled with a suggestion based
+	// on the section command.
+	"auto_label_auto_trigger": true,
 
 	// Cite/ref autocompletion by default is triggered after e.g. \ref{. If you don't like this,
 	// set to false. You can also use toggles: C-l,t,a,c and C-l,t,a,r.
 	"cite_auto_trigger": true,
 	"ref_auto_trigger": true,
 
+	// Fill-helper autocompletion trigger for environment names after \begin{ and \end{
+	// this might not have a complete list of all environments.
+	// You can also use toggle: C-l,t,a,e
+	"env_auto_trigger": false,
+
 	// Fill-helper autocompletion triggered for a wide range of references to external
 	// files. You can also use toggle: C-l,t,a,f
 	"fill_auto_trigger": true,
-
-	// Fill-helper autocompletion trigger for environment names after \begin{ and \end{
-	// this requires the LaTeX-cwl package and might not have a complete list of all environments.
-	// You can also use toggle: C-l,t,a,e
-	"env_auto_trigger": false,
 
 	// Fill-helper autocompletion trigger for glossary entries \gls{ and \acrfull{
 	"glossary_auto_trigger": true,
@@ -45,63 +120,41 @@
 	// You can also use the toggle C-l,t,a,b
 	"smart_bracket_auto_trigger": true,
 
-	// Controls whether the labels should automatically filled with a suggestion based
-	// on the section command.
-	"auto_label_auto_trigger": true,
-
-	// Keep focus on Sublime Text after building (true) or switch to PDF viewer (false)
-	// If you are on Windows or Linux and using ST2, you may need to set the
-	// "sublime_executable" setting for this to work in your platform settings.
-	"keep_focus": true,
-	// Sync PDF to current editor position after building (true) or not
-	"forward_sync": true,
-
-	// Set this to false to disable the overwriting of the goto overlay for the hotkey `C-r` and `C-shift-r`
-	// You can still access the "table of content quickpanel" via `C-l, C-r` and  `C-shift-l, C-r`
-	"overwrite_goto_overlay": true,
-
-	// If smart paste is enabled LaTeXTools will overwrite the C-v command and
-	// analyze the clipboard content to check whether it should execute an action.
-	// So you can just paste image urls or paths into Sublime Text and it will automatically
-	// download the image and create a figure environment.
-	"enable_smart_paste": true,
-
-	// When to trigger cwl-command completion (requires the LaTeX-cwl package)
-	// possible values are:
-	// "always" (always show command completions)
-	// "prefixed" (default, show command completions if the current word is prefixed with '\')
-	// "never" (never show command completions)
-	"command_completion": "prefixed",
-
-	// valid texfile extensions
-	"tex_file_exts": [".tex"],
-
-	// controls whether or not syntax is automatically set to LaTeX for
-	// files that match one of the configured `tex_file_exts`
-	"latextools_set_syntax": true,
-
-	// set to true to use BibLaTeX instead of BibTex for bibliography completions
-	// can also be set on a per-project basis
-	"use_biblatex": false,
-
-	// the mapping from the locales to the dictionaries for the
-	// `%!TEX spellcheck` directive, where the locales must be all lowercase
-	// and separated by a minus sign (-). The dictionaries must be valid path
-	// and compatible with the ST integrated spellcheck
-	// e.g.
-	// { "en-en": "Packages/Language - English/en_GB.dic" }
-	"tex_spellcheck_paths": {},
-
-	// sublevel to show counts for
-	// passed to texcount via the -sub= paramater
-	// valid values: "none", "part", "chapter", "section"
-	"word_count_sub_level": "none",
-
 // ------------------------------------------------------------------
-// Preview settings
+// Image Preview Settings
 // ------------------------------------------------------------------
 
-	// MATH LIVE PREVIEW
+	// The preview mode for image preview, possible values are:
+	// "all"       to show a phantom for each includegraphics command
+	// "selected"  to show a phantom only for the currently selected includegraphics command
+	// "hover"     to show a popup if you hover over an includegraphics command
+	// "none"      to disable image preview
+	"preview_image_mode": "hover",
+
+	// The image size in the preview popup.
+	// These are the outer dimensions of the maximal size.
+	// The image will be scaled down to fit into these dimensions.
+	// It can either be an number or an array, which consist of two numbers
+	// e.g. [200, 150]
+	"preview_popup_image_size": 200,
+
+	// The image size in the preview phantoms.
+	// These are the outer dimensions of the maximal size.
+	// The image will be scaled down to fit into these dimensions.
+	// It can either be an number or an array, which consist of two numbers
+	// e.g. [200, 150]
+	"preview_phantom_image_size": 150,
+
+	// Increase this number to get a better resolution on high dpi displays.
+	// Control the thumbnail image size, which will be generated to preview
+	// images, that are not natively supported like pdf files.
+	// E.g. a image size of 300 with a scale of 2 will create a
+	// thumbnail with the size 600, which is scaled down in the popup.
+	"preview_image_scale_quotient": 1,
+
+// ------------------------------------------------------------------
+// Math Preview Settings
+// ------------------------------------------------------------------
 
 	// The preview mode for math live preview, possible values are:
 	// "all"       to show a phantom for each math environment
@@ -120,6 +173,14 @@
 	// pdflatex, xelatex, lualatex, latex
 	// DON'T(!) use tex engines like pdftex
 	"preview_math_latex_compile_program": "pdflatex",
+
+	// The density of the preview image. The higher the density the larger the phantom.
+	"preview_math_density": 150,
+
+	// If the image is not sharp enough increase this scale to get a better resolution.
+	// However also change the density by the same factor to keep the size the
+	// same.
+	"preview_math_scale_quotient": 1,
 
 	// The color of the text in the preview math phantoms.
 	// Ensure you have the latex xcolor package available to change the color.
@@ -158,44 +219,16 @@
 	// therefore you can create a blacklist of such environments here.
 	"preview_math_no_star_envs": ["displaymath"],
 
-	// IMAGE PREVIEW
-
-	// The preview mode for image preview, possible values are:
-	// "all"       to show a phantom for each includegraphics command
-	// "selected"  to show a phantom only for the currently selected includegraphics command
-	// "hover"     to show a popup if you hover over an includegraphics command
-	// "none"      to disable image preview
-	"preview_image_mode": "hover",
-
-	// The image size in the preview popup.
-	// These are the outer dimensions of the maximal size.
-	// The image will be scaled down to fit into these dimensions.
-	// It can either be an number or an array, which consist of two numbers
-	// e.g. [200, 150]
-	"preview_popup_image_size": 200,
-
-	// The image size in the preview phantoms.
-	// These are the outer dimensions of the maximal size.
-	// The image will be scaled down to fit into these dimensions.
-	// It can either be an number or an array, which consist of two numbers
-	// e.g. [200, 150]
-	"preview_phantom_image_size": 150,
-
-	// Increase this number to get a better resolution on high dpi displays.
-	// Control the thumbnail image size, which will be generated to preview
-	// images, that are not natively supported like pdf files.
-	// E.g. a image size of 300 with a scale of 2 will create a
-	// thumbnail with the size 600, which is scaled down in the popup.
-	"preview_image_scale_quotient": 1,
-
 // ------------------------------------------------------------------
 // Temporary file settings
 // ------------------------------------------------------------------
+
 	// Ends of the names of temporary files to be deleted
 	"temp_files_exts": [
-		".blg",".bbl",".aux",".log",".brf",".nlo",".out",".dvi",".ps",
-		".lof",".toc",".fls",".fdb_latexmk",".pdfsync",".synctex.gz",
-		".ind",".ilg",".idx"
+		".aux", ".bbl", ".bcf", ".blg", ".brf", ".dvi", ".fdb_latexmk",
+		".fls", ".glo", ".idx", ".ilg", ".ind", ".lof", ".log", ".nlo",
+		".out", ".pdfsync", ".ps", ".run.xml", ".synctex.gz", ".thm",
+		".toc", ".xdy",
 	],
 
 	// Folders that are not traversed when deleting temp files
@@ -213,9 +246,18 @@
 
 	"osx": 	{
 		// Path used when invoking tex & friends; MUST include $PATH
-		"texpath" : "$PATH:/Library/TeX/texbin:/usr/texbin:/usr/local/bin:/opt/local/bin"
+		"texpath": "/Library/TeX/texbin:/usr/texbin:/usr/local/bin:/opt/local/bin:$PATH",
+		// Command to invoke Sioyek. If blank, "sioyek.exe" is used (it has to be on your PATH)
+		"sioyek": "",
+		// Absolute path to `sublime_text.exe` to construct subl command line calls,
+		// if the path to sublime_text executable cannot be discovered automatically.
+		// If blank, "subl" will be used.
+		"sublime_executable": "",
+		// how long (in ms) to wait after the latextools_jumpto_pdf command completes
+		// before switching focus back to Sublime Text. This may need to be
+		// adjusted depending on your machine and configuration.
+		"keep_focus_delay": 0.5,
 	},
-
 
 	"windows": {
 		// Path used when invoking tex & friends; "" is fine for MiKTeX
@@ -224,40 +266,43 @@
 		"texpath" : "",
 		// TeX distro: "miktex" or "texlive"
 		"distro" : "miktex",
+		// Command to invoke Sioyek. If blank, "sioyek.exe" is used (it has to be on your PATH)
+		"sioyek": "",
 		// Command to invoke Sumatra. If blank, "SumatraPDF.exe" is used (it has to be on your PATH)
 		"sumatra": "",
-		// Command to invoke Sublime Text. Used if the keep_focus toggle is true.
+		// Absolute path to `sublime_text.exe` to construct subl command line calls,
+		// if the path to sublime_text executable cannot be discovered automatically.
 		// If blank, "subl.exe" or "sublime_text.exe" will be used.
 		"sublime_executable": "",
-		// how long (in seconds) to wait after the latextools_jump_to_pdf command completes
+		// how long (in seconds) to wait after the latextools_jumpto_pdf command completes
 		// before switching focus back to Sublime Text. This may need to be
 		// adjusted depending on your machine and configuration.
-		"keep_focus_delay": 0.5
+		"keep_focus_delay": 1.0,
 	},
 
 	"linux" : {
 		// Path used when invoking tex & friends; MUST include $PATH
-		"texpath" : "$PATH:/usr/texbin",
+		"texpath" : "/usr/texbin:$PATH",
 		// Command to invoke Python. Useful if you have Python installed in a
 		// non-standard location or want to use a particular version of python.
 		// Only Python3 is supported, but must have the DBus bindings installed.
 		"python": "",
-		// The name of the ST2 or ST3 executable. On Ubuntu, both subl and sublime-text are
-		// available for ST2; adjust as needed for other platforms, and for ST3
-		"sublime": "sublime-text",
+		// Command to invoke Sioyek. If blank, "sioyek.exe" is used (it has to be on your PATH)
+		"sioyek": "",
 		// How long to wait after evince, xreader or okular has launched before sending a sync message
 		// in seconds, floating point; choose 2.0 or 3.0 on a slower machine, 0.5 on a fast one
 		// Note: only tweak this if sync after launching the PDF viewer does not seem to work,
 		// or if the PDF viewer opens instantly and you don't want to wait.
 		// Default: 1.5 (works on my MBP4,1...)
 		"sync_wait": 1.5,
-		// Command to invoke Sublime Text. Used if the keep_focus toggle is true.
-		// If blank, "subl" or "sublime_text" will be used.
+		// Absolute path to `sublime_text.exe` to construct subl command line calls,
+		// if the path to sublime_text executable cannot be discovered automatically.
+		// If blank, "subl" will be used.
 		"sublime_executable": "",
-		// how long (in ms) to wait after the latextools_jump_to_pdf command completes
+		// how long (in ms) to wait after the latextools_jumpto_pdf command completes
 		// before switching focus back to Sublime Text. This may need to be
 		// adjusted depending on your machine and configuration.
-		"keep_focus_delay": 0.5
+		"keep_focus_delay": 0.5,
 	},
 
 // ------------------------------------------------------------------
@@ -385,7 +430,6 @@
 	//
 	// NOTE: custom builders CANNOT have the same name as an existing
 	// built-in build engine (including "default")
-
 	"builder": "traditional",
 
 	// OPTION: "builder_path"
@@ -396,7 +440,6 @@
 	// (Note: if you choose "User", you may get a Python import error in the
 	// console, but things will still work).
 	// Leave empty ("") for a built-in builder.
-
 	"builder_path": "",
 
 	// OPTION: "builder_settings"
@@ -404,7 +447,6 @@
 	// Possible values: see README or documentation provided with
 	// third-party build engine.
 	// Builder setting can be general or OS-dependent
-
 	"builder_settings" : {
 
 		// General settings:
@@ -430,11 +472,11 @@
 // ------------------------------------------------------------------
 // Build panel and phantoms settings
 // ------------------------------------------------------------------
+
 	// OPTION: "highlight_build_panel"
 	// adds syntax highlighting to the build panel so that errors, warnings, etc.
 	// show up in different colors; if set to false, the panel will be left as-is.
 	"highlight_build_panel": true,
-
 
 	// OPTION: "hide_build_panel"
 	// level to hide the build panel after the build is finished
@@ -469,6 +511,15 @@
 // ------------------------------------------------------------------
 // Viewer settings
 // ------------------------------------------------------------------
+
+	// Sync PDF to current editor position after building (true) or not
+	"forward_sync": true,
+
+	// Keep focus on Sublime Text after building (true) or switch to PDF viewer (false)
+	// If you are on Windows or Linux and using ST2, you may need to set the
+	// "sublime_executable" setting for this to work in your platform settings.
+	"keep_focus": true,
+
 	// OPTION: "viewer"
 	// Specifies which viewer to use
 	// Possible values:
@@ -488,6 +539,8 @@
 	// "xreader"		uses XReader to open the pdf
 	//
 	// "preview"		uses Preview.app to open the pdf
+	//
+	// "sioyek"			uses Sioyek to open the pdf
 	//
 	// "skim"			uses Skim to open the pdf; this is the
 	//					default on OSX
@@ -542,21 +595,22 @@
 // ------------------------------------------------------------------
 // Bibliographic references
 // ------------------------------------------------------------------
+
+	// Set to `true` to use BibLaTeX instead of BibTex for bibliography completions.
+	"use_biblatex": false,
+
 	// OPTION: "bibliography"
-	// Either a single  bibliography plugin to use or a list of plugins
+	// Either a single bibliography plugin to use or a list of plugins
 	// which will be executed in order, stopping after the first result
-	// found
+	// found.
 	//
 	// Possible values:
 	//
-	// "traditional" 		the default, regex-based bibliography
-	//						parsing
+	// "traditional" 		simple regex-based bibliography parsing
 	//
-	// "new"				a newer parser which supports more complex
-	//						formatting and additional fields, but may
-	//						be slower
-	"bibliography": "traditional",
-
+	// "new"				(default) a parser which supports more
+	// 						complex formatting and additional fields.
+	"bibliography": "new",
 
 	// OPTION: "additional_bibliography_file"
 	// With this setting you can add the path to one or more additional
@@ -592,53 +646,47 @@
 	// Valid wildcards: keyword, title, author, year, author_short, title_short, journal
 
 	// Uncomment or modify at will
-	"cite_panel_format": ["{author_short} {year} - {title_short} ({keyword})","{title}"],
+	"cite_panel_format": ["{author_short} {year} - {title_short}", "{title}", "{author}"],
 	//"cite_panel_format": ["({keyword}) {author_short} - {year}","{title} - {journal}"],
 	//"cite_panel_format": ["{author_short} {year} ({keyword})"],
 
-	// Similarly, the formatting for the autocomplete panel:
-	"cite_autocomplete_format": "{keyword}: {title}",
-
-
+	// A list of 3 templates, specifying the formatting of autocomplete panel items
+	// [<trigger>, <annotation>, <details>]
+	"cite_autocomplete_format": [
+		"{keyword}: {title_short}",
+		"",
+		"{author_short} {year} - {title}"
+	],
 
 // ------------------------------------------------------------------
 // Cache options
 // ------------------------------------------------------------------
 
-	// settings for caches to update on load
+	// settings for caches to update on loading or saving documents
 	// leaving these as `true` will ensure LaTeXTools pre-caches the appropriate
 	// data when a TeX document is loaded; setting these to `false` will
 	// cause the cache to be built when first needed
-	// "cache_on_load": {
-	// 	// analysis: the internal view that LaTeXTools has of your document
-	// 	"analysis": true,
-	// 	// bibliography: ensures the bibliography is parsed and cached
-	// 	"bibliography": true
-	// },
 
-	// settings to update caches when a document is saved
-	// leaving these as `true` will ensure LaTeXTools reloads the data on save,
-	// if necessary; setting these to `false` will cause the cache to be
-	// re-built according to its rules
-	// "cache_on_save": {
-	// 	// analysis: the internal view that LaTeXTools has of your document
-	// 	"analysis": true,
-	// 	// bibliography: ensures the bibliography is parsed and cached
-	// 	"bibliography": false
-	// },
+	// analysis: the internal view that LaTeXTools has of your document
+	"cache.analysis.update_on_load": true,
+	"cache.analysis.update_on_save": true,
 
-	/* The life-span of the local cache.
-	After this life-span the local cache will automatically be invalidated and refreshed.
-	You can invalidate the cache manually by removing all temporary files `C-l,backspace`.
-	If the value is smaller then the functionalities are more up-to-date,
-	but more recalculations might decrease the performance.
+	// bibliography: ensures the bibliography is parsed and cached
+	"cache.bibliography.update_on_load": true,
+	"cache.bibliography.update_on_save": true,
 
-	The format is "X d X h X m X s", where X is a natural number
-	"s" stands for seconds, "m" for minutes, "h" for hours, and "d" for days.
-	Missing fields will be treated as 0 and white-spaces are optional.
-	Hence you can write "1 h 30 m" to refresh the cached data every one and a half hours.
-	If the string is invalid the default value (30 minutes) will be used.
-	If you use `infinite` the cache will not invalidated automatically.
-	*/
-	"local_cache_life_span": "30 m"
+	// The life-span of the local cache.
+	//
+	// After this life-span the local cache will automatically be invalidated and refreshed.
+	// You can invalidate the cache manually by removing all temporary files `C-l,backspace`.
+	// If the value is smaller then the functionalities are more up-to-date,
+	// but more recalculations might decrease the performance.
+
+	// The format is "X d X h X m X s", where X is a natural number
+	// "s" stands for seconds, "m" for minutes, "h" for hours, and "d" for days.
+	// Missing fields will be treated as 0 and white-spaces are optional.
+	// Hence you can write "1 h 30 m" to refresh the cached data every one and a half hours.
+	// If the string is invalid the default value (30 minutes) will be used.
+	// If you use `infinite` the cache will not invalidated automatically.
+	"cache.life_span": "30 m"
 }

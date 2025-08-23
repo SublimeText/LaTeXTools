@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[\Leftrightarrow]]></content>
+	<tabTrigger>Lr</tabTrigger>
+	<scope>text.tex.latex meta.environment.math</scope>
+	<description>\Leftrightarrow</description>
+</snippet>

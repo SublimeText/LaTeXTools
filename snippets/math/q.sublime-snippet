@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[\theta]]></content>
+	<tabTrigger>q</tabTrigger>
+	<scope>text.tex.latex meta.environment.math</scope>
+	<description>\theta</description>
+</snippet>

@@ -1,0 +1,15 @@
+# Configuration for Black.
+
+[tool.black]
+line-length = 100
+target-version = ['py33']
+exclude = '''
+/(
+  | \.git
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | tests
+  | vendor
+)/
+'''

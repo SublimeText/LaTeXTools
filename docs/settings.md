@@ -12,28 +12,28 @@ If at any time you wish to erase your customizations and start afresh, you can s
 
 ## General Settings
 
-* `cite_auto_trigger` (`true`): if `true`, typing e.g. `\cite{` brings up the citation completion quick panel, without the need to type `C-l,x`. If `false`, you must explicitly type `C-l,x`.
-* `ref_auto_trigger` (`true`): ditto, but for `\ref{` and similar reference commands
-* `fill_auto_trigger` (`true`): ditto, but for package and file inclusion commands (see Fill Helper feature above)
-* `env_auto_trigger` (`true`): ditto, but for environment completions
-* `glossary_auto_trigger` (`true`): ditto, but for glossary completions
-* `tex_directive_auto_trigger` (`true`): ditto, but for tex directive completions
-* `cwl_autoload` (`true`): whether to load cwl completions based on packages (see the LaTeX-cwl feature)
-* `cwl_completion` (`prefixed`): when to activate the cwl completion poput (see LaTeX-cwl feature above)
-* `cwl_list` (`["latex-document.cwl", "tex.cwl", "latex-dev", "latex-209.cwl", "latex-l2tabu.cwl", "latex-mathsymbols.cwl"]`): list of cwl files to load
-* `keep_focus` (`true`): if `true`, after compiling a tex file, ST retains the focus; if `false`, the PDF viewer gets the focus. Also note that you can *temporarily* toggle this behavior with `C-l,t,f`.This can also be overridden via a key-binding by passing a `keep_focus` argument to `latextools_jump_to_pdf`.
- **Note**: In general, `keep_focus` set to `true` tries to mean "do not *change* the focus". This isn't always possible, since several of the viewers will steal focus by default. In those circumstances, LaTeXTools tries to actively return the focus to Sublime. To disable this, set the `disable_focus_hack` setting to `true`.
- **Note**: If you are on either Windows or Linux you may need to adjust the `sublime_executable` setting for this to work properly. See the [Platform settings](#platform-specific-settings) below.
-* `forward_sync` (`true`): if `true`, after compiling a tex file, the PDF viewer is asked to sync to the position corresponding to the current cursor location in ST. You can also *temporarily* toggle this behavior with `C-l,t,s`. This can also be overridden via a key-binding by passing a `forward_sync` argument to `latextools_jump_to_pdf`.
-* `tex_file_exts` (`['.tex']`): a list of extensions that should be considered TeX documents. Any extensions in this list will be treated exactly the same as `.tex` files. See the section on [Support for non-`.tex` files](#support-for-non-tex-files).
-* `latextools_set_syntax` (`true`): if `true` LaTeXTools will automatically set the syntax to `LaTeX` when opening or saving any file with an extension in the `tex_file_exts` list.
 * `overwrite_goto_overlay` (`true`): Set this to `false` to disable the overwriting of the goto overlay for the hotkey `C-r` and `C-shift-r` You can still access the "table of content quickpanel" via `C-l, C-r` and `C-shift-l, C-r
 * `enable_smart_paste` (`true`) if smart paste is enabled LaTeXTools will overwrite the C-v command and analyze the clipboard content to check whether it should execute an action. So you can just paste image urls or paths into Sublime Text and it will automatically download the image and create a figure environment.
-* `use_biblatex`: (`false`): if `true` LaTeXTools will use BibLaTeX defaults for editing `.bib` files. If `false`, LaTeXTools will use BibTeX defaults. See the section on [Support for Editing Bibliographies](#support-for-editing-bibliographies) for details.
+* `latextools_set_syntax` (`true`): if `true` LaTeXTools will automatically set the syntax to `LaTeX` when opening or saving any file with an extension in the `tex_file_exts` list.
+* `tex_file_exts` (`['.tex']`): a list of extensions that should be considered TeX documents. Any extensions in this list will be treated exactly the same as `.tex` files. See the section on [Support for non-`.tex` files](#support-for-non-tex-files).
 * `tex_spellcheck_paths` (`{}`): A mapping from the locales to the paths of the dictionaries. See the section [Spell-checking](#spell-checking).
 * `word_count_sub_level` (`"none"`): controls the level at which subcounts of words can be generated. Valid values are: `"none"`, `"part"`, `"chapter"`, and `"section"`.
-* `temp_files_exts`: list of file extensions to be considered temporary, and hence deleted using the `C-l, backspace` command.
-* `temp_files_ignored_folders`: subdirectories to skip when deleting temp files.
+* `auto_match_escaped_brackets`: auto-pair escaped brackets when typing (e.g. `\[` expands to `\[\]`)
+* `auto_match_math_brackets`: auto-pair special math related brackets when typing (e.g. `\left[` expands to `\left[\right]`)
+* `auto_match_spaces`: auto-pair leading and trailing spaces between brackets e.g. `(|)` expands to `( | )` by pressing <kbd>space</kbd> and `( | )` to `(|)` by pressing <kbd>backspace</kbd>
+
+## Completion Settings
+
+* `command_completion` (`prefixed`): when to activate the cwl completion poput (see CWL feature above)
+* `cwl_autoload` (`true`): whether to load cwl completions based on packages (see the CWL feature)
+* `cwl_list` (`["latex-document.cwl", "tex.cwl", "latex-dev", "latex-209.cwl", "latex-l2tabu.cwl", "latex-mathsymbols.cwl"]`): list of cwl files to load
+* `cite_auto_trigger` (`true`): if `true`, typing e.g. `\cite{` brings up the citation completion quick panel, without the need to type `C-l,x`. If `false`, you must explicitly type `C-l,x`.
+* `ref_auto_trigger` (`true`): ditto, but for `\ref{` and similar reference commands
+* `env_auto_trigger` (`true`): ditto, but for environment completions
+* `fill_auto_trigger` (`true`): ditto, but for package and file inclusion commands (see Fill Helper feature above)
+* `glossary_auto_trigger` (`true`): ditto, but for glossary completions
+* `tex_directive_auto_trigger` (`true`): ditto, but for tex directive completions
+* `smart_bracket_auto_trigger` (`true`): Controls whether the various fill-helpers should try to insert a completing `}`, `]`, or `)` when inserted and either the <kbd>C-l,C-f</kbd> or <kbd>C-l,x</kbd> keybindings were used to trigger the completion. This attempts to be smart about where to place the bracket, but may not work for all cases, particularly when a command is spread across mutliple lines. You can also use the toggle <kbd>C-l,t,a,b</kbd>.
 
 ## Preview Settings
 
@@ -63,6 +63,12 @@ or a color name (e.g. `"yellow"`) If it is the empty string `""` it will be gues
 * `preview_popup_image_size` (`200`) and `preview_phantom_image_size` (`150`): The image size in the preview image popup and phantoms. These are the outer dimensions of the maximal size. The image will be scaled down to fit into these dimensions. It can either be an number or an array, which consist of two numbers (x and y), e.g. [200, 150].
 * `preview_image_scale_quotient` (`1`): Increase this number to get a better resolution on high dpi displays. Control the thumbnail image size, which will be generated to preview images, that are not natively supported (like pdf files). E.g. a image size of 300 with a scale quotient of 2 will create a thumbnail with the size 600, which is scaled down in the popup.
 
+## Temporary file settings
+
+* `temp_files_exts`: list of file extensions to be considered temporary, and hence deleted using the `C-l, backspace` command.
+* `temp_files_ignored_folders`: subdirectories to skip when deleting temp files.
+* `temp_files_prompt_on_delete` (`false`): If true, deleting temporary files will display an "Are you sure" prompt.
+
 ## Platform-Specific Settings
 
 This section refers to setting that can be found in a platform-specific block for each platform, i.e., `"osx"`, `"windows"`, or `"linux"`.
@@ -70,20 +76,18 @@ This section refers to setting that can be found in a platform-specific block fo
 ### All Platforms
 
   * `texpath` (varies): the path to TeX & friends. Note that this should always include `$PATH` to ensure the default path is loaded as well.
+  * `sublime_executable` (`""`): absolute path to `sublime_text.exe` to construct subl command line calls, if the path to sublime_text executable cannot be discovered automatically.
+  * `keep_focus_delay` (`0.5`): this is used if `keep_focus` is set to true. It controls how long (in seconds) the delay is between the completion of the `latextools_jumpto_pdf` command and the attempt to refocus on Sublime Text. This may need to be adjusted depending on your machine or configuration.
 
 ### Windows
 
   * `distro` (`miktex`): either `miktex` or `texlive`, depending on your TeX distribution
   * `sumatra` (`""`): leave blank or omit if the SumatraPDF executable is in your `PATH` and is called `SumatraPDF.exe`, as in a default installation; otherwise, specify the *full path and file name* of the SumatraPDF executable.
-  * `sublime_executable` (`""`): this is used if `keep_focus` is set to true and the path to your sublime_text executable cannot be discovered automatically. It should point to the full path to your executable `sublime_text.exe`.
-  * `keep_focus_delay` (`0.5`): this is used if `keep_focus` is set to true. It controls how long (in seconds) the delay is between the completion of the `latextools_jump_to_pdf` command and the attempt to refocus on Sublime Text. This may need to be adjusted depending on your machine or configuration.
 
 ### Linux
+
   * `python` (`""`, i.e. empty string): name of the Python executable. This is useful if you've installed Python in a non-standard location or want to ensure that LaTeXTools uses a particular Python version. Note that the Python interpreter you select must have the DBus bindings installed.
-  * `sublime` (`sublime-text`): name of the ST executable. Ubuntu supports both `sublime-text` and `subl`; other distros may vary.
   * `sync_wait` (1.0): when you ask LaTeXTools to do a forward search, and the PDF file is not yet open (for example, right after compiling a tex file for the first time), LaTeXTools first launches evince, then waits a bit for it to come up, and then it performs the forward search. This parameter controls how long LaTeXTools should wait. If you notice that your machine opens the PDF, then sits there doing nothing, and finally performs the search, you can decrease this value to 1.0 or 0.5; if instead the PDF file comes up but the forward search does not seem to happen, increase it to 2.0.
-  * `sublime_executable`: this is used if `keep_focus` is set to true and the path to your sublime_text executable cannot be discovered automatically. It should point to the full path to your executable `sublime_text`.
-  * `keep_focus_delay`: this is used if `keep_focus` is set to true. It controls how long (in seconds) the delay is between the completion of the `latextools_jump_to_pdf` command and the attempt to refocus on Sublime Text. This may need to be adjusted depending on your machine or configuration.
 
 ## Output Directory Settings
 
@@ -142,10 +146,21 @@ Any other value will be interpreted as the default.
 
 ## Viewer Settings
 
- * `viewer` (`""`): the viewer you want to use. Leave blank (`""`) or set to `"default"`for the platform-specific viewer. Can also be set to `"preview"` if you want to use Preview on OS X, `"okular"` if you want to use Okular on Linux, `"zathura"` is you want to use Zathura on Linux, or `"command"` to run arbitrary commands. For details on the `"command"` option, see the section on the [Command Viewer](#command-viewer).
- * `viewer_settings`: these are viewer-specific settings. Please see the section on [Viewers](#viewers) or the documentation on [Alternate Viewers](#alternate-viewers) for details of what should be set here.
- * `open_pdf_on_build` (`true`): Controls whether LaTeXTools will automatically open the configured PDF viewer on a successful build. If set to `false`, the PDF viewer will only be launched if explicitly requested using `C-l,v` or `C-l,j`.
-  * `disable_focus_hack` (`false`): if `true`, the focus hack that LaTeXTools uses to return focus to Sublime in some circumstances will not be run. **Note**: This does not mean that the *viewer* won't steal the focus, only that LaTeXTools won't try to steal the focus back.
+* `forward_sync` (`true`): if `true`, after compiling a tex file, the PDF viewer is asked to sync to the position corresponding to the current cursor location in ST. You can also *temporarily* toggle this behavior with `C-l,t,s`. This can also be overridden via a key-binding by passing a `forward_sync` argument to `latextools_jumpto_pdf`.
+
+* `keep_focus` (`true`): if `true`, after compiling a tex file, ST retains the focus; if `false`, the PDF viewer gets the focus. Also note that you can *temporarily* toggle this behavior with `C-l,t,f`.This can also be overridden via a key-binding by passing a `keep_focus` argument to `latextools_jumpto_pdf`.
+  
+  **Note**: In general, `keep_focus` set to `true` tries to mean "do not *change* the focus". This isn't always possible, since several of the viewers will steal focus by default. In those circumstances, LaTeXTools tries to actively return the focus to Sublime. To disable this, set the `disable_focus_hack` setting to `true`.
+  
+  **Note**: If you are on either Windows or Linux you may need to adjust the `sublime_executable` setting for this to work properly. See the [Platform settings](#platform-specific-settings) below.
+
+* `viewer` (`""`): the viewer you want to use. Leave blank (`""`) or set to `"default"`for the platform-specific viewer. Can also be set to `"preview"` if you want to use Preview on OS X, `"okular"` if you want to use Okular on Linux, `"zathura"` is you want to use Zathura on Linux, or `"command"` to run arbitrary commands. For details on the `"command"` option, see the section on the [Command Viewer](available-viewers.md#command-viewer).
+
+* `viewer_settings`: these are viewer-specific settings. Please see the section on [Viewers](available-viewers.md#viewers) or the documentation on [Alternate Viewers](available-viewers.md#alternate-viewers) for details of what should be set here.
+
+* `open_pdf_on_build` (`true`): Controls whether LaTeXTools will automatically open the configured PDF viewer on a successful build. If set to `false`, the PDF viewer will only be launched if explicitly requested using `C-l,v` or `C-l,j`.
+
+* `disable_focus_hack` (`false`): if `true`, the focus hack that LaTeXTools uses to return focus to Sublime in some circumstances will not be run. **Note**: This does not mean that the *viewer* won't steal the focus, only that LaTeXTools won't try to steal the focus back.
 
 ## Included File Settings
 
@@ -153,10 +168,14 @@ Any other value will be interpreted as the default.
 
 ## Bibliographic References Settings
 
-* `bibliography` (`"traditional"`): specifies the bibliography plugin to use to handle extracting entries from a bibliography. May be specified either as a single plugin or a list of plugins to be executed in order. Possible values:
+* `use_biblatex`: (`false`): if `true` LaTeXTools will use BibLaTeX defaults for editing `.bib` files. If `false`, LaTeXTools will use BibTeX defaults. See the section on [Support for Editing Bibliographies](#support-for-editing-bibliographies) for details.
+
+* `bibliography` (`"new"`): specifies the bibliography plugin to use to handle extracting entries from a bibliography. May be specified either as a single plugin or a list of plugins to be executed in order. Possible values:
 	* `"traditional"`: the default bibliography which is quite fast and works for most situations.
 	* `"new"`: a newer bibliography engine which uses a full Bib(La)TeX parser that supports more complex formatting (multiline entries, values enclosed in double quotes `""`, literals and `@string` macros) and allows you to access more fields, but can be slower and may not be necessary for most bibliographies.
+
 * `cite_panel_format` (`["{author_short} {year} - {title_short} ({keyword})","{title}"]`): specifies the format for bibliography entries displayed in the quickpanel when typing `\cite{` or using one of the keybindings. It may either be a string or a list of two strings. In the latter case, the first string becomes the first line of the text displayed in the quick panel and the second the second.
+
 * `cite_autocomplete_format`(`"{keyword}: {title}"`): specifies the format for bibliography displayed when using Sublime's autocomplete functionality (`ctrl+space` or `alt+/`). Must be only a simple string.
 
 ### Bibliography Format Strings
@@ -177,14 +196,13 @@ Other example formats are provided in the settings file.
 
 ## Cache Settings
 
-* `hide_local_cache` (`true`): Whether the local cache should be hidden in the sublime cache path (`true`) or in the same directory as the root file (`false`). See the section [LaTeXTools Cache](#latextools-cache).
-* `local_cache_life_span` (`30 m`): The lifespan of the local cache, specified in the format `" d x h X m X s"` where `X` is a natural number `s` stands for seconds, `m` for minutes, `h` for hours, and `d` for days. Missing fields will be treated as 0 and white-spaces are optional. Hence you can write `"1 h 30 m"` to refresh the cached data every one and a half hours. If you use `"infinite"` the cache will not be invalidated automatically. A lower lifespan will produce results, which are more up to date. However it requires more recalculations and might decrease the performance.
+* `cache.life_span` (`30 m`): The lifespan of the local cache, specified in the format `" d x h X m X s"` where `X` is a natural number `s` stands for seconds, `m` for minutes, `h` for hours, and `d` for days. Missing fields will be treated as 0 and white-spaces are optional. Hence you can write `"1 h 30 m"` to refresh the cached data every one and a half hours. If you use `"infinite"` the cache will not be invalidated automatically. A lower lifespan will produce results, which are more up to date. However it requires more recalculations and might decrease the performance.
 
 ## Project-Specific Settings
 
-Any settings can be overridden on a project-specific basis if you are using SublimeText's [project system](https://www.sublimetext.com/docs/3/projects.html). In addition, you can use the `tex_root` setting in the project file only to specify the master tex file instead of using `%!TEX root =` magic comments. If specified in the project file, the `tex_root` will be resolved relative to the location of your `.sublime-project` file. Similarly, if you use `output_directory` or `aux_directory` in the project file, they will be resolved relative to the location of the project file.
+Any settings can be overridden on a project-specific basis if you are using SublimeText's [project system](https://www.sublimetext.com/docs/projects.html). In addition, you can use the `tex_root` setting in the project file only to specify the master tex file instead of using `%!TEX root =` magic comments. If specified in the project file, the `tex_root` will be resolved relative to the location of your `.sublime-project` file. Similarly, if you use `output_directory` or `aux_directory` in the project file, they will be resolved relative to the location of the project file.
 
-To use project-specific settings, simply create a [`"settings"` section in your project file](http://docs.sublimetext.info/en/latest/file_management/file_management.html#the-sublime-project-format). The structure and format is the same as for the `LaTeXTools.sublime-settings` file, but the first level settings are prefixed with `latextools.` to avoid collisions with other packages. Here is an example:
+To use project-specific settings, simply create a [`"settings"` section in your project file](https://docs.sublimetext.info/en/latest/file_management/file_management.html#the-sublime-project-format). The structure and format is the same as for the `LaTeXTools.sublime-settings` file, but the first level settings are prefixed with `latextools.` to avoid collisions with other packages. Here is an example:
 
 ```json
 {

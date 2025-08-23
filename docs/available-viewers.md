@@ -40,7 +40,7 @@ To setup inverse sync (i.e., going from Okular to Sublime), in Okular open **Set
 
 ## Zathura
 
-Zathura mostly works out of the box without any configuration. However, because, unlike other viewers, it does not steal the focus under some circumstances, Zathura may not properly gain focus if you have set `keep_focus` to `false`. To ensure that the focus ends up on Zathura, you will have to install either [`wmctrl`](https://sites.google.com/site/tstyblo/wmctrl) or [`xodotool`](http://www.semicomplete.com/projects/xdotool/), which should be available through your distribution's package manager. You can, of course, install both.
+Zathura mostly works out of the box without any configuration. However, because, unlike other viewers, it does not steal the focus under some circumstances, Zathura may not properly gain focus if you have set `keep_focus` to `false`. To ensure that the focus ends up on Zathura, you will have to install either [`wmctrl`](https://sites.google.com/site/tstyblo/wmctrl) or [`xodotool`](https://www.semicomplete.com/projects/xdotool/), which should be available through your distribution's package manager. You can, of course, install both.
 
 ## Command Viewer
 

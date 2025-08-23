@@ -1,4 +1,0 @@
-LaTeXTools Plugin version 3.13.2 (2017-03-22) changelog:
-
-Bugfixes:
-- Fix a bug, which throws an error in Sublime Text 2 (#1054)

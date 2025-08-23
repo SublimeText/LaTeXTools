@@ -1,7 +1,0 @@
-<snippet>
-	<content><![CDATA[\\begin{remark}\label{rem:$0}
-\\end{remark}]]></content>
-  	<tabTrigger>rem</tabTrigger>
-    <scope>text.tex.latex</scope>
-    <description>Remark</description>
-</snippet>

@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[\mathcal]]></content>
+	<tabTrigger>cal</tabTrigger>
+	<scope>text.tex.latex meta.environment.math</scope>
+	<description>\mathcal</description>
+</snippet>

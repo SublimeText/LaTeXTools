@@ -1,0 +1,10 @@
+<snippet>
+	<content><![CDATA[
+@Set{${1:Key},
+	entryset = {${1:Entries}}
+}
+]]></content>
+	<tabTrigger>set</tabTrigger>
+	<scope>text.biblatex - meta.entry.braces.bibtex - meta.entry.parenthesis.bibtex - meta.entry.arguments.bibtex</scope>
+	<description>BibLaTeX Set</description>
+</snippet>

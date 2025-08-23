@@ -1,0 +1,6 @@
+<snippet>
+	<content><![CDATA[\usepackage]]></content>
+	<tabTrigger>use</tabTrigger>
+	<scope>text.tex.latex - text.tex.latex meta.environment.math</scope>
+	<description>\usepackage</description>
+</snippet>

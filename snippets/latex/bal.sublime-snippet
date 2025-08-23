@@ -1,0 +1,9 @@
+<snippet>
+	<content><![CDATA[\begin{align*}
+$0
+\end{align*}
+]]></content>
+	<tabTrigger>bal</tabTrigger>
+	<scope>text.tex.latex - text.tex.latex meta.environment.math</scope>
+	<description>\begin{align*}</description>
+</snippet>

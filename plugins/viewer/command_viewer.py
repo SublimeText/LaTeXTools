@@ -1,0 +1,161 @@
+from __future__ import annotations
+import re
+import shlex
+import sublime
+import string
+
+from pathlib import Path
+
+from ...latextools.utils.external_command import external_command
+from ...latextools.utils.settings import get_setting
+from ...latextools.utils.sublime_utils import get_sublime_exe
+
+from .base_viewer import BaseViewer
+
+__all__ = ["CommandViewer"]
+
+WINDOWS_SHELL = re.compile(r"\b(?:cmd|powershell|pwsh)(?:.exe)?\b", re.IGNORECASE | re.UNICODE)
+
+
+class CommandViewer(BaseViewer):
+    """
+    This class describes a viewer that runs a user-specified command.
+    """
+
+    CONTAINS_VARIABLE = re.compile(
+        r"\$(?:(?:pdf|src)_file(?:_(?:name|ext|base_name|path))?"
+        r"|sublime_binary|src_file_rel_path|line|col)\b",
+        re.IGNORECASE,
+    )
+
+    def _replace_vars(self, text: str, pdf_file: Path, tex_file: Path | None, line: int, col: int):
+        """
+        Function to substitute various values into a user-provided string
+
+        Returns a tuple consisting of the string with any substitutions made
+        and a boolean indicating if any substitutions were made
+
+        Provided Values:
+        --------------------|-----------------------------------------------|
+        $pdf_file           | full path of PDF file
+        $pdf_file_name      | name of the PDF file
+        $pdf_file_ext       | extension of the PDF file
+        $pdf_file_base_name | name of the PDF file without the extension
+        $pdf_file_path      | full path to directory containing PDF file
+        $sublime_binary     | full path to the Sublime binary
+
+        Forward Sync Only:
+        --------------------|-----------------------------------------------|
+        $src_file           | full path of the tex file
+        $src_file_name      | name of the tex file
+        $src_file_ext       | extension of the tex file
+        $src_file_base_name | name of the tex file without the extension
+        $src_file_path      | full path to directory containing tex file
+        $line               | line to sync to
+        $col                | column to sync to
+        """
+        # only do the rest if we must
+        if not self.CONTAINS_VARIABLE.search(text):
+            return (text, False)
+
+        if tex_file is None:
+            src_file = ""
+            src_file_path = ""
+            src_file_name = ""
+            src_file_ext = ""
+            src_file_base_name = ""
+        else:
+            src_file = tex_file if tex_file.is_absolute() else pdf_file.parent / tex_file
+            src_file_path = src_file.parent
+            src_file_name = src_file.name
+            src_file_ext = src_file.suffix
+            src_file_base_name = src_file.stem
+
+        template = string.Template(text)
+        return (
+            template.safe_substitute(
+                pdf_file=pdf_file,
+                pdf_file_path=pdf_file.parent,
+                pdf_file_name=pdf_file.name,
+                pdf_file_ext=pdf_file.suffix,
+                pdf_file_base_name=pdf_file.stem,
+                sublime_binary=get_sublime_exe(),
+                src_file=src_file,
+                src_file_path=src_file_path,
+                src_file_name=src_file_name,
+                src_file_ext=src_file_ext,
+                src_file_base_name=src_file_base_name,
+                line=line,
+                col=col,
+            ),
+            True,
+        )
+
+    def _run_command(
+        self,
+        command: list[str] | str,
+        pdf_file: Path,
+        tex_file: Path | None = None,
+        line: int = 0,
+        col: int = 0,
+        keep_focus: bool = True,
+    ):
+        if isinstance(command, str):
+            command = shlex.split(command, False, False)
+
+        substitution_made = False
+        for i, component in enumerate(command):
+            command[i], replaced = self._replace_vars(component, pdf_file, tex_file, line, col)
+            substitution_made = substitution_made or replaced
+
+        if not replaced:
+            command.append(str(pdf_file))
+
+        external_command(
+            command,
+            cwd=pdf_file.parent,
+            # show the Window if not using a Windows shell, i.e., powershell or
+            # cmd
+            show_window=(
+                not bool(WINDOWS_SHELL.match(command[0]))
+                if sublime.platform() == "windows"
+                else False
+            ),
+        )
+        if keep_focus:
+            self.focus_st()
+
+    def forward_sync(self, pdf_file: str, tex_file: str, line: int, col: int, **kwargs) -> None:
+        command: str = (
+            get_setting("viewer_settings", {})
+            .get(sublime.platform(), {})
+            .get("forward_sync_command")
+        )
+
+        if command is None:
+            self.view_file(pdf_file)
+            return
+
+        self._run_command(
+            command=command,
+            pdf_file=Path(pdf_file),
+            tex_file=Path(tex_file),
+            line=line,
+            col=col,
+            keep_focus=kwargs.get("keep_focus", True),
+        )
+
+    def view_file(self, pdf_file: str, **kwargs) -> None:
+        command: str = (
+            get_setting("viewer_settings", {}).get(sublime.platform(), {}).get("view_command")
+        )
+
+        if command is None:
+            sublime.error_message(
+                "You must set the command setting in viewer_settings before using the viewer."
+            )
+            return
+
+        self._run_command(
+            command=command, pdf_file=Path(pdf_file), keep_focus=kwargs.get("keep_focus", True)
+        )

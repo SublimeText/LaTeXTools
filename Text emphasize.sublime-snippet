@@ -1,9 +1,0 @@
-<snippet>
-	<description>Emphasize text</description>
-	<content><![CDATA[
-\\emph{${1:$SELECTION}}
-]]></content>
-	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
-	<!-- <tabTrigger>hello</tabTrigger> -->
-	<scope>text.tex.latex</scope>
-</snippet>

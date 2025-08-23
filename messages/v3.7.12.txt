@@ -1,6 +1,0 @@
-LaTeXTools Plugin version 3.7.12 (2016-05-17) changelog:
-
-Features:
-
-- Adds \subref support (#718)
-- Improve Okular support (#730)
