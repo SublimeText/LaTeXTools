@@ -14,7 +14,7 @@ from .base_viewer import BaseViewer
 
 __all__ = ["CommandViewer"]
 
-WINDOWS_SHELL = re.compile(r"\b(?:cmd|powershell)(?:.exe)?\b", re.IGNORECASE | re.UNICODE)
+WINDOWS_SHELL = re.compile(r"\b(?:cmd|powershell|pwsh)(?:.exe)?\b", re.IGNORECASE | re.UNICODE)
 
 
 class CommandViewer(BaseViewer):
