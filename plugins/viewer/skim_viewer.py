@@ -30,7 +30,7 @@ class SkimViewer(BaseViewer):
                 )
             )
 
-        command = [str(skim_app / "Contents" / "SharedSupport" / "displayline"), "-r"]
+        command = [str(skim_app.joinpath("Contents", "SharedSupport", "displayline")), "-r"]
 
         if keep_focus:
             command.append("-g")
@@ -43,7 +43,7 @@ class SkimViewer(BaseViewer):
 
     def view_file(self, pdf_file: str, **kwargs) -> None:
         keep_focus = kwargs.get("keep_focus", True)
-        script_dir = Path(sublime.cache_path()) / "LaTeXTools" / "viewer" / "skim"
+        script_dir = Path(sublime.cache_path(), "LaTeXTools", "viewer", "skim")
         script_dir.mkdir(parents=True, exist_ok=True)
         script_file = script_dir / "displayfile"
         if not script_file.exists():
@@ -85,5 +85,5 @@ class SkimViewer(BaseViewer):
 def latextools_plugin_loaded():
     # ensure to work with up-to-date scripts after package updates
     from shutil import rmtree
-    script_dir = Path(sublime.cache_path()) / "LaTeXTools" / "viewer" / "skim"
+    script_dir = Path(sublime.cache_path(), "LaTeXTools", "viewer", "skim")
     rmtree(script_dir, ignore_errors=True)

@@ -22,7 +22,7 @@ class EvinceViewer(BaseViewer):
 
     @property
     def _evince_folder(self) -> Path:
-        script_dir = Path(sublime.cache_path()) / "LaTeXTools" / "viewer" / "evince"
+        script_dir = Path(sublime.cache_path(), "LaTeXTools", "viewer", "evince")
         script_dir.mkdir(parents=True, exist_ok=True)
 
         # extract scripts to cache dir and run them from there
@@ -133,5 +133,5 @@ class EvinceViewer(BaseViewer):
 def latextools_plugin_loaded():
     # ensure to work with up-to-date scripts after package updates
     from shutil import rmtree
-    script_dir = Path(sublime.cache_path()) / "LaTeXTools" / "viewer" / "evince"
+    script_dir = Path(sublime.cache_path(), "LaTeXTools", "viewer", "evince")
     rmtree(script_dir, ignore_errors=True)
