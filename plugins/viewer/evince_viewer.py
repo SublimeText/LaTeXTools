@@ -20,8 +20,8 @@ class EvinceViewer(BaseViewer):
 
     _cached_python = None
 
-    @property
-    def _evince_folder(self) -> Path:
+    @classmethod
+    def _evince_folder(cls) -> Path:
         script_dir = Path(sublime.cache_path(), "LaTeXTools", "viewer", "evince")
         script_dir.mkdir(parents=True, exist_ok=True)
 
@@ -49,27 +49,28 @@ class EvinceViewer(BaseViewer):
 
         return script_dir
 
-    def _is_evince_running(self, pdf_file: str) -> bool:
+    @classmethod
+    def _is_evince_running(cls, pdf_file: str) -> bool:
         try:
             return f"evince {pdf_file}" in check_output(["ps", "xv"], use_texpath=False)
         except Exception:
             return False
 
-    @property
-    def _python_binary(self) -> str:
+    @classmethod
+    def _python_binary(cls) -> str:
         linux_settings = cast(dict, get_setting("linux", {}))
         python = linux_settings.get("python")
         if python and isinstance(python, str):
             return python
 
-        if self._cached_python is None:
+        if cls._cached_python is None:
             try:
                 check_call(["python3", "-c", "import dbus"], use_texpath=False)
-                self._cached_python = "python3"
+                cls._cached_python = "python3"
             except Exception:
                 try:
                     check_call(["python", "-c", "import dbus"], use_texpath=False)
-                    self._cached_python = "python"
+                    cls._cached_python = "python"
                 except Exception:
                     sublime.error_message(
                         "Cannot find a valid Python interpreter.\n"
@@ -78,14 +79,15 @@ class EvinceViewer(BaseViewer):
                     # exit the viewer process
                     raise RuntimeError("Cannot find a valid python interpreter!")
 
-        return self._cached_python
+        return cls._cached_python
 
-    def forward_sync(self, pdf_file: str, tex_file: str, line: int, col: int, **kwargs) -> None:
+    @classmethod
+    def forward_sync(cls, pdf_file: str, tex_file: str, line: int, col: int, **kwargs) -> None:
         viewer_settings = cast(dict, get_setting("viewer_settings", {}))
         bring_evince_forward = viewer_settings.get("bring_evince_forward", False)
         keep_focus = kwargs.get("keep_focus", True)
-        evince_folder = self._evince_folder
-        python_binary = self._python_binary
+        evince_folder = cls._evince_folder()
+        python_binary = cls._python_binary()
 
         def forward_search():
             external_command(
@@ -94,14 +96,14 @@ class EvinceViewer(BaseViewer):
                 use_texpath=False,
             )
 
-        if bring_evince_forward or not keep_focus or not self._is_evince_running(pdf_file):
+        if bring_evince_forward or not keep_focus or not cls._is_evince_running(pdf_file):
             external_command(
                 ["/bin/sh", "./sync", python_binary, get_sublime_exe(), pdf_file],
                 cwd=evince_folder,
                 use_texpath=False,
             )
             if keep_focus:
-                self.focus_st()
+                cls.focus_st()
 
             linux_settings = cast(dict, get_setting("linux", {}))
             sync_wait = linux_settings.get("sync_wait", 1.0)
@@ -110,23 +112,26 @@ class EvinceViewer(BaseViewer):
         else:
             forward_search()
 
-    def view_file(self, pdf_file: str, **kwargs) -> None:
+    @classmethod
+    def view_file(cls, pdf_file: str, **kwargs) -> None:
         keep_focus = kwargs.get("keep_focus", True)
-        if keep_focus and self._is_evince_running(pdf_file):
+        if keep_focus and cls._is_evince_running(pdf_file):
             return
 
         external_command(
-            ["/bin/sh", "./sync", self._python_binary, get_sublime_exe(), pdf_file],
-            cwd=self._evince_folder,
+            ["/bin/sh", "./sync", cls._python_binary(), get_sublime_exe(), pdf_file],
+            cwd=cls._evince_folder(),
             use_texpath=False,
         )
         if keep_focus:
-            self.focus_st()
+            cls.focus_st()
 
-    def supports_platform(self, platform: str) -> bool:
+    @classmethod
+    def supports_platform(cls, platform: str) -> bool:
         return platform == "linux"
 
-    def supports_keep_focus(self) -> bool:
+    @classmethod
+    def supports_keep_focus(cls) -> bool:
         return True
 
 

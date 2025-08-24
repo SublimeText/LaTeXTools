@@ -14,7 +14,8 @@ __all__ = ["SkimViewer"]
 
 class SkimViewer(BaseViewer):
 
-    def forward_sync(self, pdf_file: str, tex_file: str, line: int, col: int, **kwargs) -> None:
+    @classmethod
+    def forward_sync(cls, pdf_file: str, tex_file: str, line: int, col: int, **kwargs) -> None:
         keep_focus = kwargs.get("keep_focus", True)
         skim_app = Path("/Applications/Skim.app")
 
@@ -39,9 +40,10 @@ class SkimViewer(BaseViewer):
 
         external_command(command, use_texpath=False)
         if keep_focus:
-            self.focus_st()
+            cls.focus_st()
 
-    def view_file(self, pdf_file: str, **kwargs) -> None:
+    @classmethod
+    def view_file(cls, pdf_file: str, **kwargs) -> None:
         keep_focus = kwargs.get("keep_focus", True)
         script_dir = Path(sublime.cache_path(), "LaTeXTools", "viewer", "skim")
         script_dir.mkdir(parents=True, exist_ok=True)
@@ -73,12 +75,14 @@ class SkimViewer(BaseViewer):
 
         external_command(command, use_texpath=False)
         if keep_focus:
-            self.focus_st()
+            cls.focus_st()
 
-    def supports_keep_focus(self) -> bool:
+    @classmethod
+    def supports_keep_focus(cls) -> bool:
         return True
 
-    def supports_platform(self, platform: str) -> bool:
+    @classmethod
+    def supports_platform(cls, platform: str) -> bool:
         return platform == "osx"
 
 

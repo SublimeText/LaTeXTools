@@ -14,7 +14,8 @@ class BaseViewer(LaTeXToolsPlugin):
           of the `keep_focus` setting
     """
 
-    def forward_sync(self, pdf_file: str, tex_file: str, line: int, col: int, **kwargs) -> None:
+    @classmethod
+    def forward_sync(cls, pdf_file: str, tex_file: str, line: int, col: int, **kwargs) -> None:
         """
         command to jump to the file at a specified line and column
 
@@ -31,7 +32,8 @@ class BaseViewer(LaTeXToolsPlugin):
         """
         raise NotImplementedError()
 
-    def view_file(self, pdf_file: str, **kwargs) -> None:
+    @classmethod
+    def view_file(cls, pdf_file: str, **kwargs) -> None:
         """
         command to open a file
 
@@ -40,7 +42,8 @@ class BaseViewer(LaTeXToolsPlugin):
         """
         raise NotImplementedError()
 
-    def supports_keep_focus(self) -> bool:
+    @classmethod
+    def supports_keep_focus(cls) -> bool:
         """
         return True to indicate that this plugin supports the keep_focus
         setting or False (the default) to use the default refocus
@@ -48,7 +51,8 @@ class BaseViewer(LaTeXToolsPlugin):
         """
         return False
 
-    def supports_platform(self, platform: str) -> bool:
+    @classmethod
+    def supports_platform(cls, platform: str) -> bool:
         """
         return True to indicate that this plugin supports the reported
         platform or False to indicate that it is not supported in the
@@ -56,5 +60,6 @@ class BaseViewer(LaTeXToolsPlugin):
         """
         return True
 
-    def focus_st(self) -> None:
+    @classmethod
+    def focus_st(cls) -> None:
         st_utils.focus_st()

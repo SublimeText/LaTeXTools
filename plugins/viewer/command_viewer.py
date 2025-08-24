@@ -28,7 +28,8 @@ class CommandViewer(BaseViewer):
         re.IGNORECASE,
     )
 
-    def _replace_vars(self, text: str, pdf_file: Path, tex_file: Path | None, line: int, col: int):
+    @classmethod
+    def _replace_vars(cls, text: str, pdf_file: Path, tex_file: Path | None, line: int, col: int):
         """
         Function to substitute various values into a user-provided string
 
@@ -55,7 +56,7 @@ class CommandViewer(BaseViewer):
         $col                | column to sync to
         """
         # only do the rest if we must
-        if not self.CONTAINS_VARIABLE.search(text):
+        if not cls.CONTAINS_VARIABLE.search(text):
             return (text, False)
 
         if tex_file is None:
@@ -91,8 +92,9 @@ class CommandViewer(BaseViewer):
             True,
         )
 
+    @classmethod
     def _run_command(
-        self,
+        cls,
         command: list[str] | str,
         pdf_file: Path,
         tex_file: Path | None = None,
@@ -105,7 +107,7 @@ class CommandViewer(BaseViewer):
 
         substitution_made = False
         for i, component in enumerate(command):
-            command[i], replaced = self._replace_vars(component, pdf_file, tex_file, line, col)
+            command[i], replaced = cls._replace_vars(component, pdf_file, tex_file, line, col)
             substitution_made = substitution_made or replaced
 
         if not replaced:
@@ -123,9 +125,10 @@ class CommandViewer(BaseViewer):
             ),
         )
         if keep_focus:
-            self.focus_st()
+            cls.focus_st()
 
-    def forward_sync(self, pdf_file: str, tex_file: str, line: int, col: int, **kwargs) -> None:
+    @classmethod
+    def forward_sync(cls, pdf_file: str, tex_file: str, line: int, col: int, **kwargs) -> None:
         command: str = (
             get_setting("viewer_settings", {})
             .get(sublime.platform(), {})
@@ -133,10 +136,10 @@ class CommandViewer(BaseViewer):
         )
 
         if command is None:
-            self.view_file(pdf_file)
+            cls.view_file(pdf_file)
             return
 
-        self._run_command(
+        cls._run_command(
             command=command,
             pdf_file=Path(pdf_file),
             tex_file=Path(tex_file),
@@ -145,7 +148,8 @@ class CommandViewer(BaseViewer):
             keep_focus=kwargs.get("keep_focus", True),
         )
 
-    def view_file(self, pdf_file: str, **kwargs) -> None:
+    @classmethod
+    def view_file(cls, pdf_file: str, **kwargs) -> None:
         command: str = (
             get_setting("viewer_settings", {}).get(sublime.platform(), {}).get("view_command")
         )
@@ -156,6 +160,6 @@ class CommandViewer(BaseViewer):
             )
             return
 
-        self._run_command(
+        cls._run_command(
             command=command, pdf_file=Path(pdf_file), keep_focus=kwargs.get("keep_focus", True)
         )

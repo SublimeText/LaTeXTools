@@ -7,7 +7,8 @@ __all__ = ["PreviewViewer"]
 
 class PreviewViewer(BaseViewer):
 
-    def view_file(self, pdf_file, **kwargs):
+    @classmethod
+    def view_file(cls, pdf_file, **kwargs):
         keep_focus = kwargs.pop("keep_focus", True)
 
         command = ["open"]
@@ -18,8 +19,10 @@ class PreviewViewer(BaseViewer):
 
         external_command(command, use_texpath=False)
 
-    def supports_platform(self, platform):
+    @classmethod
+    def supports_platform(cls, platform):
         return platform == "osx"
 
-    def supports_keep_focus(self):
+    @classmethod
+    def supports_keep_focus(cls):
         return True
