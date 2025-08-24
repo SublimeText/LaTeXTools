@@ -1,7 +1,9 @@
 from __future__ import annotations
+from typing import cast
 
 from ...latextools.latextools_plugin import LaTeXToolsPlugin
 from ...latextools.utils import sublime_utils as st_utils
+from ...latextools.utils.settings import get_setting
 
 __all__ = ["BaseViewer"]
 
@@ -60,6 +62,10 @@ class BaseViewer(LaTeXToolsPlugin):
         """
         return True
 
-    @classmethod
-    def focus_st(cls) -> None:
+    @staticmethod
+    def focus_st() -> None:
         st_utils.focus_st()
+
+    @staticmethod
+    def viewer_settings() -> dict:
+        return cast(dict, get_setting("viewer_settings", {}))

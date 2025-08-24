@@ -618,7 +618,7 @@ class SystemCheckThread(threading.Thread):
             if viewer_name == "command":
                 # assume the command viewer is always valid
                 viewer_location = "N/A"
-            elif viewer_name in ("evince", "okular", "zathura"):
+            elif viewer_name in ("evince", "okular", "xreader", "zathura"):
                 viewer_location = which(viewer_name)
                 viewer_available = bool(viewer_location)
             elif viewer_name == "preview":

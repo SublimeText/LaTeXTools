@@ -95,6 +95,7 @@ Inverse search (i.e., going from the PDF file back to the TeX document in ST) de
  * Double-click in **Sumatra PDF** (Windows)
  * <kbd>Ctrl+left-click</kbd> in **Evince** (Linux)
  * <kbd>Shift+left-click</kbd> in **Okular** (Linux)
+ * <kbd>Ctrl+left-click</kbd> in **XReader** (Linux)
  * <kbd>Ctrl+left-click</kbd> in **Zathura** (Linux)
 
 
