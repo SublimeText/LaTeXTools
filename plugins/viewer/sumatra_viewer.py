@@ -20,10 +20,8 @@ __all__ = ["SumatraViewer"]
 
 class SumatraViewer(BaseViewer):
 
-    def __init__(self, *args, **kwargs):
-        super(SumatraViewer, self).__init__(*args, **kwargs)
-
-    def _find_sumatra_exe(self):
+    @classmethod
+    def _find_sumatra_exe(cls):
         if hasattr(SumatraViewer, "_sumatra_exe"):
             return SumatraViewer._sumatra_exe
 
@@ -55,7 +53,8 @@ class SumatraViewer(BaseViewer):
 
         return None
 
-    def _run_with_sumatra_exe(self, commands):
+    @classmethod
+    def _run_with_sumatra_exe(cls, commands):
         def _no_binary():
             message = (
                 "Could not find SumatraPDF.exe. "
@@ -88,7 +87,7 @@ class SumatraViewer(BaseViewer):
         except Exception:
             exc_info = sys.exc_info()
 
-            sumatra_exe = self._find_sumatra_exe()
+            sumatra_exe = cls._find_sumatra_exe()
             if sumatra_exe is not None and sumatra_exe != sumatra_binary:
                 try:
                     external_command([sumatra_exe] + commands, use_texpath=False, show_window=True)
@@ -101,15 +100,18 @@ class SumatraViewer(BaseViewer):
                 _no_binary()
                 return
 
-    def forward_sync(self, pdf_file, tex_file, line, col, **kwargs):
+    @classmethod
+    def forward_sync(cls, pdf_file, tex_file, line, col, **kwargs):
         src_file = tex_file
 
-        self._run_with_sumatra_exe(
+        cls._run_with_sumatra_exe(
             ["-reuse-instance", "-forward-search", src_file, str(line), pdf_file]
         )
 
-    def view_file(self, pdf_file, **kwargs):
-        self._run_with_sumatra_exe(["-reuse-instance", pdf_file])
+    @classmethod
+    def view_file(cls, pdf_file, **kwargs):
+        cls._run_with_sumatra_exe(["-reuse-instance", pdf_file])
 
-    def supports_platform(self, platform):
+    @classmethod
+    def supports_platform(cls, platform):
         return platform == "windows"

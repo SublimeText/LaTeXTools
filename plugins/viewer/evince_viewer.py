@@ -8,7 +8,8 @@ from base_dbus_viewer import BaseDBusViewer
 
 
 class EvinceViewer(BaseDBusViewer):
-    def should_bring_viewer_forward(self) -> bool:
+    @staticmethod
+    def should_bring_viewer_forward() -> bool:
         viewer_settings = get_setting('viewer_settings', {})
         return viewer_settings.get('bring_forward', viewer_settings.get('bring_evince_forward', False))
 

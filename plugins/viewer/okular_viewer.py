@@ -9,7 +9,8 @@ __all__ = ["OkularViewer"]
 
 class OkularViewer(BaseViewer):
 
-    def _run_okular(self, locator=None, **kwargs):
+    @classmethod
+    def _run_okular(cls, locator=None, **kwargs):
         keep_focus: bool = kwargs.get("keep_focus", True)
         command = ["okular", "--unique"]
         if keep_focus:
@@ -19,16 +20,20 @@ class OkularViewer(BaseViewer):
 
         external_command(command, use_texpath=False)
         if keep_focus:
-            self.focus_st()
+            cls.focus_st()
 
-    def forward_sync(self, pdf_file: str, tex_file: str, line: int, col: int, **kwargs) -> None:
-        self._run_okular(f"file:{pdf_file}#src:{line}{tex_file}", **kwargs)
+    @classmethod
+    def forward_sync(cls, pdf_file: str, tex_file: str, line: int, col: int, **kwargs) -> None:
+        cls._run_okular(f"file:{pdf_file}#src:{line}{tex_file}", **kwargs)
 
-    def view_file(self, pdf_file: str, **kwargs) -> None:
-        self._run_okular(pdf_file, **kwargs)
+    @classmethod
+    def view_file(cls, pdf_file: str, **kwargs) -> None:
+        cls._run_okular(pdf_file, **kwargs)
 
-    def supports_keep_focus(self) -> bool:
+    @classmethod
+    def supports_keep_focus(cls) -> bool:
         return True
 
-    def supports_platform(self, platform: str) -> bool:
+    @classmethod
+    def supports_platform(cls, platform: str) -> bool:
         return platform == "linux"

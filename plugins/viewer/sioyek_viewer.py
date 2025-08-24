@@ -11,7 +11,8 @@ __all__ = ["SioyekViewer"]
 
 class SioyekViewer(BaseViewer):
 
-    def _run_sioyek(self, *args, **kwargs):
+    @classmethod
+    def _run_sioyek(cls, *args, **kwargs):
         platform = sublime.platform()
         sioyek_binary = (
             # prefer `viewer_settings`
@@ -33,10 +34,11 @@ class SioyekViewer(BaseViewer):
         command += args
         external_command(command, use_texpath=False, show_window=True)
         if keep_focus:
-            self.focus_st()
+            cls.focus_st()
 
-    def forward_sync(self, pdf_file, tex_file, line, col, **kwargs):
-        self._run_sioyek(
+    @classmethod
+    def forward_sync(cls, pdf_file, tex_file, line, col, **kwargs):
+        cls._run_sioyek(
             "--execute-command",
             "turn_on_synctex",
             "--forward-search-file",
@@ -51,11 +53,14 @@ class SioyekViewer(BaseViewer):
             **kwargs
         )
 
-    def view_file(self, pdf_file, **kwargs):
-        self._run_sioyek("--new-window", pdf_file, **kwargs)
+    @classmethod
+    def view_file(cls, pdf_file, **kwargs):
+        cls._run_sioyek("--new-window", pdf_file, **kwargs)
 
-    def supports_keep_focus(self):
+    @classmethod
+    def supports_keep_focus(cls):
         return True
 
-    def supports_platform(self, platform):
+    @classmethod
+    def supports_platform(cls, platform):
         return True
