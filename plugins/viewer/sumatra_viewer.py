@@ -20,9 +20,6 @@ __all__ = ["SumatraViewer"]
 
 class SumatraViewer(BaseViewer):
 
-    def __init__(self, *args, **kwargs):
-        super(SumatraViewer, self).__init__(*args, **kwargs)
-
     def _find_sumatra_exe(self):
         if hasattr(SumatraViewer, "_sumatra_exe"):
             return SumatraViewer._sumatra_exe
