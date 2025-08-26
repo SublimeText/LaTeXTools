@@ -393,7 +393,7 @@
 	// the main tex file; this  only applies if an output directory is
 	// set via a setting or a `%!TEX` directive
 
-	"copy_output_on_build": true,
+	"copy_output_on_build": false,
 
 // ------------------------------------------------------------------
 // Build engine settings

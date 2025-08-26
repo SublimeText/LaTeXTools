@@ -220,9 +220,6 @@ def resolve_to_absolute_path(root, value, root_path):
             # best assumption
             return None
 
-        # create the directory
-        os.makedirs(result, exist_ok=True)
-
         return result
 
     result = os.path.expandvars(os.path.expanduser(value))
