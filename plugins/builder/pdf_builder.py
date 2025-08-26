@@ -64,6 +64,8 @@ class PdfBuilder(LaTeXToolsPlugin):
             else aux_directory
         )
         self.aux_directory_full = aux_directory
+        if self.aux_directory_full:
+            os.makedirs(self.aux_directory_full, exist_ok=True)
 
         self.output_directory = (
             os.path.relpath(output_directory, self.tex_dir)
@@ -71,6 +73,8 @@ class PdfBuilder(LaTeXToolsPlugin):
             else output_directory
         )
         self.output_directory_full = output_directory
+        if self.output_directory_full:
+            os.makedirs(self.output_directory_full, exist_ok=True)
 
     # Send to callable object
     # Usually no need to override

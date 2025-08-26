@@ -65,10 +65,6 @@ class BasicBuilder(PdfBuilder):
 
         output_directory = self.aux_directory_full or self.output_directory_full
         if output_directory:
-            # Check if any subfolders need to be created
-            # this adds a number of potential runs as LaTeX treats being unable
-            # to open output files as fatal errors
-            self.make_directory(output_directory)
             # No supported engine supports --aux-directory, use --output-directory
             # and move final documents later.
             biber.append(f"--output-directory={output_directory}")
@@ -86,20 +82,16 @@ class BasicBuilder(PdfBuilder):
         self.display("done.\n")
         self.log_output()
 
-        if output_directory:
-            while True:
-                matches = FILE_WRITE_ERROR_REGEX.findall(self.out)
-                if not matches:
-                    break
+        # Create required directories
+        while matches := FILE_WRITE_ERROR_REGEX.findall(self.out):
+            for path, _ in matches:
+                abspath = os.path.join(output_directory or self.tex_dir, path)
+                os.makedirs(abspath, exist_ok=True)
+                logger.debug(f"Created directory {abspath}")
 
-                for match in matches:
-                    self.make_directory(
-                        os.path.normpath(os.path.join(output_directory, match.group(1)))
-                    )
-
-                yield (latex, f"running {engine}...")
-                self.display("done.\n")
-                self.log_output()
+            yield (latex, f"running {engine}...")
+            self.display("done.\n")
+            self.log_output()
 
         # Check for citations
         # We need to run pdflatex twice after bibtex
@@ -146,7 +138,6 @@ class BasicBuilder(PdfBuilder):
         # Move final assets to output directory
         dest_dir = self.output_directory_full or self.tex_dir
         if self.aux_directory_full and self.aux_directory_full != dest_dir:
-            self.make_directory(dest_dir)
             for ext in (".synctex.gz", ".pdf"):
                 name = self.base_name + ext
                 shutil.move(
@@ -159,11 +150,6 @@ class BasicBuilder(PdfBuilder):
             self.display("\nCommand results:\n")
             self.display(self.out)
             self.display("\n\n")
-
-    def make_directory(self, directory):
-        if not os.path.exists(directory):
-            logger.debug(f"making directory {directory}")
-            os.makedirs(directory)
 
     def run_bibtex(self, command=None):
         if command is None:
