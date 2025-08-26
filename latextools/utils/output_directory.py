@@ -29,16 +29,6 @@ class UnsavedFileException(Exception):
 # return_setting indicates that the raw setting should be returned
 # as well as the auxiliary directory
 def get_aux_directory(view_or_root, return_setting=False):
-    # traditional builder is based on TeXLive latexmk (macOS/Linux) or MiKTeX texify (Windows) — both distros (builders) support `--aux-directory` flag
-    using_traditional = (get_setting("builder", "traditional") == "traditional")
-
-    # not supported using texify or the simple builder
-    if not (using_miktex() or using_traditional) or using_texify_or_simple():
-        if return_setting:
-            return (None, None)
-        else:
-            return None
-
     root = get_root(view_or_root)
 
     aux_directory = get_directive(view_or_root, "aux_directory")
@@ -92,13 +82,6 @@ def get_aux_directory(view_or_root, return_setting=False):
 # return_setting indicates that the raw setting should be returned
 # as well as the output directory
 def get_output_directory(view_or_root, return_setting=False):
-    # not supported using texify or the simple builder
-    if using_texify_or_simple():
-        if return_setting:
-            return (None, None)
-        else:
-            return None
-
     root = get_root(view_or_root)
 
     output_directory = get_directive(view_or_root, "output_directory")
