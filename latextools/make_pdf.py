@@ -597,7 +597,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         if can_switch_to_pdf:
             # if using output_directory, follow the copy_output_on_build setting
             # files are copied to the same directory as the main tex file
-            if self.output_directory is not None:
+            if self.output_directory:
                 copy_on_build = get_setting("copy_output_on_build", True, self.view)
                 if copy_on_build is None or copy_on_build is True:
                     shutil.copy2(

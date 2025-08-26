@@ -49,8 +49,6 @@ class PdfBuilder(LaTeXToolsPlugin):
         self.out = ""
         self.engine = engine
         self.options = options
-        self.output_directory = self.output_directory_full = output_directory
-        self.aux_directory = self.aux_directory_full = aux_directory
         self.job_name = job_name
         self.tex_directives = tex_directives
         self.builder_settings = builder_settings
@@ -60,11 +58,19 @@ class PdfBuilder(LaTeXToolsPlugin):
         # relative to self.tex_dir, we use that instead of the absolute path
         # note that the full path for both is available as
         # self.output_directory_full and self.aux_directory_full
-        if self.output_directory and self.output_directory.startswith(self.tex_dir):
-            self.output_directory = os.path.relpath(self.output_directory, self.tex_dir)
+        self.aux_directory = (
+            os.path.relpath(aux_directory, self.tex_dir)
+            if aux_directory and aux_directory.startswith(self.tex_dir)
+            else aux_directory
+        )
+        self.aux_directory_full = aux_directory
 
-        if self.aux_directory and self.aux_directory.startswith(self.tex_dir):
-            self.aux_directory = os.path.relpath(self.aux_directory, self.tex_dir)
+        self.output_directory = (
+            os.path.relpath(output_directory, self.tex_dir)
+            if output_directory and output_directory.startswith(self.tex_dir)
+            else output_directory
+        )
+        self.output_directory_full = output_directory
 
     # Send to callable object
     # Usually no need to override

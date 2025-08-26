@@ -1,5 +1,6 @@
 import os
 import re
+import shutil
 import sublime
 import subprocess
 import sys
@@ -62,32 +63,24 @@ class BasicBuilder(PdfBuilder):
         latex = [engine, "-interaction=nonstopmode", "-shell-escape", "-synctex=1"]
         biber = ["biber"]
 
-        if self.aux_directory is not None:
-            biber.append("--output-directory=" + self.aux_directory)
-            if self.aux_directory == self.output_directory:
-                latex.append("--output-directory=" + self.aux_directory)
-            else:
-                latex.append("--aux-directory=" + self.aux_directory)
-        elif self.output_directory is not None:
-            biber.append("--output-directory=" + self.output_directory)
+        output_directory = self.aux_directory_full or self.output_directory_full
+        if output_directory:
+            # Check if any subfolders need to be created
+            # this adds a number of potential runs as LaTeX treats being unable
+            # to open output files as fatal errors
+            self.make_directory(output_directory)
+            # No supported engine supports --aux-directory, use --output-directory
+            # and move final documents later.
+            biber.append(f"--output-directory={output_directory}")
+            latex.append(f"--output-directory={output_directory}")
 
-        if self.output_directory is not None and self.output_directory != self.aux_directory:
-            latex.append("--output-directory=" + self.output_directory)
-
-        if self.job_name != self.base_name:
-            latex.append("--jobname=" + self.job_name)
+        if self.job_name and self.job_name != self.base_name:
+            latex.append(f"--jobname={self.job_name}")
 
         for option in self.options:
             latex.append(option)
 
         latex.append(self.tex_name)
-
-        # Check if any subfolders need to be created
-        # this adds a number of potential runs as LaTeX treats being unable
-        # to open output files as fatal errors
-        output_directory = self.aux_directory_full or self.output_directory_full
-        if output_directory:
-            self.make_directory(output_directory)
 
         yield (latex, f"running {engine}...")
         self.display("done.\n")
@@ -149,6 +142,17 @@ class BasicBuilder(PdfBuilder):
             yield (latex, f"running {engine}...")
             self.display("done.\n")
             self.log_output()
+
+        # Move final assets to output directory
+        dest_dir = self.output_directory_full or self.tex_dir
+        if self.aux_directory_full and self.aux_directory_full != dest_dir:
+            self.make_directory(dest_dir)
+            for ext in (".synctex.gz", ".pdf"):
+                name = self.base_name + ext
+                shutil.move(
+                    os.path.join(self.aux_directory_full, name),
+                    os.path.join(dest_dir, name)
+                )
 
     def log_output(self):
         if self.display_log:
