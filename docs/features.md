@@ -92,8 +92,6 @@ The `--output-directory` and `--aux-directory` flags can be set in several ways:
 
 There are three special values that can be used, `<<temp>>` `<<project>>` and `<<cache>>`. Their meaning is the same as that found in the [settings section](settings.md#output-directory-settings) and they are described there.
 
-**Note**: the `--aux-directory` flag is only implemented by MiKTeX, so the corresponding settings will only be valid if you are using MiKTeX, as indicated by your `distro` setting. To get similar behavior on TeXLive / MacTeX, you can use the `copy_output_on_build` setting described in the [settings section](settings.md#output-directory-settings) with any of the `output_directory` settings. This will run `pdflatex` / `xelatex` / `lualatex` with the `--output-directory` flag and then copy the resulting PDF to the same directory as your main TeX document.
-
 **Note**: These flags can only be set when using `latexmk` (i.e., the `traditional` builder on OS X and Linux), the `basic` builder or the `script` builder (see below [for documentation on using the script builder](available-builders.md#script-builder)). If you are using `texify` (i.e. the `traditional` builder on MiKTeX) or the simple builder, the `output_directory` and `aux_directory` settings will be ignored.
 
 ### Jobname
