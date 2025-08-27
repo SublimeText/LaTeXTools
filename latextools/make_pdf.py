@@ -505,13 +505,8 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         # filter out --aux-directory and --output-directory options which are
         # handled separately
         options = [
-            opt
-            for opt in options
-            if (
-                not opt.startswith("--aux-directory")
-                and not opt.startswith("--output-directory")
-                and not opt.startswith("--jobname")
-            )
+            opt for opt in options
+            if not opt.startswith(("--aux-directory", "--output-directory", "--jobname"))
         ]
 
         self.aux_directory = get_aux_directory(view)
