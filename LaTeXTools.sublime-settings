@@ -285,12 +285,11 @@
 		"texpath" : "/usr/texbin:$PATH",
 		// Command to invoke Python. Useful if you have Python installed in a
 		// non-standard location or want to use a particular version of python.
-		// Both Python2 and Python3 are supported, but must have the DBus bindings
-		// installed.
+		// Only Python3 is supported, but must have the DBus bindings installed.
 		"python": "",
 		// Command to invoke Sioyek. If blank, "sioyek.exe" is used (it has to be on your PATH)
 		"sioyek": "",
-		// How long to wait after evince or okular has launched before sending a sync message
+		// How long to wait after evince, xreader or okular has launched before sending a sync message
 		// in seconds, floating point; choose 2.0 or 3.0 on a slower machine, 0.5 on a fast one
 		// Note: only tweak this if sync after launching the PDF viewer does not seem to work,
 		// or if the PDF viewer opens instantly and you don't want to wait.
@@ -536,6 +535,8 @@
 	// "evince"			uses Evince; this is the default on linux
 	//
 	// "okular"			uses Okular to open the pdf
+	//
+	// "xreader"		uses XReader to open the pdf
 	//
 	// "preview"		uses Preview.app to open the pdf
 	//

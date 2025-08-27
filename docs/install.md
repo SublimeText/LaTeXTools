@@ -158,9 +158,9 @@ Once again, you can use the **LaTeXTools: Check System** command to verify that 
 
 ### Setup Viewer
 
-By default, LaTeXTools assumes you are using Evince (Document Viewer) as your PDF viewer. Support is also available for Okular and Zathura and other viewers that can be run via the command line. See the section on [available-viewers](available-viewers.md) for details on how to setup other viewers.
+By default, LaTeXTools assumes you are using Evince (Document Viewer) as your PDF viewer. Support is also available for Okular, Zathura, XReader, and other viewers that can be run via the command line. See the section on [available-viewers](available-viewers.md) for details on how to setup other viewers.
 
-Evince is already installed by default on any distro that provides the Gnome desktop environment, but if it hasn't been, it can be installed using your distribution's package manager. In addition to Evince, you will need to ensure you have the Python bindings for `dbus` and the Python bindings for Gnome, i.e. `gobject` or `python-gi`, depending on your distribution. If you use the Gnome desktop, you likely already have these, but if not, you will need to install them using your distribution's package manager. In particular, they are reportedly not installed on Arch Linux by default.
+Evince is already installed by default on any distro that provides the Gnome desktop environment, but if it hasn't been, it can be installed using your distribution's package manager. In addition to Evince, you will need to ensure you have the Python bindings for `dbus` and the Python bindings for Gnome, i.e. `gobject` or `python-gi`, depending on your distribution. This is also necessary if you are using XReader, which is installed by default in Linux Mint. If you use the Gnome desktop, you likely already have these, but if not, you will need to install them using your distribution's package manager. In particular, they are reportedly not installed on Arch Linux by default.
 
 Unlike other viewers and platforms, Evince forward and backward search should work out of the box thanks to the magic of `dbus`, but if not, please let us know!
 
