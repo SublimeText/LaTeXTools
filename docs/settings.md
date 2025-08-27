@@ -97,7 +97,6 @@ This section refers to setting that can be found in a platform-specific block fo
   * `<<project>>`: uses a sub-directory in the same folder as the main tex file with what should be a unique name; note, this is probably not all that useful and you're better off using one of the other two options or a named relative path
 * `output_directory` (`""`): specifies the output directory to store any file generated during a LaTeX build. Path can be specified using either an absolute path or a relative path. If `output_directory` is set from the project file, a relative path will be interpreted as relative to the project file. If it is set in the settings file, it will be interpreted relative to the main tex file. In addition, output_directory honors the same special values as `auxiliary_directory`.
 * `jobname` (`""`): specifies the jobname to use for the build, corresponding to the pdflatex `--jobname` argument.
-* `copy_output_on_build` (`true`): if `true` and you are using an `output_directory`, either set via the setting or the `%!TEX` directive, this instructs LaTeXTools to copy to resulting pdf to the same folder as the main tex file. If you are not using `output_directory` or it is set to `false`, it does nothing. If it is a list of extensions, it will copy each file with the same name as your main tex file and the given extension to the same folder as your main tex file. This is useful for copying, e.g., .synctex.gz or .log files.
 
 ## Builder Settings
 

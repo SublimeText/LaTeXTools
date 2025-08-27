@@ -594,24 +594,8 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             self.update_annotations()
 
         # can_switch_to_pdf indicates a pdf should've been created
-        if can_switch_to_pdf:
-            # if using output_directory, follow the copy_output_on_build setting
-            # files are copied to the same directory as the main tex file
-            if self.output_directory:
-                copy_on_build = get_setting("copy_output_on_build", True, self.view)
-                if copy_on_build is None or copy_on_build is True:
-                    shutil.copy2(
-                        os.path.join(self.output_directory, self.tex_base + ".pdf"),
-                        os.path.dirname(self.file_name),
-                    )
-                elif isinstance(copy_on_build, list):
-                    for ext in copy_on_build:
-                        copy_file = os.path.join(self.output_directory, self.tex_base + ext)
-                        if os.path.isfile(copy_file):
-                            shutil.copy2(copy_file, os.path.dirname(self.file_name))
-
-            if get_setting("open_pdf_on_build", True, self.view):
-                self.window.run_command("latextools_jumpto_pdf", {"from_keybinding": False})
+        if can_switch_to_pdf and get_setting("open_pdf_on_build", True, self.view):
+            self.window.run_command("latextools_jumpto_pdf", {"from_keybinding": False})
 
     def _find_errors(self, errors, error_class):
         for line in errors:
