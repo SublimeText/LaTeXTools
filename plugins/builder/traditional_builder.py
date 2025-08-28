@@ -1,4 +1,6 @@
+import os
 import shlex
+import shutil
 import sublime
 
 from .pdf_builder import PdfBuilder
@@ -97,28 +99,26 @@ class TraditionalBuilder(PdfBuilder):
 
         # handle any options
         if texify or latexmk:
-            # we can only handle aux_directory, output_directory, or jobname
-            # with latexmk
+            # aux_directory, output_directory or jobname are only supported by latexmk
             if latexmk:
-                if self.aux_directory is not None and self.aux_directory != self.output_directory:
-                    # DO NOT ADD QUOTES HERE
-                    cmd.append("--aux-directory=" + self.aux_directory)
-
-                if self.output_directory is not None:
-                    # DO NOT ADD QUOTES HERE
-                    cmd.append("--output-directory=" + self.output_directory)
+                if self.aux_directory:
+                    # Don't use --aux-directory as the way how latexmk moves
+                    # final documents to possibly defined --output-directory
+                    # prevent file-reloading in SumatraPDF or even fail at all,
+                    # if document is opened and locked by viewer on Windows.
+                    cmd.append(f"--output-directory={self.aux_directory}")
 
                 if self.job_name != self.base_name:
-                    cmd.append("--jobname=" + self.job_name)
+                    cmd.append(f"--jobname={self.job_name}")
 
             for option in self.options:
                 if texify:
-                    cmd.append('--tex-option="' + option + '"')
+                    cmd.append(f'--tex-option="{option}"')
                 else:
-                    cmd.append("-latexoption=" + option)
+                    cmd.append(f"-latexoption={option}")
 
         # texify wants the .tex extension; latexmk doesn't care either way
-        yield (cmd + [self.tex_name], "Invoking " + cmd[0] + "... ")
+        yield (cmd + [self.tex_name], f"Invoking {cmd[0]}... ")
 
         self.display("done.\n")
 
@@ -127,3 +127,16 @@ class TraditionalBuilder(PdfBuilder):
             self.display("\nCommand results:\n")
             self.display(self.out)
             self.display("\n\n")
+
+        # Move final assets to output directory
+        dest_dir = self.output_directory_full or self.tex_dir
+        if self.aux_directory_full and self.aux_directory_full != dest_dir:
+            for ext in (".synctex.gz", ".pdf"):
+                name = self.base_name + ext
+                try:
+                    shutil.move(
+                        os.path.join(self.aux_directory_full, name),
+                        os.path.join(dest_dir, name)
+                    )
+                except OSError:
+                    pass

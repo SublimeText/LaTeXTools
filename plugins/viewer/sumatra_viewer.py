@@ -54,7 +54,7 @@ class SumatraViewer(BaseViewer):
         return None
 
     @classmethod
-    def _run_with_sumatra_exe(cls, commands):
+    def _run_sumatra(cls, *args):
         def _no_binary():
             message = (
                 "Could not find SumatraPDF.exe. "
@@ -69,10 +69,6 @@ class SumatraViewer(BaseViewer):
             sublime.set_timeout(_error_msg, 1)
             logger.error(message)
 
-        # paranoia
-        if not isinstance(commands, list):
-            commands = [commands]
-
         # favour 'sumatra' setting under viewer_settings if
         # it exists, otherwise, use the platform setting
         sumatra_binary = (
@@ -83,14 +79,14 @@ class SumatraViewer(BaseViewer):
         )
 
         try:
-            external_command([sumatra_binary] + commands, use_texpath=False, show_window=True)
+            external_command([sumatra_binary, *args], use_texpath=False, show_window=True)
         except Exception:
             exc_info = sys.exc_info()
 
             sumatra_exe = cls._find_sumatra_exe()
             if sumatra_exe is not None and sumatra_exe != sumatra_binary:
                 try:
-                    external_command([sumatra_exe] + commands, use_texpath=False, show_window=True)
+                    external_command([sumatra_exe, *args], use_texpath=False, show_window=True)
                 except Exception:
                     traceback.print_exc()
                     _no_binary()
@@ -102,15 +98,11 @@ class SumatraViewer(BaseViewer):
 
     @classmethod
     def forward_sync(cls, pdf_file, tex_file, line, col, **kwargs):
-        src_file = tex_file
-
-        cls._run_with_sumatra_exe(
-            ["-reuse-instance", "-forward-search", src_file, str(line), pdf_file]
-        )
+        cls._run_sumatra("-reuse-instance", "-forward-search", tex_file, str(line), pdf_file)
 
     @classmethod
     def view_file(cls, pdf_file, **kwargs):
-        cls._run_with_sumatra_exe(["-reuse-instance", pdf_file])
+        cls._run_sumatra("-reuse-instance", pdf_file)
 
     @classmethod
     def supports_platform(cls, platform):

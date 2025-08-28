@@ -140,10 +140,13 @@ class BasicBuilder(PdfBuilder):
         if self.aux_directory_full and self.aux_directory_full != dest_dir:
             for ext in (".synctex.gz", ".pdf"):
                 name = self.base_name + ext
-                shutil.move(
-                    os.path.join(self.aux_directory_full, name),
-                    os.path.join(dest_dir, name)
-                )
+                try:
+                    shutil.move(
+                        os.path.join(self.aux_directory_full, name),
+                        os.path.join(dest_dir, name)
+                    )
+                except OSError:
+                    pass
 
     def log_output(self):
         if self.display_log:
