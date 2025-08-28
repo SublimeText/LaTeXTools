@@ -130,7 +130,7 @@ class TraditionalBuilder(PdfBuilder):
 
         # Move final assets to output directory
         dest_dir = self.output_directory_full or self.tex_dir
-        if self.aux_directory_full and self.aux_directory_full != dest_dir:
+        if self.aux_directory and self.aux_directory_full != dest_dir:
             for ext in (".synctex.gz", ".pdf"):
                 name = self.base_name + ext
                 try:

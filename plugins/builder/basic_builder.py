@@ -63,12 +63,11 @@ class BasicBuilder(PdfBuilder):
         latex = [engine, "-interaction=nonstopmode", "-shell-escape", "-synctex=1"]
         biber = ["biber"]
 
-        output_directory = self.aux_directory_full or self.output_directory_full
-        if output_directory:
+        if self.aux_directory:
             # No supported engine supports --aux-directory, use --output-directory
             # and move final documents later.
-            biber.append(f"--output-directory={output_directory}")
-            latex.append(f"--output-directory={output_directory}")
+            biber.append(f"--output-directory={self.aux_directory}")
+            latex.append(f"--output-directory={self.aux_directory}")
 
         if self.job_name and self.job_name != self.base_name:
             latex.append(f"--jobname={self.job_name}")
@@ -85,7 +84,7 @@ class BasicBuilder(PdfBuilder):
         # Create required directories
         while matches := FILE_WRITE_ERROR_REGEX.findall(self.out):
             for path, _ in matches:
-                abspath = os.path.join(output_directory or self.tex_dir, path)
+                abspath = os.path.join(self.aux_directory_full or self.tex_dir, path)
                 os.makedirs(abspath, exist_ok=True)
                 logger.debug(f"Created directory {abspath}")
 
@@ -137,7 +136,7 @@ class BasicBuilder(PdfBuilder):
 
         # Move final assets to output directory
         dest_dir = self.output_directory_full or self.tex_dir
-        if self.aux_directory_full and self.aux_directory_full != dest_dir:
+        if self.aux_directory and self.aux_directory_full != dest_dir:
             for ext in (".synctex.gz", ".pdf"):
                 name = self.base_name + ext
                 try:
@@ -166,14 +165,13 @@ class BasicBuilder(PdfBuilder):
         env = dict(os.environ)
         cwd = self.tex_dir
 
-        output_directory = self.aux_directory_full or self.output_directory_full
-        if output_directory is not None:
+        if self.aux_directory:
             # cwd is, at the point, the path to the main tex file
             env["BIBINPUTS"] = cwd + os.pathsep + env.get("BIBINPUTS", "")
             env["BSTINPUTS"] = cwd + os.pathsep + env.get("BSTINPUTS", "")
             # now we modify cwd to be the output directory
             # NOTE this cwd is not reused by any of the other command
-            cwd = output_directory
+            cwd = self.aux_directory_full
         env["PATH"] = get_texpath()
 
         command.append(self.job_name)
