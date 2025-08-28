@@ -10,7 +10,5 @@ docs/               export-ignore
 mkdocs.yml          export-ignore
 
 # Development
-.venv/              export-ignore
 tests/              export-ignore
-*.py[co]            export-ignore
 pyproject.toml      export-ignore

@@ -1,5 +1,5 @@
 site_name: LaTeXTools
-pages:
+nav:
   - "Home": "index.md"
   - "Installation": "install.md"
   - "Features": "features.md"

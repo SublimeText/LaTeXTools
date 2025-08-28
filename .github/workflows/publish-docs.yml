@@ -1,0 +1,57 @@
+name: Publish Docs
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - .github/workflows/publish-docs.yml
+      - docs/
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.13
+
+      - name: Checkout repository
+        id: checkout-repository
+        uses: actions/checkout@v5
+
+      - name: Create pages
+        run: |
+          pip install mkdocs
+          mkdocs build
+
+      - name: Setup pages
+        id: setup-pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload pages
+        id: upload-pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/
+
+  deploy:
+    needs: build
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy pages
+        id: deployment
+        uses: actions/deploy-pages@v4

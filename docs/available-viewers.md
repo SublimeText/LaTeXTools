@@ -10,7 +10,7 @@ Sumatra is currently the only widely-available PDF viewer for Windows that suppo
 
 This is the default viewer on macOS and should work out of the box. Because of some issues with forward sync in 1.4.26, we recommend using 1.4.24.
 
-Skim is currently the only widely-available PDF viewer for macOS that supports forward and inverse sync. LaTeXTools also has some support for [Preview.app](#preview.app) and the [Command Viewer](#command-viewer) can be used to add support for other viewers.
+Skim is currently the only widely-available PDF viewer for macOS that supports forward and inverse sync. LaTeXTools also has some support for [Preview.app](#previewapp) and the [Command Viewer](#command-viewer) can be used to add support for other viewers.
 
 ## Preview.app
 

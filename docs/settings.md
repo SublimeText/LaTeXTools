@@ -15,8 +15,8 @@ If at any time you wish to erase your customizations and start afresh, you can s
 * `overwrite_goto_overlay` (`true`): Set this to `false` to disable the overwriting of the goto overlay for the hotkey `C-r` and `C-shift-r` You can still access the "table of content quickpanel" via `C-l, C-r` and `C-shift-l, C-r
 * `enable_smart_paste` (`true`) if smart paste is enabled LaTeXTools will overwrite the C-v command and analyze the clipboard content to check whether it should execute an action. So you can just paste image urls or paths into Sublime Text and it will automatically download the image and create a figure environment.
 * `latextools_set_syntax` (`true`): if `true` LaTeXTools will automatically set the syntax to `LaTeX` when opening or saving any file with an extension in the `tex_file_exts` list.
-* `tex_file_exts` (`['.tex']`): a list of extensions that should be considered TeX documents. Any extensions in this list will be treated exactly the same as `.tex` files. See the section on [Support for non-`.tex` files](#support-for-non-tex-files).
-* `tex_spellcheck_paths` (`{}`): A mapping from the locales to the paths of the dictionaries. See the section [Spell-checking](#spell-checking).
+* `tex_file_exts` (`['.tex']`): a list of extensions that should be considered TeX documents. Any extensions in this list will be treated exactly the same as `.tex` files. See the section on [Support for non-`.tex` files](features.md#support-for-non-tex-files).
+* `tex_spellcheck_paths` (`{}`): A mapping from the locales to the paths of the dictionaries. See the section [Spell-checking](features.md#spell-checking).
 * `word_count_sub_level` (`"none"`): controls the level at which subcounts of words can be generated. Valid values are: `"none"`, `"part"`, `"chapter"`, and `"section"`.
 * `auto_match_escaped_brackets`: auto-pair escaped brackets when typing (e.g. `\[` expands to `\[\]`)
 * `auto_match_math_brackets`: auto-pair special math related brackets when typing (e.g. `\left[` expands to `\left[\right]`)
@@ -107,7 +107,7 @@ This section refers to setting that can be found in a platform-specific block fo
 	* `"basic"`: invokes `pdflatex` / `xelatex` / `lualatex` to build the document. If the log indicates it is necessary, it then runs  `biber` or `bibtex` and then two additional runs of `pdflatex` / `xelatex` / `lualatex`. Mostly supports the same features as the `traditional` builder.
 	* `"script"`: invokes the set of commands specified in the `"script_commands"` setting in the platform-specific part of the `"builder_settings"`. See [the documentation](available-builders.md#script-builder) for details.
 	* `"simple"`: invokes `pdflatex` 1x or 2x as needed, then `bibtex` and `pdflatex` again if needed; intended mainly as a simple example for people writing their own build engines.
-	* Other values can be used to indicate the use of a custom build system. Note that custom builder **cannot** have the same name as a built-in engine. For an overview of how to write a custom builder, see [the custom builder section of the documentation](available-builders.md#custom-builder)
+	* Other values can be used to indicate the use of a custom build system. Note that custom builder **cannot** have the same name as a built-in engine. For an overview of how to write a custom builder, see [the custom builder section of the documentation](available-builders.md#customizing-the-build-system)
 * `builder-settings`: this contains builder-specific settings.
 	* `display_log` (`false`): if `true` the output of each command will be displayed in the output panel. This can be useful for troubleshooting issues with the build system and is supported by all built-in build systems.
 	*`env` (unset): a dictionary of key-values corresponding to environment variables that should be set for the environment the build is run in. Note that `env`, if it is set, must be set at the platform-specific level, e.g., under the `osx`, `windows`, or `linux` keys. This is useful for setting, e.g., `TEXINPUTS`.
@@ -154,7 +154,7 @@ Any other value will be interpreted as the default.
 
 * `viewer` (`""`): the viewer you want to use. Leave blank (`""`) or set to `"default"`for the platform-specific viewer. Can also be set to `"preview"` if you want to use Preview on OS X, `"okular"` if you want to use Okular on Linux, `"zathura"` is you want to use Zathura on Linux, or `"command"` to run arbitrary commands. For details on the `"command"` option, see the section on the [Command Viewer](available-viewers.md#command-viewer).
 
-* `viewer_settings`: these are viewer-specific settings. Please see the section on [Viewers](available-viewers.md#viewers) or the documentation on [Alternate Viewers](available-viewers.md#alternate-viewers) for details of what should be set here.
+* `viewer_settings`: these are viewer-specific settings. Please see the section on [Viewers](available-viewers.md) for details of what should be set here.
 
 * `open_pdf_on_build` (`true`): Controls whether LaTeXTools will automatically open the configured PDF viewer on a successful build. If set to `false`, the PDF viewer will only be launched if explicitly requested using `C-l,v` or `C-l,j`.
 
@@ -166,7 +166,7 @@ Any other value will be interpreted as the default.
 
 ## Bibliographic References Settings
 
-* `use_biblatex`: (`false`): if `true` LaTeXTools will use BibLaTeX defaults for editing `.bib` files. If `false`, LaTeXTools will use BibTeX defaults. See the section on [Support for Editing Bibliographies](#support-for-editing-bibliographies) for details.
+* `use_biblatex`: (`false`): if `true` LaTeXTools will use BibLaTeX defaults for editing `.bib` files. If `false`, LaTeXTools will use BibTeX defaults. See the section on [Support for Editing Bibliographies](features.md#support-for-editing-bibliographies) for details.
 
 * `bibliography` (`"new"`): specifies the bibliography plugin to use to handle extracting entries from a bibliography. May be specified either as a single plugin or a list of plugins to be executed in order. Possible values:
 	* `"traditional"`: the default bibliography which is quite fast and works for most situations.

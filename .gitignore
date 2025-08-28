@@ -1,7 +1,18 @@
-# Ignore compiled Python files
-*.pyc
-# Ignore cache files
-*.cache
-package-metadata.json
+# OS cache files
 .DS_Store
 
+# mkdocs cache
+site/
+
+# python cache
+.mypy_cache/
+.pytest_cache/
+.venv/
+__pycache__/
+*.py[co]
+
+# Sublime Text files
+*.sublime-project
+*.sublime-workspace
+*.cache
+package-metadata.json

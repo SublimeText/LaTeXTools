@@ -69,7 +69,7 @@ This will show the LaTeXTools build panel, including any messages from the previ
 
 **Keybinding:** <kbd>C+l</kbd>,<kbd>backspace</kbd>
 
-This deletes all temporary files from a previous build (the PDF file is kept). Subfolders are traversed recursively. This command also clears the [LaTeXTools cache](features.md#latextools-cache).
+This deletes all temporary files from a previous build (the PDF file is kept). Subfolders are traversed recursively. This command also clears the [LaTeXTools cache](features.md#caching).
 
 Two settings allow you to fine-tune the behavior of this command. `temp_files_exts` allows you to specify which file extensions should be considered temporary, and hence deleted. `temp_files_ignored_folders` allows you to specify folders that should not be traversed. A good example are `.git` folders, for people who use git for version control.
 
@@ -79,7 +79,7 @@ Two settings allow you to fine-tune the behavior of this command. `temp_files_ex
 
 **Keybinding:** <kbd>C+l</kbd>,<kbd>C+d</kbd>,<kbd>C+c</kbd>
 
-This clears the [LaTeXTools cache](features.md#latextools-cache). It is useful if the LaTeXTools cache information gets too out of date, but you want to maintain the LaTeX build files, such as `.aux`.
+This clears the [LaTeXTools cache](features.md#caching). It is useful if the LaTeXTools cache information gets too out of date, but you want to maintain the LaTeX build files, such as `.aux`.
 
 ## Forward Search and Inverse Search
 
