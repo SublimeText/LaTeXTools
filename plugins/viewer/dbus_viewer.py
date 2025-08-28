@@ -238,7 +238,7 @@ class BaseDBusViewer(BaseViewer):
         else:
             cls.bring_to_front(pdf_file)
             # call into running dbus process to navigate to desired location in PDF
-            cls.run_sync(pdf_file, forward_sync=forward_sync_target)
+            cls.run_sync(pdf_file, spawn=True, forward_sync=forward_sync_target)
 
         if kwargs.get("keep_focus", True):
             cls.focus_st()
