@@ -6,13 +6,12 @@ by Ian Bacher, Marciano Siniscalchi, and Richard Stein
 <https://tekonomist.wordpress.com>
 
 **Documentation:**
-<https://latextools.readthedocs.io>
+<https://sublimetext.github.io/LaTeXTools>
 
 [![Package Control](https://img.shields.io/packagecontrol/dm/LaTeXTools.svg?maxAge=2592000)](https://packagecontrol.io/packages/LaTeXTools)
 
 *Headline features*:
 
-- Documentation migrated to ReadTheDocs (https://latextools.readthedocs.io)
 - Support for the import package
 - TOC quickpanel now shows just the current document when using (C-r)
 - Uses analysis for ref / cite commands and better caching
