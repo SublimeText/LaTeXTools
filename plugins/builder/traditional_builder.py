@@ -102,10 +102,10 @@ class TraditionalBuilder(PdfBuilder):
             # aux_directory, output_directory or jobname are only supported by latexmk
             if latexmk:
                 if self.aux_directory:
-                    # Don't use --aux-directory as the way how latexmk moves
-                    # final documents to possibly defined --output-directory
-                    # prevent file-reloading in SumatraPDF or even fail at all,
-                    # if document is opened and locked by viewer on Windows.
+                    # Don't use --aux-directory as the way latexmk moves
+                    # final documents to a possibly defined --output-directory
+                    # prevents files reloading in SumatraPDF or even fails
+                    # if documents are opened and locked by viewer on Windows.
                     cmd.append(f"--output-directory={self.aux_directory}")
 
                 if self.job_name != self.base_name:
