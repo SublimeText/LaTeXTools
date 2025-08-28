@@ -518,8 +518,6 @@
 	//
 	// "okular"			uses Okular to open the pdf
 	//
-	// "xreader"		uses XReader to open the pdf
-	//
 	// "preview"		uses Preview.app to open the pdf
 	//
 	// "sioyek"			uses Sioyek to open the pdf
@@ -529,6 +527,8 @@
 	//
 	// "sumatra"		uses SumatraPDF; this is the default on
 	//					Windows
+	//
+	// "xreader"		uses XReader to open the pdf
 	//
 	// "zathura"		uses Zathura to open the pdf
 	"viewer": "",
