@@ -417,21 +417,12 @@
 	//					latexmk (TeXLive) / texify (MiKTeX)
 	//
 	// custom name		you can also use third-party build engines;
-	//					if so, set the "builder_path" option below
+	//                  Custom build engines extend `PdfBuilder` class,
+	//                  and are implemented in a ST plugin.
 	//
 	// NOTE: custom builders CANNOT have the same name as an existing
 	// built-in build engine (including "default")
 	"builder": "traditional",
-
-	// OPTION: "builder_path"
-	// If non-empty, specifies a path to a custom builder, relative to the
-	// Sublime Text Packages directory.
-	// For instance, "User/builders" (on Windows: "User\builders") is a good
-	// choice if you roll your own.
-	// (Note: if you choose "User", you may get a Python import error in the
-	// console, but things will still work).
-	// Leave empty ("") for a built-in builder.
-	"builder_path": "",
 
 	// OPTION: "builder_settings"
 	// Specify builder-dependent settings and preferences
