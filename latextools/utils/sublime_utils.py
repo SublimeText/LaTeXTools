@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 
 from pathlib import Path
-from typing import cast
+from typing import Any, cast
 
 import sublime
 
@@ -64,6 +64,15 @@ def get_sublime_exe() -> str:
 
     get_sublime_exe.result = str(executable)
     return get_sublime_exe.result
+
+
+def get_project_data(view: sublime.View) -> dict[str, Any]:
+    window = view.window()
+    if window:
+        project_data = window.project_data()
+        if project_data:
+            return project_data
+    return {}
 
 
 def get_project_file_name(view: sublime.View) -> str | None:
