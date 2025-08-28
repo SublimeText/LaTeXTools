@@ -113,7 +113,7 @@ class BaseDBusViewer(BaseViewer):
         if not script_file.exists():
             try:
                 data = (
-                    sublime.load_binary_resource(f"Packages/LaTeXTools/plugins/viewer/dbus/sync")
+                    sublime.load_binary_resource("Packages/LaTeXTools/plugins/viewer/dbus/sync")
                     .replace(b"\r\n", b"\n")
                     .replace(b"\r", b"\n")
                 )

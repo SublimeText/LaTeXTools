@@ -52,7 +52,7 @@ class SkimViewer(BaseViewer):
             try:
                 data = (
                     sublime.load_binary_resource(
-                        f"Packages/LaTeXTools/plugins/viewer/skim/displayfile"
+                        "Packages/LaTeXTools/plugins/viewer/skim/displayfile"
                     )
                     .replace(b"\r\n", b"\n")
                     .replace(b"\r", b"\n")
