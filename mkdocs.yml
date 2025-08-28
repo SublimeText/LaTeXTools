@@ -1,4 +1,5 @@
 site_name: LaTeXTools
+repo_url: https://github.com/SublimeText/LaTeXTools
 nav:
   - "Home": "index.md"
   - "Installation": "install.md"
@@ -17,4 +18,6 @@ extra_javascript:
   - extra.js
 extra_css:
   - extra.css
-repo_url: https://github.com/SublimeText/LaTeXTools
+plugins:
+  - minify:
+      minify_html: true

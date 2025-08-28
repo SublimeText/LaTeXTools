@@ -26,7 +26,7 @@ jobs:
 
       - name: Create pages
         run: |
-          pip install mkdocs
+          pip install mkdocs mkdocs-minify-plugin
           mkdocs build
 
       - name: Setup pages
