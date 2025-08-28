@@ -133,10 +133,7 @@ class TraditionalBuilder(PdfBuilder):
         if self.aux_directory and self.aux_directory_full != dest_dir:
             for ext in (".synctex.gz", ".pdf"):
                 name = self.base_name + ext
-                try:
-                    shutil.move(
-                        os.path.join(self.aux_directory_full, name),
-                        os.path.join(dest_dir, name)
-                    )
-                except OSError:
-                    pass
+                shutil.move(
+                    os.path.join(self.aux_directory_full, name),
+                    os.path.join(dest_dir, name)
+                )
