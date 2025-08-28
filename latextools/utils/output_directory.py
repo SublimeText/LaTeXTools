@@ -1,3 +1,4 @@
+from __future__ import annotations
 import hashlib
 import json
 import os
@@ -8,6 +9,7 @@ from .distro_utils import using_miktex
 from .logging import logger
 from .settings import get_setting
 from .settings import global_settings
+from .sublime_utils import get_project_data
 from .sublime_utils import get_project_file_name
 from .tex_directives import get_tex_root
 from .tex_directives import parse_tex_directives
@@ -19,49 +21,60 @@ class UnsavedFileException(Exception):
     pass
 
 
-# finds the aux-directory
-# general algorithm:
-#   1. check for an explicit aux_directory directive
-#   2. check for an --aux-directory flag
-#   3. check for a project setting
-#   4. check for a global setting
-#   5. assume aux_directory is the same as output_directory
-# return_setting indicates that the raw setting should be returned
-# as well as the auxiliary directory
-def get_aux_directory(view_or_root, return_setting=False):
-    root = get_root(view_or_root)
+def get_aux_directory(
+    view: sublime.View | None,
+    return_setting: bool=False
+) -> str | None | tuple[str, str] | tuple[None, None]:
+    """
+    Find the aux-directory
 
-    aux_directory = get_directive(view_or_root, "aux_directory")
+    general algorithm:
+    1. check for an explicit aux_directory directive
+    2. check for a project setting
+    3. check for a global setting
+    4. assume aux_directory is the same as output_directory
 
-    if (aux_directory is None or aux_directory == "") and (
-        root is not None and view_or_root != root
-    ):
+    :param view:
+        The view displaying a TeX document.
+
+    :param return_setting:
+        Indicates that the raw setting should be returned as well as the auxiliary directory
+
+    :returns:
+        Absolute path of specified auxiliary directory.
+    """
+    if view is None:
+        window = sublime.active_window()
+        if window:
+            view = window.active_view()
+
+    if view:
+        # look for aux_directory directive in root document
+        root = get_tex_root(view)
         aux_directory = get_directive(root, "aux_directory")
+        if aux_directory:
+            aux_dir = resolve_to_absolute_path(root, aux_directory, _get_root_directory(root))
 
-    if aux_directory is not None and aux_directory != "":
-        aux_dir = resolve_to_absolute_path(root, aux_directory, _get_root_directory(root))
+            if return_setting:
+                return (aux_dir, aux_directory)
+            else:
+                return aux_dir
 
-        if return_setting:
-            return (aux_dir, aux_directory)
-        else:
-            return aux_dir
+        # look for aux_directory in project settings
+        aux_directory = get_project_data(view).get("settings", {}).get("latextools.aux_directory")
+        if aux_directory:
+            aux_dir = resolve_to_absolute_path(
+                root, aux_directory, _get_root_directory(get_project_file_name(view))
+            )
 
-    view = sublime.active_window().active_view()
-    aux_directory = view.settings().get("aux_directory")
+            if return_setting:
+                return (aux_dir, aux_directory)
+            else:
+                return aux_dir
 
-    if aux_directory is not None and aux_directory != "":
-        aux_dir = resolve_to_absolute_path(
-            root, aux_directory, _get_root_directory(get_project_file_name(view))
-        )
-
-        if return_setting:
-            return (aux_dir, aux_directory)
-        else:
-            return aux_dir
-
+    # look for aux_directory in global settings
     aux_directory = global_settings().get("aux_directory")
-
-    if aux_directory is not None and aux_directory != "":
+    if aux_directory:
         aux_dir = resolve_to_absolute_path(root, aux_directory, _get_root_directory(root))
 
         if return_setting:
@@ -69,52 +82,60 @@ def get_aux_directory(view_or_root, return_setting=False):
         else:
             return aux_dir
 
-    return get_output_directory(root, return_setting)
+    return get_output_directory(view, return_setting)
 
 
-# finds the output-directory
-# general algorithm:
-#   1. check for an explicit output_directory directive
-#   2. check for an --output-directory flag
-#   3. check for a project setting
-#   4. check for a global setting
-#   5. assume output_directory is None
-# return_setting indicates that the raw setting should be returned
-# as well as the output directory
-def get_output_directory(view_or_root, return_setting=False):
-    root = get_root(view_or_root)
+def get_output_directory(
+    view: sublime.View | None,
+    return_setting: bool=False
+) -> str | None | tuple[str, str] | tuple[None, None]:
+    """
+    Find the output-directory
 
-    output_directory = get_directive(view_or_root, "output_directory")
+    general algorithm:
+    1. check for an explicit aux_directory directive
+    2. check for a project setting
+    3. check for a global setting
 
-    if (output_directory is None or output_directory == "") and (
-        root is not None and view_or_root != root
-    ):
+    :param view:
+        The view displaying a TeX document.
+
+    :param return_setting:
+        Indicates that the raw setting should be returned as well as the output directory
+
+    :returns:
+        Absolute path of specified output directory.
+    """
+    if view is None:
+        window = sublime.active_window()
+        if window:
+            view = window.active_view()
+
+    if view:
+        # look for output_directory directive in root document
+        root = get_tex_root(view)
         output_directory = get_directive(root, "output_directory")
+        if output_directory:
+            out_dir = resolve_to_absolute_path(root, output_directory, _get_root_directory(root))
 
-    if output_directory is not None and output_directory != "":
-        out_dir = resolve_to_absolute_path(root, output_directory, _get_root_directory(root))
+            if return_setting:
+                return (out_dir, output_directory)
+            else:
+                return out_dir
 
-        if return_setting:
-            return (out_dir, output_directory)
-        else:
-            return out_dir
+        output_directory = get_project_data(view).get("settings", {}).get("latextools.output_directory")
+        if output_directory:
+            out_dir = resolve_to_absolute_path(
+                root, output_directory, _get_root_directory(get_project_file_name(view))
+            )
 
-    view = sublime.active_window().active_view()
-    output_directory = view.settings().get("output_directory")
-
-    if output_directory is not None and output_directory != "":
-        out_dir = resolve_to_absolute_path(
-            root, output_directory, _get_root_directory(get_project_file_name(view))
-        )
-
-        if return_setting:
-            return (out_dir, output_directory)
-        else:
-            return out_dir
+            if return_setting:
+                return (out_dir, output_directory)
+            else:
+                return out_dir
 
     output_directory = global_settings().get("output_directory")
-
-    if output_directory is not None and output_directory != "":
+    if output_directory:
         out_dir = resolve_to_absolute_path(root, output_directory, _get_root_directory(root))
 
         if return_setting:
