@@ -19,13 +19,13 @@ class SimpleBuilder(PdfBuilder):
     Just call a bunch of commands in sequence
     Demonstrate basics
     """
+    name = "Simple Builder"
 
     def __init__(self, *args):
         # Sets the file name parts, plus internal stuff
-        super(SimpleBuilder, self).__init__(*args)
+        super().__init__(*args)
 
         # Now do our own initialization: set our name, see if we want to display output
-        self.name = "Simple Builder"
         self.display_log = self.builder_settings.get("display_log", False)
 
     def commands(self) -> CommandGenerator:
