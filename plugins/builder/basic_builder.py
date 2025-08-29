@@ -1,8 +1,14 @@
+from __future__ import annotations
 import os
 import re
 import sublime
 import subprocess
 import sys
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .pdf_builder import CommandGenerator
 
 from ...latextools.utils.external_command import external_command
 from ...latextools.utils.external_command import get_texpath
@@ -43,7 +49,7 @@ class BasicBuilder(PdfBuilder):
         self.bibtex = self.builder_settings.get("bibtex", "bibtex")
         self.display_log = self.builder_settings.get("display_log", False)
 
-    def commands(self):
+    def commands(self) -> CommandGenerator:
         # Print greeting
         self.display("\n\nBasic Builder: ")
 
@@ -135,13 +141,13 @@ class BasicBuilder(PdfBuilder):
 
         self.move_assets_to_output()
 
-    def log_output(self):
+    def log_output(self) -> None:
         if self.display_log:
             self.display("\nCommand results:\n")
             self.display(self.out)
             self.display("\n\n")
 
-    def run_bibtex(self, command=None):
+    def run_bibtex(self, command: list[str] | str | None=None) -> subprocess.Popen:
         if command is None:
             command = [self.bibtex]
         elif isinstance(command, str):
