@@ -4,6 +4,7 @@ import shutil
 import sublime
 import sys
 
+from textwrap import indent
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -115,15 +116,29 @@ class PdfBuilder(LaTeXToolsPlugin):
         if self.output_directory_full:
             os.makedirs(self.output_directory_full, exist_ok=True)
 
+        self.display_log = self.builder_settings.get("display_log", False)
+        """
+        Specifies whether to display detailed command output in log panel.
+
+        Value of `builder_settings: { display_log: ... }` setting
+        """
+
     def set_output(self, out: str) -> None:
         """
         Save command output.
 
-        Called by command executor to store executed command output.
+        Called by command executor to display command results
 
-        Usually no need to override
+        It assumes command message to look like "Running command..." so it will
+        be finished with "done." on the same line, optionally followed by
+        command's log output
         """
-        logger.debug(f"Setting out\n{out}")
+        msg = "done.\n"
+        if self.display_log:
+            msg += f"command output:\n{indent(out.strip(), '  ')}\n{'-' * 80}\n"
+        self.display(msg)
+
+        logger.debug("command output:\n%s", out)
         self.out = out
 
     def commands(self) -> CommandGenerator:

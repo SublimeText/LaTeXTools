@@ -42,8 +42,6 @@ class TraditionalBuilder(PdfBuilder):
     def __init__(self, *args):
         # Sets the file name parts, plus internal stuff
         super().__init__(*args)
-        # Display output?
-        self.display_log = self.builder_settings.get("display_log", False)
         # Build command, with reasonable defaults
         plat = sublime.platform()
         # Figure out which distro we are using
@@ -62,9 +60,6 @@ class TraditionalBuilder(PdfBuilder):
     # Only complication is handling custom tex engines
     #
     def commands(self) -> CommandGenerator:
-        # Print greeting
-        self.display("\n\nTraditionalBuilder: ")
-
         # See if the root file specifies a custom engine
         engine = self.engine
         cmd = self.cmd[:]  # Warning! If I omit the [:], cmd points to self.cmd!
@@ -82,7 +77,7 @@ class TraditionalBuilder(PdfBuilder):
         if not engine_used:
             self.display("Your custom command does not allow the engine to be selected\n\n")
         else:
-            self.display(f"Engine: {engine}. ")
+            self.display(f"Engine: {engine}.\n")
 
             if texify:
                 # texify's --engine option takes pdftex/xetex/luatex as acceptable values
@@ -122,14 +117,6 @@ class TraditionalBuilder(PdfBuilder):
                     cmd.append(f"-latexoption={option}")
 
         # texify wants the .tex extension; latexmk doesn't care either way
-        yield (cmd + [self.tex_name], f"Invoking {cmd[0]}... ")
+        yield (cmd + [self.tex_name], f"Invoking {cmd[0]}...")
 
         self.move_assets_to_output()
-
-        self.display("done.\n")
-
-        # This is for debugging purposes
-        if self.display_log:
-            self.display("\nCommand results:\n")
-            self.display(self.out)
-            self.display("\n\n")
