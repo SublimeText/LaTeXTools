@@ -1,6 +1,12 @@
+from __future__ import annotations
 import os
 import shlex
 import sublime
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .pdf_builder import CommandGenerator
 
 from .pdf_builder import PdfBuilder
 
@@ -56,7 +62,7 @@ class TraditionalBuilder(PdfBuilder):
     # Very simple here: we yield a single command
     # Only complication is handling custom tex engines
     #
-    def commands(self):
+    def commands(self) -> CommandGenerator:
         # Print greeting
         self.display("\n\nTraditionalBuilder: ")
 

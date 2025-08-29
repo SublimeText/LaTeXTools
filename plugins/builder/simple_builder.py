@@ -1,5 +1,11 @@
+from __future__ import annotations
 import os.path
 import re
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .pdf_builder import CommandGenerator
 
 from .pdf_builder import PdfBuilder
 
@@ -22,7 +28,7 @@ class SimpleBuilder(PdfBuilder):
         self.name = "Simple Builder"
         self.display_log = self.builder_settings.get("display_log", False)
 
-    def commands(self):
+    def commands(self) -> CommandGenerator:
         # Print greeting
         self.display("\n\nSimpleBuilder: ")
 
