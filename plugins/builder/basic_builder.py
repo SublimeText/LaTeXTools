@@ -47,12 +47,8 @@ class BasicBuilder(PdfBuilder):
     def __init__(self, *args):
         super().__init__(*args)
         self.bibtex = self.builder_settings.get("bibtex", "bibtex")
-        self.display_log = self.builder_settings.get("display_log", False)
 
     def commands(self) -> CommandGenerator:
-        # Print greeting
-        self.display("\n\nBasic Builder: ")
-
         engine = self.engine
         if "la" not in engine:
             # we need the command rather than the engine
@@ -83,8 +79,6 @@ class BasicBuilder(PdfBuilder):
         latex.append(self.tex_name)
 
         yield (latex, f"running {engine}...")
-        self.display("done.\n")
-        self.log_output()
 
         # Create required directories
         while matches := FILE_WRITE_ERROR_REGEX.findall(self.out):
@@ -94,8 +88,6 @@ class BasicBuilder(PdfBuilder):
                 logger.debug(f"Created directory {abspath}")
 
             yield (latex, f"running {engine}...")
-            self.display("done.\n")
-            self.log_output()
 
         # Check for citations
         # We need to run pdflatex twice after bibtex
@@ -123,29 +115,16 @@ class BasicBuilder(PdfBuilder):
             else:
                 yield (biber + [self.job_name], "running biber...")
 
-            self.display("done.\n")
-            self.log_output()
-
             for i in range(2):
                 yield (latex, f"running {engine}...")
-                self.display("done.\n")
-                self.log_output()
 
         # Check for changed labels
         # Do this at the end, so if there are also citations to resolve,
         # we may save one pdflatex run
         if "Rerun to get cross-references right." in self.out:
             yield (latex, f"running {engine}...")
-            self.display("done.\n")
-            self.log_output()
 
         self.move_assets_to_output()
-
-    def log_output(self) -> None:
-        if self.display_log:
-            self.display("\nCommand results:\n")
-            self.display(self.out)
-            self.display("\n\n")
 
     def run_bibtex(self, command: list[str] | str | None=None) -> subprocess.Popen:
         if command is None:

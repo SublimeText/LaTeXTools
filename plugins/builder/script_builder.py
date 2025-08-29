@@ -38,9 +38,6 @@ class ScriptBuilder(PdfBuilder):
     def __init__(self, *args):
         # Sets the file name parts, plus internal stuff
         super().__init__(*args)
-        # Now do our own initialization: set our name
-        # Display output?
-        self.display_log = self.builder_settings.get("display_log", False)
         plat = sublime.platform()
         self.cmd = self.builder_settings.get(plat, {}).get("script_commands", None)
         self.env = self.builder_settings.get(plat, {}).get("env", None)
@@ -50,9 +47,6 @@ class ScriptBuilder(PdfBuilder):
     # Very simple here: we yield a single command
     # Also add environment variables
     def commands(self) -> CommandGenerator:
-        # Print greeting
-        self.display("\n\nScriptBuilder: ")
-
         # create an environment to be used for all subprocesses
         # adds any settings from the `env` dict to the current
         # environment
@@ -89,7 +83,7 @@ class ScriptBuilder(PdfBuilder):
 
             if not isinstance(cmd, str):
                 cmd = " ".join(map(quote, cmd))
-            self.display(f"Invoking '{cmd}'... ")
+            self.display(f"Invoking '{cmd}'...")
 
             yield (
                 # run with use_texpath=False as we have already configured
@@ -105,14 +99,6 @@ class ScriptBuilder(PdfBuilder):
                 ),
                 "",
             )
-
-            self.display("done.\n")
-
-            # This is for debugging purposes
-            if self.display_log and self.out is not None:
-                self.display("\nCommand results:\n")
-                self.display(self.out)
-                self.display("\n\n")
 
     def substitute(self, command: str) -> tuple[str, bool]:
         replaced_var = False

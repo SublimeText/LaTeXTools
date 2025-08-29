@@ -57,8 +57,8 @@ class CmdThread(threading.Thread):
             self.worker(activity_indicator)
 
     def worker(self, activity_indicator):
-        logger.debug(f"Welcome to thread {self.getName()}")
-        self.caller.output(f"[Compiling {self.caller.file_name}]")
+        logger.debug(f"Welcome to thread {self.name}")
+        self.caller.output(f"[Compiling '{self.caller.file_name}' with '{self.caller.builder.name}']\n")
 
         env = dict(os.environ)
         if self.caller.path:
@@ -84,7 +84,6 @@ class CmdThread(threading.Thread):
                     break
 
                 if isinstance(cmd, str) or isinstance(cmd, list):
-                    logger.debug(cmd)
                     # Now create a Popen object
                     try:
                         proc = external_command(
@@ -102,7 +101,6 @@ class CmdThread(threading.Thread):
                         self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
                         self.caller.output("Attempted command:")
                         self.caller.output(subprocess.list2cmdline(cmd))
-                        self.caller.output(f"\nBuild engine: {self.caller.builder.name}")
                         self.caller.proc = None
                         traceback.print_exc()
                         return
@@ -135,14 +133,14 @@ class CmdThread(threading.Thread):
                 # Here we are done cleanly:
                 with self.caller.proc_lock:
                     self.caller.proc = None
-                logger.info("Finished normally")
-                logger.debug(f"with returncode {proc.returncode}")
+                # print command result
+                logger.info(f"Finished with status {proc.returncode}.")
+                self.caller.output("error\n" if proc.returncode else "done\n")
                 # At this point, out contains the output from the current command;
                 # we pass it to the cmd_iterator and get the next command, until completion
         except Exception:
             self.caller.show_output_panel()
             self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
-            self.caller.output(f"\nBuild engine: {self.caller.builder.name}")
             self.caller.proc = None
             traceback.print_exc()
             return
@@ -418,9 +416,15 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         output_view_settings = self.output_view.settings()
         output_view_settings.set("result_file_regex", file_regex)
         output_view_settings.set("result_base_dir", self.tex_dir)
-        output_view_settings.set("line_numbers", False)
+        output_view_settings.set("auto_match_enabled", False)
+        output_view_settings.set("draw_indent_guides", False)
+        output_view_settings.set("draw_white_space", "none")
+        output_view_settings.set("detect_indentation", False)
+        output_view_settings.set("disable_auto_complete", False)
         output_view_settings.set("gutter", False)
         output_view_settings.set("scroll_past_end", False)
+        output_view_settings.set("tab_size", 2)
+        output_view_settings.set("word_wrap", False)
 
         if get_setting("highlight_build_panel", True, view):
             output_view_settings.set(
@@ -539,7 +543,6 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             builder_platform_settings["script_commands"] = script_commands
             builder_settings[self.plat] = builder_platform_settings
 
-        logger.debug(repr(builder))
         self.builder = builder(
             self.file_name,
             self.output,
@@ -562,10 +565,9 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
         thread = CmdThread(self)
         thread.start()
-        logger.debug(threading.active_count())
 
     def output(self, data):
-        if isinstance(data, list) or isinstance(data, tuple):
+        if isinstance(data, (list, tuple)):
             data = "\n".join(data)
         data = data.replace("\r\n", "\n").replace("\r", "\n")
         self.output_view.run_command("latextools_do_output_edit", {"data": data})
