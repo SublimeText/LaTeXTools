@@ -13,7 +13,6 @@ if TYPE_CHECKING:
 
 from ...latextools.utils.external_command import external_command
 from ...latextools.utils.external_command import get_texpath
-from ...latextools.utils.external_command import update_env
 
 from .pdf_builder import PdfBuilder
 
@@ -40,21 +39,10 @@ class ScriptBuilder(PdfBuilder):
         super().__init__(*args)
         plat = sublime.platform()
         self.cmd = self.builder_settings.get(plat, {}).get("script_commands", None)
-        self.env = self.builder_settings.get(plat, {}).get("env", None)
-        # Loaded here so it is calculated on the main thread
-        self.texpath = get_texpath() or os.environ["PATH"]
 
     # Very simple here: we yield a single command
     # Also add environment variables
     def commands(self) -> CommandGenerator:
-        # create an environment to be used for all subprocesses
-        # adds any settings from the `env` dict to the current
-        # environment
-        env = dict(os.environ)
-        env["PATH"] = self.texpath
-        if self.env is not None and isinstance(self.env, dict):
-            update_env(env, self.env)
-
         if self.cmd is None:
             sublime.error_message(
                 "You MUST set a command in your LaTeXTools.sublime-settings "
@@ -85,20 +73,7 @@ class ScriptBuilder(PdfBuilder):
                 cmd = " ".join(map(quote, cmd))
             self.display(f"Invoking '{cmd}'...")
 
-            yield (
-                # run with use_texpath=False as we have already configured
-                # the environment above, including the texpath
-                external_command(
-                    cmd,
-                    env=env,
-                    cwd=self.tex_dir,
-                    use_texpath=False,
-                    shell=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                ),
-                "",
-            )
+            yield (cmd, "")
 
     def substitute(self, command: str) -> tuple[str, bool]:
         replaced_var = False
