@@ -1,4 +1,5 @@
 import os
+import shutil
 import sublime
 import sys
 
@@ -105,3 +106,21 @@ class PdfBuilder(LaTeXToolsPlugin):
     # pass the tex root again. Need to think about this
     def cleantemps(self):
         return NotImplementedError()
+
+    def move_assets_to_output(self):
+        """
+        Move final build assets from aux- to output directory.
+
+        Only tatexmk natively supports --aux-directory, but still causes issues
+        in case final pdf document is opened in a viewer, already. This method
+        is part of a strategy to work around known limitations and provide
+        consistent behavior accross supporting builders.
+        """
+        dest_dir = self.output_directory_full or self.tex_dir
+        if self.aux_directory and self.aux_directory_full != dest_dir:
+            for ext in (".synctex.gz", ".pdf"):
+                name = self.base_name + ext
+                shutil.move(
+                    src=os.path.join(self.aux_directory_full, name),
+                    dst=os.path.join(dest_dir, name),
+                )
