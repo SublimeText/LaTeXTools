@@ -26,6 +26,7 @@ class ScriptBuilder(PdfBuilder):
 
     Launch a user-specified script
     """
+    name = "Script Builder"
 
     FILE_VARIABLES = r"file|file_path|file_name|file_ext|file_base_name"
 
@@ -36,9 +37,8 @@ class ScriptBuilder(PdfBuilder):
 
     def __init__(self, *args):
         # Sets the file name parts, plus internal stuff
-        super(ScriptBuilder, self).__init__(*args)
+        super().__init__(*args)
         # Now do our own initialization: set our name
-        self.name = "Script Builder"
         # Display output?
         self.display_log = self.builder_settings.get("display_log", False)
         plat = sublime.platform()

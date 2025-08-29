@@ -37,12 +37,11 @@ class TraditionalBuilder(PdfBuilder):
     Implement existing functionality, more or less
     NOTE: move this to a different file, too
     """
+    name = "Traditional Builder"
 
     def __init__(self, *args):
         # Sets the file name parts, plus internal stuff
-        super(TraditionalBuilder, self).__init__(*args)
-        # Now do our own initialization: set our name
-        self.name = "Traditional Builder"
+        super().__init__(*args)
         # Display output?
         self.display_log = self.builder_settings.get("display_log", False)
         # Build command, with reasonable defaults

@@ -42,10 +42,10 @@ class BasicBuilder(PdfBuilder):
     concept. It implements the same building features as the
     Traditional builder.
     """
+    name = "Basic Builder"
 
     def __init__(self, *args):
-        super(BasicBuilder, self).__init__(*args)
-        self.name = "Basic Builder"
+        super().__init__(*args)
         self.bibtex = self.builder_settings.get("bibtex", "bibtex")
         self.display_log = self.builder_settings.get("display_log", False)
 
