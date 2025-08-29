@@ -330,7 +330,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
     badboxes = []
 
     def __init__(self, *args, **kwargs):
-        sublime_plugin.WindowCommand.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.proc = None
         self.proc_lock = threading.Lock()
 
