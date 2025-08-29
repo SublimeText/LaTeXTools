@@ -10,7 +10,6 @@ import os
 import re
 import shutil
 import signal
-import subprocess
 import threading
 import traceback
 
@@ -25,6 +24,8 @@ from .utils.activity_indicator import ActivityIndicator
 from .utils.external_command import execute_command
 from .utils.external_command import external_command
 from .utils.external_command import get_texpath
+from .utils.external_command import PIPE
+from .utils.external_command import Popen
 from .utils.external_command import update_env
 from .utils.is_tex_file import is_tex_file
 from .utils.logging import logger
@@ -69,84 +70,75 @@ class CmdThread(threading.Thread):
             update_env(env, self.caller.env)
 
         # Now, iteratively call the builder iterator
-        #
-        cmd_iterator = self.caller.builder.commands()
+        cmd_coroutine = self.caller.builder.commands()
         try:
-            for cmd, msg in cmd_iterator:
-
-                # If there is a message, display it
+            cmd, msg = next(cmd_coroutine)
+            while True:
                 if msg:
                     self.caller.output(msg)
 
-                # If there is nothing to be done, exit loop
-                # (Avoids error with empty cmd_iterator)
-                if cmd == "":
-                    break
-
-                if isinstance(cmd, str) or isinstance(cmd, list):
-                    # Now create a Popen object
-                    try:
-                        proc = external_command(
-                            cmd,
-                            env=env,
-                            use_texpath=False,
-                            stdin=subprocess.PIPE,
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT,
-                            preexec_fn=(os.setsid if self.caller.plat != "windows" else None),
-                            cwd=self.caller.tex_dir,
-                        )
-                    except Exception:
-                        self.caller.show_output_panel()
-                        self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
-                        self.caller.output("Attempted command:")
-                        self.caller.output(subprocess.list2cmdline(cmd))
-                        self.caller.proc = None
-                        traceback.print_exc()
-                        return
-                # Abundance of caution / for possible future extensions:
-                elif isinstance(cmd, subprocess.Popen):
+                if cmd and isinstance(cmd, (list, str)):
+                    proc = external_command(
+                        cmd,
+                        cwd=self.caller.tex_dir,
+                        env=env,
+                        stdout=PIPE,
+                        stderr=PIPE,
+                        use_texpath=False,
+                    )
+                elif cmd and isinstance(cmd, Popen):
                     proc = cmd
                 else:
                     # don't know what the command is
                     continue
 
-                # Now actually invoke the command, making sure we allow for killing
-                # First, save process handle into caller; then communicate (which blocks)
+                # Now actually invoke the command, making sure we allow for
+                # killing First, save process handle into caller; then
+                # communicate (which blocks)
                 with self.caller.proc_lock:
                     self.caller.proc = proc
+
                 out, err = proc.communicate()
                 out = out.decode(self.caller.encoding, "ignore")
                 out = out.replace("\r\n", "\n").replace("\r", "\n")
-                self.caller.builder.set_output(out)
+                err = err.decode(self.caller.encoding, "ignore")
+                err = err.replace("\r\n", "\n").replace("\r", "\n")
+                if err:
+                    logger.error(err)
 
-                # Here the process terminated, but it may have been killed. If so, stop and don't read log
-                # Since we set self.caller.proc above, if it is None, the process must have been killed.
-                # TODO: clean up?
+                # Here the process terminated, but it may have been killed. If
+                # so, stop and don't read log Since we set self.caller.proc
+                # above, if it is None, the process must have been killed.
                 with self.caller.proc_lock:
                     if not self.caller.proc:
                         logger.info("Build canceled")
-                        logger.debug(f"with returncode {proc.returncode}")
-                        self.caller.output("\n\n[User terminated compilation process]\n")
-                        self.caller.finish(False)  # We kill, so won't switch to PDF anyway
+                        self.caller.output("\n\n[Build cancelled by user!]\n")
+                        self.caller.finish(False)
                         return
-                # Here we are done cleanly:
-                with self.caller.proc_lock:
+
                     self.caller.proc = None
+
                 # print command result
                 logger.info(f"Finished with status {proc.returncode}.")
                 self.caller.output("error\n" if proc.returncode else "done\n")
-                # At this point, out contains the output from the current command;
-                # we pass it to the cmd_iterator and get the next command, until completion
-        except Exception:
-            self.caller.show_output_panel()
-            self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
+                self.caller.builder.set_output(out)
+                # acknowledge coroutine's yield with process's return code
+                # it allows statements like: `result = yield (cmd, msg)`
+                cmd, msg = cmd_coroutine.send(proc.returncode)
+
+        except StopIteration:
+            pass
+        except Exception as exc:
             self.caller.proc = None
+            if isinstance(cmd, list):
+                cmd = subprocess.list2cmdline(cmd)
+            self.caller.show_output_panel()
+            self.caller.output(f"\n\n[Build failed!]\nerror: Command '{cmd}' failed with {exc}\n")
+            self.caller.finish(False)
             traceback.print_exc()
             return
-
-        # Clean up
-        cmd_iterator.close()
+        finally:
+            cmd_coroutine.close()
 
         try:
             # Here we try to find the log file...
@@ -202,10 +194,10 @@ class CmdThread(threading.Thread):
                 f"Could not read log file {self.caller.tex_base}.log",
                 "",
             ]
-            if out is not None:
-                content.extend(["Output from compilation:", "", out.decode("utf-8")])
-            if err is not None:
-                content.extend(["Errors from compilation:", "", err.decode("utf-8")])
+            if out:
+                content.extend(["Output from compilation:", "", out])
+            if err:
+                content.extend(["Errors from compilation:", "", err])
             self.caller.output(content)
             # if we got here, there shouldn't be a PDF at all
             self.caller.finish(False)
