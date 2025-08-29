@@ -1,6 +1,5 @@
 import os
 import re
-import shutil
 import sublime
 import subprocess
 import sys
@@ -134,15 +133,7 @@ class BasicBuilder(PdfBuilder):
             self.display("done.\n")
             self.log_output()
 
-        # Move final assets to output directory
-        dest_dir = self.output_directory_full or self.tex_dir
-        if self.aux_directory and self.aux_directory_full != dest_dir:
-            for ext in (".synctex.gz", ".pdf"):
-                name = self.base_name + ext
-                shutil.move(
-                    os.path.join(self.aux_directory_full, name),
-                    os.path.join(dest_dir, name)
-                )
+        self.move_assets_to_output()
 
     def log_output(self):
         if self.display_log:

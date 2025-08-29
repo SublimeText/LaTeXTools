@@ -1,6 +1,5 @@
 import os
 import shlex
-import shutil
 import sublime
 
 from .pdf_builder import PdfBuilder
@@ -120,6 +119,8 @@ class TraditionalBuilder(PdfBuilder):
         # texify wants the .tex extension; latexmk doesn't care either way
         yield (cmd + [self.tex_name], f"Invoking {cmd[0]}... ")
 
+        self.move_assets_to_output()
+
         self.display("done.\n")
 
         # This is for debugging purposes
@@ -127,13 +128,3 @@ class TraditionalBuilder(PdfBuilder):
             self.display("\nCommand results:\n")
             self.display(self.out)
             self.display("\n\n")
-
-        # Move final assets to output directory
-        dest_dir = self.output_directory_full or self.tex_dir
-        if self.aux_directory and self.aux_directory_full != dest_dir:
-            for ext in (".synctex.gz", ".pdf"):
-                name = self.base_name + ext
-                shutil.move(
-                    os.path.join(self.aux_directory_full, name),
-                    os.path.join(dest_dir, name)
-                )
