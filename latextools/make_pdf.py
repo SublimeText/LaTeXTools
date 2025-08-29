@@ -25,7 +25,6 @@ from .utils.activity_indicator import ActivityIndicator
 from .utils.external_command import execute_command
 from .utils.external_command import external_command
 from .utils.external_command import get_texpath
-from .utils.external_command import update_env
 from .utils.is_tex_file import is_tex_file
 from .utils.logging import logger
 from .utils.output_directory import get_aux_directory
@@ -60,14 +59,6 @@ class CmdThread(threading.Thread):
         logger.debug(f"Welcome to thread {self.name}")
         self.caller.output(f"[Compiling '{self.caller.file_name}' with '{self.caller.builder.name}']\n")
 
-        env = dict(os.environ)
-        if self.caller.path:
-            env["PATH"] = self.caller.path
-
-        # Handle custom env variables
-        if self.caller.env:
-            update_env(env, self.caller.env)
-
         # Now, iteratively call the builder iterator
         cmd_coroutine = self.caller.builder.commands()
         try:
@@ -80,9 +71,10 @@ class CmdThread(threading.Thread):
                     proc = external_command(
                         cmd,
                         cwd=self.caller.tex_dir,
-                        env=env,
+                        env=self.caller.env,
                         stdout=subprocess.PIPE,
                         stderr=subprocess.PIPE,
+                        shell=True,
                         use_texpath=False,
                     )
                 elif cmd and isinstance(cmd, subprocess.Popen):
@@ -468,6 +460,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         builder_name = classname_to_plugin_name(builder_name)
 
         builder_settings = get_setting("builder_settings", {}, view)
+        builder_platform_settings = builder_settings.get(self.plat, {})
 
         # override the command
         if command is not None:
@@ -513,15 +506,22 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         self.aux_directory = get_aux_directory(view)
         self.output_directory = get_output_directory(view)
 
-        # Read the env option (platform specific)
-        builder_platform_settings = builder_settings.get(self.plat, {})
-
-        if env is not None:
-            self.env = env
-        elif builder_platform_settings:
-            self.env = builder_platform_settings.get("env", None)
-        else:
+        # Create custom environmnent with "env" from sublime-build or
+        # platform-specific "builder_settings" merged in.
+        if env is None:
+            env = builder_platform_settings.get("env")
+        if env is None:
             self.env = None
+        else:
+            self.env = os.environ.copy()
+            self.env.update(env)
+
+        # Replace $PATH in environment with "path" from sublime-build or
+        # "texpath" from project-specific, or platform-specifig "builder_settings".
+        if (path is not None) or (path := get_texpath(self.view)):
+            if self.env is None:
+                self.env = os.environ.copy()
+            self.env["PATH"] = path
 
         try:
             builder = get_plugin(f"{builder_name}_builder")
@@ -552,13 +552,6 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             builder_settings,
             platform_settings,
         )
-
-        # Now get the tex binary path from prefs, change directory to
-        # that of the tex root file, and run!
-        if path is not None:
-            self.path = path
-        else:
-            self.path = get_texpath() or os.environ["PATH"]
 
         thread = CmdThread(self)
         thread.start()
