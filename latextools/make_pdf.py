@@ -339,6 +339,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         script_commands=None,
         update_annotations_only=False,
         hide_annotations_only=False,
+        kill=False,
         **kwargs
     ):
         if update_annotations_only:
@@ -350,27 +351,30 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             self.hide_annotations()
             return
 
-        # Try to handle killing
+        # kill running build process
         with self.proc_lock:
-            if self.proc:  # if we are running, try to kill running process
-                self.output("\n\n### Got request to terminate compilation ###")
+            if self.proc:
+                proc = self.proc
+                self.proc = None
+                self.output("cancelled\n")
                 try:
+                    # On Windows use taskkill, to make sure all child processes
+                    # are terminated as well.
                     if sublime.platform() == "windows":
                         execute_command(
-                            f"taskkill /t /f /pid {self.proc.pid}",
+                            f"taskkill /t /f /pid {proc.pid}",
                             use_texpath=False,
                             shell=True,
                         )
                     else:
-                        os.killpg(self.proc.pid, signal.SIGTERM)
+                        proc.terminate()
                 except Exception:
                     logger.error("Exception occurred while killing build")
                     traceback.print_exc()
 
-                self.proc = None
-                return
-            else:  # either it's the first time we run, or else we have no running processes
-                self.proc = None
+        # cancel_build command was invoked to just terminate running build
+        if kill:
+            return
 
         view = self.view = self.window.active_view()
 
