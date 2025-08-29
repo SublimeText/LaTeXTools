@@ -14,9 +14,6 @@
 # All of the above can be overridden using optional parameters
 #
 # It provides six functions:
-#   update_env() - takes two dict-like objects and updates first with the
-#       values from the second. It should be OS-encoding safe on ST2 which
-#       does not automatically handle this.
 #   get_texpath() - returns the user configured texpath, properly encoded with
 #       any environment variables expanded
 #   external_command() - essentially the equivalent of subprocess.Popen()
@@ -33,6 +30,7 @@
 # on external_command() accept a `use_texpath` parameter which indicates
 # whether or not to run the executable with the PATH set to the current value
 # of texpath.
+from __future__ import annotations
 import os
 import re
 import sys
@@ -54,24 +52,48 @@ __all__ = [
     "check_call",
     "check_output",
     "get_texpath",
-    "update_env",
 ]
 
 __sentinel__ = object()
 
 
-def update_env(old_env, new_env):
-    old_env.update(new_env)
-
-
-def get_texpath():
+def get_texpath(view: sublime.View | None=None) -> str | None:
     """
-    Returns the texpath setting with any environment variables expanded
+    Get texpath setting with environment variables expanded.
+
+    :param view:
+        Optional `sublime.View` instance to read project-specific settings from.
+        If `None` is provided, active view is used.
     """
-    texpath = get_setting(sublime.platform(), {}).get("texpath")
+    texpath = get_setting(sublime.platform(), {}, view).get("texpath")
     if texpath is not None:
         return os.path.expandvars(texpath)
     return None
+
+
+def create_tex_env(
+    env: dict[str, str] | None=None,
+    view: sublime.View | None=None
+) -> dict[str, str] | None:
+    """
+    Creates a tex environment.
+
+    :param env:
+        The base environment to replace $PATH in.
+        If `None` is given, a copy of `os.environ` is used.
+
+    :param view:
+        Optional `sublime.View` instance to read project-specific settings from.
+        If `None` is provided, active view is used.
+
+    :returns:
+        Dictionary with custom environment variables.
+    """
+    if texpath := get_texpath(view):
+        if env is None:
+            env = os.environ.copy()
+        env["PATH"] = texpath
+    return env
 
 
 # wrapper to handle common logic for executing subprocesses
@@ -97,13 +119,9 @@ def external_command(
     if command is None:
         raise ValueError("command must be a string or list of strings")
 
-    _env = dict(os.environ)
-
+    # Setup custom environment
     if use_texpath:
-        _env["PATH"] = get_texpath() or os.environ["PATH"]
-
-    if env is not None:
-        update_env(_env, env)
+        env = create_tex_env(env)
 
     # Windows-specific adjustments
     startupinfo = None
@@ -143,7 +161,7 @@ def external_command(
         startupinfo=startupinfo,
         preexec_fn=preexec_fn,
         shell=shell,
-        env=_env,
+        env=env,
         cwd=cwd,
     )
 

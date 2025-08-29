@@ -21,6 +21,7 @@ from .latextools_plugin import NoSuchPluginException
 from .utils.activity_indicator import ActivityIndicator
 from .utils.distro_utils import using_miktex
 from .utils.external_command import check_output
+from .utils.external_command import get_texpath
 from .utils.logging import logger
 from .utils.output_directory import get_aux_directory
 from .utils.output_directory import get_jobname
@@ -38,19 +39,6 @@ if sublime.platform() == "windows":
     from .preview.preview_utils import get_system_root
 
 __all__ = ["LatextoolsSystemCheckCommand", "LatextoolsInsertTextCommand"]
-
-
-def expand_vars(texpath):
-    return os.path.expandvars(texpath)
-
-
-def update_environment(old, new):
-    old.update(new.items())
-
-
-def _get_texpath(view):
-    texpath = get_setting(sublime.platform(), {}, view).get("texpath")
-    return expand_vars(texpath) if texpath is not None else None
 
 
 class SubprocessTimeoutThread(threading.Thread):
@@ -125,9 +113,6 @@ class SubprocessTimeoutThread(threading.Thread):
 def get_version_info(executable, env=None):
     logger.info(f"Checking {executable}...")
 
-    if env is None:
-        env = os.environ
-
     version = "--version"
     # gs / gswin32c has a different format for --version vs -version
     if os.path.splitext(os.path.basename(executable))[0] in [
@@ -167,9 +152,6 @@ def get_tex_path_variable_texlive(variable, env=None):
     """
     logger.info(f"Reading path for {variable}...")
 
-    if env is None:
-        env = os.environ
-
     try:
         t = SubprocessTimeoutThread(
             30,  # wait up to 30 seconds
@@ -197,9 +179,6 @@ def get_tex_path_variable_miktex(variable, env=None):
     TEXINPUTS
     """
     logger.info(f"Reading path for {variable}...")
-
-    if env is None:
-        env = os.environ
 
     try:
         command = ["findtexmf", "-alias=latex"]
@@ -335,15 +314,15 @@ class SystemCheckThread(threading.Thread):
             activity_indicator.finish("System check complete")
 
     def worker(self):
-        texpath = self.texpath
         results = []
 
-        env = copy.deepcopy(os.environ)
+        env = os.environ.copy()
+        if self.build_env:
+            env.update(self.build_env)
 
-        if texpath is not None:
+        texpath = self.texpath
+        if texpath:
             env["PATH"] = texpath
-        if self.build_env is not None:
-            update_environment(env, self.build_env)
 
         table = [["Variable", "Value"]]
 
@@ -695,7 +674,7 @@ class LatextoolsSystemCheckCommand(sublime_plugin.ApplicationCommand):
         t = SystemCheckThread(
             sublime_exe=get_sublime_exe(),
             uses_miktex=using_miktex(),
-            texpath=_get_texpath(view) or os.environ["PATH"],
+            texpath=get_texpath(view),
             build_env=get_setting("builder_settings", {}, view).get(sublime.platform(), {}).get("env"),
             view=view,
             on_done=self.on_done,
