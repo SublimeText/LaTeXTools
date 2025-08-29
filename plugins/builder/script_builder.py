@@ -1,3 +1,4 @@
+from __future__ import annotations
 import os
 import re
 import sublime
@@ -5,6 +6,10 @@ import subprocess
 
 from shlex import quote
 from string import Template
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .pdf_builder import CommandGenerator
 
 from ...latextools.utils.external_command import external_command
 from ...latextools.utils.external_command import get_texpath
@@ -44,7 +49,7 @@ class ScriptBuilder(PdfBuilder):
 
     # Very simple here: we yield a single command
     # Also add environment variables
-    def commands(self):
+    def commands(self) -> CommandGenerator:
         # Print greeting
         self.display("\n\nScriptBuilder: ")
 
@@ -109,7 +114,7 @@ class ScriptBuilder(PdfBuilder):
                 self.display(self.out)
                 self.display("\n\n")
 
-    def substitute(self, command):
+    def substitute(self, command: str) -> tuple[str, bool]:
         replaced_var = False
         if self.CONTAINS_VARIABLE.search(command):
             replaced_var = True
