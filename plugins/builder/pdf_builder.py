@@ -98,16 +98,7 @@ class PdfBuilder(LaTeXToolsPlugin):
     def commands(self):
         raise NotImplementedError()
 
-    # Clean up after ourselves
-    # Only the build system knows what to delete for sure, so give this option
-    # Return True if we actually handle this, False if not
-    #
-    # NOTE: problem. Either we make the builder class persistent, or we have to
-    # pass the tex root again. Need to think about this
-    def cleantemps(self):
-        return NotImplementedError()
-
-    def move_assets_to_output(self):
+    def move_assets_to_output(self) -> None:
         """
         Move final build assets from aux- to output directory.
 
