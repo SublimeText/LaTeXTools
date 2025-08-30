@@ -59,7 +59,19 @@ class CmdThread(threading.Thread):
 
     def worker(self, activity_indicator):
         logger.debug(f"Welcome to thread {self.name}")
-        self.caller.output(f"[Compiling '{self.caller.file_name}' with '{self.caller.builder.name}']\n")
+        self.caller.output(
+            f"[Compiling '{self.caller.file_name}' with '{self.caller.builder.name}']\n"
+        )
+
+        # Remove old log-file to prevent displaying out-dated error information
+        # on pre-mature build termination.
+        log_filename = f"{self.caller.tex_base}.log"
+        for log_dir in (self.caller.aux_directory, self.caller.tex_dir):
+            if log_dir:
+                try:
+                    os.remove(os.path.join(log_dir, log_filename))
+                except OSError:
+                    pass
 
         # Now, iteratively call the builder iterator
         aborted = False
@@ -139,31 +151,12 @@ class CmdThread(threading.Thread):
             cmd_coroutine.close()
 
         try:
-            # Here we try to find the log file...
-            # 1. Check the aux_directory if there is one
-            # 2. Check the output_directory if there is one
-            # 3. Assume the log file is in the same folder as the main file
-            log_file_base = self.caller.tex_base + ".log"
-            if self.caller.aux_directory is None:
-                if self.caller.output_directory is None:
-                    log_file = os.path.join(self.caller.tex_dir, log_file_base)
-                else:
-                    log_file = os.path.join(self.caller.output_directory, log_file_base)
-
-                    if not os.path.exists(log_file):
-                        log_file = os.path.join(self.caller.tex_dir, log_file_base)
-            else:
-                log_file = os.path.join(self.caller.aux_directory, log_file_base)
-
+            if self.caller.aux_directory:
+                log_file = os.path.join(self.caller.aux_directory, log_filename)
                 if not os.path.exists(log_file):
-                    if (
-                        self.caller.output_directory is not None
-                        and self.caller.output_directory != self.caller.aux_directory
-                    ):
-                        log_file = os.path.join(self.caller.output_directory, log_file_base)
-
-                    if not os.path.exists(log_file):
-                        log_file = os.path.join(self.caller.tex_dir, log_file_base)
+                    log_file = os.path.join(self.caller.tex_dir, log_filename)
+            else:
+                log_file = os.path.join(self.caller.tex_dir, log_filename)
 
             # CHANGED 12-10-27. OK, here's the deal. We must open in binary mode
             # on Windows because silly MiKTeX inserts ASCII control characters in
@@ -176,29 +169,18 @@ class CmdThread(threading.Thread):
             # returns), this does not happen---we only break at \n, etc.
             # However, we must still decode the resulting lines using the relevant
             # encoding.
-
-            # Note to self: need to think whether we don't want to codecs.open
-            # this, too... Also, we may want to move part of this logic to the
-            # builder...
             with open(log_file, "rb") as f:
                 data = f.read()
-        except IOError:
-            traceback.print_exc()
 
-            self.caller.show_output_panel()
-
-            content = [
-                "",
-                f"Could not read log file {self.caller.tex_base}.log",
-                "",
-            ]
-            if out:
-                content.extend(["Output from compilation:", "", out])
+        except OSError:
+            msg = f"\nCould not read log file {log_filename}\n"
             if err:
-                content.extend(["Errors from compilation:", "", err])
-            self.caller.output(content)
-            # if we got here, there shouldn't be a PDF at all
+                msg += f"\nErrors from compilation:\n\n{err}\n"
+            msg += "\n[Build failed!]"
+            self.caller.show_output_panel()
+            self.caller.output(msg)
             self.caller.finish(False)
+
         else:
             errors = []
             warnings = []
