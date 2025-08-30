@@ -82,8 +82,17 @@ class PdfBuilder(LaTeXToolsPlugin):
             from LaTeXTools.sublime-settings
 
         """
-        self.display = output
+        self.abort_on_error = True
+        """
+        If `True`, batch execution is aborted, if called subprocess returns
+        non-zero returncode.
+        """
         self.out = ""
+        """
+        Output of most recently called command.
+        """
+
+        self.display = output
         self.tex_root = tex_root
         self.tex_dir, self.tex_name = os.path.split(tex_root)
         self.base_name, self.tex_ext = os.path.splitext(self.tex_name)

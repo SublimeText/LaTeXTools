@@ -117,8 +117,7 @@ class TraditionalBuilder(PdfBuilder):
                     cmd.append(f"-latexoption={option}")
 
         # texify wants the .tex extension; latexmk doesn't care either way
-        result = yield (cmd + [self.tex_name], f"Invoking {cmd[0]}...")
+        yield (cmd + [self.tex_name], f"running {cmd[0]}...")
 
         # move compiled documents to output directory on success.
-        if result == 0:
-            self.move_assets_to_output()
+        self.move_assets_to_output()

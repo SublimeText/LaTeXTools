@@ -62,6 +62,7 @@ class CmdThread(threading.Thread):
         self.caller.output(f"[Compiling '{self.caller.file_name}' with '{self.caller.builder.name}']\n")
 
         # Now, iteratively call the builder iterator
+        aborted = False
         cmd_coroutine = self.caller.builder.commands()
         try:
             cmd, msg = next(cmd_coroutine)
@@ -110,9 +111,14 @@ class CmdThread(threading.Thread):
 
                     self.caller.proc = None
 
-                # print command result
+                # print and handle command exit status
                 logger.info(f"Finished with status {proc.returncode}.")
                 self.caller.output("error\n" if proc.returncode else "done\n")
+                if self.caller.builder.abort_on_error and proc.returncode != 0:
+                    # abort and parse logfile or command output for details
+                    aborted = True
+                    break
+
                 self.caller.builder.set_output(out)
                 # acknowledge coroutine's yield with process's return code
                 # it allows statements like: `result = yield (cmd, msg)`
@@ -292,7 +298,7 @@ class CmdThread(threading.Thread):
                 traceback.print_exc()
 
             self.caller.output(content)
-            self.caller.output("\n\n[Done!]\n")
+            self.caller.output("\n\n[Failed!]\n" if aborted else "\n\n[Done!]\n")
 
             self.caller.errors = locals().get("errors", [])
             self.caller.warnings = locals().get("warnings", [])
