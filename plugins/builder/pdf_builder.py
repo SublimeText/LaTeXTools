@@ -1,6 +1,17 @@
+from __future__ import annotations
 import os
+import shutil
 import sublime
 import sys
+
+from textwrap import indent
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Any, Callable, Generator, TypeAlias
+    from subprocess import Popen
+
+    CommandGenerator: TypeAlias = Generator[tuple[list[str] | str | Popen, str]]
 
 from ...latextools.latextools_plugin import LaTeXToolsPlugin
 from ...latextools.utils.logging import logger
@@ -13,16 +24,6 @@ class PdfBuilder(LaTeXToolsPlugin):
     Base class for build engines
 
     Build engines subclass PdfBuilder
-    NOTE: this will have to be moved eventually.
-
-    Configure parameters here
-
-    tex_root: the full path to the tex root file
-    output: object in main thread responsible for writing to the output panel
-    builder_settings : a dictionary containing the "builder_settings" from LaTeXTools.latextools.sublime-settings
-    platform_settings : a dictionary containing the "platform_settings" from LaTeXTools.latextools.sublime-settings
-
-    E.g.: self.path = prefs["path"]
 
     Your __init__ method *must* call this (via super) to ensure that
     tex_root is properly split into the root tex file's directory,
@@ -31,22 +32,61 @@ class PdfBuilder(LaTeXToolsPlugin):
 
     def __init__(
         self,
-        tex_root,
-        output,
-        engine,
-        options,
-        aux_directory,
-        output_directory,
-        job_name,
-        tex_directives,
-        builder_settings,
-        platform_settings,
+        tex_root: str,
+        output: Callable[[str], None],
+        engine: str,
+        options: list[str],
+        aux_directory: str,
+        output_directory: str,
+        job_name: str,
+        tex_directives: dict[str, Any],
+        builder_settings: dict[str, Any],
+        platform_settings: dict[str, Any],
     ):
+        """
+        Constructs a new pdf builder engine instance.
+
+        :param tex_root:
+            The absolute path of the root tex document.
+
+        :param output:
+            A collable object taking a string to be writing to output panel.
+
+        :param engine:
+            The latex engine to use to compile the document.
+            One of "pdflatex", "pdftex", "xelatex", "xetex", "lualatex", "luatex".
+
+        :param options:
+            The list of merged options from root document's tex directives
+            and builder settings.
+
+        :param aux_directory:
+            The auxiliary directory, used to store intermediate build files.
+
+        :param output_directory:
+            The output directory to write final build assets to.
+            Assets are the generated pdf document and associated synctex file.
+
+        :param job_name:
+            The job name
+
+        :param tex_directives:
+            A dictionary containing the tex directives parsed from root tex document.
+
+        :param builder_settings:
+            A dictionary containing the "builder_settings"
+            from LaTeXTools.sublime-settings
+
+        :param platform_settings:
+            A dictionary containing the "platform_settings"
+            from LaTeXTools.sublime-settings
+
+        """
+        self.display = output
+        self.out = ""
         self.tex_root = tex_root
         self.tex_dir, self.tex_name = os.path.split(tex_root)
         self.base_name, self.tex_ext = os.path.splitext(self.tex_name)
-        self.output_callable = output
-        self.out = ""
         self.engine = engine
         self.options = options
         self.job_name = job_name
@@ -76,32 +116,66 @@ class PdfBuilder(LaTeXToolsPlugin):
         if self.output_directory_full:
             os.makedirs(self.output_directory_full, exist_ok=True)
 
-    # Send to callable object
-    # Usually no need to override
-    def display(self, data):
-        self.output_callable(data)
+        self.display_log = self.builder_settings.get("display_log", False)
+        """
+        Specifies whether to display detailed command output in log panel.
 
-    # Save command output
-    # Usually no need to override
-    def set_output(self, out):
-        logger.debug(f"Setting out\n{out}")
+        Value of `builder_settings: { display_log: ... }` setting
+        """
+
+    def set_output(self, out: str) -> None:
+        """
+        Save command output.
+
+        Called by command executor to display command results
+
+        It assumes command message to look like "Running command..." so it will
+        be finished with "done." on the same line, optionally followed by
+        command's log output
+        """
+        msg = "done.\n"
+        if self.display_log:
+            msg += f"command output:\n{indent(out.strip(), '  ')}\n{'-' * 80}\n"
+        self.display(msg)
+
+        logger.debug("command output:\n%s", out)
         self.out = out
 
-    # This is where the real work is done. This generator must yield (cmd, msg) tuples,
-    # as a function of the parameters and the output from previous commands (via send()).
-    # "cmd" is the command to be run, as an array
-    # "msg" is the message to be displayed (or None)
-    # As of now, this function *must* yield at least *one* tuple.
-    # If no command must be run, just yield ("","")
-    # Remember that we are now in the root file's directory
-    def commands(self):
-        raise NotImplementedError()
+    def commands(self) -> CommandGenerator:
+        """
+        Build command generator
 
-    # Clean up after ourselves
-    # Only the build system knows what to delete for sure, so give this option
-    # Return True if we actually handle this, False if not
-    #
-    # NOTE: problem. Either we make the builder class persistent, or we have to
-    # pass the tex root again. Need to think about this
-    def cleantemps(self):
-        return NotImplementedError()
+        This is where the real work is done. This generator yields (cmd, msg)
+        tuples, as function of parameters and output from previous commands
+        (via send()).
+
+        Note: Current working directory is root file's directory.
+
+        :yields:
+            (cmd, msg) tuples
+
+            cmd - the list of command line arguments to execute
+            msg - the message to be displayed (or None)
+
+            The generator *must* yield at least *one* tuple.
+            If no command is to be executed, yield ("","").
+        """
+        raise NotImplementedError
+
+    def move_assets_to_output(self) -> None:
+        """
+        Move final build assets from aux- to output directory.
+
+        Only tatexmk natively supports --aux-directory, but still causes issues
+        in case final pdf document is opened in a viewer, already. This method
+        is part of a strategy to work around known limitations and provide
+        consistent behavior accross supporting builders.
+        """
+        dest_dir = self.output_directory_full or self.tex_dir
+        if self.aux_directory and self.aux_directory_full != dest_dir:
+            for ext in (".synctex.gz", ".pdf"):
+                name = self.base_name + ext
+                shutil.move(
+                    src=os.path.join(self.aux_directory_full, name),
+                    dst=os.path.join(dest_dir, name),
+                )

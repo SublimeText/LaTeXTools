@@ -1,7 +1,12 @@
+from __future__ import annotations
 import os
 import shlex
-import shutil
 import sublime
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .pdf_builder import CommandGenerator
 
 from .pdf_builder import PdfBuilder
 
@@ -32,14 +37,11 @@ class TraditionalBuilder(PdfBuilder):
     Implement existing functionality, more or less
     NOTE: move this to a different file, too
     """
+    name = "Traditional Builder"
 
     def __init__(self, *args):
         # Sets the file name parts, plus internal stuff
-        super(TraditionalBuilder, self).__init__(*args)
-        # Now do our own initialization: set our name
-        self.name = "Traditional Builder"
-        # Display output?
-        self.display_log = self.builder_settings.get("display_log", False)
+        super().__init__(*args)
         # Build command, with reasonable defaults
         plat = sublime.platform()
         # Figure out which distro we are using
@@ -57,10 +59,7 @@ class TraditionalBuilder(PdfBuilder):
     # Very simple here: we yield a single command
     # Only complication is handling custom tex engines
     #
-    def commands(self):
-        # Print greeting
-        self.display("\n\nTraditionalBuilder: ")
-
+    def commands(self) -> CommandGenerator:
         # See if the root file specifies a custom engine
         engine = self.engine
         cmd = self.cmd[:]  # Warning! If I omit the [:], cmd points to self.cmd!
@@ -78,7 +77,7 @@ class TraditionalBuilder(PdfBuilder):
         if not engine_used:
             self.display("Your custom command does not allow the engine to be selected\n\n")
         else:
-            self.display(f"Engine: {engine}. ")
+            self.display(f"Engine: {engine}.\n")
 
             if texify:
                 # texify's --engine option takes pdftex/xetex/luatex as acceptable values
@@ -118,22 +117,8 @@ class TraditionalBuilder(PdfBuilder):
                     cmd.append(f"-latexoption={option}")
 
         # texify wants the .tex extension; latexmk doesn't care either way
-        yield (cmd + [self.tex_name], f"Invoking {cmd[0]}... ")
+        result = yield (cmd + [self.tex_name], f"Invoking {cmd[0]}...")
 
-        self.display("done.\n")
-
-        # This is for debugging purposes
-        if self.display_log:
-            self.display("\nCommand results:\n")
-            self.display(self.out)
-            self.display("\n\n")
-
-        # Move final assets to output directory
-        dest_dir = self.output_directory_full or self.tex_dir
-        if self.aux_directory and self.aux_directory_full != dest_dir:
-            for ext in (".synctex.gz", ".pdf"):
-                name = self.base_name + ext
-                shutil.move(
-                    os.path.join(self.aux_directory_full, name),
-                    os.path.join(dest_dir, name)
-                )
+        # move compiled documents to output directory on success.
+        if result == 0:
+            self.move_assets_to_output()

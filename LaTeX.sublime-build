@@ -9,6 +9,7 @@
 
 {
 	"target": "latextools_make_pdf",
+	"cancel": {"kill": true},
 	"selector": "text.tex.latex",
 
 	"osx": {

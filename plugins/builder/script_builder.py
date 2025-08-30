@@ -1,3 +1,4 @@
+from __future__ import annotations
 import os
 import re
 import sublime
@@ -5,10 +6,13 @@ import subprocess
 
 from shlex import quote
 from string import Template
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .pdf_builder import CommandGenerator
 
 from ...latextools.utils.external_command import external_command
 from ...latextools.utils.external_command import get_texpath
-from ...latextools.utils.external_command import update_env
 
 from .pdf_builder import PdfBuilder
 
@@ -21,6 +25,7 @@ class ScriptBuilder(PdfBuilder):
 
     Launch a user-specified script
     """
+    name = "Script Builder"
 
     FILE_VARIABLES = r"file|file_path|file_name|file_ext|file_base_name"
 
@@ -31,31 +36,13 @@ class ScriptBuilder(PdfBuilder):
 
     def __init__(self, *args):
         # Sets the file name parts, plus internal stuff
-        super(ScriptBuilder, self).__init__(*args)
-        # Now do our own initialization: set our name
-        self.name = "Script Builder"
-        # Display output?
-        self.display_log = self.builder_settings.get("display_log", False)
+        super().__init__(*args)
         plat = sublime.platform()
         self.cmd = self.builder_settings.get(plat, {}).get("script_commands", None)
-        self.env = self.builder_settings.get(plat, {}).get("env", None)
-        # Loaded here so it is calculated on the main thread
-        self.texpath = get_texpath() or os.environ["PATH"]
 
     # Very simple here: we yield a single command
     # Also add environment variables
-    def commands(self):
-        # Print greeting
-        self.display("\n\nScriptBuilder: ")
-
-        # create an environment to be used for all subprocesses
-        # adds any settings from the `env` dict to the current
-        # environment
-        env = dict(os.environ)
-        env["PATH"] = self.texpath
-        if self.env is not None and isinstance(self.env, dict):
-            update_env(env, self.env)
-
+    def commands(self) -> CommandGenerator:
         if self.cmd is None:
             sublime.error_message(
                 "You MUST set a command in your LaTeXTools.sublime-settings "
@@ -84,32 +71,11 @@ class ScriptBuilder(PdfBuilder):
 
             if not isinstance(cmd, str):
                 cmd = " ".join(map(quote, cmd))
-            self.display(f"Invoking '{cmd}'... ")
+            self.display(f"Invoking '{cmd}'...")
 
-            yield (
-                # run with use_texpath=False as we have already configured
-                # the environment above, including the texpath
-                external_command(
-                    cmd,
-                    env=env,
-                    cwd=self.tex_dir,
-                    use_texpath=False,
-                    shell=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                ),
-                "",
-            )
+            yield (cmd, "")
 
-            self.display("done.\n")
-
-            # This is for debugging purposes
-            if self.display_log and self.out is not None:
-                self.display("\nCommand results:\n")
-                self.display(self.out)
-                self.display("\n\n")
-
-    def substitute(self, command):
+    def substitute(self, command: str) -> tuple[str, bool]:
         replaced_var = False
         if self.CONTAINS_VARIABLE.search(command):
             replaced_var = True

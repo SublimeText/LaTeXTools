@@ -25,7 +25,6 @@ from .utils.activity_indicator import ActivityIndicator
 from .utils.external_command import execute_command
 from .utils.external_command import external_command
 from .utils.external_command import get_texpath
-from .utils.external_command import update_env
 from .utils.is_tex_file import is_tex_file
 from .utils.logging import logger
 from .utils.output_directory import get_aux_directory
@@ -57,98 +56,80 @@ class CmdThread(threading.Thread):
             self.worker(activity_indicator)
 
     def worker(self, activity_indicator):
-        logger.debug(f"Welcome to thread {self.getName()}")
-        self.caller.output(f"[Compiling {self.caller.file_name}]")
-
-        env = dict(os.environ)
-        if self.caller.path:
-            env["PATH"] = self.caller.path
-
-        # Handle custom env variables
-        if self.caller.env:
-            update_env(env, self.caller.env)
+        logger.debug(f"Welcome to thread {self.name}")
+        self.caller.output(f"[Compiling '{self.caller.file_name}' with '{self.caller.builder.name}']\n")
 
         # Now, iteratively call the builder iterator
-        #
-        cmd_iterator = self.caller.builder.commands()
+        cmd_coroutine = self.caller.builder.commands()
         try:
-            for cmd, msg in cmd_iterator:
-
-                # If there is a message, display it
+            cmd, msg = next(cmd_coroutine)
+            while True:
                 if msg:
                     self.caller.output(msg)
 
-                # If there is nothing to be done, exit loop
-                # (Avoids error with empty cmd_iterator)
-                if cmd == "":
-                    break
-
-                if isinstance(cmd, str) or isinstance(cmd, list):
-                    logger.debug(cmd)
-                    # Now create a Popen object
-                    try:
-                        proc = external_command(
-                            cmd,
-                            env=env,
-                            use_texpath=False,
-                            stdin=subprocess.PIPE,
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT,
-                            preexec_fn=(os.setsid if self.caller.plat != "windows" else None),
-                            cwd=self.caller.tex_dir,
-                        )
-                    except Exception:
-                        self.caller.show_output_panel()
-                        self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
-                        self.caller.output("Attempted command:")
-                        self.caller.output(subprocess.list2cmdline(cmd))
-                        self.caller.output(f"\nBuild engine: {self.caller.builder.name}")
-                        self.caller.proc = None
-                        traceback.print_exc()
-                        return
-                # Abundance of caution / for possible future extensions:
-                elif isinstance(cmd, subprocess.Popen):
+                if cmd and isinstance(cmd, (list, str)):
+                    proc = external_command(
+                        cmd,
+                        cwd=self.caller.tex_dir,
+                        env=self.caller.env,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        shell=True,
+                        use_texpath=False,
+                    )
+                elif cmd and isinstance(cmd, subprocess.Popen):
                     proc = cmd
                 else:
                     # don't know what the command is
                     continue
 
-                # Now actually invoke the command, making sure we allow for killing
-                # First, save process handle into caller; then communicate (which blocks)
+                # Now actually invoke the command, making sure we allow for
+                # killing First, save process handle into caller; then
+                # communicate (which blocks)
                 with self.caller.proc_lock:
                     self.caller.proc = proc
-                out, err = proc.communicate()
-                out = out.decode(self.caller.encoding, "ignore")
-                out = out.replace("\r\n", "\n").replace("\r", "\n")
-                self.caller.builder.set_output(out)
 
-                # Here the process terminated, but it may have been killed. If so, stop and don't read log
-                # Since we set self.caller.proc above, if it is None, the process must have been killed.
-                # TODO: clean up?
+                out, err = proc.communicate()
+
+                # Here the process terminated, but it may have been killed. If
+                # so, stop and don't read log Since we set self.caller.proc
+                # above, if it is None, the process must have been killed.
                 with self.caller.proc_lock:
                     if not self.caller.proc:
                         logger.info("Build canceled")
-                        logger.debug(f"with returncode {proc.returncode}")
-                        self.caller.output("\n\n[User terminated compilation process]\n")
-                        self.caller.finish(False)  # We kill, so won't switch to PDF anyway
+                        self.caller.output("\n\n[Build cancelled by user!]\n")
+                        self.caller.finish(False)
                         return
-                # Here we are done cleanly:
-                with self.caller.proc_lock:
+
                     self.caller.proc = None
+
                 logger.info("Finished normally")
                 logger.debug(f"with returncode {proc.returncode}")
-                # At this point, out contains the output from the current command;
-                # we pass it to the cmd_iterator and get the next command, until completion
-        except Exception:
-            self.caller.show_output_panel()
-            self.caller.output("\n\nCOULD NOT COMPILE!\n\n")
-            self.caller.output(f"\nBuild engine: {self.caller.builder.name}")
+
+                # read command output and assign it to builder
+                out = out.decode(self.caller.encoding, "ignore")
+                out = out.replace("\r\n", "\n").replace("\r", "\n")
+                self.caller.builder.set_output(out)
+                # acknowledge coroutine's yield with process's return code
+                # it allows statements like: `result = yield (cmd, msg)`
+                cmd, msg = cmd_coroutine.send(proc.returncode)
+
+        except StopIteration:
+            pass
+        except Exception as exc:
             self.caller.proc = None
+            msg = f"\n\n[Build failed!]\nerror: {exc}\n"
+            if cmd:
+                if isinstance(cmd, list):
+                    cmd = subprocess.list2cmdline(cmd)
+                msg += f"cmd: {cmd}\n"
+            self.caller.show_output_panel()
+            self.caller.output(msg)
+            self.caller.finish(False)
             traceback.print_exc()
             return
-
-        # Clean up
-        cmd_iterator.close()
+        finally:
+            cmd_coroutine.close()
 
         try:
             # Here we try to find the log file...
@@ -204,10 +185,13 @@ class CmdThread(threading.Thread):
                 f"Could not read log file {self.caller.tex_base}.log",
                 "",
             ]
-            if out is not None:
-                content.extend(["Output from compilation:", "", out.decode("utf-8")])
-            if err is not None:
-                content.extend(["Errors from compilation:", "", err.decode("utf-8")])
+            if out:
+                content.extend(["Output from compilation:", "", out])
+            if err:
+                if isinstance(err, bytes):
+                    err = err.decode(self.caller.encoding, "ignore")
+                    err = err.replace("\r\n", "\n").replace("\r", "\n")
+                content.extend(["Errors from compilation:", "", err])
             self.caller.output(content)
             # if we got here, there shouldn't be a PDF at all
             self.caller.finish(False)
@@ -330,7 +314,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
     badboxes = []
 
     def __init__(self, *args, **kwargs):
-        sublime_plugin.WindowCommand.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.proc = None
         self.proc_lock = threading.Lock()
 
@@ -347,6 +331,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         script_commands=None,
         update_annotations_only=False,
         hide_annotations_only=False,
+        kill=False,
         **kwargs
     ):
         if update_annotations_only:
@@ -358,27 +343,30 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             self.hide_annotations()
             return
 
-        # Try to handle killing
+        # kill running build process
         with self.proc_lock:
-            if self.proc:  # if we are running, try to kill running process
-                self.output("\n\n### Got request to terminate compilation ###")
+            if self.proc:
+                proc = self.proc
+                self.proc = None
+                self.output("cancelled\n")
                 try:
+                    # On Windows use taskkill, to make sure all child processes
+                    # are terminated as well.
                     if sublime.platform() == "windows":
                         execute_command(
-                            f"taskkill /t /f /pid {self.proc.pid}",
+                            f"taskkill /t /f /pid {proc.pid}",
                             use_texpath=False,
                             shell=True,
                         )
                     else:
-                        os.killpg(self.proc.pid, signal.SIGTERM)
+                        proc.terminate()
                 except Exception:
                     logger.error("Exception occurred while killing build")
                     traceback.print_exc()
 
-                self.proc = None
-                return
-            else:  # either it's the first time we run, or else we have no running processes
-                self.proc = None
+        # cancel_build command was invoked to just terminate running build
+        if kill:
+            return
 
         view = self.view = self.window.active_view()
 
@@ -418,9 +406,15 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         output_view_settings = self.output_view.settings()
         output_view_settings.set("result_file_regex", file_regex)
         output_view_settings.set("result_base_dir", self.tex_dir)
-        output_view_settings.set("line_numbers", False)
+        output_view_settings.set("auto_match_enabled", False)
+        output_view_settings.set("draw_indent_guides", False)
+        output_view_settings.set("draw_white_space", "none")
+        output_view_settings.set("detect_indentation", False)
+        output_view_settings.set("disable_auto_complete", False)
         output_view_settings.set("gutter", False)
         output_view_settings.set("scroll_past_end", False)
+        output_view_settings.set("tab_size", 2)
+        output_view_settings.set("word_wrap", False)
 
         if get_setting("highlight_build_panel", True, view):
             output_view_settings.set(
@@ -466,6 +460,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         builder_name = classname_to_plugin_name(builder_name)
 
         builder_settings = get_setting("builder_settings", {}, view)
+        builder_platform_settings = builder_settings.get(self.plat, {})
 
         # override the command
         if command is not None:
@@ -499,8 +494,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         if isinstance(options, str):
             options = [options]
 
-        if "options" in tex_directives:
-            options.extend(tex_directives["options"])
+        options.extend(tex_directives.pop("options", []))
 
         # filter out --aux-directory and --output-directory options which are
         # handled separately
@@ -512,15 +506,22 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         self.aux_directory = get_aux_directory(view)
         self.output_directory = get_output_directory(view)
 
-        # Read the env option (platform specific)
-        builder_platform_settings = builder_settings.get(self.plat, {})
-
-        if env is not None:
-            self.env = env
-        elif builder_platform_settings:
-            self.env = builder_platform_settings.get("env", None)
-        else:
+        # Create custom environmnent with "env" from sublime-build or
+        # platform-specific "builder_settings" merged in.
+        if env is None:
+            env = builder_platform_settings.get("env")
+        if env is None:
             self.env = None
+        else:
+            self.env = os.environ.copy()
+            self.env.update(env)
+
+        # Replace $PATH in environment with "path" from sublime-build or
+        # "texpath" from project-specific, or platform-specifig "builder_settings".
+        if (path is not None) or (path := get_texpath(self.view)):
+            if self.env is None:
+                self.env = os.environ.copy()
+            self.env["PATH"] = path
 
         try:
             builder = get_plugin(f"{builder_name}_builder")
@@ -539,7 +540,6 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             builder_platform_settings["script_commands"] = script_commands
             builder_settings[self.plat] = builder_platform_settings
 
-        logger.debug(repr(builder))
         self.builder = builder(
             self.file_name,
             self.output,
@@ -553,19 +553,11 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             platform_settings,
         )
 
-        # Now get the tex binary path from prefs, change directory to
-        # that of the tex root file, and run!
-        if path is not None:
-            self.path = path
-        else:
-            self.path = get_texpath() or os.environ["PATH"]
-
         thread = CmdThread(self)
         thread.start()
-        logger.debug(threading.active_count())
 
     def output(self, data):
-        if isinstance(data, list) or isinstance(data, tuple):
+        if isinstance(data, (list, tuple)):
             data = "\n".join(data)
         data = data.replace("\r\n", "\n").replace("\r", "\n")
         self.output_view.run_command("latextools_do_output_edit", {"data": data})
