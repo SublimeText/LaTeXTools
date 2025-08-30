@@ -501,8 +501,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         if isinstance(options, str):
             options = [options]
 
-        if "options" in tex_directives:
-            options.extend(tex_directives["options"])
+        options.extend(tex_directives.pop("options", []))
 
         # filter out --aux-directory and --output-directory options which are
         # handled separately
