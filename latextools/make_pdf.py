@@ -8,6 +8,7 @@ import functools
 import html
 import os
 import re
+import shlex
 import shutil
 import signal
 import threading
@@ -332,6 +333,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         program=None,
         builder=None,
         command=None,
+        options=None,
         env=None,
         path=None,
         script_commands=None,
@@ -494,19 +496,26 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         ]:
             engine = "pdflatex"
 
-        options = builder_settings.get("options", [])
+        # Collect and merge options
+        if options is None:
+            options = builder_platform_settings.get("options")
+            if options is None:
+                options = builder_settings.get("options", [])
         if isinstance(options, str):
-            options = [options]
+            options = shlex.split(options)
+        elif not isinstance(options, list):
+            options = []
 
-        if "options" in tex_directives:
-            options.extend(tex_directives["options"])
+        tex_options = tex_directives.pop("options", [])
+        if isinstance(tex_options, str):
+            tex_options = shlex.split(tex_options)
+        elif not isinstance(tex_options, list):
+            tex_options = []
 
-        # filter out --aux-directory and --output-directory options which are
-        # handled separately
-        options = [
-            opt for opt in options
-            if not opt.startswith(("--aux-directory", "--output-directory", "--jobname"))
-        ]
+        options = set(options) | set(tex_options)
+        # filter out separately handled options
+        options -= set(("--aux-directory", "--output-directory", "--jobname"))
+        options = sorted(options)
 
         self.aux_directory = get_aux_directory(view)
         self.output_directory = get_output_directory(view)
