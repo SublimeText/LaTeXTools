@@ -61,13 +61,13 @@ class CmdThread(threading.Thread):
     def worker(self, activity_indicator):
         logger.debug(f"Welcome to thread {self.name}")
         self.caller.output(
-            f"[Compiling '{self.caller.file_name}' with '{self.caller.builder.name}']\n"
+            f"[Compiling '{self.caller.builder.tex_root}' with '{self.caller.builder.name}']\n"
         )
 
         # Remove old log-file to prevent displaying out-dated error information
         # on pre-mature build termination.
-        log_filename = f"{self.caller.tex_base}.log"
-        for log_dir in (self.caller.aux_directory, self.caller.tex_dir):
+        log_filename = f"{self.caller.builder.base_name}.log"
+        for log_dir in (self.caller.builder.aux_directory_full, self.caller.builder.tex_dir):
             if log_dir:
                 try:
                     os.remove(os.path.join(log_dir, log_filename))
@@ -88,7 +88,7 @@ class CmdThread(threading.Thread):
                 if cmd and isinstance(cmd, (list, str)):
                     proc = external_command(
                         cmd,
-                        cwd=self.caller.tex_dir,
+                        cwd=self.caller.builder.tex_dir,
                         env=self.caller.builder.env,
                         stdout=PIPE,
                         stderr=PIPE,
@@ -169,12 +169,12 @@ class CmdThread(threading.Thread):
             cmd_coroutine.close()
 
         try:
-            if self.caller.aux_directory:
-                log_file = os.path.join(self.caller.aux_directory, log_filename)
+            if self.caller.builder.aux_directory_full:
+                log_file = os.path.join(self.caller.builder.aux_directory_full, log_filename)
                 if not os.path.exists(log_file):
-                    log_file = os.path.join(self.caller.tex_dir, log_filename)
+                    log_file = os.path.join(self.caller.builder.tex_dir, log_filename)
             else:
-                log_file = os.path.join(self.caller.tex_dir, log_filename)
+                log_file = os.path.join(self.caller.builder.tex_dir, log_filename)
 
             # CHANGED 12-10-27. OK, here's the deal. We must open in binary mode
             # on Windows because silly MiKTeX inserts ASCII control characters in
@@ -206,7 +206,7 @@ class CmdThread(threading.Thread):
 
             try:
                 ws = re.compile(r"\s+")
-                (errors, warnings, badboxes) = parse_tex_log(data, self.caller.tex_dir)
+                (errors, warnings, badboxes) = parse_tex_log(data, self.caller.builder.tex_dir)
                 content = [""]
                 if errors:
                     content.append("Errors:")
@@ -386,21 +386,18 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             logger.info("saving...")
             view.run_command("save")  # call this on view, not self.window
 
-        self.file_name = get_tex_root(view)
-        if not self.file_name:
+        tex_root = get_tex_root(view)
+        if not tex_root:
             sublime.error_message(f"Main TeX file not found.")
             return
-        if not os.path.isfile(self.file_name):
-            sublime.error_message(f"{self.file_name}: file not found.")
+        if not os.path.isfile(tex_root):
+            sublime.error_message(f"{tex_root}: file not found.")
             return
 
-        self.tex_base = get_jobname(view)
-        self.tex_dir = os.path.dirname(self.file_name)
+        tex_dir, tex_name = os.path.split(tex_root)
 
-        if not is_tex_file(self.file_name):
-            sublime.error_message(
-                f"{os.path.basename(view.file_name())} is not a TeX source file: cannot compile."
-            )
+        if not is_tex_file(tex_root):
+            sublime.error_message(f"{tex_name} is not a TeX source file: cannot compile.")
             return
 
         # Output panel: from exec.py
@@ -409,7 +406,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
         output_view_settings = self.output_view.settings()
         output_view_settings.set("result_file_regex", file_regex)
-        output_view_settings.set("result_base_dir", self.tex_dir)
+        output_view_settings.set("result_base_dir", tex_dir)
         output_view_settings.set("auto_match_enabled", False)
         output_view_settings.set("draw_indent_guides", False)
         output_view_settings.set("draw_white_space", "none")
@@ -472,7 +469,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
         # parse root for any %!TEX directives
         tex_directives = parse_tex_directives(
-            self.file_name, multi_values=["options"], key_maps={"ts-program": "program"}
+            tex_root, multi_values=["options"], key_maps={"ts-program": "program"}
         )
 
         # determine the engine
@@ -515,9 +512,6 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         options -= set(("--aux-directory", "--output-directory", "--jobname"))
         options = sorted(options)
 
-        self.aux_directory = get_aux_directory(view)
-        self.output_directory = get_output_directory(view)
-
         # Create custom environmnent with "env" from sublime-build or
         # platform-specific "builder_settings" merged in.
         if env is None:
@@ -554,13 +548,13 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             builder_settings[self.plat] = builder_platform_settings
 
         self.builder = builder(
-            self.file_name,
+            tex_root,
             self.output,
             engine,
             options,
-            self.aux_directory,
-            self.output_directory,
-            self.tex_base,
+            get_aux_directory(view),
+            get_output_directory(view),
+            get_jobname(view),
             tex_directives,
             builder_settings,
             platform_settings,
