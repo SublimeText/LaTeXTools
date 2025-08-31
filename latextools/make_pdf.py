@@ -45,6 +45,7 @@ __all__ = [
     "LatextoolsExecEventListener",
 ]
 
+
 class CmdThread(threading.Thread):
 
     # Use __init__ to pass things we need
@@ -75,12 +76,14 @@ class CmdThread(threading.Thread):
 
         # Now, iteratively call the builder iterator
         aborted = False
+        pending = False
         cmd_coroutine = self.caller.builder.commands()
         try:
             cmd, msg = next(cmd_coroutine)
             while True:
                 if msg:
                     self.caller.output(msg)
+                    pending = True
 
                 if cmd and isinstance(cmd, (list, str)):
                     proc = external_command(
@@ -117,15 +120,22 @@ class CmdThread(threading.Thread):
                 with self.caller.proc_lock:
                     if not self.caller.proc:
                         logger.info("Build canceled")
-                        self.caller.output("cancelled\n\n[Build cancelled by user!]\n")
+                        msg = "\n[Build cancelled by user!]"
+                        if pending:
+                            msg = "cancelled\n" + msg
+                        self.caller.show_output_panel()
+                        self.caller.output(msg)
                         self.caller.finish(False)
+                        pending = False
                         return
 
                     self.caller.proc = None
 
                 # print and handle command exit status
                 logger.info(f"Finished with status {proc.returncode}.")
-                self.caller.output("error\n" if proc.returncode else "done\n")
+                if pending:
+                    self.caller.output("error\n" if proc.returncode else "done\n")
+                    pending = False
                 if self.caller.builder.abort_on_error and proc.returncode != 0:
                     # abort and parse logfile or command output for details
                     aborted = True
@@ -137,16 +147,23 @@ class CmdThread(threading.Thread):
                 cmd, msg = cmd_coroutine.send(proc.returncode)
 
         except StopIteration:
-            pass
+            with self.caller.proc_lock:
+                self.caller.proc = None
+            pending = False
+
         except Exception as exc:
-            self.caller.proc = None
-            if isinstance(cmd, list):
-                cmd = subprocess.list2cmdline(cmd)
+            with self.caller.proc_lock:
+                self.caller.proc = None
+            msg = f"\nError: {exc}\n\n[Build failed!]"
+            if pending:
+                msg = "aborted\n" + msg
             self.caller.show_output_panel()
-            self.caller.output(f"\n\n[Build failed!]\nerror: Command '{cmd}' failed with {exc}\n")
+            self.caller.output(msg)
             self.caller.finish(False)
             traceback.print_exc()
+            pending = False
             return
+
         finally:
             cmd_coroutine.close()
 
@@ -280,7 +297,7 @@ class CmdThread(threading.Thread):
                 traceback.print_exc()
 
             self.caller.output(content)
-            self.caller.output("\n\n[Failed!]\n" if aborted else "\n\n[Done!]\n")
+            self.caller.output("\n\n[Build failed!]" if aborted else "\n\n[Done!]")
 
             self.caller.errors = locals().get("errors", [])
             self.caller.warnings = locals().get("warnings", [])
