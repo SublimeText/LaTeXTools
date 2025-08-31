@@ -10,9 +10,17 @@ When you are using any other setup (MacTeX or TeXLive on Linux or Windows), the 
 
 ## Basic Builder
 
-The basic builder is a simple, straight-forward build system. that simply runs the configured build engine (pdflatex, xelatex, or lualatex) and bibtex or biber if necessary. It can also be configured to support bibtex8 through the `bibtex` builder setting. In addition, it supports the [TeX Options](features.md#tex-options) feature, the [output and auxiliary directory](features.md#output-directory-and-auxiliary-directory) features and the [Jobname](features.md#jobname) feature. It has been included because the default builder on MiKTeX, `texify` cannot be easily coerced to support biber or any of the other features supported by the basic builder. Note, however, that unlike `texify`, the basic builder does **not** support `makeindex` and friends (patches are welcome!).
+The `basic` builder is a simple, straight-forward build system, which simply runs the configured latex and bibliography compiler as needed. It supports [TeX Options](features.md#tex-options), [output and auxiliary directory](features.md#output-directory-and-auxiliary-directory) and [Jobname](features.md#jobname) feature, but not `makeindex` and friends. Its primary goal is to work around some shortcomings of `texify` on platforms `latexmk` is not available on.
 
-You can use the basic builder by changing the `builder` setting to `"basic"`. It will read the same settings as the traditional builder.
+**Note:** To use `basic` builder set `"builder": "basic"` in sublime-build file or any of the supported settings.
+
+### Settings
+
+The `basic` builder is controlled through `builder_settings` of `LaTeXTools.sublime-settings`, or of the current project file (if any):
+
+- `bibtex` - the bibliography engine to use. Valid values are `biber`, `bibtex` or `bibtex8`.
+- `env` - a dictionary defining environment variables to be set for the environment the command is run in.
+- `program`	- the latex engine to use. Valid values are `pdflatex`, `xelatex`, or `lualatex`.
 
 ## Script Builder
 
