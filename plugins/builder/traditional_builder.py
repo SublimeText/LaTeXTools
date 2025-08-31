@@ -1,6 +1,7 @@
 from __future__ import annotations
 import os
 import shlex
+import shutil
 import sublime
 
 from typing import TYPE_CHECKING
@@ -21,13 +22,17 @@ DEFAULT_COMMAND_LATEXMK = [
     "-synctex=1",
 ]
 
-DEFAULT_COMMAND_WINDOWS_MIKTEX = [
+DEFAULT_COMMAND_TEXIFY = [
     "texify",
     "-b",
     "-p",
     "--engine=%E",
     '--tex-option="--synctex=1"',
 ]
+
+TEXIFY_TO_LATEXMK_ENGINES = {"pdftex": "pdflatex", "xetex": "xelatex", "luatex": "lualatex"}
+
+LATEXMK_TO_TEXIFY_ENGINES = {"pdflatex": "pdftex", "xelatex": "xetex", "lualatex": "luatex"}
 
 
 class TraditionalBuilder(PdfBuilder):
@@ -37,84 +42,58 @@ class TraditionalBuilder(PdfBuilder):
     Implement existing functionality, more or less
     NOTE: move this to a different file, too
     """
+
     name = "Traditional Builder"
 
-    def __init__(self, *args):
-        # Sets the file name parts, plus internal stuff
-        super().__init__(*args)
-        # Build command, with reasonable defaults
-        plat = sublime.platform()
-        # Figure out which distro we are using
-        distro = self.platform_settings.get("distro", "miktex" if plat == "windows" else "texlive")
-        if distro in ["miktex", ""]:
-            default_command = DEFAULT_COMMAND_WINDOWS_MIKTEX
-        else:  # osx, linux, windows/texlive, everything else really!
-            default_command = DEFAULT_COMMAND_LATEXMK
-
-        self.cmd = self.builder_settings.get("command", default_command)
-        if isinstance(self.cmd, str):
-            self.cmd = shlex.split(self.cmd)
-
-    #
-    # Very simple here: we yield a single command
-    # Only complication is handling custom tex engines
-    #
     def commands(self) -> CommandGenerator:
-        # See if the root file specifies a custom engine
-        engine = self.engine
-        cmd = self.cmd[:]  # Warning! If I omit the [:], cmd points to self.cmd!
+        # Build command, with reasonable defaults
+        cmd = self.builder_settings.get("command")
+        if not cmd:
+            # prefer latexmk, if available, fallback to texify
+            texpath = None if self.env is None else self.env.get("PATH")
+            if shutil.which("latexmk", path=texpath):
+                cmd = DEFAULT_COMMAND_LATEXMK.copy()
+            else:
+                cmd = DEFAULT_COMMAND_TEXIFY.copy()
+        elif isinstance(cmd, str):
+            cmd = shlex.split(cmd)
+
+        latexmk = cmd[0] == "latexmk"
+        texify = cmd[0] == "texify"
 
         # check if the command even wants the engine selected
-        engine_used = False
-        for c in cmd:
-            if "%E" in c:
-                engine_used = True
-                break
-
-        texify = cmd[0] == "texify"
-        latexmk = cmd[0] == "latexmk"
-
-        if not engine_used:
+        if not any("%E" in c for c in cmd):
             self.display("Your custom command does not allow the engine to be selected\n\n")
         else:
+            engine = self.engine
             self.display(f"Engine: {engine}.\n")
 
-            if texify:
-                # texify's --engine option takes pdftex/xetex/luatex as acceptable values
-                engine = engine.replace("la", "")
-            elif latexmk:
-                if "la" not in engine:
-                    # latexmk options only supports latex-specific versions
-                    engine = {
-                        "pdftex": "pdflatex",
-                        "xetex": "xelatex",
-                        "luatex": "lualatex",
-                    }[engine]
-
-            for i, c in enumerate(cmd):
-                cmd[i] = c.replace(
-                    "-%E", "-" + engine if texify or engine != "pdflatex" else "-pdf"
-                ).replace("%E", engine)
-
-        # handle any options
-        if texify or latexmk:
-            # aux_directory, output_directory or jobname are only supported by latexmk
             if latexmk:
-                if self.aux_directory:
-                    # Don't use --aux-directory as the way latexmk moves
-                    # final documents to a possibly defined --output-directory
-                    # prevents files reloading in SumatraPDF or even fails
-                    # if documents are opened and locked by viewer on Windows.
-                    cmd.append(f"--output-directory={self.aux_directory}")
+                # latexmk options only supports latex-specific versions
+                engine = TEXIFY_TO_LATEXMK_ENGINES.get(engine, engine)
+            elif texify:
+                # texify's --engine option takes pdftex/xetex/luatex as acceptable values
+                engine = LATEXMK_TO_TEXIFY_ENGINES.get(engine, engine)
 
-                if self.job_name != self.base_name:
-                    cmd.append(f"--jobname={self.job_name}")
+            flag = f"-{engine}" if texify or engine != "pdflatex" else "-pdf"
+            for i, c in enumerate(cmd):
+                cmd[i] = c.replace("-%E", flag).replace("%E", engine)
 
-            for option in self.options:
-                if texify:
-                    cmd.append(f'--tex-option="{option}"')
-                else:
-                    cmd.append(f"-latexoption={option}")
+        if latexmk:
+            if self.aux_directory:
+                # Don't use --aux-directory as the way latexmk moves
+                # final documents to a possibly defined --output-directory
+                # prevents files reloading in SumatraPDF or even fails
+                # if documents are opened and locked by viewer on Windows.
+                cmd.append(f"-output-directory={self.aux_directory}")
+
+            if self.job_name != self.base_name:
+                cmd.append(f'-jobname="{self.job_name}"')
+
+            cmd += map(lambda o: f"-latexoption={o}", self.options)
+
+        elif texify:
+            cmd += map(lambda o: f'--tex-option="{o}"', self.options)
 
         # texify wants the .tex extension; latexmk doesn't care either way
         yield (cmd + [self.tex_name], f"running {cmd[0]}...")

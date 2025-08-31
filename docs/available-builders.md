@@ -2,11 +2,48 @@
 
 ## Traditional Builder
 
-By default, LaTeXTools uses the `traditional` builder, which is designed to work in most circumstances and for most setups. This builder provides all of the builder features discussed elsewhere in the documentation, such as the various [builder features](features.md#default-builder), including multi-document support, the ability to set LaTeX flags via the `TeX Options` settings, etc.
+The `traditional` builder is designed to work in most circumstances and for most setups. It supports all [builder features](features.md#default-builder) discussed elsewhere in the documentation, including multi-document support, the ability to set LaTeX flags via the [TeX Options](features.md#tex-options) settings, etc.
 
-When you are using MiKTeX, the `traditional` builder defaults to using the MiKTeX compiler driver [`texify`](https://docs.miktex.org/manual/texifying.html), which automatically runs PDFLaTeX / XeLaTeX / LuaLaTeX as many times as necessary to generate a document. Note that because of certain limitations of `texify`, some features, such as support for output directory, auxiliary directory, jobname, etc. are unavailable when using the traditional builder. You can change this by installing `latexmk` and changing the `command` setting in the `builder_settings` block to `"latexmk -cd -f -%E -interaction=nonstopmode -synctex=1"`, in which case the `traditional` builder will run `latexmk` instead of `texify`
+If available, [`latexmk`](https://www.ctan.org/pkg/latexmk/) is used to generate the document. Otherwise [`texify`](https://docs.miktex.org/manual/texifying.html) is used as fallback.
 
-When you are using any other setup (MacTeX or TeXLive on Linux or Windows), the `traditional` builder uses [`latexmk`](https://www.ctan.org/pkg/latexmk/), which supports all the documented features for the builder.
+**Note:** `texify` doesn't support features, such as specifying output directory, auxiliary directory, or jobname.
+
+Default commands:
+
+```
+latexmk -cd -f -%E -interaction=nonstopmode -synctex=1
+```
+
+```
+texify -b -p --engine=%E --tex-option="--synctex=1"
+```
+
+### Settings
+
+Custom commands are specified via `command` setting in a sublime-build file or `builder_settings` block of `LaTeXTools.sublime-settings`.
+
+- `command` - a string or list of strings, specifying the build command line to use.
+- `program`	- the latex engine to use. Valid values are `pdflatex`, `xelatex`, or `lualatex`.
+- `env` - a dictionary defining environment variables to be set for the environment the command is run in.
+
+**Example**
+
+```json
+{
+	"builder_settings": {
+		"command": "latexmk -cd -f -%E -interaction=nonstopmode -synctex=1",
+		"program": "xelatex",
+
+		"osx": {
+			"env": {
+				"BIBINPUTS": "~/.local/tex:$BIBINPUTS"
+			}
+		}
+	}
+}
+```
+
+**Note:** The placeholder `%E` is replaced by `-pdf`, `-xelatex`, etc. according to specified latex engine (e.g. via: `program`).
 
 ## Basic Builder
 
