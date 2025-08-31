@@ -92,6 +92,7 @@ class CmdThread(threading.Thread):
                         env=self.caller.env,
                         stdout=PIPE,
                         stderr=PIPE,
+                        shell=self.caller.builder.run_in_shell,
                         use_texpath=False,
                     )
                 elif cmd and isinstance(cmd, Popen):
