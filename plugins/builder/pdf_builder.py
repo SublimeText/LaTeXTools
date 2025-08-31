@@ -82,6 +82,14 @@ class PdfBuilder(LaTeXToolsPlugin):
             from LaTeXTools.sublime-settings
 
         """
+        self.run_in_shell = None
+        """
+        Specifies whether yielded commands are run within shell.
+
+        `None` - automatic
+        `True` - run commands via login shell
+        `False` - run commands directly
+        """
         self.abort_on_error = True
         """
         If `True`, batch execution is aborted, if called subprocess returns

@@ -40,6 +40,8 @@ class ScriptBuilder(PdfBuilder):
             )
             raise ValueError("No 'script_commands' specified!")
 
+        self.run_in_shell = True
+
         if isinstance(cmds, str):
             cmds = [cmds]
         if not isinstance(cmds, list):
