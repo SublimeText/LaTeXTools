@@ -300,9 +300,9 @@ class CmdThread(threading.Thread):
             self.caller.output(content)
             self.caller.output("\n\n[Build failed!]" if aborted else "\n\n[Done!]")
 
-            self.caller.errors = locals().get("errors", [])
-            self.caller.warnings = locals().get("warnings", [])
-            self.caller.badboxes = locals().get("badboxes", [])
+            self.caller.errors = errors
+            self.caller.warnings = warnings
+            self.caller.badboxes = badboxes
 
             self.caller.finish(len(errors) == 0)
 
