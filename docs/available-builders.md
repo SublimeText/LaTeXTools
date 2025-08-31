@@ -16,57 +16,39 @@ You can use the basic builder by changing the `builder` setting to `"basic"`. It
 
 ## Script Builder
 
-LaTeXTools now supports the long-awaited script builder. It has two primary goals: first, to support customization of simple build workflows and second, to enable LaTeXTools to integrate with external build systems in some fashion.
+The `script` builder is an advanced feature to design custom compile workflows via settings.
 
-Note that the script builder should be considered an advanced feature. Unlike the "traditional" builder it is not designed to "just work," and is not recommend for those new to using TeX and friends. You are responsible for making sure your setup works. Please read this section carefully before using the script builder.
+Its primary goals are:
 
-Instead of invoking either `texify` or `latexmk`, it invokes a user-defined series of commands. Note that although the Script Builder supports **Multi-file documents**, it does not support either the engine selection or passing other options via the `%!TEX` macros.
+1. support customization of simple build workflows
+2. enable LaTeXTools to integrate with external build systems in some fashion.
 
-The script builder is controlled through two settings in the *platform-specific* part of the `builder_settings` section of `LaTeXTools.sublime-settings`, or of the current project file (if any):
+Unlike the "traditional" builder it is not designed to "just work," and is not recommend for those new to using TeX and friends. Please read this section carefully before using `script` builder.
+
+Instead of invoking `texify` or `latexmk`, a user-defined series of commands is executed. Note that although **multi-file documents** are supported, engine selection or passing other options via the `%!TEX` macros is not possible.
+
+**Note:** To use `script` builder set `"builder": "script"` in sublime-build file or any of the supported settings.
+
+### Settings
+
+The `script` builder is controlled through settings in *platform-specific* part of `builder_settings` of `LaTeXTools.sublime-settings`, or of the current project file (if any):
 
 - `script_commands` — the command or list of commands to run. This setting **must** have a value or you will get an error message.
-- `env` — a dictionary defining any environment variables to be set for the environment the command is run in.
+- `env` — a dictionary defining environment variables to be set for the environment the command is run in.
 
-The `script_commands` setting should be either a string or a list. If it is a string, it represents a single command to be executed. If it is a list, it should be either a list of strings representing single commands or a list of lists, though the two may be mixed. For example:
-
-```json
-{
-	"builder_settings": {
-		"osx": {
-			"script_commands":
-				"pdflatex -synctex=1 -interaction=nonstopmode"
-		}
-	}
-}
-```
-
-Will simply run `pdflatex` against the master document, as will:
+If `script_commands` is a string, it represents a single command to be executed:
 
 ```json
 {
 	"builder_settings": {
 		"osx": {
-			"script_commands":
-				["pdflatex -synctex=1 -interaction=nonstopmode"]
+			"script_commands": "pdflatex -synctex=1 -interaction=nonstopmode"
 		}
 	}
 }
 ```
 
-Or:
-
-```json
-{
-	"builder_settings": {
-		"osx": {
-			"script_commands":
-				[["pdflatex", "-synctex=1 -interaction=nonstopmode"]]
-		}
-	}
-}
-```
-
-More interestingly, the main list can be used to supply a series of commands. For example, to use the simple pdflatex -> bibtex -> pdflatex -> pdflatex series, you can use the following settings:
+If `script_commands` is a list, it can be a list of strings representing single commands:
 
 ```json
 {
@@ -83,77 +65,94 @@ More interestingly, the main list can be used to supply a series of commands. Fo
 }
 ```
 
-Note, however, that the script builder is quite unintelligent in handling such cases. It will not note any failures nor only execute the rest of the sequence if required. It will simply continue to execute commands until it hits the end of the chain of commands. This means, in the above example, it will run `bibtex` regardless of whether there are any citations.
-
-It is especially important to ensure that, in case of errors, TeX and friends do not stop for user input. For example, if you use `pdflatex` on either TeXLive or MikTeX, pass the `-interaction=nonstopmode` option.
-
-Each command can use the following variables which will be expanded before it is executed:
-
-|Variable|Description|
-|-----------------|------------------------------------------------------------|
-|`$file`   | The full path to the main file, e.g., _C:\\Files\\document.tex_|
-|`$file_name`| The name of the main file, e.g., _document.tex_|
-|`$file_ext`| The extension portion of the main file, e.g., _tex_|
-|`$file_base_name`| The name portion of the main file without the extension, e.g., _document_|
-|`$file_path`| The directory of the main file, e.g., _C:\\Files_|
-|`$aux_directory`| The auxiliary directory set via a `%!TEX` directive or the settings|
-|`$output_directory`| The output directory set via a `%!TEX` directive or the settings|
-|`$jobname`| The jobname set via a `%!TEX` directive or the settings|
-
-For example:
+or a list of lists, representing arguments of each command:
 
 ```json
 {
 	"builder_settings": {
 		"osx": {
-			"script_commands": [[
-				"pdflatex",
-				"-synctex=1"
-				"-interaction=nonstopmode",
-				"$file_base_name"
-			]]
+			"script_commands": [
+				["pdflatex", "-synctex=1", "-interaction=nonstopmode"],
+				["bibtex"],
+				["pdflatex", "-synctex=1", "-interaction=nonstopmode"],
+				["pdflatex", "-synctex=1", "-interaction=nonstopmode"]
+			]
 		}
 	}
 }
 ```
 
-Note that if none of these variables occur in the command string, the `$file_base_name` will be appended to the end of the command. This may mean that a wrapper script is needed if, for example, using `make`.
+All specified commands are unconditionally executed subsequently using login shell (e.g.: bash on Linux or cmd.exe on Windows). This means, in the above example, it will run `bibtex` regardless of whether there are any citations.
+
+The batch is aborted as soon as a commend returns with non-zero exit status.
+
+It is especially important to ensure TeX and friends do not stop for user input. For example, if you use `pdflatex`, pass the `-interaction=nonstopmode` option.
+
+### Variables
+
+Each command can use the following variables which will be expanded before it is executed:
+
+| Variable            | Description
+|---------------------|------------------------------------------------------------------------------------
+| `$file`             | The full path to the main file, e.g., _C:\\Files\\document.tex_
+| `$file_name`        | The name of the main file, e.g., _document.tex_
+| `$file_ext`         | The extension portion of the main file, e.g., _tex_
+| `$file_base_name`   | The name portion of the main file without the extension, e.g., _document_
+| `$file_path`        | The directory of the main file, e.g., _C:\\Files_
+| `$aux_directory`    | The auxiliary directory set via a `%!TEX` directive or the settings
+| `$output_directory` | The output directory set via a `%!TEX` directive or the settings
+| `$jobname`          | The jobname set via a `%!TEX` directive or the settings
+| `$eol`              | Will be replaced by empty string, preventing automatic `$file_base_name` appending
+
+**Note:** If none of these variables occur in a command string, the `$file_base_name` will be appended. This may mean that a wrapper script is needed if, for example, using `make`
 
 Commands are executed in the same path as `$file_path`, i.e. the folder containing the main document. Note, however, on Windows, since commands are launched using `cmd.exe`, you need to be careful if your root document is opened via a UNC path (this doesn't apply if you are simply using a mapped drive). `cmd.exe` doesn't support having the current working directory set to a UNC path and will change the path to `%SYSTEMROOT%`. In such a case, just ensure all the paths you specify are absolute paths and use `pushd` in place of `cd`, as this will create a (temporary) drive mapping.
 
-### Supporting output and auxiliary directories
+### Output and Auxiliary Directories
 
-If you are using LaTeXTools output and auxiliary directory behavior there are some caveats to be aware of. First, it is, of course, your responsibility to ensure that the approrpiate variables are passed to the appropriate commands in your script. Second, `pdflatex` and friends do not create output directories as needed. Therefore, at the very least, your script must start with either `"mkdir $output_directory"` (Windows) or `"mkdir -p $output_directory"` and a corresponding command if using a separate `$aux_directory`. Note that if you `\include` (or otherwise attempt anything that will `\@openout` a file in a subfolder), you will need to ensure the subfolder exists. Otherwise, your run of `pdflatex` will fail.
+If [auxiliary or output directory settings](settings.md#output-directory-settings) are specified, script builder creates them before batch execution. They are provided by [variables](#variables) and need to be passed to relevant commands in `script_commands`.
 
-Finally, unlike Biber, bibtex (and bibtex8) does not support an output directory parameter, which can make it difficult to use if you are using the LaTeXTools output directory behavior. The following workarounds can be used to get BibTeX to do the right thing.
+`pdflatex` and friends do not create (sub-)directories as needed. If `\include` is used (or anything attempts to `\@openout` a file in a subfolder), they must be created manually by script commands like  `"mkdir $output_directory\chapters"` (Windows) or `"mkdir -p $output_directory/chapters"` (Linux/MacOS).
 
-On Windows, run BibTeX like so:
+**BibTeX**
 
-```
-cd $aux_directory & set BIBINPUTS=\"$file_path:%BIBINPUTS%\" & bibtex $file_base_name
-```
-
-And on OS X or Linux, use this:
-
-```
-"cd $output_directory; BIBINPUTS=\"$file_path;$BIBINPUTS\" bibtex $file_base_name"
-```
-
-In either case, these run bibtex *inside* the output / auxiliary directory while making the directory containing your main file available to the `BIBINPUTS` environment variable. Note if you use a custom style file in the same directory, you will need to apply a similar work-around for the `BSTINPUTS` environment variable.
-
-### Supporting jobname
-
-If you are using LaTeXTools jobname behaviour, you should be aware that you are responsible for ensure jobname is set in the appropriate context. In particular, a standard build cycle might look something like this:
+Unlike biber, bibtex (and bibtex8) does not support an output directory parameter.
+The following workaround can be used to run BibTeX _inside_ the output / auxiliary directory while making the directory containing your main file available to the `BIBINPUTS` environment variable.
 
 ```json
-"builder_settings": {
-	"osx": {
-		"script_commands": [
-			"pdflatex -synctex=1 -interaction=nonstopmode -jobname=$jobname $file_base_name",
-			"bibtex $jobname",
-			"pdflatex -synctex=1 -interaction=nonstopmode -jobname=$jobname $file_base_name",
-			"pdflatex -synctex=1 -interaction=nonstopmode -jobname=$jobname $file_base_name"
-		]
+{
+	"builder_settings": {
+		"linux": {
+			"script_commands": [
+				"cd $output_directory; BIBINPUTS=\"$file_path;$BIBINPUTS\" bibtex \"$file_base_name\"",
+			]
+		},
+		"windows": {
+			"script_commands": [
+				"cd $output_directory & set BIBINPUTS=\"$file_path:%BIBINPUTS%\" & bibtex \"$file_base_name\""
+			]
+		}
+	}
+}
+```
+
+**Note:** If a custom style file is used in the same directory, a similar work-around for `BSTINPUTS` environment variable needs to be applied.
+
+### Job Name
+
+If jobname behaviour is used, `$jobname` is to be passed to relevant commands. In particular, a standard build cycle might look something like this:
+
+```json
+{
+	"builder_settings": {
+		"osx": {
+			"script_commands": [
+				"pdflatex -synctex=1 -interaction=nonstopmode -jobname=$jobname \"$file_base_name\"",
+				"bibtex $jobname",
+				"pdflatex -synctex=1 -interaction=nonstopmode -jobname=$jobname \"$file_base_name\"",
+				"pdflatex -synctex=1 -interaction=nonstopmode -jobname=$jobname \"$file_base_name\""
+			]
+		}
 	}
 }
 ```
