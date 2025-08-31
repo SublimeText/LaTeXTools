@@ -89,7 +89,7 @@ class CmdThread(threading.Thread):
                     proc = external_command(
                         cmd,
                         cwd=self.caller.tex_dir,
-                        env=self.caller.env,
+                        env=self.caller.builder.env,
                         stdout=PIPE,
                         stderr=PIPE,
                         shell=self.caller.builder.run_in_shell,
@@ -522,18 +522,19 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         # platform-specific "builder_settings" merged in.
         if env is None:
             env = builder_platform_settings.get("env")
-        if env is None:
-            self.env = None
-        else:
-            self.env = os.environ.copy()
-            self.env.update(env)
+            if env is None:
+                env = builder_settings.get("env")
+        if env is not None:
+            _env = os.environ.copy()
+            _env.update(env)
+            env = _env
 
         # Replace $PATH in environment with "path" from sublime-build or
         # "texpath" from project-specific, or platform-specifig "builder_settings".
         if (path is not None) or (path := get_texpath(self.view)):
-            if self.env is None:
-                self.env = os.environ.copy()
-            self.env["PATH"] = path
+            if env is None:
+                env = os.environ.copy()
+            env["PATH"] = path
 
         try:
             builder = get_plugin(f"{builder_name}_builder")
@@ -563,6 +564,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             tex_directives,
             builder_settings,
             platform_settings,
+            env,
         )
 
         thread = CmdThread(self)
