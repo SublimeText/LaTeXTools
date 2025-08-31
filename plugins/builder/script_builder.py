@@ -1,18 +1,15 @@
 from __future__ import annotations
-import os
-import re
 import sublime
-import subprocess
 
-from shlex import quote
+from functools import partial
 from string import Template
+from subprocess import list2cmdline
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .pdf_builder import CommandGenerator
 
 from ...latextools.utils.external_command import external_command
-from ...latextools.utils.external_command import get_texpath
 
 from .pdf_builder import PdfBuilder
 
@@ -25,71 +22,60 @@ class ScriptBuilder(PdfBuilder):
 
     Launch a user-specified script
     """
+
     name = "Script Builder"
 
-    FILE_VARIABLES = r"file|file_path|file_name|file_ext|file_base_name"
-
-    CONTAINS_VARIABLE = re.compile(
-        r"\$\{?(?:" + FILE_VARIABLES + r"|output_directory|aux_directory|jobname)\}?\b",
-        re.IGNORECASE | re.UNICODE,
-    )
-
-    def __init__(self, *args):
-        # Sets the file name parts, plus internal stuff
-        super().__init__(*args)
-        plat = sublime.platform()
-        self.cmd = self.builder_settings.get(plat, {}).get("script_commands", None)
-
-    # Very simple here: we yield a single command
-    # Also add environment variables
     def commands(self) -> CommandGenerator:
-        if self.cmd is None:
-            sublime.error_message(
-                "You MUST set a command in your LaTeXTools.sublime-settings "
-                + "file before launching the script builder."
+        cmds = self.builder_settings.get(sublime.platform(), {}).get("script_commands")
+        if not cmds:
+            cmds = self.builder_settings.get("script_commands")
+        if not cmds:
+            # Display error dialog in context of main UI thread.
+            sublime.set_timeout(
+                partial(
+                    sublime.error_message,
+                    "You MUST set a command in your LaTeXTools.sublime-settings "
+                    + "file before launching the script builder.",
+                )
             )
-            # I'm not sure this is the best way to handle things...
-            raise StopIteration()
+            raise ValueError("No 'script_commands' specified!")
 
-        if isinstance(self.cmd, str):
-            self.cmd = [self.cmd]
+        if isinstance(cmds, str):
+            cmds = [cmds]
+        if not isinstance(cmds, list):
+            raise ValueError("Invalid script type! 'script_commands' must be a 'str' or 'list'!")
 
-        for cmd in self.cmd:
-            replaced_var = False
+        for cmd in cmds:
             if isinstance(cmd, str):
-                cmd, replaced_var = self.substitute(cmd)
-            else:
-                for i, component in enumerate(cmd):
-                    cmd[i], replaced = self.substitute(component)
-                    replaced_var = replaced_var or replaced
+                expanded_cmd = self.substitute(cmd)
+                if expanded_cmd == cmd:
+                    expanded_cmd += f' "{self.base_name}"'
+                cmd = expanded_cmd
 
-            if not replaced_var:
-                if isinstance(cmd, str):
-                    cmd += " " + self.base_name
-                else:
+            elif isinstance(cmd, list):
+                replaced_var = False
+                for i, arg in enumerate(cmd):
+                    expanded_arg = self.substitute(arg)
+                    replaced_var |= expanded_arg != arg
+                    cmd[i] = expanded_arg
+                if not replaced_var:
                     cmd.append(self.base_name)
+                cmd = list2cmdline(cmd)
 
-            if not isinstance(cmd, str):
-                cmd = " ".join(map(quote, cmd))
-            self.display(f"Invoking '{cmd}'...")
+            else:
+                raise ValueError(f"Invalid command type! '{cmd}' must be a 'str' or 'list'!")
 
-            yield (cmd, "")
+            yield (cmd, f"Running '{cmd}'...")
 
-    def substitute(self, command: str) -> tuple[str, bool]:
-        replaced_var = False
-        if self.CONTAINS_VARIABLE.search(command):
-            replaced_var = True
-
-            template = Template(command)
-            command = template.safe_substitute(
-                file=self.tex_root,
-                file_path=self.tex_dir,
-                file_name=self.tex_name,
-                file_ext=self.tex_ext,
-                file_base_name=self.base_name,
-                output_directory=self.output_directory_full or self.tex_dir,
-                aux_directory=self.aux_directory_full or self.tex_dir,
-                jobname=self.job_name,
-            )
-
-        return (command, replaced_var)
+    def substitute(self, command: str) -> str:
+        return Template(command).safe_substitute(
+            file=self.tex_root,
+            file_path=self.tex_dir,
+            file_name=self.tex_name,
+            file_ext=self.tex_ext,
+            file_base_name=self.base_name,
+            output_directory=self.output_directory_full or self.tex_dir,
+            aux_directory=self.aux_directory_full or self.tex_dir,
+            jobname=self.job_name,
+            eol='' # a dummy to be used to prevent automatic base_name appending
+        )
