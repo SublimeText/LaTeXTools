@@ -126,34 +126,30 @@ class BasicBuilder(PdfBuilder):
 
         self.move_assets_to_output()
 
-    def run_bibtex(self, command: list[str] | str | None=None) -> subprocess.Popen:
+    def run_bibtex(self, command: list[str] | str | None=None) -> subprocess.Popen | list[str]:
+        # set-up bibtex command line
         if command is None:
             command = [self.bibtex]
         elif isinstance(command, str):
             command = [command]
+        command.append(self.job_name)
+
+        # return default command line, if build output is tex_dir.
+        if not self.aux_directory:
+            return command
 
         # to get bibtex to work with the output directory, we change the
         # cwd to the output directory and add the main directory to
         # BIBINPUTS and BSTINPUTS
-        env = dict(os.environ)
-        cwd = self.tex_dir
-
-        if self.aux_directory:
-            # cwd is, at the point, the path to the main tex file
-            env["BIBINPUTS"] = cwd + os.pathsep + env.get("BIBINPUTS", "")
-            env["BSTINPUTS"] = cwd + os.pathsep + env.get("BSTINPUTS", "")
-            # now we modify cwd to be the output directory
-            # NOTE this cwd is not reused by any of the other command
-            cwd = self.aux_directory_full
-        env["PATH"] = get_texpath()
-
-        command.append(self.job_name)
+        env = self.env.copy()
+        # cwd is, at the point, the path to the main tex file
+        env["BIBINPUTS"] = self.tex_dir + os.pathsep + env.get("BIBINPUTS", "")
+        env["BSTINPUTS"] = self.tex_dir + os.pathsep + env.get("BSTINPUTS", "")
         return external_command(
             command,
             env=env,
-            cwd=cwd,
-            preexec_fn=os.setsid if sublime.platform() != "windows" else None,
+            cwd=self.aux_directory_full,
             use_texpath=False,
             stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
+            stderr=subprocess.PIPE,
         )

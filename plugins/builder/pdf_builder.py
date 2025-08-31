@@ -42,6 +42,7 @@ class PdfBuilder(LaTeXToolsPlugin):
         tex_directives: dict[str, Any],
         builder_settings: dict[str, Any],
         platform_settings: dict[str, Any],
+        env: dict[str, str],
     ):
         """
         Constructs a new pdf builder engine instance.
@@ -81,6 +82,10 @@ class PdfBuilder(LaTeXToolsPlugin):
             A dictionary containing the "platform_settings"
             from LaTeXTools.sublime-settings
 
+        :param env:
+            A dictionary containing custom environment variables
+            from sublime-build file or "platform_settings".
+
         """
         self.run_in_shell = None
         """
@@ -110,6 +115,7 @@ class PdfBuilder(LaTeXToolsPlugin):
         self.tex_directives = tex_directives
         self.builder_settings = builder_settings
         self.platform_settings = platform_settings
+        self.env = env
 
         # if output_directory and aux_directory can be specified as a path
         # relative to self.tex_dir, we use that instead of the absolute path
