@@ -2,38 +2,63 @@
 ---
 # https://www.sublimetext.com/docs/syntax.html
 name: LaTeXTools Console
-scope: latextools.console
+scope: text.console.latextools
+version: 2
 hidden: true
+
+variables:
+  build_results: \[(?:Build (?:cancelled by user|failed)|Done)!\]$
 
 contexts:
   main:
-    - match: No errors.
-      scope: latextools.console.heading.no.error
-    - match: (Errors:)$\n?
+    # command results
+    - match: (\.\.\.)\s*(aborted|error)$
       captures:
-        1: latextools.console.heading.error
-      push:
-        - match: (?=Warnings:|No warnings.|\[Done!\])
-          pop: true
-        - match: .+
-          scope: latextools.console.message.error markup.deleted
-    - match: No warnings.
-      scope: latextools.console.heading.no.warning
-    - match: (Warnings:)$\n?
+        1: punctuation.separator.build.latextools
+        2: markup.error.build.latextools
+    - match: (\.\.\.)\s*(cancelled)$
       captures:
-        1: latextools.console.heading.warning
-      push:
-        - match: ^(?=Bad Boxes:|No bad boxes.|\[Done!\])
-          pop: true
-        - match: .+
-          scope: latextools.console.message.warning markup.changed
-    - match: No bad boxes.
-      scope: latextools.console.heading.no.badbox
-    - match: (Bad Boxes:)$\n?
+        1: punctuation.separator.build.latextools
+        2: markup.warning.build.latextools
+    - match: (\.\.\.)\s*(done)$
       captures:
-        1: latextools.console.heading.badbox
+        1: punctuation.separator.build.latextools
+        2: markup.info.build.latextools
+    - match: \.\.\.$
+      scope: punctuation.separator.build.latextools
+
+    # build result
+    - match: ^\[Build (?:cancelled by user|failed)!\]$
+      scope: markup.error.build.latextools
+    - match: ^\[Done!\]$
+      scope: markup.info.build.latextools
+
+    # log output
+    - match: No (?:errors|warnings|bad boxes).
+      scope: markup.heading.info.build.latextools
+
+    - match: Errors(:)$
+      scope: markup.heading.errors.build.latextools
+      captures:
+        1: punctuation.separator.build.latextools
       push:
-        - match: ^(?=\[Done!\])
-          pop: true
-        - match: .+
-          scope: latextools.console.message.badbox constant.numeric
+        - meta_content_scope: markup.error.build.latextools
+        - match: (?=Warnings:|No warnings.|{{build_results}})
+          pop: 1
+    - match: Warnings(:)$
+      scope: markup.heading.warnings.build.latextools
+      captures:
+        1: punctuation.separator.build.latextools
+      push:
+        - meta_content_scope: markup.warning.build.latextools
+        - match: ^(?=Bad Boxes:|No bad boxes.|{{build_results}})
+          pop: 1
+    - match: Bad Boxes(:)$
+      scope: markup.heading.errors.build.latextools
+      captures:
+        1: punctuation.separator.build.latextools
+      push:
+        - meta_content_scope: markup.error.build.latextools
+        - match: ^(?={{build_results}})
+          pop: 1
+
