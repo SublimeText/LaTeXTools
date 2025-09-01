@@ -105,9 +105,9 @@ This section refers to setting that can be found in a platform-specific block fo
 * `builder` (`"traditional"`): the builder you want to use. Possible values:
 	* `"default"` or `""` or `"traditional"`: this is the standard LaTeXTools builder, which builds the document using `texify` on MiKTeX or `latexmk` on TeXLive or MacTeX. The majority of the documentation is written assuming you are using this builder.
 	* `"basic"`: invokes `pdflatex` / `xelatex` / `lualatex` to build the document. If the log indicates it is necessary, it then runs  `biber` or `bibtex` and then two additional runs of `pdflatex` / `xelatex` / `lualatex`. Mostly supports the same features as the `traditional` builder.
-	* `"script"`: invokes the set of commands specified in the `"script_commands"` setting in the platform-specific part of the `"builder_settings"`. See [the documentation](available-builders.md#script-builder) for details.
+	* `"script"`: invokes the set of commands specified in the `"script_commands"` setting in the platform-specific part of the `"builder_settings"`. See [the documentation](buildsystem.md#script-builder) for details.
 	* `"simple"`: invokes `pdflatex` 1x or 2x as needed, then `bibtex` and `pdflatex` again if needed; intended mainly as a simple example for people writing their own build engines.
-	* Other values can be used to indicate the use of a custom build system. Note that custom builder **cannot** have the same name as a built-in engine. For an overview of how to write a custom builder, see [the custom builder section of the documentation](available-builders.md#customizing-the-build-system)
+	* Other values can be used to indicate the use of a custom build system. Note that custom builder **cannot** have the same name as a built-in engine. For an overview of how to write a custom builder, see the [custom builder section](buildsystem.md#custom-builder)
 * `builder-settings`: this contains builder-specific settings.
 	* `display_log` (`false`): if `true` the output of each command will be displayed in the output panel. This can be useful for troubleshooting issues with the build system and is supported by all built-in build systems.
 	*`env` (unset): a dictionary of key-values corresponding to environment variables that should be set for the environment the build is run in. Note that `env`, if it is set, must be set at the platform-specific level, e.g., under the `osx`, `windows`, or `linux` keys. This is useful for setting, e.g., `TEXINPUTS`.
@@ -122,7 +122,7 @@ This section refers to setting that can be found in a platform-specific block fo
 		* `script_commands` (unset): a command or list of commands to run. Each command can be either a string or a list, e.g.:
 			* "pdflatex -synctex=1 -interaction=nonstopmode"
 			* ["pdflatex", "-synctex=1", "-interaction=nonstopmode"]
-		See the [the Script Builder documentation](available-builders.md#script-builder) for details.
+		See the [the Script Builder documentation](buildsystem.md#script-builder) for details.
 
 ## Build Panel Settings
 

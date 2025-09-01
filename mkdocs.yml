@@ -7,7 +7,7 @@ nav:
   - "Keybindings": "keybindings.md"
   - "Completions": "completions.md"
   - "Settings": "settings.md"
-  - "Available Builders": "available-builders.md"
+  - "Build System": "buildsystem.md"
   - "Available Viewers": "available-viewers.md"
   - "Provided Contexts": "context.md"
   - "Recommended Packages": "recommended-packages.md"
