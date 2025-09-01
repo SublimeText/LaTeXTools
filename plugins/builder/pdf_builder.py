@@ -4,6 +4,7 @@ import shutil
 import sublime
 import sys
 
+from string import Template
 from textwrap import indent
 from typing import TYPE_CHECKING
 
@@ -118,7 +119,6 @@ class PdfBuilder(LaTeXToolsPlugin):
         self.tex_directives = tex_directives
         self.builder_settings = builder_settings
         self.platform_settings = platform_settings
-        self.env = env
 
         # if output_directory and aux_directory can be specified as a path
         # relative to self.tex_dir, we use that instead of the absolute path
@@ -148,6 +148,9 @@ class PdfBuilder(LaTeXToolsPlugin):
 
         Value of `builder_settings: { display_log: ... }` setting
         """
+
+        # finally expand variables in custom environment
+        self.env = {k: self.expandvars(v) for k, v in env.items()} if env else None
 
     def set_output(self, out: str) -> None:
         """
@@ -241,6 +244,30 @@ class PdfBuilder(LaTeXToolsPlugin):
             preexec_fn=(os.setsid if sublime.platform() != "windows" else None),
             use_texpath=False,
             show_window=show_window,
+        )
+
+    def expandvars(self, text: str, **custom_vars: str) -> str:
+        """
+        Expand variables in text.
+
+        :param text:
+            The text to expand `$variables` in.
+
+        :returns:
+            A string with all known variables expanded.
+        """
+        return Template(text).safe_substitute(
+            eol='', # a dummy to be used to prevent automatic base_name appending
+            file=self.tex_root,
+            file_path=self.tex_dir,
+            file_name=self.tex_name,
+            file_ext=self.tex_ext,
+            file_base_name=self.base_name,
+            output_directory=self.output_directory_full or self.tex_dir,
+            aux_directory=self.aux_directory_full or self.tex_dir,
+            jobname=self.job_name,
+            engine=self.engine,
+            **custom_vars
         )
 
     def move_assets_to_output(self) -> None:
