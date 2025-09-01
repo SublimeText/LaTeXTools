@@ -7,14 +7,18 @@ import sys
 from textwrap import indent
 from typing import TYPE_CHECKING
 
+from ...latextools.latextools_plugin import LaTeXToolsPlugin
+from ...latextools.utils.external_command import external_command
+from ...latextools.utils.external_command import PIPE
+from ...latextools.utils.external_command import Popen
+from ...latextools.utils.logging import logger
+
 if TYPE_CHECKING:
     from typing import Any, Callable, Generator, TypeAlias
-    from subprocess import Popen
+    from ...latextools.utils.external_command import CommandLine
 
-    CommandGenerator: TypeAlias = Generator[tuple[list[str] | str | Popen, str]]
-
-from ...latextools.latextools_plugin import LaTeXToolsPlugin
-from ...latextools.utils.logging import logger
+    Command: TypeAlias = CommandLine | Popen
+    CommandGenerator: TypeAlias = Generator[tuple[Command, str]]
 
 __all__ = ["PdfBuilder"]
 
@@ -87,11 +91,10 @@ class PdfBuilder(LaTeXToolsPlugin):
             from sublime-build file or "platform_settings".
 
         """
-        self.run_in_shell = None
+        self.run_in_shell = False
         """
         Specifies whether yielded commands are run within shell.
 
-        `None` - automatic
         `True` - run commands via login shell
         `False` - run commands directly
         """
@@ -182,6 +185,63 @@ class PdfBuilder(LaTeXToolsPlugin):
             If no command is to be executed, yield ("","").
         """
         raise NotImplementedError
+
+    def command(
+        self,
+        cmd: CommandLine,
+        cwd: str | None = None,
+        shell: bool | None = None,
+        env: dict[str, str] | None = None,
+        show_window: bool = False,
+        message: str = "",
+    ) -> Command:
+        """
+        Create custom command object to be yielded on builder event loop.
+
+        Usage Example:
+
+        ```py
+            yield (
+                self.command("bibtex", cwd=self.aux_directory_full),
+                "running bibtex..."
+            )
+        ```
+
+        :param cmd:
+            The command line to execute
+        :param cwd:
+            The current working directory to call command in (default: tex root)
+        :param shell:
+            Whether to run command using login shell (default: False)
+        :param env:
+            The environment to use to run the command
+        :param show_window:
+            If `True` show window (required on Windows, primarily)
+
+        :returns:
+            Process object representing invoked command.
+        """
+        if cwd is None:
+            cwd = self.tex_dir
+
+        if env is None:
+            env = self.env
+
+        if shell is None:
+            shell = self.run_in_shell
+
+        return external_command(
+            command=cmd,
+            cwd=cwd,
+            shell=shell,
+            env=env,
+            stdin=None,
+            stdout=PIPE,
+            stderr=PIPE,
+            preexec_fn=(os.setsid if sublime.platform() != "windows" else None),
+            use_texpath=False,
+            show_window=show_window,
+        )
 
     def move_assets_to_output(self) -> None:
         """
