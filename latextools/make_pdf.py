@@ -513,7 +513,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
                 env = builder_settings.get("env")
         if env is not None:
             _env = os.environ.copy()
-            _env.update(env)
+            _env.update({k: os.path.expandvars(v) for k, v in env.items()})
             env = _env
 
         # Replace $PATH in environment with "path" from sublime-build or
