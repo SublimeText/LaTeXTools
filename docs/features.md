@@ -92,7 +92,7 @@ The `--output-directory` and `--aux-directory` flags can be set in several ways:
 
 There are three special values that can be used, `<<temp>>` `<<project>>` and `<<cache>>`. Their meaning is the same as that found in the [settings section](settings.md#output-directory-settings) and they are described there.
 
-**Note**: These flags can only be set when using `latexmk` (i.e., the `traditional` builder on OS X and Linux), the `basic` builder or the `script` builder (see below [for documentation on using the script builder](available-builders.md#script-builder)). If you are using `texify` (i.e. the `traditional` builder on MiKTeX) or the simple builder, the `output_directory` and `aux_directory` settings will be ignored.
+**Note**: These flags can only be set when using `latexmk` (i.e., the `traditional` builder on OS X and Linux), the `basic` builder or the `script` builder (see below [for documentation on using the script builder](buildsystem.md#script-builder)). If you are using `texify` (i.e. the `traditional` builder on MiKTeX) or the simple builder, the `output_directory` and `aux_directory` settings will be ignored.
 
 ### Jobname
 The `--jobname` flag can be set in several ways:
@@ -100,7 +100,7 @@ The `--jobname` flag can be set in several ways:
  * Using the [TeX Options](#tex-options) feature to set `--jobname`
  * Using the corresponding `jobname` setting detailed in [the settings section](settings.md#output-directory-settings).
 
-**Note**: Jobname can only be set when using `latexmk` (i.e., the `traditional` builder on OS X and Linux), the `basic` builder or the `script` builder (see below [for documentation on using the script builder](available-builders.md#script-builder)). If you are using `texify` (i.e. the `traditional` builder on MiKTeX) or the simple builder, the `jobname` setting wil be ignored.
+**Note**: Jobname can only be set when using `latexmk` (i.e., the `traditional` builder on OS X and Linux), the `basic` builder or the `script` builder (see below [for documentation on using the script builder](buildsystem.md#script-builder)). If you are using `texify` (i.e. the `traditional` builder on MiKTeX) or the simple builder, the `jobname` setting wil be ignored.
 
 ### Customizing the compilation command
 It is possible to customize the command run by setting the `command` option under Builder Settings. See the section on [Builder Settings](settings.md#builder-settings) for details.
@@ -111,7 +111,7 @@ If you change the compilation command, you are responsible for making it work on
 
 ## Other Builders
 
-If the default builder doesn't meet your needs for any reason, please see the page on [available builders](available-builders.md).
+If the default builder doesn't meet your needs for any reason, please see the page on [Build System](buildsystem.md).
 
 # Viewers
 
