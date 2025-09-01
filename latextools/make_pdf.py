@@ -86,19 +86,12 @@ class CmdThread(threading.Thread):
                     pending = True
 
                 if cmd and isinstance(cmd, (list, str)):
-                    proc = external_command(
-                        cmd,
-                        cwd=self.caller.builder.tex_dir,
-                        env=self.caller.builder.env,
-                        stdout=PIPE,
-                        stderr=PIPE,
-                        shell=self.caller.builder.run_in_shell,
-                        use_texpath=False,
-                    )
+                    proc = self.caller.builder.command(cmd)
                 elif cmd and isinstance(cmd, Popen):
                     proc = cmd
                 else:
                     # don't know what the command is
+                    pending = False
                     continue
 
                 # Now actually invoke the command, making sure we allow for

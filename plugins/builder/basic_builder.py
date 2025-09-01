@@ -2,16 +2,12 @@ from __future__ import annotations
 import os
 import re
 import sublime
-import subprocess
-import sys
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .pdf_builder import CommandGenerator
+    from .pdf_builder import Command, CommandGenerator, CommandLine
 
-from ...latextools.utils.external_command import external_command
-from ...latextools.utils.external_command import get_texpath
 from ...latextools.utils.logging import logger
 
 from .pdf_builder import PdfBuilder
@@ -126,17 +122,17 @@ class BasicBuilder(PdfBuilder):
 
         self.move_assets_to_output()
 
-    def run_bibtex(self, command: list[str] | str | None=None) -> subprocess.Popen | list[str]:
-        # set-up bibtex command line
-        if command is None:
-            command = [self.bibtex]
-        elif isinstance(command, str):
-            command = [command]
-        command.append(self.job_name)
+    def run_bibtex(self, cmd: CommandLine | None=None) -> Command:
+        # set-up bibtex cmd line
+        if cmd is None:
+            cmd = [self.bibtex]
+        elif isinstance(cmd, str):
+            cmd = [cmd]
+        cmd.append(self.job_name)
 
         # return default command line, if build output is tex_dir.
         if not self.aux_directory:
-            return command
+            return cmd
 
         # to get bibtex to work with the output directory, we change the
         # cwd to the output directory and add the main directory to
@@ -145,11 +141,4 @@ class BasicBuilder(PdfBuilder):
         # cwd is, at the point, the path to the main tex file
         env["BIBINPUTS"] = self.tex_dir + os.pathsep + env.get("BIBINPUTS", "")
         env["BSTINPUTS"] = self.tex_dir + os.pathsep + env.get("BSTINPUTS", "")
-        return external_command(
-            command,
-            env=env,
-            cwd=self.aux_directory_full,
-            use_texpath=False,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
+        return self.command(cmd, cwd=self.aux_directory_full, env=env)

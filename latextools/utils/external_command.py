@@ -45,6 +45,12 @@ import sublime
 
 from .logging import logger
 from .settings import get_setting
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import TypeAlias
+
+    CommandLine: TypeAlias = list[str] | str
 
 __all__ = [
     "external_command",
