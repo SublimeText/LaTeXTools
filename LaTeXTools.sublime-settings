@@ -225,10 +225,10 @@
 
 	// Ends of the names of temporary files to be deleted
 	"temp_files_exts": [
-		".aux", ".bbl", ".bcf", ".blg", ".brf", ".dvi", ".fdb_latexmk",
-		".fls", ".glo", ".idx", ".ilg", ".ind", ".lof", ".log", ".nlo",
-		".out", ".pdfsync", ".ps", ".run.xml", ".synctex.gz", ".thm",
-		".toc", ".xdy",
+		".aux", ".acn", ".acn2", ".acr", ".acr2", ".bbl", ".bcf", ".blg", ".brf",
+		".dvi", ".fdb_latexmk", ".fls", ".glo", ".gls", ".idx", ".ilg", ".ind", ".ist",
+		".lof", ".log", ".nlo", ".out", ".pdfsync", ".ps", ".run.xml", ".synctex.gz",
+		".thm", ".toc", ".xdv", ".xdy",
 	],
 
 	// Folders that are not traversed when deleting temp files
