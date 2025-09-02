@@ -45,6 +45,8 @@ __all__ = [
     "LatextoolsExecEventListener",
 ]
 
+SUPPORTED_PDF_COMPILERS = ("pdflatex", "pdftex", "xelatex", "xetex", "lualatex", "luatex")
+
 
 class CmdThread(threading.Thread):
 
@@ -467,23 +469,19 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         )
 
         # determine the engine
-        if program is not None:
-            engine = program
+        if program is None:
+            program = tex_directives.get("program")
+            if not program:
+                program = builder_platform_settings.get("program")
+                if not program:
+                    program = builder_settings.get("program")
+        if program and isinstance(program, str):
+            program = program.lower()
+            # Sanity check: if "strange" engine, default to pdflatex (silently...)
+            if program not in SUPPORTED_PDF_COMPILERS:
+                program = "pdflatex"
         else:
-            engine = tex_directives.get("program", builder_settings.get("program", "pdflatex"))
-
-        engine = engine.lower()
-
-        # Sanity check: if "strange" engine, default to pdflatex (silently...)
-        if engine not in [
-            "pdflatex",
-            "pdftex",
-            "xelatex",
-            "xetex",
-            "lualatex",
-            "luatex",
-        ]:
-            engine = "pdflatex"
+            program = "pdflatex"
 
         # Collect and merge options
         if options is None:
@@ -544,7 +542,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         self.builder = builder(
             tex_root,
             self.output,
-            engine,
+            program,
             options,
             get_aux_directory(view),
             get_output_directory(view),
