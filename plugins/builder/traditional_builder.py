@@ -46,6 +46,7 @@ class TraditionalBuilder(PdfBuilder):
     name = "Traditional Builder"
 
     def commands(self) -> CommandGenerator:
+        self.run_in_shell = False
         # Build command, with reasonable defaults
         cmd = self.builder_settings.get("command")
         if not cmd:
