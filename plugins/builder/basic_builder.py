@@ -45,6 +45,7 @@ class BasicBuilder(PdfBuilder):
         self.bibtex = self.builder_settings.get("bibtex", "bibtex")
 
     def commands(self) -> CommandGenerator:
+        self.run_in_shell = False
         engine = self.engine
         if "la" not in engine:
             # we need the command rather than the engine

@@ -324,6 +324,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         builder=None,
         command=None,
         options=None,
+        shell=False,
         env=None,
         path=None,
         script_commands=None,
@@ -551,6 +552,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             tex_directives,
             builder_settings,
             platform_settings,
+            shell,
             env,
         )
 

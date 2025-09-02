@@ -47,6 +47,7 @@ class PdfBuilder(LaTeXToolsPlugin):
         tex_directives: dict[str, Any],
         builder_settings: dict[str, Any],
         platform_settings: dict[str, Any],
+        shell: bool,
         env: dict[str, str],
     ):
         """
@@ -92,7 +93,7 @@ class PdfBuilder(LaTeXToolsPlugin):
             from sublime-build file or "platform_settings".
 
         """
-        self.run_in_shell = False
+        self.run_in_shell = shell
         """
         Specifies whether yielded commands are run within shell.
 
