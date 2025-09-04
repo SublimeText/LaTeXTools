@@ -40,10 +40,6 @@ class BasicBuilder(PdfBuilder):
     """
     name = "Basic Builder"
 
-    def __init__(self, *args):
-        super().__init__(*args)
-        self.bibtex = self.builder_settings.get("bibtex", "bibtex")
-
     def commands(self) -> CommandGenerator:
         self.run_in_shell = False
         engine = self.engine
@@ -126,7 +122,7 @@ class BasicBuilder(PdfBuilder):
     def run_bibtex(self, cmd: CommandLine | None=None) -> Command:
         # set-up bibtex cmd line
         if cmd is None:
-            cmd = [self.bibtex]
+            cmd = [self.builder_settings.get("bibtex", "bibtex")]
         elif isinstance(cmd, str):
             cmd = [cmd]
         cmd.append(self.job_name)
