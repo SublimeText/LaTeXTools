@@ -1,0 +1,41 @@
+LaTeXTools 4.5.0
+----------------
+
+  The major changes of this release are:
+
+    1. rewritten dbus based viewer plugin for Evince and XReader on Linux.
+
+    2. overhauled PDF builder infrastructure and default builders.
+
+    It should not affect normal usage of default functionality in obvious ways,
+    except build menu now displaying "Compile to PDF" instad of "LaTeX".
+
+    Existing custom builder plugins may however need some adoption, even though
+    primary API changes target improved consistency and extended functionality, only.
+
+    Expected changes are primarily related with printing command results
+    or creation of custom `Popen` commands, which a dedicated method was added for.
+
+    Please refer to https://sublimetext.github.io/LaTeXTools/buildsystem/ to get some
+    information about current API. A dedicated migration guide does not exist, but
+    a look at default builders' code may give some hints about required adaptions.
+
+  Fixes:
+
+    - fix skim script path argument (#1639)
+    - fix aux- and output-directory usage with latexmk (#1640)
+    - fix SumatraPDF not reloading re-build PDFs (#1642)
+    - fix build cancellation support
+
+  Enhancements:
+
+    - support Xreader, refresh support for Evince (#1557)
+    - improve translation of special char in auto label (#1637)
+    - replace `copy_output_on_build` functionality by
+      proper output-directory support in all default builders.
+    - overhaul builder infrastructure and default builder plugins
+    - publish updated documentation at https://sublimetext.github.io/LaTeXTools/ (fixes #1643)
+
+  If you encounter any issues, please open an issue at:
+
+    https://github.com/SublimeText/LaTeXTools/issues
