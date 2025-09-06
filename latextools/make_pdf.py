@@ -182,6 +182,14 @@ class CmdThread(threading.Thread):
             with open(log_file, "rb") as f:
                 data = f.read()
 
+        except FileNotFoundError:
+            # If no log file was created, and all processes finished with exit code 0,
+            # build steps were skipped most likely due to PDF still being up-to-date.
+            # Note: At least latexmk is known to behave like that.
+            self.caller.show_output_panel()
+            self.caller.output("\n[Build failed!]" if aborted else "\n[Build skipped!]")
+            self.caller.finish(aborted == False)
+
         except OSError:
             self.caller.show_output_panel()
             self.caller.output(f"\nCould not read log file {log_filename}\n\n[Build failed!]")
@@ -292,7 +300,7 @@ class CmdThread(threading.Thread):
             self.caller.warnings = warnings
             self.caller.badboxes = badboxes
 
-            self.caller.finish(len(errors) == 0)
+            self.caller.finish(aborted == False and len(errors) == 0)
 
 
 annotation_sets_by_buffer = {}
