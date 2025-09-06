@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 from ...latextools.latextools_plugin import LaTeXToolsPlugin
 from ...latextools.utils.external_command import external_command
 from ...latextools.utils.external_command import PIPE
+from ...latextools.utils.external_command import STDOUT
 from ...latextools.utils.external_command import Popen
 from ...latextools.utils.logging import logger
 
@@ -241,7 +242,7 @@ class PdfBuilder(LaTeXToolsPlugin):
             env=env,
             stdin=None,
             stdout=PIPE,
-            stderr=PIPE,
+            stderr=STDOUT,
             preexec_fn=(os.setsid if sublime.platform() != "windows" else None),
             use_texpath=False,
             show_window=show_window,

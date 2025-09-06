@@ -102,13 +102,10 @@ class CmdThread(threading.Thread):
                 with self.caller.proc_lock:
                     self.caller.proc = proc
 
-                out, err = proc.communicate()
-                out = out.decode(self.caller.encoding, "ignore")
-                out = out.replace("\r\n", "\n").replace("\r", "\n")
-                err = err.decode(self.caller.encoding, "ignore")
-                err = err.replace("\r\n", "\n").replace("\r", "\n")
-                if err:
-                    logger.error(err)
+                out, _ = proc.communicate()
+                if out is not None:
+                    out = out.decode(self.caller.encoding, "ignore")
+                    out = out.replace("\r\n", "\n").replace("\r", "\n")
 
                 # Here the process terminated, but it may have been killed. If
                 # so, stop and don't read log Since we set self.caller.proc
@@ -186,12 +183,8 @@ class CmdThread(threading.Thread):
                 data = f.read()
 
         except OSError:
-            msg = f"\nCould not read log file {log_filename}\n"
-            if err:
-                msg += f"\nErrors from compilation:\n\n{err}\n"
-            msg += "\n[Build failed!]"
             self.caller.show_output_panel()
-            self.caller.output(msg)
+            self.caller.output(f"\nCould not read log file {log_filename}\n\n[Build failed!]")
             self.caller.finish(False)
 
         else:
