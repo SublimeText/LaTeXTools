@@ -126,22 +126,28 @@ class PdfBuilder(LaTeXToolsPlugin):
         # relative to self.tex_dir, we use that instead of the absolute path
         # note that the full path for both is available as
         # self.output_directory_full and self.aux_directory_full
+        self.aux_directory_full = aux_directory
         self.aux_directory = (
             os.path.relpath(aux_directory, self.tex_dir)
             if aux_directory and aux_directory.startswith(self.tex_dir)
             else aux_directory
         )
-        self.aux_directory_full = aux_directory
-        if self.aux_directory_full:
+        if self.aux_directory:
             os.makedirs(self.aux_directory_full, exist_ok=True)
+            try:
+                gitignore = os.path.join(self.aux_directory_full, ".gitignore")
+                with open(gitignore, "w+", encoding="utf-8") as fobj:
+                    fobj.write("*\n")
+            except FileExistsError:
+                pass
 
+        self.output_directory_full = output_directory
         self.output_directory = (
             os.path.relpath(output_directory, self.tex_dir)
             if output_directory and output_directory.startswith(self.tex_dir)
             else output_directory
         )
-        self.output_directory_full = output_directory
-        if self.output_directory_full:
+        if self.output_directory:
             os.makedirs(self.output_directory_full, exist_ok=True)
 
         self.display_log = self.builder_settings.get("display_log", False)
