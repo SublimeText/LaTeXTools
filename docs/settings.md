@@ -198,18 +198,52 @@ Other example formats are provided in the settings file.
 
 ## Project-Specific Settings
 
-Any settings can be overridden on a project-specific basis if you are using SublimeText's [project system](https://www.sublimetext.com/docs/projects.html). In addition, you can use the `tex_root` setting in the project file only to specify the master tex file instead of using `%!TEX root =` magic comments. If specified in the project file, the `tex_root` will be resolved relative to the location of your `.sublime-project` file. Similarly, if you use `output_directory` or `aux_directory` in the project file, they will be resolved relative to the location of the project file.
+Any LaTeXTools settings can be overridden via [`"settings": {}` in sublime-project files](https://www.sublimetext.com/docs/projects.html#settings-key).
 
-To use project-specific settings, simply create a [`"settings"` section in your project file](https://docs.sublimetext.info/en/latest/file_management/file_management.html#the-sublime-project-format). The structure and format is the same as for the `LaTeXTools.sublime-settings` file, but the first level settings are prefixed with `latextools.` to avoid collisions with other packages. Here is an example:
+**Note:** Setting keys must be prefixed by `latextools.` to prevent ambiguities with Sublime Text's preferences or settings added by other 3rd-party plugins.
+
+Additionally `latextools.tex_root` setting provides an alternative to `%!TEX root =` magic comments, to specify file path of main TeX document.
+
+**Note:** If specified in project file, `latextools.tex_root`, `latextools.aux_directory` and `latextools.output_directory` are resolved relative to `.sublime-project` file location.
+
+### Example
+
+**Folder structure:**
+
+```
+.
+├── A Project.sublime-project
+├── build/
+|   ├── aux/
+|   |   ├── .gitignore
+|   |   └── main.aux
+|   ├── main.pdf
+|   ├── main.synctex.gz
+└── src/
+    ├── chapters/
+    |   ├── chapter1.tex
+    |   ├── ...
+    |   └── chapterN.tex
+    ├── main.tex
+    └── bibliography.bib
+```
+
+**A Project.sublime-project**
 
 ```json
 {
-	... <folder-related options here> ...
-
+	"folders": [
+		{
+			"path": "."
+		}
+	],
 	"settings" : {
-		"latextools.tex_root": "main.tex",
+		"latextools.tex_root": "src/main.tex",
 		"latextools.tex_file_exts": [".tex", ".tikz"],
+		"latextools.aux_directory": "build/aux",
+		"latextools.output_directory": "build",
 		"latextools.builder_settings": {
+			"builder": "traditional",
 			"program": "xelatex",
 			"options": "--shell-escape"
 		}
@@ -217,7 +251,6 @@ To use project-specific settings, simply create a [`"settings"` section in your 
 }
 ```
 
-This sets `main.tex` as the master tex file (assuming a multi-file project), and allows `.tikz` files to be recognized as tex files. Furthermore (using the default, i.e., traditional builder), it forces the use of `xelatex` instead of the default `pdflatex`, and also adds the `--shell-escape` option. All of these settings will only apply while in the current project.
+This sets _src/main.tex_ as the main tex file (assuming a multi-file project), and allows `.tikz` files to be recognized as tex files. Furthermore (using the default, i.e., traditional builder), it forces the use of `xelatex`, and adds `--shell-escape` option. Intermediate build assets are created in _&lt;dir of project-file&gt;/build/aux/_ and final documents are copied to _&lt;dir of project-file&gt;/build/_. 
 
-**Note:** tweaking settings on a project-specific level can lead to subtle issues that can be difficult to track down. If you notice a bug, in addition to resetting your `LaTeXTools.sublime-settings` file, you should remove any LaTeXTools settings from your project file.
-
+**Note:** All of these settings apply only, if the project is opened in Sublime Text.
