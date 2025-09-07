@@ -89,7 +89,6 @@ from .latextools.latextools_cache_listener import (
 )
 from .latextools.make_pdf import (
     LatextoolsMakePdfCommand,
-    LatextoolsDoFinishEditCommand,
     LatextoolsExecEventListener,
 )
 from .latextools.migrate import (

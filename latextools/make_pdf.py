@@ -40,7 +40,6 @@ from .utils.tex_log import parse_tex_log
 
 __all__ = [
     "LatextoolsMakePdfCommand",
-    "LatextoolsDoFinishEditCommand",
     "LatextoolsExecEventListener",
 ]
 
@@ -576,8 +575,6 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         sublime.set_timeout(functools.partial(self.do_finish, can_switch_to_pdf), 0)
 
     def do_finish(self, can_switch_to_pdf):
-        self.output_view.run_command("latextools_do_finish_edit")
-
         if self.show_errors_inline:
             self.create_errs_by_file()
             self.update_annotations()
@@ -701,14 +698,6 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
         self.errs_by_file = {}
         self.show_errors_inline = False
-
-
-class LatextoolsDoFinishEditCommand(sublime_plugin.TextCommand):
-    def run(self, edit):
-        self.view.sel().clear()
-        reg = sublime.Region(0)
-        self.view.sel().add(reg)
-        self.view.show(reg)
 
 
 class LatextoolsExecEventListener(sublime_plugin.EventListener):
