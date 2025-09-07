@@ -71,9 +71,11 @@ class BasicBuilder(PdfBuilder):
 
         latex.append(self.tex_name)
 
+        # Initial pdflatex run may fail, if required diretories are not yet present
+        self.abort_on_error = False
         yield (latex, f"running {engine}...")
 
-        # Create required directories
+        # Create required directories and retry
         while matches := FILE_WRITE_ERROR_REGEX.findall(self.out):
             for path, _ in matches:
                 abspath = os.path.join(self.aux_directory_full or self.tex_dir, path)
@@ -81,6 +83,8 @@ class BasicBuilder(PdfBuilder):
                 logger.debug(f"Created directory {abspath}")
 
             yield (latex, f"running {engine}...")
+
+        self.abort_on_error = True
 
         # Check for citations
         # We need to run pdflatex twice after bibtex

@@ -144,6 +144,8 @@ The `basic` builder is a simple, straight-forward build system, which simply run
 
 **Note:** To use `basic` builder set `"builder": "basic"` in sublime-build file or any of the supported settings.
 
+**Note:** Initial pdflatex call(s) may return with `error`, if required directories are to be created. Don't worry about it, that's normal behavior.
+
 Supported settings:
 
 - `bibtex` - the bibliography engine to use, if not explicitly requested by build process. Valid values are `biber`, `bibtex` or `bibtex8`.
