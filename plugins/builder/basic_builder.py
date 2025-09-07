@@ -117,7 +117,7 @@ class BasicBuilder(PdfBuilder):
         if "Rerun to get cross-references right." in self.out:
             yield (latex, f"running {engine}...")
 
-        self.move_assets_to_output()
+        self.copy_assets_to_output()
 
     def run_bibtex(self, cmd: CommandLine | None=None) -> Command:
         # set-up bibtex cmd line

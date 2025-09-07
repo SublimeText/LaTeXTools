@@ -272,20 +272,44 @@ class PdfBuilder(LaTeXToolsPlugin):
             **custom_vars
         )
 
-    def move_assets_to_output(self) -> None:
+    def copy_assets_to_output(self) -> None:
         """
-        Move final build assets from aux- to output directory.
+        Copy final build assets from aux- to output directory.
 
-        Only tatexmk natively supports --aux-directory, but still causes issues
-        in case final pdf document is opened in a viewer, already. This method
-        is part of a strategy to work around known limitations and provide
-        consistent behavior accross supporting builders.
+        Only tatexmk natively supports --aux-directory, but still causes:
+
+        - Some Linux viewers reload final PDF each time it is updated by a
+          build step, causing PDF preview to flicker
+        - SumatraPDF does not reload document on compile, caused by loosing
+          reference due to PDF file being deleted and re-created, if latexmk
+          natively moves a file from aux- to output-directory. see: issue 1373
+
+        Those issues are solved by building document in a aux directory and use
+        `shlutil.copy2`, which updates possibly existing target files, once,
+        without destroying any open filehandle.
+
+        Original PDF file is kept in place for e.g. latexmk to be able to skip
+        build if nothing was changed.
         """
-        dest_dir = self.output_directory_full or self.tex_dir
-        if self.aux_directory and self.aux_directory_full != dest_dir:
+        dst_dir = self.output_directory_full or self.tex_dir
+        if self.aux_directory and self.aux_directory_full != dst_dir:
             for ext in (".synctex.gz", ".pdf"):
-                name = self.base_name + ext
-                shutil.move(
-                    src=os.path.join(self.aux_directory_full, name),
-                    dst=os.path.join(dest_dir, name),
-                )
+                asset_name = self.base_name + ext
+                src_file = os.path.join(self.aux_directory_full, asset_name)
+                dst_file = os.path.join(dst_dir, asset_name)
+
+                src_st = os.stat(src_file)
+
+                try:
+                    dst_st = os.stat(dst_file)
+                except FileNotFoundError:
+                    dst_st = None
+
+                # copy if target does not exist, is older or differs in size
+                if (
+                    dst_st is None
+                    or src_st.st_mtime > dst_st.st_mtime
+                    or src_st.st_size != dst_st.st_size
+                ):
+                    shutil.copy2(src_file, dst_file)
+                    logger.debug(f"Updated {dst_file}")
