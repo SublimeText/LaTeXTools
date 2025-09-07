@@ -343,7 +343,7 @@
 	// if you do so, however, note that the path will be interpreted
 	// relative to the location of your project file
 
-	"aux_directory": "",
+	"aux_directory": ".aux",
 
 	// OPTION: "output_directory"
 	// Specifies the output directory
