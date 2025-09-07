@@ -127,6 +127,7 @@ This section refers to setting that can be found in a platform-specific block fo
 ## Build Panel Settings
 
 * `highlight_build_panel` (`true`): if `true` the build panel will have a syntax applied to highlight any errors and warnings. Otherwise, the standard output panel configuration will be used.
+* `scroll_build_panel_to_top` (`false`): if `true` the build output panel is scrolled to top after build finished.
 * `hide_build_panel` (`"no_badboxes"`): controls whether or not to hide the build panel after a build is finished. Possible values:
 	* `"always"`: never show the build panel at all
 	* `"no_errors"`: only show the build panel if errors occur

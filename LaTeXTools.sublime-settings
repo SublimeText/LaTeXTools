@@ -455,10 +455,12 @@
 // Build panel and phantoms settings
 // ------------------------------------------------------------------
 
-	// OPTION: "highlight_build_panel"
-	// adds syntax highlighting to the build panel so that errors, warnings, etc.
-	// show up in different colors; if set to false, the panel will be left as-is.
+	// Syntax highlight build panel so that errors, warnings, etc.
+	// show up in different colors.
 	"highlight_build_panel": true,
+
+	// Scroll build output panel to top after build finished.
+	"scroll_build_panel_to_top": false,
 
 	// OPTION: "hide_build_panel"
 	// level to hide the build panel after the build is finished

@@ -575,6 +575,9 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         sublime.set_timeout(functools.partial(self.do_finish, can_switch_to_pdf), 0)
 
     def do_finish(self, can_switch_to_pdf):
+        if get_setting("scroll_build_panel_to_top", False, self.view) is True:
+            self.output_view.show(0, show_surrounds=False, keep_to_left=True, animate=False)
+
         if self.show_errors_inline:
             self.create_errs_by_file()
             self.update_annotations()
