@@ -40,7 +40,6 @@ from .utils.tex_log import parse_tex_log
 
 __all__ = [
     "LatextoolsMakePdfCommand",
-    "LatextoolsDoOutputEditCommand",
     "LatextoolsDoFinishEditCommand",
     "LatextoolsExecEventListener",
 ]
@@ -561,8 +560,9 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
     def output(self, data):
         if isinstance(data, (list, tuple)):
             data = "\n".join(data)
-        data = data.replace("\r\n", "\n").replace("\r", "\n")
-        self.output_view.run_command("latextools_do_output_edit", {"data": data})
+        self.output_view.run_command(
+            "append", {"characters": data, "force": True, "scroll_to_end": True}
+        )
 
     def show_output_panel(self, force=False):
         if force or self.hide_panel_level != "always":
@@ -701,18 +701,6 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
         self.errs_by_file = {}
         self.show_errors_inline = False
-
-
-class LatextoolsDoOutputEditCommand(sublime_plugin.TextCommand):
-    def run(self, edit, data):
-        view = self.view
-        sel = view.sel()
-        sel_at_end = len(sel) == 1 and sel[0].end() == view.size()
-        view.set_read_only(False)
-        view.insert(edit, view.size(), data)
-        view.set_read_only(True)
-        if sel_at_end:
-            view.show(view.size())
 
 
 class LatextoolsDoFinishEditCommand(sublime_plugin.TextCommand):
