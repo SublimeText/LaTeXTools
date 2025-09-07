@@ -1,0 +1,87 @@
+# SYNTAX TEST "LaTeXTools Build Output.sublime-syntax"
+
+[Compiling 'C:\Data\LaTeX\test-1400\test-index.tex' with 'Traditional Builder']
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.heading.job.build.latextools
+#           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ entity.name.texfile.latextools
+#                                                         ^^^^^^^^^^^^^^^^^^^ entity.name.builder.latextools
+
+### [ command results ] #######################################################
+
+running latexmk...aborted
+# <- meta.messages.build.latextools
+#^^^^^^^^^^^^^^^^^^^^^^^^^ meta.messages.build.latextools - meta.logfile - meta.summary
+#              ^^^ punctuation.separator.build.latextools
+#                 ^^^^^^^ message.error.build.latextools
+
+running latexmk...cancelled
+# <- meta.messages.build.latextools - meta.logfile - meta.summary
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.messages.build.latextools - meta.logfile - meta.summary
+#              ^^^ punctuation.separator.build.latextools
+#                 ^^^^^^^^^ message.warning.build.latextools
+
+running latexmk...done
+# <- meta.messages.build.latextools - meta.logfile - meta.summary
+#^^^^^^^^^^^^^^^^^^^^^^ meta.messages.build.latextools - meta.logfile - meta.summary
+#              ^^^ punctuation.separator.build.latextools
+#                 ^^^^ message.info.build.latextools
+
+running latexmk...error
+# <- meta.messages.build.latextools - meta.logfile - meta.summary
+#^^^^^^^^^^^^^^^^^^^^^^^ meta.messages.build.latextools - meta.logfile - meta.summary
+#              ^^^ punctuation.separator.build.latextools
+#                 ^^^^^ message.error.build.latextools
+
+### [ log output ] ############################################################
+
+No errors. No warnings.
+#^^^^^^^^^ meta.logfile.build.latextools message.info.build.latextools markup.heading.build.latextools - meta.messages - meta.summary
+#          ^^^^^^^^^^^^ meta.logfile.build.latextools message.info.build.latextools markup.heading.build.latextools - meta.messages - meta.summary
+
+No errors. Warnings:
+# <- meta.logfile.build.latextools message.info.build.latextools markup.heading.build.latextools - meta.messages - meta.summary
+#^^^^^^^^^ meta.logfile.build.latextools message.info.build.latextools markup.heading.build.latextools - meta.messages - meta.summary
+#          ^^^^^^^^^ meta.logfile.build.latextools message.warning.build.latextools markup.heading.build.latextools - meta.messages - meta.summary
+#                  ^ punctuation.separator.build.latextools
+
+Errors:
+# <- meta.logfile.build.latextools message.error.build.latextools markup.heading.build.latextools - meta.messages - meta.summary
+#^^^^^^ meta.logfile.build.latextools message.error.build.latextools markup.heading.build.latextools - meta.messages - meta.summary
+#     ^ punctuation.separator.build.latextools
+
+Warnings:
+# <- meta.logfile.build.latextools message.warning.build.latextools markup.heading.build.latextools - meta.messages - meta.summary
+#^^^^^^^^ meta.logfile.build.latextools message.warning.build.latextools markup.heading.build.latextools - meta.messages - meta.summary
+#       ^ punctuation.separator.build.latextools
+
+Bad Boxes:
+# <- meta.logfile.build.latextools message.error.build.latextools markup.heading.build.latextools - meta.messages - meta.summary
+#^^^^^^^^^ meta.logfile.build.latextools message.error.build.latextools markup.heading.build.latextools - meta.messages - meta.summary
+#        ^ punctuation.separator.build.latextools
+
+C:\Data\LaTeX\test-1400\.aux\test-index.log:1: Double-click here to open the full log.
+# <- meta.logfile.build.latextools meta.path.logfile.build.latextools entity.name.logfile.build.latextools
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.logfile.build.latextools
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.path.logfile.build.latextools
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ entity.name.logfile.build.latextools
+#                                          ^ punctuation.separator.build.latextools
+#                                           ^ constant.numeric.line.build.latextools
+#                                            ^ punctuation.separator.build.latextools
+#                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.info.open-logfile.build.latextools
+
+### [ build results ] #########################################################
+
+[Build failed!]
+# <- meta.summary.failure.build.latextools message.error.build.latextools - meta.messages - meta.logfile
+#^^^^^^^^^^^^^^^ meta.summary.failure.build.latextools message.error.build.latextools - meta.messages - meta.logfile
+
+[Build cancelled by user!]
+# <- meta.summary.failure.build.latextools message.warning.build.latextools - meta.messages - meta.logfile
+#^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.summary.failure.build.latextools message.warning.build.latextools - meta.messages - meta.logfile
+
+[Build skipped!]
+# <- meta.summary.success.build.latextools message.info.build.latextools - meta.messages - meta.logfile
+#^^^^^^^^^^^^^^^^ meta.summary.success.build.latextools message.info.build.latextools - meta.messages - meta.logfile
+
+[Done!]
+# <- meta.summary.success.build.latextools message.info.build.latextools - meta.messages - meta.logfile
+#^^^^^^^ meta.summary.success.build.latextools message.info.build.latextools - meta.messages - meta.logfile

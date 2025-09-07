@@ -1,0 +1,110 @@
+%YAML 1.2
+---
+# https://www.sublimetext.com/docs/syntax.html
+name: LaTeXTools Build Output
+scope: text.build-output.latextools
+version: 2
+hidden: true
+
+variables:
+  build_results: ^\[(?:Build (?:cancelled by user|failed|skipped)|Done)!\]$
+  log_file: ^((.+?)(?:(:)(\d+))?)(:)[ ](Double-click here to open the full log\.)$
+
+contexts:
+  main:
+    - meta_include_prototype: false
+    - match: ^\[Compiling '(.+)' with '(.+)'\]
+      scope: meta.heading.job.build.latextools
+      captures:
+        1: entity.name.texfile.latextools
+        2: entity.name.builder.latextools
+      set: build-messages
+
+  build-messages:
+    - meta_content_scope: meta.messages.build.latextools
+    # command results
+    - match: (\.\.\.)\s*(aborted|error)$
+      captures:
+        1: punctuation.separator.build.latextools
+        2: message.error.build.latextools
+    - match: (\.\.\.)\s*(cancelled)$
+      captures:
+        1: punctuation.separator.build.latextools
+        2: message.warning.build.latextools
+    - match: (\.\.\.)\s*(done)$
+      captures:
+        1: punctuation.separator.build.latextools
+        2: message.info.build.latextools
+    - match: \.\.\.$
+      scope: punctuation.separator.build.latextools
+    # build log summary
+    - include: build-log
+
+  build-log:
+    - meta_content_scope: meta.logfile.build.latextools
+    # errors and warning
+    - match: \bBad Boxes(:)$
+      scope:
+        meta.logfile.build.latextools
+        message.error.build.latextools
+        markup.heading.build.latextools
+      captures:
+        1: punctuation.separator.build.latextools
+      set: build-log-badboxes
+    - match: \bErrors(:)$
+      scope:
+        meta.logfile.build.latextools
+        message.error.build.latextools
+        markup.heading.build.latextools
+      captures:
+        1: punctuation.separator.build.latextools
+      set: build-log-errors
+    - match: \bWarnings(:)$
+      scope:
+        meta.logfile.build.latextools
+        message.warning.build.latextools
+        markup.heading.build.latextools
+      captures:
+        1: punctuation.separator.build.latextools
+      set: build-log-warnings
+    # info
+    - match: \bNo (?:errors|warnings|bad boxes)\.
+      scope:
+        meta.logfile.build.latextools
+        message.info.build.latextools
+        markup.heading.build.latextools
+      set: build-log
+    # hint to open full log file
+    - match: '{{log_file}}'
+      scope: meta.logfile.build.latextools
+      captures:
+        1: meta.path.logfile.build.latextools
+        2: entity.name.logfile.build.latextools
+        3: punctuation.separator.build.latextools
+        4: constant.numeric.line.build.latextools
+        5: punctuation.separator.build.latextools
+        6: meta.info.open-logfile.build.latextools
+      set: build-log
+    # build result summary
+    - match: (?={{build_results}})
+      set: build-result
+
+  build-log-badboxes:
+    - meta_content_scope: meta.logfile.build.latextools message.error.badbox.build.latextools
+    - include: build-log
+
+  build-log-errors:
+    - meta_content_scope: meta.logfile.build.latextools message.error.other.build.latextools
+    - include: build-log
+
+  build-log-warnings:
+    - meta_content_scope: meta.logfile.build.latextools message.warning.other.build.latextools
+    - include: build-log
+
+  build-result:
+    - match: ^\[Build failed!\]$\n?
+      scope: meta.summary.failure.build.latextools message.error.build.latextools
+    - match: ^\[Build cancelled by user!\]$\n?
+      scope: meta.summary.failure.build.latextools message.warning.build.latextools
+    - match: ^\[(?:Build skipped|Done)!\]$\n?
+      scope: meta.summary.success.build.latextools message.info.build.latextools

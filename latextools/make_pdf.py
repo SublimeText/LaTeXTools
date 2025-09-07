@@ -416,7 +416,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
         if get_setting("highlight_build_panel", True, view):
             output_view_settings.set(
-                "syntax", "Packages/LaTeXTools/LaTeXTools Console.sublime-syntax"
+                "syntax", "Packages/LaTeXTools/LaTeXTools Build Output.sublime-syntax"
             )
 
         self.output_view.set_read_only(True)

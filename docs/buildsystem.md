@@ -79,6 +79,24 @@ LaTeXTools specific parameters:
 | `path`            | Overrides the `texpath` settings. Note that if you set this, you are responsible to ensure appropriate LaTeX install can still be found. This key overrides any `$PATH` setting in `env`.
 | `script_commands` | Overrides the `script_commands` setting used by the `script` builder.
 
+## Build Output Highlighting
+
+If `"highlight_build_panel"` setting is set `True` build output is assigned a syntax definition. Color schemes can use assigned scopes to hihlight content of build output.
+
+Primary scope being used is `message.[error|info|warning]` to align with default build outputs of ST.
+
+| scope                                        | description
+| -------------------------------------------- | ----------------------------
+| `meta.messages message.info`                 | command `done` status
+| `meta.messages message.warning`              | command `cancelled` status
+| `meta.messages message.error`                | command `error` or `aborted` status
+| `meta.logfile message.info`                  | logfile info messages
+| `meta.logfile message.warning`               | logfile warnings
+| `meta.logfile message.error`                 | logfile errors
+| `meta.summary.sucess message.info.build`     | build `done` or `skipped` status
+| `meta.summary.failure message.warning.build` | build `cancelled` status
+| `meta.summary.failure message.error.build`   | build `failed` status
+
 ## Builder Plugins
 
 A builder is a classic coroutine, yielding commands performing all required steps to build a PDF document from given TeX file.
