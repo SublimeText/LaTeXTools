@@ -20,7 +20,6 @@ from .latextools_plugin import get_plugin
 from .latextools_plugin import NoSuchPluginException
 from .utils.activity_indicator import ActivityIndicator
 from .utils.distro_utils import using_miktex
-from .utils.external_command import check_output
 from .utils.external_command import get_texpath
 from .utils.logging import logger
 from .utils.output_directory import get_aux_directory
@@ -41,73 +40,24 @@ if sublime.platform() == "windows":
 __all__ = ["LatextoolsSystemCheckCommand", "LatextoolsInsertTextCommand"]
 
 
-class SubprocessTimeoutThread(threading.Thread):
-    """
-    A thread for monitoring a subprocess to kill the subprocess after a fixed
-    period of time
-    """
+def check_output(cmd, env=None):
+    startupinfo = None
+    if sublime.platform() == "windows":
+        # ensure console window doesn't show
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
-    def __init__(self, timeout, *args, **kwargs):
-        super(SubprocessTimeoutThread, self).__init__()
-        self.args = args
-        self.kwargs = kwargs
-        # ignore the preexec_fn if specified
-        if "preexec_fn" in kwargs:
-            del self.kwargs["preexec_fn"]
+    logger.debug("Executing %s...", cmd)
 
-        if "startupinfo" in kwargs:
-            del self.kwargs["startupinfo"]
-
-        if sublime.platform() == "windows":
-            # ensure console window doesn't show
-            self.kwargs["startupinfo"] = startupinfo = subprocess.STARTUPINFO()
-            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            self.kwargs["shell"] = True
-
-        self.timeout = timeout
-
-        self.returncode = None
-        self.stdout = None
-        self.stderr = None
-
-    def run(self):
-        if sublime.platform() != "windows":
-            preexec_fn = os.setsid
-        else:
-            preexec_fn = None
-
-        try:
-            self._p = p = subprocess.Popen(*self.args, preexec_fn=preexec_fn, **self.kwargs)
-
-            self.stdout, self.stderr = p.communicate()
-            self.returncode = p.returncode
-        except Exception as e:
-            # just in case...
-            self.kill_process()
-            raise e
-
-    def start(self):
-        super(SubprocessTimeoutThread, self).start()
-        self.join(self.timeout)
-
-        # if the timeout occurred, kill the entire process chain
-        if self.isAlive():
-            self.kill_process()
-
-    def kill_process(self):
-        try:
-            if sublime.platform == "windows":
-                startupinfo = subprocess.STARTUPINFO()
-                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                subprocess.call(
-                    f"taskkill /t /f /pid {self._p.pid}",
-                    startupinfo=startupinfo,
-                    shell=True,
-                )
-            else:
-                os.killpg(self._p.pid, signal.SIGKILL)
-        except Exception:
-            traceback.print_exc()
+    return subprocess.check_output(
+        cmd,
+        env=env,
+        timeout=30,
+        encoding="utf-8",
+        errors="ignore",
+        universal_newlines=True,
+        startupinfo=startupinfo
+    )
 
 
 def get_version_info(executable, env=None):
@@ -123,24 +73,11 @@ def get_version_info(executable, env=None):
         version = "-version"
 
     try:
-        t = SubprocessTimeoutThread(
-            30,  # wait 30 seconds
-            [executable, version],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            shell=False,
-            env=env,
-        )
-
-        t.start()
-
-        stdout = t.stdout
+        stdout = check_output([executable, version], env=env)
         if stdout is None:
             return None
 
-        return re.split(r"\r?\n", stdout.decode(encoding="utf-8", errors="ignore").strip(), 1)[
-            0
-        ].lstrip("Version: ")
+        return stdout.strip().split("\n", 1)[0].lstrip("Version: ")
     except Exception:
         return None
 
@@ -153,22 +90,12 @@ def get_tex_path_variable_texlive(variable, env=None):
     logger.info(f"Reading path for {variable}...")
 
     try:
-        t = SubprocessTimeoutThread(
-            30,  # wait up to 30 seconds
-            ["kpsewhich", "--expand-path=$" + variable],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            shell=False,
-            env=env,
-        )
-
-        t.start()
-
-        stdout = t.stdout
+        stdout = check_output(["kpsewhich", f"--expand-path=${variable}"], env=env)
         if stdout is None:
             return None
 
-        return "\n".join(re.split(r"\r?\n", stdout.decode("utf-8").strip()))
+        output = stdout.strip()
+        return os.pathsep.join(map(os.path.normpath, output.split(os.pathsep)))
     except Exception:
         return None
 
@@ -181,30 +108,15 @@ def get_tex_path_variable_miktex(variable, env=None):
     logger.info(f"Reading path for {variable}...")
 
     try:
-        command = ["findtexmf", "-alias=latex"]
-        command.append(
-            ("-show-path={" + variable + "}").format(
-                TEXINPUTS="tex", BIBINPUTS="bib", BSTINPUTS="bst"
-            )
+        stdout = check_output(
+            ["findtexmf", "-alias=latex", "-show-path=" + variable[:3].lower()],
+            env=env
         )
-
-        t = SubprocessTimeoutThread(
-            30,  # wait up to 30 seconds
-            command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            shell=False,
-            env=env,
-        )
-
-        t.start()
-
-        stdout = t.stdout
         if stdout is None:
             return None
 
-        output = "\n".join(re.split(r"\r?\n", stdout.decode("utf-8").strip()))
-        return os.pathsep.join([os.path.normpath(p) for p in output.split(os.pathsep)])
+        output = stdout.strip()
+        return os.pathsep.join(map(os.path.normpath, output.split(os.pathsep)))
     except Exception:
         return None
 
@@ -330,14 +242,11 @@ class SystemCheckThread(threading.Thread):
 
         if self.uses_miktex:
             get_tex_path_variable = get_tex_path_variable_miktex
-            should_run = which("findtexmf", path=texpath) is not None
         else:
             get_tex_path_variable = get_tex_path_variable_texlive
-            should_run = which("kpsewhich", path=texpath) is not None
 
-        if should_run:
-            for var in ["TEXINPUTS", "BIBINPUTS", "BSTINPUTS"]:
-                table.append([var, get_tex_path_variable(var, env)])
+        for var in ("TEXINPUTS", "BIBINPUTS", "BSTINPUTS"):
+            table.append([var, get_tex_path_variable(var, env) or "missing"])
 
         if self.uses_miktex:
             for var in [
