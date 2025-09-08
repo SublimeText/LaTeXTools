@@ -296,7 +296,9 @@ class SystemCheckThread(threading.Thread):
         # a list of programs, each program is either a string or a list
         # of alternatives (e.g. 32/64 bit version)
         programs = [
-            "latexmk" if not self.uses_miktex else "texify",
+            "perl",
+            "latexmk",
+            "texify",
             "pdflatex",
             "xelatex",
             "lualatex",
