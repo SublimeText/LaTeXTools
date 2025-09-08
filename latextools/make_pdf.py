@@ -410,7 +410,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         output_view_settings.set("gutter", False)
         output_view_settings.set("scroll_past_end", False)
         output_view_settings.set("tab_size", 2)
-        output_view_settings.set("word_wrap", False)
+        output_view_settings.set("word_wrap", get_setting("build_panel_word_wrap", False, view))
 
         if get_setting("highlight_build_panel", True, view):
             output_view_settings.set(

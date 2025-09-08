@@ -459,6 +459,9 @@
 	// show up in different colors.
 	"highlight_build_panel": true,
 
+	// Enable automatic word wraping in build output panel.
+	"build_panel_word_wrap": false,
+
 	// Scroll build output panel to top after build finished.
 	"scroll_build_panel_to_top": false,
 
