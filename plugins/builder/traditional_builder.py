@@ -52,7 +52,7 @@ class TraditionalBuilder(PdfBuilder):
         if not cmd:
             # prefer latexmk, if available, fallback to texify
             texpath = None if self.env is None else self.env.get("PATH")
-            if shutil.which("latexmk", path=texpath):
+            if shutil.which("latexmk", path=texpath) and shutil.which("perl", path=texpath):
                 cmd = DEFAULT_COMMAND_LATEXMK.copy()
             else:
                 cmd = DEFAULT_COMMAND_TEXIFY.copy()

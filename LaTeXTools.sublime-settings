@@ -261,8 +261,8 @@
 
 	"windows": {
 		// Path used when invoking tex & friends; "" is fine for MiKTeX
-		// For TeXlive 2011 (or other years) use
-		// "texpath" : "C:\\texlive\\2011\\bin\\win32;$PATH",
+		// For TeXlive 2025 (or other years) use
+		// "texpath" : "C:\\TexLive\\2025\\bin\\windows;C:\\TexLive\\2025\\tlpkg\\tlperl\\bin;$PATH",
 		"texpath" : "",
 		// TeX distro: "miktex" or "texlive"
 		"distro" : "miktex",
