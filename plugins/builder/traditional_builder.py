@@ -15,7 +15,6 @@ __all__ = ["TraditionalBuilder"]
 
 DEFAULT_COMMAND_LATEXMK = [
     "latexmk",
-    "-cd",
     "-f",
     "-%E",
     "-interaction=nonstopmode",
@@ -81,7 +80,9 @@ class TraditionalBuilder(PdfBuilder):
                 cmd[i] = c.replace("-%E", flag).replace("%E", engine)
 
         if latexmk:
-            if self.aux_directory:
+            # if `-cd` is specified, `-output-directory` is required to prevent
+            # latexmk changing working directory to tex root. Note, that's slower.
+            if self.aux_directory and "-cd" in cmd:
                 # Don't use --aux-directory as the way latexmk moves
                 # final documents to a possibly defined --output-directory
                 # prevents files reloading in SumatraPDF or even fails
@@ -94,11 +95,14 @@ class TraditionalBuilder(PdfBuilder):
             cmd += map(lambda o: f"-latexoption={o}", self.options)
 
         elif texify:
+            if self.job_name != self.base_name:
+                cmd.append(f'--job-name="{self.job_name}"')
+
             cmd += map(lambda o: f'--tex-option="{o}"', self.options)
 
-        # texify wants the .tex extension; latexmk doesn't care either way
-        yield (cmd + [self.tex_name], f"running {cmd[0]}...")
+        # texify requires absolute path if aux-directory differs;
+        # latexmk doesn't care either way
+        yield (cmd + [self.tex_root], f"running {cmd[0]}...")
 
         # Sync compiled documents with output directory.
-        if latexmk and self.aux_directory:
-            self.copy_assets_to_output()
+        self.copy_assets_to_output()

@@ -201,7 +201,7 @@ class CmdThread(threading.Thread):
 
             try:
                 ws = re.compile(r"\s+")
-                (errors, warnings, badboxes) = parse_tex_log(data, self.caller.builder.tex_dir)
+                (errors, warnings, badboxes) = parse_tex_log(data, self.caller.builder.aux_directory_full)
                 content = [""]
                 if errors:
                     content.append("Errors:")

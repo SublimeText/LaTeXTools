@@ -109,19 +109,25 @@ Available default builders are:
 
 To learn, how to create custom builder plugins, refer to [Custom Builder](#custom-builder) section.
 
+Breaking Changes of LaTeXTools v4.5.2:
+
+1. All commands are executed with working directory set to `aux_directory`, which enables support for custom auxiliary directories in all builders and compilers, without the need to explicitly specify `--aux-directory` or `--output-directory` command line arguments.
+
+2. Main TeX document's location is automatically prepended to `$TEXINPUTS`, `$BIBINPUTS` and `$BSTINPUTS`. Hence no special action is required for commands like `bibtex` or `bibtex8`, which don't support `--output-directory` arguments.
+
 ## Traditional Builder
 
 The `traditional` builder is designed to work in most circumstances and for most setups. It supports all [builder features](features.md#default-builder) discussed elsewhere in the documentation, including multi-document support, the ability to set LaTeX flags via the [TeX Options](features.md#tex-options) settings, etc.
 
 If available, [latexmk][] is used to generate the document. Otherwise [texify][] is used as fallback.
 
-**Note:** [texify][] doesn't support features, such as specifying output directory, auxiliary directory, or jobname.
-
 Default commands:
 
 ```
-latexmk -cd -f -%E -interaction=nonstopmode -synctex=1
+latexmk -f -%E -interaction=nonstopmode -synctex=1
 ```
+
+**Note:** `-cd` argument is no longer required as of LaTeXTools v4.5.2
 
 ```
 texify -b -p --engine=%E --tex-option="--synctex=1"
@@ -253,33 +259,9 @@ Commands are executed in the same path as `$file_path`, i.e. the folder containi
 
 ### Output and Auxiliary Directories
 
-If [auxiliary or output directory settings](settings.md#output-directory-settings) are specified, script builder creates them before batch execution. They are provided by [variables](#variables) and need to be passed to relevant commands in `script_commands`.
+If [auxiliary or output directory settings](settings.md#output-directory-settings) are specified, script builder creates them before batch execution. They are provided by [variables](#variables) for use in `script_commands`.
 
 `pdflatex` and friends do not create (sub-)directories as needed. If `\include` is used (or anything attempts to `\@openout` a file in a subfolder), they must be created manually by script commands like  `"mkdir $output_directory\chapters"` (Windows) or `"mkdir -p $output_directory/chapters"` (Linux/MacOS).
-
-**BibTeX**
-
-Unlike biber, bibtex (and bibtex8) does not support an output directory parameter.
-The following workaround can be used to run BibTeX _inside_ the output / auxiliary directory while making the directory containing your main file available to the `BIBINPUTS` environment variable.
-
-```json
-{
-	"builder_settings": {
-		"linux": {
-			"script_commands": [
-				"cd $output_directory; BIBINPUTS=\"$file_path;$BIBINPUTS\" bibtex \"$file_base_name\"",
-			]
-		},
-		"windows": {
-			"script_commands": [
-				"cd $output_directory & set BIBINPUTS=\"$file_path:%BIBINPUTS%\" & bibtex \"$file_base_name\""
-			]
-		}
-	}
-}
-```
-
-**Note:** If a custom style file is used in the same directory, a similar work-around for `BSTINPUTS` environment variable needs to be applied.
 
 ### Job Name
 
@@ -434,9 +416,10 @@ class MySecondBuilder(PdfBuilder):
         yield (["pdflatex", f"-synctex={self.sync_id}"], "running pdflatex...")
 
         # By default commands are executed with current working directory (`cwd`)
-        # set to main tex document's location. To call commands with custom parameters
+        # set to specified aux_directory if it differs from tex document's location.
+        # To call commands with custom working directory or parameters,
         # use `PdfBuilder.command()` method.
-        yield (self.command(["bibtex"], cwd=self.aux_directory_full), "running bibtex"...)
+        yield (self.command(["bibtex"], cwd="/my/custom/working/dir"), "running bibtex"...)
 
         # Prevent aborting workflow if command(s) return with non-zero exit status
         self.abort_on_error = False

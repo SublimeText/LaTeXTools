@@ -91,7 +91,7 @@ This section refers to setting that can be found in a platform-specific block fo
 
 ## Output Directory Settings
 
-* `aux_directory` (`""`): specifies the auxiliary directory to store any auxiliary files generated during a LaTeX build. Note that the auxiliary directory option is only useful if you are using MiKTeX. Path can be specified using either an absolute path or a relative path. If `aux_directory` is set from the project file, a relative path will be interpreted as relative to the project file. If it is set in the settings file, it will be interpreted relative to the main tex file. In addition, the following special values are honored:
+* `aux_directory` (`".aux"`): specifies the auxiliary directory to store any auxiliary files generated during a LaTeX build. Path can be specified absolute or relative to `tex_root` or, if `aux_directory` set in a project file, relative to project file's location. In addition, the following special values are honored:
   * `<<temp>>`: uses a temporary directory in the system temp directory instead of a specified path; this directory will be unique to each main file, but does not persist across restarts.
   * `<<cache>>`: uses the ST cache directory (or a suitable directory on ST2) to store the output files; unlike the `<<temp>>` option, this directory can persist across restarts.
   * `<<project>>`: uses a sub-directory in the same folder as the main tex file with what should be a unique name; note, this is probably not all that useful and you're better off using one of the other two options or a named relative path
