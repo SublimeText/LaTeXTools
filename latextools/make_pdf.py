@@ -122,6 +122,8 @@ class CmdThread(threading.Thread):
 
                     self.caller.proc = None
 
+                self.caller.builder.set_output(out)
+
                 # print and handle command exit status
                 logger.info(f"Finished with status {proc.returncode}.")
                 if pending:
@@ -132,7 +134,6 @@ class CmdThread(threading.Thread):
                     aborted = True
                     break
 
-                self.caller.builder.set_output(out)
                 # acknowledge coroutine's yield with process's return code
                 # it allows statements like: `result = yield (cmd, msg)`
                 cmd, msg = cmd_coroutine.send(proc.returncode)
