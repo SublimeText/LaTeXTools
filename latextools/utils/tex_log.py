@@ -652,8 +652,9 @@ def parse_tex_log(data, root_dir):
                 reprocess_extra = True
                 continue
             else:
-                parsing.append("PERR [')' no files]")
-                debug(f"PERR [')' no files] ({line_num})")
+                msg = f"PERR [')' no files] ({line_num})"
+                parsing.append(msg)
+                debug(msg)
                 break
 
         # Opening page indicators: skip and reprocess
@@ -806,9 +807,9 @@ def parse_tex_log(data, root_dir):
     # If there were parsing issues, output them to debug
     if parsing:
         warnings.append("(Log parsing issues. Disregard unless something else is wrong.)")
-        print_debug = True
         for l in parsing:
-            debug(l)
+            print(f"parseTeXlog: {l}")
+
     return (errors, warnings, badboxes)
 
 
