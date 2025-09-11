@@ -7,6 +7,7 @@ import sublime
 
 from .is_tex_file import is_tex_file
 from .logging import logger
+from .sublime_utils import get_project_data
 from .sublime_utils import get_project_file_name
 
 
@@ -110,48 +111,29 @@ def parse_tex_directives(view_or_path, multi_values=[], key_maps={}, only_for=[]
             lines.close()
 
 
-# Contributed by Sam Finn
 def get_tex_root(view):
     if not view:
         return None
 
     view_file = view.file_name()
 
-    root = None
-    directives = parse_tex_directives(view, only_for=["root"])
-    try:
-        root = directives["root"]
-    except KeyError:
-        pass
-    else:
-        if not is_tex_file(root):
-            root = None
-        elif not os.path.isabs(root) and view_file is not None:
-            file_path, _ = os.path.split(view_file)
-            root = os.path.normpath(os.path.join(file_path, root))
-
-    if root is None:
-        root = get_tex_root_from_settings(view)
-
-    if root is not None:
-        return root
-    return view_file
-
-
-def get_tex_root_from_settings(view):
-    root = view.settings().get("latextools.tex_root", None)
-
-    if root is not None:
+    # from directive
+    root = parse_tex_directives(view, only_for=["root"]).get("root")
+    if root and is_tex_file(root):
+        root = os.path.normpath(root)
         if os.path.isabs(root):
-            if os.path.isfile(root):
-                return root
-        else:
-            proj_file = get_project_file_name(view)
+            return root
+        if view_file:
+            return os.path.join(os.path.dirname(view_file), root)
 
-            if proj_file:
-                project_dir = os.path.dirname(proj_file)
-                root_path = os.path.normpath(os.path.join(project_dir, root))
-                if os.path.isfile(root_path):
-                    return root_path
+    # from project-specific settings
+    root = get_project_data(view).get("settings", {}).get("latextools.tex_root")
+    if root and is_tex_file(root):
+        root = os.path.normpath(root)
+        if os.path.isabs(root):
+            return root
+        proj_file = get_project_file_name(view)
+        if proj_file:
+            return os.path.join(os.path.dirname(proj_file), root)
 
-    return root
+    return view_file
