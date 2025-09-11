@@ -57,12 +57,6 @@ class BasicBuilder(PdfBuilder):
         latex = [engine, "-interaction=nonstopmode", "-shell-escape", "-synctex=1"]
         biber = ["biber"]
 
-        if self.aux_directory:
-            # No supported engine supports --aux-directory, use --output-directory
-            # and move final documents later.
-            biber.append(f"--output-directory={self.aux_directory}")
-            latex.append(f"--output-directory={self.aux_directory}")
-
         if self.job_name and self.job_name != self.base_name:
             latex.append(f"--jobname={self.job_name}")
 
@@ -78,7 +72,7 @@ class BasicBuilder(PdfBuilder):
         # Create required directories and retry
         while matches := FILE_WRITE_ERROR_REGEX.findall(self.out):
             for path, _ in matches:
-                abspath = os.path.join(self.aux_directory_full or self.tex_dir, path)
+                abspath = os.path.join(self.aux_directory_full, path)
                 os.makedirs(abspath, exist_ok=True)
                 logger.debug(f"Created directory {abspath}")
 
@@ -105,10 +99,14 @@ class BasicBuilder(PdfBuilder):
 
         if run_bibtex:
             if use_bibtex:
-                yield (
-                    self.run_bibtex(bibtex),
-                    f"running {bibtex or 'bibtex'}...",
-                )
+                # set-up bibtex cmd line
+                if bibtex is None:
+                    bibtex = [self.builder_settings.get("bibtex", "bibtex")]
+                elif isinstance(bibtex, str):
+                    bibtex = [bibtex]
+                bibtex.append(self.job_name)
+                yield (bibtex, f"running {bibtex[0]}...")
+
             else:
                 yield (biber + [self.job_name], "running biber...")
 
@@ -122,24 +120,3 @@ class BasicBuilder(PdfBuilder):
             yield (latex, f"running {engine}...")
 
         self.copy_assets_to_output()
-
-    def run_bibtex(self, cmd: CommandLine | None=None) -> Command:
-        # set-up bibtex cmd line
-        if cmd is None:
-            cmd = [self.builder_settings.get("bibtex", "bibtex")]
-        elif isinstance(cmd, str):
-            cmd = [cmd]
-        cmd.append(self.job_name)
-
-        # return default command line, if build output is tex_dir.
-        if not self.aux_directory:
-            return cmd
-
-        # to get bibtex to work with the output directory, we change the
-        # cwd to the output directory and add the main directory to
-        # BIBINPUTS and BSTINPUTS
-        env = self.env.copy()
-        # cwd is, at the point, the path to the main tex file
-        env["BIBINPUTS"] = self.tex_dir + os.pathsep + env.get("BIBINPUTS", "")
-        env["BSTINPUTS"] = self.tex_dir + os.pathsep + env.get("BSTINPUTS", "")
-        return self.command(cmd, cwd=self.aux_directory_full, env=env)

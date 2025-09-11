@@ -112,8 +112,8 @@ class PdfBuilder(LaTeXToolsPlugin):
         """
 
         self.display = output
-        self.tex_root = tex_root
-        self.tex_dir, self.tex_name = os.path.split(tex_root)
+        self.tex_root = os.path.normpath(tex_root)
+        self.tex_dir, self.tex_name = os.path.split(self.tex_root)
         self.base_name, self.tex_ext = os.path.splitext(self.tex_name)
         self.engine = engine
         self.options = options
@@ -126,29 +126,35 @@ class PdfBuilder(LaTeXToolsPlugin):
         # relative to self.tex_dir, we use that instead of the absolute path
         # note that the full path for both is available as
         # self.output_directory_full and self.aux_directory_full
-        self.aux_directory_full = aux_directory
-        self.aux_directory = (
-            os.path.relpath(aux_directory, self.tex_dir)
-            if aux_directory and aux_directory.startswith(self.tex_dir)
-            else aux_directory
-        )
-        if self.aux_directory:
-            os.makedirs(self.aux_directory_full, exist_ok=True)
+        if aux_directory:
+            self.aux_directory_full = os.path.normpath(aux_directory)
             try:
-                gitignore = os.path.join(self.aux_directory_full, ".gitignore")
-                with open(gitignore, "w+", encoding="utf-8") as fobj:
-                    fobj.write("*\n")
-            except FileExistsError:
-                pass
+                self.aux_directory = os.path.relpath(self.aux_directory_full, self.tex_dir)
+            except Exception:
+                self.aux_directory = self.aux_directory_full
+            if self.aux_directory:
+                os.makedirs(self.aux_directory_full, exist_ok=True)
+                try:
+                    gitignore = os.path.join(self.aux_directory_full, ".gitignore")
+                    with open(gitignore, "w+", encoding="utf-8") as fobj:
+                        fobj.write("*\n")
+                except FileExistsError:
+                    pass
+        else:
+            self.aux_directory_full = self.tex_dir
+            self.aux_directory = ""
 
-        self.output_directory_full = output_directory
-        self.output_directory = (
-            os.path.relpath(output_directory, self.tex_dir)
-            if output_directory and output_directory.startswith(self.tex_dir)
-            else output_directory
-        )
-        if self.output_directory:
-            os.makedirs(self.output_directory_full, exist_ok=True)
+        if output_directory:
+            self.output_directory_full = os.path.normpath(output_directory)
+            try:
+                self.output_directory = os.path.relpath(self.output_directory_full, self.tex_dir)
+            except Exception:
+                self.output_directory = self.output_directory_full
+            if self.output_directory:
+                os.makedirs(self.output_directory_full, exist_ok=True)
+        else:
+            self.output_directory_full = self.tex_dir
+            self.output_directory = ""
 
         self.display_log = self.builder_settings.get("display_log", False)
         """
@@ -157,8 +163,21 @@ class PdfBuilder(LaTeXToolsPlugin):
         Value of `builder_settings: { display_log: ... }` setting
         """
 
+        # ensure main TeX document's location is available in environment
+        # it enables builders such as latexmk or texify to run with different working directory.
+        for key in ("TEXINPUTS", "BIBINPUTS", "BSTINPUTS"):
+            env[key] = (
+                self.tex_dir + os.pathsep + env[key]
+                if key in env
+                else self.tex_dir
+            )
+
         # finally expand variables in custom environment
         self.env = {k: self.expandvars(v) for k, v in env.items()} if env else None
+
+        logger.debug("tex directory: %s", self.tex_dir)
+        logger.debug("aux directory: %s", self.aux_directory_full)
+        logger.debug("out directory: %s", self.output_directory_full)
 
     def set_output(self, out: str) -> None:
         """
@@ -233,7 +252,7 @@ class PdfBuilder(LaTeXToolsPlugin):
             Process object representing invoked command.
         """
         if cwd is None:
-            cwd = self.tex_dir
+            cwd = self.aux_directory_full
 
         if env is None:
             env = self.env
@@ -271,8 +290,8 @@ class PdfBuilder(LaTeXToolsPlugin):
             file_name=self.tex_name,
             file_ext=self.tex_ext,
             file_base_name=self.base_name,
-            output_directory=self.output_directory_full or self.tex_dir,
-            aux_directory=self.aux_directory_full or self.tex_dir,
+            output_directory=self.output_directory_full,
+            aux_directory=self.aux_directory_full,
             jobname=self.job_name,
             engine=self.engine,
             **custom_vars
@@ -297,12 +316,11 @@ class PdfBuilder(LaTeXToolsPlugin):
         Original PDF file is kept in place for e.g. latexmk to be able to skip
         build if nothing was changed.
         """
-        dst_dir = self.output_directory_full or self.tex_dir
-        if self.aux_directory and self.aux_directory_full != dst_dir:
+        if self.aux_directory_full != self.output_directory_full:
             for ext in (".synctex.gz", ".pdf"):
                 asset_name = self.base_name + ext
                 src_file = os.path.join(self.aux_directory_full, asset_name)
-                dst_file = os.path.join(dst_dir, asset_name)
+                dst_file = os.path.join(self.output_directory_full, asset_name)
 
                 src_st = os.stat(src_file)
 

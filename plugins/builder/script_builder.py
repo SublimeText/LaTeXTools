@@ -67,3 +67,5 @@ class ScriptBuilder(PdfBuilder):
                 raise ValueError(f"Invalid command type! '{cmd}' must be a 'str' or 'list'!")
 
             yield (cmd, f"Running '{cmd}'...")
+
+        self.copy_assets_to_output()
