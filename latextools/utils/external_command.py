@@ -104,7 +104,7 @@ def create_tex_env(
 
 # wrapper to handle common logic for executing subprocesses
 def external_command(
-    command,
+    cmd,
     cwd=None,
     shell=False,
     env=None,
@@ -122,7 +122,7 @@ def external_command(
 
     Raises OSError if command not found
     """
-    if command is None:
+    if cmd is None:
         raise ValueError("command must be a string or list of strings")
 
     # Setup custom environment
@@ -131,13 +131,11 @@ def external_command(
 
     # Windows-specific adjustments
     startupinfo = None
-    if sublime.platform() == "windows":
+    if not show_window and sublime.platform() == "windows":
         # ensure console window doesn't show
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-
-        if show_window:
-            startupinfo.wShowWindow = 1
+        startupinfo.wShowWindow = subprocess.SW_HIDE
 
     if stdin is __sentinel__:
         stdin = None
@@ -148,30 +146,33 @@ def external_command(
     if stderr is __sentinel__:
         stderr = None
 
-    if isinstance(command, str):
-        logger.debug(f'Running "{command}"')
+    if isinstance(cmd, str):
+        logger.debug(f'Running "{cmd}"')
     else:
         try:
-            logger.debug('Running "%s"', ' '.join(map(quote, command)))
+            logger.debug('Running "%s"', ' '.join(map(quote, cmd)))
         except UnicodeError:
             try:
-                logger.debug(f'Running "{command}"')
+                logger.debug(f'Running "{cmd}"')
             except Exception:
                 pass
 
-    p = Popen(
-        command,
-        stdin=stdin,
-        stdout=stdout,
-        stderr=stderr,
-        startupinfo=startupinfo,
+    # If shell=False is specified, executed command is only looked up using
+    # os.environ["PATH"]. Hence manually resolve location with custom env's PATH.
+    if env and not shell and not os.path.isabs(cmd[0]):
+        cmd[0] = which(cmd[0], path=env.get("PATH")) or cmd[0]
+
+    return Popen(
+        cmd,
+        cwd=cwd,
+        env=env,
         preexec_fn=preexec_fn,
         shell=shell,
-        env=env,
-        cwd=cwd,
+        startupinfo=startupinfo,
+        stderr=stderr,
+        stdin=stdin,
+        stdout=stdout,
     )
-
-    return p
 
 
 def execute_command(
