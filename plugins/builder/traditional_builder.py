@@ -6,6 +6,8 @@ import sublime
 
 from typing import TYPE_CHECKING
 
+from ...latextools.utils.distro_utils import using_miktex
+
 if TYPE_CHECKING:
     from .pdf_builder import CommandGenerator
 
@@ -50,17 +52,22 @@ class TraditionalBuilder(PdfBuilder):
         # Build command, with reasonable defaults
         cmd = self.builder_settings.get("command")
         if not cmd:
-            # prefer latexmk, if available, fallback to texify
-            texpath = None if self.env is None else self.env.get("PATH")
-            if shutil.which("latexmk", path=texpath) and shutil.which("perl", path=texpath):
-                cmd = DEFAULT_COMMAND_LATEXMK.copy()
-            else:
+            if using_miktex():
                 cmd = DEFAULT_COMMAND_TEXIFY.copy()
+            else:
+                cmd = DEFAULT_COMMAND_LATEXMK.copy()
         elif isinstance(cmd, str):
             cmd = shlex.split(cmd)
 
         latexmk = cmd[0] == "latexmk"
         texify = cmd[0] == "texify"
+
+        # use default command line arguments, if only compiler is configured
+        if len(cmd) == 1:
+            if latexmk:
+                cmd = DEFAULT_COMMAND_LATEXMK.copy()
+            if texify:
+                cmd = DEFAULT_COMMAND_TEXIFY.copy()
 
         # check if the command even wants the engine selected
         if not any("%E" in c for c in cmd):

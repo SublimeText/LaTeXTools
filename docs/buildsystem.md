@@ -113,9 +113,11 @@ To learn, how to create custom builder plugins, refer to [Custom Builder](#custo
 
 The `traditional` builder is designed to work in most circumstances and for most setups. It supports all [builder features](features.md#default-builder) discussed elsewhere in the documentation, including multi-document support, the ability to set LaTeX flags via the [TeX Options](features.md#tex-options) settings, etc.
 
-If available, [latexmk][] is used to generate the document. Otherwise [texify][] is used as fallback.
+The builder executes [latexmk][] (TexLive) or [texify][] (MikTeX) to compile documents.
 
 **Note:** [texify][] doesn't support features, such as specifying output directory, auxiliary directory, or jobname.
+
+**Note:** To use [latexmk][] with MikTex, ensure perl interpreter is available and set `"command": "latexmk"` in `builder_settings`.
 
 Default commands:
 
@@ -129,7 +131,7 @@ texify -b -p --engine=%E --tex-option="--synctex=1"
 
 Supported settings:
 
-- `command` - a string or list of strings, specifying the build command line to use.
+- `command` - a string or list of strings, specifying the compiler name or build command line to use.
 - `program`	- the latex engine to use. Valid values are `pdflatex`, `xelatex`, or `lualatex`.
 - `env` - a dictionary defining environment variables to be set for the environment the command is run in.
 - `options` - a list of options to pass to pdf compiler.

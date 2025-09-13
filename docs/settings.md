@@ -113,7 +113,7 @@ This section refers to setting that can be found in a platform-specific block fo
 	*`env` (unset): a dictionary of key-values corresponding to environment variables that should be set for the environment the build is run in. Note that `env`, if it is set, must be set at the platform-specific level, e.g., under the `osx`, `windows`, or `linux` keys. This is useful for setting, e.g., `TEXINPUTS`.
 	For the `default`/`traditional` builder, the following settings are useful:
 		* `program` (unset): one of `pdflatex` (the default), `xelatex` or `lualatex`. This selects the TeX engine.
-		* `command` (unset): the precise `latexmk` or `texify` command to be invoked. This  must be a list of strings. The defaults (hardcoded, not shown in the settings file) are:
+		* `command` (unset): command to execute. Can be compiler name to use or a list of strings specifying precise command line to be invoked. If `latexmk` or `texify` string is specified, related default command line is invoked. If unset, default compiler is choosen based on distro and availability. The defaults (hardcoded, not shown in the settings file) are:
 			* (TeXLive): `["latexmk", "-cd", "-e", "-f", "-%E", "-interaction=nonstopmode", "-synctex=1"]`
 			* (MiKTeX): `["texify", "-b", "-p", "--engine=%E", "--tex-option=\"--synctex=1\""]`
 		* `options` (unset): allows you to specify a TeX option, such as `--shell-escape`. This must be a tuple: that is, use `options: ["--shell-escape"]`
