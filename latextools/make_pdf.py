@@ -110,12 +110,13 @@ class CmdThread(threading.Thread):
                 # above, if it is None, the process must have been killed.
                 with self.caller.proc_lock:
                     if not self.caller.proc:
-                        logger.info("Build canceled")
-                        msg = "\n[Build cancelled by user!]"
+                        message = "Build cancelled by user!"
+                        activity_indicator.finish(message)
+                        output = f"\n[{message}]"
                         if pending:
-                            msg = "cancelled\n" + msg
+                            output = "cancelled\n" + output
                         self.caller.show_output_panel()
-                        self.caller.output(msg)
+                        self.caller.output(output)
                         self.caller.finish(False)
                         pending = False
                         return
@@ -146,11 +147,13 @@ class CmdThread(threading.Thread):
         except Exception as exc:
             with self.caller.proc_lock:
                 self.caller.proc = None
-            msg = f"\nError: {exc}\n\n[Build failed!]"
+            message = "Build failed!"
+            activity_indicator.finish(message)
+            output = f"\nError: {exc}\n\n[{message}]"
             if pending:
-                msg = "aborted\n" + msg
+                output = "aborted\n" + output
             self.caller.show_output_panel()
-            self.caller.output(msg)
+            self.caller.output(output)
             self.caller.finish(False)
             traceback.print_exc()
             pending = False
@@ -185,13 +188,18 @@ class CmdThread(threading.Thread):
             # If no log file was created, and all processes finished with exit code 0,
             # build steps were skipped most likely due to PDF still being up-to-date.
             # Note: At least latexmk is known to behave like that.
-            self.caller.show_output_panel()
-            self.caller.output("\n[Build failed!]" if aborted else "\n[Build skipped!]")
+            message = "Build failed!" if aborted else "Build skipped!"
+            activity_indicator.finish(message)
+            if aborted or self.caller.hide_panel_level == "never":
+                self.caller.show_output_panel()
+            self.caller.output(f"\n[{message}]")
             self.caller.finish(aborted == False)
 
         except OSError:
+            message = "Build failed!"
+            activity_indicator.finish(message)
             self.caller.show_output_panel()
-            self.caller.output(f"\nCould not read log file {log_filename}\n\n[Build failed!]")
+            self.caller.output(f"\nCould not read log file {log_filename}\n\n[{message}]")
             self.caller.finish(False)
 
         else:
@@ -251,11 +259,10 @@ class CmdThread(threading.Thread):
                     "never": True,
                 }.get(self.caller.hide_panel_level, bool(errors or warnings))
 
+                message = "Build completed"
                 if show_panel:
-                    activity_indicator.finish("Build completed")
                     self.caller.show_output_panel(force=True)
                 else:
-                    message = "Build completed"
                     if errors:
                         message += " with errors"
                     if warnings:
@@ -274,7 +281,8 @@ class CmdThread(threading.Thread):
                             message += " with"
                         message += " bad boxes"
 
-                    activity_indicator.finish(message)
+                activity_indicator.finish(message)
+
             except Exception as e:
                 activity_indicator.finish("Build failed!")
                 self.caller.show_output_panel()
@@ -396,33 +404,27 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             sublime.error_message(f"{tex_name} is not a TeX source file: cannot compile.")
             return
 
-        # Output panel: from exec.py
-        if not hasattr(self, "output_view"):
-            self.output_view = self.window.get_output_panel("latextools")
-
+        self.output_view = self.window.create_output_panel("latextools")
         output_view_settings = self.output_view.settings()
         output_view_settings.set("result_file_regex", file_regex)
         output_view_settings.set("result_base_dir", tex_dir)
+        output_view_settings.set("auto_indent", False)
         output_view_settings.set("auto_match_enabled", False)
         output_view_settings.set("draw_indent_guides", False)
         output_view_settings.set("draw_white_space", "none")
         output_view_settings.set("detect_indentation", False)
         output_view_settings.set("disable_auto_complete", False)
         output_view_settings.set("gutter", False)
+        output_view_settings.set("line_numbers", False)
+        output_view_settings.set("rulers", [])
         output_view_settings.set("scroll_past_end", False)
         output_view_settings.set("tab_size", 2)
         output_view_settings.set("word_wrap", get_setting("build_panel_word_wrap", False, view))
 
         if get_setting("highlight_build_panel", True, view):
-            output_view_settings.set(
-                "syntax", "Packages/LaTeXTools/LaTeXTools Build Output.sublime-syntax"
-            )
+            self.output_view.assign_syntax("LaTeXTools Build Output.sublime-syntax")
 
         self.output_view.set_read_only(True)
-
-        # Dumb, but required for the moment for the output panel to be picked
-        # up as the result buffer
-        self.window.get_output_panel("latextools")
 
         self.hide_panel_level = get_setting("hide_build_panel", "no_warnings", view)
         if self.hide_panel_level == "never":
