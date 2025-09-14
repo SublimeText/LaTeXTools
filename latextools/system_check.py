@@ -1,3 +1,4 @@
+from __future__ import annotations
 import copy
 import os
 import re
@@ -9,7 +10,10 @@ import threading
 import traceback
 
 from io import StringIO
+from functools import lru_cache
+from functools import partial
 from shutil import which
+from typing import Callable
 
 import sublime
 import sublime_plugin
@@ -37,95 +41,7 @@ from .preview.preview_utils import __get_gs_command as get_gs_command
 if sublime.platform() == "windows":
     from .preview.preview_utils import get_system_root
 
-__all__ = ["LatextoolsSystemCheckCommand", "LatextoolsInsertTextCommand"]
-
-
-def check_output(cmd, env=None):
-    startupinfo = None
-    if sublime.platform() == "windows":
-        # ensure console window doesn't show
-        startupinfo = subprocess.STARTUPINFO()
-        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-
-    logger.debug("Executing %s...", cmd)
-
-    return subprocess.check_output(
-        cmd,
-        env=env,
-        timeout=30,
-        encoding="utf-8",
-        errors="ignore",
-        universal_newlines=True,
-        startupinfo=startupinfo
-    )
-
-
-def get_version_info(executable, env=None):
-    logger.info(f"Checking {executable}...")
-
-    version = "--version"
-    # gs / gswin32c has a different format for --version vs -version
-    if os.path.splitext(os.path.basename(executable))[0] in [
-        "gs",
-        "gswin32c",
-        "gswin64c",
-    ]:
-        version = "-version"
-
-    try:
-        stdout = check_output([executable, version], env=env)
-        if stdout is None:
-            return None
-
-        return stdout.strip().split("\n", 1)[0].lstrip("Version: ")
-    except Exception:
-        return None
-
-
-def get_tex_path_variable_texlive(variable, env=None):
-    """
-    Uses kpsewhich to read the value of a given TeX PATH variable, such as
-    TEXINPUTS.
-    """
-    logger.info(f"Reading path for {variable}...")
-
-    try:
-        stdout = check_output(["kpsewhich", f"--expand-path=${variable}"], env=env)
-        if stdout is None:
-            return None
-
-        output = stdout.strip()
-        return os.pathsep.join(map(os.path.normpath, output.split(os.pathsep)))
-    except Exception:
-        return None
-
-
-def get_tex_path_variable_miktex(variable, env=None):
-    """
-    Uses findtexmf to find the values of a given TeX PATH variable, such as
-    TEXINPUTS
-    """
-    logger.info(f"Reading path for {variable}...")
-
-    try:
-        stdout = check_output(
-            ["findtexmf", "-alias=latex", "-show-path=" + variable[:3].lower()],
-            env=env
-        )
-        if stdout is None:
-            return None
-
-        output = stdout.strip()
-        return os.pathsep.join(map(os.path.normpath, output.split(os.pathsep)))
-    except Exception:
-        return None
-
-
-def kpsewhich(file):
-    try:
-        return check_output(["kpsewhich", file])
-    except Exception:
-        return None
+__all__ = ["LatextoolsSystemCheckCommand"]
 
 
 def get_max_width(table, column):
@@ -203,22 +119,27 @@ def tabulate(table, wrap_column=0, output=sys.stdout):
 
 class SystemCheckThread(threading.Thread):
 
-    def __init__(
-        self,
-        sublime_exe=None,
-        uses_miktex=False,
-        texpath=None,
-        build_env=None,
-        view=None,
-        on_done=None,
-    ):
-        super(SystemCheckThread, self).__init__()
-        self.sublime_exe = sublime_exe
-        self.uses_miktex = uses_miktex
-        self.texpath = texpath
-        self.build_env = build_env
+    def __init__(self, view: sublime.View, on_done: Callable[[list[list]], None]):
+        super().__init__()
         self.view = view
         self.on_done = on_done
+        self.platform = sublime.platform()
+        self.uses_miktex = using_miktex()
+
+        # setup system check environment
+        #  CAUTION: logic must match make_pdf's logic
+        self.env = os.environ.copy()
+
+        self.builder_settings = get_setting("builder_settings", {}, view)
+        self.builder_platform_settings = self.builder_settings.get(self.platform, {})
+        build_env = self.builder_platform_settings.get("env")
+        if build_env is None:
+            build_env = self.builder_settings.get("env")
+        if build_env is not None:
+            self.env.update({k: os.path.expandvars(v) for k, v in build_env.items()})
+
+        if (texpath := get_texpath(view)) is not None:
+            self.env["PATH"] = texpath
 
     def run(self):
         with ActivityIndicator("Checking system...") as activity_indicator:
@@ -228,28 +149,15 @@ class SystemCheckThread(threading.Thread):
     def worker(self):
         results = []
 
-        env = os.environ.copy()
-        if self.build_env:
-            env.update(self.build_env)
-
-        texpath = self.texpath
-        if texpath:
-            env["PATH"] = texpath
-
         table = [["Variable", "Value"]]
 
-        table.append(["PATH", env.get("PATH", "")])
-
-        if self.uses_miktex:
-            get_tex_path_variable = get_tex_path_variable_miktex
-        else:
-            get_tex_path_variable = get_tex_path_variable_texlive
+        table.append(["PATH", self.env.get("PATH", "")])
 
         for var in ("TEXINPUTS", "BIBINPUTS", "BSTINPUTS"):
-            table.append([var, get_tex_path_variable(var, env) or "missing"])
+            table.append([var, self.get_tex_path_variable(var) or "missing"])
 
         if self.uses_miktex:
-            for var in [
+            for var in (
                 "BIBTEX",
                 "LATEX",
                 "PDFLATEX",
@@ -258,8 +166,8 @@ class SystemCheckThread(threading.Thread):
                 "TEX",
                 "PDFTEX",
                 "TEXINDEX",
-            ]:
-                value = env.get(var, None)
+            ):
+                value = self.env.get(var, None)
                 if value is not None:
                     table.append([var, value])
 
@@ -267,38 +175,21 @@ class SystemCheckThread(threading.Thread):
 
         table = [["Program", "Location", "Status", "Version"]]
 
-        # skip sublime_exe on OS X
-        # we only use this for the hack to re-focus on ST
-        # which doesn't work on OS X anyway
-        if sublime.platform() != "osx":
-            sublime_exe = self.sublime_exe
-            available = sublime_exe is not None
-
-            if available:
-                if not os.path.isabs(sublime_exe):
-                    sublime_exe = which(sublime_exe)
-
-                basename, extension = os.path.splitext(sublime_exe)
-                if extension is not None:
-                    sublime_exe = "".join((basename, extension.lower()))
-
-            version_info = get_version_info(sublime_exe, env=env) if available else None
-
-            table.append(
-                [
-                    "sublime",
-                    sublime_exe if available and version_info is not None else "",
-                    ("available" if available and version_info is not None else "missing"),
-                    version_info if version_info is not None else "unavailable",
-                ]
-            )
+        # Check subl availability as it is required for backward search by viewers
+        row = None
+        sublime_exe = get_sublime_exe()
+        if sublime_exe:
+            version_info = self.get_version_info(sublime_exe)
+            if version_info:
+                row = ["sublime", sublime_exe, "available", version_info]
+        table.append(row or ["sublime", "", "missing", "unavailable"])
 
         # a list of programs, each program is either a string or a list
         # of alternatives (e.g. 32/64 bit version)
         programs = [
             "perl",
             "latexmk",
-            "texify",
+            # "texify",
             "pdflatex",
             "xelatex",
             "lualatex",
@@ -306,10 +197,11 @@ class SystemCheckThread(threading.Thread):
             "bibtex",
             "bibtex8",
             "kpsewhich",
+            # ImageMagick requires gs to work with PDFs
+            ["magick", "convert"],
         ]
-
-        # ImageMagick requires gs to work with PDFs
-        programs += [["magick", "convert"]]
+        if self.uses_miktex:
+            programs.insert(2, "texify")
 
         for program in programs:
             if isinstance(program, list):
@@ -317,17 +209,17 @@ class SystemCheckThread(threading.Thread):
                 program = program_list[0]
                 location = None
                 for p in program_list:
-                    location = which(p, path=texpath)
+                    location = self.which(p)
                     if location is not None:
                         program = p
                         break
             else:
-                location = which(program, path=texpath)
+                location = self.which(program)
 
             # convert.exe on Windows can refer to %systemroot%\convert.exe,
             # which should not be used; in that case, simple report magick.exe
             # as not existing
-            if program == "convert" and sublime.platform() == "windows":
+            if program == "convert" and self.platform == "windows":
                 if os.path.samefile(location, os.path.join(get_system_root(), "convert.exe")):
                     program = "magick"
                     location = None
@@ -339,7 +231,7 @@ class SystemCheckThread(threading.Thread):
                 if extension is not None:
                     location = "".join((basename, extension.lower()))
 
-            version_info = get_version_info(location, env=env) if available else None
+            version_info = self.get_version_info(location) if available else None
 
             available_str = "available" if available and version_info is not None else "missing"
 
@@ -365,7 +257,7 @@ class SystemCheckThread(threading.Thread):
             if extension is not None:
                 location = "".join((basename, extension.lower()))
 
-        version_info = get_version_info(location, env=env) if available else None
+        version_info = self.get_version_info(location) if available else None
 
         available_str = "available" if available and version_info is not None else "missing"
 
@@ -412,7 +304,7 @@ class SystemCheckThread(threading.Thread):
                 table = [["Packages for equation preview", "Status"]]
 
                 for package in packages:
-                    available = kpsewhich(package) is not None
+                    available = bool(self.kpsewhich(package))
                     package_name = package.split(".")[0]
                     table.append([package_name, ("available" if available else "missing")])
 
@@ -423,7 +315,6 @@ class SystemCheckThread(threading.Thread):
         if builder_name in ["", "default"]:
             builder_name = "traditional"
 
-        builder_settings = get_setting("builder_settings", view=self.view)
         builder_name = classname_to_plugin_name(builder_name)
 
         try:
@@ -440,11 +331,9 @@ class SystemCheckThread(threading.Thread):
             ]
         )
 
-        if builder_settings is not None:
+        if self.builder_settings is not None:
             table = [["Builder Setting", "Value"]]
-            for key in sorted(builder_settings.keys()):
-                value = builder_settings[key]
-                table.append([key, value])
+            table.extend(sorted(self.builder_settings.items()))
             results.append(table)
 
         # is current view a TeX file?
@@ -492,7 +381,7 @@ class SystemCheckThread(threading.Thread):
 
                 results.append(table)
 
-        default_viewer = DEFAULT_VIEWERS.get(sublime.platform(), None)
+        default_viewer = DEFAULT_VIEWERS.get(self.platform, None)
         viewer_name = get_setting("viewer", default_viewer, self.view)
         if viewer_name in ["", "default"]:
             viewer_name = default_viewer
@@ -509,20 +398,19 @@ class SystemCheckThread(threading.Thread):
                 # assume the command viewer is always valid
                 viewer_location = "N/A"
             elif viewer_name in ("evince", "okular", "xreader", "zathura"):
-                viewer_location = which(viewer_name)
+                viewer_location = self.which(viewer_name)
                 viewer_available = bool(viewer_location)
             elif viewer_name == "preview":
                 viewer_location = "/Applications/Preview.app"
 
                 if not os.path.exists(viewer_location):
                     try:
-                        viewer_location = check_output(
+                        viewer_location = self.check_output(
                             [
                                 "osascript",
                                 "-e",
                                 "POSIX path of " '(path to app id "com.apple.Preview")',
-                            ],
-                            use_texpath=False,
+                            ]
                         )
                     except subprocess.CalledProcessError:
                         viewer_location = None
@@ -533,13 +421,12 @@ class SystemCheckThread(threading.Thread):
 
                 if not os.path.exists(viewer_location):
                     try:
-                        viewer_location = check_output(
+                        viewer_location = self.check_output(
                             [
                                 "osascript",
                                 "-e",
                                 "POSIX path of " '(path to app id "net.sourceforge.skim-app.skim")',
-                            ],
-                            use_texpath=False,
+                            ]
                         )
                     except subprocess.CalledProcessError:
                         viewer_location = None
@@ -554,7 +441,7 @@ class SystemCheckThread(threading.Thread):
                     or "SumatraPDF.exe"
                 )
 
-                viewer_location = which(sumatra_exe)
+                viewer_location = self.which(sumatra_exe)
                 if not bool(viewer_location):
                     viewer_location = viewer_plugin()._find_sumatra_exe()
                     viewer_available = bool(viewer_location)
@@ -574,53 +461,117 @@ class SystemCheckThread(threading.Thread):
         )
 
         if callable(self.on_done):
-            self.on_done(results)
+            # create and print output in UI thread to avoid graphical glitches
+            sublime.set_timeout(partial(self.on_done, results))
+
+    def check_output(self, cmd: list[str]) -> str | None:
+        # manually lookup executable, as subprocess.run() ignores custom
+        # environment's PATH, if shell=False is specified, and absolute path
+        # may help analyzing debug log.
+        if not os.path.isabs(cmd[0]):
+            executable = self.which(cmd[0])
+            if executable:
+                cmd[0] = executable
+
+        logger.debug("Executing %s...", cmd)
+
+        result = subprocess.run(
+            cmd,
+            env=self.env,
+            shell=self.platform == "windows",
+            stderr=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            text=True,
+            timeout=30,
+        )
+        return result.stdout if result.returncode == 0 else None
+
+    def get_version_info(self, executable: str) -> str | None:
+        logger.info(f"Checking {executable}...")
+
+        version = "--version"
+        # gs / gswin32c has a different format for --version vs -version
+        if os.path.splitext(os.path.basename(executable))[0] in [
+            "gs",
+            "gswin32c",
+            "gswin64c",
+        ]:
+            version = "-version"
+
+        stdout = self.check_output([executable, version])
+        if stdout is None:
+            return None
+
+        return stdout.strip().split("\n", 1)[0].lstrip("Version: ")
+
+    def get_tex_path_variable(self, variable: str) -> str | None:
+        logger.info(f"Reading path for {variable}...")
+
+        if self.uses_miktex:
+            cmd = ["findtexmf", "-alias=latex", "-show-path=" + variable[:3].lower()]
+        else:
+            cmd = ["kpsewhich", "--expand-path=$" + variable]
+
+        stdout = self.check_output(cmd)
+        if stdout is None:
+            return None
+
+        # return platform specific normalized paths
+        return os.pathsep.join(map(os.path.normpath, stdout.strip().split(os.pathsep)))
+
+    def kpsewhich(self, file: str) -> str | None:
+        return self.check_output(["kpsewhich", file])
+
+    @lru_cache(maxsize=64)
+    def which(self, file: str) -> str | None:
+        return which(file, path=self.env.get("PATH"))
 
 
 class LatextoolsSystemCheckCommand(sublime_plugin.ApplicationCommand):
 
-    def run(self):
-        view = sublime.active_window().active_view()
+    def run(self) -> None:
+        window = sublime.active_window() or sublime.windows()[0]
+        view = window.active_view() or window.views()[0]
+        SystemCheckThread(view=view, on_done=self.on_done).start()
 
-        t = SystemCheckThread(
-            sublime_exe=get_sublime_exe(),
-            uses_miktex=using_miktex(),
-            texpath=get_texpath(view),
-            build_env=get_setting("builder_settings", {}, view).get(sublime.platform(), {}).get("env"),
-            view=view,
-            on_done=self.on_done,
-        )
-
-        t.start()
-
-    def on_done(self, results):
-        def _on_done():
-            buf = StringIO()
+    def on_done(self, results: list[list]) -> None:
+        with StringIO() as buf:
             for item in results:
                 tabulate(item, output=buf)
 
-            new_view = sublime.active_window().new_file()
-            new_view.set_scratch(True)
-            new_view.set_name("LaTeXTools System Check")
-            new_view.set_encoding("UTF-8")
+            view = None
+            view_name = "LaTeXTools System Check"
+            window = sublime.active_window()
 
-            settings = new_view.settings()
-            settings.set("word_wrap", False)
-            settings.set("line_numbers", False)
-            settings.set("gutter", False)
-            settings.set("syntax", "Packages/LaTeXTools/system_check.sublime-syntax")
+            for _view in window.views():
+                if _view.name() == view_name and _view.is_scratch():
+                    view = _view
+                    break
 
-            new_view.run_command("latextools_insert_text", {"text": buf.getvalue().rstrip()})
+            if view is None:
+                view = window.new_file()
+                view.set_scratch(True)
+                view.set_name("LaTeXTools System Check")
+                view.set_encoding("UTF-8")
 
-            new_view.set_read_only(True)
+                view_settings = view.settings()
+                view_settings.set("auto_indent", False)
+                view_settings.set("auto_match_enabled", False)
+                view_settings.set("draw_indent_guides", False)
+                view_settings.set("draw_white_space", "none")
+                view_settings.set("detect_indentation", False)
+                view_settings.set("disable_auto_complete", False)
+                view_settings.set("gutter", False)
+                view_settings.set("line_numbers", False)
+                view_settings.set("rulers", [])
+                view_settings.set("scroll_past_end", False)
+                view_settings.set("tab_size", 2)
+                view_settings.set("word_wrap", False)
+                view.assign_syntax("Packages/LaTeXTools/system_check.sublime-syntax")
 
-            buf.close()
-
-        sublime.set_timeout(_on_done, 0)
-
-
-class LatextoolsInsertTextCommand(sublime_plugin.TextCommand):
-
-    def run(self, edit, text=""):
-        view = self.view
-        view.insert(edit, 0, text)
+            view.set_read_only(False)
+            view.run_command("select_all")  # ensure to replace existing text
+            view.run_command("insert", {"characters": buf.getvalue().rstrip()})
+            view.set_read_only(True)
+            view.show(0, keep_to_left=True, animate=False)
+            window.focus_view(view)

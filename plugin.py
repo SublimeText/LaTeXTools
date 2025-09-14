@@ -112,8 +112,7 @@ from .latextools.smart_paste import (
     LatextoolsSmartPasteCommand
 )
 from .latextools.system_check import (
-    LatextoolsSystemCheckCommand,
-    LatextoolsInsertTextCommand
+    LatextoolsSystemCheckCommand
 )
 from .latextools.tex_count import (
     LatextoolsTexcountCommand
