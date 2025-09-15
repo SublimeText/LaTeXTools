@@ -242,7 +242,7 @@ class PdfBuilder(LaTeXToolsPlugin):
             shell = self.run_in_shell
 
         return external_command(
-            cmd=cmd,
+            cmd=list(map(self.expandvars, cmd)),
             cwd=cwd,
             shell=shell,
             env=env,
