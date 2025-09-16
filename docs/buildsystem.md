@@ -141,7 +141,7 @@ Supported settings:
 ```json
 {
 	"builder_settings": {
-		"command": "latexmk -cd -f -%E -interaction=nonstopmode -synctex=1",
+		"command": ["latexmk", "-cd", "-f", "-%E", "-interaction=nonstopmode", "-synctex=1"],
 		"program": "xelatex",
 		"options": ["--shell-escape"],
 
