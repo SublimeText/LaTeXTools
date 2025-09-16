@@ -158,6 +158,31 @@ Supported settings:
 
 **Note:** The placeholder `%E` is replaced by `-pdf`, `-xelatex`, etc. according to specified latex engine (e.g. via: `program`).
 
+**Note:** Platform-specific settings are supported.
+
+```json
+{
+	"builder_settings": {
+		"osx": {
+			"command": "latexmk",
+			"program": "xelatex",
+			"options": ["--shell-escape"],
+			"env": {
+				"BIBINPUTS": "~/.local/tex:$BIBINPUTS"
+			}
+		},
+		"windows": {
+			"command": "texify",
+			"program": "xelatex",
+			"options": ["--shell-escape"],
+			"env": {
+				"BIBINPUTS": "$USERPROFILE\\.local\\tex;$BIBINPUTS"
+			}
+		}
+	}
+}
+```
+
 ## Basic Builder
 
 The `basic` builder is a simple, straight-forward build system, which simply runs the configured latex and bibliography compiler as needed. It supports [TeX Options](features.md#tex-options), [output and auxiliary directory](features.md#output-directory-and-auxiliary-directory) and [Jobname](features.md#jobname) feature, but not `makeindex` and friends. Its primary goal is to work around some shortcomings of [texify][] on platforms [latexmk][] is not available on.

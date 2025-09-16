@@ -50,13 +50,16 @@ class TraditionalBuilder(PdfBuilder):
     def commands(self) -> CommandGenerator:
         self.run_in_shell = False
         # Build command, with reasonable defaults
-        cmd = self.builder_settings.get("command")
+        cmd = self.builder_settings.get(sublime.platform(), {}).get("command")
         if not cmd:
-            if using_miktex():
-                cmd = DEFAULT_COMMAND_TEXIFY.copy()
-            else:
-                cmd = DEFAULT_COMMAND_LATEXMK.copy()
-        elif isinstance(cmd, str):
+            cmd = self.builder_settings.get("command")
+            if not cmd:
+                if using_miktex():
+                    cmd = DEFAULT_COMMAND_TEXIFY.copy()
+                else:
+                    cmd = DEFAULT_COMMAND_LATEXMK.copy()
+
+        if isinstance(cmd, str):
             cmd = shlex.split(cmd)
 
         latexmk = cmd[0] == "latexmk"
