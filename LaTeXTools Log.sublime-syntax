@@ -2,6 +2,7 @@
 ---
 name: LaTeXTools Log
 scope: text.log.latex
+version: 2
 
 first_line_match: '^This is (?:LuaHB|pdfe?|Xe)?TeXk?, Version '
 
@@ -59,6 +60,7 @@ contexts:
       pop: true
     - include: comments
     - include: blocks
+    - include: brackets
     - include: groups
     - include: log-entries
     - include: commands
@@ -89,6 +91,22 @@ contexts:
     - match: \n
       pop: true
 
+  brackets:
+    - match: \[
+      scope: punctuation.section.brackets.begin.log
+      push: bracket-body
+
+  bracket-body:
+    - meta_scope: meta.brackets.log
+    - match: \]
+      scope: punctuation.section.brackets.end.log
+      pop: true
+    - include: comments
+    - include: brackets
+    - include: groups
+    - include: commands
+    - include: strings
+
   groups:
     - match: \(
       scope: punctuation.section.group.begin.log
@@ -100,6 +118,7 @@ contexts:
       scope: punctuation.section.group.end.log
       pop: true
     - include: comments
+    - include: brackets
     - include: groups
     - include: log-entries
     - include: commands
@@ -116,7 +135,10 @@ contexts:
     # warnings
     - match: '^[^:]*(?:Overfull|Underfull)'
       scope: markup.warning.log
-      push: box-warning-body
+      embed: box-warning-content
+      escape: \[\]$
+      escape_captures:
+        0: meta.warning.box.log punctuation.terminator.log
     - match: '^[^:]*(FiXme|Warning):'
       scope: markup.warning.log
     - match: '^[^:]*:\d*:.*'
@@ -125,12 +147,10 @@ contexts:
     - match: '^[^:]*Info:'
       scope: markup.info.log
 
-  box-warning-body:
+  box-warning-content:
     - meta_scope: meta.warning.box.log
-    - match: ^\s*\[\]\n
-      scope: punctuation.terminator.log
-      pop: true
     - include: comments
+    - include: brackets
     - include: groups
     - include: commands
 
