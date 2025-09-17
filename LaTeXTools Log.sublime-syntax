@@ -23,7 +23,7 @@ contexts:
   comment-body:
     - meta_scope: comment.line.log
     - match: $\n?
-      pop: true
+      pop: 1
 
 ###[ BLOCKS ]##################################################################
 
@@ -49,15 +49,15 @@ contexts:
   filename-continuation:
     - match: ((?:\\.|[^\s?!*)])+\.[A-Za-z]{2,}\b)
       scope: meta.toc-list.log entity.name.section.filename.log
-      pop: true
+      pop: 1
     - match: (?=\S)
-      pop: true
+      pop: 1
 
   block-body:
     - meta_scope: meta.block.log
     - match: \)
       scope: punctuation.section.block.end.log
-      pop: true
+      pop: 1
     - include: comments
     - include: blocks
     - include: brackets
@@ -71,25 +71,25 @@ contexts:
       set: block-comment-body
     - match: '^Document Class:.+'
       scope: comment.line.log
-      pop: true
+      pop: 1
     - match: '^File:.{74}\n'
       set: block-comment-body
     - match: '^File:.+'
       scope: comment.line.log
-      pop: true
+      pop: 1
     - match: '^Package:.{71}\n'
       set: block-comment-body
     - match: '^Package:.+'
       scope: comment.line.log
-      pop: true
+      pop: 1
     - match: ^|(?=[()])
-      pop: true
+      pop: 1
 
   block-comment-body:
     - meta_scope: comment.line.log
     - match: ^.{80}\n # consume anything which has 80 chars
     - match: \n
-      pop: true
+      pop: 1
 
   brackets:
     - match: \[
@@ -100,7 +100,7 @@ contexts:
     - meta_scope: meta.brackets.log
     - match: \]
       scope: punctuation.section.brackets.end.log
-      pop: true
+      pop: 1
     - include: comments
     - include: brackets
     - include: groups
@@ -116,7 +116,7 @@ contexts:
     - meta_scope: meta.group.log
     - match: \)
       scope: punctuation.section.group.end.log
-      pop: true
+      pop: 1
     - include: comments
     - include: brackets
     - include: groups
@@ -181,19 +181,19 @@ contexts:
     - meta_scope: string.quoted.other.log
     - match: '>>'
       scope: punctuation.definition.string.end.log
-      pop: true
+      pop: 1
 
   single-angled-string-body:
     - meta_scope: string.quoted.other.log
     - match: '>'
       scope: punctuation.definition.string.end.log
-      pop: true
+      pop: 1
 
   single-quoted-string-body:
     - meta_scope: string.quoted.single.log
     - match: ''''
       scope: punctuation.definition.string.end.log
-      pop: true
+      pop: 1
     - match: \.$
       scope: punctuation.definition.string.end.log
-      pop: true
+      pop: 1
