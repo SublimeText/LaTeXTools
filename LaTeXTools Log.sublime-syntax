@@ -80,7 +80,7 @@ contexts:
     - match: '^Package:.+'
       scope: comment.line.log
       pop: true
-    - match: ^|(?=\))
+    - match: ^|(?=[()])
       pop: true
 
   block-comment-body:

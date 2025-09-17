@@ -131,3 +131,15 @@ File: tikzlibrarytopaths.code.tex 2023-01-15 v3.1.10 (3.1.10)
 # <- meta.block.log comment.line.log
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log comment.line.log
 )
+
+ (./FrontMatter/frontmatter.tex (./FrontMatter/title.tex
+# <- - meta.block
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log - meta.block meta.block
+#                               ^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.block.log
+#^ punctuation.section.block.begin.log
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.toc-list.log entity.name.section.filename.log
+#                               ^ punctuation.section.block.begin.log
+#                                ^^^^^^^^^^^^^^^^^^^^^^^ meta.toc-list.log entity.name.section.filename.log
+))
+# <- meta.block.log meta.block.log punctuation.section.block.end.log
+#^ meta.block.log punctuation.section.block.end.log - meta.block meta.block
