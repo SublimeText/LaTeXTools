@@ -12,6 +12,7 @@ contexts:
   main:
     - include: comments
     - include: blocks
+    - include: log-entries
     - include: strings
 
   comments:

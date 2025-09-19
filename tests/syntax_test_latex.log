@@ -11,6 +11,10 @@ entering extended mode
 #                ^ punctuation.section.block.end.log
 #                 ^ - meta.block
 
+! Emergency stop.
+# <- markup.error.log
+#^^^^^^^^^^^^^^^^ markup.error.log
+
 (./Analysis-I.tex
 LaTeX2e <2023-06-01> patch level 1
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
