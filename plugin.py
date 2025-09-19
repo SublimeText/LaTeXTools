@@ -91,8 +91,8 @@ from .latextools.make_pdf import (
     LatextoolsMakePdfCommand,
     LatextoolsExecEventListener,
 )
-from .latextools.migrate import (
-    LatextoolsMigrateCommand
+from .latextools.reset_settings import (
+    LatextoolsResetSettingsCommand
 )
 from .latextools.preview import (
     ImagePreviewHoverListener,

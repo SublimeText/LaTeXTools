@@ -53,7 +53,7 @@
 	},
 	{
 		"caption": "LaTeXTools: Reset user settings to default",
-		"command": "latextools_migrate"
+		"command": "latextools_reset_settings"
 	},
 	{
 		"caption": "LaTeXTools: Open Detexify",
