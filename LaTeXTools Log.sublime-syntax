@@ -176,6 +176,8 @@ contexts:
     - match: '`'
       scope: punctuation.definition.string.begin.log
       push: single-quoted-string-body
+    # escaped characters
+    - match: \\.
 
   double-angled-string-body:
     - meta_scope: string.quoted.other.log

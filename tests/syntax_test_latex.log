@@ -117,6 +117,10 @@ Class scrbook Info: using compatibility default `runin=bysign'
 #                       ^ punctuation.definition.string.begin.log
 #                                                   ^ punctuation.definition.string.end.log
 
+LaTeX Info: Redefining \[ and \] on input line 2949.
+#^^^^^^^^^^ markup.info.log
+#           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ - meta.brackets - punctuation
+
 ))
 # <- meta.block.log meta.block.log punctuation.section.block.end.log
 #^ meta.block.log punctuation.section.block.end.log - meta.block meta.block
