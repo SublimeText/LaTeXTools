@@ -106,6 +106,7 @@ contexts:
     - include: groups
     - include: commands
     - include: strings
+    - include: brace-quoted-strings
 
   groups:
     - match: \(
@@ -123,6 +124,7 @@ contexts:
     - include: log-entries
     - include: commands
     - include: strings
+    - include: brace-quoted-strings
 
 ###[ LOG ENTRIES ]##############################################################
 
@@ -153,6 +155,8 @@ contexts:
     - include: brackets
     - include: groups
     - include: commands
+    - include: strings
+    - include: brace-quoted-strings
 
   commands:
     - match: (\\)[\w@]+
@@ -182,6 +186,17 @@ contexts:
   double-angled-string-body:
     - meta_scope: string.quoted.other.log
     - match: '>>'
+      scope: punctuation.definition.string.end.log
+      pop: 1
+
+  brace-quoted-strings:
+    - match: '{'
+      scope: punctuation.definition.string.begin.log
+      push: brace-quoted-string-body
+
+  brace-quoted-string-body:
+    - meta_scope: string.quoted.other.log
+    - match: '}'
       scope: punctuation.definition.string.end.log
       pop: 1
 
