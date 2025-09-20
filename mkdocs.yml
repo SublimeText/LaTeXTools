@@ -21,3 +21,4 @@ extra_css:
 plugins:
   - minify:
       minify_html: true
+  - search
