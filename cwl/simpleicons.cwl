@@ -1,5 +1,5 @@
 # simpleicons package
-# Matthew Bertucci 2025/08/04 for v15.7.0
+# Matthew Bertucci 2025/09/05 for v15.12.0
 
 #include:iftex
 
@@ -725,6 +725,7 @@ deepcool
 deepgram
 deepin
 deepl
+deepmind
 deepnote
 deliveroo
 dell
@@ -1042,6 +1043,7 @@ freenet
 freepik
 freetube
 fresh
+freshrss
 frigate
 fritz
 frontendmentor
@@ -1218,6 +1220,7 @@ grocy
 groupme
 groupon
 grunt
+gsap
 gsk
 gsma
 gsmarenadotcom
@@ -1376,6 +1379,7 @@ imdb
 imessage
 imgur
 immer
+immersivetranslate
 immich
 imou
 improvmx
@@ -1521,6 +1525,7 @@ keeper
 keeweb
 kenmei
 kentico
+keploy
 keras
 keybase
 keycdn
@@ -1676,6 +1681,8 @@ llvm
 lmms
 lobsters
 local
+localsend
+localxpose
 lodash
 logitech
 logitechg
@@ -1973,6 +1980,7 @@ nordvpn
 normalizedotcss
 norton
 norwegian
+note
 notebooklm
 notepadplusplus
 notion
@@ -2098,6 +2106,7 @@ overleaf
 ovh
 owasp
 owncloud
+oxc
 oxygen
 oyo
 p5dotjs
@@ -2377,6 +2386,7 @@ radixui
 radstudio
 railway
 rainmeter
+rainyun
 rakuten
 rakutenkobo
 ram
@@ -2486,6 +2496,7 @@ rockylinux
 roku
 roll20
 rollbar
+rolldown
 rollsroyce
 rollupdotjs
 rook
@@ -2595,6 +2606,7 @@ sensu
 sentry
 sepa
 sequelize
+servbay
 serverfault
 serverless
 session
@@ -2799,6 +2811,7 @@ subtitleedit
 subversion
 suckless
 sui
+suitest
 sumologic
 suno
 sunrise
@@ -3128,6 +3141,7 @@ virginmedia
 virtualbox
 virustotal
 visa
+visualparadigm
 visx
 vite
 vitepress
@@ -3209,6 +3223,7 @@ welcometothejungle
 wellfound
 wellsfargo
 wemo
+weread
 westerndigital
 westernunion
 wetransfer
@@ -3338,6 +3353,7 @@ zingat
 zod
 zoho
 zoiper
+zola
 zomato
 zoom
 zorin
@@ -3361,4 +3377,3 @@ zyte
 \simpleiconsmaponeone#S
 \simpleiconsmaponetwo#S
 \simpleiconsmaponethree#S
-
