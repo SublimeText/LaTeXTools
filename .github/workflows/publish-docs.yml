@@ -7,6 +7,7 @@ on:
     paths:
       - .github/workflows/publish-docs.yml
       - docs/**
+      - mkdocs.yml
 
   workflow_dispatch:
 
