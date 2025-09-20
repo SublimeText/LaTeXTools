@@ -117,6 +117,9 @@ class TraditionalBuilder(PdfBuilder):
             if logger.getEffectiveLevel() != DEBUG and not self.display_log:
                 cmd.append("--quiet")
 
+            if self.job_name != self.base_name:
+                cmd.append(f'--job-name="{self.job_name}"')
+
             cmd += map(lambda o: f'--tex-option="{o}"', self.options)
 
         # texify wants the .tex extension; latexmk doesn't care either way
