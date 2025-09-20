@@ -4,9 +4,11 @@ import shlex
 import shutil
 import sublime
 
+from logging import DEBUG
 from typing import TYPE_CHECKING
 
 from ...latextools.utils.distro_utils import using_miktex
+from ...latextools.utils.logging import logger
 
 if TYPE_CHECKING:
     from .pdf_builder import CommandGenerator
@@ -91,6 +93,13 @@ class TraditionalBuilder(PdfBuilder):
                 cmd[i] = c.replace("-%E", flag).replace("%E", engine)
 
         if latexmk:
+            # no need to output messages, if they are not consumed
+            if logger.getEffectiveLevel() != DEBUG and not self.display_log:
+                cmd.append("-silent")
+
+            if sublime.platform() == "windows":
+                cmd.append("-MSWinBackSlash")
+
             if self.aux_directory:
                 # Don't use --aux-directory as the way latexmk moves
                 # final documents to a possibly defined --output-directory
@@ -104,6 +113,10 @@ class TraditionalBuilder(PdfBuilder):
             cmd += map(lambda o: f"-latexoption={o}", self.options)
 
         elif texify:
+            # no need to output messages, if they are not consumed
+            if logger.getEffectiveLevel() != DEBUG and not self.display_log:
+                cmd.append("--quiet")
+
             cmd += map(lambda o: f'--tex-option="{o}"', self.options)
 
         # texify wants the .tex extension; latexmk doesn't care either way
