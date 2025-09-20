@@ -126,14 +126,16 @@ class CmdThread(threading.Thread):
                 self.caller.builder.set_output(out)
 
                 # print and handle command exit status
-                logger.info(f"Finished with status {proc.returncode}.")
                 if pending:
                     self.caller.output("error\n" if proc.returncode else "done\n")
                     pending = False
-                if self.caller.builder.abort_on_error and proc.returncode != 0:
-                    # abort and parse logfile or command output for details
-                    aborted = True
-                    break
+                if proc.returncode != 0:
+                    cmd = os.path.basename(proc.args[0]) if isinstance(proc.args, list) else proc.args
+                    logger.error(f"{cmd} returned status {proc.returncode}.")
+                    if self.caller.builder.abort_on_error:
+                        # abort and parse logfile or command output for details
+                        aborted = True
+                        break
 
                 # acknowledge coroutine's yield with process's return code
                 # it allows statements like: `result = yield (cmd, msg)`
