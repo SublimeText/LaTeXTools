@@ -1,31 +1,29 @@
-from unittest import TestCase
+from __future__ import annotations
+from unittesting import ViewTestCase
 
 import sublime
 
 from LaTeXTools.latextools.context_provider import LatextoolsContextListener
 
-ST_VER = int(sublime.version())
 
+class ContextTest(ViewTestCase):
+    view_settings = {
+        "auto_indent": False,
+        "syntax": "Packages/LaTeX/LaTeX.sublime-syntax",
+    }
 
-class ContextTest(TestCase):
     def setUp(self):
         self.context = LatextoolsContextListener()
-        self.view = sublime.active_window().new_file()
-        self.view.set_syntax_file("Packages/LaTeX/LaTeX.sublime-syntax")
-        self.view.settings().set("auto_indent", False)
-        self.view.set_scratch(True)
+        super().setUp()
 
-    def tearDown(self):
-        if self.view:
-            self.view.close()
-            self.view = None
-
-    def query_context(self, key, operator=sublime.OP_EQUAL, operand=True, match_all=False):
+    def query_context(
+        self,
+        key: str,
+        operator=sublime.OP_EQUAL,
+        operand: bool | float | int | str = True,
+        match_all=False,
+    ):
         return self.context.on_query_context(self.view, key, operator, operand, match_all)
-
-    def set_content(self, content):
-        self.view.run_command("select_all")
-        self.view.run_command("insert", {"characters": content})
 
     def set_sel(self, regions):
         if not hasattr(regions, "__iter__"):
@@ -35,47 +33,52 @@ class ContextTest(TestCase):
 
     def test_version(self):
         ctx = "latextools.st_version"
-        self.assertTrue(self.query_context(ctx, operand=f">={ST_VER}"))
-        self.assertTrue(self.query_context(ctx, operand=f"={ST_VER}"))
-        self.assertFalse(self.query_context(ctx, operand=f"<{ST_VER}"))
-        self.assertTrue(self.query_context(ctx, operand=f"<{ST_VER + 1}"))
-        self.assertTrue(self.query_context(ctx, operand=f"<={ST_VER + 1}"))
-        self.assertFalse(self.query_context(ctx, operand=f"<={ST_VER - 1}"))
+        ver = int(sublime.version())
+        self.assertTrue(self.query_context(ctx, operand=f">={ver}"))
+        self.assertTrue(self.query_context(ctx, operand=f"={ver}"))
+        self.assertFalse(self.query_context(ctx, operand=f"<{ver}"))
+        self.assertTrue(self.query_context(ctx, operand=f"<{ver + 1}"))
+        self.assertTrue(self.query_context(ctx, operand=f"<={ver + 1}"))
+        self.assertFalse(self.query_context(ctx, operand=f"<={ver - 1}"))
 
     def test_documentclass(self):
         ctx = "latextools.documentclass"
-        yield self.set_content("\\documentclass{article}")
+        yield self.setText("\\documentclass{article}")
 
-        self.assertTrue(self.query_context(
-            ctx, operator=sublime.OP_REGEX_MATCH, operand="article|beamer"))
+        self.assertTrue(
+            self.query_context(ctx, operator=sublime.OP_REGEX_MATCH, operand="article|beamer")
+        )
         self.assertTrue(self.query_context(ctx, operand="article"))
         self.assertFalse(self.query_context(ctx, operand="beamer"))
 
     def test_usepackage(self):
         ctx = "latextools.usepackage"
         content = sublime.load_resource("Packages/LaTeXTools/tests/fixtures/context/main.tex")
-        yield self.set_content(content)
+        yield self.setText(content)
         self.assertTrue(self.query_context(ctx, operand="babel"))
         self.assertTrue(self.query_context(ctx, operand="amsmath"))
         self.assertFalse(self.query_context(ctx, operand="amsfonts"))
 
         operand = "\\b(mathtools|amsmath)\\b"
-        self.assertTrue(self.query_context(
-            ctx, operator=sublime.OP_REGEX_CONTAINS, operand=operand))
+        self.assertTrue(
+            self.query_context(ctx, operator=sublime.OP_REGEX_CONTAINS, operand=operand)
+        )
 
         self.assertTrue(self.query_context(ctx, operand="xcolor"))
         self.assertFalse(self.query_context(ctx, operand="color"))
         operand = "\\bx?color\\b"
-        self.assertTrue(self.query_context(
-            ctx, operator=sublime.OP_REGEX_CONTAINS, operand=operand))
+        self.assertTrue(
+            self.query_context(ctx, operator=sublime.OP_REGEX_CONTAINS, operand=operand)
+        )
         operand = "\\bx?color\\b"
-        self.assertFalse(self.query_context(
-            ctx, operator=sublime.OP_NOT_REGEX_CONTAINS, operand=operand))
+        self.assertFalse(
+            self.query_context(ctx, operator=sublime.OP_NOT_REGEX_CONTAINS, operand=operand)
+        )
 
     def test_env_selector(self):
         ctx = "latextools.env_selector"
         content = sublime.load_resource("Packages/LaTeXTools/tests/fixtures/context/main.tex")
-        self.set_content(content)
+        self.setText(content)
         yield self.set_sel(self.view.find(r"<1>", 0))
         self.assertTrue(self.query_context(ctx, operand=""))
         self.assertTrue(self.query_context(ctx, operand=", none"))
@@ -85,12 +88,10 @@ class ContextTest(TestCase):
         self.assertTrue(self.query_context(ctx, operand="-(align, equation)"))
 
         yield self.set_sel(self.view.find(r"<2>", 0))
-        self.assertTrue(self.query_context(
-            ctx, operand="document itemize - (align, equation)"))
+        self.assertTrue(self.query_context(ctx, operand="document itemize - (align, equation)"))
 
         yield self.set_sel(self.view.find(r"<3>", 0))
-        self.assertTrue(self.query_context(
-            ctx, operand="(document itemize & align) - (equation)"))
+        self.assertTrue(self.query_context(ctx, operand="(document itemize & align) - (equation)"))
 
         yield self.set_sel(self.view.find(r"<4>", 0))
         operand = "document itemize & itemize itemize"
@@ -116,15 +117,13 @@ class ContextTest(TestCase):
         yield self.set_sel(self.view.find(r"<1>", 0))
         yield self.view.sel().add(self.view.find(r"<2>", 0))
 
-        self.assertTrue(self.query_context(
-            ctx, operand="document itemize", match_all=False))
-        self.assertFalse(self.query_context(
-            ctx, operand="document itemize", match_all=True))
+        self.assertTrue(self.query_context(ctx, operand="document itemize", match_all=False))
+        self.assertFalse(self.query_context(ctx, operand="document itemize", match_all=True))
 
     def test_command_selector(self):
         ctx = "latextools.command_selector"
         content = sublime.load_resource("Packages/LaTeXTools/tests/fixtures/context/main.tex")
-        self.set_content(content)
+        self.setText(content)
         yield self.set_sel(self.view.find(r"<c1>", 0))
         self.assertTrue(self.query_context(ctx, operand=""))
         self.assertTrue(self.query_context(ctx, operand=", none"))
@@ -141,8 +140,7 @@ class ContextTest(TestCase):
 
         yield self.set_sel(self.view.find(r"<c4>", 0))
         self.assertTrue(self.query_context(ctx, operand="ensuremath"))
-        self.assertFalse(self.query_context(
-            ctx, operand="ensuremath - textnormal"))
+        self.assertFalse(self.query_context(ctx, operand="ensuremath - textnormal"))
 
         yield self.set_sel(self.view.find(r"<c5>", 0))
         self.assertTrue(self.query_context(ctx, operand="starcommand"))
