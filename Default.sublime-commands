@@ -86,6 +86,11 @@
 		"args": { "hide_annotations_only": true }
 	},
 	{
+    "caption": "LaTeXTools: Show build panel",
+    "command": "show_panel",
+    "args": { "panel": "output.latextools" }
+	},
+	{
 		"caption": "Preferences: LaTeXTools Settings",
 		"command": "edit_settings",
 		"args": {

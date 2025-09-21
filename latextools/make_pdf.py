@@ -428,7 +428,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
         self.output_view.set_read_only(True)
 
-        self.hide_panel_level = get_setting("hide_build_panel", "no_warnings", view)
+        self.hide_panel_level = get_setting("hide_build_panel", "no_badboxes", view)
         if self.hide_panel_level == "never":
             self.show_output_panel(force=True)
 
