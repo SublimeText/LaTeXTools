@@ -2,5 +2,5 @@ Thank you for installing the LaTeXTools plugin!
 
 To learn about the features of this plugin, go to:
 
-- https://latextools.readthedocs.io
+- https://sublimetext.github.io/LaTeXTools
 - https://github.com/SublimeText/LaTeXTools
