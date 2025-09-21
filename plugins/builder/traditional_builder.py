@@ -7,7 +7,6 @@ import sublime
 from logging import DEBUG
 from typing import TYPE_CHECKING
 
-from ...latextools.utils.distro_utils import using_miktex
 from ...latextools.utils.logging import logger
 
 if TYPE_CHECKING:
@@ -56,7 +55,7 @@ class TraditionalBuilder(PdfBuilder):
         if not cmd:
             cmd = self.builder_settings.get("command")
             if not cmd:
-                if using_miktex():
+                if self.uses_miktex:
                     cmd = DEFAULT_COMMAND_TEXIFY.copy()
                 else:
                     cmd = DEFAULT_COMMAND_LATEXMK.copy()
