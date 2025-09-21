@@ -494,10 +494,6 @@
 	// "badboxes" (show errors, warnings, and badboxes)
 	"show_error_phantoms": "warnings",
 
-	// number of seconds to display the "build succeeded" or "build failed"
-	// message
-	"build_finished_message_length": 2.0,
-
 // ------------------------------------------------------------------
 // Viewer settings
 // ------------------------------------------------------------------

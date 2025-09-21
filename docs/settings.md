@@ -142,7 +142,6 @@ Any other value will be interpreted as the default.
 	 * `"errors"`: only show errors using phantoms
 	 * `"warnings"`: only show warnings or errors using phantoms
 	 * `"badboxes"`: show any warnings, errors, or bad box messages use phantoms
-* `build_finished_message_length` (`2.0`): the number of seconds to display the status bar message about the completion of the build
 
 ## Viewer Settings
 
