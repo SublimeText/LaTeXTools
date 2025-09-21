@@ -196,6 +196,8 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
                 ".pdfsync",
                 ".ps",
                 ".run.xml",
+                ".synctex",
+                ".synctex(busy)",
                 ".synctex.gz",
                 ".thm",
                 ".toc",

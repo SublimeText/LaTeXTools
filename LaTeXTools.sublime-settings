@@ -227,8 +227,8 @@
 	"temp_files_exts": [
 		".aux", ".acn", ".acn2", ".acr", ".acr2", ".bbl", ".bcf", ".blg", ".brf",
 		".dvi", ".fdb_latexmk", ".fls", ".glo", ".gls", ".idx", ".ilg", ".ind", ".ist",
-		".lof", ".log", ".nlo", ".out", ".pdfsync", ".ps", ".run.xml", ".synctex.gz",
-		".thm", ".toc", ".xdv", ".xdy",
+		".lof", ".log", ".nlo", ".out", ".pdfsync", ".ps", ".run.xml", ".synctex",
+		".synctex(busy)", ".synctex.gz", ".thm", ".toc", ".xdv", ".xdy",
 	],
 
 	// Folders that are not traversed when deleting temp files
