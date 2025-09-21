@@ -4,6 +4,7 @@ Allow custom scripts and build engines!
 
 The actual work is done by builders, loaded on-demand from prefs
 """
+
 import functools
 import html
 import os
@@ -130,7 +131,9 @@ class CmdThread(threading.Thread):
                     self.caller.output("error\n" if proc.returncode else "done\n")
                     pending = False
                 if proc.returncode != 0:
-                    cmd = os.path.basename(proc.args[0]) if isinstance(proc.args, list) else proc.args
+                    cmd = (
+                        os.path.basename(proc.args[0]) if isinstance(proc.args, list) else proc.args
+                    )
                     logger.error(f"{cmd} returned status {proc.returncode}.")
                     if self.caller.builder.abort_on_error:
                         # abort and parse logfile or command output for details
@@ -533,8 +536,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
                 builder = get_plugin(builder_name)
             except NoSuchPluginException:
                 sublime.error_message(
-                    f"Cannot find builder {builder_name}.\n"
-                    "Check your LaTeXTools Preferences"
+                    f"Cannot find builder {builder_name}.\nCheck your LaTeXTools Preferences"
                 )
                 self.window.run_command("hide_panel", {"panel": "output.latextools"})
                 return

@@ -295,7 +295,7 @@ class PdfBuilder(LaTeXToolsPlugin):
             A string with all known variables expanded.
         """
         return Template(text).safe_substitute(
-            eol='', # a dummy to be used to prevent automatic base_name appending
+            eol="", # a dummy to be used to prevent automatic base_name appending
             file=self.tex_root,
             file_path=self.tex_dir,
             file_name=self.tex_name,

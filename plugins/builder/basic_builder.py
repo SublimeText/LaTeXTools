@@ -38,6 +38,7 @@ class BasicBuilder(PdfBuilder):
     concept. It implements the same building features as the
     Traditional builder.
     """
+
     name = "Basic Builder"
 
     def commands(self) -> CommandGenerator:
@@ -111,10 +112,7 @@ class BasicBuilder(PdfBuilder):
                 elif isinstance(bibtex, str):
                     bibtex = [bibtex]
                 bibtex.append(self.job_name)
-                yield (
-                    self.command(bibtex, cwd=self.aux_directory_full),
-                    f"running {bibtex[0]}..."
-                )
+                yield (self.command(bibtex, cwd=self.aux_directory_full), f"running {bibtex[0]}...")
             else:
                 yield (biber + [self.job_name], "running biber...")
 
