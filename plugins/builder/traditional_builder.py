@@ -94,7 +94,9 @@ class TraditionalBuilder(PdfBuilder):
 
         if latexmk:
             # no need to output messages, if they are not consumed
-            if logger.getEffectiveLevel() != DEBUG and not self.display_log:
+            if logger.getEffectiveLevel() == DEBUG or self.display_log:
+                cmd.append("-verbose")
+            else:
                 cmd.append("-silent")
 
             if sublime.platform() == "windows":
@@ -105,7 +107,7 @@ class TraditionalBuilder(PdfBuilder):
                 # final documents to a possibly defined --output-directory
                 # prevents files reloading in SumatraPDF or even fails
                 # if documents are opened and locked by viewer on Windows.
-                cmd.append(f"-output-directory={self.aux_directory}")
+                cmd.append(f"-output-directory={self.aux_directory_full}")
 
             if self.job_name != self.base_name:
                 cmd.append(f'-jobname="{self.job_name}"')
@@ -114,7 +116,9 @@ class TraditionalBuilder(PdfBuilder):
 
         elif texify:
             # no need to output messages, if they are not consumed
-            if logger.getEffectiveLevel() != DEBUG and not self.display_log:
+            if logger.getEffectiveLevel() == DEBUG or self.display_log:
+                cmd.append("--verbose")
+            else:
                 cmd.append("--quiet")
 
             if self.job_name != self.base_name:
