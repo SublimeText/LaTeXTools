@@ -13,7 +13,7 @@ from io import StringIO
 from functools import lru_cache
 from functools import partial
 from shutil import which
-from typing import Callable
+from typing import cast, Callable
 
 import sublime
 import sublime_plugin
@@ -130,7 +130,7 @@ class SystemCheckThread(threading.Thread):
         #  CAUTION: logic must match make_pdf's logic
         self.env = os.environ.copy()
 
-        self.builder_settings = get_setting("builder_settings", {}, view)
+        self.builder_settings = cast(dict, get_setting("builder_settings", {}, view))
         self.builder_platform_settings = self.builder_settings.get(self.platform, {})
         build_env = self.builder_platform_settings.get("env")
         if build_env is None:
@@ -140,6 +140,21 @@ class SystemCheckThread(threading.Thread):
 
         if (texpath := get_texpath(view)) is not None:
             self.env["PATH"] = texpath
+
+        # prepand main tex document's location to all TeX related paths such as
+        # TEXINPUTS, BIBINPUTS, BSTINPUTS, etc.
+        self.tex_root = get_tex_root(self.view)
+        if self.tex_root:
+            tex_dir = os.path.dirname(self.tex_root)
+            if self.uses_miktex:
+                # MikTeX, prepends custom variables to its configuration.
+                env_vars = ("TEXINPUTS", "BIBINPUTS", "BSTINPUTS")
+            else:
+                # TeXLive overwrites its configuration with custom variables.
+                # Hence set `TEXMFDOTDIR`, which is prepended to all of them.
+                env_vars = ("TEXMFDOTDIR",)
+            for key in env_vars:
+                self.env[key] = os.pathsep.join(filter(None, (tex_dir, self.env.get(key))))
 
     def run(self):
         with ActivityIndicator("Checking system...") as activity_indicator:
@@ -153,8 +168,10 @@ class SystemCheckThread(threading.Thread):
 
         table.append(["PATH", self.env.get("PATH", "")])
 
-        for var in ("TEXINPUTS", "BIBINPUTS", "BSTINPUTS"):
-            table.append([var, self.get_tex_path_variable(var) or "missing"])
+        table.extend(
+            [var, self.get_tex_path_variable(var) or "missing"]
+            for var in ("TEXINPUTS", "BIBINPUTS", "BSTINPUTS")
+        )
 
         if self.uses_miktex:
             for var in (
@@ -339,12 +356,11 @@ class SystemCheckThread(threading.Thread):
         # is current view a TeX file?
         view = self.view
         if view and view.match_selector(0, "text.tex.latex"):
-            tex_root = get_tex_root(view)
             tex_directives = parse_tex_directives(
-                tex_root, multi_values=["options"], key_maps={"ts-program": "program"}
+                self.tex_root, multi_values=["options"], key_maps={"ts-program": "program"}
             )
 
-            results.append([["TeX Root"], [tex_root]])
+            results.append([["TeX Root"], [self.tex_root]])
 
             results.append(
                 [
@@ -361,7 +377,7 @@ class SystemCheckThread(threading.Thread):
             if aux_directory:
                 table.append(["aux_directory", aux_directory])
             jobname = get_jobname(view)
-            if jobname and jobname != os.path.splitext(os.path.basename(tex_root))[0]:
+            if jobname and jobname != os.path.splitext(os.path.basename(self.tex_root))[0]:
                 table.append(["jobname", jobname])
 
             if len(table) > 1:

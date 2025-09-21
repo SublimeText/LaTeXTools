@@ -105,9 +105,15 @@ class BasicBuilder(PdfBuilder):
 
         if run_bibtex:
             if use_bibtex:
+                # set-up bibtex cmd line
+                if bibtex is None:
+                    bibtex = [self.builder_settings.get("bibtex", "bibtex")]
+                elif isinstance(bibtex, str):
+                    bibtex = [bibtex]
+                bibtex.append(self.job_name)
                 yield (
-                    self.run_bibtex(bibtex),
-                    f"running {bibtex or 'bibtex'}...",
+                    self.command(bibtex, cwd=self.aux_directory_full or self.tex_dir),
+                    f"running {bibtex[0]}..."
                 )
             else:
                 yield (biber + [self.job_name], "running biber...")
@@ -122,24 +128,3 @@ class BasicBuilder(PdfBuilder):
             yield (latex, f"running {engine}...")
 
         self.copy_assets_to_output()
-
-    def run_bibtex(self, cmd: CommandLine | None=None) -> Command:
-        # set-up bibtex cmd line
-        if cmd is None:
-            cmd = [self.builder_settings.get("bibtex", "bibtex")]
-        elif isinstance(cmd, str):
-            cmd = [cmd]
-        cmd.append(self.job_name)
-
-        # return default command line, if build output is tex_dir.
-        if not self.aux_directory:
-            return cmd
-
-        # to get bibtex to work with the output directory, we change the
-        # cwd to the output directory and add the main directory to
-        # BIBINPUTS and BSTINPUTS
-        env = self.env.copy()
-        # cwd is, at the point, the path to the main tex file
-        env["BIBINPUTS"] = self.tex_dir + os.pathsep + env.get("BIBINPUTS", "")
-        env["BSTINPUTS"] = self.tex_dir + os.pathsep + env.get("BSTINPUTS", "")
-        return self.command(cmd, cwd=self.aux_directory_full, env=env)

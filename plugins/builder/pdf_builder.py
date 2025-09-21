@@ -122,6 +122,18 @@ class PdfBuilder(LaTeXToolsPlugin):
         self.builder_settings = builder_settings
         self.platform_settings = platform_settings
 
+        self.display_log = self.builder_settings.get("display_log", False)
+        """
+        Specifies whether to display detailed command output in log panel.
+
+        Value of `builder_settings: { display_log: ... }` setting
+        """
+
+        distro = self.platform_settings.get("distro", "")
+        self.uses_miktex = (
+            distro != "texlive" if sublime.platform() == "windows" else distro == "miktex"
+        )
+
         # if output_directory and aux_directory can be specified as a path
         # relative to self.tex_dir, we use that instead of the absolute path
         # note that the full path for both is available as
@@ -150,12 +162,20 @@ class PdfBuilder(LaTeXToolsPlugin):
         if self.output_directory:
             os.makedirs(self.output_directory_full, exist_ok=True)
 
-        self.display_log = self.builder_settings.get("display_log", False)
-        """
-        Specifies whether to display detailed command output in log panel.
-
-        Value of `builder_settings: { display_log: ... }` setting
-        """
+        # Help latex toolchain find resources by prepending TeX document's location to popular
+        # environment variables. Even latexmk requires it to properly build bibliography.
+        if self.aux_directory or self.output_directory:
+            if env is None:
+                env = os.environ.copy()
+            if self.uses_miktex:
+                # MikTeX, prepends custom variables to its configuration.
+                env_vars = ("TEXINPUTS", "BIBINPUTS", "BSTINPUTS")
+            else:
+                # TeXLive overwrites its configuration with custom variables.
+                # Hence set `TEXMFDOTDIR`, which is prepended to all of them.
+                env_vars = ("TEXMFDOTDIR",)
+            for key in env_vars:
+                env[key] = os.pathsep.join(filter(None, (self.tex_dir, env.get(key))))
 
         # finally expand variables in custom environment
         self.env = {k: self.expandvars(v) for k, v in env.items()} if env else None

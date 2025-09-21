@@ -287,26 +287,24 @@ If [auxiliary or output directory settings](settings.md#output-directory-setting
 **BibTeX**
 
 Unlike biber, bibtex (and bibtex8) does not support an output directory parameter.
-The following workaround can be used to run BibTeX _inside_ the output / auxiliary directory while making the directory containing your main file available to the `BIBINPUTS` environment variable.
+The following workaround can be used to run BibTeX _inside_ the output / auxiliary directory.
 
 ```json
 {
 	"builder_settings": {
 		"linux": {
 			"script_commands": [
-				"cd $output_directory; BIBINPUTS=\"$file_path;$BIBINPUTS\" bibtex \"$file_base_name\"",
+				"cd $output_directory; bibtex \"$file_base_name\"",
 			]
 		},
 		"windows": {
 			"script_commands": [
-				"cd $output_directory & set BIBINPUTS=\"$file_path:%BIBINPUTS%\" & bibtex \"$file_base_name\""
+				"cd $output_directory & bibtex \"$file_base_name\""
 			]
 		}
 	}
 }
 ```
-
-**Note:** If a custom style file is used in the same directory, a similar work-around for `BSTINPUTS` environment variable needs to be applied.
 
 ### Job Name
 
@@ -555,6 +553,22 @@ class SimpleBuilder(PdfBuilder):
 ```
 
 ### Reference
+
+#### Environment
+
+If `aux_directory` or `output_directory` are specified, [$file_path](#expandable-variables) is prepended to relevant environment variables, to ensure resources are looked up relative to main TeX document's location, regardless effective working directory. 
+
+**MikTeX**
+
+Document location is assigned to `TEXINPUTS`, `BIBINPUTS`, `BSTINPUTS`
+
+**Note:** Specified values are prepended to existing variables and configurations by MikTeX.
+
+**TeXLive**
+
+Document location is assigned to `TEXMFDOTDIR`, which is prepended to all path environment variables.
+
+**Note:** Customized `TEXINPUTS`, `BIBINPUTS`, `BSTINPUTS` variables replace any other configured path in TexLive. Hence it is not recommended to customize them, directly.
 
 #### Expandable Variables
 
