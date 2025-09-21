@@ -66,6 +66,25 @@ LaTeX Package keymap for OS X
 	// TODO: remove cmd+l,ctrl+space
 	// ------------------------------------------------------------------
 
+
+	// Cancel Completions, if escaped backslash, aka. newline, is typed
+	// note: ST's cancelCompletion doesn't handle it well.
+	{
+		"keys": ["\\"],
+		"command": "chain",
+		"args": {
+			"commands": [
+				{"command": "hide_auto_complete" },
+				{"command": "insert", "args": {"characters": "\\"} }
+			]
+		},
+		"context": [
+			{ "key": "auto_complete_visible" },
+			{ "key": "selector", "operand": "text.tex" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?<!\\\\)(\\\\{2})*\\\\$" }
+		]
+	},
+
 	{
 		"keys": ["super+l","ctrl+space"],
 		"command": "latextools_fill_all",
