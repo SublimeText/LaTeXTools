@@ -130,11 +130,11 @@ This section refers to setting that can be found in a platform-specific block fo
 * `build_panel_word_wrap` (`false`): if `true` enable word wrapping in build output panel.
 * `scroll_build_panel_to_top` (`false`): if `true` the build output panel is scrolled to top after build finished.
 * `hide_build_panel` (`"no_badboxes"`): controls whether or not to hide the build panel after a build is finished. Possible values:
-	* `"always"`: never show the build panel at all
-	* `"no_errors"`: only show the build panel if errors occur
-	* `"no_warnings"`: only hide the panel if no warnings occur
-	* `"no_badboxes"`: only hide the panel if no warnings or badbox messages occur; this only differs from `no_warnings` if `display_bad_boxes` is set to `true`.
-	* `"never"`: never hide the build panel
+	* `"always"`: always hide the panel, even if build failed.
+	* `"no_errors"`: hide the panel if there are no errors.
+	* `"no_warnings"`: hide the panel if there are neither errors nor warnings.
+	* `"no_badboxes"`: hide the panel if there are no errors, warnings, or badboxes; differs from `no_warnings` if `display_bad_boxes` is set to `true`.
+	* `"never"`: never hide the build panel.
 Any other value will be interpreted as the default.
 * `display_bad_boxes` (`false`): if `true` LaTeXTools will display any bad boxes encountered after a build. Note that this is disabled by default.
 * `show_error_phantoms` (`"warnings"`): **ST3 Build 3118 or newer only** controls which errors are displayed via phantoms. Possible values:
