@@ -78,7 +78,7 @@ class BasicBuilder(PdfBuilder):
         # Create required directories and retry
         while matches := FILE_WRITE_ERROR_REGEX.findall(self.out):
             for path, _ in matches:
-                abspath = os.path.join(self.aux_directory_full or self.tex_dir, path)
+                abspath = os.path.join(self.aux_directory_full, path)
                 os.makedirs(abspath, exist_ok=True)
                 logger.debug(f"Created directory {abspath}")
 
@@ -112,7 +112,7 @@ class BasicBuilder(PdfBuilder):
                     bibtex = [bibtex]
                 bibtex.append(self.job_name)
                 yield (
-                    self.command(bibtex, cwd=self.aux_directory_full or self.tex_dir),
+                    self.command(bibtex, cwd=self.aux_directory_full),
                     f"running {bibtex[0]}..."
                 )
             else:
