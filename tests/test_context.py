@@ -53,8 +53,7 @@ class ContextTest(TestCase):
 
     def test_usepackage(self):
         ctx = "latextools.usepackage"
-        content = sublime.load_resource(
-            "Packages/LaTeXTools/tests/test_context_document.tex")
+        content = sublime.load_resource("Packages/LaTeXTools/tests/fixtures/context/main.tex")
         yield self.set_content(content)
         self.assertTrue(self.query_context(ctx, operand="babel"))
         self.assertTrue(self.query_context(ctx, operand="amsmath"))
@@ -75,8 +74,7 @@ class ContextTest(TestCase):
 
     def test_env_selector(self):
         ctx = "latextools.env_selector"
-        content = sublime.load_resource(
-            "Packages/LaTeXTools/tests/test_context_document.tex")
+        content = sublime.load_resource("Packages/LaTeXTools/tests/fixtures/context/main.tex")
         self.set_content(content)
         yield self.set_sel(self.view.find(r"<1>", 0))
         self.assertTrue(self.query_context(ctx, operand=""))
@@ -125,8 +123,7 @@ class ContextTest(TestCase):
 
     def test_command_selector(self):
         ctx = "latextools.command_selector"
-        content = sublime.load_resource(
-            "Packages/LaTeXTools/tests/test_context_document.tex")
+        content = sublime.load_resource("Packages/LaTeXTools/tests/fixtures/context/main.tex")
         self.set_content(content)
         yield self.set_sel(self.view.find(r"<c1>", 0))
         self.assertTrue(self.query_context(ctx, operand=""))
