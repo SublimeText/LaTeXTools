@@ -455,34 +455,32 @@
 // Build panel and phantoms settings
 // ------------------------------------------------------------------
 
-	// Syntax highlight build panel so that errors, warnings, etc.
-	// show up in different colors.
-	"highlight_build_panel": true,
-
 	// Enable automatic word wraping in build output panel.
 	"build_panel_word_wrap": false,
+
+	// Syntax highlight build output panel so that errors, warnings, etc.
+	// show up in different colors.
+	"highlight_build_panel": true,
 
 	// Scroll build output panel to top after build finished.
 	"scroll_build_panel_to_top": false,
 
-	// OPTION: "hide_build_panel"
-	// Controls when the LaTeX build panel is hidden after a build finishes.
-	// Default: "no_warnings"
+	// Controls whether or not to display any bad boxes in the build output.
+	// If not set to true, the setting "badboxes" for "show_panel_on_build" is
+	// equivalent to "warnings"
+	"display_bad_boxes": false,
+
+	// Controls when the LaTeX build panel is displayed after a build finishes.
+	// Default: "badboxes"
 	//
 	// Possible values are:
-	//   "always"      — always hide the panel, even if the build failed.
-	//   "no_errors"   — hide the panel if there are no errors.
-	//   "no_warnings" — hide the panel if there are neither errors nor warnings.
-	//   "no_badboxes" — hide the panel if there are no errors, warnings, or badboxes
-	//                   (when badbox reporting is enabled).
-	//   "never"       — never hide the panel.
-	"hide_build_panel": "no_badboxes",
-  
-	// OPTION: "display_bad_boxes"
-	// controls whether or not to display any bad boxes in the build output
-	// if this is not set to true, the setting "no_badboxes" for
-	// "hide_build_panel" is equivalent to "no_warnings"
-	"display_bad_boxes": false,
+	//   "never"    — never show build panel.
+	//   "errors"   — show build panel if there are errors.
+	//   "warnings" — show build panel if there are errors or warnings.
+	//   "badboxes" — show build panel if there are errors, warnings, or badboxes
+	//                (when badbox reporting is enabled).
+	//   "always"   — always show build panel, even if the build failed.
+	"show_panel_on_build": "badboxes",
 
 	// OPTION: "show_error_phantoms"
 	// (ST3, Build 3118+ only)

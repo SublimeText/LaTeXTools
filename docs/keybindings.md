@@ -63,7 +63,7 @@ This opens a quick panel displaying the current toggle values and their correspo
 
 **Keybinding:** <kbd>shift+escape</kbd>
 
-This will show the LaTeXTools build panel, including any messages from the previous build. This is useful if you have hidden the build panel, either using the `hide_build_panel` setting or by pressing <kbd>escape</kbd> when the panel is visible.
+This will show the LaTeXTools build panel, including any messages from the previous build. This is useful if build panel is not shown automatically due to `show_panel_on_build` setting or hidden by pressing <kbd>escape</kbd>.
 
 ## Removing temporary files from build
 

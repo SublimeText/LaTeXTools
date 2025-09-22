@@ -195,7 +195,7 @@ class CmdThread(threading.Thread):
             # Note: At least latexmk is known to behave like that.
             message = "Build failed!" if aborted else "Build skipped!"
             activity_indicator.finish(message)
-            if aborted or self.caller.hide_panel_level == "never":
+            if aborted or self.caller.show_panel_level == "always":
                 self.caller.show_output_panel()
             self.caller.output(f"\n[{message}]")
             self.caller.finish(aborted == False)
@@ -255,14 +255,14 @@ class CmdThread(threading.Thread):
                 content.append(log_file + ":1: Double-click here to open the full log.")
 
                 show_panel = {
-                    "always": False,
-                    "no_errors": bool(errors),
-                    "no_warnings": bool(errors or warnings),
-                    "no_badboxes": bool(
+                    "always": True,
+                    "errors": bool(errors),
+                    "warnings": bool(errors or warnings),
+                    "badboxes": bool(
                         errors or warnings or (self.caller.display_bad_boxes and badboxes)
                     ),
-                    "never": True,
-                }.get(self.caller.hide_panel_level, bool(errors or warnings))
+                    "never": False,
+                }.get(self.caller.show_panel_level, bool(errors or warnings))
 
                 message = "Build completed"
                 if show_panel:
@@ -431,8 +431,8 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
         self.output_view.set_read_only(True)
 
-        self.hide_panel_level = get_setting("hide_build_panel", "no_badboxes", view)
-        if self.hide_panel_level == "never":
+        self.show_panel_level = get_setting("show_panel_on_build", "badboxes", view)
+        if self.show_panel_level == "always":
             self.show_output_panel(force=True)
 
         self.plat = sublime.platform()
@@ -571,7 +571,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         )
 
     def show_output_panel(self, force=False):
-        if force or self.hide_panel_level != "always":
+        if force or self.show_panel_level != "never":
             self.window.run_command("show_panel", {"panel": "output.latextools"})
 
     # Also from exec.py
