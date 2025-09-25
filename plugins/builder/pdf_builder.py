@@ -262,6 +262,11 @@ class PdfBuilder(LaTeXToolsPlugin):
         :returns:
             Process object representing invoked command.
         """
+        if isinstance(cmd, list):
+            cmd = list(map(self.expandvars, cmd))
+        elif isinstance(cmd, str):
+            cmd = self.expandvars(cmd)
+
         if cwd is None:
             cwd = self.tex_dir
 
@@ -272,7 +277,7 @@ class PdfBuilder(LaTeXToolsPlugin):
             shell = self.run_in_shell
 
         return external_command(
-            cmd=list(map(self.expandvars, cmd)),
+            cmd=cmd,
             cwd=cwd,
             shell=shell,
             env=env,
