@@ -3,6 +3,8 @@ import collections
 import sublime
 import traceback
 
+from ...vendor.charset_normalizer import from_bytes as charset_from_bytes
+
 from ...latextools.latextools_plugin import LaTeXToolsPlugin
 from ...latextools.utils import bibcache
 from ...latextools.utils.logging import logger
@@ -122,46 +124,62 @@ class NewBibliographyPlugin(LaTeXToolsPlugin):
                 pass
 
             try:
-                with open(bibfname, "r", encoding="utf-8", errors="ignore", newline="\n") as bibf:
-                    bib_entries = []
-
-                    excluded_types = ("xdata", "comment", "string")
-                    excluded_fields = (
-                        "abstract",
-                        "annotation",
-                        "annote",
-                        "execute",
-                        "langidopts",
-                        "options",
-                    )
-
-                    for key, entry in parser.parse(bibf.read()).items():
-                        if entry.entry_type in excluded_types:
-                            continue
-
-                        # purge some unnecessary fields from the bib entry to save
-                        # some space and time reloading
-                        for k in excluded_fields:
-                            if k in entry:
-                                del entry[k]
-
-                        bib_entries.append(EntryWrapper(entry))
-
-                    logger.info(f"Loaded {len(bib_entries)} bibitems")
-
-                    try:
-                        fmt_entries = bib_cache.set(bib_entries)
-                        entries.extend(fmt_entries)
-                    except Exception:
-                        traceback.print_exc()
-                        logger.warning("Using bibliography without caching it")
-                        entries.extend(bib_entries)
-
+                with open(bibfname, "rb") as bibf:
+                    content = bibf.read()
             except OSError:
                 msg = f'Cannot open bibliography file "{bibfname}"!'
                 logger.error(msg)
                 sublime.status_message(msg)
-                continue
+            else:
+                bib_entries = []
+
+                excluded_types = ("xdata", "comment", "string")
+                excluded_fields = (
+                    "abstract",
+                    "annotation",
+                    "annote",
+                    "execute",
+                    "langidopts",
+                    "options",
+                )
+
+                # detect encoding
+                charset_match = charset_from_bytes(content).best()
+                if not charset_match:
+                    msg = f'Cannot determine encoding of file "{bibfname}"!'
+                    logger.error(msg)
+                    sublime.status_message(msg)
+                    continue
+                encoding = charset_match.encoding
+                if charset_match.bom and encoding == "utf_8":
+                    content = content[len(codecs.BOM_UTF8):]
+
+                # decode bytes
+                text = content.decode(encoding=encoding)
+                text = text.replace("\r\n", "\n").replace("\r", "\n")
+
+                # parse text
+                for key, entry in parser.parse(text).items():
+                    if entry.entry_type in excluded_types:
+                        continue
+
+                    # purge some unnecessary fields from the bib entry to save
+                    # some space and time reloading
+                    for k in excluded_fields:
+                        if k in entry:
+                            del entry[k]
+
+                    bib_entries.append(EntryWrapper(entry))
+
+                logger.info(f"Loaded {len(bib_entries)} bibitems")
+
+                try:
+                    fmt_entries = bib_cache.set(bib_entries)
+                    entries.extend(fmt_entries)
+                except Exception:
+                    traceback.print_exc()
+                    logger.warning("Using bibliography without caching it")
+                    entries.extend(bib_entries)
 
         logger.info(f"Found {len(entries)} total bib entries")
 
