@@ -82,6 +82,10 @@ C:\Data\LaTeX\test-1400\.aux\test-index.log:1: Double-click here to open the ful
 # <- meta.summary.success.build.latextools message.info.build.latextools - meta.messages - meta.logfile
 #^^^^^^^^^^^^^^^^ meta.summary.success.build.latextools message.info.build.latextools - meta.messages - meta.logfile
 
-[Done!]
+[Finished in 3.4s]
 # <- meta.summary.success.build.latextools message.info.build.latextools - meta.messages - meta.logfile
-#^^^^^^^ meta.summary.success.build.latextools message.info.build.latextools - meta.messages - meta.logfile
+#^^^^^^^^^^^^^^^^^ meta.summary.success.build.latextools message.info.build.latextools - meta.messages - meta.logfile
+
+[Finished in 14:25]
+# <- meta.summary.success.build.latextools message.info.build.latextools - meta.messages - meta.logfile
+#^^^^^^^^^^^^^^^^^^ meta.summary.success.build.latextools message.info.build.latextools - meta.messages - meta.logfile
