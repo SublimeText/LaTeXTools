@@ -7,7 +7,7 @@ version: 2
 hidden: true
 
 variables:
-  build_results: ^\[(?:Build (?:cancelled by user|failed|skipped)|Done)!\]$
+  build_results: ^\[(?:(?:Build (?:cancelled by user|failed|skipped))!|Finished in .+)\]$
   log_file: ^((.+?)(?:(:)(\d+))?)(:)[ ](Double-click here to open the full log\.)$
 
 contexts:
@@ -106,5 +106,5 @@ contexts:
       scope: meta.summary.failure.build.latextools message.error.build.latextools
     - match: ^\[Build cancelled by user!\]$\n?
       scope: meta.summary.failure.build.latextools message.warning.build.latextools
-    - match: ^\[(?:Build skipped|Done)!\]$\n?
+    - match: ^\[(?:Build skipped!|Finished in .+)\]$\n?
       scope: meta.summary.success.build.latextools message.info.build.latextools
