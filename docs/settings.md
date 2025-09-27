@@ -75,7 +75,7 @@ This section refers to setting that can be found in a platform-specific block fo
 
 ### All Platforms
 
-  * `texpath` (varies): the path to TeX & friends. Note that this should always include `$PATH` to ensure the default path is loaded as well.
+  * `texpath` (varies): path-list, starting with path to TeX & friends, being used to lookup LaTeX commands. It replaces global `$PATH` environment variable and thus must be of the form `"/path/to/tex:$PATH` (Linux/MacOS) or `"C:\\path\\to\\tex;$PATH"` (Windows) to ensure custom TeX paths take precedence over already defined global ones.
   * `sublime_executable` (`""`): absolute path to `sublime_text.exe` to construct subl command line calls, if the path to sublime_text executable cannot be discovered automatically.
   * `keep_focus_delay` (`0.5`): this is used if `keep_focus` is set to true. It controls how long (in seconds) the delay is between the completion of the `latextools_jumpto_pdf` command and the attempt to refocus on Sublime Text. This may need to be adjusted depending on your machine or configuration.
 
