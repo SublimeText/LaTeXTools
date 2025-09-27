@@ -335,15 +335,19 @@ class PdfBuilder(LaTeXToolsPlugin):
         if self.aux_directory_full != self.output_directory_full:
             for ext in (".synctex.gz", ".pdf"):
                 asset_name = self.base_name + ext
-                src_file = os.path.join(self.aux_directory_full, asset_name)
+
                 dst_file = os.path.join(self.output_directory_full, asset_name)
-
-                src_st = os.stat(src_file)
-
                 try:
                     dst_st = os.stat(dst_file)
                 except FileNotFoundError:
                     dst_st = None
+
+                src_file = os.path.join(self.aux_directory_full, asset_name)
+                try:
+                    src_st = os.stat(src_file)
+                except FileNotFoundError:
+                    logger.debug(f"Source {src_file} does not exist, skipping!")
+                    continue
 
                 # copy if target does not exist, is older or differs in size
                 if (

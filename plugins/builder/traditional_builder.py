@@ -127,7 +127,3 @@ class TraditionalBuilder(PdfBuilder):
 
         # texify wants the .tex extension; latexmk doesn't care either way
         yield (cmd + [self.tex_name], f"running {cmd[0]}...")
-
-        # Sync compiled documents with output directory.
-        if latexmk and self.aux_directory:
-            self.copy_assets_to_output()

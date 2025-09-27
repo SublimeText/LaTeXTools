@@ -578,20 +578,29 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
     # Set the selection to the start of the output panel, so next_result works
     # Then run viewer
 
-    def finish(self, can_switch_to_pdf):
-        sublime.set_timeout(functools.partial(self.do_finish, can_switch_to_pdf), 0)
+    def finish(self, success: bool) -> None:
+        open_pdf: bool = {
+            False: False,       # for backward compatibility
+            True: success,      # for backward compatibility
+            "never": False,
+            "success": success,
+            "always": True,
+        }.get(get_setting("open_pdf_on_build", "success", self.view), False)
 
-    def do_finish(self, can_switch_to_pdf):
+        if open_pdf:
+            self.builder.copy_assets_to_output()
+            self.window.run_command("latextools_jumpto_pdf", {"from_keybinding": False})
+
+        # display build panel and update annotations in UI thread
+        sublime.set_timeout(functools.partial(self.do_finish, open_pdf))
+
+    def do_finish(self, open_pdf: bool) -> None:
         if get_setting("scroll_build_panel_to_top", False, self.view) is True:
             self.output_view.show(0, show_surrounds=False, keep_to_left=True, animate=False)
 
         if self.show_errors_inline:
             self.create_errs_by_file()
             self.update_annotations()
-
-        # can_switch_to_pdf indicates a pdf should've been created
-        if can_switch_to_pdf and get_setting("open_pdf_on_build", True, self.view):
-            self.window.run_command("latextools_jumpto_pdf", {"from_keybinding": False})
 
     def _find_errors(self, errors, error_class):
         for line in errors:

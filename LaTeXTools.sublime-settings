@@ -559,7 +559,11 @@
 	// specifies whether LaTeXTools should open the PDF file on a
 	// successful build. If set to false, the PDF file won't be opened
 	// unless explicitly launched using C-l,v or C-l,j
-	"open_pdf_on_build": true,
+	// Valid values are:
+	// - "never": 	Never open PDF file after build
+	// - "success": Open PDF after build, only if it is reported complete.
+	// - "always":  Open PDF after build, even if it might be incomplete.
+	"open_pdf_on_build": "success",
 
 	// OPTION: "disable_focus_hack"
 	// if set to true, this will stop LaTeXTools from attempting to steal focus

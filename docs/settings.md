@@ -157,7 +157,10 @@ Any other value will be interpreted as the default.
 
 * `viewer_settings`: these are viewer-specific settings. Please see the section on [Viewers](available-viewers.md) for details of what should be set here.
 
-* `open_pdf_on_build` (`true`): Controls whether LaTeXTools will automatically open the configured PDF viewer on a successful build. If set to `false`, the PDF viewer will only be launched if explicitly requested using `C-l,v` or `C-l,j`.
+* `open_pdf_on_build` (`"success"`): Controls whether to open configured PDF viewer after build. 
+  * `"never"`: PDF viewer is only launched if explicitly requested using `C-l,v` or `C-l,j`.
+  * `"success"`: PDF is opened only, if build reports success.
+  * `"always"`: PDF file is opened, even if build reported an error and PDF is most likely incomplete.
 
 * `disable_focus_hack` (`false`): if `true`, the focus hack that LaTeXTools uses to return focus to Sublime in some circumstances will not be run. **Note**: This does not mean that the *viewer* won't steal the focus, only that LaTeXTools won't try to steal the focus back.
 

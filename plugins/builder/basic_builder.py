@@ -124,5 +124,3 @@ class BasicBuilder(PdfBuilder):
         # we may save one pdflatex run
         if "Rerun to get cross-references right." in self.out:
             yield (latex, f"running {engine}...")
-
-        self.copy_assets_to_output()
