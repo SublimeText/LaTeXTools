@@ -13,6 +13,7 @@ import shlex
 import shutil
 import signal
 import threading
+import time
 import traceback
 
 import sublime
@@ -60,6 +61,8 @@ class CmdThread(threading.Thread):
             self.worker(activity_indicator)
 
     def worker(self, activity_indicator):
+        t1 = time.monotonic()
+
         logger.debug(f"Welcome to thread {self.name}")
         self.caller.output(
             f"[Compiling '{self.caller.builder.tex_root}' with '{self.caller.builder.name}']\n"
@@ -306,7 +309,15 @@ class CmdThread(threading.Thread):
                 traceback.print_exc()
 
             self.caller.output(content)
-            self.caller.output("\n\n[Build failed!]" if aborted else "\n\n[Done!]")
+            if aborted:
+                self.caller.output("\n\n[Build failed!]")
+            else:
+                elapsed = time.monotonic() - t1
+                if elapsed >= 60:
+                    elapsed = time.strftime("%M:%S", time.gmtime(elapsed))
+                else:
+                    elapsed = f"{elapsed:0.1f}s"
+                self.caller.output(f"\n\n[Finished in {elapsed}]")
 
             self.caller.errors = errors
             self.caller.warnings = warnings
