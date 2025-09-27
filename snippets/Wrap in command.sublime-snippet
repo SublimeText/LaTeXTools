@@ -1,5 +1,5 @@
 <snippet>
-	<content><![CDATA[\\${1:cmd}{${2:$SELECTION}}]]></content>
+	<content><![CDATA[\\${1:cmd}{${2:${SELECTION/\n$//g}}}]]></content>
 	<scope>text.tex.latex</scope>
 	<description>Wrap selection in LaTeX command</description>
 </snippet>
