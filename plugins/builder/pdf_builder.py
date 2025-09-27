@@ -181,7 +181,7 @@ class PdfBuilder(LaTeXToolsPlugin):
                 # Hence set `TEXMFDOTDIR`, which is prepended to all of them.
                 env_vars = ("TEXMFDOTDIR",)
             for key in env_vars:
-                env[key] = os.pathsep.join(filter(None, (self.tex_dir, env.get(key))))
+                env[key] = os.pathsep.join(filter(None, (".", self.tex_dir, env.get(key))))
 
         # finally expand variables in custom environment
         self.env = {k: self.expandvars(v) for k, v in env.items()} if env else None
