@@ -1,5 +1,5 @@
 <snippet>
-	<content><![CDATA[\underline{${1:$SELECTION}}]]></content>
+	<content><![CDATA[\underline{${1:${SELECTION/\n$//g}}}]]></content>
 	<tabTrigger>un</tabTrigger>
 	<scope>text.tex.latex - text.tex.latex meta.environment.math</scope>
 	<description>\underline{}</description>

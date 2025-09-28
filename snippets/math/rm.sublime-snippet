@@ -1,5 +1,5 @@
 <snippet>
-	<content><![CDATA[\mathrm{${1:$SELECTION}}]]></content>
+	<content><![CDATA[\mathrm{${1:${SELECTION/\n$//g}}}]]></content>
 	<tabTrigger>rm</tabTrigger>
 	<scope>text.tex.latex meta.environment.math</scope>
 	<description>\mathrm{}</description>

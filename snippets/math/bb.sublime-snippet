@@ -1,5 +1,5 @@
 <snippet>
-	<content><![CDATA[\mathbb{${1:$SELECTION}}]]></content>
+	<content><![CDATA[\mathbb{${1:${SELECTION/\n$//g}}}]]></content>
 	<tabTrigger>bb</tabTrigger>
 	<scope>text.tex.latex meta.environment.math</scope>
 	<description>\mathbb{}</description>

@@ -1,5 +1,5 @@
 <snippet>
-	<content><![CDATA[\textit{${1:$SELECTION}}]]></content>
+	<content><![CDATA[\textit{${1:${SELECTION/\n$//g}}}]]></content>
 	<tabTrigger>it</tabTrigger>
 	<scope>text.tex.latex - text.tex.latex meta.environment.math</scope>
 	<description>\textit{}</description>

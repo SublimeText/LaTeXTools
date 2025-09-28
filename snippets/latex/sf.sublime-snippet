@@ -1,5 +1,5 @@
 <snippet>
-	<content><![CDATA[\textsf{${1:$SELECTION}}]]></content>
+	<content><![CDATA[\textsf{${1:${SELECTION/\n$//g}}}]]></content>
 	<tabTrigger>sf</tabTrigger>
 	<scope>text.tex.latex - text.tex.latex meta.environment.math</scope>
 	<description>\textsf{}</description>

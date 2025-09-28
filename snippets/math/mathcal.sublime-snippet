@@ -1,5 +1,5 @@
 <snippet>
-	<content><![CDATA[mathcal{${1:$SELECTION}}]]></content>
+	<content><![CDATA[mathcal{${1:${SELECTION/\n$//g}}}]]></content>
 	<tabTrigger>mathcal</tabTrigger>
 	<scope>text.tex.latex meta.environment.math</scope>
 	<description>mathcal{}</description>
