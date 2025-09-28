@@ -471,7 +471,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
         # override the command
         if command is not None:
-            builder_settings.set("command", command)
+            builder_platform_settings.set("command", command)
 
         # parse root for any %!TEX directives
         tex_directives = parse_tex_directives(
