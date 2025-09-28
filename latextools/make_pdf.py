@@ -350,6 +350,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         builder=None,
         command=None,
         options=None,
+        encoding=None,
         shell=False,
         env=None,
         path=None,
@@ -447,15 +448,6 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             self.show_output_panel(force=True)
 
         self.plat = sublime.platform()
-        if self.plat == "osx":
-            self.encoding = "UTF-8"
-        elif self.plat == "windows":
-            self.encoding = "oem"
-        elif self.plat == "linux":
-            self.encoding = "UTF-8"
-        else:
-            sublime.error_message("Platform as yet unsupported. Sorry!")
-            return
 
         # Get platform settings, builder, and builder settings
         platform_settings = get_setting(self.plat, {}, view)
@@ -485,6 +477,17 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         tex_directives = parse_tex_directives(
             tex_root, multi_values=["options"], key_maps={"ts-program": "program"}
         )
+
+        # determine stdio encoding
+        if encoding is None:
+            encoding = builder_platform_settings.get("encoding")
+            if not encoding:
+                encoding = builder_settings.get("encoding")
+                if not encoding:
+                    if self.plat == "windows":
+                        self.encoding = "oem"
+                    else:
+                        self.encoding = "utf-8"
 
         # determine the engine
         if program is None:
