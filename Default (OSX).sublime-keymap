@@ -137,6 +137,7 @@ LaTeX Package keymap for OS X
 		"keys": ["{"],
 		"command": "latextools_fill_all", "args": { "completion_type": "cite", "insert_char": "{" },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.disable_latex_ref_cite_auto_trigger", "operand": false },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex - comment" },
@@ -147,6 +148,7 @@ LaTeX Package keymap for OS X
 		"keys": ["["],
 		"command": "latextools_fill_all", "args": { "completion_type": "cite", "insert_char": "[" },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.disable_latex_ref_cite_auto_trigger", "operand": false },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex - comment" },
@@ -157,6 +159,7 @@ LaTeX Package keymap for OS X
 		"keys": [","],
 		"command": "latextools_fill_all", "args": { "completion_type": "cite", "insert_char": "," },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.disable_latex_ref_cite_auto_trigger", "operand": false },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex - comment" },
@@ -167,6 +170,7 @@ LaTeX Package keymap for OS X
 		"keys": ["="],
 		"command": "latextools_fill_all", "args": { "completion_type": "directive", "insert_char": "=" },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.disable_latex_ref_cite_auto_trigger", "operand": false },
 			{ "key": "selector", "operand": "text.tex.latex comment.line.percentage" },
 			{ "key": "selection_empty", "match_all": true },
@@ -179,6 +183,7 @@ LaTeX Package keymap for OS X
 		"keys": ["{"],
 		"command": "latextools_fill_all", "args": { "completion_type": "ref", "insert_char": "{" },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.disable_latex_ref_cite_auto_trigger", "operand": false },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex - comment" },
@@ -189,6 +194,7 @@ LaTeX Package keymap for OS X
 		"keys": [","],
 		"command": "latextools_fill_all", "args": { "completion_type": "ref", "insert_char": "," },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.disable_latex_ref_cite_auto_trigger", "operand": false },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex - comment" },
@@ -201,6 +207,7 @@ LaTeX Package keymap for OS X
 		"keys": ["{"],
 		"command": "latextools_fill_all", "args": { "completion_type": "input", "insert_char": "{" },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.disable_latex_ref_cite_auto_trigger", "operand": false },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex - comment" },
@@ -211,6 +218,7 @@ LaTeX Package keymap for OS X
 		"keys": [","],
 		"command": "latextools_fill_all", "args": { "completion_type": "input", "insert_char": "," },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.disable_latex_ref_cite_auto_trigger", "operand": false },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex - comment" },
@@ -223,6 +231,7 @@ LaTeX Package keymap for OS X
 		"keys": ["{"],
 		"command": "latextools_fill_all", "args": { "completion_type": "env", "insert_char": "{" },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.disable_latex_ref_cite_auto_trigger", "operand": false },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex - comment" },
@@ -235,6 +244,7 @@ LaTeX Package keymap for OS X
 		"keys": ["{"],
 		"command": "latextools_fill_all", "args": { "completion_type": "glossary", "insert_char": "{" },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.disable_latex_ref_cite_auto_trigger", "operand": false },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex - comment" },
@@ -257,6 +267,7 @@ LaTeX Package keymap for OS X
 		"keys": ["{"],
 		"command": "latextools_auto_insert_label",
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "latextools.setting.auto_label_auto_trigger" },
 			{ "key": "selector", "operand": "text.tex.latex" },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\\\label$", "match_all": true }
@@ -640,6 +651,7 @@ LaTeX Package keymap for OS X
 		"keys": ["{"],
 		"command": "insert_snippet", "args": {"contents": "{$0}"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math - meta.function.citation - meta.function.reference" },
@@ -650,6 +662,7 @@ LaTeX Package keymap for OS X
 	{
 		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
@@ -662,6 +675,7 @@ LaTeX Package keymap for OS X
 		"keys": ["backspace"],
 		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
@@ -676,6 +690,7 @@ LaTeX Package keymap for OS X
 		"keys": ["["],
 		"command": "insert_snippet", "args": {"contents": "[$0]"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math - meta.function.citation - meta.function.reference" },
@@ -686,6 +701,7 @@ LaTeX Package keymap for OS X
 	{
 		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
@@ -698,6 +714,7 @@ LaTeX Package keymap for OS X
 		"keys": ["backspace"],
 		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
@@ -712,6 +729,7 @@ LaTeX Package keymap for OS X
 		"keys": ["("],
 		"command": "insert_snippet", "args": {"contents": "($0)"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math - meta.function.citation - meta.function.reference" },
@@ -722,6 +740,7 @@ LaTeX Package keymap for OS X
 	{
 		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
@@ -734,6 +753,7 @@ LaTeX Package keymap for OS X
 		"keys": ["backspace"],
 		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
@@ -748,6 +768,7 @@ LaTeX Package keymap for OS X
 		"keys": ["{"],
 		"command": "insert_snippet", "args": {"contents": "{$0\\\\}"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_escaped_brackets" },
 			{ "key": "selection_empty", "match_all": true },
@@ -760,6 +781,7 @@ LaTeX Package keymap for OS X
 		"keys": ["backspace"],
 		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Twice.sublime-macro"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_escaped_brackets" },
 			{ "key": "selection_empty", "match_all": true },
@@ -771,6 +793,7 @@ LaTeX Package keymap for OS X
 	{
 		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
@@ -783,6 +806,7 @@ LaTeX Package keymap for OS X
 		"keys": ["backspace"],
 		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
@@ -797,6 +821,7 @@ LaTeX Package keymap for OS X
 		"keys": ["["],
 		"command": "insert_snippet", "args": {"contents": "[$0\\\\]"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_escaped_brackets" },
 			{ "key": "selection_empty", "match_all": true },
@@ -809,6 +834,7 @@ LaTeX Package keymap for OS X
 		"keys": ["backspace"],
 		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Twice.sublime-macro"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_escaped_brackets" },
 			{ "key": "selection_empty", "match_all": true },
@@ -820,6 +846,7 @@ LaTeX Package keymap for OS X
 	{
 		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
@@ -832,6 +859,7 @@ LaTeX Package keymap for OS X
 		"keys": ["backspace"],
 		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
@@ -846,6 +874,7 @@ LaTeX Package keymap for OS X
 		"keys": ["("],
 		"command": "insert_snippet", "args": {"contents": "($0\\\\)"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_escaped_brackets" },
 			{ "key": "selection_empty", "match_all": true },
@@ -858,6 +887,7 @@ LaTeX Package keymap for OS X
 		"keys": ["backspace"],
 		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Twice.sublime-macro"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_escaped_brackets" },
 			{ "key": "selection_empty", "match_all": true },
@@ -869,6 +899,7 @@ LaTeX Package keymap for OS X
 	{
 		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
@@ -881,6 +912,7 @@ LaTeX Package keymap for OS X
 		"keys": ["backspace"],
 		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
@@ -895,6 +927,7 @@ LaTeX Package keymap for OS X
 		"keys": ["{"],
 		"command": "insert_snippet", "args": {"contents": "{$0\\\\right\\\\}"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_math_brackets" },
 			{ "key": "selection_empty", "match_all": true },
@@ -907,6 +940,7 @@ LaTeX Package keymap for OS X
 		"keys": ["backspace"],
 		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Bracket 2.sublime-macro"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_math_brackets" },
 			{ "key": "selection_empty", "match_all": true },
@@ -918,6 +952,7 @@ LaTeX Package keymap for OS X
 	{
 		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
@@ -930,6 +965,7 @@ LaTeX Package keymap for OS X
 		"keys": ["backspace"],
 		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
@@ -944,6 +980,7 @@ LaTeX Package keymap for OS X
 		"keys": ["["],
 		"command": "insert_snippet", "args": {"contents": "[$0\\\\right]"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_math_brackets" },
 			{ "key": "selection_empty", "match_all": true },
@@ -956,6 +993,7 @@ LaTeX Package keymap for OS X
 		"keys": ["backspace"],
 		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Bracket 1.sublime-macro"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_math_brackets" },
 			{ "key": "selection_empty", "match_all": true },
@@ -967,6 +1005,7 @@ LaTeX Package keymap for OS X
 	{
 		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
@@ -979,6 +1018,7 @@ LaTeX Package keymap for OS X
 		"keys": ["backspace"],
 		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
@@ -993,6 +1033,7 @@ LaTeX Package keymap for OS X
 		"keys": ["("],
 		"command": "insert_snippet", "args": {"contents": "($0\\\\right)"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_math_brackets" },
 			{ "key": "selection_empty", "match_all": true },
@@ -1005,6 +1046,7 @@ LaTeX Package keymap for OS X
 		"keys": ["backspace"],
 		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Bracket 1.sublime-macro"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_math_brackets" },
 			{ "key": "selection_empty", "match_all": true },
@@ -1016,6 +1058,7 @@ LaTeX Package keymap for OS X
 	{
 		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
@@ -1028,6 +1071,7 @@ LaTeX Package keymap for OS X
 		"keys": ["backspace"],
 		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
@@ -1042,6 +1086,7 @@ LaTeX Package keymap for OS X
 		"keys": ["/"],
 		"command": "insert_snippet", "args": {"contents": "/$0\\\\right/"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_math_brackets" },
 			{ "key": "selection_empty", "match_all": true },
@@ -1054,6 +1099,7 @@ LaTeX Package keymap for OS X
 		"keys": ["backspace"],
 		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Bracket 1.sublime-macro"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_math_brackets" },
 			{ "key": "selection_empty", "match_all": true },
@@ -1065,6 +1111,7 @@ LaTeX Package keymap for OS X
 	{
 		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
@@ -1077,6 +1124,7 @@ LaTeX Package keymap for OS X
 		"keys": ["backspace"],
 		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
@@ -1091,6 +1139,7 @@ LaTeX Package keymap for OS X
 		"keys": ["|"],
 		"command": "insert_snippet", "args": {"contents": "|$0\\\\right|"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_math_brackets" },
 			{ "key": "selection_empty", "match_all": true },
@@ -1103,6 +1152,7 @@ LaTeX Package keymap for OS X
 		"keys": ["backspace"],
 		"command": "run_macro_file", "args": {"file": "res://Packages/LaTeXTools/Delete Left Right Bracket 1.sublime-macro"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_math_brackets" },
 			{ "key": "selection_empty", "match_all": true },
@@ -1114,6 +1164,7 @@ LaTeX Package keymap for OS X
 	{
 		"keys": [" "], "command": "insert_snippet", "args": {"contents": " $0 "},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
@@ -1126,6 +1177,7 @@ LaTeX Package keymap for OS X
 		"keys": ["backspace"],
 		"command": "run_macro_file", "args": {"file": "res://Packages/Default/Delete Left Right.sublime-macro"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "latextools.setting.auto_match_spaces" },
 			{ "key": "selection_empty", "match_all": true },
@@ -1143,6 +1195,7 @@ LaTeX Package keymap for OS X
 	{
 		"keys": ["enter"], "command": "insert_snippet", "args": {"contents": "\n\t$0\n"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*(?:\\\\left)?(?:\\\\)?[(\\[{/|]$", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\\\right)?(?:\\\\)?[)\\]}/|]", "match_all": true },
@@ -1151,6 +1204,7 @@ LaTeX Package keymap for OS X
 	{
 		"keys": ["keypad_enter"], "command": "insert_snippet", "args": {"contents": "\n\t$0\n"},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" },
 			{ "key": "preceding_text", "operator": "regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*(?:\\\\left)?(?:\\\\)?[(\\[{/|]$", "match_all": true },
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\\\\right)?(?:\\\\)?[)\\]}/|]", "match_all": true },
@@ -1218,6 +1272,7 @@ LaTeX Package keymap for OS X
 		"keys": ["backspace"],
 		"command": "run_macro_file", "args": { "file": "Packages/Default/Delete Left Right.sublime-macro" },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex" },
@@ -1250,6 +1305,7 @@ LaTeX Package keymap for OS X
 		"keys": ["<"],
 		"command": "insert_snippet", "args": { "contents": "<${1:+-}>$0" },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex - (string.other.math, meta.environment.math)" },
@@ -1260,6 +1316,7 @@ LaTeX Package keymap for OS X
 		"keys": ["<"],
 		"command": "insert_snippet", "args": { "contents": "<${0:$SELECTION}>" },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "operand": false, "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex" }
@@ -1269,6 +1326,7 @@ LaTeX Package keymap for OS X
 		"keys": [">"],
 		"command": "move", "args": { "by": "characters", "forward": true},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex" },
@@ -1279,6 +1337,7 @@ LaTeX Package keymap for OS X
 		"keys": ["backspace"],
 		"command": "run_macro_file", "args": { "file": "Packages/Default/Delete Left Right.sublime-macro" },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex" },
@@ -1295,6 +1354,7 @@ LaTeX Package keymap for OS X
 		"keys": ["`"],
 		"command": "insert_snippet", "args": { "contents": "`$0'" },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex" },
@@ -1305,6 +1365,7 @@ LaTeX Package keymap for OS X
 		"keys": ["`"],
 		"command": "insert_snippet", "args": { "contents": "`${0:$SELECTION}'" },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "operand": false, "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex" }
@@ -1314,6 +1375,7 @@ LaTeX Package keymap for OS X
 		"keys": ["'"],
 		"command": "move", "args": { "by": "characters", "forward": true},
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex" },
@@ -1324,6 +1386,7 @@ LaTeX Package keymap for OS X
 		"keys": ["backspace"],
 		"command": "run_macro_file", "args": { "file": "Packages/Default/Delete Left Right.sublime-macro" },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex" },
@@ -1341,6 +1404,7 @@ LaTeX Package keymap for OS X
 		"keys": ["shift+enter"],
 		"command": "insert_snippet", "args": { "contents": "\n\\item $0" },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.list, meta.function.environment.list.latex" }
 		]
@@ -1349,6 +1413,7 @@ LaTeX Package keymap for OS X
 		"keys": ["shift+keypad_enter"],
 		"command": "insert_snippet", "args": { "contents": "\n\\item $0" },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.list, meta.function.environment.list.latex" }
 		]
@@ -1357,6 +1422,7 @@ LaTeX Package keymap for OS X
 		"keys": ["shift+enter"],
 		"command": "insert_snippet", "args": { "contents": "\n\\item[$1] $0" },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.list.description" }
 		]
@@ -1365,6 +1431,7 @@ LaTeX Package keymap for OS X
 		"keys": ["shift+keypad_enter"],
 		"command": "insert_snippet", "args": { "contents": "\n\\item[$1] $0" },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.list.description" }
 		]
@@ -1380,6 +1447,7 @@ LaTeX Package keymap for OS X
 		"command": "insert_snippet",
 		"args": { "contents": "\n\\task ${0:$SELECTION}" },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "selector", "operand": "text.tex.latex" },
 			{ "key": "latextools.env_selector", "operand": "tasks"},
 		]
@@ -1389,6 +1457,7 @@ LaTeX Package keymap for OS X
 		"command": "insert_snippet",
 		"args": { "contents": "\n\\task ${0:$SELECTION}" },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "selector", "operand": "text.tex.latex" },
 			{ "key": "latextools.env_selector", "operand": "tasks"},
 		]
@@ -1403,6 +1472,7 @@ LaTeX Package keymap for OS X
 		"keys": ["shift+super+down"],
 		"command": "insert_snippet", "args": { "contents": "_{$1}$0" },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" }
@@ -1412,6 +1482,7 @@ LaTeX Package keymap for OS X
 		"keys": ["shift+super+up"],
 		"command": "insert_snippet", "args": { "contents": "^{$1}$0" },
 		"context": [
+			{ "key": "setting.command_mode", "operand": false },
 			{ "key": "setting.auto_match_enabled" },
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" }
