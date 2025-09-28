@@ -352,11 +352,42 @@ LaTeX Package keymap for Linux
 		]
 	},
 
-	// Wrap selected text in emph, bold or underline
+	// Wrap word under caret in bold
+	{
+		"keys": ["ctrl+l","ctrl+b"],
+		"command": "chain",
+		"args": {
+			"commands": [
+				{ "command": "expand_selection", "args": { "to": "word" } },
+				{ "command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/bf.sublime-snippet" } }
+			]
+		},
+		"context": [
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
+		]
+	},
+	{
+		"keys": ["ctrl+l","ctrl+b"],
+		"command": "chain",
+		"args": {
+			"commands": [
+				{ "command": "expand_selection", "args": { "to": "word" } },
+				{ "command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/math/bf.sublime-snippet" } }
+			]
+		},
+		"context": [
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" }
+		]
+	},
+
+	// Wrap selected text in bold
 	{
 		"keys": ["ctrl+l","ctrl+b"],
 		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/bf.sublime-snippet" },
 		"context": [
+			{ "key": "selection_empty", "operand": false, "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
 		]
 	},
@@ -364,27 +395,147 @@ LaTeX Package keymap for Linux
 		"keys": ["ctrl+l","ctrl+b"],
 		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/math/bf.sublime-snippet" },
 		"context": [
+			{ "key": "selection_empty", "operand": false, "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" }
 		]
 	},
+
+	// Wrap word under caret in emph
+	{
+		"keys": ["ctrl+l","ctrl+e"],
+		"command": "chain",
+		"args": {
+			"commands": [
+				{ "command": "expand_selection", "args": { "to": "word" } },
+				{ "command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/em.sublime-snippet" } }
+			]
+		},
+		"context": [
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
+
+	// Wrap selected text in emph
 	{
 		"keys": ["ctrl+l","ctrl+e"],
 		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/em.sublime-snippet" },
 		"context": [
+			{ "key": "selection_empty", "operand": false, "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex" }
 		]
 	},
+
+	// Wrap word under caret in italic
+	{
+		"keys": ["ctrl+l","ctrl+i"],
+		"command": "chain",
+		"args": {
+			"commands": [
+				{ "command": "expand_selection", "args": { "to": "word" } },
+				{ "command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/it.sublime-snippet" } }
+			]
+		},
+		"context": [
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
+		]
+	},
+	{
+		"keys": ["ctrl+l","ctrl+i"],
+		"command": "chain",
+		"args": {
+			"commands": [
+				{ "command": "expand_selection", "args": { "to": "word" } },
+				{ "command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/math/it.sublime-snippet" } }
+			]
+		},
+		"context": [
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" }
+		]
+	},
+
+	// Wrap selected text in italic
+	{
+		"keys": ["ctrl+l","ctrl+i"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/it.sublime-snippet" },
+		"context": [
+			{ "key": "selection_empty", "operand": false, "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
+		]
+	},
+	{
+		"keys": ["ctrl+l","ctrl+i"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/math/it.sublime-snippet" },
+		"context": [
+			{ "key": "selection_empty", "operand": false, "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" }
+		]
+	},
+
+	// Wrap word under caret in sl
+	{
+		"keys": ["ctrl+l","ctrl+s"],
+		"command": "chain",
+		"args": {
+			"commands": [
+				{ "command": "expand_selection", "args": { "to": "word" } },
+				{ "command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/sl.sublime-snippet" } }
+			]
+		},
+		"context": [
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
+		]
+	},
+
+	// Wrap selected text in sl
 	{
 		"keys": ["ctrl+l","ctrl+s"],
 		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/sl.sublime-snippet" },
 		"context": [
+			{ "key": "selection_empty", "operand": false, "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
+		]
+	},
+
+	// Wrap word under caret in tt
+	{
+		"keys": ["ctrl+l","ctrl+t"],
+		"command": "chain",
+		"args": {
+			"commands": [
+				{ "command": "expand_selection", "args": { "to": "word" } },
+				{ "command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/tt.sublime-snippet" } }
+			]
+		},
+		"context": [
+			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
 		]
 	},
 	{
 		"keys": ["ctrl+l","ctrl+t"],
+		"command": "chain",
+		"args": {
+			"commands": [
+				{ "command": "expand_selection", "args": { "to": "word" } },
+				{ "command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/math/tt.sublime-snippet" } }
+			]
+		},
+		"context": [
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" }
+		]
+	},
+
+	// Wrap selected text in tt
+	{
+		"keys": ["ctrl+l","ctrl+t"],
 		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/tt.sublime-snippet" },
 		"context": [
+			{ "key": "selection_empty", "operand": false, "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
 		]
 	},
@@ -392,13 +543,33 @@ LaTeX Package keymap for Linux
 		"keys": ["ctrl+l","ctrl+t"],
 		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/math/tt.sublime-snippet" },
 		"context": [
+			{ "key": "selection_empty", "operand": false, "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" }
 		]
 	},
+
+	// Wrap word under caret in underline
+	{
+		"keys": ["ctrl+l","ctrl+u"],
+		"command": "chain",
+		"args": {
+			"commands": [
+				{ "command": "expand_selection", "args": { "to": "word" } },
+				{ "command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/un.sublime-snippet" } }
+			]
+		},
+		"context": [
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "selector", "operand": "text.tex.latex" }
+		]
+	},
+
+	// Wrap selected text in underline
 	{
 		"keys": ["ctrl+l","ctrl+u"],
 		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/un.sublime-snippet" },
 		"context": [
+			{ "key": "selection_empty", "operand": false, "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex" }
 		]
 	},
