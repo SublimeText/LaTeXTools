@@ -256,13 +256,15 @@ def find_bib_files(root):
         # extract absolute filepath for each bib file
         rootdir = os.path.dirname(root)
         for res in resources:
-            # We join with rootdir, the dir of the master file
-            candidate_file = os.path.normpath(os.path.join(rootdir, res))
+            candidate_file = analysis.decode_path(res, rootdir)
+            if not candidate_file:
+                continue
+
             # if the file doesn't exist, search the default tex paths
             if not os.path.exists(candidate_file):
                 candidate_file = kpsewhich(res, "mlbib")
 
-            if candidate_file is not None and os.path.exists(candidate_file):
+            if candidate_file and os.path.exists(candidate_file):
                 result.add(candidate_file)
 
         return tuple(result)
