@@ -1236,7 +1236,7 @@ LaTeX Package keymap for Linux
 			{ "key": "selection_empty", "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex meta.environment.math.block.dollar" },
 			// do not insert this if it is escaped
-			{ "key": "preceding_text", "operator": "not_regex_contains", "operand": "(?:\\\\{2})*(?:\\\\|\\$)$", "match_all": true }
+			{ "key": "preceding_text", "operator": "not_regex_contains", "operand": "(?:^|[^\\\\])(\\\\{2})*(?:\\\\|\\$)$", "match_all": true }
 		]
 	},
 
