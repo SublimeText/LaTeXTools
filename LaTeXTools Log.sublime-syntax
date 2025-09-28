@@ -68,6 +68,7 @@ contexts:
     - include: strings
 
   block-comment:
+    - include: blocks
     - match: '^Document Class:.{64}\n'
       set: block-comment-body
     - match: '^Document Class:.+'
@@ -83,7 +84,7 @@ contexts:
     - match: '^Package:.+'
       scope: comment.line.log
       pop: 1
-    - match: ^|(?=[()])
+    - match: ^|(?=\))
       pop: 1
 
   block-comment-body:
