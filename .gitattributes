@@ -11,5 +11,6 @@ mkdocs.yml          export-ignore
 
 # Development
 tests/              export-ignore
+make.cmd            export-ignore
 pyproject.toml      export-ignore
-unittesting.json	export-ignore
+unittesting.json    export-ignore
