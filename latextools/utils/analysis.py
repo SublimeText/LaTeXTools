@@ -628,3 +628,31 @@ class objectview:
 
     def __setattr__(self, attr, value):
         raise TypeError("cannot set value on an objectview")
+
+
+def decode_path(string, base_path=None):
+    """
+    Decodes latex string to path.
+
+    :Eyample:
+        \\string~/bibliography/global.bib  -> /home/me/bibliography/global.bib
+
+    If `base_path` is given and string is a relative path,
+    both are joined to a normalized absolute path.
+
+    :Eyample:
+        with base_path = "/base/path"
+
+        bib/global.bib  -> /base/path/bib/global.bib
+
+    :returns:
+        A valid OS path with all LaTeX escapes removed.
+    """
+    if string:
+        string = string.replace("\\string", "")
+    if string:
+        string = os.path.expanduser(string)
+        if base_path and not os.path.isabs(string):
+            string = os.path.join(base_path, string)
+        return os.path.normpath(string)
+    return None
