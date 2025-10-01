@@ -363,6 +363,22 @@ LaTeX Package keymap for OS X
 		]
 	},
 
+	// Wrap selected text in bold
+	{
+		"keys": ["super+l","super+b"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/bf.sublime-snippet" },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
+		]
+	},
+	{
+		"keys": ["super+l","super+b"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/math/bf.sublime-snippet" },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" }
+		]
+	},
+
 	// Wrap word under caret in bold
 	{
 		"keys": ["super+l","super+b"],
@@ -375,7 +391,9 @@ LaTeX Package keymap for OS X
 		},
 		"context": [
 			{ "key": "selection_empty", "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
+			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\w$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\w", "match_all": true }
 		]
 	},
 	{
@@ -389,25 +407,18 @@ LaTeX Package keymap for OS X
 		},
 		"context": [
 			{ "key": "selection_empty", "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" }
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\w$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\w", "match_all": true }
 		]
 	},
 
-	// Wrap selected text in bold
+	// Wrap selected text in emph
 	{
-		"keys": ["super+l","super+b"],
-		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/bf.sublime-snippet" },
+		"keys": ["super+l","super+e"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/em.sublime-snippet" },
 		"context": [
-			{ "key": "selection_empty", "operand": false, "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
-		]
-	},
-	{
-		"keys": ["super+l","super+b"],
-		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/math/bf.sublime-snippet" },
-		"context": [
-			{ "key": "selection_empty", "operand": false, "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" }
+			{ "key": "selector", "operand": "text.tex.latex" }
 		]
 	},
 
@@ -423,17 +434,25 @@ LaTeX Package keymap for OS X
 		},
 		"context": [
 			{ "key": "selection_empty", "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex" }
+			{ "key": "selector", "operand": "text.tex.latex" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\w$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\w", "match_all": true }
 		]
 	},
 
-	// Wrap selected text in emph
+	// Wrap selected text in italic
 	{
-		"keys": ["super+l","super+e"],
-		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/em.sublime-snippet" },
+		"keys": ["super+l","super+i"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/it.sublime-snippet" },
 		"context": [
-			{ "key": "selection_empty", "operand": false, "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex" }
+			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
+		]
+	},
+	{
+		"keys": ["super+l","super+i"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/math/it.sublime-snippet" },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" }
 		]
 	},
 
@@ -449,7 +468,9 @@ LaTeX Package keymap for OS X
 		},
 		"context": [
 			{ "key": "selection_empty", "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
+			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\w$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\w", "match_all": true }
 		]
 	},
 	{
@@ -463,25 +484,18 @@ LaTeX Package keymap for OS X
 		},
 		"context": [
 			{ "key": "selection_empty", "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" }
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\w$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\w", "match_all": true }
 		]
 	},
 
-	// Wrap selected text in italic
+	// Wrap selected text in sl
 	{
-		"keys": ["super+l","super+i"],
-		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/it.sublime-snippet" },
+		"keys": ["super+l","super+s"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/sl.sublime-snippet" },
 		"context": [
-			{ "key": "selection_empty", "operand": false, "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
-		]
-	},
-	{
-		"keys": ["super+l","super+i"],
-		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/math/it.sublime-snippet" },
-		"context": [
-			{ "key": "selection_empty", "operand": false, "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" }
 		]
 	},
 
@@ -497,17 +511,25 @@ LaTeX Package keymap for OS X
 		},
 		"context": [
 			{ "key": "selection_empty", "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
+			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\w$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\w", "match_all": true }
 		]
 	},
 
-	// Wrap selected text in sl
+	// Wrap selected text in tt
 	{
-		"keys": ["super+l","super+s"],
-		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/sl.sublime-snippet" },
+		"keys": ["super+l","super+t"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/tt.sublime-snippet" },
 		"context": [
-			{ "key": "selection_empty", "operand": false, "match_all": true },
 			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
+		]
+	},
+	{
+		"keys": ["super+l","super+t"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/math/tt.sublime-snippet" },
+		"context": [
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" }
 		]
 	},
 
@@ -523,7 +545,9 @@ LaTeX Package keymap for OS X
 		},
 		"context": [
 			{ "key": "selection_empty", "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
+			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\w$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\w", "match_all": true }
 		]
 	},
 	{
@@ -537,25 +561,18 @@ LaTeX Package keymap for OS X
 		},
 		"context": [
 			{ "key": "selection_empty", "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" }
+			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\w$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\w", "match_all": true }
 		]
 	},
 
-	// Wrap selected text in tt
+	// Wrap selected text in underline
 	{
-		"keys": ["super+l","super+t"],
-		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/tt.sublime-snippet" },
+		"keys": ["super+l","super+u"],
+		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/un.sublime-snippet" },
 		"context": [
-			{ "key": "selection_empty", "operand": false, "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex - text.tex.latex meta.environment.math" }
-		]
-	},
-	{
-		"keys": ["super+l","super+t"],
-		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/math/tt.sublime-snippet" },
-		"context": [
-			{ "key": "selection_empty", "operand": false, "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex meta.environment.math" }
+			{ "key": "selector", "operand": "text.tex.latex" }
 		]
 	},
 
@@ -571,17 +588,9 @@ LaTeX Package keymap for OS X
 		},
 		"context": [
 			{ "key": "selection_empty", "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex" }
-		]
-	},
-
-	// Wrap selected text in underline
-	{
-		"keys": ["super+l","super+u"],
-		"command": "insert_snippet", "args": { "name":"Packages/LaTeXTools/snippets/latex/un.sublime-snippet" },
-		"context": [
-			{ "key": "selection_empty", "operand": false, "match_all": true },
-			{ "key": "selector", "operand": "text.tex.latex" }
+			{ "key": "selector", "operand": "text.tex.latex" },
+			{ "key": "preceding_text", "operator": "regex_contains", "operand": "\\w$", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\\w", "match_all": true }
 		]
 	},
 
