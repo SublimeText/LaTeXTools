@@ -37,6 +37,8 @@ _ref_prefixes = (
     "|v"
     "|V"
     "|vpage"
+    "|zc"
+    "|zcpage"
 )[::-1]
 
 OLD_STYLE_REF_REGEX = re.compile(fr"([^_]*_)?(?:\*?s?fer(?:{_ref_prefixes})?)\\")
