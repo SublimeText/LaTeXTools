@@ -32,12 +32,8 @@ class PreviewPhantomListener(sublime_plugin.ViewEventListener):
 
     @classmethod
     def is_applicable(cls, settings):
-        try:
-            view = currentframe().f_back.f_locals["view"]
-            return len(view.find_by_selector("text.tex.latex")) > 0
-        except KeyError:
-            syntax = settings.get("syntax")
-            return syntax == "Packages/LaTeX/LaTeX.sublime-syntax"
+        syntax = str(settings.get("syntax", ""))
+        return any(s in syntax for s in ("LaTeX", "Markdown"))
 
     @classmethod
     def applies_to_primary_view_only(cls):
