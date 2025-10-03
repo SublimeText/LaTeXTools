@@ -1196,6 +1196,94 @@ LaTeX Package keymap for Linux
 		]
 	},
 
+	// Auto-pair double quotes
+	{
+		"keys": ["\""],
+		"command": "",
+		"context": [
+			{ "key": "setting.command_mode", "operand": false },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true }
+		]
+	},
+	{
+		"keys": ["\""],
+		"command": "insert_snippet", "args": {"contents": "\"$0\""},
+		"context": [
+			{ "key": "setting.command_mode", "operand": false },
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\t| |\\)|]|\\}|>|$)", "match_all": true },
+			{ "key": "preceding_text", "operator": "not_regex_contains", "operand": "(?:(?<![\\\\])(\\\\{2})*\\\\|[\"\\w_])$", "match_all": true },
+			{ "key": "eol_selector", "operator": "not_equal", "operand": "string.quoted - punctuation.definition.string.end", "match_all": true }
+		]
+	},
+	{
+		"keys": ["\""],
+		"command": "insert_snippet", "args": {"contents": "\"${0:$SELECTION}\""},
+		"context": [
+			{ "key": "setting.command_mode", "operand": false },
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "selection_empty", "operand": false, "match_all": true }
+		]
+	},
+	{
+		"keys": ["\""],
+		"command": "move", "args": {"by": "characters", "forward": true},
+		"context": [
+			{ "key": "setting.command_mode", "operand": false },
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^\"", "match_all": true },
+		]
+	},
+
+	// Auto-pair single quotes
+	{
+		"keys": ["'"],
+		"command": "",
+		"context": [
+			{ "key": "setting.command_mode", "operand": false },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true }
+		]
+	},
+	{
+		"keys": ["'"],
+		"command": "insert_snippet", "args": {"contents": "'$0'"},
+		"context": [
+			{ "key": "setting.command_mode", "operand": false },
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^(?:\t| |\\)|]|\\}|>|$)", "match_all": true },
+			{ "key": "preceding_text", "operator": "not_regex_contains", "operand": "(?:(?<![\\\\])(\\\\{2})*\\\\|['\\w_])$", "match_all": true },
+			{ "key": "eol_selector", "operator": "not_equal", "operand": "string.quoted - punctuation.definition.string.end", "match_all": true }
+		]
+	},
+	{
+		"keys": ["'"],
+		"command": "insert_snippet", "args": {"contents": "'${0:$SELECTION}'"},
+		"context": [
+			{ "key": "setting.command_mode", "operand": false },
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "selection_empty", "operand": false, "match_all": true }
+		]
+	},
+	{
+		"keys": ["'"],
+		"command": "move", "args": {"by": "characters", "forward": true},
+		"context": [
+			{ "key": "setting.command_mode", "operand": false },
+			{ "key": "setting.auto_match_enabled" },
+			{ "key": "selector", "operand": "text.tex.latex", "match_all": true },
+			{ "key": "selection_empty", "match_all": true },
+			{ "key": "following_text", "operator": "regex_contains", "operand": "^'", "match_all": true },
+		]
+	},
+
 	// ------------------------------------------------------------------
 	// Indent content between braces/brackets/parentheses
 	// ------------------------------------------------------------------
