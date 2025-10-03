@@ -1,4 +1,5 @@
 from __future__ import annotations
+import ctypes
 import os
 import shutil
 import sublime
@@ -300,7 +301,7 @@ class PdfBuilder(LaTeXToolsPlugin):
             A string with all known variables expanded.
         """
         return Template(text).safe_substitute(
-            eol="", # a dummy to be used to prevent automatic base_name appending
+            eol="",  # a dummy to be used to prevent automatic base_name appending
             file=self.tex_root,
             file_path=self.tex_dir,
             file_name=self.tex_name,
@@ -356,4 +357,14 @@ class PdfBuilder(LaTeXToolsPlugin):
                     or src_st.st_size != dst_st.st_size
                 ):
                     shutil.copy2(src_file, dst_file)
+                    if ext == ".synctex.gz":
+                        hide_file(dst_file)
                     logger.debug(f"Updated {dst_file}")
+
+
+def hide_file(file_name):
+    if os.name == "nt":
+        FILE_ATTRIBUTE_HIDDEN = 0x02
+        ret = ctypes.windll.kernel32.SetFileAttributesW(file_name, FILE_ATTRIBUTE_HIDDEN)
+        if not ret:  # There was an error.
+            raise ctypes.WinError()
