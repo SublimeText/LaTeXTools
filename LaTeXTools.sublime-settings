@@ -167,7 +167,7 @@
 	// to only preview math environment
 	// Set it to "text.tex.latex meta.environment.math"
 	// to preview every math command or environment
-	"preview_math_scope": "text.tex.latex meta.environment.math.block",
+	"preview_math_scope": "meta.environment.math.block",
 
 	// The program to compile the latex template files, possible values are
 	// pdflatex, xelatex, lualatex, latex
