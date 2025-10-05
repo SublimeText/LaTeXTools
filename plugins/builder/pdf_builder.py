@@ -356,9 +356,12 @@ class PdfBuilder(LaTeXToolsPlugin):
                     or src_st.st_mtime > dst_st.st_mtime
                     or src_st.st_size != dst_st.st_size
                 ):
-                    shutil.copy2(src_file, dst_file)
                     if ext == ".synctex.gz":
+                        unhide_file(dst_file)
+                        shutil.copy2(src_file, dst_file)
                         hide_file(dst_file)
+                    else:
+                        shutil.copy2(src_file, dst_file)
                     logger.debug(f"Updated {dst_file}")
 
 
@@ -366,5 +369,15 @@ def hide_file(file_name):
     if os.name == "nt":
         FILE_ATTRIBUTE_HIDDEN = 0x02
         ret = ctypes.windll.kernel32.SetFileAttributesW(file_name, FILE_ATTRIBUTE_HIDDEN)
+        if not ret:  # There was an error.
+            raise ctypes.WinError()
+
+
+def unhide_file(file_name):
+    if os.name == "nt":
+        FILE_ATTRIBUTE_HIDDEN = 0x02
+        attr = ctypes.windll.kernel32.GetFileAttributesW(file_name)
+        attr &= ~FILE_ATTRIBUTE_HIDDEN
+        ret = ctypes.windll.kernel32.SetFileAttributesW(file_name, attr)
         if not ret:  # There was an error.
             raise ctypes.WinError()
