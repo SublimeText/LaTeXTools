@@ -357,7 +357,8 @@ class PdfBuilder(LaTeXToolsPlugin):
                     or src_st.st_size != dst_st.st_size
                 ):
                     if ext == ".synctex.gz":
-                        unhide_file(dst_file)
+                        if dst_st is not None:
+                            unhide_file(dst_file)
                         shutil.copy2(src_file, dst_file)
                         hide_file(dst_file)
                     else:
