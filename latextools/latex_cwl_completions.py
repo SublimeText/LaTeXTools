@@ -15,19 +15,32 @@ from .utils.tex_directives import get_tex_root
 
 ALPHAS_REGEX = re.compile(r"^[a-zA-Z]+$")
 
-BRACES_MATCH_REGEX = re.compile(r"\{([^\}]*)\}|\[([^\]]*)\]")
-"""
-used to convert arguments and optional arguments into fields
-"""
-
 BEGIN_ENV_REGEX = re.compile(
     r"\\begin{(?P<name>[^\}]*)\}(?:(?P<remainder1>.*)(?P<item>\\item)|(?P<remainder2>.*))"
 )
+"""
+regex to parse a environment line from the cwl file
+"""
 
 END_ENV_REGEX = re.compile(r"\\end\{(?P<name>[^\}]+)\}")
 """
 regex to parse a environment line from the cwl file
 only search for \\end to create a list without duplicates
+"""
+
+BRACKETS_REGEX = re.compile(r"\{([^\}]*)\}|\[([^\]]*)\]|%<(.+?)%>")
+"""
+used to convert arguments and optional arguments into fields
+"""
+
+FIELD_REGEX = re.compile(r"%<(.+?)%>")
+"""
+used to convert %<...%> tags into fields
+"""
+
+KIND_REGEX = re.compile(r"%[a-z]+")
+"""
+used to filter %plain, %l, etc.
 """
 
 PACKAGE_CWL_FILES = {
@@ -224,60 +237,80 @@ def parse_cwl_file(
     return (commands, environments, cwl_dependencies)
 
 
-def command_to_snippet(keyword: str) -> tuple[str, str]:
+def command_to_snippet(cwl_cmd: str) -> tuple[str, str]:
     """
     converts a LaTeX command, like \\dosomething{arg1}{arg2} into a ST snippet
     like \\dosomething{$1:arg1}{$2:arg2}
     """
+    index = 0
 
-    # replace strings in [] and {} with snippet syntax
-    def replace_braces(match):
-        replace_braces.index += 1
-        if match.group(1) is not None:
-            word = match.group(1)
-            return f"{{${{{replace_braces.index}:{word}}}}}"
-        else:
-            word = match.group(2)
-            return f"[${{{replace_braces.index}:{word}}}]"
+    def comment_to_field(match: re.Match) -> str:
+        """Convert comment to snippet field by replacing %<..%> by ${n:..}."""
+        nonlocal index
+        return f"${{{(index := index + 1)}:{match.group(1)}}}"
 
-    replace_braces.index = 0
+    def bracket_to_field(match: re.Match) -> str:
+        """Convert content in [] and {} to snippet fields."""
+        nonlocal index
+
+        # convert top-level {...} to ${...} field
+        text = match.group(1)
+        if text is not None:
+            # convert nested %<...%> arguments to ${...} fields
+            text, n = FIELD_REGEX.subn(comment_to_field, text)
+            return f"{{{text}}}" if n > 0 else f"{{${{{(index := index + 1)}:{text}}}}}"
+
+        # convert top-level [...] to ${...} field
+        text = match.group(2)
+        if text is not None:
+            # convert nested %<...%> arguments to ${...} fields
+            text, n = FIELD_REGEX.subn(comment_to_field, text)
+            return f"[{text}]" if n > 0 else f"[${{{(index := index + 1)}:{text}}}]"
+
+        # convert top-level %<...%> to ${...} field
+        return f"${{{(index := index + 1)}:{match.group(3)}}}"
+
+    # filter out kind information
+    cwl_cmd = KIND_REGEX.sub("", cwl_cmd)
 
     # \begin{}...\end{} pairs should be inserted together
-    m = BEGIN_ENV_REGEX.match(keyword)
+    m = BEGIN_ENV_REGEX.match(cwl_cmd)
     if m:
         item = bool(m.group("item"))
         name = m.group("name")
 
         # \begin{}, no environment
         if not name:
-            replace, n = BRACES_MATCH_REGEX.subn(replace_braces, keyword)
-            snippet = f"{replace}\n\t${replace_braces.index + 1}$0\n\\end{{$1}}"
-            return keyword, snippet
+            replace, n = BRACKETS_REGEX.subn(bracket_to_field, cwl_cmd)
+            snippet = f"{replace}\n\t${index + 1}$0\n\\end{{$1}}"
+            return cwl_cmd, snippet
         # \begin{} with environment
         # only create fields for any other items
         else:
             remainder = m.group("remainder1") or m.group("remainder2") or ""
-            replace, n = BRACES_MATCH_REGEX.subn(replace_braces, remainder)
+            replace, n = BRACKETS_REGEX.subn(bracket_to_field, remainder)
 
             snippet = f"\\begin{{{name}}}{replace or ''}\n"
             if item:
-                snippet += f"\t\\item ${replace_braces.index + 1}$0\n"
+                snippet += f"\t\\item ${index + 1}$0\n"
             else:
-                snippet += f"\t${replace_braces.index + 1}\n"
+                snippet += f"\t${index + 1}\n"
             snippet += f"\\end{{{name}}}"
 
             # having \item at the end of the display value messes with
             # completions thus, we cut the \item off the end
             if item:
-                return keyword[:-5], snippet
+                return cwl_cmd[:-5], snippet
             else:
-                return keyword, snippet
+                return cwl_cmd, snippet
     else:
-        replace, n = BRACES_MATCH_REGEX.subn(replace_braces, keyword)
+        replace, n = BRACKETS_REGEX.subn(bracket_to_field, cwl_cmd)
+        cwl_cmd = cwl_cmd.replace("%<", "").replace("%>", "")
 
         # I do not understand why sometimes the input will eat the '\'
         # character before it! This code is to avoid these things.
-        if n == 0 and ALPHAS_REGEX.search(keyword[1:].strip()) is not None:
-            return keyword, keyword
+        if n == 0 and ALPHAS_REGEX.search(cwl_cmd[1:].strip()) is not None:
+            return cwl_cmd, cwl_cmd
         else:
-            return keyword, replace
+            replace = FIELD_REGEX.sub(comment_to_field, replace or "")
+            return cwl_cmd, replace
