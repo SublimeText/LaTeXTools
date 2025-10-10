@@ -421,7 +421,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             sublime.error_message(f"{tex_name} is not a TeX source file: cannot compile.")
             return
 
-        self.output_view = self.window.create_output_panel("latextools")
+        self.output_view = self.window.create_output_panel("exec")
         output_view_settings = self.output_view.settings()
         output_view_settings.set("result_file_regex", file_regex)
         output_view_settings.set("result_base_dir", tex_dir)
@@ -552,7 +552,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
                 sublime.error_message(
                     f"Cannot find builder {builder_name}.\nCheck your LaTeXTools Preferences"
                 )
-                self.window.run_command("hide_panel", {"panel": "output.latextools"})
+                self.window.run_command("hide_panel", {"panel": "output.exec"})
                 return
 
         if builder_name == "script" and script_commands:
@@ -586,7 +586,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
     def show_output_panel(self, force=False):
         if force or self.show_panel_level != "never":
-            self.window.run_command("show_panel", {"panel": "output.latextools"})
+            self.window.run_command("show_panel", {"panel": "output.exec"})
 
     # Also from exec.py
     # Set the selection to the start of the output panel, so next_result works

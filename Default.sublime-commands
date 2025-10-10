@@ -88,7 +88,7 @@
 	{
 		"caption": "LaTeXTools: Show build panel",
 		"command": "show_panel",
-		"args": { "panel": "output.latextools" }
+		"args": { "panel": "output.exec" }
 	},
 	{
 		"caption": "Preferences: LaTeXTools Settings",
