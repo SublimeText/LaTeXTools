@@ -642,16 +642,6 @@ LaTeX Package keymap for OS X
 		],
 	},
 
-	// Show panel
-	{
-		"keys": ["shift+escape"],
-		"command": "show_panel", "args": { "panel": "output.latextools" },
-		"context": [
-			{ "key": "selector", "operand": "text.tex.latex" },
-			{ "key": "panel_visible", "operand": false }
-		]
-	},
-
 	// ------------------------------------------------------------------
 	// Auto-pair braces/brackets/parentheses
 	// ------------------------------------------------------------------
