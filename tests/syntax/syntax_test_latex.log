@@ -1,83 +1,238 @@
 # SYNTAX TEST "LaTeXTools Log.sublime-syntax"
 
-entering extended mode
- restricted \write18 enabled.
- %&-line parsing enabled.
-**Analysis-I.tex
-(Analysis-I.tex)
+# -----------------------------------------------------------------------------
+# File Names
+# -----------------------------------------------------------------------------
+
+(A-TeX_File.tex)
 # <- meta.block.log punctuation.section.block.begin.log
 #^^^^^^^^^^^^^^^ meta.block.log
 #^^^^^^^^^^^^^^ entity.name.section.filename.log
 #              ^ punctuation.section.block.end.log
 #               ^ - meta.block
 
-(/Analysis-I.tex)
+(A-TeX_File.tex
+# <- meta.block.log punctuation.section.block.begin.log
+#^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^^ entity.name.section.filename.log
+)
+# <- meta.block.log punctuation.section.block.end.log
+
+(A-TeX_File.te
+x)
+# <- meta.block.log entity.name.section.filename.log
+#^ meta.block.log punctuation.section.block.end.log
+# ^ - meta.block
+
+(A-TeX_File.t
+ex)
+#^^ meta.block.log
+#^ entity.name.section.filename.log
+# ^ punctuation.section.block.end.log
+#  ^ - meta.block
+
+(A-TeX_File.
+tex)
+#^^^ meta.block.log
+#^^ entity.name.section.filename.log
+#  ^ punctuation.section.block.end.log
+#   ^ - meta.block
+
+(A-TeX_File
+.tex)
+#^^^^ meta.block.log
+#^^^ entity.name.section.filename.log
+#   ^ punctuation.section.block.end.log
+#    ^ - meta.block
+
+(A-TeX
+_File.tex)
+#^^^^^^^^^ meta.block.log
+#^^^^^^^^ entity.name.section.filename.log
+#        ^ punctuation.section.block.end.log
+#         ^ - meta.block
+
+(A
+-TeX_File.tex)
+#^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^ entity.name.section.filename.log
+#            ^ punctuation.section.block.end.log
+#             ^ - meta.block
+
+(A
+-TeX_File.te
+x)
+# <- meta.block.log entity.name.section.filename.log
+#^ meta.block.log punctuation.section.block.end.log
+# ^ - meta.block
+
+(A
+-TeX_File.t
+ex)
+# <- meta.block.log entity.name.section.filename.log
+#^^ meta.block.log
+#^ entity.name.section.filename.log
+# ^ punctuation.section.block.end.log
+#  ^ - meta.block
+
+(M
+very-very-very-very-very-very-very-very-very-very-very-very-very-very-very-very
+very-very-very-very-very-very-very-very-very-very-very-very-very-long-any-file.
+tex)
+# <- meta.block.log entity.name.section.filename.log
+#^^^ meta.block.log
+#^^ entity.name.section.filename.log
+#  ^ punctuation.section.block.end.log
+#   ^ - meta.block
+
+(A
+very-very-very-very-very-very-very-very-very-very-very-very-very-very-very-very
+very-very-very-very-very-very-very-very-very-very-very-very-very-very-long-file
+.tex)
+# <- meta.block.log entity.name.section.filename.log
+#^^^^ meta.block.log
+#^^^ entity.name.section.filename.log
+#   ^ punctuation.section.block.end.log
+#    ^ - meta.block
+
+(
+A-TeX_File.tex)
+#^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^ entity.name.section.filename.log
+#             ^ punctuation.section.block.end.log
+#              ^ - meta.block
+
+(
+A-TeX_File.te
+x)
+# <- meta.block.log entity.name.section.filename.log
+#^ meta.block.log punctuation.section.block.end.log
+# ^ - meta.block
+
+(
+A-TeX_File.t
+ex)
+# <- meta.block.log entity.name.section.filename.log
+#^^ meta.block.log
+#^ entity.name.section.filename.log
+# ^ punctuation.section.block.end.log
+#  ^ - meta.block
+
+(
+A-TeX_File.
+tex)
+# <- meta.block.log entity.name.section.filename.log
+#^^^ meta.block.log
+#^^ entity.name.section.filename.log
+#  ^ punctuation.section.block.end.log
+#   ^ - meta.block
+
+(
+A-TeX_File
+.tex)
+# <- meta.block.log entity.name.section.filename.log
+#^^^^ meta.block.log
+#^^^ entity.name.section.filename.log
+#   ^ punctuation.section.block.end.log
+#    ^ - meta.block
+
+# -----------------------------------------------------------------------------
+# File Paths
+# -----------------------------------------------------------------------------
+
+(/A-TeX_File.tex)
 # <- meta.block.log punctuation.section.block.begin.log
 #^^^^^^^^^^^^^^^^ meta.block.log
 #^^^^^^^^^^^^^^^ entity.name.section.filename.log
 #               ^ punctuation.section.block.end.log
 #                ^ - meta.block
 
-(~/Analysis-I.tex)
+(~/A-TeX_File.tex)
 # <- meta.block.log punctuation.section.block.begin.log
 #^^^^^^^^^^^^^^^^^ meta.block.log
 #^^^^^^^^^^^^^^^^ entity.name.section.filename.log
 #                ^ punctuation.section.block.end.log
 #                 ^ - meta.block
 
-(./Analysis-I.tex)
+(./A-TeX_File.tex)
 # <- meta.block.log punctuation.section.block.begin.log
 #^^^^^^^^^^^^^^^^^ meta.block.log
 #^^^^^^^^^^^^^^^^ entity.name.section.filename.log
 #                ^ punctuation.section.block.end.log
 #                 ^ - meta.block
 
-(../Analysis-I.tex)
+(../A-TeX_File.tex)
 # <- meta.block.log punctuation.section.block.begin.log
 #^^^^^^^^^^^^^^^^^^ meta.block.log
 #^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
 #                 ^ punctuation.section.block.end.log
 #                  ^ - meta.block
 
-(/c/Analysis-I.tex)
+(/c/A-TeX_File.tex)
 # <- meta.block.log punctuation.section.block.begin.log
 #^^^^^^^^^^^^^^^^^^ meta.block.log
 #^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
 #                 ^ punctuation.section.block.end.log
 #                  ^ - meta.block
 
-(/c:/Analysis-I.tex)
+(/c:/A-TeX_File.tex)
 # <- meta.block.log punctuation.section.block.begin.log
 #^^^^^^^^^^^^^^^^^^^ meta.block.log
 #^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
 #                  ^ punctuation.section.block.end.log
 #                   ^ - meta.block
 
-(C:/Analysis-I.tex)
+(C:/A-TeX_File.tex)
 # <- meta.block.log punctuation.section.block.begin.log
 #^^^^^^^^^^^^^^^^^^ meta.block.log
 #^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
 #                 ^ punctuation.section.block.end.log
 #                  ^ - meta.block
 
-(C:\Analysis-I.tex)
+(C:\A-TeX_File.tex)
 # <- meta.block.log punctuation.section.block.begin.log
 #^^^^^^^^^^^^^^^^^^ meta.block.log
 #^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
 #                 ^ punctuation.section.block.end.log
 #                  ^ - meta.block
 
-(\\server\Analysis-I.tex)
+(\\server.com\share_name\A-TeX_File.tex)
 # <- meta.block.log punctuation.section.block.begin.log
-#^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
-#^^^^^^^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
-#                       ^ punctuation.section.block.end.log
-#                        ^ - meta.block
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
+#                                      ^ punctuation.section.block.end.log
+#                                       ^ - meta.block
 
-("Analysis I.tex")
+(\\wsl$\distro\A-TeX_File.tex)
+# <- meta.block.log punctuation.section.block.begin.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
+#                            ^ punctuation.section.block.end.log
+#                             ^ - meta.block
+
+(\\wsl.localhost\distro\A-TeX_File.tex)
+# <- meta.block.log punctuation.section.block.begin.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
+#                                     ^ punctuation.section.block.end.log
+#                                      ^ - meta.block
+
+(\\wsl.localhost\distro\and-a
+\very\long\pa
+th\to\
+A-TeX_File.tex)
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^ entity.name.section.filename.log
+#             ^ punctuation.section.block.end.log
+#              ^ - meta.block
+
+("A-TeX_File.tex")
 # <- meta.block.log punctuation.section.block.begin.log
 #^^^^^^^^^^^^^^^^^ meta.block.log
 #^^^^^^^^^^^^^^^^ entity.name.section.filename.log
+#^ punctuation.definition.entity.begin.log
+#               ^ punctuation.definition.entity.end.log
 #                ^ punctuation.section.block.end.log
 #                 ^ - meta.block
 
@@ -86,31 +241,292 @@ name.tex")
 # <- meta.block.log entity.name.section.filename.log
 #^^^^^^^^^ meta.block.log
 #^^^^^^^^ entity.name.section.filename.log
+#       ^ punctuation.definition.entity.end.log
 #        ^ punctuation.section.block.end.log
 #         ^ - meta.block
 
-("C:\My Documents/Analysis-I.tex")
+("C:\My Documents/A-TeX_File.tex")
 # <- meta.block.log punctuation.section.block.begin.log
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
+#^ punctuation.definition.entity.begin.log
+#                               ^ punctuation.definition.entity.end.log
 #                                ^ punctuation.section.block.end.log
 #                                 ^ - meta.block
 
-("\\server.com\My Documents/Analysis-I.tex")
+("\\server.com\My Documents/A-TeX_File.tex")
 # <- meta.block.log punctuation.section.block.begin.log
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
+#^ punctuation.definition.entity.begin.log
+#                                         ^ punctuation.definition.entity.end.log
 #                                          ^ punctuation.section.block.end.log
 #                                           ^ - meta.block
 
+("\\wsl$\distro\A-TeX_File.tex")
+# <- meta.block.log punctuation.section.block.begin.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
+#^ punctuation.definition.entity.begin.log
+#                             ^ punctuation.definition.entity.end.log
+#                              ^ punctuation.section.block.end.log
+#                               ^ - meta.block
+
+("\\wsl.localhost\distro\A-TeX_File.tex")
+# <- meta.block.log punctuation.section.block.begin.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
+#^ punctuation.definition.entity.begin.log
+#                                      ^ punctuation.definition.entity.end.log
+#                                       ^ punctuation.section.block.end.log
+#                                        ^ - meta.block
+
 ("\\very-long-server.com\A Long Share\Path
- to\My Documents/Analysis-I.tex"
+ to\My Documents/A-TeX_File.tex"
 # <- meta.block.log entity.name.section.filename.log
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
 )
 # <- punctuation.section.block.end.log
 #^ - meta.block
+
+(.
+/path/to/file.tex
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+)
+
+(.
+a-very-very-very-very-very-very-very-very-very-very-very-very-very-long-file.te
+ex
+# <- meta.block.log entity.name.section.filename.log
+#^ meta.block.log entity.name.section.filename.log
+)
+
+(.
+very-very-very-very-very-very-very-very-very-very-very-very-very-very-very-long
+/path/to/file.tex
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+)
+
+(/
+path/to/file.tex
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+)
+
+(/
+very-very-very-very-very-very-very-very-very-very-very-very-very-very-very.t
+ex
+# <- meta.block.log entity.name.section.filename.log
+#^ meta.block.log entity.name.section.filename.log
+)
+
+(/
+very-very-very-very-very-very-very-very-very-very-very-very-very-very-very-long
+/path/to/file.tex
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+)
+
+(~
+/path/to/file.tex
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+)
+
+(C
+:/path/to/file.tex
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+)
+
+(c
+very-very-very-very-very-very-very-very-very-very-very-very-very-very-very.t
+ex
+# <- meta.block.log entity.name.section.filename.log
+#^ meta.block.log entity.name.section.filename.log
+)
+
+(c
+very-very-very-very-very-very-very-very-very-very-very-very-very-very-very-long
+/path/to/file.tex
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+)
+
+(/c
+:/path/to/file.tex
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+)
+
+(C
+:\path\to\file.tex
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+)
+
+(C:
+/path/to/file.tex
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+)
+
+(C:
+\path\to\file.tex
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+)
+
+(\
+\server-name.com\path\to\file.tex
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+)
+
+(\\
+server-name.com\path\to\file.tex
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+)
+
+("
+\\server\share name\file.tex"
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+#                           ^ punctuation.definition.entity.end.log
+)
+
+(
+./path/to/file.tex
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+)
+
+(
+/path/to/file.tex
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+)
+
+(
+~/path/to/file.tex
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+)
+
+(
+C:/path/to/file.tex
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+)
+
+(
+C:\path\to\file.tex
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+)
+
+(
+/c:/path/to/file.tex
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+)
+
+(
+\\server-name.com\path\to\file.tex
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+)
+
+(
+"\\server\share name\file.tex"
+# <- meta.block.log entity.name.section.filename.log punctuation.definition.entity.begin.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+#                            ^ punctuation.definition.entity.end.log
+)
+
+(/
+path/to/A-TeX_File.te
+x)
+# <- meta.block.log entity.name.section.filename.log
+#^ meta.block.log punctuation.section.block.end.log
+# ^ - meta.block
+
+(/
+path/to/A-TeX_File.t
+ex)
+#^^ meta.block.log
+#^ entity.name.section.filename.log
+# ^ punctuation.section.block.end.log
+#  ^ - meta.block
+
+(/
+path/to/A-TeX_File.
+tex)
+#^^^ meta.block.log
+#^^ entity.name.section.filename.log
+#  ^ punctuation.section.block.end.log
+#   ^ - meta.block
+
+(/
+path/to/A-TeX_File
+with-very-long_name
+.tex)
+#^^^^ meta.block.log
+#^^^ entity.name.section.filename.log
+#   ^ punctuation.section.block.end.log
+#    ^ - meta.block
+
+(/
+path/to/A-TeX
+_File-very-long
+_name.tex)
+#^^^^^^^^^ meta.block.log
+#^^^^^^^^ entity.name.section.filename.log
+#        ^ punctuation.section.block.end.log
+#         ^ - meta.block
+
+(/path/to/A-TeX_File.te
+x)
+# <- meta.block.log entity.name.section.filename.log
+#^ meta.block.log punctuation.section.block.end.log
+# ^ - meta.block
+
+(/path/to/A-TeX_File.t
+ex)
+#^^ meta.block.log
+#^ entity.name.section.filename.log
+# ^ punctuation.section.block.end.log
+#  ^ - meta.block
+
+(/path/to/A-TeX_File.
+tex)
+#^^^ meta.block.log
+#^^ entity.name.section.filename.log
+#  ^ punctuation.section.block.end.log
+#   ^ - meta.block
+
+(/path/to/A-TeX_File
+with-very-long_name
+.tex)
+#^^^^ meta.block.log
+#^^^ entity.name.section.filename.log
+#   ^ punctuation.section.block.end.log
+#    ^ - meta.block
+
+(/path/to/A-TeX
+_File.tex)
+#^^^^^^^^^ meta.block.log
+#^^^^^^^^ entity.name.section.filename.log
+#        ^ punctuation.section.block.end.log
+#         ^ - meta.block
+
+# -----------------------------------------------------------------------------
+# Parentheses
+# -----------------------------------------------------------------------------
 
 (parens)
 # <- meta.parens.log punctuation.section.parens.begin.log
@@ -122,11 +538,30 @@ name.tex")
 #^^^^^^^^^^^^^^ meta.parens.log
 #             ^ punctuation.section.parens.end.log
 
+(
+parens=10.0pt)
+#^^^^^^^^^^^^^ meta.parens.log
+#            ^ punctuation.section.parens.end.log
+
+(p
+arens=10.0pt)
+#^^^^^^^^^^^^ meta.parens.log
+#           ^ punctuation.section.parens.end.log
+
+(\command)
+#^^^^^^^^^ meta.parens.log
+#        ^ punctuation.section.parens.end.log
+
+(\
+command)
+#^^^^^^^ meta.parens.log
+#      ^ punctuation.section.parens.end.log
+
 ! Emergency stop.
 # <- markup.error.log
 #^^^^^^^^^^^^^^^^ markup.error.log
 
-(./Analysis-I.tex
+(./A-TeX_File.tex
 LaTeX2e <2023-06-01> patch level 1
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
 #       ^^^^^^^^^^^^ string.quoted.other.log
@@ -298,6 +733,7 @@ File: tikzlibrarytopaths.code.tex 2023-01-15 v3.1.10 (3.1.10)
 # <- meta.block.log meta.block.log punctuation.section.block.end.log
 #^ meta.block.log punctuation.section.block.end.log - meta.block meta.block
 
+# Issue: Package Info comments may appear everywhere, like normal log files
 (/opt/TeX/texmf-dist/tex/parent.sty
 (/opt/TeX/texmf-dist/tex/child.sty
 Package: version info
@@ -305,8 +741,10 @@ Package: version info
 )
 Package: version info
 #^^^^^^^^^^^^^^^^^^^^ meta.block.log comment.line.log - meta.block meta.block
+Package: version info
+#^^^^^^^^^^^^^^^^^^^^ meta.block.log comment.line.log - meta.block meta.block
 
-# Issue: LuaLaTeX doesn't correctly terminate log lines!!
+# Issue 1680: LuaLaTeX doesn't correctly terminate log lines!!
 `Fixed Point Package', Version 0.8, April 2, 1995 (C) Michael Mehlich (/usr/sha
 re/texmf/tex/latex/fp/defpattern.sty
 # <- meta.block.log meta.block.log entity.name.section.filename.log
@@ -322,5 +760,15 @@ re/texmf/tex/latex/fp/defpattern.sty
 Language: english 2017/06/06 v3.3r English support from the babel system
 # <- meta.block.log comment.line.log
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log comment.line.log
+(/usr/share/texlive/texmf-dist/tex/latex/newtx/untxsyc.fd
+File: untxsyc.fd 2012/04/12 Fontinst v1.933 font definitions for U/ntxsyc.
+) [1
+# <- meta.block.log meta.block.log punctuation.section.block.end.log
+#^^^^ meta.block.log
+# ^^ meta.brackets.log
+# ^ punctuation.section.brackets.begin.log
+]
+# <- meta.block.log meta.brackets.log punctuation.section.brackets.end.log
 )
 # <- meta.block.log punctuation.section.block.end.log
+

@@ -7,10 +7,12 @@ version: 2
 first_line_match: '^This is (?:LuaHB|pdfe?|Xe)?TeXk?, Version '
 
 variables:
-  # note: assume sane path names
-  file_path: '[\w\\/.-]+{{file_break}}'
-  file_name: '[\w.-]+{{file_ext}}{{file_break}}'
-  file_ext: '\.[a-zA-Z][a-zA-Z0-9]{1,6}'
+  drive_char: '[a-zA-Z]'
+  file_name: '{{file_char}}+{{file_ext}}{{file_break}}'
+  file_char: '[\w.-]'  # note: assume sane path names
+  file_ext: '\.{{file_ext_start}}{{file_ext_char}}*'
+  file_ext_start: '[a-zA-Z]'
+  file_ext_char: '[a-zA-Z0-9]'
   file_break: (?:\n|(?=\s*[()]))
 
 ################################################################################
@@ -21,7 +23,6 @@ contexts:
     - include: constants
     - include: blocks
     - include: brackets
-    - include: parens
     - include: log-entries
     - include: commands
     - include: strings
@@ -40,54 +41,200 @@ contexts:
 ###[ BLOCKS ]##################################################################
 
   blocks:
-    # unquoted file-name without path information
-    - match: (\()({{file_name}})
-      captures:
-        1: punctuation.section.block.begin.log
-        2: entity.name.section.filename.log
-      push: block-body
-    # quoted path or filename
-    - match: (\()(")
-      captures:
-        1: punctuation.section.block.begin.log
-        2: entity.name.section.filename.log punctuation.definition.entity.begin.log
-      push:
+    - match: (?=\()
+      branch_point: block
+      branch:
+        - block
+        - paren
+
+  block:
+    - match: \(
+      scope: punctuation.section.block.begin.log
+      set:
         - block-body
-        - block-quoted-path
-    # unquoted path
-    - match: (\()((?:/?[a-zA-Z]:|\.\.?|~|[\w.-]+)?[\\/]{{file_path}})
+        - block-path-begin
+
+  block-path-begin:
+    # possible UNC path, starting at eol
+    - match: (\\)\n
       captures:
-        1: punctuation.section.block.begin.log
-        2: entity.name.section.filename.log
-      push:
-        - block-body
+        1: punctuation.separator.path.log
+      set:
         - block-unquoted-path
+        - block-unquoted-path-expect-backslash
+    # possible absolute posix path, starting at eol,
+    # maybe followed by windows drive letter
+    - match: (/)\n
+      captures:
+        1: punctuation.separator.path.log
+      set:
+        - block-unquoted-path
+        - block-unquoted-path-expect-begin
+    # possible windows drive letter at eol
+    - match: (/?){{drive_char}}\n
+      captures:
+        1: punctuation.separator.path.log
+      set:
+        - block-unquoted-path
+        - block-unquoted-path-expect-colon
+    # possible posix relative path, starting at eol
+    - match: \.\n
+      set:
+        - block-unquoted-path
+        - block-unquoted-path-expect-segment
+    # possible posix home path, starting at eol
+    - match: ~\n
+      set:
+        - block-unquoted-path
+        - block-unquoted-path-expect-slash
+    # possible path, starting at next line
+    - match: \n
+      set:
+        - block-path-begin-continuation
+        - bol-pop
+    - include: block-path-begin-continuation
+
+  block-path-begin-continuation:
+    # possible incomplete relative path or filename, starting at eol
+    - match: '[\w-]+\.?\n'
+      set:
+        - block-unquoted-path-meta
+        - block-unquoted-path-expect-file
+    # quoted path
+    - match: \"
+      scope: punctuation.definition.entity.begin.log
+      set: block-quoted-path
+    # UNC path
+    - match: \\\\
+      scope: punctuation.separator.path.log
+      set: block-unquoted-path
+    # drive letter
+    - match: '(/?){{drive_char}}(:[\\/]?)'
+      captures:
+        1: punctuation.separator.path.log
+        2: punctuation.separator.path.log
+      set: block-unquoted-path
+    # posix home or absolute path
+    - match: '~?(/)'
+      captures:
+        1: punctuation.separator.path.log
+      set: block-unquoted-path
+    # relative path
+    - match: '{{file_char}}+([\\/])'
+      captures:
+        1: punctuation.separator.path.log
+      set: block-unquoted-path
+    # filename.ext
+    - match: '{{file_name}}'
+      set: block-unquoted-ext
+    # not a path
+    - match: ''
+      fail: block
 
   block-quoted-path:
-    - meta_content_scope: entity.name.section.filename.log
+    - meta_scope: entity.name.section.filename.log
     - match: \"
-      scope: entity.name.section.filename.log punctuation.definition.entity.end.log
+      scope: punctuation.definition.entity.end.log
+      pop: 1
+    - match: '[:\\/]'
+      scope: punctuation.separator.path.log
+
+  block-unquoted-path-expect-backslash:
+    # UNC path
+    - match: ^\\(?![\\/])
+      scope: punctuation.separator.path.log
+      pop: 1
+    # otherwise it is not a block
+    - match: ^
+      fail: block
+
+  block-unquoted-path-expect-slash:
+    # single posix path separator
+    - match: ^/(?![\\/])
+      scope: punctuation.separator.path.log
+      pop: 1
+    # otherwise it is not a block
+    - match: ^
+      fail: block
+
+  block-unquoted-path-expect-begin:
+    # drive letter
+    - match: ^{{drive_char}}(:[\\/])
+      captures:
+        1: punctuation.separator.path.log
+      pop: 1
+    # expect file name or path
+    - include: block-unquoted-path-expect-segment
+
+  block-unquoted-path-expect-colon:
+    # colon after drive letter
+    - match: ^:[\\/]
+      scope: punctuation.separator.path.log
+      pop: 1
+    # expect file name or path
+    - include: block-unquoted-path-expect-segment
+
+  block-unquoted-path-expect-file:
+    # file name or extentions beginning with period
+    - match: ^{{file_char}}*?{{file_ext}}{{file_break}}
+      pop: 2
+    # file extension without period
+    - match: ^{{file_ext_char}}+{{file_break}}
+      pop: 2
+    # otherwise it is not a block
+    - match: ^
+      fail: block
+
+  block-unquoted-path-expect-segment:
+    # path segment
+    - match: ^{{file_char}}*([\\/])
+      captures:
+        1: punctuation.separator.path.log
+      pop: 1
+    # consume very long file or folder name
+    - match: ^[\w-]{79}\n
+      set: block-unquoted-path-expect-segment
+    - match: ^[\w.-]{79}\n
+      pop: 1
+    # file name or exteions beginning with period
+    - match: ^{{file_char}}*?{{file_ext}}{{file_break}}
+      pop: 1
+    # otherwise it is not a block
+    - match: ^
+      fail: block
+
+  block-unquoted-path-meta:
+    - meta_scope: entity.name.section.filename.log
+
+  block-unquoted-ext:
+    - meta_scope: entity.name.section.filename.log
+    # file name or exteions beginning with period
+    - match: ^{{file_char}}*?{{file_ext}}{{file_break}}
+      pop: 1
+    # file extension without period
+    - match: ^{{file_ext_char}}+{{file_break}}
+      pop: 1
+    - match: (?=[ \t()])
+      pop: 1
+    - match: ^
       pop: 1
 
   block-unquoted-path:
-    # filename continuation
-    - match: ^{{file_path}}
-      scope: entity.name.section.filename.log
+    - meta_scope: entity.name.section.filename.log
     # begin of normal block body
-    - match: ^|(?=\S)
+    - match: ^(?![{{file_char}}\\/]+{{file_break}})
       pop: 1
+    - match: (?=[ \t()])
+      pop: 1
+    - match: '[\\/]'
+      scope: punctuation.separator.path.log
 
   block-body:
     - meta_scope: meta.block.log
     - match: \)
       scope: punctuation.section.block.end.log
-      set: blocks-only
-    - include: main
-
-  blocks-only:
-    - include: blocks
-    - match: ^|(?=\S)
       pop: 1
+    - include: main
 
   brackets:
     - match: \[
@@ -110,6 +257,11 @@ contexts:
     - match: \(
       scope: punctuation.section.parens.begin.log
       push: paren-body
+
+  paren:
+    - match: \(
+      scope: punctuation.section.parens.begin.log
+      set: paren-body
 
   paren-body:
     - meta_scope: meta.parens.log
@@ -266,4 +418,10 @@ contexts:
       pop: 1
     - match: \.$
       scope: punctuation.definition.string.end.log
+      pop: 1
+
+###[ PROTOTYPES ]###############################################################
+
+  bol-pop:
+    - match: ^
       pop: 1
