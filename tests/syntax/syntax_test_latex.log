@@ -106,12 +106,12 @@ d comment continued on next line (book)
 # <- meta.block.log meta.block.log meta.block.log punctuation.section.block.end.log
 #^ meta.block.log meta.block.log - meta.block meta.block meta.block
 
-Class scrbook Info: using compatibility default `runin=bysign'
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
+Class scrbook Info: using compatibility default ``runin=bysign''
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
 #^^^^^^^^^^^^^^^^^^ markup.info.log
-#                                               ^^^^^^^^^^^^^^ string.quoted.single.log
-#                                               ^ punctuation.definition.string.begin.log
-#                                                            ^ punctuation.definition.string.end.log
+#                                               ^^^^^^^^^^^^^^^^ string.quoted.double.log
+#                                               ^^ punctuation.definition.string.begin.log
+#                                                             ^^ punctuation.definition.string.end.log
 
 (scrbook)           for `\section on input line 6001.
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
