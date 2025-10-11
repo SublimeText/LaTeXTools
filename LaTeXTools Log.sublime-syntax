@@ -6,13 +6,23 @@ version: 2
 
 first_line_match: '^This is (?:LuaHB|pdfe?|Xe)?TeXk?, Version '
 
+variables:
+  # note: assume sane path names
+  file_path: '[\w\\/.-]+{{file_break}}'
+  file_name: '[\w.-]+{{file_ext}}{{file_break}}'
+  file_ext: '\.[a-zA-Z][a-zA-Z0-9]{1,6}'
+  file_break: (?:\n|(?=\s*[()]))
+
 ################################################################################
 
 contexts:
   main:
     - include: comments
     - include: blocks
+    - include: brackets
+    - include: groups
     - include: log-entries
+    - include: commands
     - include: strings
 
   comments:
@@ -29,68 +39,53 @@ contexts:
 ###[ BLOCKS ]##################################################################
 
   blocks:
-    # block begin with full file name
-    - match: (\()((?:\\.|[^\s?!*)])+\.[A-Za-z]{2,}\b)
+    # unquoted file-name without path information
+    - match: (\()({{file_name}})
       captures:
         1: punctuation.section.block.begin.log
-        2: meta.toc-list.log entity.name.section.filename.log
-      push:
-        - block-body
-        - block-comment
-    # block begin with wrapped file name
-    - match: (\()((?:\\.|[^\s?!*)])+\n)
+        2: entity.name.section.filename.log
+      push: block-body
+    # quoted path or filename
+    - match: (\()(")
       captures:
         1: punctuation.section.block.begin.log
-        2: meta.toc-list.log entity.name.section.filename.log
+        2: entity.name.section.filename.log punctuation.definition.entity.begin.log
       push:
         - block-body
-        - block-comment
-        - filename-continuation
+        - block-quoted-path
+    # unquoted path
+    - match: (\()((?:/?[a-zA-Z]:|\.\.?|~|[\w.-]+)?[\\/]{{file_path}})
+      captures:
+        1: punctuation.section.block.begin.log
+        2: entity.name.section.filename.log
+      push:
+        - block-body
+        - block-unquoted-path
 
-  filename-continuation:
-    - match: ((?:\\.|[^\s?!*)])+\.[A-Za-z]{2,}\b)
-      scope: meta.toc-list.log entity.name.section.filename.log
+  block-quoted-path:
+    - meta_content_scope: entity.name.section.filename.log
+    - match: \"
+      scope: entity.name.section.filename.log punctuation.definition.entity.end.log
       pop: 1
-    - match: (?=\S)
+
+  block-unquoted-path:
+    # filename continuation
+    - match: ^{{file_path}}
+      scope: entity.name.section.filename.log
+    # begin of normal block body
+    - match: ^|(?=\S)
       pop: 1
 
   block-body:
     - meta_scope: meta.block.log
     - match: \)
       scope: punctuation.section.block.end.log
-      pop: 1
-    - include: comments
-    - include: blocks
-    - include: brackets
-    - include: groups
-    - include: log-entries
-    - include: commands
-    - include: strings
+      set: blocks-only
+    - include: main
 
-  block-comment:
+  blocks-only:
     - include: blocks
-    - match: '^Document Class:.{64}\n'
-      set: block-comment-body
-    - match: '^Document Class:.+'
-      scope: comment.line.log
-      pop: 1
-    - match: '^File:.{74}\n'
-      set: block-comment-body
-    - match: '^File:.+'
-      scope: comment.line.log
-      pop: 1
-    - match: '^Package:.{71}\n'
-      set: block-comment-body
-    - match: '^Package:.+'
-      scope: comment.line.log
-      pop: 1
-    - match: ^|(?=\))
-      pop: 1
-
-  block-comment-body:
-    - meta_scope: comment.line.log
-    - match: ^.{80}\n # consume anything which has 80 chars
-    - match: \n
+    - match: ^|(?=\S)
       pop: 1
 
   brackets:
@@ -129,6 +124,12 @@ contexts:
 ###[ LOG ENTRIES ]##############################################################
 
   log-entries:
+    # multi-line meta information, starting with exactly 79 chars
+    - match: ^(?:Dictionary:.{68}|Document Class:.{64}|File:.{74}|Package:.{71})\n
+      push: block-comment-body
+    # single-line meta information
+    - match: ^(?:Dictionary|Document Class|File|Package):.+
+      scope: comment.line.log
     # errors
     - match: '^[^:]*Error:'
       scope: markup.error.log
@@ -149,6 +150,12 @@ contexts:
     - match: '^[^:]*Info:'
       scope: markup.info.log
 
+  block-comment-body:
+    - meta_scope: comment.line.log
+    - match: ^.{79}\n  # consume anything which has 79 chars
+    - match: \n
+      pop: 1
+
   box-warning-content:
     - meta_scope: meta.warning.box.log
     - include: comments
@@ -164,8 +171,15 @@ contexts:
         1: punctuation.definition.variable.latex
     - match: :?=
       scope: keyword.operator.assignment.latex
+      push: value
     - match: ;
       scope: punctuation.separator.latex
+
+  value:
+    # parentheses after assignment operator are likely groups
+    - include: groups
+    - match: $|(?=\S)
+      pop: 1
 
 ###[ STRINGS ]##################################################################
 

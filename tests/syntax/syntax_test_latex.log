@@ -4,12 +4,123 @@ entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
 **Analysis-I.tex
+(Analysis-I.tex)
+# <- meta.block.log punctuation.section.block.begin.log
+#^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^^ entity.name.section.filename.log
+#              ^ punctuation.section.block.end.log
+#               ^ - meta.block
+
+(/Analysis-I.tex)
+# <- meta.block.log punctuation.section.block.begin.log
+#^^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^^^ entity.name.section.filename.log
+#               ^ punctuation.section.block.end.log
+#                ^ - meta.block
+
+(~/Analysis-I.tex)
+# <- meta.block.log punctuation.section.block.begin.log
+#^^^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^^^^ entity.name.section.filename.log
+#                ^ punctuation.section.block.end.log
+#                 ^ - meta.block
+
 (./Analysis-I.tex)
 # <- meta.block.log punctuation.section.block.begin.log
 #^^^^^^^^^^^^^^^^^ meta.block.log
-#^^^^^^^^^^^^^^^^ meta.toc-list.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^ entity.name.section.filename.log
 #                ^ punctuation.section.block.end.log
 #                 ^ - meta.block
+
+(../Analysis-I.tex)
+# <- meta.block.log punctuation.section.block.begin.log
+#^^^^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
+#                 ^ punctuation.section.block.end.log
+#                  ^ - meta.block
+
+(/c/Analysis-I.tex)
+# <- meta.block.log punctuation.section.block.begin.log
+#^^^^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
+#                 ^ punctuation.section.block.end.log
+#                  ^ - meta.block
+
+(/c:/Analysis-I.tex)
+# <- meta.block.log punctuation.section.block.begin.log
+#^^^^^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
+#                  ^ punctuation.section.block.end.log
+#                   ^ - meta.block
+
+(C:/Analysis-I.tex)
+# <- meta.block.log punctuation.section.block.begin.log
+#^^^^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
+#                 ^ punctuation.section.block.end.log
+#                  ^ - meta.block
+
+(C:\Analysis-I.tex)
+# <- meta.block.log punctuation.section.block.begin.log
+#^^^^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
+#                 ^ punctuation.section.block.end.log
+#                  ^ - meta.block
+
+(\\server\Analysis-I.tex)
+# <- meta.block.log punctuation.section.block.begin.log
+#^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
+#                       ^ punctuation.section.block.end.log
+#                        ^ - meta.block
+
+("Analysis I.tex")
+# <- meta.block.log punctuation.section.block.begin.log
+#^^^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^^^^ entity.name.section.filename.log
+#                ^ punctuation.section.block.end.log
+#                 ^ - meta.block
+
+("A very long nd thus wrapped file
+name.tex")
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^ meta.block.log
+#^^^^^^^^ entity.name.section.filename.log
+#        ^ punctuation.section.block.end.log
+#         ^ - meta.block
+
+("C:\My Documents/Analysis-I.tex")
+# <- meta.block.log punctuation.section.block.begin.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
+#                                ^ punctuation.section.block.end.log
+#                                 ^ - meta.block
+
+("\\server.com\My Documents/Analysis-I.tex")
+# <- meta.block.log punctuation.section.block.begin.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
+#                                          ^ punctuation.section.block.end.log
+#                                           ^ - meta.block
+
+("\\very-long-server.com\A Long Share\Path
+ to\My Documents/Analysis-I.tex"
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
+)
+# <- punctuation.section.block.end.log
+#^ - meta.block
+
+(group)
+# <- meta.group.log punctuation.section.group.begin.log
+#^^^^^^ meta.group.log
+#     ^ punctuation.section.group.end.log
+
+(group=10.0pt)
+# <- meta.group.log punctuation.section.group.begin.log
+#^^^^^^^^^^^^^ meta.group.log
+#            ^ punctuation.section.group.end.log
 
 ! Emergency stop.
 # <- markup.error.log
@@ -138,25 +249,28 @@ LaTeX Info: Redefining \[ and \] on input line 2949.
 # wrapped block file names
 (/opt/TeX/texmf-dist/tex/latex/koma-scri
 pt/scrbook.cls
-# <- meta.block.log meta.toc-list.log entity.name.section.filename.log
-#^^^^^^^^^^^^^ meta.block.log meta.toc-list.log entity.name.section.filename.log
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log - meta.block meta.block
 )
+# <- meta.block.log punctuation.section.block.end.log
 
 (/opt/TeX/texmf-dist/tex/latex/koma-scri
 pt/scrbook.cls
 File: tikzlibrarytopaths.code.tex 2023-01-15 v3.1.10 (3.1.10)
 # <- meta.block.log comment.line.log
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log comment.line.log
-)
-
- (./FrontMatter/frontmatter.tex (./FrontMatter/title.tex
-# <- - meta.block
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log - meta.block meta.block
-#                               ^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.block.log
-#^ punctuation.section.block.begin.log
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.toc-list.log entity.name.section.filename.log
-#                               ^ punctuation.section.block.begin.log
-#                                ^^^^^^^^^^^^^^^^^^^^^^^ meta.toc-list.log entity.name.section.filename.log
+) (./FrontMatter/frontmatter.tex (./FrontMatter/title.tex
+# <- meta.block.log punctuation.section.block.end.log
+#^ - meta.block
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log - meta.block meta.block
+#                                ^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.block.log
+# ^ punctuation.section.block.begin.log
+#  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
+#                                ^ punctuation.section.block.begin.log
+#                                 ^^^^^^^^^^^^^^^^^^^^^^^ entity.name.section.filename.log
 ))
 # <- meta.block.log meta.block.log punctuation.section.block.end.log
 #^ meta.block.log punctuation.section.block.end.log - meta.block meta.block
@@ -168,3 +282,15 @@ Package: version info
 )
 Package: version info
 #^^^^^^^^^^^^^^^^^^^^ meta.block.log comment.line.log - meta.block meta.block
+
+# Issue: LuaLaTeX doesn't correctly terminate log lines!!
+`Fixed Point Package', Version 0.8, April 2, 1995 (C) Michael Mehlich (/usr/sha
+re/texmf/tex/latex/fp/defpattern.sty
+# <- meta.block.log meta.block.log entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.block.log entity.name.section.filename.log
+)
+# <- meta.block.log meta.block.log punctuation.section.block.end.log
+#^ meta.block.log
+)
+# <- meta.block.log punctuation.section.block.end.log
+#^ - meta.block
