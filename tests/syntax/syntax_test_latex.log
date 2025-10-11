@@ -112,15 +112,15 @@ name.tex")
 # <- punctuation.section.block.end.log
 #^ - meta.block
 
-(group)
-# <- meta.group.log punctuation.section.group.begin.log
-#^^^^^^ meta.group.log
-#     ^ punctuation.section.group.end.log
+(parens)
+# <- meta.parens.log punctuation.section.parens.begin.log
+#^^^^^^^ meta.parens.log
+#      ^ punctuation.section.parens.end.log
 
-(group=10.0pt)
-# <- meta.group.log punctuation.section.group.begin.log
-#^^^^^^^^^^^^^ meta.group.log
-#            ^ punctuation.section.group.end.log
+(parens=10.0pt)
+# <- meta.parens.log punctuation.section.parens.begin.log
+#^^^^^^^^^^^^^^ meta.parens.log
+#             ^ punctuation.section.parens.end.log
 
 ! Emergency stop.
 # <- markup.error.log
@@ -150,19 +150,19 @@ Package hyperref Warning: Option `pdfauthor' has already been used,
 #                                ^ punctuation.definition.string.begin.log
 #                                          ^ punctuation.definition.string.end.log
 (hyperref)                setting the option has no effect on input line 13.
-# <- meta.block.log meta.group.log punctuation.section.group.begin.log
+# <- meta.block.log meta.parens.log punctuation.section.parens.begin.log
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
-#^^^^^^^^^ meta.group.log
-#        ^ punctuation.section.group.end.log
+#^^^^^^^^^ meta.parens.log
+#        ^ punctuation.section.parens.end.log
 
 Overfull \hbox (2.7858pt too wide) detected at line 369
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.warning.box.log
 #^^^^^^^ markup.warning.log
 #        ^^^^^ support.function.latex
 #        ^ punctuation.definition.variable.latex
-#              ^^^^^^^^^^^^^^^^^^^ meta.group.log
-#              ^ punctuation.section.group.begin.log
-#                                ^ punctuation.section.group.end.log
+#              ^^^^^^^^^^^^^^^^^^^ meta.parens.log
+#              ^ punctuation.section.parens.begin.log
+#                                ^ punctuation.section.parens.end.log
 \T1/cmr/m/n/10.95 23.20.
 # <- meta.block.log meta.warning.box.log support.function.latex punctuation.definition.variable.latex
 #^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.warning.box.log
@@ -176,9 +176,9 @@ Underfull \hbox (badness 10000) in [paragraph] at lines [[3417--3445 []
 #^^^^^^^^ markup.warning.log
 #         ^^^^^ support.function.latex
 #         ^ punctuation.definition.variable.latex
-#               ^^^^^^^^^^^^^^^ meta.group.log
-#               ^ punctuation.section.group.begin.log
-#                             ^ punctuation.section.group.end.log
+#               ^^^^^^^^^^^^^^^ meta.parens.log
+#               ^ punctuation.section.parens.begin.log
+#                             ^ punctuation.section.parens.end.log
 #                                  ^^^^^^^^^^^ meta.brackets.log
 #                                  ^ punctuation.section.brackets.begin.log
 #                                            ^ punctuation.section.brackets.end.log
@@ -214,12 +214,12 @@ d comment continued on next line (book)
 #                            ^^^^^^^ support.function.latex
 #                            ^ punctuation.definition.variable.latex
 
-\command(args)[key=value]{{string},<string>,(group)}
+\command(args)[key=value]{{string},<string>,(parens)}
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.block.log meta.block.log meta.function-call.latex
 #^^^^^^^ support.function.latex
-#       ^^^^^^ meta.group.log
-#       ^ punctuation.section.group.begin.log
-#            ^ punctuation.section.group.end.log
+#       ^^^^^^ meta.parens.log
+#       ^ punctuation.section.parens.begin.log
+#            ^ punctuation.section.parens.end.log
 #             ^^^^^^^^^^^ meta.brackets.log
 #             ^ punctuation.section.brackets.begin.log
 #                 ^ keyword.operator.assignment.latex
@@ -232,10 +232,10 @@ d comment continued on next line (book)
 #                                  ^^^^^^^^ string.quoted.other.log
 #                                  ^ punctuation.definition.string.begin.log
 #                                         ^ punctuation.definition.string.end.log
-#                                           ^^^^^^^ meta.group.log
-#                                           ^ punctuation.section.group.begin.log
-#                                                 ^ punctuation.section.group.end.log
-#                                                  ^ punctuation.section.braces.end.log
+#                                           ^^^^^^^^ meta.parens.log
+#                                           ^ punctuation.section.parens.begin.log
+#                                                  ^ punctuation.section.parens.end.log
+#                                                   ^ punctuation.section.braces.end.log
 )
 # <- meta.block.log meta.block.log meta.block.log punctuation.section.block.end.log
 #^ meta.block.log meta.block.log - meta.block meta.block meta.block
@@ -249,8 +249,8 @@ Class scrbook Info: using compatibility default ``runin=bysign''
 
 (scrbook)           for `\section on input line 6001.
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
-#^^^^^^^^ meta.group.log
-#       ^ punctuation.section.group.end.log
+#^^^^^^^^ meta.parens.log
+#       ^ punctuation.section.parens.end.log
 #                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string.quoted.single.log
 #                       ^ punctuation.definition.string.begin.log
 #                                                   ^ punctuation.definition.string.end.log

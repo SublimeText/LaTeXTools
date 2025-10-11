@@ -20,7 +20,7 @@ contexts:
     - include: comments
     - include: blocks
     - include: brackets
-    - include: groups
+    - include: parens
     - include: log-entries
     - include: commands
     - include: strings
@@ -100,23 +100,23 @@ contexts:
       pop: 1
     - include: comments
     - include: brackets
-    - include: groups
+    - include: parens
     - include: commands
     - include: strings
 
-  groups:
+  parens:
     - match: \(
-      scope: punctuation.section.group.begin.log
-      push: group-body
+      scope: punctuation.section.parens.begin.log
+      push: paren-body
 
-  group-body:
-    - meta_scope: meta.group.log
+  paren-body:
+    - meta_scope: meta.parens.log
     - match: \)
-      scope: punctuation.section.group.end.log
+      scope: punctuation.section.parens.end.log
       pop: 1
     - include: comments
     - include: brackets
-    - include: groups
+    - include: parens
     - include: log-entries
     - include: commands
     - include: strings
@@ -160,7 +160,7 @@ contexts:
     - meta_scope: meta.warning.box.log
     - include: comments
     - include: brackets
-    - include: groups
+    - include: parens
     - include: commands
     - include: strings
 
@@ -179,7 +179,7 @@ contexts:
   cmd-args:
     - meta_scope: meta.function-call.latex
     - include: brackets
-    - include: groups
+    - include: parens
     - match: \{
       scope: punctuation.section.braces.begin.log
       push: cmd-args-body
@@ -193,13 +193,12 @@ contexts:
       pop: 1
     - include: comments
     - include: brackets
-    - include: groups
+    - include: parens
     - include: commands
     - include: strings
 
   value:
-    # parentheses after assignment operator are likely groups
-    - include: groups
+    - include: parens
     - match: $|(?=\S)
       pop: 1
 
