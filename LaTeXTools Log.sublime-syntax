@@ -169,11 +169,33 @@ contexts:
       scope: support.function.latex
       captures:
         1: punctuation.definition.variable.latex
+      push: cmd-args
     - match: :?=
       scope: keyword.operator.assignment.latex
       push: value
     - match: ;
       scope: punctuation.separator.latex
+
+  cmd-args:
+    - meta_scope: meta.function-call.latex
+    - include: brackets
+    - include: groups
+    - match: \{
+      scope: punctuation.section.braces.begin.log
+      push: cmd-args-body
+    - match: ''
+      pop: 1
+
+  cmd-args-body:
+    - meta_scope: meta.braces.log
+    - match: \}
+      scope: punctuation.section.braces.end.log
+      pop: 1
+    - include: comments
+    - include: brackets
+    - include: groups
+    - include: commands
+    - include: strings
 
   value:
     # parentheses after assignment operator are likely groups

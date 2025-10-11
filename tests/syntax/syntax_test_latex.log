@@ -213,6 +213,29 @@ d comment continued on next line (book)
 #                           ^ keyword.operator.assignment.latex
 #                            ^^^^^^^ support.function.latex
 #                            ^ punctuation.definition.variable.latex
+
+\command(args)[key=value]{{string},<string>,(group)}
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.block.log meta.block.log meta.function-call.latex
+#^^^^^^^ support.function.latex
+#       ^^^^^^ meta.group.log
+#       ^ punctuation.section.group.begin.log
+#            ^ punctuation.section.group.end.log
+#             ^^^^^^^^^^^ meta.brackets.log
+#             ^ punctuation.section.brackets.begin.log
+#                 ^ keyword.operator.assignment.latex
+#                       ^ punctuation.section.brackets.end.log
+#                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.braces.log
+#                        ^ punctuation.section.braces.begin.log
+#                         ^^^^^^^^ string.quoted.other.log
+#                         ^ punctuation.definition.string.begin.log
+#                                ^ punctuation.definition.string.end.log
+#                                  ^^^^^^^^ string.quoted.other.log
+#                                  ^ punctuation.definition.string.begin.log
+#                                         ^ punctuation.definition.string.end.log
+#                                           ^^^^^^^ meta.group.log
+#                                           ^ punctuation.section.group.begin.log
+#                                                 ^ punctuation.section.group.end.log
+#                                                  ^ punctuation.section.braces.end.log
 )
 # <- meta.block.log meta.block.log meta.block.log punctuation.section.block.end.log
 #^ meta.block.log meta.block.log - meta.block meta.block meta.block
