@@ -317,3 +317,10 @@ re/texmf/tex/latex/fp/defpattern.sty
 )
 # <- meta.block.log punctuation.section.block.end.log
 #^ - meta.block
+
+(/usr/share/texmf/tex/generic/babel-english/english.ldf
+Language: english 2017/06/06 v3.3r English support from the babel system
+# <- meta.block.log comment.line.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log comment.line.log
+)
+# <- meta.block.log punctuation.section.block.end.log

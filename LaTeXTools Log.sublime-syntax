@@ -128,10 +128,10 @@ contexts:
 
   log-entries:
     # multi-line meta information, starting with exactly 79 chars
-    - match: ^(?:Dictionary:.{68}|Document Class:.{64}|File:.{74}|Package:.{71})\n
+    - match: ^(?:Dictionary:.{68}|Document Class:.{64}|File:.{74}|Language:.{70}|Package:.{71})\n
       push: block-comment-body
     # single-line meta information
-    - match: ^(?:Dictionary|Document Class|File|Package):.+
+    - match: ^(?:Dictionary|Document Class|File|Language|Package):.+
       scope: comment.line.log
     # errors
     - match: '^[^:]*Error:'
