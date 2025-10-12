@@ -297,12 +297,12 @@ contexts:
       escape: \[\]$|(?=^\s*(?:\[(?:\d+|[^\]]+\])$)|Overfull|Underfull\b)
       escape_captures:
         0: meta.warning.box.log punctuation.terminator.log
-    - match: '^[^:]*(FiXme|Warning):'
+    - match: '^[^:]*(?:Warning|warning \([^)]*\)):'
       scope: markup.warning.log
     - match: '^[^:]*:\d*:.*'
       scope: markup.warning.log
     # info
-    - match: '^[^:]*Info:'
+    - match: '^[^:]*(?:Info|Note|Summary):'
       scope: markup.info.log
 
   block-comment-body:

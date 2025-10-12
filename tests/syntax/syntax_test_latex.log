@@ -557,20 +557,105 @@ command)
 #^^^^^^^ meta.parens.log
 #      ^ punctuation.section.parens.end.log
 
+# -----------------------------------------------------------------------------
+# top-level log entries
+# -----------------------------------------------------------------------------
+
 ! Emergency stop.
 # <- markup.error.log
 #^^^^^^^^^^^^^^^^ markup.error.log
 
-(./A-TeX_File.tex
-LaTeX2e <2023-06-01> patch level 1
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
-#       ^^^^^^^^^^^^ string.quoted.other.log
-#       ^ punctuation.definition.string.begin.log
-#                  ^ punctuation.definition.string.end.log
+Package foo Error: This is a message.
+# <- markup.error.log
+#^^^^^^^^^^^^^^^^^ markup.error.log
 
-! fatal error
+Package foo Warning: This is a message.
+# <- markup.warning.log
+#^^^^^^^^^^^^^^^^^^^ markup.warning.log
+
+Package foo Info: This is a message.
+# <- markup.info.log
+#^^^^^^^^^^^^^^^^ markup.info.log
+
+Package foo Note: This is a message.
+# <- markup.info.log
+#^^^^^^^^^^^^^^^^ markup.info.log
+
+LaTeX Info: Redefining \[ and \] on input line 2949.
+#^^^^^^^^^^ markup.info.log
+#           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ - meta.brackets - punctuation
+
+LaTeX Info: Redefining \( and \) on input line 2958.
+#^^^^^^^^^^ markup.info.log
+#           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ - meta.brackets - punctuation
+
+LaTeX Info: Redefining \{ and \} on input line 2959.
+#^^^^^^^^^^ markup.info.log
+#           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ - meta.brackets - punctuation
+
+# ----------
+# Issue 1105: Support FiXme package
+
+FiXme Summary: Number of notes: 1,
+#^^^^^^^^^^^^^ markup.info.log
+(FiXme)        Number of warnings: 1,
+(FiXme)        Number of errors: 1,
+(FiXme)        Number of fatal errors: 1,
+(FiXme)        Total: 4.
+
+FiXme Note: 'NOTE' on input line 7.
+#^^^^^^^^^^ markup.info.log
+
+FiXme Warning: 'WARNING' on input line 8.
+#^^^^^^^^^^^^^ markup.warning.log
+
+FiXme Error: 'ERROR' on input line 9.
+#^^^^^^^^^^^ markup.error.log
+
+! Package FiXme Error: 'FATAL' fatal error left in final version.
+#^^^^^^^^^^^^^^^^^^^^^ markup.error.log
+
+# ----------
+# Issue 1233
+
+pdfTeX warning (dest): name{summary} has been referenced but does not exist,
+#^^^^^^^^^^^^^^^^^^^^^ markup.warning.log
+#                          ^^^^^^^^^ string.quoted.other.log
+#                          ^ punctuation.definition.string.begin.log
+#                                  ^ punctuation.definition.string.end.log
+replaced by a fixed one
+# <- - markup
+
+# -----------------------------------------------------------------------------
+# nested log entries
+# -----------------------------------------------------------------------------
+
+(./test-messages.tex
+# <- meta.block.log punctuation.section.block.begin.log
+#^^^^^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+
+! fatal error.
 #^^^^^^^^^^^^ meta.block.log markup.error.log
 
+Error: This is a message.
+# <- markup.error.log
+#^^^^^ markup.error.log
+
+Warning: This is a message.
+# <- markup.warning.log
+#^^^^^^^ markup.warning.log
+
+Info: This is a message.
+# <- markup.info.log
+#^^^^ markup.info.log
+
+Note: This is a message.
+# <- markup.info.log
+#^^^^ markup.info.log
+
+(/opt/TeX/texmf-dist/tex/latex/hyperref/hyperref.sty
+# <- meta.block.log meta.block.log punctuation.section.block.begin.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.block.log entity.name.section.filename.log
 Package hyperref Error: Option `pdfauthor' not found,
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
 #^^^^^^^^^^^^^^^^^^^^^^ markup.error.log
@@ -585,10 +670,38 @@ Package hyperref Warning: Option `pdfauthor' has already been used,
 #                                ^ punctuation.definition.string.begin.log
 #                                          ^ punctuation.definition.string.end.log
 (hyperref)                setting the option has no effect on input line 13.
-# <- meta.block.log meta.parens.log punctuation.section.parens.begin.log
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
+# <- meta.block.log meta.block.log meta.parens.log punctuation.section.parens.begin.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.block.log
 #^^^^^^^^^ meta.parens.log
 #        ^ punctuation.section.parens.end.log
+)
+# <- meta.block.log meta.block.log punctuation.section.block.end.log
+#^ meta.block.log - meta.block meta.block - punctuation
+
+(/opt/TeX/texmf-dist/tex/latex/koma-script/scrbook.cls
+Document Class: scrbook 2023/07/07 v3.41 KOMA-Script document class (book)
+# <- meta.block.log meta.block.log comment.line.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.block.log comment.line.log
+Class scrbook Info: using compatibility default ``runin=bysign''
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^^^^^^ markup.info.log
+#                                               ^^^^^^^^^^^^^^^^ string.quoted.double.log
+#                                               ^^ punctuation.definition.string.begin.log
+#                                                             ^^ punctuation.definition.string.end.log
+(scrbook)           for `\section on input line 6001.
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^ meta.parens.log
+#       ^ punctuation.section.parens.end.log
+#                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string.quoted.single.log
+#                       ^ punctuation.definition.string.begin.log
+#                                                   ^ punctuation.definition.string.end.log
+)
+# <- meta.block.log meta.block.log punctuation.section.block.end.log
+#^ meta.block.log - meta.block meta.block - punctuation
+
+# -----------------------------------------------------------------------------
+# badbox messages
+# -----------------------------------------------------------------------------
 
 Overfull \hbox (2.7858pt too wide) detected at line 369
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.warning.box.log
