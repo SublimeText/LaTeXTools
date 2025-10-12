@@ -364,6 +364,14 @@ contexts:
   constants:
     # copyright sign
     - match: \(C\)
+    # consume plain window paths, to avoid segments being scoped latex commands
+    - match: \b{{drive_char}}:(?:\\\S*)?\n
+      push: path-continuation
+    - match: \b{{drive_char}}:\\\S*
+
+  path-continuation:
+    - match: ^\S*
+      pop: 1
 
   strings:
     - match: '{'
