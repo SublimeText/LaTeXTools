@@ -622,6 +622,31 @@ Underfull \hbox (badness 10000) in [paragraph] at lines [[3417--3445 []
 #                                                        ^^^^^^^^^^^^ meta.brackets.log meta.brackets.log
 #                                                                    ^^ punctuation.terminator.log - meta.brackets
 
+# ----------
+# Issue 1196: Overfull and Underfull may be terminated
+
+Underfull \hbox (badness 10000) in paragraph at lines 49--49
+[]  \OT1/cmtt/m/n/8 1. Palavra-chave1 2. Palavra-chave2 I. Orientador II.
+[1{D:/latex/pdftex.map}]
+# <- meta.block.log meta.brackets.log punctuation.section.brackets.begin.log - meta.warning
+#^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.brackets.log - meta.warning
+#                      ^ punctuation.section.brackets.end.log
+
+# ----------
+# Issue 1210: Overfull and Underfull may be terminated
+
+Underfull \hbox
+# <- meta.block.log meta.warning.box.log markup.warning.log
+
+Underfull \hbox
+# <- meta.block.log meta.warning.box.log markup.warning.log
+
+[1
+# <- meta.block.log meta.brackets.log punctuation.section.brackets.begin.log - meta.warning
+]
+# <- meta.block.log meta.brackets.log punctuation.section.brackets.end.log
+# ----------
+
 (/opt/TeX/texmf-dist/tex/latex/base/fontenc.sty
 Package: fontenc 2021/04/29 v2.0v Standard LaTeX package
 <<t1.cmap>>)

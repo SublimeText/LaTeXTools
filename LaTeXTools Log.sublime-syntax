@@ -294,7 +294,7 @@ contexts:
     - match: '^[^:]*(?:Overfull|Underfull)'
       scope: markup.warning.log
       embed: box-warning-content
-      escape: \[\]$
+      escape: \[\]$|(?=^\s*(?:\[(?:\d+|[^\]]+\])$)|Overfull|Underfull\b)
       escape_captures:
         0: meta.warning.box.log punctuation.terminator.log
     - match: '^[^:]*(FiXme|Warning):'
