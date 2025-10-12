@@ -195,7 +195,8 @@ def parse_tex_log(data, root_dir):
     pagenum_begin_rx = re.compile(r"\s*\[\d*(.*)")
     line_rx = re.compile(r"^l\.(\d+)\s(.*)")  # l.nn <text>
 
-    warning_rx = re.compile(r"^(.*?) Warning: (.+)")  # Warnings, first line
+    error_rx = re.compile(r"^([^!:]*?)\bError: (.+)")  # Errors, first line
+    warning_rx = re.compile(r"^([^:]*?)\bWarning: (.+)")  # Warnings, first line
     line_rx_latex_warn = re.compile(r"input line (\d+)\..*")  # Warnings, line number
 
     badbox_rx = re.compile(r"^(.*?)Overfull (.*)")  # Bad box warning
@@ -215,6 +216,22 @@ def parse_tex_log(data, root_dir):
         False  # If we have seen xypic, report a warning, not an error for incorrect parsing
     )
 
+    # Support function to handle errors
+    def handle_error(l):
+        if files == []:
+            location = "[no file]"
+            parsing.append("PERR [handle_error no files] " + l)
+            debug(f"PERR [handle_error no files] ({line_num})")
+        else:
+            location = files[-1]
+
+        err_match_line = line_rx_latex_warn.search(l)
+        if err_match_line:
+            err_line = err_match_line.group(1)
+            errors.append(f"{location}:{err_line}: {l}")
+        else:
+            errors.append(f"{location}: {l}")
+
     # Support function to handle warnings
     def handle_warning(l):
         if files == []:
@@ -225,7 +242,6 @@ def parse_tex_log(data, root_dir):
             location = files[-1]
 
         warn_match_line = line_rx_latex_warn.search(l)
-
         if warn_match_line:
             warn_line = warn_match_line.group(1)
             warnings.append(f"{location}:{warn_line}: {l}")
@@ -242,7 +258,6 @@ def parse_tex_log(data, root_dir):
             location = files[-1]
 
         badbox_match_line = line_rx_latex_badbox.search(l)
-
         if badbox_match_line:
             badbox_line = badbox_match_line.group(1)
             badboxes.append(f"{location}:{badbox_line}: {l}")
@@ -252,8 +267,9 @@ def parse_tex_log(data, root_dir):
     # State definitions
     STATE_NORMAL = 0
     STATE_SKIP = 1
-    STATE_REPORT_ERROR = 2
-    STATE_REPORT_WARNING = 3
+    STATE_REPORT_FATAL = 2
+    STATE_REPORT_ERROR = 3
+    STATE_REPORT_WARNING = 4
 
     state = STATE_NORMAL
 
@@ -410,9 +426,9 @@ def parse_tex_log(data, root_dir):
         if state == STATE_SKIP:
             state = STATE_NORMAL
             continue
-        if state == STATE_REPORT_ERROR:
+        if state == STATE_REPORT_FATAL:
             # skip everything except "l.<nn> <text>"
-            debug("Reporting error in line: " + line)
+            debug("Reporting fatal error in line: " + line)
             # We check for emergency stops here, too, because it may occur before the l.nn text
             if "! Emergency stop." in line:
                 emergency_stop = True
@@ -432,12 +448,20 @@ def parse_tex_log(data, root_dir):
             # err_msg is set from last time
             if files == []:
                 location = "[no file]"
-                parsing.append("PERR [STATE_REPORT_ERROR no files] " + line)
-                debug(f"PERR [STATE_REPORT_ERROR no files] ({line_num})")
+                parsing.append("PERR [STATE_REPORT_FATAL no files] " + line)
+                debug(f"PERR [STATE_REPORT_FATAL no files] ({line_num})")
             else:
                 location = files[-1]
             debug("Found error: " + err_msg)
             errors.append(f"{location}:{err_line}: {err_msg} [{err_text}]")
+            continue
+        if state == STATE_REPORT_ERROR:
+            # add current line and check if we are done or not
+            current_error += line
+            if len(line) == 0 or line[-1] == ".":
+                handle_error(current_error)
+                current_error = None
+                state = STATE_NORMAL  # otherwise the state stays at REPORT_ERROR
             continue
         if state == STATE_REPORT_WARNING:
             # add current line and check if we are done or not
@@ -757,7 +781,7 @@ def parse_tex_log(data, root_dir):
                 debug("Found loaded) but top file name doesn't have xy")
 
         if len(line) > 0 and line[0] == "!":  # Now it's surely an error
-            debug("Error found: " + line)
+            debug("Fatal error found: " + line)
             # If it's a pdftex error, it's on the current line, so report it
             if "pdfTeX error" in line:
                 err_msg = line[1:].strip()  # remove '!' and possibly spaces
@@ -779,7 +803,31 @@ def parse_tex_log(data, root_dir):
             # Now it's a regular TeX error
             err_msg = line[2:]  # skip "! "
             # next time around, err_msg will be set and we'll extract all info
+            state = STATE_REPORT_FATAL
+            continue
+
+        error_match = error_rx.match(line)
+        if error_match:
+            debug("Error found: " + line)
+            # if last character is a dot, it's a single line
+            if line[-1] == ".":
+                handle_error(line)
+                continue
+            # otherwise, accumulate it
+            current_error = line
             state = STATE_REPORT_ERROR
+            continue
+
+        warning_match = warning_rx.match(line)
+        if warning_match:
+            debug("Warning found: " + line)
+            # if last character is a dot, it's a single line
+            if line[-1] == ".":
+                handle_warning(line)
+                continue
+            # otherwise, accumulate it
+            current_warning = line
+            state = STATE_REPORT_WARNING
             continue
 
         # Second match for opening page numbers. We now use "search" which matches
@@ -791,17 +839,6 @@ def parse_tex_log(data, root_dir):
             extra = pagenum_begin_match.group(1)
             debug("Reprocessing " + extra)
             reprocess_extra = True
-            continue
-
-        warning_match = warning_rx.match(line)
-        if warning_match:
-            # if last character is a dot, it's a single line
-            if line[-1] == ".":
-                handle_warning(line)
-                continue
-            # otherwise, accumulate it
-            current_warning = line
-            state = STATE_REPORT_WARNING
             continue
 
     # If there were parsing issues, output them to debug
