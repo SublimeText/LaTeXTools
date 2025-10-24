@@ -709,6 +709,25 @@ FiXme Error: 'ERROR' on input line 9.
 ! Package FiXme Error: 'FATAL' fatal error left in final version.
 #^^^^^^^^^^^^^^^^^^^^^ markup.error.log
 
+! Argument of \textit  has an extra }.
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ markup.error.log
+<inserted text>
+# <- string.quoted.other.log punctuation.definition.string.begin.log
+#^^^^^^^^^^^^^^ string.quoted.other.log
+#             ^ punctuation.definition.string.end.log
+                \par
+#               ^^^^ meta.function-call.latex support.function.latex
+#               ^ punctuation.definition.variable.latex
+l.5 \section\textit
+#   ^^^^^^^^^^^^^^^ meta.function-call.latex support.function.latex
+#   ^ punctuation.definition.variable.latex
+#           ^ punctuation.definition.variable.latex
+                   {\uwave{Intr\{oduction}}
+#                  ^^^^^^^^^^^^^^^^^^^^^^^^ string.quoted.other.log
+#                  ^ punctuation.definition.string.begin.log
+#                   ^^^^^^^^^^^^^^^^^^^^^^ - constant - punctuation
+#                                         ^ punctuation.definition.string.end.log
+
 # ----------
 # Issue 1233
 

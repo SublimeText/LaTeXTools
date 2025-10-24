@@ -397,6 +397,14 @@ contexts:
     - match: '}'
       scope: punctuation.definition.string.end.log
       pop: 1
+    - include: brace-quoted-nested-string-body
+
+  brace-quoted-nested-string-body:
+    - match: '}'
+      pop: 1
+    - match: '{'
+      push: brace-quoted-nested-string-body
+    - match: \\[{}]
 
   double-angled-string-body:
     - meta_scope: string.quoted.other.log
