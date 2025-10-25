@@ -29,7 +29,7 @@ contexts:
 
   comments:
     # note: primarily used for syntax_test files
-    - match: \#
+    - match: ^\#
       scope: punctuation.definition.comment.log
       push: comment-body
 
