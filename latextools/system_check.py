@@ -494,11 +494,12 @@ class SystemCheckThread(threading.Thread):
         result = subprocess.run(
             cmd,
             env=self.env,
+            encoding="utf-8",
             shell=self.platform == "windows",
             stderr=subprocess.DEVNULL,
             stdout=subprocess.PIPE,
-            text=True,
             timeout=30,
+            universal_newlines=True,
         )
         return result.stdout if result.returncode == 0 else None
 
