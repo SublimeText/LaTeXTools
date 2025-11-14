@@ -285,25 +285,34 @@ contexts:
     # single-line meta information
     - match: ^(?:Dictionary|Document Class|File|Language|Package):.+
       scope: comment.line.log
+    # exceptions
+    - match: '^! [^:]*Error:'
+      scope: markup.error.log
+      push: log-fatal-body
+    - match: '^! .*'
+      scope: markup.error.log
+      push: log-exception-body
     # errors
     - match: '^[^:]*Error:'
       scope: markup.error.log
-    - match: '^!.*'
-      scope: markup.error.log
+      push: log-error-body
     # warnings
     - match: '^[^:]*(?:Overfull|Underfull)'
       scope: markup.warning.log
-      embed: box-warning-content
+      embed: log-box-warning-body
       escape: \[\]$|(?=^\s*(?:\[(?:\d+|[^\]]+\])$)|Overfull|Underfull\b)
       escape_captures:
         0: meta.warning.box.log punctuation.terminator.log
     - match: '^[^:]*(?:Warning|warning \([^)]*\)):'
       scope: markup.warning.log
+      push: log-warning-body
     - match: '^[^:]*:\d*:.*'
       scope: markup.warning.log
+      push: log-warning-body
     # info
     - match: '^[^:]*(?:Info|Note|Summary):'
       scope: markup.info.log
+      push: log-info-body
 
   block-comment-body:
     - meta_scope: comment.line.log
@@ -311,7 +320,51 @@ contexts:
     - match: \n
       pop: 1
 
-  box-warning-content:
+  log-error-body:
+    - meta_scope: meta.error.log
+    - match: (?:^|\.)$
+      pop: 1
+    - include: content
+
+  log-exception-body:
+    - meta_scope: meta.exception.log
+    - match: ^$
+      pop: 1
+    - include: content
+
+  log-fatal-body:
+    - meta_scope: meta.error.log
+    - match: (?:^|\.)$
+      set:
+        - log-fatal-hint-body
+        - log-fatal-desc-body
+    - include: content
+
+  log-fatal-desc-body:
+    # expect line, starting with fatal error location (line number e.g.: l.10)
+    - match: ^l\.\d+\b
+      pop: 1
+    - include: content
+
+  log-fatal-hint-body:
+    - meta_content_scope: meta.error.log meta.description.log
+    - match: ^$
+      pop: 1
+    - include: content
+
+  log-info-body:
+    - meta_scope: meta.info.log
+    - match: (?:^|\.)$
+      pop: 1
+    - include: content
+
+  log-warning-body:
+    - meta_scope: meta.warning.log
+    - match: (?:^|\.)$
+      pop: 1
+    - include: content
+
+  log-box-warning-body:
     - meta_scope: meta.warning.box.log
     - include: content
 

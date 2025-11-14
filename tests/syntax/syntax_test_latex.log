@@ -656,8 +656,8 @@ command)
 # -----------------------------------------------------------------------------
 
 ! Emergency stop.
-# <- markup.error.log
-#^^^^^^^^^^^^^^^^ markup.error.log
+# <- meta.exception.log markup.error.log
+#^^^^^^^^^^^^^^^^ meta.exception.log markup.error.log
 
 Package foo Error: This is a message.
 # <- markup.error.log
@@ -684,41 +684,88 @@ LaTeX Info: Redefining \( and \) on input line 2958.
 #           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ - meta.brackets - punctuation
 
 LaTeX Info: Redefining \{ and \} on input line 2959.
-#^^^^^^^^^^ markup.info.log
-#           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ - meta.brackets - punctuation
+# <- meta.info.log markup.info.log
+#^^^^^^^^^^ meta.info.log markup.info.log
+#          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.info.log - markup
+
+# ----------
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...
+
+l.1 \section{C
+              hapter 1}
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+# <- meta.error.log meta.description.log
+
+# <- - meta.error
 
 # ----------
 # Issue 1105: Support FiXme package
 
 FiXme Summary: Number of notes: 1,
-#^^^^^^^^^^^^^ markup.info.log
+# <- meta.info.log markup.info.log
+#^^^^^^^^^^^^^ meta.info.log markup.info.log
+#             ^^^^^^^^^^^^^^^^^^^^^ meta.info.log - markup
 (FiXme)        Number of warnings: 1,
 (FiXme)        Number of errors: 1,
 (FiXme)        Number of fatal errors: 1,
 (FiXme)        Total: 4.
+# <- meta.info.log meta.parens.log punctuation.section.parens.begin.log
+#^^^^^^ meta.info.log meta.parens.log
+#      ^^^^^^^^^^^^^^^^^ meta.info.log - meta.parens
+
+# <- - meta.info
 
 FiXme Note: 'NOTE' on input line 7.
-#^^^^^^^^^^ markup.info.log
+# <- meta.info.log markup.info.log
+#^^^^^^^^^^ meta.info.log markup.info.log
+#          ^^^^^^^^^^^^^^^^^^^^^^^^ meta.info.log - markup
+
+# <- - meta.info
 
 FiXme Warning: 'WARNING' on input line 8.
-#^^^^^^^^^^^^^ markup.warning.log
+# <- meta.warning.log markup.warning.log
+#^^^^^^^^^^^^^ meta.warning.log markup.warning.log
+#             ^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.warning.log - markup
+
+# <- - meta.warning
 
 FiXme Error: 'ERROR' on input line 9.
-#^^^^^^^^^^^ markup.error.log
+# <- meta.error.log markup.error.log
+#^^^^^^^^^^^ meta.error.log markup.error.log
+#           ^^^^^^^^^^^^^^^^^^^^^^^^^ meta.error.log - markup
+
+# <- - meta.error
 
 ! Package FiXme Error: 'FATAL' fatal error left in final version.
-#^^^^^^^^^^^^^^^^^^^^^ markup.error.log
+# <- meta.error.log markup.error.log
+#^^^^^^^^^^^^^^^^^^^^^ meta.error.log markup.error.log
+#                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.error.log - markup
+
+l.20
+# <- meta.error.log meta.description.log
+#^^^^ meta.error.log meta.description.log
+
+# <- - meta.error
 
 ! Argument of \textit  has an extra }.
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ markup.error.log
+# <- meta.exception.log markup.error.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.exception.log markup.error.log
 <inserted text>
-# <- string.quoted.other.log punctuation.definition.string.begin.log
-#^^^^^^^^^^^^^^ string.quoted.other.log
+# <- meta.exception.log string.quoted.other.log punctuation.definition.string.begin.log
+#^^^^^^^^^^^^^^ meta.exception.log string.quoted.other.log
 #             ^ punctuation.definition.string.end.log
                 \par
 #               ^^^^ meta.function-call.latex support.function.latex
 #               ^ punctuation.definition.variable.latex
 l.5 \section\textit
+# <- meta.exception.log
+#^^^^^^^^^^^^^^^^^^^ meta.exception.log
 #   ^^^^^^^^^^^^^^^ meta.function-call.latex support.function.latex
 #   ^ punctuation.definition.variable.latex
 #           ^ punctuation.definition.variable.latex
@@ -732,12 +779,15 @@ l.5 \section\textit
 # Issue 1233
 
 pdfTeX warning (dest): name{summary} has been referenced but does not exist,
-#^^^^^^^^^^^^^^^^^^^^^ markup.warning.log
+# <- meta.warning.log markup.warning.log
+#^^^^^^^^^^^^^^^^^^^^^ meta.warning.log markup.warning.log
+#                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.warning.log - markup
 #                          ^^^^^^^^^ string.quoted.other.log
 #                          ^ punctuation.definition.string.begin.log
 #                                  ^ punctuation.definition.string.end.log
 replaced by a fixed one
-# <- - markup
+# <- meta.warning.log - markup
+#^^^^^^^^^^^^^^^^^^^^^^^ meta.warning.log - markup
 
 # -----------------------------------------------------------------------------
 # nested log entries
@@ -748,43 +798,50 @@ replaced by a fixed one
 #^^^^^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
 
 ! fatal error.
-#^^^^^^^^^^^^ meta.block.log markup.error.log
+# <- meta.exception.log markup.error.log
+#^^^^^^^^^^^^^ meta.exception.log markup.error.log
 
 Error: This is a message.
-# <- markup.error.log
-#^^^^^ markup.error.log
+# <- meta.error.log markup.error.log
+#^^^^^ meta.error.log markup.error.log
+#     ^^^^^^^^^^^^^^^^^^^ meta.error.log - markup
 
 Warning: This is a message.
-# <- markup.warning.log
-#^^^^^^^ markup.warning.log
+# <- meta.warning.log markup.warning.log
+#^^^^^^^ meta.warning.log markup.warning.log
+#       ^^^^^^^^^^^^^^^^^^^ meta.warning.log - markup
 
 Info: This is a message.
-# <- markup.info.log
-#^^^^ markup.info.log
+# <- meta.info.log markup.info.log
+#^^^^ meta.info.log markup.info.log
+#    ^^^^^^^^^^^^^^^^^^^ meta.info.log - markup
 
 Note: This is a message.
-# <- markup.info.log
-#^^^^ markup.info.log
+# <- meta.info.log markup.info.log
+#^^^^ meta.info.log markup.info.log
+#    ^^^^^^^^^^^^^^^^^^^ meta.info.log - markup
 
 (/opt/TeX/texmf-dist/tex/latex/hyperref/hyperref.sty
 # <- meta.block.log meta.block.log punctuation.section.block.begin.log
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.block.log entity.name.section.filename.log
 Package hyperref Error: Option `pdfauthor' not found,
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
-#^^^^^^^^^^^^^^^^^^^^^^ markup.error.log
+#^^^^^^^^^^^^^^^^^^^^^^ meta.error.log markup.error.log
+#                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.error.log - markup
 #                              ^^^^^^^^^^^ string.quoted.single.log
 #                              ^ punctuation.definition.string.begin.log
 #                                        ^ punctuation.definition.string.end.log
 
 Package hyperref Warning: Option `pdfauthor' has already been used,
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
-#^^^^^^^^^^^^^^^^^^^^^^^^ markup.warning.log
+#^^^^^^^^^^^^^^^^^^^^^^^^ meta.warning.log markup.warning.log
+#                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.warning.log - markup
 #                                ^^^^^^^^^^^ string.quoted.single.log
 #                                ^ punctuation.definition.string.begin.log
 #                                          ^ punctuation.definition.string.end.log
 (hyperref)                setting the option has no effect on input line 13.
 # <- meta.block.log meta.block.log meta.parens.log punctuation.section.parens.begin.log
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.block.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.block.log meta.warning.log - markup
 #^^^^^^^^^ meta.parens.log
 #        ^ punctuation.section.parens.end.log
 )
@@ -796,20 +853,21 @@ Document Class: scrbook 2023/07/07 v3.41 KOMA-Script document class (book)
 # <- meta.block.log meta.block.log comment.line.log
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.block.log comment.line.log
 Class scrbook Info: using compatibility default ``runin=bysign''
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
-#^^^^^^^^^^^^^^^^^^ markup.info.log
+#^^^^^^^^^^^^^^^^^^ meta.block.log meta.block.log meta.info.log markup.info.log
+#                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.block.log meta.info.log - markup
 #                                               ^^^^^^^^^^^^^^^^ string.quoted.double.log
 #                                               ^^ punctuation.definition.string.begin.log
 #                                                             ^^ punctuation.definition.string.end.log
 (scrbook)           for `\section on input line 6001.
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.block.log meta.info.log - markup
 #^^^^^^^^ meta.parens.log
 #       ^ punctuation.section.parens.end.log
 #                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string.quoted.single.log
 #                       ^ punctuation.definition.string.begin.log
 #                                                   ^ punctuation.definition.string.end.log
+
 )
-# <- meta.block.log meta.block.log punctuation.section.block.end.log
+# <- meta.block.log meta.block.log punctuation.section.block.end.log - meta.info
 #^ meta.block.log - meta.block meta.block - punctuation
 
 # -----------------------------------------------------------------------------
