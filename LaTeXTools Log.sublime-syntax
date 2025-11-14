@@ -19,13 +19,23 @@ variables:
 
 contexts:
   main:
-    - include: comments
-    - include: constants
+    - include: log-entries
     - include: blocks
     - include: brackets
-    - include: log-entries
+    - include: comments
     - include: commands
+    - include: constants
     - include: strings
+
+  content:
+    - include: parens
+    - include: brackets
+    - include: comments
+    - include: commands
+    - include: constants
+    - include: strings
+
+###[ COMMENTS ]################################################################
 
   comments:
     # note: primarily used for syntax_test files
@@ -246,12 +256,7 @@ contexts:
     - match: \]
       scope: punctuation.section.brackets.end.log
       pop: 1
-    - include: comments
-    - include: constants
-    - include: brackets
-    - include: parens
-    - include: commands
-    - include: strings
+    - include: content
 
   parens:
     - match: \(
@@ -268,13 +273,8 @@ contexts:
     - match: \)
       scope: punctuation.section.parens.end.log
       pop: 1
-    - include: comments
-    - include: constants
-    - include: brackets
-    - include: parens
     - include: log-entries
-    - include: commands
-    - include: strings
+    - include: content
 
 ###[ LOG ENTRIES ]##############################################################
 
@@ -313,12 +313,7 @@ contexts:
 
   box-warning-content:
     - meta_scope: meta.warning.box.log
-    - include: comments
-    - include: constants
-    - include: brackets
-    - include: parens
-    - include: commands
-    - include: strings
+    - include: content
 
   commands:
     - match: (\\)[\w@]+
@@ -347,12 +342,7 @@ contexts:
     - match: \}
       scope: punctuation.section.braces.end.log
       pop: 1
-    - include: comments
-    - include: constants
-    - include: brackets
-    - include: parens
-    - include: commands
-    - include: strings
+    - include: content
 
   value:
     - include: parens
