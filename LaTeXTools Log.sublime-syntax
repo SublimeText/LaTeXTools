@@ -324,13 +324,13 @@ contexts:
     - meta_scope: meta.error.log
     - match: (?:^|\.)$
       pop: 1
-    - include: content
+    - include: log-content
 
   log-exception-body:
     - meta_scope: meta.exception.log
     - match: ^$
       pop: 1
-    - include: content
+    - include: log-content
 
   log-fatal-body:
     - meta_scope: meta.error.log
@@ -338,35 +338,97 @@ contexts:
       set:
         - log-fatal-hint-body
         - log-fatal-desc-body
-    - include: content
+    - include: log-content
 
   log-fatal-desc-body:
     # expect line, starting with fatal error location (line number e.g.: l.10)
     - match: ^l\.\d+\b
       pop: 1
-    - include: content
+    - include: log-content
 
   log-fatal-hint-body:
     - meta_content_scope: meta.error.log meta.description.log
     - match: ^$
       pop: 1
-    - include: content
+    - include: log-content
 
   log-info-body:
     - meta_scope: meta.info.log
     - match: (?:^|\.)$
       pop: 1
-    - include: content
+    - include: log-content
 
   log-warning-body:
     - meta_scope: meta.warning.log
     - match: (?:^|\.)$
       pop: 1
-    - include: content
+    - include: log-content
 
   log-box-warning-body:
     - meta_scope: meta.warning.box.log
-    - include: content
+    - include: log-content
+
+  log-content:
+    - include: parens
+    - include: brackets
+    - include: comments
+    - include: log-cmds
+    - include: constants
+    - include: strings
+
+  log-cmds:
+    - match: (\\)[\w@]+
+      scope: support.function.latex
+      captures:
+        1: punctuation.definition.variable.latex
+      push: log-cmd-args
+    - match: :?=
+      scope: keyword.operator.assignment.latex
+      push: value
+    - match: ;
+      scope: punctuation.separator.latex
+
+  log-cmd-args:
+    - meta_scope: meta.function-call.latex
+    - include: comments
+    - match: \s*(\{)
+      captures:
+        1: meta.braces.log punctuation.section.braces.begin.log
+      push: log-cmd-args-body
+    - match: \s*(\[)
+      captures:
+        1: meta.brackets.log punctuation.section.brackets.begin.log
+      push: log-bracket-body
+    - match: \s*(\()
+      captures:
+        1: meta.parens.log punctuation.section.parens.begin.log
+      push: log-paren-body
+    - match: ^|(?=\s*\S)
+      pop: 1
+
+  log-cmd-args-body:
+    - meta_content_scope: meta.braces.log
+    - match: \}
+      scope: meta.braces.log punctuation.section.braces.end.log
+      pop: 1
+    - include: log-content
+
+  log-bracket-body:
+    - meta_content_scope: meta.brackets.log
+    - match: \]
+      scope: meta.brackets.log punctuation.section.brackets.end.log
+      pop: 1
+    - include: log-content
+
+  log-paren-body:
+    - meta_content_scope: meta.parens.log
+    - match: \)
+      scope: meta.parens.log punctuation.section.parens.end.log
+      pop: 1
+    - include: log-entries
+    - include: log-content
+
+###[ COMMANDS ]#################################################################
 
   commands:
     - match: (\\)[\w@]+
@@ -382,13 +444,13 @@ contexts:
 
   cmd-args:
     - meta_scope: meta.function-call.latex
-    - include: brackets
-    - include: parens
     - match: \{
       scope: punctuation.section.braces.begin.log
       push: cmd-args-body
-    - match: ''
-      pop: 1
+    - include: comments
+    - include: brackets
+    - include: parens
+    - include: immediately-pop
 
   cmd-args-body:
     - meta_scope: meta.braces.log
@@ -487,4 +549,8 @@ contexts:
 
   bol-pop:
     - match: ^
+      pop: 1
+
+  immediately-pop:
+    - match: ''
       pop: 1

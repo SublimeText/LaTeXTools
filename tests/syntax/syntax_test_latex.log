@@ -618,6 +618,20 @@ File: untxsyc.fd 2012/04/12 Fontinst v1.933 font definitions for U/ntxsyc.
 )
 # <- meta.block.log punctuation.section.block.end.log
 
+(D:\User\Documents\latex\texmfs\install\tex\latex\memoir\memoir.cls
+Document Class: memoir 2016/05/16 v3.7f configurable book, report, article docu
+ment class
+\c@@memmarkcntra=\count80
+(D:\latex\texmfs\install\tex\generic\oberdiek\ifpdf.sty
+# <- meta.block.log meta.block.log punctuation.section.block.begin.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.block.log entity.name.section.filename.log
+)
+# <- meta.block.log meta.block.log punctuation.section.block.end.log
+#^ meta.block.log - meta.block meta.block
+)
+# <- meta.block.log punctuation.section.block.end.log
+#^ - meta.block
+
 # -----------------------------------------------------------------------------
 # Parentheses
 # -----------------------------------------------------------------------------
@@ -770,10 +784,11 @@ l.5 \section\textit
 #   ^ punctuation.definition.variable.latex
 #           ^ punctuation.definition.variable.latex
                    {\uwave{Intr\{oduction}}
-#                  ^^^^^^^^^^^^^^^^^^^^^^^^ string.quoted.other.log
-#                  ^ punctuation.definition.string.begin.log
-#                   ^^^^^^^^^^^^^^^^^^^^^^ - constant - punctuation
-#                                         ^ punctuation.definition.string.end.log
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.exception.log meta.function-call.latex
+#                  ^^^^^^^^^^^^^^^^^^^^^^^^ meta.braces.log
+#                  ^ punctuation.section.braces.begin.log
+#                         ^ punctuation.section.braces.begin.log
+#                                        ^^ punctuation.section.braces.end.log
 
 # ----------
 # Issue 1233
