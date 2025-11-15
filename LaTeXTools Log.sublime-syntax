@@ -248,30 +248,30 @@ contexts:
 
   brackets:
     - match: \[
-      scope: punctuation.section.brackets.begin.log
+      scope: meta.brackets.log punctuation.section.brackets.begin.log
       push: bracket-body
 
   bracket-body:
-    - meta_scope: meta.brackets.log
+    - meta_content_scope: meta.brackets.log
     - match: \]
-      scope: punctuation.section.brackets.end.log
+      scope: meta.brackets.log punctuation.section.brackets.end.log
       pop: 1
     - include: content
 
   parens:
     - match: \(
-      scope: punctuation.section.parens.begin.log
+      scope: meta.parens.log punctuation.section.parens.begin.log
       push: paren-body
 
   paren:
     - match: \(
-      scope: punctuation.section.parens.begin.log
+      scope: meta.parens.log punctuation.section.parens.begin.log
       set: paren-body
 
   paren-body:
-    - meta_scope: meta.parens.log
+    - meta_content_scope: meta.parens.log
     - match: \)
-      scope: punctuation.section.parens.end.log
+      scope: meta.parens.log punctuation.section.parens.end.log
       pop: 1
     - include: log-entries
     - include: content
@@ -382,18 +382,26 @@ contexts:
 
   cmd-args:
     - meta_scope: meta.function-call.latex
-    - include: brackets
-    - include: parens
-    - match: \{
-      scope: punctuation.section.braces.begin.log
+    - include: comments
+    - match: \s*(\{)
+      captures:
+        1: meta.braces.log punctuation.section.braces.begin.log
       push: cmd-args-body
-    - match: ''
+    - match: \s*(\[)
+      captures:
+        1: meta.brackets.log punctuation.section.brackets.begin.log
+      push: bracket-body
+    - match: \s*(\()
+      captures:
+        1: meta.parens.log punctuation.section.parens.begin.log
+      push: paren-body
+    - match: ^|(?=\s*\S)
       pop: 1
 
   cmd-args-body:
-    - meta_scope: meta.braces.log
+    - meta_content_scope: meta.braces.log
     - match: \}
-      scope: punctuation.section.braces.end.log
+      scope: meta.braces.log punctuation.section.braces.end.log
       pop: 1
     - include: content
 

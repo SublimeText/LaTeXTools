@@ -770,10 +770,11 @@ l.5 \section\textit
 #   ^ punctuation.definition.variable.latex
 #           ^ punctuation.definition.variable.latex
                    {\uwave{Intr\{oduction}}
-#                  ^^^^^^^^^^^^^^^^^^^^^^^^ string.quoted.other.log
-#                  ^ punctuation.definition.string.begin.log
-#                   ^^^^^^^^^^^^^^^^^^^^^^ - constant - punctuation
-#                                         ^ punctuation.definition.string.end.log
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.exception.log meta.function-call.latex
+#                  ^^^^^^^^^^^^^^^^^^^^^^^^ meta.braces.log
+#                  ^ punctuation.section.braces.begin.log
+#                         ^ punctuation.section.braces.begin.log
+#                                        ^^ punctuation.section.braces.end.log
 
 # ----------
 # Issue 1233
