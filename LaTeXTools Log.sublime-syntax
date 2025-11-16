@@ -4,7 +4,7 @@ name: LaTeXTools Log
 scope: text.log.latex
 version: 2
 
-first_line_match: '^This is (?:LuaHB|pdfe?|Xe)?TeXk?, Version '
+first_line_match: '^This is (?:Lua(?:HB)?|pdfe?|Xe)?TeXk?, Version '
 
 variables:
   drive_char: '[a-zA-Z]'

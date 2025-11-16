@@ -738,7 +738,7 @@ class LatextoolsExecEventListener(sublime_plugin.EventListener):
         # assign latex log syntax based on view's first line
         if view.match_selector(0, "text.plain"):
             first_line = view.substr(sublime.Region(0, 40))
-            if re.search(r"^This is (?:LuaHB|pdfe?|Xe)?(?:La)?TeXk?, Version ", first_line):
+            if re.search(r"^This is (?:Lua(?:HB)?|pdfe?|Xe)?(?:La)?TeXk?, Version ", first_line):
                 view.assign_syntax("LaTeXTools Log.sublime-syntax")
             return
 
