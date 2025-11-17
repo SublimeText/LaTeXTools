@@ -704,6 +704,14 @@ LaTeX Info: Redefining \{ and \} on input line 2959.
 
 # ----------
 
+! Undefined control sequence.
+\imprimirautor ->\theauthor
+
+l.49         }
+# <- meta.exception.log
+
+# <- - meta.exception
+
 ! LaTeX Error: Missing \begin{document}.
 
 See the LaTeX manual or LaTeX Companion for explanation.
@@ -714,9 +722,9 @@ l.1 \section{C
               hapter 1}
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
-# <- meta.error.log meta.description.log
+# <- meta.exception.log
 
-# <- - meta.error
+# <- - meta.exception
 
 # ----------
 # Issue 1105: Support FiXme package
@@ -757,15 +765,15 @@ FiXme Error: 'ERROR' on input line 9.
 # <- - meta.error
 
 ! Package FiXme Error: 'FATAL' fatal error left in final version.
-# <- meta.error.log markup.error.log
-#^^^^^^^^^^^^^^^^^^^^^ meta.error.log markup.error.log
-#                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.error.log - markup
+# <- meta.exception.log markup.error.log
+#^^^^^^^^^^^^^^^^^^^^^ meta.exception.log markup.error.log
+#                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.exception.log - markup
 
 l.20
-# <- meta.error.log meta.description.log
-#^^^^ meta.error.log meta.description.log
+# <- meta.exception.log
+#^^^^ meta.exception.log
 
-# <- - meta.error
+# <- - meta.exception
 
 ! Argument of \textit  has an extra }.
 # <- meta.exception.log markup.error.log
@@ -885,6 +893,76 @@ Class scrbook Info: using compatibility default ``runin=bysign''
 # <- meta.block.log meta.block.log punctuation.section.block.end.log - meta.info
 #^ meta.block.log - meta.block meta.block - punctuation
 
+(test-log-termination-at-block-end-00.tex (aclass.cls
+! Exception
+)
+# <- meta.block.log meta.block.log meta.block.log punctuation.section.block.end.log
+#^ meta.block.log meta.block.log - meta.block meta.block meta.block - punctuation
+! Exception.
+
+l.10
+)
+# <- meta.block.log meta.block.log punctuation.section.block.end.log
+#^ meta.block.log - meta.block meta.block - punctuation
+
+(test-log-termination-at-block-end-01.tex (aclass.cls
+! Exception
+ ) ) (bclass.cls)
+#^ meta.block.log meta.block.log meta.block.log punctuation.section.block.end.log
+# ^ meta.block.log meta.block.log - punctuation
+#  ^ meta.block.log meta.block.log punctuation.section.block.end.log
+#   ^ meta.block.log - meta.block meta.block
+
+(test-log-termination-at-block-end-02.tex (aclass.cls
+! Exception.
+
+l.10
+ ) ) (bclass.cls)
+#^ meta.block.log meta.block.log meta.block.log punctuation.section.block.end.log
+# ^ meta.block.log meta.block.log - punctuation
+#  ^ meta.block.log meta.block.log punctuation.section.block.end.log
+#   ^ meta.block.log - meta.block meta.block
+
+(test-log-termination-at-block-end-03.tex (aclass.cls
+! LaTeX Error: An unterminated error message
+ ) ) (bclass.cls)
+#^ meta.block.log meta.block.log meta.block.log punctuation.section.block.end.log
+# ^ meta.block.log meta.block.log - punctuation
+#  ^ meta.block.log meta.block.log punctuation.section.block.end.log
+#   ^ meta.block.log - meta.block meta.block
+
+(test-log-termination-at-block-end-04.tex (aclass.cls
+Package aclass Error: An unterminated error message
+ ) ) (bclass.cls)
+#^ meta.block.log meta.block.log meta.block.log punctuation.section.block.end.log
+# ^ meta.block.log meta.block.log - punctuation
+#  ^ meta.block.log meta.block.log punctuation.section.block.end.log
+#   ^ meta.block.log - meta.block meta.block
+
+(test-log-termination-at-block-end-04.tex (aclass.cls
+Package aclass Warning: An unterminated warning message
+ ) ) (bclass.cls)
+#^ meta.block.log meta.block.log meta.block.log punctuation.section.block.end.log
+# ^ meta.block.log meta.block.log - punctuation
+#  ^ meta.block.log meta.block.log punctuation.section.block.end.log
+#   ^ meta.block.log - meta.block meta.block
+
+(test-log-termination-at-block-end-04.tex (aclass.cls
+Overfull \hbox An unterminated box message
+ ) ) (bclass.cls)
+#^ meta.block.log meta.block.log meta.block.log punctuation.section.block.end.log
+# ^ meta.block.log meta.block.log - punctuation
+#  ^ meta.block.log meta.block.log punctuation.section.block.end.log
+#   ^ meta.block.log - meta.block meta.block
+
+(test-log-termination-at-block-end-05.tex (aclass.cls
+Package aclass Info: An unterminated info message
+ ) ) (bclass.cls)
+#^ meta.block.log meta.block.log meta.block.log punctuation.section.block.end.log
+# ^ meta.block.log meta.block.log - punctuation
+#  ^ meta.block.log meta.block.log punctuation.section.block.end.log
+#   ^ meta.block.log - meta.block meta.block
+
 # -----------------------------------------------------------------------------
 # badbox messages
 # -----------------------------------------------------------------------------
@@ -951,6 +1029,10 @@ Underfull \hbox
 #  ^ punctuation.definition.string.begin.log
 #                        ^ punctuation.definition.string.end.log
 
+)
+# <- meta.block.log punctuation.section.block.end.log
+#^ - meta.block
+
 # -----------------------------------------------------------------------------
 # commands and assignments
 # -----------------------------------------------------------------------------
@@ -958,18 +1040,18 @@ Underfull \hbox
 (/opt/TeX/texmf-local/test-commands.sty
 Document Class: scrbook 2023/07/07 v3.41 KOMA-Script document class with wrappe
 d comment continued on next line (book)
-# <- meta.block.log meta.block.log comment.line.log
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.block.log comment.line.log
+# <- meta.block.log comment.line.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log comment.line.log
 
 \scr@dte@tocline@numberwidth=\skip48
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.block.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^ support.function.latex
 #                           ^ keyword.operator.assignment.latex
 #                            ^^^^^^^ support.function.latex
 #                            ^ punctuation.definition.variable.latex
 
 \command(args)[key=value]{{string},<string>,(parens)}
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.block.log meta.function-call.latex
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.function-call.latex
 #^^^^^^^ support.function.latex
 #       ^^^^^^ meta.parens.log
 #       ^ punctuation.section.parens.begin.log
@@ -990,10 +1072,6 @@ d comment continued on next line (book)
 #                                           ^ punctuation.section.parens.begin.log
 #                                                  ^ punctuation.section.parens.end.log
 #                                                   ^ punctuation.section.braces.end.log
-)
-# <- meta.block.log meta.block.log punctuation.section.block.end.log
-#^ meta.block.log - meta.block meta.block - punctuation
-
 )
 # <- meta.block.log punctuation.section.block.end.log
 #^ - meta.block

@@ -288,7 +288,7 @@ contexts:
     # exceptions
     - match: '^! [^:]*Error:'
       scope: markup.error.log
-      push: log-fatal-body
+      push: log-exception-body
     - match: '^! .*'
       scope: markup.error.log
       push: log-exception-body
@@ -300,7 +300,23 @@ contexts:
     - match: '^[^:]*(?:Overfull|Underfull)'
       scope: markup.warning.log
       embed: log-box-warning-body
-      escape: \[\]$|(?=^\s*(?:\[(?:\d+|[^\]]+\])$)|Overfull|Underfull\b)
+      escape: |-
+        (?x)
+        \[\]$
+        | ^(?= (?:
+          # next paragraph starting with
+          # `[1` or `[anytext]`
+            \s* \[ (?: \d+ | [^\]]+\] )$)
+          # end of block
+          | [\s\)]* \) \s* [(\n]
+          # exceptions
+          | ![ ]\w
+          # errors/info/warnings
+          | [^:]*(?:Error|Info|Note|Summary|Warning|warning \([^)]*\)):
+          # box warnings
+          | Overfull\b
+          | Underfull\b
+          )
       escape_captures:
         0: meta.warning.box.log punctuation.terminator.log
     - match: '^[^:]*(?:Warning|warning \([^)]*\)):'
@@ -322,46 +338,37 @@ contexts:
 
   log-error-body:
     - meta_scope: meta.error.log
-    - match: (?:^|\.)$
-      pop: 1
+    - include: log-message-end
+    - include: log-paragraph-end
+    - include: log-item-continuations
     - include: log-content
 
   log-exception-body:
     - meta_scope: meta.exception.log
-    - match: ^$
-      pop: 1
-    - include: log-content
-
-  log-fatal-body:
-    - meta_scope: meta.error.log
-    - match: (?:^|\.)$
-      set:
-        - log-fatal-hint-body
-        - log-fatal-desc-body
-    - include: log-content
-
-  log-fatal-desc-body:
-    # expect line, starting with fatal error location (line number e.g.: l.10)
+    # line starting with line number `l.<no>`
     - match: ^l\.\d+\b
-      pop: 1
+      set: log-exception-hint-body
+    - include: log-item-continuations
     - include: log-content
 
-  log-fatal-hint-body:
-    - meta_content_scope: meta.error.log meta.description.log
-    - match: ^$
-      pop: 1
+  log-exception-hint-body:
+    - meta_content_scope: meta.exception.log
+    - include: log-paragraph-end
+    - include: log-item-continuations
     - include: log-content
 
   log-info-body:
     - meta_scope: meta.info.log
-    - match: (?:^|\.)$
-      pop: 1
+    - include: log-message-end
+    - include: log-paragraph-end
+    - include: log-item-continuations
     - include: log-content
 
   log-warning-body:
     - meta_scope: meta.warning.log
-    - match: (?:^|\.)$
-      pop: 1
+    - include: log-message-end
+    - include: log-paragraph-end
+    - include: log-item-continuations
     - include: log-content
 
   log-box-warning-body:
@@ -375,6 +382,48 @@ contexts:
     - include: log-cmds
     - include: constants
     - include: strings
+
+  log-message-end:
+    - match: \.$
+      pop: 1
+
+  log-paragraph-end:
+    - match: ^$
+      pop: 1
+
+  log-item-continuations:
+    # Terminate log items before final line feed as `view.find_by_selector()`
+    # requires a gap between subsequent entries to separate them.
+    - match: $
+      branch_point: log-item-continuation
+      branch:
+        - log-item-continuation
+        - log-item-termination
+
+  log-item-continuation:
+    - meta_include_prototype: false
+    # rewind to previous linefeed and bail-out from log item body via 2nd branch
+    - match: |-
+        (?x)
+        ^(?=
+        # end of block
+          [\s\)]* \) \s* [(\n]
+        # exceptions
+        | ![ ]\w
+        # errors/info/warnings
+        | [^:]*(?:Error|Info|Note|Summary|Warning|warning \([^)]*\)):
+        # box warnings
+        | Overfull\b
+        | Underfull\b
+        )
+      fail: log-item-continuation
+    # continue log item body
+    - include: bol-pop
+
+  log-item-termination:
+    - meta_include_prototype: false
+    - match: ''
+      pop: 2
 
   log-cmds:
     - match: (\\)[\w@]+
