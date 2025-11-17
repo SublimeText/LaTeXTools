@@ -16,7 +16,7 @@ from ..utils.logging import logger
 from ..utils.settings import get_setting
 from ..utils.settings import subscribe_settings_change
 from ..utils.settings import unsubscribe_settings_change
-from ..utils.tex_log import parse_tex_log
+from ..utils.tex_log import parse_log_file
 from ..utils.utils import cpu_count
 from .preview_utils import ghostscript_installed
 from .preview_utils import get_ghostscript_version
@@ -222,11 +222,8 @@ def _create_image(
         if not log_exists:
             err_log.append("No log file found.")
         else:
-            with open(log_file, "rb") as f:
-                log_data = f.read()
-
             try:
-                errors, warnings, _ = parse_tex_log(log_data, temp_path)
+                errors, warnings, _ = parse_log_file(log_file)
             except Exception as e:
                 err_log.append(f"Error while parsing log file: {e}")
                 errors = warnings = []
@@ -244,13 +241,6 @@ def _create_image(
         err_log.append(latex_document)
         err_log.append("-----END DOCUMENT-----")
 
-        if log_exists:
-            err_log.append("")
-            log_content = log_data.decode("utf8", "ignore")
-            err_log.append("Log file:")
-            err_log.append("-----BEGIN LOG-----")
-            err_log.append(log_content)
-            err_log.append("-----END LOG-----")
     elif not gs_error_occurred and not os.path.exists(image_path):
         err_log.append("Failed to convert pdf to png to preview.")
 

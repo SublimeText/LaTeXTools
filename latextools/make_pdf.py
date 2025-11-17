@@ -37,7 +37,7 @@ from .utils.output_directory import get_output_directory
 from .utils.settings import get_setting
 from .utils.tex_directives import get_tex_root
 from .utils.tex_directives import parse_tex_directives
-from .utils.tex_log import parse_tex_log
+from .utils.tex_log import parse_log_file
 
 
 __all__ = [
@@ -169,19 +169,7 @@ class CmdThread(threading.Thread):
             else:
                 log_file = os.path.join(self.caller.builder.tex_dir, log_filename)
 
-            # CHANGED 12-10-27. OK, here's the deal. We must open in binary mode
-            # on Windows because silly MiKTeX inserts ASCII control characters in
-            # over/underfull warnings. In particular it inserts EOFs, which
-            # stop reading altogether; reading in binary prevents that. However,
-            # that's not the whole story: if a FS character is encountered,
-            # AND if we invoke splitlines on a STRING, it sadly breaks the line
-            # in two. This messes up line numbers in error reports. If, on the
-            # other hand, we invoke splitlines on a byte array (? whatever read()
-            # returns), this does not happen---we only break at \n, etc.
-            # However, we must still decode the resulting lines using the relevant
-            # encoding.
-            with open(log_file, "rb") as f:
-                data = f.read()
+            errors, warnings, badboxes = parse_log_file(log_file)
 
         except FileNotFoundError:
             # If no log file was created, and all processes finished with exit code 0,
@@ -201,103 +189,99 @@ class CmdThread(threading.Thread):
             self.caller.output(f"\nCould not read log file {log_filename}\n\n[{message}]")
             self.caller.finish(False)
 
-        else:
-            errors = []
-            warnings = []
-            badboxes = []
-
-            try:
-                ws = re.compile(r"\s+")
-                (errors, warnings, badboxes) = parse_tex_log(data, self.caller.builder.tex_dir)
-                content = [""]
-                if errors:
-                    content.append("Errors:")
-                    content.append("")
-                    content.extend((ws.sub(" ", e) for e in errors))
-                else:
-                    content.append("No errors.")
-                if warnings:
-                    if errors:
-                        content.extend(["", "Warnings:"])
-                    else:
-                        content[-1] = content[-1] + " Warnings:"
-                    content.append("")
-                    content.extend((ws.sub(" ", w) for w in warnings))
-                else:
-                    if errors:
-                        content.append("")
-                        content.append("No warnings.")
-                    else:
-                        content[-1] = content[-1] + " No warnings."
-
-                if badboxes and self.caller.display_bad_boxes:
-                    if warnings or errors:
-                        content.extend(["", "Bad Boxes:"])
-                    else:
-                        content[-1] = content[-1] + " Bad Boxes:"
-                    content.append("")
-                    content.extend(badboxes)
-                else:
-                    if self.caller.display_bad_boxes:
-                        if errors or warnings:
-                            content.append("")
-                            content.append("No bad boxes.")
-                        else:
-                            content[-1] = content[-1] + " No bad boxes."
-
-                content.append("")
-                content.append(log_file + ":1: Double-click here to open the full log.")
-
-                show_panel = {
-                    "always": True,
-                    "errors": bool(errors),
-                    "warnings": bool(errors or warnings),
-                    "badboxes": bool(
-                        errors or warnings or (self.caller.display_bad_boxes and badboxes)
-                    ),
-                    "never": False,
-                }.get(self.caller.show_panel_level, bool(errors or warnings))
-
-                message = "Build completed"
-                if show_panel:
-                    self.caller.show_output_panel(force=True)
-                else:
-                    if errors:
-                        message += " with errors"
-                    if warnings:
-                        if errors:
-                            if badboxes and self.caller.display_bad_boxes:
-                                message += ","
-                            else:
-                                message += " and"
-                        else:
-                            message += " with"
-                        message += " warnings"
-                    if badboxes and self.caller.display_bad_boxes:
-                        if errors or warnings:
-                            message += " and"
-                        else:
-                            message += " with"
-                        message += " bad boxes"
-
-                activity_indicator.finish(message)
-
-            except Exception as e:
-                activity_indicator.finish("Build failed!")
-                self.caller.show_output_panel()
-                content = [
+        except Exception as exc:
+            message = "Build failed!"
+            activity_indicator.finish(message)
+            self.caller.show_output_panel()
+            self.caller.output(
+                [
                     "",
                     "",
                     f"LaTeXTools could not parse the TeX log file {log_file}",
                     "(actually, we never should have gotten here)",
                     "",
-                    f"Python exception: {e!r}",
+                    f"Python exception: {exc!r}",
                     "",
                     "The full error description can be found on the console.",
                     "Please let us know on GitHub. Thanks!",
                 ]
+            )
+            self.caller.finish(False)
+            traceback.print_exc()
 
-                traceback.print_exc()
+        else:
+            content = [""]
+            if errors:
+                content.append("Errors:")
+                content.append("")
+                content.extend(errors)
+            else:
+                content.append("No errors.")
+            if warnings:
+                if errors:
+                    content.extend(["", "Warnings:"])
+                else:
+                    content[-1] = content[-1] + " Warnings:"
+                content.append("")
+                content.extend(warnings)
+            else:
+                if errors:
+                    content.append("")
+                    content.append("No warnings.")
+                else:
+                    content[-1] = content[-1] + " No warnings."
+
+            if badboxes and self.caller.display_bad_boxes:
+                if warnings or errors:
+                    content.extend(["", "Bad Boxes:"])
+                else:
+                    content[-1] = content[-1] + " Bad Boxes:"
+                content.append("")
+                content.extend(badboxes)
+            else:
+                if self.caller.display_bad_boxes:
+                    if errors or warnings:
+                        content.append("")
+                        content.append("No bad boxes.")
+                    else:
+                        content[-1] = content[-1] + " No bad boxes."
+
+            content.append("")
+            content.append(log_file + ":1: Double-click here to open the full log.")
+
+            show_panel = {
+                "always": True,
+                "errors": bool(errors),
+                "warnings": bool(errors or warnings),
+                "badboxes": bool(
+                    errors or warnings or (self.caller.display_bad_boxes and badboxes)
+                ),
+                "never": False,
+            }.get(self.caller.show_panel_level, bool(errors or warnings))
+
+            message = "Build completed"
+            if show_panel:
+                self.caller.show_output_panel(force=True)
+            else:
+                if errors:
+                    message += " with errors"
+                if warnings:
+                    if errors:
+                        if badboxes and self.caller.display_bad_boxes:
+                            message += ","
+                        else:
+                            message += " and"
+                    else:
+                        message += " with"
+                    message += " warnings"
+                if badboxes and self.caller.display_bad_boxes:
+                    if errors or warnings:
+                        message += " and"
+                    else:
+                        message += " with"
+                    message += " bad boxes"
+
+            activity_indicator.finish(message)
 
             self.caller.output(content)
             if aborted:
@@ -585,8 +569,8 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
     def finish(self, success: bool) -> None:
         open_pdf: bool = {
-            False: False,       # for backward compatibility
-            True: success,      # for backward compatibility
+            False: False,  # for backward compatibility
+            True: success,  # for backward compatibility
             "never": False,
             "success": success,
             "always": True,
@@ -615,11 +599,13 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             groups = m.groups()
             if len(groups) == 4:
                 file, line, column, text = groups
+                if not os.path.isabs(file):
+                    file = os.path.join(self.builder.tex_dir, file)
             else:
                 continue
             if line is None:
                 continue
-            line = int(line)
+            column = int(line) if line else 0
             column = int(column) if column else 0
             if file not in self.errs_by_file:
                 self.errs_by_file[file] = []

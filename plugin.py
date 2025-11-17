@@ -127,6 +127,9 @@ from .latextools.toc_quickpanel import (
 from .latextools.toggle_settings import (
     LatextoolsToggleKeysCommand
 )
+from .latextools.utils.tex_log import (
+    LatextoolsDumpTexLog
+)
 
 from .plugins.viewer.dbus_viewer import LatextoolsDbusViewerListener
 
