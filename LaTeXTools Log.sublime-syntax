@@ -528,19 +528,19 @@ contexts:
       pop: 1
 
   strings:
-    - match: '{'
+    - match: '{(?=\S)'
       scope: punctuation.definition.string.begin.log
       push: brace-quoted-string-body
     - match: '<<'
       scope: punctuation.definition.string.begin.log
       push: double-angled-string-body
-    - match: '<'
+    - match: '<(?=\S)'
       scope: punctuation.definition.string.begin.log
       push: single-angled-string-body
     - match: '``'
       scope: punctuation.definition.string.begin.log
       push: double-quoted-string-body
-    - match: '`'
+    - match: '`(?=\S)'
       scope: punctuation.definition.string.begin.log
       push: single-quoted-string-body
     # escaped characters

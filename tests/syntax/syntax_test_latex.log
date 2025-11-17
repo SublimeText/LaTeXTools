@@ -691,16 +691,43 @@ Package foo Note: This is a message.
 
 LaTeX Info: Redefining \[ and \] on input line 2949.
 #^^^^^^^^^^ markup.info.log
-#           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ - meta.brackets - punctuation
+#          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.info.log - markup - meta.brackets - punctuation
 
 LaTeX Info: Redefining \( and \) on input line 2958.
 #^^^^^^^^^^ markup.info.log
-#           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ - meta.brackets - punctuation
+#          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.info.log - markup - meta.parens - punctuation
 
 LaTeX Info: Redefining \{ and \} on input line 2959.
 # <- meta.info.log markup.info.log
 #^^^^^^^^^^ meta.info.log markup.info.log
-#          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.info.log - markup
+#          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.info.log - markup - meta.braces - punctuation
+
+LaTeX Info: Redefining { and } on input line 2959.
+# <- meta.info.log markup.info.log
+#^^^^^^^^^^ meta.info.log markup.info.log
+#          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.info.log - markup - meta.braces - punctuation
+
+LaTeX Info: Redefining < and > on input line 2959.
+# <- meta.info.log markup.info.log
+#^^^^^^^^^^ meta.info.log markup.info.log
+#          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.info.log - markup - string - punctuation
+
+LaTeX Info: Redefining << and >> on input line 2959.
+# <- meta.info.log markup.info.log
+#^^^^^^^^^^ meta.info.log markup.info.log
+#          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.info.log - markup
+#                      ^^^^^^^^^ string.quoted.other.log
+
+LaTeX Info: Redefining ` and ' on input line 2959.
+# <- meta.info.log markup.info.log
+#^^^^^^^^^^ meta.info.log markup.info.log
+#          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.info.log - markup - string - punctuation
+
+LaTeX Info: Redefining `` and '' on input line 2959.
+# <- meta.info.log markup.info.log
+#^^^^^^^^^^ meta.info.log markup.info.log
+#          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.info.log - markup
+#                      ^^^^^^^^^ string.quoted.double.log
 
 # ----------
 
@@ -1028,6 +1055,24 @@ Underfull \hbox
 #  ^^^^^^^^^^^^^^^^^^^^^^^ string.quoted.other.log
 #  ^ punctuation.definition.string.begin.log
 #                        ^ punctuation.definition.string.end.log
+
+# ----------
+
+Underfull \vbox verify single chars not starting strings
+..\T1/lmr/m/n/10 {
+#                ^ meta.block.log meta.warning.box.log - meta.string - string - punctuation
+
+Underfull \vbox verify single chars not starting strings
+..\T1/lmr/m/n/10 <
+#                ^ meta.block.log meta.warning.box.log - meta.string - string - punctuation
+
+Underfull \vbox verify single chars not starting strings
+..\T1/lmr/m/n/10 `
+#                ^ meta.block.log meta.warning.box.log - meta.string - string - punctuation
+
+Underfull \vbox verify single chars not starting strings
+..\T1/lmr/m/n/10 '
+#                ^ meta.block.log meta.warning.box.log - meta.string - string - punctuation
 
 )
 # <- meta.block.log punctuation.section.block.end.log
