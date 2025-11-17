@@ -15,6 +15,8 @@ variables:
   file_ext_char: '[a-zA-Z0-9]'
   file_break: (?:\n|(?=\s*[()]))
 
+  end_of_block: '[\s\)]*\)\s*[(\n]'
+
 ################################################################################
 
 contexts:
@@ -308,7 +310,7 @@ contexts:
           # `[1` or `[anytext]`
             \s* \[ (?: \d+ | [^\]]+\] )$)
           # end of block
-          | [\s\)]* \) \s* [(\n]
+          | {{end_of_block}}
           # exceptions
           | ![ ]\w
           # errors/info/warnings
@@ -388,7 +390,11 @@ contexts:
       pop: 1
 
   log-paragraph-end:
+    # empty line
     - match: ^$
+      pop: 1
+    # end of block
+    - match: ^(?={{end_of_block}})
       pop: 1
 
   log-item-continuations:
@@ -407,7 +413,7 @@ contexts:
         (?x)
         ^(?=
         # end of block
-          [\s\)]* \) \s* [(\n]
+          {{end_of_block}}
         # exceptions
         | ![ ]\w
         # errors/info/warnings
@@ -454,6 +460,7 @@ contexts:
       push: log-paren-body
     - match: ^|(?=\s*\S)
       pop: 1
+    - include: log-item-continuations
 
   log-cmd-args-body:
     - meta_content_scope: meta.braces.log

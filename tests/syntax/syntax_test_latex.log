@@ -990,6 +990,23 @@ Package aclass Info: An unterminated info message
 #  ^ meta.block.log meta.block.log punctuation.section.block.end.log
 #   ^ meta.block.log - meta.block meta.block
 
+(test-log-termination-at-block-end-06.tex
+! LaTeX Error: \begin{document} ended by \end{sequencediagram}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...
+
+l.8 \end{sequencediagram}
+! LaTeX Error: \begin{document} ended by \end{sequencediagram}.
+# <- meta.block.log meta.block.log meta.exception.log markup.error.log
+#^^^^^^^^^^^^^ meta.block.log meta.block.log meta.exception.log markup.error.log
+#             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log meta.block.log meta.exception.log - markup
+
+l.9 \end{sequencediagram}
+)
+# <- meta.block.log meta.block.log punctuation.section.block.end.log
+
 # -----------------------------------------------------------------------------
 # badbox messages
 # -----------------------------------------------------------------------------
