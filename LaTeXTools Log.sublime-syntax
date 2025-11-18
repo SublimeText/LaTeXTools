@@ -467,6 +467,8 @@ contexts:
     - match: \}
       scope: meta.braces.log punctuation.section.braces.end.log
       pop: 1
+    - include: log-paragraph-end
+    - include: log-item-continuations
     - include: log-content
 
   log-bracket-body:
@@ -474,6 +476,8 @@ contexts:
     - match: \]
       scope: meta.brackets.log punctuation.section.brackets.end.log
       pop: 1
+    - include: log-paragraph-end
+    - include: log-item-continuations
     - include: log-content
 
   log-paren-body:
@@ -481,6 +485,8 @@ contexts:
     - match: \)
       scope: meta.parens.log punctuation.section.parens.end.log
       pop: 1
+    - include: log-paragraph-end
+    - include: log-item-continuations
     - include: log-entries
     - include: log-content
 

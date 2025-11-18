@@ -754,6 +754,18 @@ If that doesn't work, type  X <return>  to quit.
 # <- - meta.exception
 
 # ----------
+# Issue 995: Incomplete function call arguments
+
+! Undefined control sequence.
+l.1229 ...canonical \) in \( \SO(8) \) is \( \Spin
+                                                  (7) \), see~\cite[Theorem~...
+The control sequence at the end of the top line
+...and I'll forget about whatever was undefined.
+# <- meta.exception.log meta.function-call.latex meta.brackets.log
+
+# <- - meta.exception
+
+# ----------
 # Issue 1105: Support FiXme package
 
 FiXme Summary: Number of notes: 1,
