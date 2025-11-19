@@ -1,6 +1,6 @@
 # babel.sty
 # available from ctan
-# tbraun 4.11.2008; Matthew Bertucci 2025/08/04 for v25.12
+# tbraun 4.11.2008; Matthew Bertucci 2025/11/12 for v25.15
 
 #keyvals:\usepackage/babel#c
 %<language%>
@@ -20,9 +20,9 @@ silent
 hyphenmap=#off,first,select,other,other*
 bidi=#default,basic,basic-r,bidi-l,bidi-r
 layout=#sectioning,counters,counters*,lists,contents,footnotes,captions,columns,graphics,extras,pars,nopars
-provide=*
-provide+=*
-provide*=*
+provide=#*,!
+provide+=#*,!
+provide*=#*,!
 base
 ensureinfo=off
 #endkeyvals
@@ -68,9 +68,13 @@ fontenc=%<encoding%>
 \textormath{text code}{math code%formula}#*
 
 \babelfont{font_family}{font_name}
-\babelfont{font_family}[font_options%keyvals]{font_name}
+\babelfont{font_family}[font_options%keyvals]{font_name}#*
+\babelfont{font_family}{font_name}[font_options%keyvals]
+\babelfont{font_family}[font_options%keyvals]{font_name}[font_options%keyvals]#S
 \babelfont[lang1,lang2,...]{font_family}{font_name}
-\babelfont[lang1,lang2,...]{font_family}[font_options%keyvals]{font_name}
+\babelfont[lang1,lang2,...]{font_family}[font_options%keyvals]{font_name}#*
+\babelfont[lang1,lang2,...]{font_family}{font_name}[font_options%keyvals]
+\babelfont[lang1,lang2,...]{font_family}[font_options%keyvals]{font_name}[font_options%keyvals]#S
 
 #keyvals:\babelfont#c
 Alternate=%<feature%>
@@ -400,6 +404,7 @@ select.encoding=#off
 \addto{cmd}{code}#S
 \AfterBabelCommands{code}#S
 \allowhyphens#S
+\BabelBeforeIni{arg1}{arg2}#S
 \BabelCJKGlue#S
 \BabelCJKSpace#S
 \BabelDated{arg}#S

@@ -1,17 +1,23 @@
 # tikzquests package
-# Matthew Bertucci 2025/04/26 for v1.3
+# Matthew Bertucci 2025/11/12 for v2.2a
 
 #keyvals:\usepackage/tikzquests#c
-no alias
+keys={%<keyvals%>}
+source keys={%<keyvals%>}
 xtrakeys={%<keyvals%>}
+idx
 xtraidx={%<keyvals%>}
-undef color=#%color
-in review
 no defs
+old settings
+local defs
+no alias
+in review
+undef color=#%color
+keys info
 #endkeyvals
 
-\defNewRepository{repository}
-\defNewRepository*{repository}
+\defRepository{repository}
+\defRepository*{repository}
 \SelectRepository{repository}
 \defQuestion{name}{code}
 \defQuestion{name}{code}[remarks]
@@ -33,18 +39,28 @@ no defs
 \ftikzQuestion{name}[keyvals]
 \ftikzQuestion[repository]{name}[keyvals]
 \ftikzQuestion(scale)[repository]{name}[keyvals]<annotation>
+\ftikzQuestion*{name}
+\ftikzQuestion*{name}[keyvals]
+\ftikzQuestion*[repository]{name}[keyvals]
+\ftikzQuestion*(scale)[repository]{name}[keyvals]<annotation>
 \tikzQuestion{name}
 \tikzQuestion{name}[keyvals]
 \tikzQuestion[repository]{name}[keyvals]
 \tikzQuestion(scale)[repository]{name}[keyvals]<annotation>
-\rawtikzQuestion{name}
-\rawtikzQuestion{name}[keyvals]
-\rawtikzQuestion[repository]{name}[keyvals]
-\rawtikzQuestion[repository]{name}[keyvals]<annotation>
-\textQuestion{name}
-\textQuestion{name}[keyvals]
-\textQuestion[repository]{name}[keyvals]
-\textQuestion[repository]{name}[keyvals]<annotation>
+\tikzQuestion*{name}
+\tikzQuestion*{name}[keyvals]
+\tikzQuestion*[repository]{name}[keyvals]
+\tikzQuestion*(scale)[repository]{name}[keyvals]<annotation>
+\Question{name}
+\Question{name}[keyvals]
+\Question[repository]{name}[keyvals]
+\Question[repository]{name}[keyvals]<annotation>
+\Question*{name}
+\Question*{name}[keyvals]
+\Question*[repository]{name}[keyvals]
+\Question*[repository]{name}[keyvals]<annotation>
+\QuestionsFmtList{star-cmd}{nonstar-cmd}
+\QuestionsFmtList[repository list]{star-cmd}{nonstar-cmd}
 \QuestionsList
 \QuestionsList[repository list]
 \QuestVal{key%plain}

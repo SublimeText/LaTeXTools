@@ -2,7 +2,7 @@
 # thatlittleboy/2018-06-07 for tcolorbox v4.13
 # muzimuzhi/30 Aug 2019 for tcolorbox v4.20
 #     reduce file size by using clist in "#keyvals:\cmdA,\cmdB"
-# Matthew Bertucci updated 2024/07/10 for v6.3.0
+# Matthew Bertucci updated 2025/09/09 for v6.8.0
 
 #include:environ
 #include:etoolbox
@@ -134,59 +134,59 @@ library/all
 \newtcolorbox{envname}{options%keyvals}#N
 \newtcolorbox{envname}[args]{options%keyvals}#N
 \newtcolorbox{envname}[args][default]{options%keyvals}#N
-\newtcolorbox[init options]{envname}{options%keyvals}#N
-\newtcolorbox[init options]{envname}[args]{options%keyvals}#*N
-\newtcolorbox[init options]{envname}[args][default]{options%keyvals}#*N
+\newtcolorbox[init options%keyvals]{envname}{options%keyvals}#N
+\newtcolorbox[init options%keyvals]{envname}[args]{options%keyvals}#*N
+\newtcolorbox[init options%keyvals]{envname}[args][default]{options%keyvals}#*N
 \renewtcolorbox{envname}{options%keyvals}
 \renewtcolorbox{envname}[args]{options%keyvals}
 \renewtcolorbox{envname}[args][default]{options%keyvals}
-\renewtcolorbox[init options]{envname}{options%keyvals}
-\renewtcolorbox[init options]{envname}[args]{options%keyvals}#*
-\renewtcolorbox[init options]{envname}[args][default]{options%keyvals}#*
+\renewtcolorbox[init options%keyvals]{envname}[args]{options%keyvals}#*
+\renewtcolorbox[init options%keyvals]{envname}{options%keyvals}
+\renewtcolorbox[init options%keyvals]{envname}[args][default]{options%keyvals}#*
 \DeclareTColorBox{envname}{xargs}{options%keyvals}#N
-\DeclareTColorBox[init options]{envname}{xargs}{options%keyvals}#N
+\DeclareTColorBox[init options%keyvals]{envname}{xargs}{options%keyvals}#N
 \NewTColorBox{envname}{xargs}{options%keyvals}#N
-\NewTColorBox[init options]{envname}{xargs}{options%keyvals}#N
+\NewTColorBox[init options%keyvals]{envname}{xargs}{options%keyvals}#N
 \RenewTColorBox{envname}{xargs}{options%keyvals}
-\RenewTColorBox[init options]{envname}{xargs}{options%keyvals}
+\RenewTColorBox[init options%keyvals]{envname}{xargs}{options%keyvals}
 \ProvideTColorBox{envname}{xargs}{options%keyvals}#N
-\ProvideTColorBox[init options]{envname}{xargs}{options%keyvals}#N
+\ProvideTColorBox[init options%keyvals]{envname}{xargs}{options%keyvals}#N
 \DeclareTotalTColorBox{cmd}{xargs}{options%keyvals}{content}#d
-\DeclareTotalTColorBox[init options]{cmd}{xargs}{options%keyvals}{content}#d
+\DeclareTotalTColorBox[init options%keyvals]{cmd}{xargs}{options%keyvals}{content}#d
 \NewTotalTColorBox{cmd}{xargs}{options%keyvals}{content}#d
-\NewTotalTColorBox[init options]{cmd}{xargs}{options%keyvals}{content}#d
+\NewTotalTColorBox[init options%keyvals]{cmd}{xargs}{options%keyvals}{content}#d
 \RenewTotalTColorBox{cmd}{xargs}{options%keyvals}{content}
-\RenewTotalTColorBox[init options]{cmd}{xargs}{options%keyvals}{content}
+\RenewTotalTColorBox[init options%keyvals]{cmd}{xargs}{options%keyvals}{content}
 \ProvideTotalTColorBox{cmd}{xargs}{options%keyvals}{content}#d
-\ProvideTotalTColorBox[init options]{cmd}{xargs}{options%keyvals}{content}#d
+\ProvideTotalTColorBox[init options%keyvals]{cmd}{xargs}{options%keyvals}{content}#d
 \newtcbox{cmd}{options%keyvals}#d1
 \newtcbox{cmd}[args]{options%keyvals}#d1
 \newtcbox{cmd}[args][default]{options%keyvals}#d1
-\newtcbox[init options]{cmd}{options%keyvals}#d1
-\newtcbox[init options]{cmd}[args]{options%keyvals}#*d1
-\newtcbox[init options]{cmd}[args][default]{options%keyvals}#*d1
+\newtcbox[init options%keyvals]{cmd}{options%keyvals}#d1
+\newtcbox[init options%keyvals]{cmd}[args]{options%keyvals}#*d1
+\newtcbox[init options%keyvals]{cmd}[args][default]{options%keyvals}#*d1
 \renewtcbox{cmd}{options%keyvals}
 \renewtcbox{cmd}[args]{options%keyvals}
 \renewtcbox{cmd}[args][default]{options%keyvals}
-\renewtcbox[init options]{cmd}{options%keyvals}
-\renewtcbox[init options]{cmd}[args]{options%keyvals}#*
-\renewtcbox[init options]{cmd}[args][default]{options%keyvals}#*
+\renewtcbox[init options%keyvals]{cmd}{options%keyvals}
+\renewtcbox[init options%keyvals]{cmd}[args]{options%keyvals}#*
+\renewtcbox[init options%keyvals]{cmd}[args][default]{options%keyvals}#*
 \DeclareTCBox{cmd}{xargs}{options%keyvals}#d1
-\DeclareTCBox[init options]{cmd}{xargs}{options%keyvals}#d1
+\DeclareTCBox[init options%keyvals]{cmd}{xargs}{options%keyvals}#d1
 \NewTCBox{cmd}{xargs}{options%keyvals}#d1
-\NewTCBox[init options]{cmd}{xargs}{options%keyvals}#d1
+\NewTCBox[init options%keyvals]{cmd}{xargs}{options%keyvals}#d1
 \RenewTCBox{cmd}{xargs}{options%keyvals}
-\RenewTCBox[init options]{cmd}{xargs}{options%keyvals}
+\RenewTCBox[init options%keyvals]{cmd}{xargs}{options%keyvals}
 \ProvideTCBox{cmd}{xargs}{options%keyvals}#d1
-\ProvideTCBox[init options]{cmd}{xargs}{options%keyvals}#d1
+\ProvideTCBox[init options%keyvals]{cmd}{xargs}{options%keyvals}#d1
 \DeclareTotalTCBox{cmd}{xargs}{options%keyvals}{content}#d
-\DeclareTotalTCBox[init options]{cmd}{xargs}{options%keyvals}{content}#d
+\DeclareTotalTCBox[init options%keyvals]{cmd}{xargs}{options%keyvals}{content}#d
 \NewTotalTCBox{cmd}{xargs}{options%keyvals}{content%text}#d
-\NewTotalTCBox[init options]{cmd}{xargs}{options%keyvals}{content%text}#d
+\NewTotalTCBox[init options%keyvals]{cmd}{xargs}{options%keyvals}{content%text}#d
 \RenewTotalTCBox{cmd}{xargs}{options%keyvals}{content%text}
-\RenewTotalTCBox[init options]{cmd}{xargs}{options%keyvals}{content%text}
+\RenewTotalTCBox[init options%keyvals]{cmd}{xargs}{options%keyvals}{content%text}
 \ProvideTotalTCBox{cmd}{xargs}{options%keyvals}{content%text}#d
-\ProvideTotalTCBox[init options]{cmd}{xargs}{options%keyvals}{content%text}#d
+\ProvideTotalTCBox[init options%keyvals]{cmd}{xargs}{options%keyvals}{content%text}#d
 \tcboxverb{verbatim box content%definition}
 \tcboxverb[options%keyvals]{verbatim box content%definition}
 \tcolorboxenvironment{envname}{options%keyvals}
@@ -215,6 +215,8 @@ library/all
 # << Numbered Boxes >>
 \thetcbcounter
 \tcbcounter
+\thetcbcounterof{tcolorbox}
+\tcbcounterof{tcolorbox}
 
 # << Lists of tcolorboxes >>
 \tcblistof{name}{title}
@@ -302,13 +304,13 @@ coltitle=#%color
 fontupper=%<text%>
 fontlower=%<text%>
 fonttitle=%<text%>
-halign=#justify,left,flush left,right,flush right,center,flush center#c
-halign upper=#justify,left,flush left,right,flush right,center,flush center#c
+halign=#justify,left,flush left,right,flush right,center,flush center
+halign upper=#justify,left,flush left,right,flush right,center,flush center
 halign code={%<code%>}
 halign upper code={%<code%>}
-halign lower=#justify,left,flush left,right,flush right,center,flush center#c
+halign lower=#justify,left,flush left,right,flush right,center,flush center
 halign lower code={%<code%>}
-halign title=#justify,left,flush left,right,flush right,center,flush center#c
+halign title=#justify,left,flush left,right,flush right,center,flush center
 halign title code={%<code%>}
 flushleft upper
 center upper
@@ -413,6 +415,8 @@ tabulars={%<preamble%>}
 tabulars*={%<code%>}{%<preamble%>}
 tabularx={%<preamble%>}
 tabularx*={%<code%>}{%<preamble%>}
+tabularray={%<inner specs%>}
+tabularray*={%<code%>}{%<inner specs%>}
 tikz upper
 tikz upper={%<TikZ options%>}
 tikz lower
@@ -629,43 +633,22 @@ tcbox width=#auto,auto limited,forced center,forced left,forced right,minimum ce
 \tcbpkgprefix#S
 
 # << init options >>
-
-# NOTE: Init options, documented in Sec. 5 of package doc, always come with 
-# another more powerful and mandatory option list argument. For example,
-#     \newtcolorbox[init options]{envname}{options%keyvals}#N
-# Since currently texstudio doesn't support to mark a second keyvals field in 
-# one command, the following (relatively short) init option list is temporarily 
-# commented.
-
-# # NOTE: this is not a valid syntax of #keyvals.
-# \newtcolorbox,\renewtcolorbox,\newtcbox,\renewtcbox,
-# \newtcblisting,\renewtcblisting,\newtcbinputlisting,\renewtcbinputlisting,
-# \newtcbtheorem,\renewtcbtheorem,
-# \newtcboxfit,\renewtcboxfit,
-# \DeclareTColorBox,\NewTColorBox,\RenewTColorBox,\ProvideTColorBox,
-# \DeclareTotalTColorBox,\NewTotalTColorBox,\RenewTotalTColorBox,\ProvideTotalTColorBox,
-# \DeclareTCBox,\NewTCBox,\RenewTCBox,\ProvideTCBox,
-# \DeclareTotalTCBox,\NewTotalTCBox,\RenewTotalTCBox,\ProvideTotalTCBox,
-# \DeclareTCBListing,\NewTCBListing,\RenewTCBListing,\ProvideTCBListing,
-# \DeclareTCBInputListing,\NewTCBInputListing,\RenewTCBInputListing,\ProvideTCBInputListing,
-# \DeclareTCBoxFit,\NewTCBoxFit,\RenewTCBoxFit,\ProvideTCBoxFit,
-# \DeclareTotalTCBoxFit,\NewTotalTCBoxFit,\RenewTotalTCBoxFit,\ProvideTotalTCBoxFit
-# #keyvals:
-# auto counter
-# auto counter
-# use counter from=
-# use counter=
-# use counter*=
-# no counter
-# reset counter on overlays#true,false
-# number within=
-# number format=
-# number freestyle=
-# crefname={%<singular%>}{%<plural%>}
-# Crefname={%<singular%>}{%<plural%>}
-# blend into=#figures,tables,listings
-# blend before title=#colon,dash,colon hang,dash hang#c
-# blend before title code=
-# list inside=
-# list type=
-# #endkeyvals
+#keyvals:\newtcolorbox#o1,\renewtcolorbox#o1,\newtcbox#o1,\renewtcbox#o1,\newtcblisting#o1,\renewtcblisting#o1,\newtcbinputlisting#o1,\renewtcbinputlisting#o1,\NewTcbTheorem#o1,\newtcbtheorem#o1,\RenewTcbTheorem#o1,\renewtcbtheorem#o1,\ProvideTcbTheorem#o1,\DeclareTcbTheorem#o1,\newtcboxfit#o1,\renewtcboxfit#o1,\DeclareTColorBox#o1,\NewTColorBox#o1,\RenewTColorBox#o1,\ProvideTColorBox#o1,\DeclareTotalTColorBox#o1,\NewTotalTColorBox#o1,\RenewTotalTColorBox#o1,\ProvideTotalTColorBox#o1,\DeclareTCBox#o1,\NewTCBox#o1,\RenewTCBox#o1,\ProvideTCBox#o1,\DeclareTotalTCBox#o1,\NewTotalTCBox#o1,\RenewTotalTCBox#o1,\ProvideTotalTCBox#o1,\DeclareTCBListing#o1,\NewTCBListing#o1,\RenewTCBListing#o1,\ProvideTCBListing#o1,\DeclareTCBInputListing#o1,\NewTCBInputListing#o1,\RenewTCBInputListing#o1,\ProvideTCBInputListing#o1,\DeclareTCBoxFit#o1,\NewTCBoxFit#o1,\RenewTCBoxFit#o1,\ProvideTCBoxFit#o1,\DeclareTotalTCBoxFit#o1,\NewTotalTCBoxFit#o1,\RenewTotalTCBoxFit#o1,\ProvideTotalTCBoxFit#o1
+auto counter
+use counter from=%<tcolorbox%>
+use counter=%<counter%>
+use counter*=%<counter%>
+no counter
+reset counter on overlays#true,false
+number within=%<counter%>
+number within from=%<tcolorbox%>
+number format=%<format macro%>
+number freestyle=%<code%>
+crefname={%<singular%>}{%<plural%>}
+Crefname={%<singular%>}{%<plural%>}
+blend into=#figures,tables,listings
+blend before title=#colon,dash,colon hang,dash hang
+blend before title code=%<code%>
+list inside=%<name%>
+list type=%<type%>
+#endkeyvals

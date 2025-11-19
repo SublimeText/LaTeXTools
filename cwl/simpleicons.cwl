@@ -1,5 +1,5 @@
 # simpleicons package
-# Matthew Bertucci 2025/09/05 for v15.12.0
+# Matthew Bertucci 2025/11/12 for v15.19.0
 
 #include:iftex
 
@@ -144,6 +144,7 @@ androidstudio
 angular
 anilist
 animalplanet
+animedotjs
 ankermake
 anki
 ansible
@@ -161,6 +162,7 @@ anytype
 apache
 apacheairflow
 apacheant
+apacheavro
 apachecassandra
 apachecloudstack
 apachecordova
@@ -628,6 +630,7 @@ conventionalcommits
 convertio
 cookiecutter
 coolermaster
+coolify
 coop
 cobalt
 copaairlines
@@ -976,6 +979,7 @@ firefoxbrowser
 fireship
 firewalla
 first
+fishaudio
 fishshell
 fitbit
 fivem
@@ -1071,6 +1075,7 @@ gamemaker
 gandi
 gamescience
 garmin
+garudalinux
 gatling
 gatsby
 gcore
@@ -1214,6 +1219,7 @@ greasyfork
 greatlearning
 greenhouse
 greensock
+greptimedb
 griddotai
 gridsome
 grocy
@@ -1587,6 +1593,7 @@ kununu
 kuula
 kx
 kyocera
+labex
 labview
 lada
 lamborghini
@@ -1669,6 +1676,7 @@ linuxprofessionalinstitute
 linuxserver
 lionair
 liquibase
+listenhub
 listmonk
 lit
 litecoin
@@ -1676,6 +1684,7 @@ literal
 litiengine
 livechat
 livejournal
+livekit
 livewire
 llvm
 lmms
@@ -1708,6 +1717,7 @@ ludwig
 lufthansa
 lumen
 lunacy
+luogu
 lutris
 lvgl
 lydia
@@ -2086,6 +2096,7 @@ oppo
 opsgenie
 opslevel
 optimism
+optuna
 orange
 orcid
 oreilly
@@ -2197,6 +2208,7 @@ pinboard
 pinescript
 pinetwork
 pingdom
+pinia
 pino
 pinterest
 pioneerdj
@@ -2653,6 +2665,7 @@ sitecore
 sitepoint
 siyuan
 skaffold
+skeleton
 sketch
 sketchfab
 sketchup
@@ -2670,6 +2683,7 @@ slint
 smart
 smartthings
 smashingmagazine
+smoothcomp
 smrt
 smugmug
 snapchat
@@ -3077,6 +3091,7 @@ unpkg
 unraid
 unrealengine
 unsplash
+unstop
 untappd
 upcloud
 uphold
@@ -3171,6 +3186,7 @@ vscodium
 vtex
 vuedotjs
 vuetify
+vueuse
 vulkan
 vultr
 vyond

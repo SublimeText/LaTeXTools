@@ -1,9 +1,10 @@
 # piton package
-# Matthew Bertucci 2025/08/30 for v4.8b
+# Matthew Bertucci 2025/10/24 for v4.9a
 
 #include:luacode
 #include:xcolor
 #include:amstext
+#include:marginalia
 #include:transparent
 
 #keyvals:\usepackage/piton#c
@@ -91,6 +92,7 @@ line-numbers/start
 
 # keys for both \PitonOptions and \begin{Piton}
 #keyvals:\PitonOptions,\begin{Piton}
+annotation#true,false
 auto-gobble
 background-color=#%color
 box=#c,t,b,m
@@ -108,7 +110,9 @@ font-command=%<font commands%>
 gobble
 gobble=%<integer%>
 indent-broken-lines
+indentations-for-Fox#true,false
 join=%<file%>
+join-separation=
 language=#Python,OCaml,C,SQL,minimal,verbatim,%newpitonlang
 left-margin=##L
 line-numbers
@@ -119,6 +123,10 @@ line-numbers/sep=##L
 line-numbers/skip-empty-lines#true,false
 line-numbers={%<options%>}
 max-width=##L
+no-join
+no-write
+paperclip
+paperclip=%<file%>
 path-write=%<path%>
 print#true,false
 prompt-background-color=#%color

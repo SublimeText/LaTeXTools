@@ -217,5 +217,7 @@ podcomment#true,false
 
 \mycommand{keyvals}
 #keyvals:\mycommand
-note=%<text%>
+note=%<test%>
+width=##L
+title=%<text%>
 #endkeyvals
