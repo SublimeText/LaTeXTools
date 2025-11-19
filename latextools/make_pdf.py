@@ -738,6 +738,4 @@ class LatextoolsExecEventListener(sublime_plugin.EventListener):
         if operator == sublime.OP_NOT_EQUAL:
             return result != operand
 
-        raise Exception(
-            "latextools_inline_errors_visible; " "Invalid operator must be EQUAL or NOT_EQUAL."
-        )
+        return False
