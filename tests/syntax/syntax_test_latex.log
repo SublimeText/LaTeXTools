@@ -610,13 +610,43 @@ Language: english 2017/06/06 v3.3r English support from the babel system
 File: untxsyc.fd 2012/04/12 Fontinst v1.933 font definitions for U/ntxsyc.
 ) [1
 # <- meta.block.log meta.block.log punctuation.section.block.end.log
-#^^^^ meta.block.log
-# ^^ meta.brackets.log
+#^ meta.block.log - meta.brackets - meta.block meta.block
+# ^^^ meta.block.log meta.brackets.log
 # ^ punctuation.section.brackets.begin.log
-]
+] (./phd.lot)
 # <- meta.block.log meta.brackets.log punctuation.section.brackets.end.log
+#^ meta.block.log - meta.brackets - meta.block meta.block
+# ^^^^^^^^^^^ meta.block.log meta.block.log
+ [26]
+#^^^^ meta.block.log meta.brackets.log - meta.block meta.block
+#^ punctuation.section.brackets.begin.log
+#   ^ punctuation.section.brackets.end.log
+ (./phd.bbl [27
+#^^^^^^^^^^^ meta.block.log meta.block.log - meta.brackets
+#           ^^^^ meta.block.log meta.block.log meta.brackets.log
+#^ punctuation.section.block.begin.log
+# ^^^^^^^^^ entity.name.section.filename.log
+#  ^ punctuation.separator.path.log
+#           ^ punctuation.section.brackets.begin.log
+]) [28
+# <- meta.block.log meta.block.log meta.brackets.log punctuation.section.brackets.end.log
+#^ meta.block.log meta.block.log punctuation.section.block.end.log
+#  ^^^^ meta.block.log meta.brackets.log - meta.block meta.block
+#  ^ punctuation.section.brackets.begin.log
+] (./phd.aux
+# <- meta.block.log meta.brackets.log punctuation.section.brackets.end.log
+#^ meta.block.log - meta.brackets - meta.block meta.block
+# ^^^^^^^^^^^ meta.block.log meta.block.log
+# ^ punctuation.section.block.begin.log
+#  ^^^^^^^^^^ entity.name.section.filename.log
+(./dasp.aux))
+# <- meta.block.log meta.block.log meta.block.log punctuation.section.block.begin.log
+#^^^^^^^^^^ meta.block.log meta.block.log meta.block.log entity.name.section.filename.log
+#          ^ meta.block.log meta.block.log meta.block.log punctuation.section.block.end.log
+#           ^ meta.block.log meta.block.log punctuation.section.block.end.log
 )
 # <- meta.block.log punctuation.section.block.end.log
+#^ - meta.block
 
 (D:\User\Documents\latex\texmfs\install\tex\latex\memoir\memoir.cls
 Document Class: memoir 2016/05/16 v3.7f configurable book, report, article docu
