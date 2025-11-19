@@ -439,7 +439,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         output_view_settings.set("word_wrap", get_setting("build_panel_word_wrap", False, view))
 
         if get_setting("highlight_build_panel", True, view):
-            self.output_view.assign_syntax("LaTeXTools Build Output.sublime-syntax")
+            self.output_view.assign_syntax("Packages/LaTeXTools/LaTeXTools Build Output.sublime-syntax")
 
         self.output_view.set_read_only(True)
 
@@ -739,7 +739,7 @@ class LatextoolsExecEventListener(sublime_plugin.EventListener):
         if view.match_selector(0, "text.plain"):
             first_line = view.substr(sublime.Region(0, 40))
             if re.search(r"^This is (?:Lua(?:HB)?|pdfe?|Xe)?(?:La)?TeXk?, Version ", first_line):
-                view.assign_syntax("LaTeXTools Log.sublime-syntax")
+                view.assign_syntax("Packages/LaTeXTools/LaTeXTools Log.sublime-syntax")
             return
 
         # update build result annotations
