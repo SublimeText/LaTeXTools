@@ -68,16 +68,6 @@ class CmdThread(threading.Thread):
             f"[Compiling '{self.caller.builder.tex_root}' with '{self.caller.builder.name}']\n"
         )
 
-        # Remove old log-file to prevent displaying out-dated error information
-        # on pre-mature build termination.
-        log_filename = f"{self.caller.builder.base_name}.log"
-        for log_dir in (self.caller.builder.aux_directory_full, self.caller.builder.tex_dir):
-            if log_dir:
-                try:
-                    os.remove(os.path.join(log_dir, log_filename))
-                except OSError:
-                    pass
-
         # Now, iteratively call the builder iterator
         aborted = False
         pending = False
@@ -171,6 +161,7 @@ class CmdThread(threading.Thread):
             cmd_coroutine.close()
 
         try:
+            log_filename = f"{self.caller.builder.base_name}.log"
             if self.caller.builder.aux_directory_full:
                 log_file = os.path.join(self.caller.builder.aux_directory_full, log_filename)
                 if not os.path.exists(log_file):
@@ -200,7 +191,7 @@ class CmdThread(threading.Thread):
             activity_indicator.finish(message)
             if aborted or self.caller.show_panel_level == "always":
                 self.caller.show_output_panel()
-            self.caller.output(f"\n[{message}]")
+            self.caller.output(f"\nLog file {log_filename} not found!\n\n[{message}]")
             self.caller.finish(aborted == False)
 
         except OSError:
