@@ -1,9 +1,12 @@
 from __future__ import annotations
 from itertools import chain
+import codecs
 import os
 import regex as re
 import sublime
 import sublime_plugin
+
+from ...vendor.charset_normalizer import from_bytes as charset_from_bytes
 
 
 class LogRule:
@@ -185,6 +188,9 @@ def parse_log_file(logfile: str | os.PathLike[str]) -> tuple[list[str], list[str
     """
     Extract errors, warnings and badbox messages from tex build log.
 
+    Note: LuaLaTeX and XeLaTeX create UTF-8 encoded logfiles, pdfLaTex uses
+    active ANSI encoding, at least on Windows.
+
     :param logfile:
         The logfile
 
@@ -208,7 +214,6 @@ def parse_log_file(logfile: str | os.PathLike[str]) -> tuple[list[str], list[str
     panel_settings.set("draw_white_space", "none")
     panel_settings.set("detect_indentation", False)
     panel_settings.set("disable_auto_complete", False)
-    panel_settings.set("encoding", "UTF-8")
     panel_settings.set("gutter", False)
     panel_settings.set("line_numbers", False)
     panel_settings.set("rulers", [])
@@ -219,8 +224,18 @@ def parse_log_file(logfile: str | os.PathLike[str]) -> tuple[list[str], list[str
 
     # open logfile into panel
     try:
-        with open(logfile, encoding="utf-8") as fobj:
-            text = fobj.read()
+        with open(logfile, "rb") as fobj:
+            content = fobj.read()
+
+        # detect encoding
+        charset = charset_from_bytes(content).best()
+        if not charset:
+            raise UnicodeError(f"Unable to detect encoding of {logfile}!")
+        if charset.bom and charset.encoding == "utf_8":
+            content = content[len(codecs.BOM_UTF8):]
+
+        # decode bytes
+        text = content.decode(encoding=charset.encoding, errors="ignore")
         text = text.replace("\r\n", "\n").replace("\r", "\n")
         panel.run_command("append", {"characters": text})
         return parse_log_view(panel)
