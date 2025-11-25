@@ -262,5 +262,5 @@ class LatextoolsDumpTexLog(sublime_plugin.WindowCommand):
         if syntax.name != "LaTeXTools Log":
             print("View has wrong syntax assigned, cancelling!")
             return
-        for item in chain(*parse_log_view(view)):
+        for item in chain(*parse_log_file(view.file_name())):
             print(item)
