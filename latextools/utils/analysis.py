@@ -447,6 +447,9 @@ def _analyze_tex_file(
     # read the content from the file
     try:
         raw_content, content = _preprocess_file(file_name)
+    except FileNotFoundError:
+        logger.info(f"{file_name} not found! Continuing...")
+        return ana
     except Exception:
         logger.error(f"Error occurred while preprocessing {file_name}")
         traceback.print_exc()
