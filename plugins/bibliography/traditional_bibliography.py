@@ -74,7 +74,7 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                     continue
                 encoding = charset_match.encoding
                 if charset_match.bom and encoding == "utf_8":
-                    content = content[len(codecs.BOM_UTF8):]
+                    encoding += "_sig"
 
                 # decode bytes
                 text = content.decode(encoding=encoding)

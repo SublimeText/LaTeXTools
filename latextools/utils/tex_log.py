@@ -1,6 +1,5 @@
 from __future__ import annotations
 from itertools import chain
-import codecs
 import os
 import regex as re
 import sublime
@@ -231,11 +230,12 @@ def parse_log_file(logfile: str | os.PathLike[str]) -> tuple[list[str], list[str
         charset = charset_from_bytes(content).best()
         if not charset:
             raise UnicodeError(f"Unable to detect encoding of {logfile}!")
-        if charset.bom and charset.encoding == "utf_8":
-            content = content[len(codecs.BOM_UTF8):]
+        encoding = charset.encoding
+        if charset.bom and encoding == "utf_8":
+            encoding += "_sig"
 
         # decode bytes
-        text = content.decode(encoding=charset.encoding, errors="ignore")
+        text = content.decode(encoding=encoding, errors="ignore")
         text = text.replace("\r\n", "\n").replace("\r", "\n")
         panel.run_command("append", {"characters": text})
         return parse_log_view(panel)
