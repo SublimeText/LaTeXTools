@@ -136,6 +136,28 @@ A-TeX_File
 #   ^ punctuation.section.block.end.log
 #    ^ - meta.block
 
+# filename with spaces
+
+(test 1691.tex)
+# <- meta.block.log punctuation.section.block.begin.log
+#^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^ entity.name.section.filename.log
+#             ^ punctuation.section.block.end.log
+
+(test 1691.
+tex)
+# <- meta.block.log entity.name.section.filename.log
+#^^^ meta.block.log
+#^^ entity.name.section.filename.log
+#  ^ punctuation.section.block.end.log
+
+(test
+ 1691.tex)
+# <- meta.block.log entity.name.section.filename.log
+#^^^^^^^^^ meta.block.log
+#^^^^^^^^ entity.name.section.filename.log
+#        ^ punctuation.section.block.end.log
+
 # -----------------------------------------------------------------------------
 # File Paths
 # -----------------------------------------------------------------------------
@@ -523,6 +545,24 @@ _File.tex)
 #^^^^^^^^ entity.name.section.filename.log
 #        ^ punctuation.section.block.end.log
 #         ^ - meta.block
+
+(F:\LaTeX\test-1691\.aux\test 1691.aux
+# <- meta.block.log punctuation.section.block.begin.log
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.log entity.name.section.filename.log
+# ^^ punctuation.separator.path.log
+#        ^ punctuation.separator.path.log
+#                  ^ punctuation.separator.path.log
+#                       ^ punctuation.separator.path.log
+)
+# <- meta.block.log punctuation.section.block.end.log
+
+(F:\LaTeX\test-1691\test
+   1691
+.aux
+# <- meta.block.log entity.name.section.filename.log
+#^^^ meta.block.log entity.name.section.filename.log
+)
+# <- meta.block.log punctuation.section.block.end.log
 
 # -----------------------------------------------------------------------------
 # Block boundary tests

@@ -235,10 +235,15 @@ class ParseTexLogTestCase(DeferrableViewTestCase):
              folder\name\a file.tex"
             Package pkgname Error: An error message on input line 40.
             )
+            (D:\any unquoted
+             folder\name\a file.tex
+            Package pkgname Error: An error message on input line 50.
+            )
             )
             """,
             expected_errors=[
                 f"D:{os.sep}any quoted folder{os.sep}name{os.sep}a file.tex:40: An error message on input line 40",
+                f"D:{os.sep}any unquoted folder{os.sep}name{os.sep}a file.tex:50: An error message on input line 50",
                 f"D:{os.sep}any{os.sep}folder{os.sep}name{os.sep}a-file.tex:30: An error message on input line 30",
                 f"{os.sep}{os.sep}wsl${os.sep}localhost{os.sep}distro{os.sep}A-TeX_File.tex:20: An error message on input line 20",
                 f"{os.sep}{os.sep}wsl.localhost{os.sep}distro{os.sep}A-TeX_File.tex:10: An error message on input line 10",
