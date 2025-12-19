@@ -25,7 +25,7 @@ class ParseTexLogTestCase(DeferrableViewTestCase):
 
     def assert_tex_log_items(self, content, expected_errors, expected_warnings, expected_badboxes):
         self.setText(dedent(content))
-        errors, warnings, badboxes = parse_log_view(self.view)
+        errors, warnings, badboxes, _ = parse_log_view(self.view)
         self.assertEqual(expected_errors, errors)
         self.assertEqual(expected_warnings, warnings)
         self.assertEqual(expected_badboxes, badboxes)

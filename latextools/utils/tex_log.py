@@ -1,7 +1,7 @@
 from __future__ import annotations
 from itertools import chain
 import os
-import regex as re
+import re
 import sublime
 import sublime_plugin
 
@@ -125,7 +125,7 @@ class WarningLogRule(ErrorLogRule):
     selector = "meta.warning.log - markup.warning"
 
 
-def parse_log_view(view: sublime.View) -> tuple[list[str], list[str], list[str]]:
+def parse_log_view(view: sublime.View) -> tuple[list[str], list[str], list[str], int]:
     """
     Extract errors, warnings and badbox messages from a `sublime.View`.
 
@@ -175,15 +175,23 @@ def parse_log_view(view: sublime.View) -> tuple[list[str], list[str], list[str]]
             for fname, line, msg in sorted(items)
         ]
 
+    pattern = r"Output written on [^\(]+\(([\d\n]+) pages?\b"
+    region = view.find(pattern, 0)
+    if region and (match := re.match(pattern, view.substr(region).replace("\n", ""))):
+        pages = int(match.group(1))
+    else:
+        pages = 0
+
     # gather log items
     return (
         format_items(chain(*map(extract_items, (ExceptionLogRule, ErrorLogRule)))),
         format_items(extract_items(WarningLogRule)),
         format_items(extract_items(BadboxLogRule)),
+        pages,
     )
 
 
-def parse_log_file(logfile: str | os.PathLike[str]) -> tuple[list[str], list[str], list[str]]:
+def parse_log_file(logfile: str | os.PathLike[str]) -> tuple[list[str], list[str], list[str], int]:
     """
     Extract errors, warnings and badbox messages from tex build log.
 
@@ -201,7 +209,7 @@ def parse_log_file(logfile: str | os.PathLike[str]) -> tuple[list[str], list[str
     window = sublime.active_window()
     if window is None:
         if not (windows := sublime.windows()):
-            return ([], [], [])
+            return ([], [], [], 0)
         window = windows[0]
 
     # create a hidden panel as scratch pad
