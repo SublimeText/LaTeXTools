@@ -108,10 +108,10 @@ class TraditionalBuilder(PdfBuilder):
                 # if documents are opened and locked by viewer on Windows.
                 cmd.append(f"-output-directory={self.aux_directory_full}")
 
-            if self.job_name != self.base_name:
-                cmd.append(f'-jobname="{self.job_name}"')
-
             cmd += map(lambda o: f"-latexoption={o}", self.options)
+
+            if self.job_name != self.base_name:
+                cmd.append(f'-jobname={self.job_name}')
 
         elif texify:
             # no need to output messages, if they are not consumed
@@ -120,10 +120,10 @@ class TraditionalBuilder(PdfBuilder):
             else:
                 cmd.append("--quiet")
 
-            if self.job_name != self.base_name:
-                cmd.append(f'--job-name="{self.job_name}"')
-
             cmd += map(lambda o: f'--tex-option="{o}"', self.options)
+
+            if self.job_name != self.base_name:
+                cmd.append(f'--job-name={self.job_name}')
 
         # texify wants the .tex extension; latexmk doesn't care either way
         yield (cmd + [self.tex_name], f"running {cmd[0]}...")

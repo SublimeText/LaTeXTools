@@ -161,7 +161,7 @@ class CmdThread(threading.Thread):
             cmd_coroutine.close()
 
         try:
-            log_filename = f"{self.caller.builder.base_name}.log"
+            log_filename = f"{self.caller.builder.job_name or self.caller.builder.base_name}.log"
             if self.caller.builder.aux_directory_full:
                 log_file = os.path.join(self.caller.builder.aux_directory_full, log_filename)
                 if not os.path.exists(log_file):

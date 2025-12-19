@@ -335,7 +335,7 @@ class PdfBuilder(LaTeXToolsPlugin):
         """
         if self.aux_directory_full != self.output_directory_full:
             for ext in (".synctex.gz", ".pdf"):
-                asset_name = self.base_name + ext
+                asset_name = (self.job_name or self.base_name) + ext
 
                 dst_file = os.path.join(self.output_directory_full, asset_name)
                 try:
