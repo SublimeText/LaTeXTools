@@ -7,7 +7,7 @@ version: 2
 hidden: true
 
 variables:
-  build_results: ^\[(?:(?:Build (?:cancelled by user|failed|skipped))!|Finished in .+)\]$
+  build_results: ^\[(?:(?:Build (?:cancelled by user|failed|skipped))!|Finished\b.+)\]$
   log_file: ^((.+?)(?:(:)(\d+))?)(:)[ ](Double-click here to open the full log\.)$
 
 contexts:

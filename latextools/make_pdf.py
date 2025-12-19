@@ -292,7 +292,8 @@ class CmdThread(threading.Thread):
                     elapsed = time.strftime("%M:%S", time.gmtime(elapsed))
                 else:
                     elapsed = f"{elapsed:0.1f}s"
-                self.caller.output(f"\n\n[Finished, {num_pages} pages written in {elapsed}]")
+                pages = "pages" if num_pages != 1 else "page"
+                self.caller.output(f"\n\n[Finished, {num_pages} {pages} written in {elapsed}]")
 
             self.caller.errors = errors
             self.caller.warnings = warnings
