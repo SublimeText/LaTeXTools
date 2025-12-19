@@ -8,8 +8,8 @@ first_line_match: '^This is (?:Lua(?:HB)?|pdfe?|Xe)?TeXk?, Version '
 
 variables:
   drive_char: '[a-zA-Z]'
-  file_name: '{{file_char}}+{{file_ext}}{{file_break}}'
-  file_char: '[\w.-]'  # note: assume sane path names
+  file_name: '{{file_char}}*?{{file_ext}}{{file_break}}'
+  file_char: '[\s\w.-]'  # note: assume sane path names
   file_ext: '\.{{file_ext_start}}{{file_ext_char}}*'
   file_ext_start: '[a-zA-Z]'
   file_ext_char: '[a-zA-Z0-9]'
@@ -108,7 +108,7 @@ contexts:
 
   block-path-begin-continuation:
     # possible incomplete relative path or filename, starting at eol
-    - match: '[\w-]+\.?\n'
+    - match: '[\s\w-]+\.?\n'
       set:
         - block-unquoted-path-meta
         - block-unquoted-path-expect-file
@@ -188,7 +188,7 @@ contexts:
 
   block-unquoted-path-expect-file:
     # file name or extentions beginning with period
-    - match: ^{{file_char}}*?{{file_ext}}{{file_break}}
+    - match: ^{{file_name}}
       pop: 2
     # file extension without period
     - match: ^{{file_ext_char}}+{{file_break}}
@@ -204,12 +204,10 @@ contexts:
         1: punctuation.separator.path.log
       pop: 1
     # consume very long file or folder name
-    - match: ^[\w-]{79}\n
-      set: block-unquoted-path-expect-segment
-    - match: ^[\w.-]{79}\n
+    - match: ^{{file_char}}{79}\n
       pop: 1
     # file name or exteions beginning with period
-    - match: ^{{file_char}}*?{{file_ext}}{{file_break}}
+    - match: ^{{file_name}}
       pop: 1
     # otherwise it is not a block
     - match: ^
@@ -221,7 +219,7 @@ contexts:
   block-unquoted-ext:
     - meta_scope: entity.name.section.filename.log
     # file name or exteions beginning with period
-    - match: ^{{file_char}}*?{{file_ext}}{{file_break}}
+    - match: ^{{file_name}}
       pop: 1
     # file extension without period
     - match: ^{{file_ext_char}}+{{file_break}}
@@ -236,7 +234,7 @@ contexts:
     # begin of normal block body
     - match: ^(?![{{file_char}}\\/]+{{file_break}})
       pop: 1
-    - match: (?=[ \t()])
+    - match: (?=\s*[\[\]\{\}\(\)])
       pop: 1
     - match: '[\\/]'
       scope: punctuation.separator.path.log
