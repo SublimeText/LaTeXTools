@@ -120,20 +120,18 @@ def get_tex_root(view):
     # from directive
     root = parse_tex_directives(view, only_for=["root"]).get("root")
     if root and is_tex_file(root):
-        root = os.path.normpath(root)
         if os.path.isabs(root):
-            return root
+            return os.path.normpath(root)
         if view_file:
-            return os.path.join(os.path.dirname(view_file), root)
+            return os.path.normpath(os.path.join(os.path.dirname(view_file), root))
 
     # from project-specific settings
     root = get_project_data(view).get("settings", {}).get("latextools.tex_root")
     if root and is_tex_file(root):
-        root = os.path.normpath(root)
         if os.path.isabs(root):
-            return root
+            return os.path.normpath(root)
         proj_file = get_project_file_name(view)
         if proj_file:
-            return os.path.join(os.path.dirname(proj_file), root)
+            return os.path.normpath(os.path.join(os.path.dirname(proj_file), root))
 
     return view_file
