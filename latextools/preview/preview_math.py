@@ -223,7 +223,7 @@ def _create_image(
             err_log.append("No log file found.")
         else:
             try:
-                errors, warnings, _ = parse_log_file(log_file)
+                errors, warnings, *_ = parse_log_file(log_file)
             except Exception as e:
                 err_log.append(f"Error while parsing log file: {e}")
                 errors = warnings = []

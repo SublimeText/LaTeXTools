@@ -106,5 +106,5 @@ contexts:
       scope: meta.summary.failure.build.latextools message.error.build.latextools
     - match: ^\[Build cancelled by user!\]$\n?
       scope: meta.summary.failure.build.latextools message.warning.build.latextools
-    - match: ^\[(?:Build skipped!|Finished in .+)\]$\n?
+    - match: ^\[(?:Build skipped!|Finished\b.+)\]$\n?
       scope: meta.summary.success.build.latextools message.info.build.latextools

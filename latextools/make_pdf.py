@@ -169,7 +169,7 @@ class CmdThread(threading.Thread):
             else:
                 log_file = os.path.join(self.caller.builder.tex_dir, log_filename)
 
-            errors, warnings, badboxes = parse_log_file(log_file)
+            errors, warnings, badboxes, num_pages = parse_log_file(log_file)
 
         except FileNotFoundError:
             # If no log file was created, and all processes finished with exit code 0,
@@ -292,7 +292,7 @@ class CmdThread(threading.Thread):
                     elapsed = time.strftime("%M:%S", time.gmtime(elapsed))
                 else:
                     elapsed = f"{elapsed:0.1f}s"
-                self.caller.output(f"\n\n[Finished in {elapsed}]")
+                self.caller.output(f"\n\n[Finished, {num_pages} pages written in {elapsed}]")
 
             self.caller.errors = errors
             self.caller.warnings = warnings
