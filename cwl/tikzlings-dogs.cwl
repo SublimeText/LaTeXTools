@@ -1,5 +1,5 @@
 # tikzlings-dogs package
-# Matthew Bertucci 2025/03/25 for v2.3
+# Matthew Bertucci 2025/12/01 for v2.4
 
 #include:tikz
 #include:tikzlings-addons
@@ -15,6 +15,7 @@ head=#%color
 ears=#%color
 paws=#%color
 tail=#%color
+tailpos=#left,right
 back
 3D
 contour
@@ -142,6 +143,8 @@ stick
 stick=#%color
 leaf
 leaf=#%color
+towel
+towel=#%color
 ## << common tikz options >> ##
 rotate=%<degrees%>
 scale=%<factor%>

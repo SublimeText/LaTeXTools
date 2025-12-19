@@ -1,28 +1,21 @@
-# tikzlings-marmots package
+# tikzlings-turkeys package
 # Matthew Bertucci 2025/12/01 for v2.4
 
 #include:tikz
 #include:tikzlings-addons
-#include:tikzlibraryshadows.blur
-#include:tikzlibraryfadings
 
-\marmot
-\marmot[options%keyvals]
+\turkey
+\turkey[options%keyvals]
 
-#keyvals:\marmot#c
+#keyvals:\turkey#c
 body=#%color
+head=#%color
+wattle=#%color
 eyes=#%color
-mouth=#%color
-openmouth
-blush
-blush=#%color
-whiskers=#%color
-teeth
-teeth=#%color
-shadow
-askphil
-leftstep
-rightstep
+bill=#%color
+feet=#%color
+wings=#%color
+tail=#%color
 back
 3D
 contour
@@ -160,10 +153,10 @@ yshift=##L
 #endkeyvals
 
 # deprecated
-\marmothookbackground#S
-\marmothookbelly#S
-\marmothookbody#S
-\marmothookforeground#S
+\turkeyhookbackground#S
+\turkeyhookbelly#S
+\turkeyhookbody#S
+\turkeyhookforeground#S
 \tikzlinghookbackground#S
 \tikzlinghookbelly#S
 \tikzlinghookbody#S
