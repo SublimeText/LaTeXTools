@@ -581,9 +581,9 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             self.window.run_command("latextools_jumpto_pdf", {"from_keybinding": False})
 
         # display build panel and update annotations in UI thread
-        sublime.set_timeout(functools.partial(self.do_finish, open_pdf))
+        sublime.set_timeout(functools.partial(self.do_finish))
 
-    def do_finish(self, open_pdf: bool) -> None:
+    def do_finish(self) -> None:
         if get_setting("scroll_build_panel_to_top", False, self.view) is True:
             self.output_view.show(0, show_surrounds=False, keep_to_left=True, animate=False)
 
