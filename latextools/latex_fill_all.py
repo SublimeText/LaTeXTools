@@ -80,6 +80,19 @@ class LatexFillAllPlugin(LaTeXToolsPlugin):
         """
         return None
 
+    def on_selection(self, view, insert_text):
+        """
+        Code executed after the user has selected a completion and after the completion has been inserted in the view
+
+        :param view:
+            The current `View` being edited
+
+        :param insert_text:
+            Text used for the completion
+
+        """
+        pass
+
     def matches_line(self, line):
         """
         Checks if this plugin matches the current line
@@ -1108,6 +1121,7 @@ class LatextoolsFillAllCommand(
                             "remove_regions": self.regions_to_tuples(remove_regions),
                         },
                     )
+                completion_type.on_selection(view, insert_text)
 
             # track visible input quick panels to provide key binding context
             VISIBLE_OVERLAYS.add(window.id())

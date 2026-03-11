@@ -63,6 +63,40 @@ class EnvLatexFillAllPlugin(LatexFillAllPlugin):
 
         return (display, values)
 
+    def on_selection(self, view, insert_text):
+        # The \end{...} is added only if there is a single cursor and if the 4 characters before the cursor are "\end"
+        sel = view.sel()
+        #for i in range(len(sel)):
+        if len(sel) == 1:
+            i = 0
+            cursor = sel[i].end()
+
+            # Determines the characters before the cursor
+            before_bracket = cursor - 1 - len(insert_text)
+            begin = view.substr(sublime.Region(before_bracket-4, before_bracket))
+
+            # Returns if we should not insert the closing environment
+            if begin == "\\end":
+                return
+
+            # First, move the cursor after the {}
+            new_region = sublime.Region(cursor + 1)
+
+            sel.clear()
+            sel.add(new_region)
+            #sel[i] = new_region
+
+            # Insert the \end{...}
+            view.run_command("insert", {"characters": f"\n\n\\end{{{insert_text}}}"})
+
+            # Place the cursor between the \begin{...} and the \end{...}
+            new_region = sublime.Region(cursor + 2)
+            sel.clear()
+            sel.add(new_region)
+
+            # Add a \t for correct indentation
+            view.run_command("insert", {"characters": "\t"})
+
     def matches_line(self, line):
         return bool(BEGIN_END_BEFORE_REGEX.match(line))
 
