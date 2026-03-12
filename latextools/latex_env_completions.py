@@ -66,7 +66,7 @@ class EnvLatexFillAllPlugin(LatexFillAllPlugin):
 
     def on_selection(self, view, insert_text, should_complete):
         # Do nothing the fill helper was called to replace the content of a command
-        if not should_complete:
+        if not should_complete or not get_setting("env_autoclose_trigger", False):
             return
 
         # The \end{...} is added only if there is a single cursor and if the 4 characters before the cursor are "\end"

@@ -101,6 +101,11 @@
 	// You can also use toggle: C-l,t,a,e
 	"env_auto_trigger": false,
 
+	// Fill-helper autocompletion will close automatically an environment after \begin{. This trigger is only ran after you have selected an environment from the list
+	// This autoclose is only triggered when adding a new \begin{, not when modifying an existing one via the Window Command Palette
+	// This requires "env_auto_trigger" to be true. 
+	"env_autoclose_trigger": false,
+
 	// Fill-helper autocompletion triggered for a wide range of references to external
 	// files. You can also use toggle: C-l,t,a,f
 	"fill_auto_trigger": true,
@@ -119,6 +124,9 @@
 	// when a command is spread across mutliple lines.
 	// You can also use the toggle C-l,t,a,b
 	"smart_bracket_auto_trigger": true,
+
+	// After Fill-helper autocompletion has finished his completion, moves the cursor after the closing bracket if there is one. 
+	"smart_cursor_move_auto_trigger": false,
 
 // ------------------------------------------------------------------
 // Image Preview Settings

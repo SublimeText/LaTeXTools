@@ -96,7 +96,7 @@ class LatexFillAllPlugin(LaTeXToolsPlugin):
 
         """
         # If we add a new element, moves the cursor after the closing bracket
-        if should_complete:
+        if should_complete and get_setting("smart_cursor_move_auto_trigger", False):
             move_cursor_relative(view.sel(), 1)
 
     def matches_line(self, line):
