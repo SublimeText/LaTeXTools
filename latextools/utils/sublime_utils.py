@@ -80,3 +80,28 @@ def get_project_file_name(view: sublime.View) -> str | None:
     if window:
         return window.project_file_name()
     return None
+
+def move_cursor_relative(sel, drift, take_cursor=None):
+    """
+    Moves the cursor relatively from its current position
+
+    :param sel:
+        `Selection` containing all the `Region`s to update
+    :param drift:
+        Number of character the cursor must move
+    :param take_cursor: 
+        Optional array of booleans indicating if the ith `Region` must be moved. Note that take_cursor must have the same length as sel!
+    """
+    new_regions = []
+
+    for i in range(len(sel)):
+        region = sel[i]
+        pos = region.end()
+        if take_cursor is None or take_cursor[i]:
+            pos = pos + drift
+        
+        new_regions.append(sublime.Region(pos))
+
+    sel.clear()
+    for r in new_regions:
+        sel.add(r)

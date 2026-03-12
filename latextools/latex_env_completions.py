@@ -8,6 +8,7 @@ from .latex_fill_all import LatexFillAllPlugin
 from .utils import analysis
 from .utils.settings import get_setting
 from .utils.tex_directives import get_tex_root
+from .utils.sublime_utils import move_cursor_relative
 
 BEGIN_END_BEFORE_REGEX = re.compile(r"([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?(?:nigeb|dne)\\")
 """
@@ -63,12 +64,15 @@ class EnvLatexFillAllPlugin(LatexFillAllPlugin):
 
         return (display, values)
 
-    def on_selection(self, view, insert_text):
+    def on_selection(self, view, insert_text, should_complete):
+        # Do nothing the fill helper was called to replace the content of a command
+        if not should_complete:
+            return
+
         # The \end{...} is added only if there is a single cursor and if the 4 characters before the cursor are "\end"
         sel = view.sel()
-        #for i in range(len(sel)):
-        if len(sel) == 1:
-            i = 0
+        take_selection = [True]*len(sel) # Indicates if we need the Region at index i will undergo autoclose of environment
+        for i in range(len(sel)):
             cursor = sel[i].end()
 
             # Determines the characters before the cursor
@@ -77,25 +81,20 @@ class EnvLatexFillAllPlugin(LatexFillAllPlugin):
 
             # Returns if we should not insert the closing environment
             if begin == "\\end":
-                return
+                take_selection[i] = False
 
-            # First, move the cursor after the {}
-            new_region = sublime.Region(cursor + 1)
+        # First, move the cursor after the {}
+        move_cursor_relative(sel, 1, take_selection)
 
-            sel.clear()
-            sel.add(new_region)
-            #sel[i] = new_region
+        # Insert the \end{...}
+        text_insert = f"\n\n\\end{{{insert_text}}}"
+        view.run_command("insert", {"characters": text_insert})
 
-            # Insert the \end{...}
-            view.run_command("insert", {"characters": f"\n\n\\end{{{insert_text}}}"})
+        # Place the cursor between the \begin{...} and the \end{...}
+        move_cursor_relative(sel, 1 - len(text_insert), take_selection)
 
-            # Place the cursor between the \begin{...} and the \end{...}
-            new_region = sublime.Region(cursor + 2)
-            sel.clear()
-            sel.add(new_region)
-
-            # Add a \t for correct indentation
-            view.run_command("insert", {"characters": "\t"})
+        # Add a \t for correct indentation
+        view.run_command("insert", {"characters": "\t"})
 
     def matches_line(self, line):
         return bool(BEGIN_END_BEFORE_REGEX.match(line))
