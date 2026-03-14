@@ -8,7 +8,7 @@ from .latex_fill_all import LatexFillAllPlugin
 from .utils import analysis
 from .utils.settings import get_setting
 from .utils.tex_directives import get_tex_root
-from .utils.sublime_utils import move_cursor_relative
+from .utils.sublime_utils import move_cursor_relative, move_cursor_vertical
 
 BEGIN_END_BEFORE_REGEX = re.compile(r"([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?(?:nigeb|dne)\\")
 """
@@ -72,6 +72,7 @@ class EnvLatexFillAllPlugin(LatexFillAllPlugin):
         # The \end{...} is added only if there is a single cursor and if the 4 characters before the cursor are "\end"
         sel = view.sel()
         take_selection = [True]*len(sel) # Indicates if we need the Region at index i will undergo autoclose of environment
+        indentation = [0] * len(sel)
         for i in range(len(sel)):
             cursor = sel[i].end()
 
@@ -87,14 +88,14 @@ class EnvLatexFillAllPlugin(LatexFillAllPlugin):
         move_cursor_relative(sel, 1, take_selection)
 
         # Insert the \end{...}
-        text_insert = f"\n\n\\end{{{insert_text}}}"
+        text_insert = f"\n\\end{{{insert_text}}}"
         view.run_command("insert", {"characters": text_insert})
 
-        # Place the cursor between the \begin{...} and the \end{...}
-        move_cursor_relative(sel, 1 - len(text_insert), take_selection)
+        # Place the cursor at the end of the line containing the \begin{...}
+        move_cursor_vertical(view, sel, -1, take_cursor=take_selection)
 
-        # Add a \t for correct indentation
-        view.run_command("insert", {"characters": "\t"})
+        # Add a \n\t for correct indentation
+        view.run_command("insert", {"characters": "\n\t"})
 
     def matches_line(self, line):
         return bool(BEGIN_END_BEFORE_REGEX.match(line))

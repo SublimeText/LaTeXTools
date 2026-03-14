@@ -87,8 +87,10 @@ def move_cursor_relative(sel, drift, take_cursor=None):
 
     :param sel:
         `Selection` containing all the `Region`s to update
+
     :param drift:
         Number of character the cursor must move
+
     :param take_cursor: 
         Optional array of booleans indicating if the ith `Region` must be moved. Note that take_cursor must have the same length as sel!
     """
@@ -100,6 +102,43 @@ def move_cursor_relative(sel, drift, take_cursor=None):
         if take_cursor is None or take_cursor[i]:
             pos = pos + drift
         
+        new_regions.append(sublime.Region(pos))
+
+    sel.clear()
+    for r in new_regions:
+        sel.add(r)
+
+def move_cursor_vertical(view, sel, drift, take_cursor=None):
+    """
+    Moves the cursor to the beginning of the next line or to the end of the previous line
+
+    :param view:
+        Current view object
+
+    :param sel:
+        `Selection` containing all the `Region`s to update
+
+    :param drift:
+        +1 to go to the previous line, -1 to go to the next line
+
+    :param take_cursor: 
+        Optional array of booleans indicating if the ith `Region` must be moved. Note that take_cursor must have the same length as sel!
+    """
+    new_regions = []
+
+    for i in range(len(sel)):
+        region = sel[i]
+        pos = region.end()
+
+        print("Before: ", pos)
+        if take_cursor is None or take_cursor[i]:
+            # Get the current line
+            line = view.line(pos)
+            if drift > 0:
+                pos = line.end() + 1
+            else:
+                pos = line.begin() - 1
+
         new_regions.append(sublime.Region(pos))
 
     sel.clear()
