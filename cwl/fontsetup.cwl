@@ -1,5 +1,5 @@
 # fontsetup package
-# Matthew Bertucci 2024/11/04 for v2.3.0
+# Matthew Bertucci 2026/05/05 for v2.5.0
 
 #include:iflang
 #include:iftex
@@ -10,6 +10,7 @@
 #keyvals:\usepackage/fontsetup#c
 default
 sansdefault
+lx
 upint
 varnothing
 newcmbb
@@ -35,9 +36,17 @@ stixtwo
 talos
 times
 xcharter
+arsenal
+lato
+luciole
+pennstander
 #endkeyvals
 
 #ifOption:default
+#include:newcomputermodern
+#endif
+
+#ifOption:sansdefault
 #include:newcomputermodern
 #endif
 

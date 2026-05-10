@@ -1,5 +1,5 @@
 # nicematrix package
-# Matthew Bertucci 2026/02/02 for v7.6
+# Matthew Bertucci 2026/04/27 for v7.8b
 
 #include:amsmath
 #include:array
@@ -103,6 +103,7 @@ vlines
 vlines=
 hlines
 hlines=
+hlines-except-borders
 hvlines
 hvlines-except-borders
 corners
@@ -184,6 +185,8 @@ notes/enumitem-keys={%<enumitem keys%>}
 notes/enumitem-keys-para={%<enumitem keys%>}
 matrix/columns-type=#l,c,r
 notes/code-before=%<code%>
+notes/detect-duplicates#true,false
+notes/no-print#true,false
 letter-for-dotted-lines=
 renew-matrix
 exterior-arraycolsep
@@ -221,6 +224,8 @@ tikz={%<TikZ options%>}
 name=%<name%>
 respect-arraystretch
 transparent
+rules/width=##L
+rules/color=#%color
 #endkeyvals
 
 \Hline#t
@@ -434,7 +439,16 @@ not-empty
 \tabularnote[symbol]{note%text}
 \begin{TabularNote}
 \end{TabularNote}
+\NiceTabularNotes
+
 \rotate
+\rotate[options%keyvals]
+
+#keyvals:\rotate
+c
+-90
+#endkeyvals
+
 \ShowCellNames#t
 
 \AutoNiceMatrix{i-j}{pattern}#m
@@ -463,6 +477,7 @@ vlines
 vlines=
 hlines
 hlines=
+hlines-except-borders
 hvlines
 hvlines-except-borders
 corners

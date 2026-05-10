@@ -1,5 +1,5 @@
 # rpgicons package
-# Matthew Bertucci 2026/02/11 for v2.5.1
+# Matthew Bertucci 2026/05/01 for v2.9.0
 
 #keyvals:\usepackage/rpgicons#c
 l3
@@ -45,6 +45,10 @@ pics
 \alignment[style]{shape}[options%keyvals]
 \currency{shape}{integer}
 \currency{shape}[options%keyvals]{integer}
+\movement{shape}
+\movement{shape}[options%keyvals]
+\movement[style]{shape}
+\movement[style]{shape}[options%keyvals]
 
 \RPGIconsUseIcon{shape}#*
 \RPGIconsUseIcon[options%keyvals]{shape}#*
@@ -52,6 +56,12 @@ pics
 \RPGIconsUseIcon*{shape}#*
 \RPGIconsUseIcon*[options%keyvals]{shape}#*
 \RPGIconsUseIcon*[options%keyvals][integer]{shape}#*
+\RPGIconsPrecomposeIcon{shape}#*
+\RPGIconsPrecomposeIcon[options%keyvals]{shape}#*
+\RPGIconsPrecomposeIcon[options%keyvals][reference]{shape}#*
+\RPGIconsPrecomposeIcon*{shape}#*
+\RPGIconsPrecomposeIcon*[options%keyvals]{shape}#*
+\RPGIconsPrecomposeIcon*[options%keyvals][reference]{shape}#*
 
 \RPGIconsDie{shape}{integer}#*
 \RPGIconsDie{shape}[options%keyvals]{integer}#*
@@ -87,10 +97,14 @@ pics
 \RPGIconsAlignment[style]{shape}[options%keyvals]#*
 \RPGIconsCurrency{shape}{integer}#*
 \RPGIconsCurrency{shape}[options%keyvals]{integer}#*
+\RPGIconsMovement{shape}{integer}#*
+\RPGIconsMovement{shape}[options%keyvals]{integer}#*
+\RPGIconsMovement[style]{shape}#*
+\RPGIconsMovement[style]{shape}[options%keyvals]#*
 
 \rpgiconsset{options%keyvals}
 
-#keyvals:\die#c,\ability#c,\saving#c,\spell#c,\spellschool#c,\damage#c,\attack#c,\condition#c,\class#c,\alignment#c,\currency#c,\RPGIconsUseIcon#c,\RPGIconsUseIcon*#c,\RPGIconsDie#c,\RPGIconsAbility#c,\RPGIconsSaving#c,\RPGIconsSpell#c,\RPGIconsSpellschool#c,\RPGIconsDamage#c,\RPGIconsAttack#c,\RPGIconsCondition#c,\RPGIconsAlignment#c,\RPGIconsCurrency#c,\rpgiconsset#c
+#keyvals:\die#c,\ability#c,\saving#c,\spell#c,\spellschool#c,\damage#c,\attack#c,\condition#c,\class#c,\alignment#c,\currency#c,\movement#c,\RPGIconsUseIcon#c,\RPGIconsUseIcon*#c,\RPGIconsPrecomposeIcon#c,\RPGIconsPrecomposeIcon*#c,\RPGIconsDie#c,\RPGIconsAbility#c,\RPGIconsSaving#c,\RPGIconsSpell#c,\RPGIconsSpellschool#c,\RPGIconsDamage#c,\RPGIconsAttack#c,\RPGIconsCondition#c,\RPGIconsAlignment#c,\RPGIconsCurrency#c,\RPGIconsMovement#c,\rpgiconsset#c
 frame=#ability,damage,saving,spellschool
 stroke=#%color
 fill=#%color
@@ -103,6 +117,9 @@ text opacity=%<factor%>
 opacity=%<factor%>
 background opacity=%<factor%>
 line width=##L
+line cap=#butt,rectangle,round
+line join=#bevel,miter,round
+miter limit=%<float%>
 scale=%<factor%>
 scale inner=%<factor%>
 rotate=%<degrees%>
@@ -117,6 +134,7 @@ every condition={%<options%>}
 every class={%<options%>}
 every alignment={%<options%>}
 every currency={%<options%>}
+every movement={%<options%>}
 every %<shape%>={%<options%>}
 every die add={%<options%>}
 every ability add={%<options%>}
@@ -129,13 +147,16 @@ every condition add={%<options%>}
 every class add={%<options%>}
 every alignment add={%<options%>}
 every currency add={%<options%>}
+every movement add={%<options%>}
 every %<shape%> add={%<options%>}
 before sep=##L
 after sep=##L
 baseline=##L
+precompose
+precompose=%<string%>
 #endkeyvals
 
-#keyvals:\die#c,\ability#c,\saving#c,\spell#c,\spellschool#c,\damage#c,\attack#c,\condition#c,\class#c,\alignment#c,\currency#c,\RPGIconsUseIcon#c,\RPGIconsUseIcon*#c,\RPGIconsDie#c,\RPGIconsAbility#c,\RPGIconsSaving#c,\RPGIconsSpell#c,\RPGIconsSpellschool#c,\RPGIconsDamage#c,\RPGIconsAttack#c,\RPGIconsCondition#c,\RPGIconsAlignment#c,\RPGIconsCurrency#c
+#keyvals:\die#c,\ability#c,\saving#c,\spell#c,\spellschool#c,\damage#c,\attack#c,\condition#c,\class#c,\alignment#c,\currency#c,\RPGIconsUseIcon#c,\RPGIconsUseIcon*#c,\RPGIconsPrecomposeIcon#c,\RPGIconsPrecomposeIcon*#c,\RPGIconsDie#c,\RPGIconsAbility#c,\RPGIconsSaving#c,\RPGIconsSpell#c,\RPGIconsSpellschool#c,\RPGIconsDamage#c,\RPGIconsAttack#c,\RPGIconsCondition#c,\RPGIconsAlignment#c,\RPGIconsCurrency#c
 variant=%<integer%>
 #endkeyvals
 
@@ -187,6 +208,10 @@ alias={%<string%>}{%<string%>}
 \rpgiconsalignment[style]{shape}[options%keyvals]#*
 \rpgiconscurrency{shape}#*
 \rpgiconscurrency{shape}[options%keyvals]#*
+\rpgiconsmovement{shape}#*
+\rpgiconsmovement{shape}[options%keyvals]#*
+\rpgiconsmovement[style]{shape}#*
+\rpgiconsmovement[style]{shape}[options%keyvals]#*
 \provideprotectedrpgicon{command}{shape}{box name}
 \provideprotectedrpgicon{command}{shape}[options]{box name}
 \provideprotectedrpgicon{command}[style]{shape}{box name}
@@ -194,3 +219,7 @@ alias={%<string%>}{%<string%>}
 \useprotectedrpgicon{box name}
 \rpgiconsroll{roll syntax}
 #endif
+
+# not documented
+\RPGIconsPDFDestination{arg}#S
+\RPGIconsPDFHash{arg}#S

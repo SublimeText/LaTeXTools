@@ -1,5 +1,5 @@
 # simpleicons package
-# Matthew Bertucci 2026/02/07 for v16.7.0
+# Matthew Bertucci 2026/04/20 for v16.17.0
 
 #include:iftex
 
@@ -303,6 +303,7 @@ bankofamerica
 barclays
 baremetrics
 barmenia
+baseui
 basecamp
 baserow
 basicattentiontoken
@@ -438,6 +439,7 @@ byjus
 bytedance
 c
 cachet
+cachyos
 caddy
 cadillac
 cafepress
@@ -527,6 +529,7 @@ clerk
 clevercloud
 clickhouse
 clickup
+cline
 clion
 clockify
 clojure
@@ -616,6 +619,7 @@ contabo
 contactlesspayment
 containerd
 contao
+contensis
 contentful
 contentstack
 continente
@@ -727,6 +731,7 @@ deepin
 deepl
 deepmind
 deepnote
+deezer
 deliveroo
 dell
 delonghi
@@ -734,6 +739,7 @@ delphi
 delta
 deluge
 deno
+denodeploy
 denon
 dependabot
 dependencycheck
@@ -757,7 +763,9 @@ dhl
 diagramsdotnet
 dialogflow
 diaspora
+dicebear
 dictionarydotcom
+dify
 digg
 digikeyelectronics
 digitalocean
@@ -777,6 +785,7 @@ django
 dji
 dlib
 dlna
+dlthub
 dm
 dmm
 docker
@@ -932,6 +941,7 @@ facebooklive
 faceit
 facepunch
 fairphone
+faker
 falco
 falcon
 fampay
@@ -1005,6 +1015,7 @@ fluentd
 fluke
 flutter
 flux
+fluxer
 flydotio
 flyway
 fmod
@@ -1095,6 +1106,7 @@ gerrit
 getx
 ghost
 ghostery
+ghostfolio
 ghostty
 gimp
 gin
@@ -1400,6 +1412,7 @@ improvmx
 indeed
 indiansuperleague
 indiehackers
+indieweb
 indigo
 inductiveautomation
 inertia
@@ -1521,6 +1534,7 @@ kalilinux
 kamailio
 kando
 kaniko
+karakeep
 karlsruherverkehrsverbund
 kasasmart
 kashflow
@@ -1674,6 +1688,7 @@ linkerd
 linkfire
 linksys
 linktree
+linkvertise
 linphone
 lintcode
 linux
@@ -1700,14 +1715,17 @@ lobsters
 local
 localsend
 localxpose
+locust
 lodash
 logmein
 logseq
 logstash
+longhorn
 looker
 loom
 loop
 loopback
+loops
 lootcrate
 lospec
 lotpolishairlines
@@ -1934,6 +1952,7 @@ naver
 nba
 nbb
 nbc
+ndi
 ndr
 near
 nebula
@@ -2064,6 +2083,7 @@ opel
 openaccess
 openaigym
 openapiinitiative
+openbao
 openbadges
 openbsd
 opencage
@@ -2111,6 +2131,7 @@ opslevel
 optimism
 optuna
 orange
+orchardcore
 orcid
 oreilly
 org
@@ -2151,7 +2172,9 @@ paloaltonetworks
 paloaltosoftware
 panasonic
 pandas
+pandoc
 pandora
+pangolin
 pantheon
 paperlessngx
 paperspace
@@ -2327,6 +2350,7 @@ progate
 progress
 prometheus
 pronounsdotpage
+prosemirror
 prosieben
 proteus
 protocolsdotio
@@ -2372,6 +2396,7 @@ qantas
 qase
 qatarairways
 qbittorrent
+qdrant
 qemu
 qgis
 qi
@@ -2567,6 +2592,7 @@ runkit
 runrundotit
 rust
 rustdesk
+rustfs
 rxdb
 ryanair
 rye
@@ -2726,6 +2752,7 @@ solid
 solidity
 sololearn
 solus
+solveddotac
 sonar
 sonarqubecloud
 sonarqubeforide
@@ -2759,6 +2786,7 @@ spectrum
 speedtest
 speedypage
 sphinx
+spidermonkey
 spigotmc
 spine
 spinnaker
@@ -2850,6 +2878,7 @@ sumologic
 suno
 sunrise
 supabase
+supercell
 supercrease
 supermicro
 superuser
@@ -2901,6 +2930,7 @@ taobao
 tapas
 target
 tarom
+tarteaucitron
 task
 tasmota
 tata
@@ -2974,6 +3004,7 @@ thymeleaf
 ticketmaster
 ticktick
 tidal
+tidb
 tiddlywiki
 tide
 tidyverse
@@ -3032,6 +3063,7 @@ trello
 trendmicro
 tresorit
 treyarch
+trezor
 tricentis
 trilium
 triller
@@ -3042,6 +3074,7 @@ tripadvisor
 tripdotcom
 trivago
 trivy
+trmnl
 trove
 trpc
 truenas
@@ -3068,6 +3101,7 @@ tvtime
 twinkly
 twinmotion
 twitch
+ty
 typeform
 typeorm
 typer
@@ -3190,6 +3224,7 @@ vivint
 vivo
 vk
 vlcmediaplayer
+vllm
 vmware
 vodafone
 voelkner
@@ -3339,6 +3374,7 @@ ycombinator
 yaak
 yelp
 yeti
+yew
 yii
 yoast
 yolo
