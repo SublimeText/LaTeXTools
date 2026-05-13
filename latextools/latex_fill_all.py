@@ -11,6 +11,7 @@ from .latextools_plugin import LaTeXToolsPlugin
 from .utils.decorators import async_completions
 from .utils.logging import logger
 from .utils.settings import get_setting
+from .utils.sublime_utils import move_cursor_relative
 
 __all__ = [
     "LatexFillAllEventListener",
@@ -79,6 +80,24 @@ class LatexFillAllPlugin(LaTeXToolsPlugin):
             determine the correct completions
         """
         return None
+
+    def on_selection(self, view, insert_text, should_complete):
+        """
+        Code executed after the user has selected a completion and after the completion has been inserted in the view
+
+        :param view:
+            The current `View` being edited
+
+        :param insert_text:
+            Text used for the completion
+
+        :param should_complete:
+            Indicates if the fill helper is replacing an existing element or completing a newly created one
+
+        """
+        # If we add a new element, moves the cursor after the closing bracket
+        if should_complete and get_setting("smart_cursor_move_auto_trigger", False):
+            move_cursor_relative(view.sel(), 1)
 
     def matches_line(self, line):
         """
@@ -1108,6 +1127,8 @@ class LatextoolsFillAllCommand(
                             "remove_regions": self.regions_to_tuples(remove_regions),
                         },
                     )
+                    
+                completion_type.on_selection(view, insert_text, should_complete=(insert_char != ''))
 
             # track visible input quick panels to provide key binding context
             VISIBLE_OVERLAYS.add(window.id())
