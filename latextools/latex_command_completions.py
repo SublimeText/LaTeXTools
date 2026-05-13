@@ -65,6 +65,19 @@ def get_own_commands(ana):
     return ana.filter_commands(["newcommand", "renewcommand"])
 
 
+def get_own_xparse_commands(ana):
+    return ana.filter_commands([
+        "DeclareDocumentCommand",
+        "NewDocumentCommand",
+        "RenewDocumentCommand",
+        "ProvideDocumentCommand",
+        "DeclareExpandableDocumentCommand",
+        "NewExpandableDocumentCommand",
+        "RenewExpandableDocumentCommand",
+        "ProvideExpandableDocumentCommand",
+    ])
+
+
 def get_own_command_completions(tex_root):
     res = []
 
@@ -99,6 +112,24 @@ def get_own_command_completions(tex_root):
                     completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
                     annotation="local",
                     details=f"from {os.path.basename(c.file_name)}",
+                    kind=kind,
+                )
+            )
+
+        for c in get_own_xparse_commands(ana):
+            # xparse commands use an argument spec like {s m O{default}}, not
+            # the numeric optional argument count used by \newcommand.
+            # For now, complete only the command name and show the full
+            # xargs spec in the details.
+            if not c.args:
+                continue
+
+            res.append(
+                sublime.CompletionItem(
+                    trigger=c.args,
+                    completion=c.args,
+                    annotation="local",
+                    details = f"{c.args}{{{c.args2 or ''}}} from {os.path.basename(c.file_name)}",
                     kind=kind,
                 )
             )
