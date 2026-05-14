@@ -66,16 +66,19 @@ def get_own_commands(ana):
 
 
 def get_own_xparse_commands(ana):
-    return ana.filter_commands([
-        "DeclareDocumentCommand",
-        "NewDocumentCommand",
-        "RenewDocumentCommand",
-        "ProvideDocumentCommand",
-        "DeclareExpandableDocumentCommand",
-        "NewExpandableDocumentCommand",
-        "RenewExpandableDocumentCommand",
-        "ProvideExpandableDocumentCommand",
-    ])
+    return ana.filter_commands(
+        [
+            "DeclareDocumentCommand",
+            "NewDocumentCommand",
+            "RenewDocumentCommand",
+            "ProvideDocumentCommand",
+            "DeclareExpandableDocumentCommand",
+            "NewExpandableDocumentCommand",
+            "RenewExpandableDocumentCommand",
+            "ProvideExpandableDocumentCommand",
+        ],
+        flags=analysis.NO_BEGIN_END_COMMANDS
+    )
 
 
 def get_own_command_completions(tex_root):
@@ -98,10 +101,7 @@ def get_own_command_completions(tex_root):
                 elif arg_count == 0:
                     raise NoArgs()
                 trigger += "{arg}" * arg_count
-                completion = command_to_snippet(trigger)
-                if completion is None:
-                    raise NoArgs()
-                completion = completion[1]
+                _, completion = command_to_snippet(trigger)
             except NoArgs:
                 completion = trigger = c.args + "{}"
 
@@ -117,22 +117,46 @@ def get_own_command_completions(tex_root):
             )
 
         for c in get_own_xparse_commands(ana):
-            # xparse commands use an argument spec like {s m O{default}}, not
-            # the numeric optional argument count used by \newcommand.
-            # For now, complete only the command name and show the full
-            # xargs spec in the details.
-            if not c.args:
-                continue
-
-            res.append(
-                sublime.CompletionItem(
-                    trigger=c.args,
-                    completion=c.args,
-                    annotation="local",
-                    details = f"{c.args}{{{c.args2 or ''}}} from {os.path.basename(c.file_name)}",
-                    kind=kind,
+            # xparse form A: \NewDocumentCommand{\Command}{args}
+            if c.args:
+                # xparse commands use an argument spec like {s m O{default}}, not
+                # the numeric optional argument count used by \newcommand.
+                # For now, complete only the command name and show the full
+                # xargs spec in the details.
+                res.append(
+                    sublime.CompletionItem(
+                        trigger=f"{c.args}{{{c.args2 or ''}}}",
+                        completion=c.args,
+                        annotation="local",
+                        details = f"from {os.path.basename(c.file_name)}",
+                        kind=kind,
+                    )
                 )
-            )
+
+            # xparse form B: \NewDocumentCommand \Command { o mm }
+            elif (c := ana.next_command(c)) is not None:
+                # The defined command name is specified by the TeX command
+                # after xparse definition command.
+                # Positional arguments' spec is defined by letters
+                # - `m` (mandedory)
+                # - `o` (optional)
+                trigger = "\\" + c.command
+                for a in c.args:
+                    if a == "m":
+                        trigger += "{arg}"
+                    elif a == "o":
+                        trigger += "[opt]"
+                _, completion = command_to_snippet(trigger)
+                res.append(
+                    sublime.CompletionItem(
+                        trigger=trigger,
+                        completion=completion,
+                        completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
+                        annotation="local",
+                        details=f"from {os.path.basename(c.file_name)}",
+                        kind=kind,
+                    )
+                )
 
         for c in get_own_environments(ana):
             res.append(

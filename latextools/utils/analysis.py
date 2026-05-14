@@ -254,6 +254,12 @@ class Analysis:
 
         raise Exception(f"Unsupported filter type: {type(how)}")
 
+    def next_command(self, command):
+        i = self._all_commands.index(command)
+        if i == -1 or i == len(self._all_commands):
+            return None
+        return self._all_commands[i + 1]
+
     def graphics_paths(self):
         if self._graphics_path is None:
             result = set()
