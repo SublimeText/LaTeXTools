@@ -256,9 +256,9 @@ class Analysis:
 
     def next_command(self, command):
         i = self._all_commands.index(command)
-        if i == -1 or i == len(self._all_commands):
-            return None
-        return self._all_commands[i + 1]
+        if 0 <= i < len(self._all_commands) - 1:
+            return self._all_commands[i + 1]
+        return None
 
     def graphics_paths(self):
         if self._graphics_path is None:
