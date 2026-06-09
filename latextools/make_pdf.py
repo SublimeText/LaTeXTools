@@ -45,6 +45,14 @@ __all__ = [
     "LatextoolsExecEventListener",
 ]
 
+ANNOTATION_TEMPLATE = """
+<body id="latextools-annotation">
+  <div class="{css_class}">
+    <span class="content">{content}</span>
+  </div>
+</body>
+"""
+
 SUPPORTED_PDF_COMPILERS = ("pdflatex", "pdftex", "xelatex", "xetex", "lualatex", "luatex")
 
 
@@ -302,9 +310,6 @@ class CmdThread(threading.Thread):
             self.caller.finish(aborted == False and len(errors) == 0)
 
 
-annotation_sets_by_buffer = {}
-
-
 class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
     errs_by_file = {}
     show_errors_inline = True
@@ -314,8 +319,12 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # builder
         self.proc = None
         self.proc_lock = threading.Lock()
+        # annotations
+        self.errs_by_file = {}
+        self.show_errors_inline = True
 
     # **kwargs is unused but there so run can safely ignore any unknown
     # parameters
@@ -415,7 +424,9 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         output_view_settings.set("word_wrap", get_setting("build_panel_word_wrap", False, view))
 
         if get_setting("highlight_build_panel", True, view):
-            self.output_view.assign_syntax("Packages/LaTeXTools/LaTeXTools Build Output.sublime-syntax")
+            self.output_view.assign_syntax(
+                "Packages/LaTeXTools/LaTeXTools Build Output.sublime-syntax"
+            )
 
         self.output_view.set_read_only(True)
 
@@ -592,7 +603,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             self.create_errs_by_file()
             self.update_annotations()
 
-    def _find_errors(self, errors, error_class):
+    def _find_errors(self, errors, css_class):
         for line in errors:
             m = self.file_regex.search(line)
             if not m:
@@ -610,7 +621,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             column = int(column) if column else 0
             if file not in self.errs_by_file:
                 self.errs_by_file[file] = []
-            self.errs_by_file[file].append((line, column, text, error_class))
+            self.errs_by_file[file].append((line, column, text, css_class))
 
     def create_errs_by_file(self):
         file_regex = self.output_view.settings().get("result_file_regex")
@@ -633,79 +644,62 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
             self._find_errors(self.badboxes, "warning badbox")
 
     def update_annotations(self):
-        stylesheet = """
-            <style>
-                div.lt-error {
-                    padding: 0.4rem 0 0.4rem 0.7rem;
-                    margin: 0.2rem 0;
-                    border-radius: 2px;
-                }
-                div.lt-error span.message {
-                    padding-right: 0.7rem;
-                }
-                div.lt-error a {
-                    text-decoration: inherit;
-                    padding: 0.35rem 0.7rem 0.45rem 0.8rem;
-                    position: relative;
-                    bottom: 0.05rem;
-                    border-radius: 0 2px 2px 0;
-                    font-weight: bold;
-                }
-                html.dark div.lt-error a {
-                    background-color: #00000018;
-                }
-                html.light div.lt-error a {
-                    background-color: #ffffff18;
-                }
-            </style>
-        """
-
-        def on_navigate(href):
-            if href == "hide":
-                self.hide_annotations()
-
         for file, errs in self.errs_by_file.items():
-            view = self.window.find_open_file(file)
-            if view:
+            if view := self.window.find_open_file(file):
+                selection_set = []
+                content_set = []
 
-                buffer_id = view.buffer_id()
-                if buffer_id not in annotation_sets_by_buffer:
-                    phantom_set = sublime.PhantomSet(view, "lt_exec")
-                    annotation_sets_by_buffer[buffer_id] = phantom_set
-                else:
-                    phantom_set = annotation_sets_by_buffer[buffer_id]
+                line_err_set = []
 
-                phantoms = []
-
-                for line, column, text, error_class in errs:
+                for line, column, text, css_class in errs:
                     pt = view.text_point(line - 1, column - 1)
-                    html_text = html.escape(text, quote=False)
-                    phantom_content = f"""
-                        <body id="inline-error">
-                            {stylesheet}
-                            <div class="lt-error {error_class}">
-                                <span class="message">{html_text}</span>
-                                <a href="hide">{chr(0x00D7)}</a>
-                            </div>
-                        </body>
-                    """
-                    phantoms.append(
-                        sublime.Phantom(
-                            sublime.Region(pt, view.line(pt).b),
-                            phantom_content,
-                            sublime.LAYOUT_BELOW,
-                            on_navigate=on_navigate,
+                    if line_err_set and line == line_err_set[len(line_err_set) - 1][0]:
+                        line_err_set[len(line_err_set) - 1][1] += "<br>" + html.escape(
+                            text, quote=False
                         )
+                    else:
+                        if column:
+                            pt_b = pt + 1
+                            if view.classify(pt) & sublime.CLASS_WORD_START:
+                                pt_b = view.find_by_class(
+                                    pt, forward=True, classes=(sublime.CLASS_WORD_END)
+                                )
+                            if pt_b <= pt:
+                                pt_b = pt + 1
+                            selection_set.append(sublime.Region(pt, pt_b))
+                        else:
+                            selection_set.append(view.line(pt))
+                        line_err_set.append([line, html.escape(text, quote=False), css_class])
+
+                for _, text, css_class in line_err_set:
+                    content_set.append(ANNOTATION_TEMPLATE.format(css_class=css_class, content=text))
+
+                # add annotations to all clones in current window
+                for clone in (view, *view.clones()):
+                    clone.add_regions(
+                        "exec",
+                        selection_set,
+                        scope="markup.error",
+                        annotations=content_set,
+                        annotation_color="gray",
+                        flags=(
+                            sublime.DRAW_SQUIGGLY_UNDERLINE
+                            | sublime.DRAW_NO_FILL
+                            | sublime.DRAW_NO_OUTLINE
+                        ),
+                        on_close=self.hide_annotations,
                     )
 
-                phantom_set.update(phantoms)
-
     def hide_annotations(self):
-        global annotation_sets_by_buffer
-        for file, errs in self.errs_by_file.items():
-            view = self.window.find_open_file(file)
-            if view:
-                del annotation_sets_by_buffer[view.buffer_id()]
+        for file in self.errs_by_file:
+            if view := self.window.find_open_file(file):
+                for clone in (view, *view.clones()):
+                    clone.erase_regions("exec")
+                    clone.hide_popup()
+
+        if view := self.window.active_view():
+            view.erase_regions("exec")
+            view.hide_popup()
 
         self.errs_by_file = {}
         self.show_errors_inline = False
@@ -728,15 +722,10 @@ class LatextoolsExecEventListener(sublime_plugin.EventListener):
 
     def on_query_context(self, view, key, operator, operand, match_all):
         # provide context for conditional key bindings
-        if key != "latextools_inline_errors_visible":
-            return False
-
-        result = bool(annotation_sets_by_buffer.get(view.buffer_id(), False))
-
-        if operator == sublime.OP_EQUAL:
-            return result == operand
-
-        if operator == sublime.OP_NOT_EQUAL:
-            return result != operand
-
+        if key == "latextools_inline_errors_visible":
+            value = bool(view.get_regions("exec"))
+            if operator == sublime.OP_EQUAL:
+                return value == operand
+            if operator == sublime.OP_NOT_EQUAL:
+                return value != operand
         return False
