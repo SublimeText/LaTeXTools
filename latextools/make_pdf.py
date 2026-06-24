@@ -10,8 +10,6 @@ import html
 import os
 import re
 import shlex
-import shutil
-import signal
 import threading
 import time
 import traceback
@@ -25,9 +23,7 @@ from .latextools_plugin import get_plugin
 from .latextools_plugin import NoSuchPluginException
 from .utils.activity_indicator import ActivityIndicator
 from .utils.external_command import execute_command
-from .utils.external_command import external_command
 from .utils.external_command import get_texpath
-from .utils.external_command import PIPE
 from .utils.external_command import Popen
 from .utils.is_tex_file import is_tex_file
 from .utils.logging import logger
