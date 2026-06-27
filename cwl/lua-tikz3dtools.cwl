@@ -1,24 +1,21 @@
 # lua-tikz3dtools package
-# Matthew Bertucci 2026/01/23 for v2.3.0
+# Matthew Bertucci 2026/06/03 for v3.3.0
 
 #include:tikz
 #include:luatex
 
-\appendcurve
-\appendcurve[options%keyvals]
-\appendlabel
-\appendlabel[options%keyvals]
-\appendlight
-\appendlight[options%keyvals]
-\appendpoint
-\appendpoint[options%keyvals]
-\appendsolid
-\appendsolid[options%keyvals]
-\appendsurface
-\appendsurface[options%keyvals]
-\displaysimplices
-\setobject
-\setobject[options%keyvals]
-
-# not documented
-\luatikztdtoolsset{options%keyvals}#S
+\ltdtappendcurve
+\ltdtappendcurve[options%keyvals]
+\ltdtappendlabel
+\ltdtappendlabel[options%keyvals]
+\ltdtappendlight
+\ltdtappendlight[options%keyvals]
+\ltdtappendpoint
+\ltdtappendpoint[options%keyvals]
+\ltdtappendsolid
+\ltdtappendsolid[options%keyvals]
+\ltdtappendsurface
+\ltdtappendsurface[options%keyvals]
+\ltdtdisplaysimplices
+\ltdtsetobject
+\ltdtsetobject[options%keyvals]

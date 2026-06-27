@@ -1,7 +1,18 @@
 # bxtexlogo package
-# Matthew Bertucci 2026/05/01 for v0.7
+# Matthew Bertucci 2026/05/26 for v0.8
 
 #include:hologo
+#include:keyval
+
+\bxtexlogosetup{keyvals}
+
+#keyvals:\bxtexlogosetup
+smallcaps=#real,fake,auto
+one-font=#normal,bboldx
+hologo-for-basic#true,false
+ghost#true,false
+fake-smallcaps-for=
+#endkeyvals
 
 \bxtexlogoimport{logo list%keyvals}
 \bxtexlogoImport{logo list%keyvals}#*
@@ -97,6 +108,7 @@ PiCTeX
 plainTeX
 pLaTeX
 pLaTeXe
+Prote
 pTeX
 pTeXsT
 SageTeX
@@ -199,19 +211,16 @@ YukidarumaTeX
 \bxtexlogoDeclare{level}{name}[text form]{LaTeX form}#*
 \bxtexlogoDeclare{level}{name}{LaTeX form}#*
 \bxtexlogoFontSlant{font}#*
+\bxtexlogoHologo{name}#*
 \bxtexlogoItalicOrSlant{text}#*
-\bxtexlogoNoUseBboldx#*
 \bxtexlogoReflect{text}{fallback}#*
 \bxtexlogoSlant{real}#*
-\bxtexlogoSmcp{string}#*
-\bxtexlogoSmcpAs{choice%keyvals}#*
-\bxtexlogoSmcpAsFakeFor{list}#*
-\bxtexlogoSmcpChoice{text1}{text2}#*
 \bxtexlogoTest#*
-\bxtexlogoUseBboldx#*
 
-#keyvals:\bxtexlogoSmcpAs#c
-auto
-real
-fake
-#endkeyvals
+# deprecated
+\bxtexlogoNoUseBboldx#S
+\bxtexlogoSmcp{string}#S
+\bxtexlogoSmcpAs{choice%keyvals}#S
+\bxtexlogoSmcpAsFakeFor{list}#S
+\bxtexlogoSmcpChoice{text1}{text2}#S
+\bxtexlogoUseBboldx#S

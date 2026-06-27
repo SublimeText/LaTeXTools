@@ -3,7 +3,7 @@
 # tbraun/2006-08-03 removed dup inserted by me ...
 # tbraun/2007-02-24 added left/right variants
 # dbitouze/2015-02-21 obsolete font style commands made unusual
-# Matthew Bertucci 2025/06/01 release
+# Matthew Bertucci 2026/06/01 release
 
 #include:latex-dev
 
@@ -63,6 +63,8 @@
 \begin{normalsize}
 \begin{picture}(width,height)#\pictureHighlight
 \begin{picture}(width,height)(xoffset,yoffset)
+\begin{picture}[options%keyvals](width,height)
+\begin{picture}[options%keyvals](width,height)(xoffset,yoffset)
 \begin{pmatrix}#m\array
 \begin{quotation}
 \begin{quote}
@@ -317,9 +319,9 @@
 \newlength{newlength%cmd}#d
 \newline
 \newpage
-\newtheorem{envname}[numbered like]{caption}#N
-\newtheorem{envname}{caption}#N
-\newtheorem{envname}{caption}[within]#N
+\newtheorem{envname}[numbered like]{caption%text}#N
+\newtheorem{envname}{caption%text}#N
+\newtheorem{envname}{caption%text}[within]#N
 \NoCaseChange{text}#*
 \nocite{keylist}#c
 \nocorr#*

@@ -1,7 +1,7 @@
 # xeCJK package
 # Darcy Hu <hot123tea123@gmail.com> 2016
 #modified zepinglee 30 Jan 2021
-# updated 7 June 2022 for v3.9.0
+# updated 25 June 2026 for v3.10.0
 
 #include:xetex
 #include:xtemplate
@@ -50,6 +50,9 @@ KaiMingPunct-={%<punctuation%>}
 LongPunct={%<punctuation%>}
 LongPunct+={%<punctuation%>}
 LongPunct-={%<punctuation%>}
+NoBreakLongPunct={%<punctuation%>}
+NoBreakLongPunct+={%<punctuation%>}
+NoBreakLongPunct-={%<punctuation%>}
 MiddlePunct={%<punctuation%>}
 MiddlePunct+={%<punctuation%>}
 MiddlePunct-={%<punctuation%>}
@@ -61,6 +64,9 @@ CheckFullRight#true,false
 NoBreakCS={%<commands%>}
 NoBreakCS+={%<commands%>}
 NoBreakCS-={%<commands%>}
+#
+experiment/halfright-prebreakpenalty#true,false
+experiment/punct-measure-fix#true,false
 #
 Verb=#true,false,env,env+
 LoadFandol#true,false
@@ -180,7 +186,7 @@ different-align-margin=##L
 different-align-ratio=%<real%>
 kerning-margin-width=##L
 kerning-margin-ratio=%<real%>
-optimize-kerning #true,false
+optimize-kerning#true,false
 kerning-margin-minimum=##L
 #endkeyvals
 
@@ -215,7 +221,7 @@ BoldSwashFont=%<font name%>
 CJKShape=#Traditional,Simplified,JIS1978,JIS1983,JIS1990,Expert,NLC
 CharacterVariant=%<number%>
 CharacterVariant={%<glyph num list%>:%<variety num%>}
-CharacterWidth=#Proportional,Full,Half,Thurd,Quarter,AlternateProportional,AlternateHalf,ResetAll
+CharacterWidth=#Proportional,Full,Half,Third,Quarter,AlternateProportional,AlternateHalf,ResetAll
 Color=#%color
 Colour=#%color
 Contextuals=#Swash,SwashOff,Alternate,AlternateOff,WordInitial,WordInitialOff,WordFinal,WordFinalOff,LineFinal,LineFinalOff,Inner,InnerOff,ResetAll
