@@ -1,5 +1,4 @@
 import logging
-import sublime
 
 from .settings import global_settings
 

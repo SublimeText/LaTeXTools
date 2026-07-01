@@ -1,10 +1,8 @@
 import os
 import time
-import traceback
 
 from . import bibformat
 from . import cache
-from .logging import logger
 from .settings import get_setting
 
 from ...vendor.frozendict import frozendict

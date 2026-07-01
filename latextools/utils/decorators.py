@@ -5,7 +5,6 @@ from functools import partial, wraps
 from timeit import default_timer
 
 import sublime
-import sublime_plugin
 
 PROFILE = False
 

@@ -1,6 +1,5 @@
 import re
 import os
-import codecs
 import shlex
 import traceback
 

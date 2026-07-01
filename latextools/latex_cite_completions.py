@@ -19,7 +19,6 @@ At present, there is one supported method on custom plugins.
 import os
 import re
 import sublime
-import traceback
 
 from ..plugins.bibliography import *  # register internal bibliography plugins
 from .latex_fill_all import LatexFillAllPlugin

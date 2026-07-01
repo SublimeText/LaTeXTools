@@ -1,8 +1,6 @@
 from __future__ import annotations
-import copy
 import os
 import re
-import signal
 import subprocess
 import sys
 import textwrap

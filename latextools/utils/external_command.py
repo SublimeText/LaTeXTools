@@ -33,9 +33,8 @@
 from __future__ import annotations
 import os
 import re
-import sys
 
-from shlex import split, quote
+from shlex import quote
 from shutil import which
 
 import subprocess

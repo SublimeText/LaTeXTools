@@ -5,7 +5,6 @@ import traceback
 import sublime
 import sublime_plugin
 
-from .latextools_plugin import classname_to_plugin_name
 from .latextools_plugin import get_plugins_by_type
 from .latextools_plugin import LaTeXToolsPlugin
 from .utils.decorators import async_completions

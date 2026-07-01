@@ -3,8 +3,6 @@ import sublime_plugin
 
 from pathlib import Path
 
-from .utils.logging import logger
-
 __all__ = ["LatextoolsResetSettingsCommand"]
 
 class LatextoolsResetSettingsCommand(sublime_plugin.ApplicationCommand):

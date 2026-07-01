@@ -1,9 +1,6 @@
-import collections
-from functools import partial
 import threading
 import traceback
 
-import sublime
 import sublime_plugin
 
 from .latex_cite_completions import find_bib_files
