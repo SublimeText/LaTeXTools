@@ -138,7 +138,7 @@ class SystemCheckThread(threading.Thread):
         if build_env is not None:
             self.env.update({k: os.path.expandvars(v) for k, v in build_env.items()})
 
-        if (texpath := get_texpath(view)) is not None:
+        if (texpath := get_texpath(view)):
             self.env["PATH"] = texpath
 
         # prepand main tex document's location to all TeX related paths such as
