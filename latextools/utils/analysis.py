@@ -416,11 +416,13 @@ def analyze_document(tex_root):
 def _analyze_tex_file(
     tex_root,
     file_name=None,
-    process_file_stack=[],
+    process_file_stack=None,
     ana=None,
     import_path=None,
     only_preamble=False,
 ):
+    if process_file_stack is None:
+        process_file_stack = []
     # init ana and the file name
     if not ana:
         ana = Analysis(tex_root)
