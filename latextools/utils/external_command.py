@@ -39,6 +39,7 @@ import subprocess
 import sys
 from shutil import which
 from subprocess import PIPE, STDOUT, CalledProcessError, Popen, list2cmdline
+from typing import TYPE_CHECKING
 
 import sublime
 
