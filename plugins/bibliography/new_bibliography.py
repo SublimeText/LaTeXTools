@@ -158,7 +158,7 @@ class NewBibliographyPlugin(LaTeXToolsPlugin):
                 text = text.replace("\r\n", "\n").replace("\r", "\n")
 
                 # parse text
-                for key, entry in parser.parse(text).items():
+                for entry in parser.parse(text).values():
                     if entry.entry_type in excluded_types:
                         continue
 

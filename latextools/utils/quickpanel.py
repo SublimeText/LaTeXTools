@@ -238,7 +238,7 @@ class CancelEntriesQuickpanel(EntriesQuickpanel):
     """
 
     def __init__(self, *args):
-        super(CancelEntriesQuickpanel, self).__init__(*args)
+        super().__init__(*args)
 
         # add "Cancel" to the quickpanel
         # if it is pressed the initial viewport is restored

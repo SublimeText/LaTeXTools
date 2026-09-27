@@ -361,7 +361,7 @@ def _generate_entries(m, file_name, offset=0):
         }
     )
     # insert the regions of the matches into the entry dict
-    for k in m.groupdict().keys():
+    for k in m.groupdict():
         region_name = k + "_region"
         reg = m.regs[m.re.groupindex[k]]
         entryDict[region_name] = sublime.Region(offset + reg[0], offset + reg[1])

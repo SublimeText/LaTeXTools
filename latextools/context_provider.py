@@ -172,7 +172,7 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
             # if there is no \begin we are not inside the environment
             if not regions:
                 return False
-            closed_regions = len(list(r for r in view.find_all(eenv) if r.b < search_end))
+            closed_regions = len([r for r in view.find_all(eenv) if r.b < search_end])
             # if we have closed as many (or more?) environments as we opened
             # we are not inside the environment
             if len(regions) <= closed_regions:
@@ -217,7 +217,7 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
                 command_match = next(
                     c
                     for c in command_re.finditer(text)
-                    if c.start() < text_pos and text_pos < c.end()
+                    if c.start() < text_pos < c.end()
                 )
             except StopIteration:
                 break

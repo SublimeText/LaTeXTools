@@ -107,7 +107,7 @@ class TraditionalBuilder(PdfBuilder):
                 # if documents are opened and locked by viewer on Windows.
                 cmd.append(f"-output-directory={self.aux_directory_full}")
 
-            cmd += map(lambda o: f"-latexoption={o}", self.options)
+            cmd += (f"-latexoption={o}" for o in self.options)
 
             if self.job_name != self.base_name:
                 cmd.append(f'-jobname={self.job_name}')
@@ -119,7 +119,7 @@ class TraditionalBuilder(PdfBuilder):
             else:
                 cmd.append("--quiet")
 
-            cmd += map(lambda o: f'--tex-option="{o}"', self.options)
+            cmd += (f'--tex-option="{o}"' for o in self.options)
 
             if self.job_name != self.base_name:
                 cmd.append(f'--job-name={self.job_name}')

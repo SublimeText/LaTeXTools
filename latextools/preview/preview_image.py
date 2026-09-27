@@ -396,7 +396,7 @@ class ImagePreviewPhantomProvider:
             self.phantoms[i].region = regions[i]
 
     def _create_html_content(self, p):
-        iden = str(p.id)
+        str(p.id)
         if p.thumbnail_path is None:
             nav_tag = ""
             img_tag = """Image not found!"""

@@ -24,14 +24,14 @@ class BadboxLogRule(LogRule):
 
     @classmethod
     def process_text(cls, text: str) -> tuple[int, str]:
-        msg = re.split(r"\.$|\[\]|\n", text, 1, re.M)[0]
-        msg = re.sub(r"\s+", " ", msg, re.M)
+        msg = re.split(r"\.$|\[\]|\n", text, 1, re.MULTILINE)[0]
+        msg = re.sub(r"\s+", " ", msg, re.MULTILINE)
         msg = msg.replace("\n", "")
         msg = msg.strip()
         if len(msg) > cls.MAX_MSG:
             msg = msg[: cls.MAX_MSG] + "..."
 
-        if match := re.search(r"lines?\s*(\d+)", text.replace("\n", ""), re.M):
+        if match := re.search(r"lines?\s*(\d+)", text.replace("\n", ""), re.MULTILINE):
             line = int(match.group(1))
         else:
             line = 0
@@ -65,7 +65,7 @@ class ExceptionLogRule(LogRule):
             r"[ ]+([^\n]+)\n"         # command name
             r"(?:[ ]{3,}([^\n]+))?",  # command continuation (arguments)
             text,
-            re.M,
+            re.MULTILINE,
         )
         if ucs:
             msg, line, seq1, seq2 = ucs.groups()
@@ -76,14 +76,14 @@ class ExceptionLogRule(LogRule):
 
     @classmethod
     def any_exception(cls, text: str) -> tuple[int, str]:
-        msg = re.split(r"\.$", text, 1, re.M)[0]
-        msg = re.sub(r"\s+", " ", msg, re.M)
+        msg = re.split(r"\.$", text, 1, re.MULTILINE)[0]
+        msg = re.sub(r"\s+", " ", msg, re.MULTILINE)
         msg = msg.replace("\n", "")
         msg = msg.strip()
         if len(msg) > cls.MAX_MSG:
             msg = msg[: cls.MAX_MSG] + "..."
 
-        if match := re.search(r"^l\.(\d+)", text, re.M):
+        if match := re.search(r"^l\.(\d+)", text, re.MULTILINE):
             line = int(match.group(1))
         else:
             line = 0
@@ -107,15 +107,15 @@ class ErrorLogRule(LogRule):
 
     @classmethod
     def process_text(cls, text: str) -> tuple[int, str]:
-        msg = re.split(r"\.$", text, 1, re.M)[0]
-        msg = re.sub(r"\n(?:\(\S+\)[^\S\n]+)", r" ", msg, re.M)
-        msg = re.sub(r"\s+", " ", msg, re.M)
+        msg = re.split(r"\.$", text, 1, re.MULTILINE)[0]
+        msg = re.sub(r"\n(?:\(\S+\)[^\S\n]+)", r" ", msg, re.MULTILINE)
+        msg = re.sub(r"\s+", " ", msg, re.MULTILINE)
         msg = msg.replace("\n", "")
         msg = msg.strip()
         if len(msg) > cls.MAX_MSG:
             msg = msg[: cls.MAX_MSG] + "..."
 
-        if match := re.search(r"line\s*(\d+)", text.replace("\n", ""), re.M):
+        if match := re.search(r"line\s*(\d+)", text.replace("\n", ""), re.MULTILINE):
             line = int(match.group(1))
         else:
             line = 0

@@ -153,7 +153,7 @@ NEW_STYLE_CITE_REGEX = re.compile(
                 (?:lluf|trohs)?(?:ksam)?)|
             (?:(?P<prefix10>[^{},]*)\{yrtnebib)
         )\\""",
-    re.X,
+    re.VERBOSE,
 )
 
 
@@ -171,9 +171,9 @@ def match(rex, str):
 # the absolute filepaths of the bib files
 
 # known bibliography commands
-SINGLE_BIBCOMMANDS = set(["addbibresource", "addglobalbib", "addsectionbib"])
+SINGLE_BIBCOMMANDS = {"addbibresource", "addglobalbib", "addsectionbib"}
 
-MULTI_BIBCOMMANDS = set(["bibliography", "nobibliography"])
+MULTI_BIBCOMMANDS = {"bibliography", "nobibliography"}
 
 
 # filter for find_bib_files
@@ -220,7 +220,7 @@ def find_bib_files(root):
         # load the analysis
         doc = analysis.get_analysis(root)
         if not doc:
-            return tuple()
+            return ()
         # we use ALL_COMMANDS here as any flag will filter some command
         # we want to support
         flags = analysis.ALL_COMMANDS | analysis.ONLY_COMMANDS_WITH_ARGS
@@ -373,14 +373,14 @@ def run_plugin_command(command, *args, **kwargs):
                 logger.error(error_message)
                 raise BibPluginError(error_message)
             else:
-                raise e
+                raise
         except AttributeError as e:
             if f"'{command}'" in str(e):
                 error_message = f"{command} does not implement `{type(plugin).__name__}`"
                 logger.error(error_message)
                 raise BibPluginError(error_message)
             else:
-                raise e
+                raise
         except NotImplementedError:
             return None
 

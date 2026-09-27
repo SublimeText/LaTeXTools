@@ -4,7 +4,6 @@ import os
 import re
 from typing import TYPE_CHECKING
 
-
 if TYPE_CHECKING:
     from .pdf_builder import CommandGenerator
 
@@ -20,13 +19,13 @@ CITATIONS_REGEX = re.compile(
     (?: Citation\s+[`'].+'\s+(?:on\s+page\s+\d+\s+)?undefined
     | Empty\s+bibliography\s )
     """,
-    re.M | re.X,
+    re.MULTILINE | re.VERBOSE,
 )
 # Capture which program to run for BibLaTeX
 BIBLATEX_REGEX = re.compile(r"Package biblatex Warning: Please \(re\)run (\S*)")
 # Used to indicate a subdirectory that needs to be made for a file input using
 # \include
-FILE_WRITE_ERROR_REGEX = re.compile(r"! I can't write on file `(.*)/([^/']*)'", re.M)
+FILE_WRITE_ERROR_REGEX = re.compile(r"! I can't write on file `(.*)/([^/']*)'", re.MULTILINE)
 
 
 class BasicBuilder(PdfBuilder):

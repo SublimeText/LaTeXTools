@@ -186,9 +186,9 @@ def parse_cwl_file(
             continue
 
         if line[0] == "#":
-            if line.startswith("#keyvals") or line.startswith("#ifOption"):
+            if line.startswith(("#keyvals", "#ifOption")):
                 KEYVAL = True
-            if line.startswith("#endkeyvals") or line.startswith("#endif"):
+            if line.startswith(("#endkeyvals", "#endif")):
                 KEYVAL = False
             if line.startswith("#include:") and not KEYVAL:
                 cwl_dependencies.append(package_to_cwl(line[len("#include:") :].strip()))

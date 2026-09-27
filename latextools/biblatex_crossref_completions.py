@@ -21,7 +21,7 @@ VALUE_REGEX = r"(?!.*\})\s*(?P<ENTRIES>(?:,[^,]*)+\b)?\s*(?P<OPEN>\{)?(?P<EQUALS
 CROSSREF_REGEX = re.compile(VALUE_REGEX + r"crossref"[::-1] + r"\b", re.IGNORECASE)
 
 BIBLATEX_REGEX = re.compile(
-    VALUE_REGEX + r"(?:" + r"|".join((s[::-1] for s in ("xref", "related"))) + r")" + r"\b",
+    VALUE_REGEX + r"(?:" + r"|".join(s[::-1] for s in ("xref", "related")) + r")" + r"\b",
     re.IGNORECASE,
 )
 
@@ -30,7 +30,7 @@ ENTRY_SET_REGEX = re.compile(VALUE_REGEX + r"entryset"[::-1] + r"\b", re.IGNOREC
 XDATA_REGEX = re.compile(VALUE_REGEX + r"xdata"[::-1] + r"\b", re.IGNORECASE)
 
 # set indicating entries that have their own special handling...
-SPECIAL_ENTRIES = set(["@xdata", "@set"])
+SPECIAL_ENTRIES = {"@xdata", "@set"}
 
 
 def _get_keys_by_type(view, valid_types):
@@ -101,14 +101,14 @@ def get_text_to_cursor(view):
 # builds the replacement string depending on the current context of the line
 def _get_replacement(matcher, key):
     if not matcher.group("ENTRIES"):
-        return "{0}{1}{2}{3}".format(
+        return "{}{1}{}{3}".format(
             "" if matcher.group("EQUALS") else "= ",
             "" if matcher.group("OPEN") else "{",
             key,
             "" if matcher.group("OPEN") else "}",
         )
 
-    return "{0}{1}".format("," if matcher.group("ENTRIES")[0] != "," else "", key)
+    return "{}{1}".format("," if matcher.group("ENTRIES")[0] != "," else "", key)
 
 
 def get_completions_if_matches(regex, line, get_key_list_func, view):

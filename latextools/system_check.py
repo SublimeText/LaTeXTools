@@ -70,7 +70,7 @@ def tabulate(table, wrap_column=0, output=sys.stdout):
     # This is necessary for the syntax to work properly
     column_widths[-1] = len(table[0][-1])
     if wrap_column is not None and wrap_column > 0:
-        column_widths = [width if width <= wrap_column else wrap_column for width in column_widths]
+        column_widths = [min(width, wrap_column) for width in column_widths]
 
     headers = table.pop(0)
 
@@ -240,7 +240,7 @@ class SystemCheckThread(threading.Thread):
             if available:
                 basename, extension = os.path.splitext(location)
                 if extension is not None:
-                    location = "".join((basename, extension.lower()))
+                    location = f"{basename}{extension.lower()}"
 
             version_info = self.get_version_info(location) if available else None
 
@@ -266,7 +266,7 @@ class SystemCheckThread(threading.Thread):
         if available:
             basename, extension = os.path.splitext(location)
             if extension is not None:
-                location = "".join((basename, extension.lower()))
+                location = f"{basename}{extension.lower()}"
 
         version_info = self.get_version_info(location) if available else None
 
@@ -419,7 +419,7 @@ class SystemCheckThread(threading.Thread):
                             [
                                 "osascript",
                                 "-e",
-                                "POSIX path of " '(path to app id "com.apple.Preview")',
+                                'POSIX path of (path to app id "com.apple.Preview")',
                             ]
                         )
                     except subprocess.CalledProcessError:
@@ -435,7 +435,7 @@ class SystemCheckThread(threading.Thread):
                             [
                                 "osascript",
                                 "-e",
-                                "POSIX path of " '(path to app id "net.sourceforge.skim-app.skim")',
+                                'POSIX path of (path to app id "net.sourceforge.skim-app.skim")',
                             ]
                         )
                     except subprocess.CalledProcessError:
@@ -493,7 +493,7 @@ class SystemCheckThread(threading.Thread):
             stderr=subprocess.DEVNULL,
             stdout=subprocess.PIPE,
             timeout=30,
-            universal_newlines=True,
+            text=True,
         )
         return result.stdout if result.returncode == 0 else None
 

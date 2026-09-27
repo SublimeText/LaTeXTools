@@ -3,7 +3,7 @@ import re
 from string import Formatter
 
 TITLE_SEP = re.compile(r":|\.|\?")
-PREFIX_MATCH_KEYS = set(["keyword", "title", "author"])
+PREFIX_MATCH_KEYS = {"keyword", "title", "author"}
 
 formatter = Formatter()
 

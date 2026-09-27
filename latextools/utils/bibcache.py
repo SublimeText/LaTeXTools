@@ -23,7 +23,7 @@ class BibCache(cache.InstanceTrackingCache, cache.GlobalCache):
 
     def __init__(self, bib_plugin_name, bib_file):
         self._inst_name = (bib_plugin_name, bib_file)
-        super(BibCache, self).__init__()
+        super().__init__()
 
         file_hash = cache.hash_digest(bib_file)
         self.bib_file = bib_file

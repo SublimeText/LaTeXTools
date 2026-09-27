@@ -50,11 +50,13 @@ def _get_tex_searchpath(file_type):
     return None
 
 
-def _get_files_matching_extensions(paths, extensions=[]):
+def _get_files_matching_extensions(paths, extensions=None):
+    if extensions is None:
+        extensions = []
     if isinstance(extensions, str):
         extensions = [extensions]
 
-    matched_files = defaultdict(lambda: [])
+    matched_files = defaultdict(list)
 
     for path in paths.split(os.pathsep):
         # our current directory isn't usually meaningful from a WindowCommand
@@ -71,16 +73,16 @@ def _get_files_matching_extensions(paths, extensions=[]):
             for _, _, files in os.walk(path):
                 for f in files:
                     for ext in extensions:
-                        if f.endswith("".join((os.extsep, ext))):
+                        if f.endswith(f"{os.extsep}{ext}"):
                             matched_files[ext].append(os.path.splitext(f)[0])
         else:
             for _, _, files in os.walk(path):
                 for f in files:
                     matched_files["*"].append(os.path.splitext(f)[0])
 
-    matched_files = dict(
-        [(key, sorted(set(value), key=lambda s: s.lower())) for key, value in matched_files.items()]
-    )
+    matched_files = {
+        key: sorted(set(value), key=lambda s: s.lower()) for key, value in matched_files.items()
+    }
 
     return matched_files
 

@@ -108,7 +108,7 @@ def _update_gs_version():
             return
 
         if _GS_COMMAND is None:
-            return None
+            return
 
         try:
             raw_version = check_output([_GS_COMMAND, "-version"])
@@ -118,7 +118,7 @@ def _update_gs_version():
         except Exception:
             logger.error(f"Error finding Ghostscript version for {_GS_COMMAND}")
             traceback.print_exc()
-            return None
+            return
 
 
 # broken out to be called from system_check

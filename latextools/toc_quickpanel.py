@@ -55,7 +55,7 @@ class show_toc_quickpanel(quickpanel.CancelEntriesQuickpanel):
 
         self.__only_sec = True
         # init the superclass with a copy of the section elements
-        super(show_toc_quickpanel, self).__init__(list(caption_secs), list(secs))
+        super().__init__(list(caption_secs), list(secs))
 
         # story necessary fields
         self.__secs = secs

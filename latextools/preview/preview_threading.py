@@ -134,7 +134,7 @@ def _start_threads(name, thread_id):
 def start_threads(name, thread_id):
     _start_threads(name, thread_id)
 
-    visited = set([name])
+    visited = {name}
 
     while True:
         new_name = None

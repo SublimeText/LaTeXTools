@@ -66,7 +66,7 @@ def _post_process_path_only(completions):
     added = set()
     for t in completions:
         try:
-            relpath, file_name = t
+            relpath, _file_name = t
         except Exception:
             continue
         if relpath == "." or relpath in added:
@@ -153,7 +153,7 @@ def latextools_plugin_loaded():
     )
 
     global _TEX_INPUT_GROUP_MAPPING, TEX_INPUT_FILE_REGEX
-    _TEX_INPUT_GROUP_MAPPING = dict((i, v) for i, v in enumerate(_fillall_entries))
+    _TEX_INPUT_GROUP_MAPPING = {i: v for i, v in enumerate(_fillall_entries)}
     TEX_INPUT_FILE_REGEX = re.compile(rf"(?:{'|'.join(entry['regex'] for entry in _fillall_entries)})")
 
 
@@ -161,31 +161,27 @@ def latextools_plugin_loaded():
 def get_file_list(
     root,
     types,
-    filter_exts=[],
+    filter_exts=None,
     base_path=None,
     output_directory=None,
     aux_directory=None,
 ):
+    if filter_exts is None:
+        filter_exts = []
     if not base_path:
         base_path = os.path.dirname(root)
 
     def file_match(f):
-        filename, extname = os.path.splitext(f)
+        _filename, extname = os.path.splitext(f)
         # ensure file has extension and its in the list of types
-        if extname and not extname[1:].lower() in types:
-            return False
-
-        return True
+        return not (extname and not extname[1:].lower() in types)
 
     def dir_match(d):
         _d = os.path.realpath(os.path.join(dir_name, d))
-        if _d in handled_directories or _d == output_directory or _d == aux_directory:
-            return False
-
-        return True
+        return not (_d in handled_directories or _d == output_directory or _d == aux_directory)
 
     completions = []
-    handled_directories = set([])
+    handled_directories = set()
     for dir_name, dirs, files in os.walk(base_path, followlinks=True):
         handled_directories.add(os.path.realpath(dir_name))
         files = [f for f in files if f[0] != "." and file_match(f)]

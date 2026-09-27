@@ -35,7 +35,7 @@ class SumatraViewer(BaseViewer):
             ) as hndl:
                 SumatraViewer._sumatra_exe = winreg.QueryValue(hndl, "")
                 return SumatraViewer._sumatra_exe
-        except WindowsError:
+        except OSError:
             pass
 
         paths = [

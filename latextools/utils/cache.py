@@ -38,7 +38,6 @@ TIME_RE = re.compile(
 class CacheMiss(Exception):
     """exception to indicate that the cache file is missing"""
 
-    pass
 
 
 def hash_digest(text):
@@ -205,9 +204,9 @@ class Cache:
     def __new__(cls, *args, **kwargs):
         # don't allow this class to be instantiated directly
         if cls is Cache:
-            raise NotImplemented
+            raise NotImplementedError
 
-        return super(Cache, cls).__new__(cls)
+        return super().__new__(cls)
 
     def __init__(self):
         # initialize state but ONLY if it hasn't already been initialized
@@ -335,7 +334,7 @@ class Cache:
 
         with self._write_lock:
             if key is None:
-                for k in self._objects.keys():
+                for k in self._objects:
                     _invalidate(k)
             else:
                 if isinstance(key, str):
@@ -421,7 +420,7 @@ class Cache:
 
                 if _objs:
                     os.makedirs(self.cache_path, exist_ok=True)
-                    for k in _objs.keys():
+                    for k in _objs:
                         try:
                             self._write(k, _objs)
                         except Exception:
@@ -499,14 +498,14 @@ class GlobalCache(Cache):
 
     def __new__(cls, *args, **kwargs):
         # almost-singleton implementation; all instances share the same state
-        inst = super(GlobalCache, cls).__new__(cls, *args, **kwargs)
+        inst = super().__new__(cls, *args, **kwargs)
         inst.__dict__ = cls.__STATE
         return inst
 
     def invalidate(self, key):
         if key is None:
             raise ValueError("key must not be None")
-        super(GlobalCache, self).invalidate(key)
+        super().invalidate(key)
 
 
 class ValidatingCache(Cache):
@@ -521,9 +520,9 @@ class ValidatingCache(Cache):
     def __new__(cls, *args, **kwargs):
         # don't allow this class to be instantiated directly
         if cls is ValidatingCache:
-            raise NotImplemented
+            raise NotImplementedError
 
-        return super(ValidatingCache, cls).__new__(cls, *args, **kwargs)
+        return super().__new__(cls, *args, **kwargs)
 
     def validate_on_get(self, key):
         """
@@ -550,7 +549,7 @@ class ValidatingCache(Cache):
             self.invalidate()
             raise CacheMiss(str(e))
 
-        return super(ValidatingCache, self).get(key)
+        return super().get(key)
 
     def set(self, key, obj):
         if key is None:
@@ -558,7 +557,7 @@ class ValidatingCache(Cache):
 
         self.validate_on_set(key, obj)
 
-        return super(ValidatingCache, self).set(key, obj)
+        return super().set(key, obj)
 
 
 class InstanceTrackingCache(Cache):
@@ -577,20 +576,20 @@ class InstanceTrackingCache(Cache):
     subclasses MUST implement the _get_inst_key method
     """
 
-    _CLASSES = set([])
+    _CLASSES = set()
 
     def __new__(cls, *args, **kwargs):
         if cls is InstanceTrackingCache:
-            raise NotImplemented
+            raise NotImplementedError
 
         InstanceTrackingCache._CLASSES.add(cls)
 
         if not hasattr(cls, "_INSTANCES"):
-            cls._INSTANCES = collections.defaultdict(lambda: {})
+            cls._INSTANCES = collections.defaultdict(dict)
             cls._REF_COUNTS = collections.defaultdict(lambda: 0)
             cls._LOCKS = collections.defaultdict(lambda: threading.Lock())
 
-        inst = super(InstanceTrackingCache, cls).__new__(cls, *args, **kwargs)
+        inst = super().__new__(cls, *args, **kwargs)
         inst_key = inst._get_inst_key(*args, **kwargs)
 
         with cls._LOCKS[inst_key]:
@@ -621,7 +620,7 @@ class InstanceTrackingCache(Cache):
                 key derived in #1 can be derived in this case from information
                 stored in the object
         """
-        raise NotImplemented
+        raise NotImplementedError
 
     # ensure the cache is written to disk when LAST copy of this instance is
     # removed
@@ -662,7 +661,7 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
 
     def __init__(self, tex_root):
         self.tex_root = tex_root
-        super(LocalCache, self).__init__()
+        super().__init__()
 
     def validate_on_get(self, key):
         try:
@@ -686,7 +685,7 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
             return self.tex_root
 
     def _get_cache_path(self):
-        cache_path = super(LocalCache, self)._get_cache_path()
+        cache_path = super()._get_cache_path()
         root_hash = hash_digest(self.tex_root)
         return os.path.join(cache_path, LOCAL_CACHE_FOLDER, root_hash)
 
@@ -697,10 +696,7 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
         cache_life_span = LocalCache._get_cache_life_span()
 
         current_time = int(time.time())
-        if timestamp + cache_life_span < current_time:
-            return False
-
-        return True
+        return not timestamp + cache_life_span < current_time
 
     @classmethod
     def _get_cache_life_span(cls):
@@ -723,7 +719,7 @@ class LocalCache(ValidatingCache, InstanceTrackingCache):
                     # sum the converted times
                     # if not specified (None) use 0
                     return sum(int(t[0] or 0) * t[1] for t in times)
-                except Exception as e:
+                except Exception:
                     logger.error(f"error parsing cache.life_span: {life_span_str}")
                     # default 30 minutes in seconds
                     return 1800

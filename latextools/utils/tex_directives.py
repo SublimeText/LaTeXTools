@@ -17,7 +17,7 @@ TEX_DIRECTIVE = re.compile(r"%+\s*![Tt][Ee][Xx]\s+([\w-]+)\s*=\s*(.*?)\s*$")
 LATEX_COMMAND = re.compile(r"\\[a-zA-Z]+\*?(?:\[[^\]]+\])*\{[^\}]+\}")
 
 
-def parse_tex_directives(view_or_path, multi_values=[], key_maps={}, only_for=[]):
+def parse_tex_directives(view_or_path, multi_values=None, key_maps=None, only_for=None):
     """
     Parses a view or file for any %!TEX directives
 
@@ -37,6 +37,12 @@ def parse_tex_directives(view_or_path, multi_values=[], key_maps={}, only_for=[]
                             multi_values are specified, this will exit once
                             a match is found
     """
+    if only_for is None:
+        only_for = []
+    if key_maps is None:
+        key_maps = {}
+    if multi_values is None:
+        multi_values = []
     result = {}
 
     # used to indicate if we opened a file so it can be closed
@@ -46,7 +52,7 @@ def parse_tex_directives(view_or_path, multi_values=[], key_maps={}, only_for=[]
     elif isinstance(view_or_path, str):
         try:
             lines = codecs.open(view_or_path, "r", "utf-8", "ignore")
-        except IOError:
+        except OSError:
             # fail (relatively) silently if view_or_path is not a valid path
             logger.error(f"Caught IOError while handling {view_or_path} as file")
             traceback.print_exc()

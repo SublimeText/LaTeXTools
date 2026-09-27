@@ -20,7 +20,7 @@ NAME_FIELDS = Name.NAME_FIELDS
 VALUE_REGEX = r"[\s~]*(?P<ENTRIES>(?:dna[\s~]+.+)+)?[\s~]*(?P<OPEN>\{)?(?P<EQUALS>\s*=\s*)?"
 
 ON_NAME_FIELD_REGEX = re.compile(
-    VALUE_REGEX + r"(?:" + r"|".join((s[::-1] for s in NAME_FIELDS)) + r")\b", re.IGNORECASE
+    VALUE_REGEX + r"(?:" + r"|".join(s[::-1] for s in NAME_FIELDS) + r")\b", re.IGNORECASE
 )
 
 
@@ -39,18 +39,17 @@ def _get_replacement(matcher, key):
     if not matcher.group("ENTRIES"):
         equals = matcher.group("EQUALS")
 
-        return "{0}{1}{2}".format(
+        return "{}{1}{}".format(
             "" if equals else "= " if match.startswith(" ") else " = ",
             "" if matcher.group("OPEN") else "{" if not equals or match.startswith(" ") else " {",
-            key,
-        )
+            )
 
     if matcher.group("ENTRIES").startswith("dna"):
         if match.startswith(" "):
             return str(key)
         return f" {key}"
     else:
-        return "{0}{1}".format(" " if matcher.group("ENTRIES").startswith(" ") != " " else "", key)
+        return "{}{1}".format(" " if matcher.group("ENTRIES").startswith(" ") != " " else "", key)
 
 
 NAME_FIELD_REGEX = re.compile(

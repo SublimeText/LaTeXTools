@@ -386,7 +386,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
         tex_root = get_tex_root(view)
         if not tex_root:
-            sublime.error_message(f"Main TeX file not found.")
+            sublime.error_message("Main TeX file not found.")
             return
         if not os.path.isfile(tex_root):
             sublime.error_message(f"{tex_root}: file not found.")
@@ -501,7 +501,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
         options = set(options) | set(tex_options)
         # filter out separately handled options
-        options -= set(("--aux-directory", "--output-directory", "--jobname"))
+        options -= {"--aux-directory", "--output-directory", "--jobname"}
         options = sorted(options)
 
         # Create custom environmnent with "env" from sublime-build or
