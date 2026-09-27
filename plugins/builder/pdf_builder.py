@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 import sublime
 
 from ...latextools.latextools_plugin import LaTeXToolsPlugin
-from ...latextools.utils.external_command import PIPE, STDOUT, Popen, external_command
+from ...latextools.utils.external_command import PIPE, STDOUT, Popen, external_command, shell_quote
 from ...latextools.utils.logging import logger
 
 if TYPE_CHECKING:
@@ -311,6 +311,39 @@ class PdfBuilder(LaTeXToolsPlugin):
             jobname=self.job_name,
             engine=self.engine,
             **custom_vars,
+        )
+
+    def expandvarsquoted(self, text: str, **custom_vars: str) -> str:
+        """
+        Expand variables in text.
+
+        Expanded variables are quoted, when containing unsafe characters
+        to avoid command injection in POSIX shells and ensure them to be
+        treated as single argument in any command line.
+
+        This method targets command line string creation, which requires
+        individual quoting of replaced elements.
+
+        :param text:
+            The text to expand `$variables` in.
+
+        :returns:
+            A string with all known variables expanded.
+        """
+        escaped_vars = {k: shell_quote(v) for k, v in custom_vars}
+
+        return Template(text).safe_substitute(
+            eol="",  # a dummy to be used to prevent automatic base_name appending
+            file=shell_quote(self.tex_root),
+            file_path=shell_quote(self.tex_dir),
+            file_name=shell_quote(self.tex_name),
+            file_ext=shell_quote(self.tex_ext),
+            file_base_name=shell_quote(self.base_name),
+            output_directory=shell_quote(self.output_directory_full),
+            aux_directory=shell_quote(self.aux_directory_full),
+            jobname=shell_quote(self.job_name),
+            engine=shell_quote(self.engine),
+            **escaped_vars,
         )
 
     def copy_assets_to_output(self) -> None:

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from functools import partial
-from subprocess import list2cmdline
 from typing import TYPE_CHECKING
 
 import sublime
@@ -9,6 +8,7 @@ import sublime
 if TYPE_CHECKING:
     from .pdf_builder import CommandGenerator
 
+from ...latextools.utils.external_command import shell_quote
 from .pdf_builder import PdfBuilder
 
 __all__ = ["ScriptBuilder"]
@@ -43,14 +43,16 @@ class ScriptBuilder(PdfBuilder):
         if isinstance(cmds, str):
             cmds = [cmds]
         if not isinstance(cmds, list):
-            raise ValueError("Invalid script type! 'script_commands' must be a 'str' or 'list'!")
+            raise TypeError("Invalid script type! 'script_commands' must be a 'str' or 'list'!")
 
         for cmd in cmds:
             if isinstance(cmd, str):
-                expanded_cmd = self.expandvars(cmd)
+                expanded_cmd = self.expandvarsquoted(cmd)
                 if expanded_cmd == cmd:
-                    expanded_cmd += f' "{self.base_name}"'
+                    expanded_cmd += " " + shell_quote(self.base_name)
                 cmd = expanded_cmd
+
+                yield (cmd, f"Running '{cmd}'...")
 
             elif isinstance(cmd, list):
                 replaced_var = False
@@ -60,9 +62,9 @@ class ScriptBuilder(PdfBuilder):
                     cmd[i] = expanded_arg
                 if not replaced_var:
                     cmd.append(self.base_name)
-                cmd = list2cmdline(cmd)
+
+                cmd_msg = " ".join(cmd)
+                yield (cmd, f"Running '{cmd_msg}'...")
 
             else:
-                raise ValueError(f"Invalid command type! '{cmd}' must be a 'str' or 'list'!")
-
-            yield (cmd, f"Running '{cmd}'...")
+                raise TypeError(f"Invalid command type! '{cmd!r}' must be a 'str' or 'list'!")
