@@ -274,6 +274,8 @@ It is especially important to ensure TeX and friends do not stop for user input.
 
 Each command can use [variables](#expandable-variables) which will be expanded before it is executed.
 
+For security reasons expanded variables are automatically quoted in command line strings. For instance `$jobname` expands to single quoted `'possibly $dangerous name'` on MacOS/Linux and double quoted on Windows, when containing spaces.
+
 **Note:** If none of these variables occur in a command string, the `$file_base_name` will be appended. This may mean that a wrapper script is needed if, for example, using `make`
 
 Commands are executed in the same path as `$file_path`, i.e. the folder containing the main document. Note, however, on Windows, since commands are launched using `cmd.exe`, you need to be careful if your root document is opened via a UNC path (this doesn't apply if you are simply using a mapped drive). `cmd.exe` doesn't support having the current working directory set to a UNC path and will change the path to `%SYSTEMROOT%`. In such a case, just ensure all the paths you specify are absolute paths and use `pushd` in place of `cd`, as this will create a (temporary) drive mapping.
@@ -294,12 +296,12 @@ The following workaround can be used to run BibTeX _inside_ the output / auxilia
 	"builder_settings": {
 		"linux": {
 			"script_commands": [
-				"cd $output_directory; bibtex \"$file_base_name\"",
+				"cd $output_directory; bibtex $file_base_name",
 			]
 		},
 		"windows": {
 			"script_commands": [
-				"cd $output_directory & bibtex \"$file_base_name\""
+				"cd $output_directory & bibtex $file_base_name"
 			]
 		}
 	}
@@ -315,10 +317,10 @@ If jobname behaviour is used, `$jobname` is to be passed to relevant commands. I
 	"builder_settings": {
 		"osx": {
 			"script_commands": [
-				"pdflatex -synctex=1 -interaction=nonstopmode -jobname=$jobname \"$file_base_name\"",
+				"pdflatex -synctex=1 -interaction=nonstopmode -jobname=$jobname $file_base_name",
 				"bibtex $jobname",
-				"pdflatex -synctex=1 -interaction=nonstopmode -jobname=$jobname \"$file_base_name\"",
-				"pdflatex -synctex=1 -interaction=nonstopmode -jobname=$jobname \"$file_base_name\""
+				"pdflatex -synctex=1 -interaction=nonstopmode -jobname=$jobname $file_base_name",
+				"pdflatex -synctex=1 -interaction=nonstopmode -jobname=$jobname $file_base_name"
 			]
 		}
 	}
@@ -573,7 +575,7 @@ Document location is assigned to `TEXMFDOTDIR`, which is prepended to all path e
 
 #### Expandable Variables
 
-The `PdfBuilder` defines an `expandvars(template: str)` method, which can be called to expand following variables in strings.
+The `PdfBuilder` defines `expandvars(template: str)` and `expandvarsquoted(template: str)` methods, which can be called to expand following variables in strings and optionally apply shell quoting.
 
 | Variable            | Description
 |---------------------|------------------------------------------------------------------------------------

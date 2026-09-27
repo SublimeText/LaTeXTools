@@ -34,11 +34,11 @@ from __future__ import annotations
 
 import os
 import re
+import shlex
 import subprocess
-from shlex import quote
+import sys
 from shutil import which
-from subprocess import PIPE, STDOUT, CalledProcessError, Popen
-from typing import TYPE_CHECKING
+from subprocess import PIPE, STDOUT, CalledProcessError, Popen, list2cmdline
 
 import sublime
 
@@ -62,6 +62,15 @@ __all__ = [
 ]
 
 __sentinel__ = object()
+
+IS_WIN = sys.platform == "win32"
+
+
+def shell_quote(s: str) -> str:
+    if IS_WIN:
+        s = re.sub(r"([&|<>?*])", R"^\1", s)
+        return '"' + s.replace('"', '""') + '"' if " " in s else s
+    return shlex.quote(s)
 
 
 def get_texpath(view: sublime.View | None = None) -> str | None:
@@ -131,7 +140,7 @@ def external_command(
 
     # Windows-specific adjustments
     startupinfo = None
-    if not show_window and sublime.platform() == "windows":
+    if IS_WIN and not show_window:
         # ensure console window doesn't show
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -146,28 +155,48 @@ def external_command(
     if stderr is __sentinel__:
         stderr = None
 
-    if isinstance(cmd, str):
-        logger.debug(f'Running "{cmd}"')
-    else:
-        try:
-            logger.debug('Running "%s"', " ".join(map(quote, cmd)))
-        except UnicodeError:
-            try:
-                logger.debug(f'Running "{cmd}"')
-            except Exception:
-                pass
+    if shell:
+        if IS_WIN:
+            if isinstance(cmd, list):
+                cmd = list2cmdline(cmd)
+            elif not isinstance(cmd, str):
+                raise TypeError(f"Invalid command type! '{cmd!r}' must be a 'str' or 'list'!")
+
+            # make sure to run scripts with %SYSTEMROOT%\System32\cmd.exe
+            comspec = os.path.join(os.environ.get("SystemRoot", ""), "System32", "cmd.exe")
+            if not os.path.isabs(comspec):
+                raise FileNotFoundError("cmd.exe not found!")
+
+            cmd = f'{comspec} /c "{cmd}"'
+
+        else:
+            if isinstance(cmd, list):
+                cmd = shlex.join(cmd)
+            elif not isinstance(cmd, str):
+                raise TypeError(f"Invalid command type! '{cmd!r}' must be a 'str' or 'list'!")
+
+            # run scripts using bash on all platforms
+            if sys.platform == "darwin":
+                # use login-shell to ensure users' env variables are picked up
+                # (borrowed from Default/exec.py)
+                cmd = ["/usr/bin/env", "bash", "-l", "-c", cmd]
+            else:
+                cmd = ["/usr/bin/env", "bash", "-c", cmd]
 
     # If shell=False is specified, executed command is only looked up using
     # os.environ["PATH"]. Hence manually resolve location with custom env's PATH.
-    if env and not shell and not os.path.isabs(cmd[0]):
+    elif isinstance(cmd, list) and env and not os.path.isabs(cmd[0]):
         cmd[0] = which(cmd[0], path=env.get("PATH")) or cmd[0]
+
+    logger.debug(f"Running {cmd}")
 
     return Popen(
         cmd,
         cwd=cwd,
         env=env,
+        bufsize=0,
         preexec_fn=preexec_fn,
-        shell=shell,
+        shell=False,
         startupinfo=startupinfo,
         stderr=stderr,
         stdin=stdin,
