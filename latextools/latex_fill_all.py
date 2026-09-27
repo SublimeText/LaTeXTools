@@ -5,17 +5,16 @@ import traceback
 import sublime
 import sublime_plugin
 
-from .latextools_plugin import get_plugins_by_type
-from .latextools_plugin import LaTeXToolsPlugin
+from .latextools_plugin import LaTeXToolsPlugin, get_plugins_by_type
 from .utils.decorators import async_completions
 from .utils.logging import logger
 from .utils.settings import get_setting
 
 __all__ = [
     "LatexFillAllEventListener",
-    "LatextoolsFillAllCommand",
     "LatexToolsFillAllCompleteBracket",
     "LatexToolsReplaceWord",
+    "LatextoolsFillAllCommand",
 ]
 
 VISIBLE_OVERLAYS = set()

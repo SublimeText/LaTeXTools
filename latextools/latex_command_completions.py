@@ -1,19 +1,14 @@
 import os
 import re
+
 import sublime
 import sublime_plugin
 
 from . import latex_input_completions
-
-from .latex_cite_completions import NEW_STYLE_CITE_REGEX
-from .latex_cite_completions import OLD_STYLE_CITE_REGEX
-from .latex_cwl_completions import command_to_snippet
-from .latex_cwl_completions import get_cwl_command_completions
-from .latex_env_completions import BEGIN_END_BEFORE_REGEX
-from .latex_env_completions import get_own_environments
-from .latex_ref_completions import NEW_STYLE_REF_REGEX
-from .latex_ref_completions import OLD_STYLE_REF_REGEX
-
+from .latex_cite_completions import NEW_STYLE_CITE_REGEX, OLD_STYLE_CITE_REGEX
+from .latex_cwl_completions import command_to_snippet, get_cwl_command_completions
+from .latex_env_completions import BEGIN_END_BEFORE_REGEX, get_own_environments
+from .latex_ref_completions import NEW_STYLE_REF_REGEX, OLD_STYLE_REF_REGEX
 from .utils import analysis
 from .utils.decorators import async_completions
 from .utils.settings import get_setting

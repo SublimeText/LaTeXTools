@@ -18,17 +18,15 @@ At present, there is one supported method on custom plugins.
 
 import os
 import re
+
 import sublime
 
 from ..plugins.bibliography import *  # register internal bibliography plugins
 from .latex_fill_all import LatexFillAllPlugin
-from .latextools_plugin import get_plugin
-from .latextools_plugin import NoSuchPluginException
-from .utils import analysis
-from .utils import bibformat
+from .latextools_plugin import NoSuchPluginException, get_plugin
+from .utils import analysis, bibformat
 from .utils.cache import cache_local
-from .utils.external_command import CalledProcessError
-from .utils.external_command import check_output
+from .utils.external_command import CalledProcessError, check_output
 from .utils.logging import logger
 from .utils.settings import get_setting
 from .utils.tex_directives import get_tex_root

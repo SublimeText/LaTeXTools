@@ -1,7 +1,7 @@
 import sublime_plugin
 
-from .utils.settings import get_setting
 from .utils.is_tex_file import is_tex_file
+from .utils.settings import get_setting
 
 __all__ = ["TeXSyntaxListener"]
 

@@ -1,10 +1,10 @@
 import os
 import re
+
 import sublime
 
 from .latex_cwl_completions import get_cwl_env_completions
 from .latex_fill_all import LatexFillAllPlugin
-
 from .utils import analysis
 from .utils.settings import get_setting
 from .utils.tex_directives import get_tex_root

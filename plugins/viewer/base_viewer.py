@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from typing import cast
 
 from ...latextools.latextools_plugin import LaTeXToolsPlugin

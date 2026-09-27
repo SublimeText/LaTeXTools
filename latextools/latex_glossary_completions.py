@@ -1,4 +1,5 @@
 import re
+
 import sublime
 
 from .latex_fill_all import LatexFillAllPlugin

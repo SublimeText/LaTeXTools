@@ -3,8 +3,7 @@ import traceback
 
 import sublime_plugin
 
-from .latex_cite_completions import find_bib_files
-from .latex_cite_completions import run_plugin_command
+from .latex_cite_completions import find_bib_files, run_plugin_command
 from .latex_cwl_completions import get_cwl_command_completions
 from .utils import analysis
 from .utils.activity_indicator import ActivityIndicator
@@ -14,9 +13,9 @@ from .utils.settings import get_setting
 from .utils.tex_directives import get_tex_root
 
 __all__ = [
-    "LatextoolsCacheUpdateListener",
     "LatextoolsAnalysisUpdateCommand",
     "LatextoolsBibcacheUpdateCommand",
+    "LatextoolsCacheUpdateListener",
 ]
 
 # stores a cache instance per open LaTeX view

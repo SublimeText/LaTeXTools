@@ -1,14 +1,13 @@
 import itertools
 import os
-import regex
-import sublime
 import traceback
-
 from collections.abc import Iterable
 from functools import partial
 
-from ...vendor.frozendict import frozendict
+import regex
+import sublime
 
+from ...vendor.frozendict import frozendict
 from . import utils
 from .cache import cache_local
 from .logging import logger

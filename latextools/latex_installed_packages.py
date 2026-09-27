@@ -1,18 +1,14 @@
-# -*- coding:utf-8 -*-
-import os
 import json
-
-from collections import defaultdict
-
-from functools import partial
+import os
 import threading
 import traceback
+from collections import defaultdict
+from functools import partial
 
 import sublime
 import sublime_plugin
 
-from .utils.external_command import CalledProcessError
-from .utils.external_command import check_output
+from .utils.external_command import CalledProcessError, check_output
 from .utils.logging import logger
 
 __all__ = ["LatextoolsGenPkgCacheCommand"]

@@ -2,8 +2,7 @@ import sublime_plugin
 
 from .utils.logging import logger
 from .utils.settings import get_setting
-from .utils.tex_directives import get_tex_root
-from .utils.tex_directives import parse_tex_directives
+from .utils.tex_directives import get_tex_root, parse_tex_directives
 
 try:  # check whether the dictionaries package is installed
     import Dictionaries

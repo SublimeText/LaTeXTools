@@ -1,11 +1,9 @@
 import os
 import time
 
-from . import bibformat
-from . import cache
-from .settings import get_setting
-
 from ...vendor.frozendict import frozendict
+from . import bibformat, cache
+from .settings import get_setting
 
 _VERSION = 2
 

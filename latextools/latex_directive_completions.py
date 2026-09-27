@@ -7,8 +7,7 @@ import sublime_plugin
 from . import detect_spellcheck
 from .latex_fill_all import LatexFillAllPlugin
 from .utils.decorators import async_completions
-from .utils.is_tex_file import get_tex_extensions
-from .utils.is_tex_file import is_tex_file
+from .utils.is_tex_file import get_tex_extensions, is_tex_file
 from .utils.settings import get_setting
 
 try:

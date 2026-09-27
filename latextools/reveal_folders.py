@@ -4,8 +4,7 @@ import sublime
 import sublime_plugin
 
 from .utils.logging import logger
-from .utils.output_directory import get_aux_directory
-from .utils.output_directory import get_output_directory
+from .utils.output_directory import get_aux_directory, get_output_directory
 from .utils.settings import get_setting
 from .utils.tex_directives import get_tex_root
 

@@ -7,9 +7,8 @@ import sublime
 from .latex_fill_all import LatexFillAllPlugin
 from .utils import analysis
 from .utils.is_tex_file import get_tex_extensions
-from .utils.output_directory import get_aux_directory
-from .utils.output_directory import get_output_directory
 from .utils.logging import logger
+from .utils.output_directory import get_aux_directory, get_output_directory
 from .utils.settings import get_setting
 from .utils.tex_directives import get_tex_root
 

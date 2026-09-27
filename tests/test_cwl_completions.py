@@ -1,8 +1,10 @@
 from __future__ import annotations
+
 from unittest import TestCase
 
 from LaTeXTools.latextools.latex_cwl_completions import command_to_snippet
-from ._data_decorator import data_decorator, data
+
+from ._data_decorator import data, data_decorator
 
 
 @data_decorator

@@ -5,8 +5,6 @@ import urllib.request
 
 import sublime
 import sublime_plugin
-
-
 from Default.open_context_url import rex as url_regex
 
 from .utils import analysis

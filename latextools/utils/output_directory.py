@@ -1,18 +1,17 @@
 from __future__ import annotations
+
 import hashlib
 import json
 import os
-import sublime
 import tempfile
+
+import sublime
 
 from .distro_utils import using_miktex
 from .logging import logger
-from .settings import get_setting
-from .settings import global_settings
-from .sublime_utils import get_project_data
-from .sublime_utils import get_project_file_name
-from .tex_directives import get_tex_root
-from .tex_directives import parse_tex_directives
+from .settings import get_setting, global_settings
+from .sublime_utils import get_project_data, get_project_file_name
+from .tex_directives import get_tex_root, parse_tex_directives
 
 
 # raised whenever the root cannot be determined, which indicates an unsaved

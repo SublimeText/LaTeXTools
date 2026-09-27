@@ -1,11 +1,10 @@
 from __future__ import annotations
-import os
-import shlex
-import shutil
-import sublime
 
+import shlex
 from logging import DEBUG
 from typing import TYPE_CHECKING
+
+import sublime
 
 from ...latextools.utils.logging import logger
 

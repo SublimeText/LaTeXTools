@@ -1,7 +1,8 @@
 import os
-import sublime
 import sys
 import traceback
+
+import sublime
 
 try:
     import winreg
@@ -12,7 +13,6 @@ except ImportError:
 from ...latextools.utils.external_command import external_command
 from ...latextools.utils.logging import logger
 from ...latextools.utils.settings import get_setting
-
 from .base_viewer import BaseViewer
 
 __all__ = ["SumatraViewer"]

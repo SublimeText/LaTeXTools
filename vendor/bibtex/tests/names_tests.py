@@ -1,7 +1,7 @@
 # coding=utf-8
-from ..names import tokenize_name, Name, NameResult
-
 import unittest
+
+from ..names import Name, NameResult, tokenize_name
 
 
 class TestTokenizeName(unittest.TestCase):

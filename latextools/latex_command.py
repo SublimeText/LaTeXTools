@@ -1,7 +1,8 @@
 # ST2/ST3 compat
+import re
+
 import sublime
 import sublime_plugin
-import re
 
 __all__ = ["LatextoolsLatexCmdCommand"]
 

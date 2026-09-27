@@ -1,19 +1,20 @@
 from __future__ import annotations
-from pathlib import Path
-from typing import cast
+
 import shutil
 import stat
+from pathlib import Path
+from typing import cast
+
 import sublime
 import sublime_plugin
 
 from ...latextools.utils import sublime_utils as st_utils
-from ...latextools.utils.external_command import external_command, check_call, Popen
+from ...latextools.utils.external_command import Popen, check_call, external_command
 from ...latextools.utils.logging import logger
 from ...latextools.utils.settings import get_setting
-
 from .base_viewer import BaseViewer
 
-__all__ = ["LatextoolsDbusViewerListener", "EvinceViewer", "XreaderViewer"]
+__all__ = ["EvinceViewer", "LatextoolsDbusViewerListener", "XreaderViewer"]
 
 
 # let registered processes survife module reloading

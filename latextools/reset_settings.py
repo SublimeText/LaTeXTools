@@ -1,7 +1,7 @@
+from pathlib import Path
+
 import sublime
 import sublime_plugin
-
-from pathlib import Path
 
 __all__ = ["LatextoolsResetSettingsCommand"]
 

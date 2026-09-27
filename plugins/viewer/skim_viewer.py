@@ -1,12 +1,11 @@
 from __future__ import annotations
-import stat
-import sublime
 
+import stat
 from pathlib import Path
 
-from ...latextools.utils.external_command import check_output
-from ...latextools.utils.external_command import external_command
+import sublime
 
+from ...latextools.utils.external_command import check_output, external_command
 from .base_viewer import BaseViewer
 
 __all__ = ["SkimViewer"]

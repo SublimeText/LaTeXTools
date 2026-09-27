@@ -1,11 +1,7 @@
-from inspect import currentframe
-
 import sublime_plugin
 
 from ..utils.decorators import debounce
-
-from .preview_image import ImagePreviewHoverListener
-from .preview_image import ImagePreviewPhantomProvider
+from .preview_image import ImagePreviewHoverListener, ImagePreviewPhantomProvider
 from .preview_math import MathPreviewPhantomProvider
 
 __all__ = ["ImagePreviewHoverListener", "PreviewPhantomListener"]

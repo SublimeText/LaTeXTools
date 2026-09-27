@@ -18,27 +18,23 @@ import sublime
 import sublime_plugin
 
 from ..plugins.builder import *  # register internal builder plugins
-from .latextools_plugin import classname_to_plugin_name
-from .latextools_plugin import get_plugin
-from .latextools_plugin import NoSuchPluginException
+from .latextools_plugin import (
+    NoSuchPluginException,
+    classname_to_plugin_name,
+    get_plugin,
+)
 from .utils.activity_indicator import ActivityIndicator
-from .utils.external_command import execute_command
-from .utils.external_command import get_texpath
-from .utils.external_command import Popen
+from .utils.external_command import Popen, execute_command, get_texpath
 from .utils.is_tex_file import is_tex_file
 from .utils.logging import logger
-from .utils.output_directory import get_aux_directory
-from .utils.output_directory import get_jobname
-from .utils.output_directory import get_output_directory
+from .utils.output_directory import get_aux_directory, get_jobname, get_output_directory
 from .utils.settings import get_setting
-from .utils.tex_directives import get_tex_root
-from .utils.tex_directives import parse_tex_directives
+from .utils.tex_directives import get_tex_root, parse_tex_directives
 from .utils.tex_log import parse_log_file
 
-
 __all__ = [
-    "LatextoolsMakePdfCommand",
     "LatextoolsExecEventListener",
+    "LatextoolsMakePdfCommand",
 ]
 
 ANNOTATION_TEMPLATE = """

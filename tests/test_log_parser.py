@@ -1,5 +1,6 @@
 import os
 from textwrap import dedent
+
 from unittesting import DeferrableViewTestCase
 
 from ..latextools.utils.tex_log import parse_log_view

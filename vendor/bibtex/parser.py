@@ -27,13 +27,12 @@ grammar (roughly):
     value = IDENTIFIER | NUMBER | VALUE | QUOTED_STRING;
 """
 
+
 from .ast import *
 from .lexer import Lexer
 from .model import *
 from .names import Name
 from .tex import tokenize_list
-
-import sys
 
 __all__ = ["Parser"]
 

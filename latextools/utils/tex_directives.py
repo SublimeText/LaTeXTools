@@ -7,9 +7,7 @@ import sublime
 
 from .is_tex_file import is_tex_file
 from .logging import logger
-from .sublime_utils import get_project_data
-from .sublime_utils import get_project_file_name
-
+from .sublime_utils import get_project_data, get_project_file_name
 
 TEX_DIRECTIVE = re.compile(r"%+\s*![Tt][Ee][Xx]\s+([\w-]+)\s*=\s*(.*?)\s*$")
 

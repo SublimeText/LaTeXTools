@@ -3,23 +3,24 @@ import re
 import threading
 import time
 import traceback
+from shutil import which
 
 import sublime
 
-from shutil import which
-
 from ..utils import cache
 from ..utils.distro_utils import using_miktex
-from ..utils.external_command import __sentinel__
-from ..utils.external_command import check_output
-from ..utils.external_command import execute_command
-from ..utils.external_command import get_texpath
+from ..utils.external_command import (
+    __sentinel__,
+    check_output,
+    execute_command,
+    get_texpath,
+)
 from ..utils.logging import logger
 from ..utils.settings import get_setting
 
 if sublime.platform() == "windows":
-    import winreg
     import ctypes
+    import winreg
     from ctypes import wintypes
 
     # wrapper for GetSystemDirectoryW

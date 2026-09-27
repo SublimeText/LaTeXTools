@@ -1,24 +1,23 @@
 from __future__ import annotations
+
 import ctypes
 import os
 import shutil
-import sublime
-import sys
-
 from string import Template
 from textwrap import indent
 from typing import TYPE_CHECKING
 
+import sublime
+
 from ...latextools.latextools_plugin import LaTeXToolsPlugin
-from ...latextools.utils.external_command import external_command
-from ...latextools.utils.external_command import PIPE
-from ...latextools.utils.external_command import STDOUT
-from ...latextools.utils.external_command import Popen
+from ...latextools.utils.external_command import PIPE, STDOUT, Popen, external_command
 from ...latextools.utils.logging import logger
 
 if TYPE_CHECKING:
-    from typing import Any, Callable, Generator, TypeAlias
-    from ...latextools.utils.external_command import CommandLine
+    from collections.abc import Callable, Generator
+    from typing import TypeAlias
+
+    from ...latextools.utils.external_command import CommandLine, Popen
 
     Command: TypeAlias = CommandLine | Popen
     CommandGenerator: TypeAlias = Generator[tuple[Command, str]]
@@ -46,11 +45,11 @@ class PdfBuilder(LaTeXToolsPlugin):
         aux_directory: str,
         output_directory: str,
         job_name: str,
-        tex_directives: dict[str, Any],
-        builder_settings: dict[str, Any],
-        platform_settings: dict[str, Any],
+        tex_directives: dict[str, object],
+        builder_settings: dict[str, object],
+        platform_settings: dict[str, object],
         shell: bool,
-        env: dict[str, str],
+        env: dict[str, str] | None,
     ):
         """
         Constructs a new pdf builder engine instance.

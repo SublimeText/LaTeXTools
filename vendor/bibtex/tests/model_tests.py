@@ -1,8 +1,6 @@
-from ..model import *
-
-from operator import itemgetter
-
 import unittest
+
+from ..model import *
 
 
 class TestDatabase(unittest.TestCase):

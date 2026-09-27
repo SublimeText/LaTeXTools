@@ -7,8 +7,8 @@ import sublime_plugin
 from .utils.settings import get_setting
 
 __all__ = [
-    "LatextoolsAutoInsertLabelCommand",
     "LatextoolsAutoInserLabelListener",
+    "LatextoolsAutoInsertLabelCommand",
 ]
 
 

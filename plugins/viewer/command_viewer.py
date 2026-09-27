@@ -1,15 +1,15 @@
 from __future__ import annotations
+
 import re
 import shlex
-import sublime
 import string
-
 from pathlib import Path
+
+import sublime
 
 from ...latextools.utils.external_command import external_command
 from ...latextools.utils.settings import get_setting
 from ...latextools.utils.sublime_utils import get_sublime_exe
-
 from .base_viewer import BaseViewer
 
 __all__ = ["CommandViewer"]

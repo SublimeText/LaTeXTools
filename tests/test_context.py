@@ -1,9 +1,8 @@
 from __future__ import annotations
-from unittesting import ViewTestCase
 
 import sublime
-
 from LaTeXTools.latextools.context_provider import LatextoolsContextListener
+from unittesting import ViewTestCase
 
 
 class ContextTest(ViewTestCase):

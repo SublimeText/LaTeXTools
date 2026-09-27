@@ -1,14 +1,13 @@
 import operator as opi
 import re
+from functools import partial
+
 import sublime
 import sublime_plugin
 
-from functools import partial
-
 from .utils import analysis
 from .utils.logging import logger
-from .utils.selectors import build_ast
-from .utils.selectors import match_selector
+from .utils.selectors import build_ast, match_selector
 from .utils.settings import get_setting
 
 __all__ = ["LatextoolsContextListener"]

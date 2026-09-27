@@ -1,8 +1,9 @@
-import sublime
 from pathlib import Path
+
+import sublime
 from unittesting import DeferrableViewTestCase
 
-from ._data_decorator import data_decorator, data
+from ._data_decorator import data, data_decorator
 
 
 @data_decorator

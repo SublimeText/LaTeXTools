@@ -6,12 +6,10 @@ import sublime
 import sublime_plugin
 
 from ..plugins.viewer import *  # register internal viewer plugins
-from .latextools_plugin import get_plugin
-from .latextools_plugin import NoSuchPluginException
+from .latextools_plugin import NoSuchPluginException, get_plugin
 from .utils.is_tex_file import is_tex_file
 from .utils.logging import logger
-from .utils.output_directory import get_jobname
-from .utils.output_directory import get_output_directory
+from .utils.output_directory import get_jobname, get_output_directory
 from .utils.settings import get_setting
 from .utils.sublime_utils import focus_st
 from .utils.tex_directives import get_tex_root

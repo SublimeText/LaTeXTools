@@ -3,8 +3,7 @@ import os
 import sublime
 import sublime_plugin
 
-from .utils.external_command import CalledProcessError
-from .utils.external_command import check_output
+from .utils.external_command import CalledProcessError, check_output
 from .utils.settings import get_setting
 from .utils.tex_directives import get_tex_root
 

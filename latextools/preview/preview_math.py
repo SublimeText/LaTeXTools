@@ -13,15 +13,19 @@ import sublime
 from ..utils import cache
 from ..utils.external_command import execute_command
 from ..utils.logging import logger
-from ..utils.settings import get_setting
-from ..utils.settings import subscribe_settings_change
-from ..utils.settings import unsubscribe_settings_change
+from ..utils.settings import (
+    get_setting,
+    subscribe_settings_change,
+    unsubscribe_settings_change,
+)
 from ..utils.tex_log import parse_log_file
 from ..utils.utils import cpu_count
-from .preview_utils import ghostscript_installed
-from .preview_utils import get_ghostscript_version
-from .preview_utils import run_ghostscript_command
 from . import preview_threading as pv_threading
+from .preview_utils import (
+    get_ghostscript_version,
+    ghostscript_installed,
+    run_ghostscript_command,
+)
 
 # increase this number if you change the convert command to mark the
 # generated images as expired

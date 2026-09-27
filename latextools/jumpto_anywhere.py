@@ -4,21 +4,16 @@ import re
 import sublime
 import sublime_plugin
 
-from .utils import analysis
-from .utils import ana_utils
-from .utils import quickpanel
-from .utils import utils
-from .utils.logging import logger
-from .utils.tex_directives import get_tex_root
-from .utils.tex_directives import TEX_DIRECTIVE
-from .latex_cite_completions import NEW_STYLE_CITE_REGEX
-from .latex_glossary_completions import ACR_LINE_RE
-from .latex_glossary_completions import GLO_LINE_RE
-from .latex_ref_completions import NEW_STYLE_REF_REGEX
-from .jumpto_tex_file import INPUT_REG, IMPORT_REG, BIB_REG, IMAGE_REG
 from . import jumpto_tex_file
+from .jumpto_tex_file import BIB_REG, IMAGE_REG, IMPORT_REG, INPUT_REG
+from .latex_cite_completions import NEW_STYLE_CITE_REGEX
+from .latex_glossary_completions import ACR_LINE_RE, GLO_LINE_RE
+from .latex_ref_completions import NEW_STYLE_REF_REGEX
+from .utils import ana_utils, analysis, quickpanel, utils
+from .utils.logging import logger
+from .utils.tex_directives import TEX_DIRECTIVE, get_tex_root
 
-__all__ = ["LatextoolsJumptoAnywhereCommand", "LatextoolsJumptoAnywhereByMouseCommand"]
+__all__ = ["LatextoolsJumptoAnywhereByMouseCommand", "LatextoolsJumptoAnywhereCommand"]
 
 INPUT_REG_EXPS = [INPUT_REG, IMPORT_REG, BIB_REG, IMAGE_REG]
 

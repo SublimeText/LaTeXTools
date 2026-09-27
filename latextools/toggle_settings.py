@@ -2,8 +2,7 @@ import sublime
 import sublime_plugin
 
 from .utils.logging import logger
-from .utils.settings import get_setting
-from .utils.settings import global_settings
+from .utils.settings import get_setting, global_settings
 
 __all__ = ["LatextoolsToggleKeysCommand"]
 

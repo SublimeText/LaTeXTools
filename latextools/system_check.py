@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import os
 import re
 import subprocess
@@ -6,35 +7,30 @@ import sys
 import textwrap
 import threading
 import traceback
-
+from functools import lru_cache, partial
 from io import StringIO
-from functools import lru_cache
-from functools import partial
 from shutil import which
-from typing import cast, Callable
+from typing import Callable, cast
 
 import sublime
 import sublime_plugin
 
 from .jumpto_pdf import DEFAULT_VIEWERS
-from .latextools_plugin import classname_to_plugin_name
-from .latextools_plugin import get_plugin
-from .latextools_plugin import NoSuchPluginException
+from .latextools_plugin import (
+    NoSuchPluginException,
+    classname_to_plugin_name,
+    get_plugin,
+)
+from .preview.preview_utils import __get_gs_command as get_gs_command
+from .preview.preview_utils import convert_installed, ghostscript_installed
 from .utils.activity_indicator import ActivityIndicator
 from .utils.distro_utils import using_miktex
 from .utils.external_command import get_texpath
 from .utils.logging import logger
-from .utils.output_directory import get_aux_directory
-from .utils.output_directory import get_jobname
-from .utils.output_directory import get_output_directory
+from .utils.output_directory import get_aux_directory, get_jobname, get_output_directory
 from .utils.settings import get_setting
 from .utils.sublime_utils import get_sublime_exe
-from .utils.tex_directives import get_tex_root
-from .utils.tex_directives import parse_tex_directives
-
-from .preview.preview_utils import convert_installed
-from .preview.preview_utils import ghostscript_installed
-from .preview.preview_utils import __get_gs_command as get_gs_command
+from .utils.tex_directives import get_tex_root, parse_tex_directives
 
 if sublime.platform() == "windows":
     from .preview.preview_utils import get_system_root

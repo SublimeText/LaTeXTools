@@ -2,27 +2,28 @@ import os
 import struct
 import threading
 import types
+from textwrap import dedent
 
 import sublime
 import sublime_plugin
 
-from textwrap import dedent
-
 from ...vendor import imghdr
-from ..jumpto_tex_file import find_image
-from ..jumpto_tex_file import open_image
-from ..jumpto_tex_file import open_image_folder
+from ..jumpto_tex_file import find_image, open_image, open_image_folder
 from ..utils import cache
 from ..utils.logging import logger
-from ..utils.settings import get_setting
-from ..utils.settings import subscribe_settings_change
-from ..utils.settings import unsubscribe_settings_change
+from ..utils.settings import (
+    get_setting,
+    subscribe_settings_change,
+    unsubscribe_settings_change,
+)
 from ..utils.tex_directives import get_tex_root
-from .preview_utils import convert_installed
-from .preview_utils import ghostscript_installed
-from .preview_utils import run_convert_command
-from .preview_utils import run_ghostscript_command
 from . import preview_threading as pv_threading
+from .preview_utils import (
+    convert_installed,
+    ghostscript_installed,
+    run_convert_command,
+    run_ghostscript_command,
+)
 
 # we use png files for the html popup
 _IMAGE_EXTENSION = ".png"

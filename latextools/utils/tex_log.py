@@ -1,7 +1,9 @@
 from __future__ import annotations
-from itertools import chain
+
 import os
 import re
+from itertools import chain
+
 import sublime
 import sublime_plugin
 

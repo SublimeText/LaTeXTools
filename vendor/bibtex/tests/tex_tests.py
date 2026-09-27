@@ -1,6 +1,6 @@
-from ..tex import tokenize_list
-
 import unittest
+
+from ..tex import tokenize_list
 
 
 class TestTokenizeList(unittest.TestCase):

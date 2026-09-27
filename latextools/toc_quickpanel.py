@@ -1,7 +1,6 @@
 import sublime_plugin
 
-from .utils import analysis
-from .utils import quickpanel
+from .utils import analysis, quickpanel
 from .utils.settings import get_setting
 from .utils.tex_directives import get_tex_root
 

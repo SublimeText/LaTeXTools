@@ -1,13 +1,12 @@
-import re
 import os
+import re
 import shlex
 import traceback
 
 import sublime
 import sublime_plugin
 
-from .utils import analysis
-from .utils import utils
+from .utils import analysis, utils
 from .utils.external_command import external_command
 from .utils.logging import logger
 from .utils.settings import get_setting

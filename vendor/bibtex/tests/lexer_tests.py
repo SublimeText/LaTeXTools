@@ -1,6 +1,6 @@
-from ..lexer import Lexer
-
 import unittest
+
+from ..lexer import Lexer
 
 
 class LexerTest(unittest.TestCase):

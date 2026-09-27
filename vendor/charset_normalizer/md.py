@@ -14,6 +14,7 @@ from .utils import (
     is_arabic_isolated_form,
     is_case_variable,
     is_cjk,
+    is_cjk_uncommon,
     is_emoticon,
     is_hangul,
     is_hiragana,
@@ -26,7 +27,6 @@ from .utils import (
     is_unprintable,
     remove_accent,
     unicode_range,
-    is_cjk_uncommon,
 )
 
 

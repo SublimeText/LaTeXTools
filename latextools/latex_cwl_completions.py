@@ -1,16 +1,14 @@
 from __future__ import annotations
+
 import re
 from sys import exc_info
 
 import sublime
-import sublime_plugin
 
 from .utils import analysis
-from .utils import utils
 from .utils.cache import cache_local
 from .utils.logging import logger
 from .utils.settings import get_setting
-from .utils.tex_directives import get_tex_root
 
 ALPHAS_REGEX = re.compile(r"^[a-zA-Z]+$")
 

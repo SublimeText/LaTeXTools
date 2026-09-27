@@ -1,15 +1,14 @@
 from __future__ import annotations
+
 import os
 import re
-import sublime
-
 from typing import TYPE_CHECKING
 
+
 if TYPE_CHECKING:
-    from .pdf_builder import Command, CommandGenerator, CommandLine
+    from .pdf_builder import CommandGenerator
 
 from ...latextools.utils.logging import logger
-
 from .pdf_builder import PdfBuilder
 
 __all__ = ["BasicBuilder"]

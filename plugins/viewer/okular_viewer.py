@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from ...latextools.utils.external_command import external_command
-
 from .base_viewer import BaseViewer
 
 __all__ = ["OkularViewer"]

@@ -1,14 +1,13 @@
 from __future__ import annotations
-import sublime
 
 from functools import partial
 from subprocess import list2cmdline
 from typing import TYPE_CHECKING
 
+import sublime
+
 if TYPE_CHECKING:
     from .pdf_builder import CommandGenerator
-
-from ...latextools.utils.external_command import external_command
 
 from .pdf_builder import PdfBuilder
 

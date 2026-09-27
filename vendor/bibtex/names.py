@@ -1,6 +1,6 @@
-from .tex import split_tex_string
 from collections import namedtuple
-import sys
+
+from .tex import split_tex_string
 
 __all__ = ["Name"]
 

@@ -31,20 +31,19 @@
 # whether or not to run the executable with the PATH set to the current value
 # of texpath.
 from __future__ import annotations
+
 import os
 import re
-
+import subprocess
 from shlex import quote
 from shutil import which
-
-import subprocess
-from subprocess import Popen, PIPE, STDOUT, CalledProcessError
+from subprocess import PIPE, STDOUT, CalledProcessError, Popen
+from typing import TYPE_CHECKING
 
 import sublime
 
 from .logging import logger
 from .settings import get_setting
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing import TypeAlias
@@ -52,10 +51,13 @@ if TYPE_CHECKING:
     CommandLine: TypeAlias = list[str] | str
 
 __all__ = [
-    "external_command",
-    "execute_command",
+    "PIPE",
+    "STDOUT",
+    "Popen",
     "check_call",
     "check_output",
+    "execute_command",
+    "external_command",
     "get_texpath",
 ]
 

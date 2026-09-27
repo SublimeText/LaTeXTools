@@ -1,8 +1,6 @@
 import sublime_plugin
 
-from .utils import analysis
-from .utils import ana_utils
-from .utils import quickpanel
+from .utils import ana_utils, analysis, quickpanel
 from .utils.tex_directives import get_tex_root
 
 __all__ = ["LatextoolsSearchCommandCommand", "LatextoolsSearchCommandInputCommand"]

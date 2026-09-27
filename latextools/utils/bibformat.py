@@ -1,7 +1,6 @@
-from string import Formatter
 import collections
 import re
-
+from string import Formatter
 
 TITLE_SEP = re.compile(r":|\.|\?")
 PREFIX_MATCH_KEYS = set(["keyword", "title", "author"])
