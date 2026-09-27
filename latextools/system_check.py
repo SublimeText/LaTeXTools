@@ -112,7 +112,6 @@ def tabulate(table, wrap_column=0, output=sys.stdout):
 
 
 class SystemCheckThread(threading.Thread):
-
     def __init__(self, view: sublime.View, on_done: Callable[[list[list]], None]):
         super().__init__()
         self.view = view
@@ -132,7 +131,7 @@ class SystemCheckThread(threading.Thread):
         if build_env is not None:
             self.env.update({k: os.path.expandvars(v) for k, v in build_env.items()})
 
-        if (texpath := get_texpath(view)):
+        if texpath := get_texpath(view):
             self.env["PATH"] = texpath
 
         # prepand main tex document's location to all TeX related paths such as
@@ -294,7 +293,6 @@ class SystemCheckThread(threading.Thread):
             and get_setting("preview_math_template_file", view=self.view) is None
             and get_setting("preview_math_mode", view=self.view) != "none"
         ):
-
             find_package_re = re.compile(r"\\usepackage(?:\[[^\]]*\])?\{(?P<pkg>[^\}]*)\}")
 
             packages = ["standalone.cls", "preview.sty", "xcolor.sty"]
@@ -539,7 +537,6 @@ class SystemCheckThread(threading.Thread):
 
 
 class LatextoolsSystemCheckCommand(sublime_plugin.ApplicationCommand):
-
     def run(self) -> None:
         window = sublime.active_window() or sublime.windows()[0]
         view = window.active_view() or window.views()[0]

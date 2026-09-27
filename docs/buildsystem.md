@@ -368,7 +368,7 @@ class MyFirstBuilder(PdfBuilder):
     """
     A really simple builder implementation
     """
-    
+
     name = "My First Builder"
     """
     Display name to use to refer to this builder in build output panel.
@@ -391,9 +391,9 @@ class MyFirstBuilder(PdfBuilder):
         #   2. message to display when command is executed
         #
         #      It should describe the executed program and end with "..."
-        #      to indicate progress. 
+        #      to indicate progress.
         #
-        #      The back-end will append "done", "error", "cancelled" status, 
+        #      The back-end will append "done", "error", "cancelled" status,
         #      after command execution finished.
         yield ("pdflatex", "running pdflatex...")
 ```
@@ -503,6 +503,7 @@ class SimpleBuilder(PdfBuilder):
 
     Just call a bunch of commands in sequence to demonstrate basics
     """
+
     name = "Simple Builder"
 
     def commands(self) -> CommandGenerator:

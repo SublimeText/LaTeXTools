@@ -72,7 +72,7 @@ def get_own_xparse_commands(ana):
             "RenewExpandableDocumentCommand",
             "ProvideExpandableDocumentCommand",
         ],
-        flags=analysis.NO_BEGIN_END_COMMANDS
+        flags=analysis.NO_BEGIN_END_COMMANDS,
     )
 
 
@@ -123,7 +123,7 @@ def get_own_command_completions(tex_root):
                         trigger=f"{c.args}{{{c.args2 or ''}}}",
                         completion=c.args,
                         annotation="local",
-                        details = f"from {os.path.basename(c.file_name)}",
+                        details=f"from {os.path.basename(c.file_name)}",
                         kind=kind,
                     )
                 )

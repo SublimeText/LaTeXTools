@@ -310,7 +310,7 @@ class PdfBuilder(LaTeXToolsPlugin):
             aux_directory=self.aux_directory_full,
             jobname=self.job_name,
             engine=self.engine,
-            **custom_vars
+            **custom_vars,
         )
 
     def copy_assets_to_output(self) -> None:

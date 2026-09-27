@@ -124,7 +124,7 @@ class LatextoolsAutoInsertLabelCommand(sublime_plugin.TextCommand):
                 snippet = (
                     f"{before_text}"  # leading \label{
                     f"${{1:{label_type}}}:${{2:{label_content}}}"
-                    f"{after_text}"   # trailing }
+                    f"{after_text}"  # trailing }
                     "$0"
                 )
                 view.run_command("insert_snippet", {"contents": snippet})
@@ -132,7 +132,7 @@ class LatextoolsAutoInsertLabelCommand(sublime_plugin.TextCommand):
                 content = (
                     f"{before_text}"  # leading \label{
                     f"{label_type}:{label_content}"
-                    f"{after_text}"   # trailing }
+                    f"{after_text}"  # trailing }
                 )
                 view.insert(edit, pos, content)
 

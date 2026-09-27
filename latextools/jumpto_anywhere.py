@@ -38,7 +38,7 @@ def _get_selected_arg(view, com_reg, pos):
 
     if cursor < 0 or len(args) < cursor:
         # need to explicit select the argument
-        message = "Selection to vague. Directly click on the name" " inside the command."
+        message = "Selection to vague. Directly click on the name inside the command."
         logger.error(message)
         sublime.status_message(message)
         return
@@ -308,8 +308,8 @@ class LatextoolsJumptoAnywhereCommand(sublime_plugin.TextCommand):
                 {
                     "auto_create_missing_folders": False,
                     "auto_insert_root": False,
-                    "position": position
-                }
+                    "position": position,
+                },
             )
         elif command in ["usepackage", "Requirepackage"]:
             _jumpto_pkg_doc(view, com_reg, pos)

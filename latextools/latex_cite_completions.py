@@ -202,9 +202,7 @@ def kpsewhich(filename, file_format=None):
         if e.output:
             logger.debug(e.output)
     except OSError as e:
-        logger.error(
-            "Could not run kpsewhich. Please ensure that your texpath " "setting is correct."
-        )
+        logger.error("Could not run kpsewhich. Please ensure that your texpath setting is correct.")
         logger.debug(e)
 
     return None
@@ -409,8 +407,7 @@ def run_plugin_command(command, *args, **kwargs):
 
     if expect_result and result is None:
         raise BibPluginError(
-            f"Could not find a plugin to handle '{command}'. "
-            "See the console for more details"
+            f"Could not find a plugin to handle '{command}'. See the console for more details"
         )
 
     return result
@@ -522,9 +519,7 @@ class CiteLatexFillAllPlugin(LatexFillAllPlugin):
         display = []
         values = []
 
-        panel_format = get_setting(
-            "cite_panel_format", ["{title} ({keyword})", "{author}"], view
-        )
+        panel_format = get_setting("cite_panel_format", ["{title} ({keyword})", "{author}"], view)
         kind = (sublime.KIND_ID_TYPE, "b", "Bibliography")
 
         for c in completions:

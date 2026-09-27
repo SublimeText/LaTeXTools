@@ -9,7 +9,6 @@ __all__ = ["SioyekViewer"]
 
 
 class SioyekViewer(BaseViewer):
-
     @classmethod
     def _run_sioyek(cls, *args, **kwargs):
         platform = sublime.platform()
@@ -49,7 +48,7 @@ class SioyekViewer(BaseViewer):
             "--inverse-search",
             f'"{get_sublime_exe()}" "%1:%2"',
             pdf_file,
-            **kwargs
+            **kwargs,
         )
 
     @classmethod

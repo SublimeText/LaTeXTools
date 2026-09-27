@@ -120,9 +120,7 @@ def get_completions_if_matches(regex, line, get_key_list_func, view):
 
     completions = [
         sublime.CompletionItem(
-            trigger=name,
-            completion=_get_replacement(matcher, name),
-            kind=KIND_INFO
+            trigger=name, completion=_get_replacement(matcher, name), kind=KIND_INFO
         )
         for name in get_key_list_func(view)
     ]

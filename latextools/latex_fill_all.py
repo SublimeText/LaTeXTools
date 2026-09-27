@@ -19,6 +19,7 @@ __all__ = [
 
 VISIBLE_OVERLAYS = set()
 
+
 def reraise(tp, value, tb=None):
     if value is None:
         value = tp()
@@ -120,7 +121,7 @@ class LatexFillAllPluginAdapter:
         for plugin in get_plugins_by_type(LatexFillAllPlugin):
             name = plugin.plugin_name()
             if name.endswith("_latex_fill_all"):
-                name = name[:-len("_latex_fill_all")]
+                name = name[: -len("_latex_fill_all")]
                 if name:
                     self._plugins[name] = plugin()
 
@@ -732,8 +733,7 @@ class LatexFillAllEventListener(
         # load the plugins
         if self.SUPPORTED_KEYS is None:
             self.SUPPORTED_KEYS = {
-                f"lt_fill_all_{name}": name
-                for name in self.get_completion_types()
+                f"lt_fill_all_{name}": name for name in self.get_completion_types()
             }
 
         try:
@@ -745,7 +745,11 @@ class LatexFillAllEventListener(
         if key not in self.SUPPORTED_KEYS:
             return None
         # unsupported bracket
-        elif insert_char and insert_char not in self.SUPPORTED_INSERT_CHARS or operator not in [sublime.OP_EQUAL, sublime.OP_NOT_EQUAL]:
+        elif (
+            insert_char
+            and insert_char not in self.SUPPORTED_INSERT_CHARS
+            or operator not in [sublime.OP_EQUAL, sublime.OP_NOT_EQUAL]
+        ):
             return False
 
         insert_char = self.SUPPORTED_INSERT_CHARS.get(insert_char, "")
@@ -810,7 +814,12 @@ class LatexFillAllEventListener(
                 remove_regions = []
                 break
 
-        if completion_type is None or not self.match_selector(view, completion_type.get_supported_scope_selector()) or orig_prefix and not prefix:
+        if (
+            completion_type is None
+            or not self.match_selector(view, completion_type.get_supported_scope_selector())
+            or orig_prefix
+            and not prefix
+        ):
             self.clear_bracket_cache()
             return []
 

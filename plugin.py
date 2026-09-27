@@ -96,25 +96,21 @@ from .plugins.viewer.dbus_viewer import LatextoolsDbusViewerListener
 
 def plugin_loaded():
     from .latextools.utils.logging import init_logger
+
     init_logger()
 
     prefix = __spec__.parent + "."
     for name, module in sys.modules.items():
-        if (
-            name.startswith(prefix) 
-            and hasattr(module, "latextools_plugin_loaded")
-        ):
+        if name.startswith(prefix) and hasattr(module, "latextools_plugin_loaded"):
             module.latextools_plugin_loaded()
 
 
 def plugin_unloaded():
     prefix = __spec__.parent + "."
     for name, module in sys.modules.items():
-        if (
-            name.startswith(prefix) 
-            and hasattr(module, "latextools_plugin_unloaded")
-        ):
+        if name.startswith(prefix) and hasattr(module, "latextools_plugin_unloaded"):
             module.latextools_plugin_unloaded()
 
     from .latextools.utils.logging import shutdown_logger
+
     shutdown_logger()

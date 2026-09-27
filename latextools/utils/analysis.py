@@ -50,7 +50,8 @@ _COMMAND_ARG_NAMES = (
     "args3",
 )
 _RE_COMMAND = regex.compile(
-    r"\\(?P<command>[A-Za-z]+)(?P<star>\*?)" +  # The initial command
+    r"\\(?P<command>[A-Za-z]+)(?P<star>\*?)"  # The initial command
+    +
     # build the rest from the command arg names
     "\n".join(
         r"""
@@ -514,7 +515,6 @@ def _analyze_tex_file(
                         return ana
 
         elif cmd == "documentclass":
-
             # subfile support:
             # if we are not in the root file (i.e. not call from included files)
             # and have the command \documentclass[main.tex]{subfiles}
@@ -543,7 +543,7 @@ def _analyze_tex_file(
             elif args is not None:
                 fn = decode_path(os.path.splitext(args.strip('"'))[0], base_path)
                 if fn:
-                    for ext in (".cls", ):
+                    for ext in (".cls",):
                         open_file = fn + ext
                         if os.path.isfile(open_file):
                             process_file_stack.append(file_name)

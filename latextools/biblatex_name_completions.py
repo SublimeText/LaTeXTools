@@ -42,7 +42,7 @@ def _get_replacement(matcher, key):
         return "{}{1}{}".format(
             "" if equals else "= " if match.startswith(" ") else " = ",
             "" if matcher.group("OPEN") else "{" if not equals or match.startswith(" ") else " {",
-            )
+        )
 
     if matcher.group("ENTRIES").startswith("dna"):
         if match.startswith(" "):

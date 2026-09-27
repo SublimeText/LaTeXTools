@@ -9,7 +9,6 @@ __all__ = ["ZathuraViewer"]
 
 
 class ZathuraViewer(BaseViewer):
-
     @classmethod
     def _run_zathura(cls, *args, **kwargs):
         external_command(

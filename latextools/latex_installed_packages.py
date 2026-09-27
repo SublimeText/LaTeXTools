@@ -121,7 +121,6 @@ def _generate_package_cache():
 # Used for fill all command for \documentclass, \usepackage and
 # \bibliographystyle envrioments
 class LatextoolsGenPkgCacheCommand(sublime_plugin.ApplicationCommand):
-
     def run(self):
         # use a separate thread to update cache
         thread = threading.Thread(target=_generate_package_cache)

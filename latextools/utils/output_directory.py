@@ -21,8 +21,7 @@ class UnsavedFileException(Exception):
 
 
 def get_aux_directory(
-    view: sublime.View | None,
-    return_setting: bool=False
+    view: sublime.View | None, return_setting: bool = False
 ) -> str | None | tuple[str, str] | tuple[None, None]:
     """
     Find the aux-directory
@@ -85,8 +84,7 @@ def get_aux_directory(
 
 
 def get_output_directory(
-    view: sublime.View | None,
-    return_setting: bool=False
+    view: sublime.View | None, return_setting: bool = False
 ) -> str | None | tuple[str, str] | tuple[None, None]:
     """
     Find the output-directory
@@ -122,7 +120,9 @@ def get_output_directory(
             else:
                 return out_dir
 
-        output_directory = get_project_data(view).get("settings", {}).get("latextools.output_directory")
+        output_directory = (
+            get_project_data(view).get("settings", {}).get("latextools.output_directory")
+        )
         if output_directory:
             out_dir = resolve_to_absolute_path(
                 root, output_directory, _get_root_directory(get_project_file_name(view))

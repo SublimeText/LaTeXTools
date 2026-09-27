@@ -19,7 +19,6 @@ __all__ = ["SumatraViewer"]
 
 
 class SumatraViewer(BaseViewer):
-
     @classmethod
     def _find_sumatra_exe(cls):
         if hasattr(SumatraViewer, "_sumatra_exe"):

@@ -90,7 +90,7 @@ def _create_image(
     hires,
     max_bitmap,
     bufferspace,
-    **kwargs
+    **kwargs,
 ):
     """Create an image for a latex document."""
     rel_source_path = base_name + ".tex"
@@ -582,7 +582,7 @@ class MathPreviewPhantomProvider:
                 p.id = view.add_phantom(
                     self.key,
                     region,
-                    self._wrap_html("\u231B"),
+                    self._wrap_html("\u231b"),
                     layout,
                     on_navigate=self.on_navigate,
                 )

@@ -14,9 +14,7 @@ from .utils.tex_directives import get_tex_root
 
 __all__ = ["LatextoolsJumptoFileCommand"]
 
-INPUT_REG = re.compile(
-    r"\\(?:input|include|subfile|loadglsentries)\{(?P<file>[^}]+)\}", re.UNICODE
-)
+INPUT_REG = re.compile(r"\\(?:input|include|subfile|loadglsentries)\{(?P<file>[^}]+)\}", re.UNICODE)
 
 IMPORT_REG = re.compile(
     r"\\(?:(?:sub)?import|(?:sub)?inputfrom|(?:sub)?includefrom)"
@@ -34,8 +32,7 @@ BIB_REG = re.compile(
 )
 
 IMAGE_REG = re.compile(
-    r"\\includegraphics(?:<[^>]*>)?(?:\[[^\]]*\])?\{(?P<file>[^\}]+)\}"
-    , re.UNICODE
+    r"\\includegraphics(?:<[^>]*>)?(?:\[[^\]]*\])?\{(?P<file>[^\}]+)\}", re.UNICODE
 )
 
 
@@ -220,7 +217,6 @@ def _split_bib_args(bib_args):
 
 
 class LatextoolsJumptoFileCommand(sublime_plugin.TextCommand):
-
     def run(self, edit, auto_create_missing_folders=True, auto_insert_root=True, position=None):
         view = self.view
         tex_root = get_tex_root(view)

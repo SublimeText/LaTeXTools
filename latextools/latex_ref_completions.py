@@ -141,7 +141,7 @@ LABELS = (
     "zsaveposy",
 )
 
-LABEL_PATTERN = fr"\\(?:{'|'.join(LABELS)})\{{([^\{{\}}]+)\}}"
+LABEL_PATTERN = rf"\\(?:{'|'.join(LABELS)})\{{([^\{{\}}]+)\}}"
 
 _ref_prefixes = (
     "a"
@@ -397,12 +397,9 @@ _ref_prefixes = (
     "|ztitle"
     "|zv"
     "|zvpage"
-)[::-1] # ..ref / ..refs
+)[::-1]  # ..ref / ..refs
 
-_ref_range_prefixes = (
-    "c"
-    "|cpage"
-)[::-1] # ...refrange
+_ref_range_prefixes = ("c|cpage")[::-1]  # ...refrange
 
 _ref_multivalue_prefixes = (
     "algorithm"
@@ -443,15 +440,25 @@ _ref_multivalue_prefixes = (
     "|zc"
     "|zcheck"
     "|zcpage"
-)[::-1] # ..ref
+)[::-1]  # ..ref
 
-OLD_STYLE_REF_REGEX = re.compile(fr"([^_]*_)?(?:(?:[-+]|\*?s?)fer(?:{_ref_prefixes})?)\\", re.IGNORECASE)
+OLD_STYLE_REF_REGEX = re.compile(
+    rf"([^_]*_)?(?:(?:[-+]|\*?s?)fer(?:{_ref_prefixes})?)\\", re.IGNORECASE
+)
 
-NEW_STYLE_REF_REGEX = re.compile(fr"([^}}]*)\{{(?:\][^]]*\[)*(?:(?:[-+]|\*?s?)fer(?:{_ref_prefixes})?)\\", re.IGNORECASE)
+NEW_STYLE_REF_REGEX = re.compile(
+    rf"([^}}]*)\{{(?:\][^]]*\[)*(?:(?:[-+]|\*?s?)fer(?:{_ref_prefixes})?)\\", re.IGNORECASE
+)
 
-NEW_STYLE_REF_RANGE_REGEX = re.compile(fr"([^}}]*)\{{(?:\}}[^\}}]*\{{)?(?:\][^]]*\[)*\*?egnarfer(?:{_ref_range_prefixes})\\", re.IGNORECASE)
+NEW_STYLE_REF_RANGE_REGEX = re.compile(
+    rf"([^}}]*)\{{(?:\}}[^\}}]*\{{)?(?:\][^]]*\[)*\*?egnarfer(?:{_ref_range_prefixes})\\",
+    re.IGNORECASE,
+)
 
-NEW_STYLE_REF_MULTIVALUE_REGEX = re.compile(fr"([^}},]*)(?:,[^}},]*)*\{{(?:\][^]]*\[)*[-+*]?fer(?:{_ref_multivalue_prefixes})\\", re.IGNORECASE)
+NEW_STYLE_REF_MULTIVALUE_REGEX = re.compile(
+    rf"([^}},]*)(?:,[^}},]*)*\{{(?:\][^]]*\[)*[-+*]?fer(?:{_ref_multivalue_prefixes})\\",
+    re.IGNORECASE,
+)
 
 LSTSET_LABEL_REGEX = re.compile(r"label\s*=\s*([^\s,}]*)")
 

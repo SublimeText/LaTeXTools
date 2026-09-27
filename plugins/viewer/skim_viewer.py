@@ -12,7 +12,6 @@ __all__ = ["SkimViewer"]
 
 
 class SkimViewer(BaseViewer):
-
     @classmethod
     def forward_sync(cls, pdf_file: str, tex_file: str, line: int, col: int, **kwargs) -> None:
         keep_focus = kwargs.get("keep_focus", True)
@@ -88,5 +87,6 @@ class SkimViewer(BaseViewer):
 def latextools_plugin_loaded():
     # ensure to work with up-to-date scripts after package updates
     from shutil import rmtree
+
     script_dir = Path(sublime.cache_path(), "LaTeXTools", "viewer", "skim")
     rmtree(script_dir, ignore_errors=True)

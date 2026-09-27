@@ -60,9 +60,9 @@ class ExceptionLogRule(LogRule):
         """
         ucs = re.search(
             r"^(Undefined control sequence)\.\n"
-            r"(?:.*\n)*?"             # optional details about invalid sequence
-            r"l\.(\d+)"               # line number, exception was detected at
-            r"[ ]+([^\n]+)\n"         # command name
+            r"(?:.*\n)*?"  # optional details about invalid sequence
+            r"l\.(\d+)"  # line number, exception was detected at
+            r"[ ]+([^\n]+)\n"  # command name
             r"(?:[ ]{3,}([^\n]+))?",  # command continuation (arguments)
             text,
             re.MULTILINE,
@@ -93,9 +93,7 @@ class ExceptionLogRule(LogRule):
     @classmethod
     def process_text(cls, text: str) -> tuple[int, str]:
         msg = text[2:]  # skip leading `! `
-        for handler in (
-            cls.undefined_control_sequence,
-        ):
+        for handler in (cls.undefined_control_sequence,):
             if result := handler(msg):
                 return result
 

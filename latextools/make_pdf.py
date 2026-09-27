@@ -49,7 +49,6 @@ SUPPORTED_PDF_COMPILERS = ("pdflatex", "pdftex", "xelatex", "xetex", "lualatex",
 
 
 class CmdThread(threading.Thread):
-
     # Use __init__ to pass things we need
     # in particular, we pass the caller in teh main thread, so we can display stuff!
     def __init__(self, caller):
@@ -335,7 +334,7 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
         update_annotations_only=False,
         hide_annotations_only=False,
         kill=False,
-        **kwargs
+        **kwargs,
     ):
         if update_annotations_only:
             if self.show_errors_inline:
@@ -664,7 +663,9 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
                         line_err_set.append([line, html.escape(text, quote=False), css_class])
 
                 for _, text, css_class in line_err_set:
-                    content_set.append(ANNOTATION_TEMPLATE.format(css_class=css_class, content=text))
+                    content_set.append(
+                        ANNOTATION_TEMPLATE.format(css_class=css_class, content=text)
+                    )
 
                 # add annotations to all clones in current window
                 for clone in (view, *view.clones()):

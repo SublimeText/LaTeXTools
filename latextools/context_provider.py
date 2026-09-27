@@ -159,8 +159,8 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
                 env.endswith("*"): r"\*",
             }.get(True, r"\*?")
             env = env.rstrip("*!")
-            benv = fr"\\begin(?:\[[^\]]\])?{{{env}{star}}}"
-            eenv = fr"\\end{{{env}{star}}}"
+            benv = rf"\\begin(?:\[[^\]]\])?{{{env}{star}}}"
+            eenv = rf"\\end{{{env}{star}}}"
 
             if only_nearest:
                 real_benv = benv
@@ -215,9 +215,7 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
         while text:
             try:
                 command_match = next(
-                    c
-                    for c in command_re.finditer(text)
-                    if c.start() < text_pos < c.end()
+                    c for c in command_re.finditer(text) if c.start() < text_pos < c.end()
                 )
             except StopIteration:
                 break

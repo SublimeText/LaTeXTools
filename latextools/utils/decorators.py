@@ -74,7 +74,7 @@ def debounce(delay_in_ms, sync=False):
 
         @wraps(func)
         def wrapper(self, *args, **kwargs):
-            view = self.view if hasattr(self, 'view') else args[0]
+            view = self.view if hasattr(self, "view") else args[0]
             pending = view.view_id in call_at
             call_at[view.view_id] = int(default_timer() * 1000) + delay_in_ms
             if pending:
@@ -102,7 +102,7 @@ def profile(func):
         result = func(*args, **kwargs)
         pr.disable()
         ps = pstats.Stats(pr, stream=sys.stdout)
-        ps.sort_stats('time')
+        ps.sort_stats("time")
         ps.print_stats(15)
         return result
 

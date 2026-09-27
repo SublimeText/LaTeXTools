@@ -154,7 +154,9 @@ def latextools_plugin_loaded():
 
     global _TEX_INPUT_GROUP_MAPPING, TEX_INPUT_FILE_REGEX
     _TEX_INPUT_GROUP_MAPPING = {i: v for i, v in enumerate(_fillall_entries)}
-    TEX_INPUT_FILE_REGEX = re.compile(rf"(?:{'|'.join(entry['regex'] for entry in _fillall_entries)})")
+    TEX_INPUT_FILE_REGEX = re.compile(
+        rf"(?:{'|'.join(entry['regex'] for entry in _fillall_entries)})"
+    )
 
 
 # Get all file by types

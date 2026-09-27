@@ -42,7 +42,6 @@ latex_chars.register()
 
 
 class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
-
     def get_entries(self, *bib_files):
         entries = []
         for bibfname in bib_files:
@@ -135,7 +134,6 @@ class TraditionalBibliographyPlugin(LaTeXToolsPlugin):
                     traceback.print_exc()
                     logger.warning("Using bibliography without caching it")
                     entries.extend(bib_entries)
-
 
         logger.info(f"Found {len(entries)} total bib entries")
 

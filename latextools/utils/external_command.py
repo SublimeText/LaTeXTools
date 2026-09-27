@@ -64,7 +64,7 @@ __all__ = [
 __sentinel__ = object()
 
 
-def get_texpath(view: sublime.View | None=None) -> str | None:
+def get_texpath(view: sublime.View | None = None) -> str | None:
     """
     Get texpath setting with environment variables expanded.
 
@@ -79,8 +79,7 @@ def get_texpath(view: sublime.View | None=None) -> str | None:
 
 
 def create_tex_env(
-    env: dict[str, str] | None=None,
-    view: sublime.View | None=None
+    env: dict[str, str] | None = None, view: sublime.View | None = None
 ) -> dict[str, str] | None:
     """
     Creates a tex environment.
@@ -151,7 +150,7 @@ def external_command(
         logger.debug(f'Running "{cmd}"')
     else:
         try:
-            logger.debug('Running "%s"', ' '.join(map(quote, cmd)))
+            logger.debug('Running "%s"', " ".join(map(quote, cmd)))
         except UnicodeError:
             try:
                 logger.debug(f'Running "{cmd}"')

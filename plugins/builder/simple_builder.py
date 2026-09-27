@@ -18,6 +18,7 @@ class SimpleBuilder(PdfBuilder):
     Just call a bunch of commands in sequence
     Demonstrate basics
     """
+
     name = "Simple Builder"
 
     def commands(self) -> CommandGenerator:

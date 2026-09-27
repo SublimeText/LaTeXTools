@@ -63,7 +63,6 @@ class LaTeXToolsPluginException(Exception):
     """
 
 
-
 class NoSuchPluginException(LaTeXToolsPluginException):
     """
     Exception raised if an attempt is made to access a plugin that does not
@@ -74,13 +73,11 @@ class NoSuchPluginException(LaTeXToolsPluginException):
     """
 
 
-
 class InvalidPluginException(LaTeXToolsPluginException):
     """
     Exception raised if an attempt is made to register a plugin that is not a
     subclass of LaTeXToolsPlugin.
     """
-
 
 
 class LaTeXToolsPluginRegistry(dict):

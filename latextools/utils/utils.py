@@ -230,7 +230,6 @@ class ThreadPool:
 
 
 class _ThreadPoolWorker(threading.Thread):
-
     def __init__(self, task_queue, result_queue, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.daemon = True
@@ -260,7 +259,6 @@ class _ThreadPoolWorker(threading.Thread):
 
 
 class _ThreadPoolResult:
-
     def __init__(self, job, result_cache):
         self._ready = threading.Event()
         self._value = None

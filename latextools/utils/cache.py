@@ -39,7 +39,6 @@ class CacheMiss(Exception):
     """exception to indicate that the cache file is missing"""
 
 
-
 def hash_digest(text):
     """
     Create the hash digest for a text. These digest can be used to
