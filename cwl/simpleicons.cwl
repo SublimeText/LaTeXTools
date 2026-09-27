@@ -1,5 +1,5 @@
 # simpleicons package
-# Matthew Bertucci 2026/07/26 for v16.27.0
+# Matthew Bertucci 2026/09/11 for v16.30.0
 
 #include:iftex
 
@@ -96,6 +96,7 @@ akiflow
 alacritty
 alamy
 albertheijn
+albumoftheyear
 alby
 alchemy
 aldinord
@@ -248,6 +249,7 @@ atandt
 atari
 atlasos
 atlassian
+atomgit
 auchan
 audacity
 audi
@@ -1121,7 +1123,6 @@ gin
 giphy
 git
 gitbook
-gitcode
 gitconnected
 gitea
 gitee
@@ -2096,6 +2097,7 @@ onlyfans
 onlyoffice
 onnx
 onstar
+oomol
 opel
 openaccess
 openaigym
@@ -2723,6 +2725,7 @@ similarweb
 simkl
 simpleanalytics
 simpleicons
+simpleiconscdn
 simplelocalize
 simplelogin
 simplenote
@@ -2976,6 +2979,7 @@ telegraph
 telenor
 telequebec
 temporal
+tencenthy
 tensorflow
 teradata
 teratail
@@ -3071,6 +3075,7 @@ tplink
 tqdm
 traccar
 tradingview
+trae
 traefikmesh
 traefikproxy
 trailforks
@@ -3082,6 +3087,7 @@ transferwise
 transportforireland
 transportforlondon
 travisci
+traxsource
 treehouse
 trello
 trendmicro
@@ -3427,6 +3433,7 @@ zcool
 zdf
 zebpay
 zebratechnologies
+zectrix
 zedindustries
 zelle
 zenbrowser
@@ -3456,6 +3463,7 @@ zorin
 zotero
 zsh
 zulip
+zx
 zyte
 #endkeyvals
 

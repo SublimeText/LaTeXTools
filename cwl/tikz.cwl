@@ -1,6 +1,6 @@
 # tikz package
 # muzimuzhi, 12 Nov 2019, 23 Feb 2020, 8 Aug 2020
-# Matthew Bertucci 12/6/2021 for v3.1.9a
+# Matthew Bertucci 2026/08/04 for v3.1.12
 
 # Dependency Tree:
 # tikz.sty
@@ -106,6 +106,7 @@ backgrounds
 bayesnet
 bbox
 bending
+bpmn
 braids
 calc
 calendar
@@ -143,8 +144,13 @@ decorations.text
 dubins
 ducks
 er
+ext.arrows
+ext.arrows-plus
+ext.beamer
 ext.calendar-plus
+ext.layers
 ext.misc
+ext.nodes
 ext.node-families
 ext.node-families.shapes.geometric
 ext.paths.arcto
@@ -160,9 +166,11 @@ ext.shapes.rectangleroundedcorners
 ext.shapes.superellipse
 ext.shapes.uncenteredrectangle
 ext.topaths.arcthrough
+ext.topaths.autobend
 ext.transformations.mirror
 external
 fadings
+fill.geomarray
 fill.hexagon
 fill.image
 fill.rhombus
@@ -178,6 +186,7 @@ intersections
 karnaugh
 knots
 lindenmayersystems
+marmots
 math
 matrix
 matrix.skeleton
@@ -187,7 +196,6 @@ ocgx
 optics
 overlay-beamer-styles
 patterns
-patterns.images
 patterns.meta
 penrose
 perspective
@@ -196,7 +204,7 @@ plothandlers
 plotmarks
 positioning
 profiler
-quantikz
+quantikz2
 quotes
 rdf
 rulercompass
@@ -222,9 +230,19 @@ svg.path
 swigs
 switching-architectures
 through
+tikzlings
 tikzmark
+tikzphysics
+tikzphysics.mechanics
+tikzphysics.optics
+tikzphysics.ramps
+tikzphysics.surface
+tilings
+tilings.penrose
+tilings.polykite
 topaths
 tqft
+trainmap
 trees
 turtle
 views
@@ -319,6 +337,7 @@ sharp plot
 smooth
 tension=%<value%>
 smooth cycle
+smooth monotone
 const plot
 const plot mark left
 const plot mark right
@@ -648,6 +667,7 @@ ampersand replacement=%<macro%>
 \pgfuseplotmark{name}#*
 \pgfplothandlergaplineto#*
 \pgfplothandlergapcycle#*
+\pgfplothandlermonotone#*
 
 ## from matrix pgfmodule
 \ifpgfmatrix#S
