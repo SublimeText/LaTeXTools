@@ -14,7 +14,7 @@ from ...latextools.utils.logging import logger
 from ...latextools.utils.settings import get_setting
 from .base_viewer import BaseViewer
 
-__all__ = ["EvinceViewer", "LatextoolsDbusViewerListener", "XreaderViewer"]
+__all__ = ["Evince2Viewer", "EvinceViewer", "LatextoolsDbusViewerListener", "XreaderViewer"]
 
 
 # let registered processes survife module reloading
@@ -268,6 +268,10 @@ class EvinceViewer(BaseDBusViewer):
     if _app_command is not None and Path(_app_command).resolve().name == "xreader":
         logger.info("On this platform, Xreader provides Evince, will use Xreader DBus name")
         _app_dbus_name = "org.x.reader"
+
+
+class Evince2Viewer(BaseDBusViewer):
+    _app_dbus_name = "org.gnome.Evince"
 
 
 class XreaderViewer(BaseDBusViewer):

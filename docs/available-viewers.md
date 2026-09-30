@@ -4,11 +4,20 @@
 
 > Linux
 
+For distributions using `org.gnome.evince` dbus name.
+
 Evince is the default viewer on Linux. On most installs that include the Gnome Desktop, it should work out of the box, but some distributions do not install some of the needed files. In particular, you will need to ensure that your system Python install has the bindings for `dbus` and one or both of `python-gobject` or `python-gi` (the Python Gnome interface).
 
 There is one feature unique to Evince and XReader. If the `bring_to_front` setting in the `viewer_settings` block is set to `true` and `keep_focus` remains set to `true`, Evince is brought to foreground and then focus is returned to ST.
 
 Evince is the default viewer since Gnome appears to be the most widely-used Linux desktop. However, LaTeXTools also offers support for [Okular](#okular), [Sioyek](#sioyek), [XReader](#xreader) and [Zathura](#zathura). Additional viewers can be suppored use the [Command Viewer](#command-viewer).
+
+
+## Evince2
+
+> Linux
+
+Same as `Evince` but for distributions using `org.gnome.Evince` dbus name.
 
 ## Okular
 

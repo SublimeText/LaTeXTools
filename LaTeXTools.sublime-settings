@@ -512,6 +512,10 @@
 	//					for details
 	//
 	// "evince"			uses Evince; this is the default on linux
+	//                  for distros using dbus name `org.gnome.evince`
+	//
+	// "evince2"		uses Evince; this is the default on linux
+	//                  for distros using dbus name `org.gnome.Evince`
 	//
 	// "okular"			uses Okular to open the pdf
 	//
