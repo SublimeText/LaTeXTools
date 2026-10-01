@@ -18,9 +18,7 @@ class SioyekViewer(BaseViewer):
             # fallback to platform specific settings
             or get_setting(platform, {}).get("sioyek")
             # static binary expected to be found on $PATH
-            or "sioyek.exe"
-            if platform == "windows"
-            else "sioyek"
+            or ("sioyek.exe" if platform == "windows" else "sioyek")
         )
 
         command = [sioyek_binary]
