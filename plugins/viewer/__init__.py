@@ -1,5 +1,5 @@
 from .command_viewer import CommandViewer
-from .dbus_viewer import EvinceViewer, XreaderViewer
+from .dbus_viewer import EvinceViewer, Evince2Viewer, XreaderViewer
 from .okular_viewer import OkularViewer
 from .preview_viewer import PreviewViewer
 from .sioyek_viewer import SioyekViewer
