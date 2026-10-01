@@ -25,32 +25,32 @@ def _make_caption(toc_indentations, com, indent_offset):
 class show_toc_quickpanel(quickpanel.CancelEntriesQuickpanel):
     __show_string = "Show Labels"
     __hide_string = "Hide Labels"
-    __toggles = [__show_string, __hide_string]
+    __toggles = (__show_string, __hide_string)
 
     def __init__(self, view, ana, only_file=None):
         # retrieve the labels and the sections
-        toc_section_commands = get_setting("toc_section_commands", [], view)
-        toc_indentations = get_setting("toc_indentations", {}, view)
         toc_labels = get_setting("toc_labels", [], view)
+        toc_section_commands = get_setting("toc_section_commands", [], view)
 
-        labels = ana.filter_commands(toc_section_commands + toc_labels)
+        items = ana.filter_commands(toc_section_commands + toc_labels)
+        if only_file:
+            labels = [l for l in items if l.file_name == only_file]
+        else:
+            labels = [l for l in items]
+
         # filter the labels and sections to only get the labels
         # (faster than an additional query)
         secs = [c for c in labels if c.command in toc_section_commands]
 
-        if only_file:
-            labels = [l for l in labels if l.file_name == only_file]
-            secs = [s for s in secs if s.file_name == only_file]
-
         # create the user readably captions
         # get the minimal indent (to lower the minimal section indent to 0)
+        toc_indentations = get_setting("toc_indentations", {}, view)
         max_indent_value = max(toc_indentations.values())
         indent_offset = min(
             [toc_indentations.get(com.command, max_indent_value) for com in secs] + [0]
         )
 
         caption_secs = [_make_caption(toc_indentations, s, indent_offset) for s in secs]
-
         caption_labels = [_make_caption(toc_indentations, l, indent_offset) for l in labels]
 
         self.__only_sec = True
