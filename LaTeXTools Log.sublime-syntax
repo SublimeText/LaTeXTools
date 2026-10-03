@@ -9,7 +9,7 @@ first_line_match: '^This is (?:Lua(?:HB)?|pdfe?|Xe)?TeXk?, Version '
 variables:
   drive_char: '[a-zA-Z]'
   file_name: '{{file_char}}*?{{file_ext}}{{file_break}}'
-  file_char: '[\s\w.-]'  # note: assume sane path names
+  file_char: '[\s\w.\-'']'  # note: assume sane path names
   file_ext: '\.{{file_ext_start}}{{file_ext_char}}*'
   file_ext_start: '[a-zA-Z]'
   file_ext_char: '[a-zA-Z0-9]'
@@ -108,7 +108,7 @@ contexts:
 
   block-path-begin-continuation:
     # possible incomplete relative path or filename, starting at eol
-    - match: '[\s\w-]+\.?\n'
+    - match: '[\s\w\-'']+\.?\n'
       set:
         - block-unquoted-path-meta
         - block-unquoted-path-expect-file

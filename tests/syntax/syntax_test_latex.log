@@ -4,41 +4,41 @@
 # File Names
 # -----------------------------------------------------------------------------
 
-(A-TeX_File.tex)
+(A-TeX_File's.tex)
 # <- meta.block.log punctuation.section.block.begin.log
-#^^^^^^^^^^^^^^^ meta.block.log
-#^^^^^^^^^^^^^^ entity.name.section.filename.log
-#              ^ punctuation.section.block.end.log
-#               ^ - meta.block
+#^^^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^^^^ entity.name.section.filename.log
+#                ^ punctuation.section.block.end.log
+#                 ^ - meta.block
 
-(A-TeX_File.tex
+(A-TeX_File's.tex
 # <- meta.block.log punctuation.section.block.begin.log
-#^^^^^^^^^^^^^^^ meta.block.log
-#^^^^^^^^^^^^^^ entity.name.section.filename.log
+#^^^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^^^^ entity.name.section.filename.log
 )
 # <- meta.block.log punctuation.section.block.end.log
 
-(A-TeX_File.te
+(A-TeX_File's.te
 x)
 # <- meta.block.log entity.name.section.filename.log
 #^ meta.block.log punctuation.section.block.end.log
 # ^ - meta.block
 
-(A-TeX_File.t
+(A-TeX_File's.t
 ex)
 #^^ meta.block.log
 #^ entity.name.section.filename.log
 # ^ punctuation.section.block.end.log
 #  ^ - meta.block
 
-(A-TeX_File.
+(A-TeX_File's.
 tex)
 #^^^ meta.block.log
 #^^ entity.name.section.filename.log
 #  ^ punctuation.section.block.end.log
 #   ^ - meta.block
 
-(A-TeX_File
+(A-TeX_File's
 .tex)
 #^^^^ meta.block.log
 #^^^ entity.name.section.filename.log
@@ -53,21 +53,21 @@ _File.tex)
 #         ^ - meta.block
 
 (A
--TeX_File.tex)
-#^^^^^^^^^^^^^ meta.block.log
-#^^^^^^^^^^^^ entity.name.section.filename.log
-#            ^ punctuation.section.block.end.log
-#             ^ - meta.block
+-TeX_File's.tex)
+#^^^^^^^^^^^^^^^ meta.block.log
+#^^^^^^^^^^^^^^ entity.name.section.filename.log
+#              ^ punctuation.section.block.end.log
+#               ^ - meta.block
 
 (A
--TeX_File.te
+-TeX_File's.te
 x)
 # <- meta.block.log entity.name.section.filename.log
 #^ meta.block.log punctuation.section.block.end.log
 # ^ - meta.block
 
 (A
--TeX_File.t
+-TeX_File's.t
 ex)
 # <- meta.block.log entity.name.section.filename.log
 #^^ meta.block.log
