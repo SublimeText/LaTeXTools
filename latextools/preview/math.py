@@ -7,10 +7,13 @@ import subprocess
 import threading
 import time
 import types
+from functools import partial
 
 import sublime
+import sublime_plugin
 
 from ..utils import cache
+from ..utils.decorators import debounce
 from ..utils.external_command import execute_command
 from ..utils.logging import logger
 from ..utils.settings import (
@@ -26,6 +29,8 @@ from .utils import (
     ghostscript_installed,
     run_ghostscript_command,
 )
+
+__all__ = ["MathPreviewPhantomListener"]
 
 # increase this number if you change the convert command to mark the
 # generated images as expired
@@ -348,12 +353,13 @@ class MathPreviewPhantomProvider:
         self.template_packages = ""
         self.template_preamble = ""
 
-        subscribe_settings_change(self.key, self._on_settings_changed, view)
+    def subscribe(self):
+        subscribe_settings_change(self.key, self._on_settings_changed, self.view)
         self._on_settings_changed()
 
     def unsubscribe(self):
         unsubscribe_settings_change(self.key, self.view)
-        self.delete_phantoms()
+        sublime.set_timeout_async(self.delete_phantoms)
 
     def _on_settings_changed(self):
         reset = False
@@ -446,7 +452,7 @@ class MathPreviewPhantomProvider:
                 # do nothing
                 return
             _IS_ENABLED = False
-            self.update_phantoms()
+            sublime.set_timeout_async(self.update_phantoms)
             if answer == sublime.DIALOG_YES:
                 self.view.window().run_command("latextools_open_user_settings")
         elif href.startswith("report-"):
@@ -457,25 +463,31 @@ class MathPreviewPhantomProvider:
             self.view.window().open_file(file_path)
 
     def reset_phantoms(self):
-        self.delete_phantoms()
-        self.update_phantoms()
+        _cancel_image_jobs(self.view.id())
+        with self._phantom_lock:
+            if self.view.is_valid():
+                self._delete_phantoms()
+                self._update_phantoms()
 
     def delete_phantoms(self):
-        view = self.view
-        _cancel_image_jobs(view.id())
+        _cancel_image_jobs(self.view.id())
         with self._phantom_lock:
-            for p in self.phantoms:
-                view.erase_phantom_by_id(p.id)
-            self.phantoms = []
+            if self.view.is_valid():
+                self._delete_phantoms()
+
+    def _delete_phantoms(self):
+        view = self.view
+        for p in self.phantoms:
+            view.erase_phantom_by_id(p.id)
+        self.phantoms = []
 
     def update_phantoms(self):
         with self._phantom_lock:
-            self._update_phantoms()
+            if self.view.is_valid():
+                self._update_phantoms()
 
     def _update_phantoms(self):
         view = self.view
-        if not view.is_primary():
-            return
         # not sure why this happens, but ignore these cases
         window = view.window()
         if window is None:
@@ -597,7 +609,7 @@ class MathPreviewPhantomProvider:
                     "max_bitmap": self.max_bitmap,
                     "bufferspace": self.bufferspace,
                     "p": p,
-                    "cont": self._make_cont(p, image_path, time.time()),
+                    "cont": partial(self._cont, p, image_path, time.time()),
                 }
             )
 
@@ -683,21 +695,18 @@ class MathPreviewPhantomProvider:
 
         return latex_document
 
-    def _make_cont(self, p, image_path, update_time):
-        def cont():
-            # if the image does not exists do nothing
-            if os.path.exists(image_path):
-                # generate the html
-                html_content = self._generate_html(image_path)
-            elif os.path.exists(image_path + _ERROR_EXTENSION):
-                # inform the user about the error
-                html_content = self._generate_error_html(image_path)
-            else:
-                return
-            # move to main thread and update the phantom
-            sublime.set_timeout(lambda: self._update_phantom_content(p, html_content, update_time))
-
-        return cont
+    def _cont(self, p, image_path, update_time):
+        # if the image does not exists do nothing
+        if os.path.exists(image_path):
+            # generate the html
+            html_content = self._generate_html(image_path)
+        elif os.path.exists(image_path + _ERROR_EXTENSION):
+            # inform the user about the error
+            html_content = self._generate_error_html(image_path)
+        else:
+            return
+        # move to main thread and update the phantom
+        sublime.set_timeout(partial(self._update_phantom_content, p, html_content, update_time))
 
     def _update_phantom_regions(self):
         regions = self.view.query_phantoms([p.id for p in self.phantoms])
@@ -709,8 +718,13 @@ class MathPreviewPhantomProvider:
         if p.update_time > update_time:
             return
         view = self.view
+
+        regions = view.query_phantom(p.id)
+        if not regions:
+            return
+
         # update the phantom region
-        p.region = view.query_phantom(p.id)[0]
+        p.region = regions[0]
 
         # if the region is -1 the phantom does not exists anymore
         if p.region == sublime.Region(-1):
@@ -776,3 +790,51 @@ class MathPreviewPhantomProvider:
             style = ""
 
         return '<body id="latextools-preview-math-phantom">' + style + html_content + "</body>"
+
+
+class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
+    def __init__(self, view):
+        """
+        Constructs a new math preview listener instance.
+
+        Called if `is_applicable()` returned true but no listener instance exists.
+
+        :param view:
+            The view to listen events for
+        """
+        super().__init__(view)
+        self.provider = None
+
+    def __del__(self):
+        if self.provider:
+            self.provider.unsubscribe()
+
+    @classmethod
+    def is_applicable(cls, settings):
+        syntax = str(settings.get("syntax", ""))
+        return any(s in syntax for s in ("LaTeX", "Markdown"))
+
+    @classmethod
+    def applies_to_primary_view_only(cls):
+        # TODO: handle scopes individually for split views in "selected" mode
+        return True
+
+    @debounce(600)
+    def on_modified_async(self):
+        if self.view.is_valid():
+            if self.provider is None:
+                self.provider = MathPreviewPhantomProvider(self.view)
+                self.provider.subscribe()
+            # Preview all environments, update modified
+            if self.provider.mode == "all":
+                self.provider.update_phantoms()
+
+    @debounce(600)
+    def on_selection_modified_async(self):
+        if self.view.is_valid():
+            if self.provider is None:
+                self.provider = MathPreviewPhantomProvider(self.view)
+                self.provider.subscribe()
+            # Preview selected math equations
+            if self.provider.mode == "selected" or not self.provider.phantoms:
+                self.provider.update_phantoms()
