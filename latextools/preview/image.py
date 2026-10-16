@@ -1,6 +1,5 @@
 import os
 import struct
-import threading
 import types
 from functools import partial
 from textwrap import dedent
@@ -247,7 +246,6 @@ class ImagePreviewPhantomProvider:
     def __init__(self, view):
         self.view = view
         self.phantoms = []
-        self._phantom_lock = threading.Lock()
 
         self.mode = "hover"
         self.image_size = 150
@@ -354,31 +352,27 @@ class ImagePreviewPhantomProvider:
         p = self.phantoms[index]
         if command == "hide":
             p.hidden = True
-            with self._phantom_lock:
-                if regions := self.view.query_phantom(p.id):
-                    p.region = regions[0]
-                    sublime.set_timeout_async(partial(self.update_phantom, p))
+            if regions := self.view.query_phantom(p.id):
+                p.region = regions[0]
+                sublime.set_timeout_async(partial(self.update_phantom, p))
         elif command == "show":
             p.hidden = False
-            with self._phantom_lock:
-                if regions := self.view.query_phantom(p.id):
-                    p.region = regions[0]
-                    sublime.set_timeout_async(partial(self.update_phantom, p))
+            if regions := self.view.query_phantom(p.id):
+                p.region = regions[0]
+                sublime.set_timeout_async(partial(self.update_phantom, p))
         elif command == "open_image":
             open_image(self.view.window(), p.image_path)
         elif command == "open_folder":
             open_image_folder(self.view.window(), p.image_path)
 
     def reset_phantoms(self):
-        with self._phantom_lock:
-            if self.view.is_valid():
-                self._delete_phantoms()
-                self._update_phantoms()
+        if self.view.is_valid():
+            self._delete_phantoms()
+            self._update_phantoms()
 
     def delete_phantoms(self):
-        with self._phantom_lock:
-            if self.view.is_valid():
-                self._delete_phantoms()
+        if self.view.is_valid():
+            self._delete_phantoms()
 
     def _delete_phantoms(self):
         view = self.view
@@ -387,9 +381,8 @@ class ImagePreviewPhantomProvider:
         self.phantoms = []
 
     def update_phantom(self, p):
-        with self._phantom_lock:
-            if self.view.is_valid():
-                self._update_phantom(p)
+        if self.view.is_valid():
+            self._update_phantom(p)
 
     def _update_phantom(self, p):
         view = self.view
@@ -406,9 +399,8 @@ class ImagePreviewPhantomProvider:
         )
 
     def update_phantoms(self):
-        with self._phantom_lock:
-            if self.view.is_valid():
-                self._update_phantoms()
+        if self.view.is_valid():
+            self._update_phantoms()
 
     def _update_phantoms(self):
         view = self.view

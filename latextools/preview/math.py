@@ -4,7 +4,6 @@ import os
 import re
 import struct
 import subprocess
-import threading
 import time
 import types
 from functools import partial
@@ -335,8 +334,6 @@ class MathPreviewPhantomProvider:
         self.view = view
         self.phantoms = []
 
-        self._phantom_lock = threading.Lock()
-
         self.mode = "selected"
         self.latex_compile_program = ""
         self.no_star_envs = []
@@ -464,16 +461,14 @@ class MathPreviewPhantomProvider:
 
     def reset_phantoms(self):
         _cancel_image_jobs(self.view.id())
-        with self._phantom_lock:
-            if self.view.is_valid():
-                self._delete_phantoms()
-                self._update_phantoms()
+        if self.view.is_valid():
+            self._delete_phantoms()
+            self._update_phantoms()
 
     def delete_phantoms(self):
         _cancel_image_jobs(self.view.id())
-        with self._phantom_lock:
-            if self.view.is_valid():
-                self._delete_phantoms()
+        if self.view.is_valid():
+            self._delete_phantoms()
 
     def _delete_phantoms(self):
         view = self.view
@@ -482,9 +477,8 @@ class MathPreviewPhantomProvider:
         self.phantoms = []
 
     def update_phantoms(self):
-        with self._phantom_lock:
-            if self.view.is_valid():
-                self._update_phantoms()
+        if self.view.is_valid():
+            self._update_phantoms()
 
     def _update_phantoms(self):
         view = self.view
