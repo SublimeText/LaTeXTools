@@ -8,6 +8,7 @@ from .latex_cwl_completions import get_cwl_command_completions
 from .utils import analysis
 from .utils.activity_indicator import ActivityIndicator
 from .utils.cache import LocalCache
+from .utils.decorators import debounce
 from .utils.logging import logger
 from .utils.settings import get_setting
 from .utils.tex_directives import get_tex_root
@@ -70,6 +71,7 @@ class LatextoolsCacheUpdateListener(sublime_plugin.EventListener):
             if view.match_selector(0, "text.tex.latex"):
                 self.on_load(view)
 
+    @debounce(250, sync=True)
     def on_load(self, view):
         if not view.is_primary():
             return
