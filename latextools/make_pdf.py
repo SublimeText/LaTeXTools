@@ -24,6 +24,7 @@ from .latextools_plugin import (
     get_plugin,
 )
 from .utils.activity_indicator import ActivityIndicator
+from .utils.decorators import debounce
 from .utils.external_command import Popen, execute_command, get_texpath
 from .utils.is_tex_file import is_tex_file
 from .utils.logging import logger
@@ -709,9 +710,7 @@ class LatextoolsExecEventListener(sublime_plugin.EventListener):
 
         # update build result annotations
         if view.match_selector(0, "text.tex"):
-            w = view.window()
-            if w is not None:
-                w.run_command("latextools_make_pdf", {"update_annotations_only": True})
+            self.update_annotations(view)
 
     def on_query_context(self, view, key, operator, operand, match_all):
         # provide context for conditional key bindings
@@ -722,3 +721,8 @@ class LatextoolsExecEventListener(sublime_plugin.EventListener):
             if operator == sublime.OP_NOT_EQUAL:
                 return value != operand
         return False
+
+    @debounce(250, sync=True)
+    def update_annotations(self, view):
+        if view.is_valid() and (window := view.window()):
+            window.run_command("latextools_make_pdf", {"update_annotations_only": True})
