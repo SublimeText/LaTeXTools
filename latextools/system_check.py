@@ -21,8 +21,8 @@ from .latextools_plugin import (
     classname_to_plugin_name,
     get_plugin,
 )
-from .preview.preview_utils import __get_gs_command as get_gs_command
-from .preview.preview_utils import convert_installed, ghostscript_installed
+from .preview.utils import __get_gs_command as get_gs_command
+from .preview.utils import convert_installed, ghostscript_installed
 from .utils.activity_indicator import ActivityIndicator
 from .utils.distro_utils import using_miktex
 from .utils.external_command import get_texpath
@@ -33,7 +33,7 @@ from .utils.sublime_utils import get_sublime_exe
 from .utils.tex_directives import get_tex_root, parse_tex_directives
 
 if sublime.platform() == "windows":
-    from .preview.preview_utils import get_system_root
+    from .preview.utils import get_system_root
 
 __all__ = ["LatextoolsSystemCheckCommand"]
 

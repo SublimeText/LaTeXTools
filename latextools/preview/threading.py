@@ -3,7 +3,7 @@ import traceback
 
 from ..utils.logging import logger
 from ..utils.settings import get_setting
-from .preview_utils import try_delete_temp_files
+from .utils import try_delete_temp_files
 
 _thread_num_lock = threading.Lock()
 _thread_num = 0

@@ -17,8 +17,8 @@ from ..utils.settings import (
     unsubscribe_settings_change,
 )
 from ..utils.tex_directives import get_tex_root
-from . import preview_threading as pv_threading
-from .preview_utils import (
+from . import threading as pv_threading
+from .utils import (
     convert_installed,
     ghostscript_installed,
     run_convert_command,

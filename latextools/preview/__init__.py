@@ -1,8 +1,8 @@
 import sublime_plugin
 
 from ..utils.decorators import debounce
-from .preview_image import ImagePreviewHoverListener, ImagePreviewPhantomProvider
-from .preview_math import MathPreviewPhantomProvider
+from .image import ImagePreviewHoverListener, ImagePreviewPhantomProvider
+from .math import MathPreviewPhantomProvider
 
 __all__ = ["ImagePreviewHoverListener", "PreviewPhantomListener"]
 

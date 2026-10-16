@@ -20,8 +20,8 @@ from ..utils.settings import (
 )
 from ..utils.tex_log import parse_log_file
 from ..utils.utils import cpu_count
-from . import preview_threading as pv_threading
-from .preview_utils import (
+from . import threading as pv_threading
+from .utils import (
     get_ghostscript_version,
     ghostscript_installed,
     run_ghostscript_command,
