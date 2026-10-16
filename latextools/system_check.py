@@ -483,16 +483,24 @@ class SystemCheckThread(threading.Thread):
 
         logger.debug("Executing %s...", cmd)
 
-        result = subprocess.run(
-            cmd,
-            env=self.env,
-            encoding="utf-8",
-            shell=self.platform == "windows",
-            stderr=subprocess.DEVNULL,
-            stdout=subprocess.PIPE,
-            timeout=30,
-            text=True,
-        )
+        try:
+            result = subprocess.run(
+                cmd,
+                env=self.env,
+                encoding="utf-8",
+                shell=self.platform == "windows",
+                stderr=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                timeout=30,
+                text=True,
+            )
+        except subprocess.TimeoutExpired:
+            logger.error("Timeout while executing %s", cmd)
+            return None
+        except subprocess.SubprocessError as exc:
+            logger.error(exc)
+            return None
+
         return result.stdout if result.returncode == 0 else None
 
     def get_version_info(self, executable: str) -> str | None:
