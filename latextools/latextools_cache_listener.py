@@ -1,6 +1,7 @@
 import threading
 import traceback
 
+import sublime
 import sublime_plugin
 
 from .latex_cite_completions import find_bib_files, run_plugin_command
@@ -8,7 +9,6 @@ from .latex_cwl_completions import get_cwl_command_completions
 from .utils import analysis
 from .utils.activity_indicator import ActivityIndicator
 from .utils.cache import LocalCache
-from .utils.decorators import debounce
 from .utils.logging import logger
 from .utils.settings import get_setting
 from .utils.tex_directives import get_tex_root
@@ -71,12 +71,17 @@ class LatextoolsCacheUpdateListener(sublime_plugin.EventListener):
             if view.match_selector(0, "text.tex.latex"):
                 self.on_load(view)
 
-    @debounce(250, sync=True)
     def on_load(self, view):
-        if not view.is_primary():
-            return
+        """
+        Update analysis cache, if view still exists after 500ms.
 
-        if not view.match_selector(0, "text.tex.latex"):
+        Skips expensive tasks when quickly switching views in e.g. Goto Anyhting
+        """
+        if view.is_primary() and view.match_selector(0, "text.tex.latex"):
+            sublime.set_timeout(lambda: self.on_load_delayed(view), 500)
+
+    def on_load_delayed(self, view):
+        if not view.is_valid():
             return
 
         cache = get_cache(view)
