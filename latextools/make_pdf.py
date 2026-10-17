@@ -24,7 +24,6 @@ from .latextools_plugin import (
     get_plugin,
 )
 from .utils.activity_indicator import ActivityIndicator
-from .utils.decorators import debounce
 from .utils.external_command import Popen, execute_command, get_texpath
 from .utils.is_tex_file import is_tex_file
 from .utils.logging import logger
@@ -700,6 +699,27 @@ class LatextoolsMakePdfCommand(sublime_plugin.WindowCommand):
 
 
 class LatextoolsExecEventListener(sublime_plugin.EventListener):
+    last_view = None
+    """Most recently loaded view"""
+    view_changing = False
+    """View change detection is running, checking changing views each 250ms"""
+
+    def update_annotations(self, view):
+        """
+        Update build annotations if no more views are being loaded.
+
+        Skip annotation updates as long as new ((semi-)transient) views are loaded,
+        which indicates e.g. quickly navigating through Goto Anything quick panel.
+        """
+        if view != self.last_view:
+            sublime.set_timeout(functools.partial(self.update_annotations, self.last_view), 250)
+            return
+
+        if window := view.window():
+            window.run_command("latextools_make_pdf", {"update_annotations_only": True})
+
+        self.view_changing = False
+
     def on_load(self, view):
         # assign latex log syntax based on view's first line
         if view.match_selector(0, "text.plain"):
@@ -709,8 +729,10 @@ class LatextoolsExecEventListener(sublime_plugin.EventListener):
             return
 
         # update build result annotations
-        if view.match_selector(0, "text.tex"):
-            self.update_annotations(view)
+        self.last_view = view
+        if not self.view_changing and view.match_selector(0, "text.tex"):
+            self.view_changing = True
+            sublime.set_timeout(functools.partial(self.update_annotations, self.last_view), 250)
 
     def on_query_context(self, view, key, operator, operand, match_all):
         # provide context for conditional key bindings
@@ -721,8 +743,3 @@ class LatextoolsExecEventListener(sublime_plugin.EventListener):
             if operator == sublime.OP_NOT_EQUAL:
                 return value != operand
         return False
-
-    @debounce(250, sync=True)
-    def update_annotations(self, view):
-        if view.is_valid() and (window := view.window()):
-            window.run_command("latextools_make_pdf", {"update_annotations_only": True})

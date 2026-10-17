@@ -1,3 +1,4 @@
+import sublime
 import sublime_plugin
 
 from .utils.logging import logger
@@ -143,6 +144,9 @@ def _get_locale_from_tex_root(view):
 
 
 def update_dict_language(view, extract_from_root):
+    if not view or not view.is_valid():
+        return
+
     loc = _get_locale(view) or extract_from_root and _get_locale_from_tex_root(view)
     if not loc:
         return  # no spellcheck directive found
@@ -167,7 +171,7 @@ class LatextoolsAutoDetectSpellcheckListener(sublime_plugin.EventListener):
 
     def on_load_async(self, view):
         if view.match_selector(0, "text.tex.latex"):
-            update_dict_language(view, True)
+            sublime.set_timeout_async(lambda: update_dict_language(view, True), 500)
 
 
 class LatextoolsDetectSpellcheckCommand(sublime_plugin.WindowCommand):
