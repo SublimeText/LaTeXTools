@@ -67,7 +67,11 @@ from .latextools.make_pdf import (
     LatextoolsExecEventListener,
     LatextoolsMakePdfCommand,
 )
-from .latextools.preview import ImagePreviewHoverListener, PreviewPhantomListener
+from .latextools.preview.image import (
+    ImagePreviewHoverListener,
+    ImagePreviewPhantomListener,
+)
+from .latextools.preview.math import MathPreviewPhantomListener
 from .latextools.reset_settings import LatextoolsResetSettingsCommand
 from .latextools.reveal_folders import (
     LatextoolsRevealAuxDirectoryCommand,
