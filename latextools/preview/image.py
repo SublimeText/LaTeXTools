@@ -522,6 +522,7 @@ class ImagePreviewPhantomListener(sublime_plugin.ViewEventListener):
         """
         super().__init__(view)
         self.provider = None
+        self.on_modified()
 
     def __del__(self):
         if self.provider:
