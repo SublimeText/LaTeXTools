@@ -10,7 +10,6 @@ import sublime
 from ..utils import cache
 from ..utils.distro_utils import using_miktex
 from ..utils.external_command import (
-    __sentinel__,
     check_output,
     execute_command,
     get_texpath,
@@ -238,7 +237,7 @@ def get_ghostscript_version():
         return _GS_VERSION if _GS_VERSION is not None else (-1, -1)
 
 
-def run_ghostscript_command(args, stdout=__sentinel__, stderr=__sentinel__):
+def run_ghostscript_command(args, stdout=None, stderr=None):
     """Executes a Ghostscript command with the given args"""
     if not isinstance(args, list):
         raise TypeError("args must be a list")

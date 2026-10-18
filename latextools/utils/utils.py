@@ -114,12 +114,6 @@ class TimeoutError(Exception):
     pass
 
 
-try:
-    __sentinel__
-except NameError:
-    __sentinel__ = object()
-
-
 class ThreadPool:
     """A relatively simple ThreadPool designed to maintain a number of thread
     workers
