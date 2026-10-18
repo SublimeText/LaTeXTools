@@ -717,15 +717,16 @@ class LatexFillAllEventListener(
 
         # autofill input quick panel visible
         if key == "latextools.input_overlay_visible":
-            return (window := view.window()) and window.id() in VISIBLE_OVERLAYS
+            return bool((window := view.window()) and window.id() in VISIBLE_OVERLAYS)
 
         # quick exit conditions
         if not key.startswith("lt_fill_all_"):
-            return None
+            return False
+
         for sel in view.sel():
             point = sel.b
             if not view.match_selector(point, "text.tex.latex"):
-                return None
+                return False
 
         # load the plugins
         if self.SUPPORTED_KEYS is None:
@@ -735,16 +736,13 @@ class LatexFillAllEventListener(
 
         try:
             key, insert_char = key.split(".")
-        except Exception:
+        except ValueError:
             insert_char = ""
 
-        # not handled here
-        if key not in self.SUPPORTED_KEYS:
-            return None
-        # unsupported bracket
-        elif (
-            insert_char
-            and insert_char not in self.SUPPORTED_INSERT_CHARS
+        # not handled here or unsupported bracket
+        if (
+            key not in self.SUPPORTED_KEYS
+            or insert_char and insert_char not in self.SUPPORTED_INSERT_CHARS
             or operator not in [sublime.OP_EQUAL, sublime.OP_NOT_EQUAL]
         ):
             return False
