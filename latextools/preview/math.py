@@ -794,7 +794,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
     def __init__(self, view):
         super().__init__(view)
         self.provider = None
-        self.on_modified()
+        sublime.set_timeout_async(self.initialize, 600)
 
     def __del__(self):
         if self.provider:
@@ -810,20 +810,19 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
         # TODO: handle scopes individually for split views in "selected" mode
         return True
 
-    @debounce(600, sync=False)
-    def on_modified(self):
-        if self.provider is None:
+    def initialize(self):
+        if self.provider is None and self.view.is_valid():
             self.provider = MathPreviewPhantomProvider(self.view)
             self.provider.subscribe()
+
+    @debounce(600, sync=False)
+    def on_modified(self):
         # Preview all environments, update modified
-        elif self.provider.mode == "all":
+        if self.provider is not None and self.provider.mode == "all":
             self.provider.update_phantoms()
 
     @debounce(600, sync=False)
     def on_selection_modified(self):
-        if self.provider is None:
-            self.provider = MathPreviewPhantomProvider(self.view)
-            self.provider.subscribe()
         # Preview selected math equations
-        elif self.provider.mode == "selected" or not self.provider.phantoms:
+        if self.provider is not None and (self.provider.mode == "selected" or not self.provider.phantoms):
             self.provider.update_phantoms()
