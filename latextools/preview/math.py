@@ -676,12 +676,7 @@ class MathPreviewPhantomProvider:
 
         document_content = f"{open_str}\n{content}\n{close_str}"
 
-        try:
-            latex_template = self.template_contents[self.template_file]
-            if not latex_template:
-                raise Exception("Template must not be empty!")
-        except Exception:
-            latex_template = default_latex_template
+        latex_template = self.template_contents.get(self.template_file) or default_latex_template
 
         if color.startswith("#"):
             color = color[1:].upper()
