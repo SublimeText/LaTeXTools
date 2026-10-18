@@ -38,7 +38,7 @@ import shlex
 import subprocess
 import sys
 from shutil import which
-from subprocess import PIPE, STDOUT, CalledProcessError, Popen, list2cmdline
+from subprocess import DEVNULL, PIPE, STDOUT, CalledProcessError, Popen, list2cmdline
 from typing import TYPE_CHECKING
 
 import sublime
@@ -52,6 +52,7 @@ if TYPE_CHECKING:
     CommandLine: TypeAlias = list[str] | str
 
 __all__ = [
+    "DEVNULL",
     "PIPE",
     "STDOUT",
     "Popen",
@@ -61,8 +62,6 @@ __all__ = [
     "external_command",
     "get_texpath",
 ]
-
-__sentinel__ = object()
 
 IS_WIN = sys.platform == "win32"
 
@@ -118,9 +117,9 @@ def external_command(
     cwd=None,
     shell=False,
     env=None,
-    stdin=__sentinel__,
-    stdout=__sentinel__,
-    stderr=__sentinel__,
+    stdin=None,
+    stdout=None,
+    stderr=None,
     preexec_fn=None,
     use_texpath=True,
     show_window=False,
@@ -146,15 +145,6 @@ def external_command(
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         startupinfo.wShowWindow = subprocess.SW_HIDE
-
-    if stdin is __sentinel__:
-        stdin = None
-
-    if stdout is __sentinel__:
-        stdout = None
-
-    if stderr is __sentinel__:
-        stderr = None
 
     if shell:
         if IS_WIN:
@@ -210,9 +200,9 @@ def execute_command(
     cwd=None,
     shell=False,
     env=None,
-    stdin=__sentinel__,
-    stdout=__sentinel__,
-    stderr=__sentinel__,
+    stdin=None,
+    stdout=None,
+    stderr=None,
     preexec_fn=None,
     use_texpath=True,
     show_window=False,
@@ -237,10 +227,10 @@ def execute_command(
         else:
             return "\n".join(re.split(r"\r?\n", stream.decode("utf-8", "ignore").rstrip()))
 
-    if stdout is __sentinel__:
+    if stdout is None:
         stdout = PIPE
 
-    if stderr is __sentinel__:
+    if stdout is None:
         stderr = STDOUT
 
     p = external_command(
@@ -265,9 +255,9 @@ def check_call(
     cwd=None,
     shell=False,
     env=None,
-    stdin=__sentinel__,
-    stdout=__sentinel__,
-    stderr=__sentinel__,
+    stdin=None,
+    stdout=None,
+    stderr=None,
     preexec_fn=None,
     use_texpath=True,
     show_window=False,
@@ -281,11 +271,11 @@ def check_call(
     This is pretty much identical to subprocess.check_call(), but
     implemented here to take advantage of LaTeXTools-specific tooling.
     """
-    # since we don't do anything with the output, by default just ignore it
-    if stdout is __sentinel__:
-        stdout = open(os.devnull, "w")
-    if stderr is __sentinel__:
-        stderr = open(os.devnull, "w")
+    if stdout is None:
+        stdout = DEVNULL
+
+    if stdout is None:
+        stderr = DEVNULL
 
     returncode, stdout, stderr = execute_command(
         command,
@@ -301,6 +291,8 @@ def check_call(
 
     if returncode:
         e = CalledProcessError(returncode, command)
+        e.output = stdout
+        e.stderr = stderr
         raise e
 
     return 0
@@ -311,8 +303,8 @@ def check_output(
     cwd=None,
     shell=False,
     env=None,
-    stdin=__sentinel__,
-    stderr=__sentinel__,
+    stdin=None,
+    stderr=None,
     preexec_fn=None,
     use_texpath=True,
     show_window=False,
