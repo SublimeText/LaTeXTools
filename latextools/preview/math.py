@@ -351,14 +351,14 @@ class MathPreviewPhantomProvider:
         self.template_preamble = ""
 
     def subscribe(self):
-        subscribe_settings_change(self.key, self._on_settings_changed, self.view)
-        self._on_settings_changed()
+        subscribe_settings_change(self.key, self.on_settings_changed, self.view)
+        self.on_settings_changed()
 
     def unsubscribe(self):
         unsubscribe_settings_change(self.key, self.view)
         self.delete_phantoms()
 
-    def _on_settings_changed(self):
+    def on_settings_changed(self):
         reset = False
         prefix_len = len("preview_math_")
         for key in (
