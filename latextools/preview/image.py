@@ -287,65 +287,6 @@ class ImagePreviewPhantomProvider:
         if reset:
             self.reset_phantoms()
 
-    def _update_phantom_regions(self):
-        regions = self.view.query_phantoms([p.id for p in self.phantoms])
-        for i in range(len(regions)):
-            self.phantoms[i].region = regions[i]
-
-    def _create_html_content(self, p):
-        if p.thumbnail_path is None:
-            nav_tag = ""
-            img_tag = """Image not found!"""
-
-        elif p.hidden:
-            nav_tag = f"""<div>
-                <a href="show {p.index}">(Show)</a>
-            </div>"""
-            img_tag = ""
-
-        else:
-            nav_tag = f"""<div>
-                <a href="hide {p.index}">(Hide)</a>
-                <a href="open_image {p.index}">(Open image)</a>
-                <a href="open_folder {p.index}">(Open folder)</a>
-            </div>"""
-
-            if os.path.exists(p.thumbnail_path):
-                width, height = _adapt_image_size(
-                    p.thumbnail_path, self.image_width, self.image_height
-                )
-                img_tag = f'<img src="file://{p.thumbnail_path}" width="{width}" height="{height}">'
-            elif convert_installed():
-                img_tag = "Preparing image for preview..."
-            elif os.path.exists(p.thumbnail_path + _ERROR_EXTENSION):
-                img_tag = "ERROR: Failed to create preview thumbnail."
-            else:
-                img_tag = "Install ImageMagick to enable a preview for this image type."
-
-        return dedent(
-            f"""
-            <style>
-                html, body {{
-                    margin: 0;
-                    padding: 0;
-                }}
-                body {{
-                    padding: 0 0 6pt 10pt;
-                }}
-                a {{
-                    text-decoration: none;
-                }}
-                div {{
-                    padding: 0 0 6pt 0;
-                }}
-            </style>
-            <body id="latextools-preview-image-phantom">
-            {nav_tag}
-            {img_tag}
-            </body>
-            """
-        )
-
     def on_navigate(self, href):
         command, index = href.split(" ")
         index = int(index)
@@ -507,6 +448,65 @@ class ImagePreviewPhantomProvider:
         layout = sublime.LAYOUT_BLOCK
         p.id = view.add_phantom(
             self.key, p.region, html_content, layout, on_navigate=self.on_navigate
+        )
+
+    def _update_phantom_regions(self):
+        regions = self.view.query_phantoms([p.id for p in self.phantoms])
+        for i in range(len(regions)):
+            self.phantoms[i].region = regions[i]
+
+    def _create_html_content(self, p):
+        if p.thumbnail_path is None:
+            nav_tag = ""
+            img_tag = """Image not found!"""
+
+        elif p.hidden:
+            nav_tag = f"""<div>
+                <a href="show {p.index}">(Show)</a>
+            </div>"""
+            img_tag = ""
+
+        else:
+            nav_tag = f"""<div>
+                <a href="hide {p.index}">(Hide)</a>
+                <a href="open_image {p.index}">(Open image)</a>
+                <a href="open_folder {p.index}">(Open folder)</a>
+            </div>"""
+
+            if os.path.exists(p.thumbnail_path):
+                width, height = _adapt_image_size(
+                    p.thumbnail_path, self.image_width, self.image_height
+                )
+                img_tag = f'<img src="file://{p.thumbnail_path}" width="{width}" height="{height}">'
+            elif convert_installed():
+                img_tag = "Preparing image for preview..."
+            elif os.path.exists(p.thumbnail_path + _ERROR_EXTENSION):
+                img_tag = "ERROR: Failed to create preview thumbnail."
+            else:
+                img_tag = "Install ImageMagick to enable a preview for this image type."
+
+        return dedent(
+            f"""
+            <style>
+                html, body {{
+                    margin: 0;
+                    padding: 0;
+                }}
+                body {{
+                    padding: 0 0 6pt 10pt;
+                }}
+                a {{
+                    text-decoration: none;
+                }}
+                div {{
+                    padding: 0 0 6pt 0;
+                }}
+            </style>
+            <body id="latextools-preview-image-phantom">
+            {nav_tag}
+            {img_tag}
+            </body>
+            """
         )
 
 
