@@ -490,17 +490,13 @@ class MathPreviewPhantomProvider:
         self.phantoms = []
 
     def _update_phantoms(self):
-        view = self.view
-        # not sure why this happens, but ignore these cases
-        window = view.window()
-        if window is None:
-            return
         if not ghostscript_installed():
             return
 
         # update the regions of the phantoms
         self._update_phantom_regions()
 
+        view = self.view
         new_phantoms = []
         job_args = []
         if not _IS_ENABLED or self.mode == "none" or self.scope is None:

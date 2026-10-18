@@ -1,9 +1,10 @@
-# robotkarol.cwl — Autovervollständigung für robotkarol.sty v3.7
+# robotkarol.cwl — Autovervollständigung für robotkarol.sty v3.10
 #include:tikz
 #include:listings
 #include:struktex
 #include:graphicx
 #include:fontspec
+#include:tikzlibrarypatterns.meta
 
 #keyvals:\karolsetup#c
 feldbreite=%<Länge%>
@@ -36,11 +37,20 @@ hutfarbe=%<Farbe%>
 # --- Schriften (v3.6) ---
 # Vorgabe: Noto Sans + Hack wie in Robot Karol Online.  Mit der
 # Paketoption schrift=dokument benutzt das Paket \sffamily und \ttfamily.
+# --- Druckmodus (v3.7) ---
+# druck stellt alle Ansichten auf tonersparende Graustufen um; zur
+# Laufzeit (auch nur in einer Gruppe) mit \karolsetup{druck=true}.
+# --- Verweise (v3.7) ---
+# hyperref=false unterdrueckt das Laden von hyperref; \karolonline
+# setzt dann denselben Text ohne Verweis.
 #keyvals:\usepackage/robotkarol#c
 schrift=#karol,dokument
 druck#true,false
 hyperref#true,false
 #endkeyvals
+
+# Verweis auf eine Aufgabe in Robot Karol Online: \karolonline{2t7t}
+# setzt karol.arrrg.de/#2t7t und verlinkt https://karol.arrrg.de/#2t7t
 \karolonline{%<Aufgabencode%>}
 \karolschrift
 \karolcodeschrift
@@ -50,7 +60,7 @@ skalierung=%<Faktor%>
 nummern=#true,false
 hinweis=%<Text%>
 titel=%<Text%>
-hervorheben=%<Feldliste%>
+hervorheben=%<Feldliste ab 1%>
 rahmen=#true,false
 hoehe=%<Ziegellagen%>
 #endkeyvals
@@ -67,6 +77,8 @@ hoehe=%<Ziegellagen%>
 \karollegende
 \karollegendenitem{%<Weltstring%>}{%<Beschriftung%>}
 \karollegendentrenner
+\karolzustandslegende
+\karolzustandslegendenitem{%<Objektbefehle%>}{%<Beschriftung%>}
 
 #keyvals:\begin{karolbloecke}#c
 skalierung=%<Faktor%>
@@ -81,12 +93,17 @@ skalierung=%<Faktor%>
 \bbefehl[%<Anzahl%>]{%<Befehl%>}
 \bwiederholemal{%<Anzahl%>}{%<Blöcke%>}
 \bwiederholesolange{%<Bedingung%>}{%<Blöcke%>}
+\bwiederholesolange[%<Anzahl%>]{%<Bedingung%>}{%<Blöcke%>}
 \bwiederholeimmer{%<Blöcke%>}
 \bwenndann{%<Bedingung%>}{%<Blöcke%>}
+\bwenndann[%<Anzahl%>]{%<Bedingung%>}{%<Blöcke%>}
 \bwenndannsonst{%<Bedingung%>}{%<dann-Blöcke%>}{%<sonst-Blöcke%>}
+\bwenndannsonst[%<Anzahl%>]{%<Bedingung%>}{%<dann-Blöcke%>}{%<sonst-Blöcke%>}
 \bluecke
 \bluecke[%<Breite%>]
 \bbedingung{%<Bedingung%>}
+# Zahlenpille wie IstZiegel(2) in Robot Karol Online
+\bbedingung[%<Anzahl%>]{%<Bedingung%>}
 # Himmelsrichtungen mit Auswahlmenü (Norden/Süden/Osten/Westen)
 \bist{%<Richtung%>}
 \bnichtist{%<Richtung%>}
@@ -109,10 +126,13 @@ skalierung=%<Faktor%>
 \ihauptprogramm
 \iwiederholemal{%<Anzahl%>}
 \iwiederholesolange{%<Bedingung%>}
+\iwiederholesolange[%<Anzahl%>]{%<Bedingung%>}
 \iwiederholeimmer
 \iwenndann{%<Bedingung%>}
+\iwenndann[%<Anzahl%>]{%<Bedingung%>}
 \isonst
 \ibedingung{%<Bedingung%>}
+\ibedingung[%<Anzahl%>]{%<Bedingung%>}
 \iist{%<Richtung%>}
 \inichtist{%<Richtung%>}
 \iluecke
@@ -140,6 +160,11 @@ breite=%<Spalten%>
 laenge=%<Zeilen%>
 hoehe=%<Ziegellagen%>
 ansicht=#3d,2d
+zustand=#beides,start,ziel
+auftrag=#keiner,aufbauen,aufraeumen,aufräumen
+nummern=#true,false
+rahmen
+hervorheben=%<x/y-Liste%>
 skalierung=%<Faktor%>
 titel=%<Text%>
 hinweis=%<Text%>
@@ -159,4 +184,41 @@ bisx=%<Spalte%>
 bisy=%<Zeile%>
 bisX=%<Spalte%>
 bisY=%<Zeile%>
+# Start- und Zielzustand (v3.9).  Die Schalter nehmen auch =true|false.
+# neu/hinlegen/setzen wirken wie ziel, weg/aufheben/loeschen wie start.
+start
+ziel
+neu
+weg
+hinlegen
+aufheben
+setzen
+loeschen
+startanzahl=%<Ziegel%>
+zielanzahl=%<Ziegel%>
+start-anzahl=%<Ziegel%>
+ziel-anzahl=%<Ziegel%>
+#endkeyvals
+
+# --- karolweltpaar: Start und Ziel nebeneinander (v3.9) ---
+\begin{karolweltpaar}
+\end{karolweltpaar}
+\begin{karolweltpaar}[keyvals]
+\end{karolweltpaar}
+#keyvals:\begin{karolweltpaar}
+links=#start,ziel,beides
+rechts=#start,ziel,beides
+trenner=%<Text%>
+titellinks=%<Text%>
+titelrechts=%<Text%>
+breite=%<Spalten%>
+laenge=%<Zeilen%>
+hoehe=%<Ziegellagen%>
+ansicht=#3d,2d
+auftrag=#keiner,aufbauen,aufraeumen,aufräumen
+nummern#true,false
+rahmen
+hervorheben=%<x/y-Liste%>
+skalierung=%<Faktor%>
+hinweis=%<Text%>
 #endkeyvals

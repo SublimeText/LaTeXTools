@@ -1,5 +1,5 @@
 # simpleicons package
-# Matthew Bertucci 2026/09/11 for v16.30.0
+# Matthew Bertucci 2026/10/09 for v16.34.0
 
 #include:iftex
 
@@ -114,6 +114,7 @@ allegro
 alliedmodders
 alltrails
 almalinux
+alphaxiv
 alpinedotjs
 alpinelinux
 alternativeto
@@ -634,7 +635,7 @@ continente
 contributorcovenant
 conventionalcommits
 convertio
-convex 
+convex
 cookiecutter
 coolermaster
 coolify
@@ -1163,6 +1164,7 @@ go
 gocd
 godaddy
 godotengine
+godox
 gofundme
 gogdotcom
 gojek
@@ -1379,6 +1381,7 @@ husqvarna
 hyper
 hyperskill
 hyperx
+hypit
 hypothesis
 hyprland
 hyundai
@@ -2040,6 +2043,7 @@ norwegian
 note
 notebooklm
 notepadplusplus
+notesnook
 notion
 notist
 nounproject
@@ -2900,6 +2904,7 @@ suckless
 sui
 suitest
 sumologic
+sumup
 suno
 sunrise
 supabase
