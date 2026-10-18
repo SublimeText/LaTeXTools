@@ -33,6 +33,12 @@ _IMAGE_EXTENSION = ".png"
 # we add this extension to log error information
 _ERROR_EXTENSION = ".err"
 
+_IMAGE_CMD_SELECTOR = "meta.function.includegraphics.latex"
+_IMAGE_FILENAME_SELECTOR = (
+    "(meta.function.includegraphics.latex meta.group.brace, meta.function.includegraphics.latex meta.group.braces)"
+    " - punctuation.definition.group - punctuation.section.group"
+)
+
 # the name is used as identifier and to extract folder and file names
 _name = "preview_image"
 
@@ -344,29 +350,18 @@ class ImagePreviewPhantomProvider:
     def _update_phantoms(self):
         view = self.view
 
-        cmd_regions = []
+        args_regions = []
 
         if self.mode == "all":
-            cmd_regions = view.find_by_selector(
-                "meta.function.includegraphics.latex meta.group.brace"
-                " - punctuation.definition.group - punctuation.section.group"
-            )
+            args_regions = view.find_by_selector(_IMAGE_FILENAME_SELECTOR)
 
         elif self.mode == "selected":
-            selected_cmds = tuple(
-                cmd
-                for cmd in view.find_by_selector("meta.function.includegraphics.latex")
-                if any(cmd.contains(sel) for sel in view.sel())
-            )
+            selected_cmds = tuple(filter(None, (view.expand_to_scope(sel.b, _IMAGE_CMD_SELECTOR) for sel in view.sel())))
             if selected_cmds:
-                cmd_regions = (
-                    s
-                    for s in view.find_by_selector(
-                        "meta.function.includegraphics.latex meta.group.brace"
-                        " - punctuation.definition.group - punctuation.section.group"
-                    )
-                    if any(cmd.contains(s) for cmd in selected_cmds)
-                )
+                args_regions = [
+                    arg for arg in view.find_by_selector(_IMAGE_FILENAME_SELECTOR)
+                    if any(arg in cmd for cmd in selected_cmds)
+                ]
 
         elif not self.phantoms:
             return
@@ -383,13 +378,13 @@ class ImagePreviewPhantomProvider:
         tex_file_name = view.file_name()
         tn_width = self.image_scale_quotient * self.image_width
         tn_height = self.image_scale_quotient * self.image_height
-        for cmd_region in cmd_regions:
-            file_name = view.substr(cmd_region).strip()
+        for args_region in args_regions:
+            file_name = view.substr(args_region).strip()
             image_path = find_image(tex_root, file_name, tex_file_name)
 
             thumbnail_path = _get_thumbnail_path(image_path, tn_width, tn_height)
 
-            region = sublime.Region(cmd_region.end())
+            region = sublime.Region(args_region.end())
 
             try:
                 p = next(
@@ -451,9 +446,9 @@ class ImagePreviewPhantomProvider:
         )
 
     def _update_phantom_regions(self):
-        regions = self.view.query_phantoms([p.id for p in self.phantoms])
-        for i in range(len(regions)):
-            self.phantoms[i].region = regions[i]
+        if regions := self.view.query_phantoms([p.id for p in self.phantoms]):
+            for i, r in enumerate(regions):
+                self.phantoms[i].region = r
 
     def _create_html_content(self, p):
         if p.thumbnail_path is None:
@@ -555,23 +550,16 @@ class ImagePreviewHoverListener(sublime_plugin.EventListener):
         if view.is_popup_visible():
             # don't let the popup blink
             return
-        if not view.match_selector(point, "meta.function.includegraphics.latex"):
-            return
         mode = get_setting("preview_image_mode", view=view)
         if mode != "hover":
             return
-        cmd_regions = view.find_by_selector("meta.function.includegraphics.latex")
-        try:
-            cmd_region = next(c for c in cmd_regions if c.contains(point))
-        except StopIteration:
-            logger.error("Not inside an image scope.")
+        cmd_region = view.expand_to_scope(point, _IMAGE_CMD_SELECTOR)
+        if not cmd_region:
             return
-        args_regions = view.find_by_selector(
-            "meta.function.includegraphics.latex meta.group.brace"
-            " - punctuation.definition.group - punctuation.section.group"
-        )
+        # Note: some ST builds use meta.group.braces instead of meta.group.brace
+        args_regions = view.find_by_selector(_IMAGE_FILENAME_SELECTOR)
         try:
-            arg_region = next(a for a in args_regions if cmd_region.contains(a))
+            arg_region = next(a for a in args_regions if a in cmd_region)
         except StopIteration:
             logger.error("No file name scope found.")
             return
@@ -587,6 +575,7 @@ class ImagePreviewHoverListener(sublime_plugin.EventListener):
                 flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY,
             )
             return
+
         image_path = find_image(tex_root, file_name, tex_file_name=view.file_name())
         if not image_path:
             # image does not exists

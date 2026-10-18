@@ -703,9 +703,9 @@ class MathPreviewPhantomProvider:
         sublime.set_timeout(partial(self._update_phantom_content, p, html_content, update_time))
 
     def _update_phantom_regions(self):
-        regions = self.view.query_phantoms([p.id for p in self.phantoms])
-        for i in range(len(regions)):
-            self.phantoms[i].region = regions[i]
+        if regions := self.view.query_phantoms([p.id for p in self.phantoms]):
+            for i, r in enumerate(regions):
+                self.phantoms[i].region = r
 
     def _update_phantom_content(self, p, html_content, update_time):
         # if the current phantom is newer than the change ignore it
