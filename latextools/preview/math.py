@@ -356,7 +356,7 @@ class MathPreviewPhantomProvider:
 
     def unsubscribe(self):
         unsubscribe_settings_change(self.key, self.view)
-        sublime.set_timeout_async(self.delete_phantoms)
+        self.delete_phantoms()
 
     def _on_settings_changed(self):
         reset = False
@@ -403,7 +403,7 @@ class MathPreviewPhantomProvider:
             self._read_latex_template_file(refresh=True)
 
         if reset:
-            sublime.set_timeout_async(self.reset_phantoms)
+            self.reset_phantoms()
 
     def _read_latex_template_file(self, refresh=False):
         if not self.template_file:
@@ -449,7 +449,7 @@ class MathPreviewPhantomProvider:
                 # do nothing
                 return
             _IS_ENABLED = False
-            sublime.set_timeout_async(self.update_phantoms)
+            self.update_phantoms()
             if answer == sublime.DIALOG_YES:
                 self.view.window().run_command("latextools_open_user_settings")
         elif href.startswith("report-"):
@@ -460,15 +460,21 @@ class MathPreviewPhantomProvider:
             self.view.window().open_file(file_path)
 
     def reset_phantoms(self):
-        _cancel_image_jobs(self.view.id())
-        if self.view.is_valid():
-            self._delete_phantoms()
-            self._update_phantoms()
+        def worker():
+            _cancel_image_jobs(self.view.id())
+            if self.view.is_valid():
+                self._delete_phantoms()
+                self._update_phantoms()
+
+        sublime.set_timeout(worker)
 
     def delete_phantoms(self):
-        _cancel_image_jobs(self.view.id())
-        if self.view.is_valid():
-            self._delete_phantoms()
+        def worker():
+            _cancel_image_jobs(self.view.id())
+            if self.view.is_valid():
+                self._delete_phantoms()
+
+        sublime.set_timeout(worker)
 
     def _delete_phantoms(self):
         view = self.view
@@ -477,8 +483,11 @@ class MathPreviewPhantomProvider:
         self.phantoms = []
 
     def update_phantoms(self):
-        if self.view.is_valid():
-            self._update_phantoms()
+        def worker():
+            if self.view.is_valid():
+                self._update_phantoms()
+
+        sublime.set_timeout(worker)
 
     def _update_phantoms(self):
         view = self.view
@@ -813,8 +822,8 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
         # TODO: handle scopes individually for split views in "selected" mode
         return True
 
-    @debounce(600)
-    def on_modified_async(self):
+    @debounce(600, sync=False)
+    def on_modified(self):
         if self.view.is_valid():
             if self.provider is None:
                 self.provider = MathPreviewPhantomProvider(self.view)
@@ -823,8 +832,8 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
             if self.provider.mode == "all":
                 self.provider.update_phantoms()
 
-    @debounce(600)
-    def on_selection_modified_async(self):
+    @debounce(600, sync=False)
+    def on_selection_modified(self):
         if self.view.is_valid():
             if self.provider is None:
                 self.provider = MathPreviewPhantomProvider(self.view)

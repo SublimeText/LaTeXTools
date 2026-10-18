@@ -259,7 +259,7 @@ class ImagePreviewPhantomProvider:
 
     def unsubscribe(self):
         unsubscribe_settings_change(self.key, self.view)
-        sublime.set_timeout_async(self.delete_phantoms)
+        self.delete_phantoms()
 
     def _on_settings_changed(self):
         reset = False
@@ -285,7 +285,7 @@ class ImagePreviewPhantomProvider:
             reset = True
 
         if reset:
-            sublime.set_timeout_async(self.reset_phantoms)
+            self.reset_phantoms()
 
     def _update_phantom_regions(self):
         regions = self.view.query_phantoms([p.id for p in self.phantoms])
@@ -354,25 +354,31 @@ class ImagePreviewPhantomProvider:
             p.hidden = True
             if regions := self.view.query_phantom(p.id):
                 p.region = regions[0]
-                sublime.set_timeout_async(partial(self.update_phantom, p))
+                self.update_phantom(p)
         elif command == "show":
             p.hidden = False
             if regions := self.view.query_phantom(p.id):
                 p.region = regions[0]
-                sublime.set_timeout_async(partial(self.update_phantom, p))
+                self.update_phantom(p)
         elif command == "open_image":
             open_image(self.view.window(), p.image_path)
         elif command == "open_folder":
             open_image_folder(self.view.window(), p.image_path)
 
     def reset_phantoms(self):
-        if self.view.is_valid():
-            self._delete_phantoms()
-            self._update_phantoms()
+        def worker():
+            if self.view.is_valid():
+                self._delete_phantoms()
+                self._update_phantoms()
+
+        sublime.set_timeout(worker)
 
     def delete_phantoms(self):
-        if self.view.is_valid():
-            self._delete_phantoms()
+        def worker():
+            if self.view.is_valid():
+                self._delete_phantoms()
+
+        sublime.set_timeout(worker)
 
     def _delete_phantoms(self):
         view = self.view
@@ -381,8 +387,11 @@ class ImagePreviewPhantomProvider:
         self.phantoms = []
 
     def update_phantom(self, p):
-        if self.view.is_valid():
-            self._update_phantom(p)
+        def worker(p):
+            if self.view.is_valid():
+                self._update_phantom(p)
+
+        sublime.set_timeout(partial(worker, p))
 
     def _update_phantom(self, p):
         view = self.view
@@ -399,8 +408,11 @@ class ImagePreviewPhantomProvider:
         )
 
     def update_phantoms(self):
-        if self.view.is_valid():
-            self._update_phantoms()
+        def worker():
+            if self.view.is_valid():
+                self._update_phantoms()
+
+        sublime.set_timeout(worker)
 
     def _update_phantoms(self):
         view = self.view
@@ -492,7 +504,7 @@ class ImagePreviewPhantomProvider:
                     p.thumbnail_path,
                     width=tn_width,
                     height=tn_height,
-                    cont=lambda: self.update_phantom(p),
+                    cont=partial(self.update_phantom, p),
                 )
             if need_thumbnails:
                 _run_image_jobs()
@@ -525,8 +537,8 @@ class ImagePreviewPhantomListener(sublime_plugin.ViewEventListener):
         # TODO: handle scopes individually for split views in "selected" mode
         return True
 
-    @debounce(600)
-    def on_modified_async(self):
+    @debounce(600, sync=False)
+    def on_modified(self):
         if self.view.is_valid():
             if self.provider is None:
                 self.provider = ImagePreviewPhantomProvider(self.view)
@@ -535,8 +547,8 @@ class ImagePreviewPhantomListener(sublime_plugin.ViewEventListener):
             if self.provider.mode == "all":
                 self.provider.update_phantoms()
 
-    @debounce(600)
-    def on_selection_modified_async(self):
+    @debounce(600, sync=False)
+    def on_selection_modified(self):
         if self.view.is_valid():
             if self.provider is None:
                 self.provider = ImagePreviewPhantomProvider(self.view)
