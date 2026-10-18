@@ -365,6 +365,13 @@ class ImagePreviewPhantomProvider:
         elif command == "open_folder":
             open_image_folder(self.view.window(), p.image_path)
 
+    def delete_phantoms(self):
+        def worker():
+            if self.view.is_valid():
+                self._delete_phantoms()
+
+        sublime.set_timeout(worker)
+
     def reset_phantoms(self):
         def worker():
             if self.view.is_valid():
@@ -373,18 +380,12 @@ class ImagePreviewPhantomProvider:
 
         sublime.set_timeout(worker)
 
-    def delete_phantoms(self):
+    def update_phantoms(self):
         def worker():
             if self.view.is_valid():
-                self._delete_phantoms()
+                self._update_phantoms()
 
         sublime.set_timeout(worker)
-
-    def _delete_phantoms(self):
-        view = self.view
-        for p in self.phantoms:
-            view.erase_phantom_by_id(p.id)
-        self.phantoms = []
 
     def update_phantom(self, p):
         def worker(p):
@@ -393,26 +394,11 @@ class ImagePreviewPhantomProvider:
 
         sublime.set_timeout(partial(worker, p))
 
-    def _update_phantom(self, p):
+    def _delete_phantoms(self):
         view = self.view
-        if p.id is not None:
-            if regions := self.view.query_phantom(p.id):
-                p.region = regions[0]
-                view.erase_phantom_by_id(p.id)
-        if p.region == sublime.Region(-1):
-            return
-        html_content = self._create_html_content(p)
-        layout = sublime.LAYOUT_BLOCK
-        p.id = view.add_phantom(
-            self.key, p.region, html_content, layout, on_navigate=self.on_navigate
-        )
-
-    def update_phantoms(self):
-        def worker():
-            if self.view.is_valid():
-                self._update_phantoms()
-
-        sublime.set_timeout(worker)
+        for p in self.phantoms:
+            view.erase_phantom_by_id(p.id)
+        self.phantoms = []
 
     def _update_phantoms(self):
         view = self.view
@@ -508,6 +494,20 @@ class ImagePreviewPhantomProvider:
                 )
             if need_thumbnails:
                 _run_image_jobs()
+
+    def _update_phantom(self, p):
+        view = self.view
+        if p.id is not None:
+            if regions := self.view.query_phantom(p.id):
+                p.region = regions[0]
+                view.erase_phantom_by_id(p.id)
+        if p.region == sublime.Region(-1):
+            return
+        html_content = self._create_html_content(p)
+        layout = sublime.LAYOUT_BLOCK
+        p.id = view.add_phantom(
+            self.key, p.region, html_content, layout, on_navigate=self.on_navigate
+        )
 
 
 class ImagePreviewPhantomListener(sublime_plugin.ViewEventListener):

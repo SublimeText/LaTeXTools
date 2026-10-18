@@ -459,6 +459,14 @@ class MathPreviewPhantomProvider:
                 return
             self.view.window().open_file(file_path)
 
+    def delete_phantoms(self):
+        def worker():
+            _cancel_image_jobs(self.view.id())
+            if self.view.is_valid():
+                self._delete_phantoms()
+
+        sublime.set_timeout(worker)
+
     def reset_phantoms(self):
         def worker():
             _cancel_image_jobs(self.view.id())
@@ -468,11 +476,10 @@ class MathPreviewPhantomProvider:
 
         sublime.set_timeout(worker)
 
-    def delete_phantoms(self):
+    def update_phantoms(self):
         def worker():
-            _cancel_image_jobs(self.view.id())
             if self.view.is_valid():
-                self._delete_phantoms()
+                self._update_phantoms()
 
         sublime.set_timeout(worker)
 
@@ -481,13 +488,6 @@ class MathPreviewPhantomProvider:
         for p in self.phantoms:
             view.erase_phantom_by_id(p.id)
         self.phantoms = []
-
-    def update_phantoms(self):
-        def worker():
-            if self.view.is_valid():
-                self._update_phantoms()
-
-        sublime.set_timeout(worker)
 
     def _update_phantoms(self):
         view = self.view
