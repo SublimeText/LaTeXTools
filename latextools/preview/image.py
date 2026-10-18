@@ -540,23 +540,23 @@ class ImagePreviewPhantomListener(sublime_plugin.ViewEventListener):
 
     @debounce(600, sync=False)
     def on_modified(self):
-        if self.view.is_valid():
-            if self.provider is None:
+        if self.provider is None:
+            if self.view.is_valid():
                 self.provider = ImagePreviewPhantomProvider(self.view)
                 self.provider.subscribe()
-            # Preview all environments, update modified
-            elif self.provider.mode == "all":
-                self.provider.update_phantoms()
+        # Preview all environments, update modified
+        elif self.provider.mode == "all":
+            self.provider.update_phantoms()
 
     @debounce(600, sync=False)
     def on_selection_modified(self):
-        if self.view.is_valid():
-            if self.provider is None:
+        if self.provider is None:
+            if self.view.is_valid():
                 self.provider = ImagePreviewPhantomProvider(self.view)
                 self.provider.subscribe()
-            # Preview selected math equations
-            elif self.provider.mode == "selected" or not self.provider.phantoms:
-                self.provider.update_phantoms()
+        # Preview selected math equations
+        elif self.provider.mode == "selected" or not self.provider.phantoms:
+            self.provider.update_phantoms()
 
 
 class ImagePreviewHoverListener(sublime_plugin.EventListener):
