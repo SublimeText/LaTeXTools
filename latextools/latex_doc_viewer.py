@@ -11,7 +11,7 @@ __all__ = ["LatextoolsPkgDocCommand", "LatextoolsViewDocCommand"]
 
 def _view_texdoc(file):
     if file is None:
-        raise Exception("File must be specified")
+        raise ValueError("File must be specified")
     if not isinstance(file, str):
         raise TypeError("File must be a string")
 

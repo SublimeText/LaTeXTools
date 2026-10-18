@@ -235,7 +235,7 @@ class LatextoolsJumptoFileCommand(sublime_plugin.TextCommand):
             line_r = view.line(sel)
             line = view.substr(line_r)
 
-            def is_inside(g):
+            def is_inside(g, line_r=line_r, sel=sel):
                 """check whether the selection is inside the command"""
                 if g is None:
                     return False

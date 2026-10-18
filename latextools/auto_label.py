@@ -147,7 +147,7 @@ class LatextoolsAutoInserLabelListener(sublime_plugin.EventListener):
         elif operator == sublime.OP_NOT_EQUAL:
             result = result != operand
         else:
-            raise Exception(
+            raise ValueError(
                 "latextools.setting.auto_label_auto_trigger; "
                 "Invalid operator must be EQUAL or NOT_EQUAL."
             )

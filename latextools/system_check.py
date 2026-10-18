@@ -234,10 +234,13 @@ class SystemCheckThread(threading.Thread):
             # convert.exe on Windows can refer to %systemroot%\convert.exe,
             # which should not be used; in that case, simple report magick.exe
             # as not existing
-            if program == "convert" and self.platform == "windows":
-                if os.path.samefile(location, os.path.join(get_system_root(), "convert.exe")):
-                    program = "magick"
-                    location = None
+            if (
+                program == "convert"
+                and self.platform == "windows"
+                and os.path.samefile(location, os.path.join(get_system_root(), "convert.exe"))
+            ):
+                program = "magick"
+                location = None
 
             available = location is not None
 
@@ -491,6 +494,7 @@ class SystemCheckThread(threading.Thread):
         try:
             result = subprocess.run(
                 cmd,
+                check=False,
                 env=self.env,
                 encoding="utf-8",
                 shell=self.platform == "windows",

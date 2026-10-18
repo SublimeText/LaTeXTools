@@ -717,10 +717,7 @@ class LatexFillAllEventListener(
 
         # autofill input quick panel visible
         if key == "latextools.input_overlay_visible":
-            try:
-                return view.window().id() in VISIBLE_OVERLAYS
-            except:
-                return False
+            return (window := view.window()) and window.id() in VISIBLE_OVERLAYS
 
         # quick exit conditions
         if not key.startswith("lt_fill_all_"):

@@ -251,7 +251,7 @@ class Analysis:
         elif callable(how):
             return (c for c in self._commands(flags) if how(c))
 
-        raise Exception(f"Unsupported filter type: {type(how)}")
+        raise TypeError(f"Unsupported filter type: {type(how)}")
 
     def next_command(self, command):
         i = self._all_commands.index(command)
@@ -276,9 +276,11 @@ class Analysis:
         return self._graphics_path
 
     def _add_command(self, command):
+        assert isinstance(self._all_commands, list)
         self._all_commands.append(command)
 
     def _extend_commands(self, commands):
+        assert isinstance(self._all_commands, list)
         self._all_commands.extend(commands)
 
     def _build_cache(self, flags):

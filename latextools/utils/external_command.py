@@ -55,6 +55,7 @@ __all__ = [
     "DEVNULL",
     "PIPE",
     "STDOUT",
+    "CalledProcessError",
     "Popen",
     "check_call",
     "check_output",

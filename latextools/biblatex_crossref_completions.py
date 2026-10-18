@@ -49,31 +49,26 @@ def _get_keys_by_type(view, valid_types):
         def validator(s):
             return s in valid_types
 
-    keys = []
-
     contents = view.substr(sublime.Region(0, view.size()))
-    for entry_type, key in re.findall(
-        r"(@(?!preamble|comment|string)[a-zA-Z]+)\s*\{\s*([^,]+)\b", contents, re.IGNORECASE
-    ):
-        if validator(entry_type):
-            keys.append(key)
-
-    return keys
+    return [
+        key
+        for entry_type, key in re.findall(
+            r"(@(?!preamble|comment|string)[a-zA-Z]+)\s*\{\s*([^,]+)\b", contents, re.IGNORECASE
+        )
+        if validator(entry_type)
+    ]
 
 
 # BibLaTeX supports custom user-defined keys specified in the `id` field
 def _get_keys_from_id_field(view):
-    keys = []
-
     contents = view.substr(sublime.Region(0, view.size()))
     # TODO: Should probably figure out how to work out the entry-type
     for ids in re.findall(
         r"\bids\s*=\s*\{([^}]+)\}", contents, re.IGNORECASE | re.UNICODE | re.DOTALL
     ):
-        for key in re.findall(r"\b([^,]+)\b", ids, re.IGNORECASE | re.UNICODE):
-            keys.append(key)
+        return re.findall(r"\b([^,]+)\b", ids, re.IGNORECASE | re.UNICODE)
 
-    return keys
+    return []
 
 
 def _get_cite_keys_validator(s):
@@ -101,14 +96,14 @@ def get_text_to_cursor(view):
 # builds the replacement string depending on the current context of the line
 def _get_replacement(matcher, key):
     if not matcher.group("ENTRIES"):
-        return "{}{1}{}{3}".format(
+        return "{}{}{}{}".format(
             "" if matcher.group("EQUALS") else "= ",
             "" if matcher.group("OPEN") else "{",
             key,
             "" if matcher.group("OPEN") else "}",
         )
 
-    return "{}{1}".format("," if matcher.group("ENTRIES")[0] != "," else "", key)
+    return "{}{}".format("," if matcher.group("ENTRIES")[0] != "," else "", key)
 
 
 def get_completions_if_matches(regex, line, get_key_list_func, view):

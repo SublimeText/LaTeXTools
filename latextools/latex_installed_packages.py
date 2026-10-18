@@ -16,7 +16,7 @@ __all__ = ["LatextoolsGenPkgCacheCommand"]
 
 def _get_tex_searchpath(file_type):
     if file_type is None:
-        raise Exception("file_type must be set for _get_tex_searchpath")
+        raise ValueError("file_type must be set for _get_tex_searchpath")
 
     command = ["kpsewhich"]
     command.append(f"--show-path={file_type}")

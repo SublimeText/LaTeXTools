@@ -433,10 +433,9 @@ class ImagePreviewPhantomProvider:
 
     def _update_phantom(self, p):
         view = self.view
-        if p.id is not None:
-            if regions := self.view.query_phantom(p.id):
-                p.region = regions[0]
-                view.erase_phantom_by_id(p.id)
+        if p.id is not None and (regions := self.view.query_phantom(p.id)):
+            p.region = regions[0]
+            view.erase_phantom_by_id(p.id)
         if p.region == sublime.Region(-1):
             return
         html_content = self._create_html_content(p)

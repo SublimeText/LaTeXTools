@@ -138,14 +138,15 @@ class LatextoolsDeleteTempFilesCommand(sublime_plugin.WindowCommand):
 
         deleted = True
 
-        if aux_directory is not None:
-            # we cannot delete the output directory on Windows in case
-            # Sumatra is holding a reference to it
-            if sublime.platform() != "windows" or aux_directory != output_directory:
-                if aux_directory_setting.startswith("<<"):
-                    self._rmtree(aux_directory)
-                else:
-                    deleted = self.delete_temp_files(aux_directory)
+        # we cannot delete the output directory on Windows in case
+        # Sumatra is holding a reference to it
+        if aux_directory is not None and (
+            sublime.platform() != "windows" or aux_directory != output_directory
+        ):
+            if aux_directory_setting.startswith("<<"):
+                self._rmtree(aux_directory)
+            else:
+                deleted = self.delete_temp_files(aux_directory)
 
         if output_directory is not None:
             if output_directory_setting.startswith("<<"):
