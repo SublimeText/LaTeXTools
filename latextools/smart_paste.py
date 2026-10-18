@@ -17,21 +17,14 @@ __all__ = ["LatextoolsDownloadInsertImageHelperCommand", "LatextoolsSmartPasteCo
 class LatextoolsDownloadInsertImageHelperCommand(sublime_plugin.TextCommand):
     @staticmethod
     def _download(image_path, image_url, on_done=None):
-        # create the folder
-        os.makedirs(os.path.split(image_path)[0], exist_ok=True)
-        # open the file
-        with open(image_path, "wb") as out_file:
-            # download and write the request
-            with urllib.request.urlopen(image_url) as response:
-                content = response.read()
-                out_file.write(content)
-                if on_done:
-                    on_done()
+        os.makedirs(os.path.dirname(image_path), exist_ok=True)
+        urllib.request.urlretrieve(image_url, image_path)
+        if on_done:
+            on_done()
 
     @staticmethod
     def _copy(new_image_path, old_image_path, on_done=None):
-        # create the folder
-        os.makedirs(os.path.split(new_image_path)[0], exist_ok=True)
+        os.makedirs(os.path.dirname(new_image_path), exist_ok=True)
         shutil.copy2(old_image_path, new_image_path)
         if on_done:
             on_done()
