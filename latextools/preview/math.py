@@ -830,7 +830,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
                 self.provider = MathPreviewPhantomProvider(self.view)
                 self.provider.subscribe()
             # Preview all environments, update modified
-            if self.provider.mode == "all":
+            elif self.provider.mode == "all":
                 self.provider.update_phantoms()
 
     @debounce(600, sync=False)
@@ -840,5 +840,5 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
                 self.provider = MathPreviewPhantomProvider(self.view)
                 self.provider.subscribe()
             # Preview selected math equations
-            if self.provider.mode == "selected" or not self.provider.phantoms:
+            elif self.provider.mode == "selected" or not self.provider.phantoms:
                 self.provider.update_phantoms()
