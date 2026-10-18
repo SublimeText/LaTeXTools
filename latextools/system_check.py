@@ -111,6 +111,11 @@ def tabulate(table, wrap_column=0, output=sys.stdout):
     output.write("\n")
 
 
+@lru_cache(maxsize=64)
+def cached_which(file: str, path=None) -> str | None:
+    return which(file, path=path)
+
+
 class SystemCheckThread(threading.Thread):
     def __init__(self, view: sublime.View, on_done: Callable[[list[list]], None]):
         super().__init__()
@@ -539,9 +544,8 @@ class SystemCheckThread(threading.Thread):
     def kpsewhich(self, file: str) -> str | None:
         return self.check_output(["kpsewhich", file])
 
-    @lru_cache(maxsize=64)
     def which(self, file: str) -> str | None:
-        return which(file, path=self.env.get("PATH"))
+        return cached_which(file, path=self.env.get("PATH"))
 
 
 class LatextoolsSystemCheckCommand(sublime_plugin.ApplicationCommand):
