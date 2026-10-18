@@ -32,5 +32,13 @@ exclude = [
 line-length = 100
 target-version = "py38"
 
+[tool.ruff.lint]
+ignore = [
+  "BLE001",  # except Exception
+  "PLW1509", # preexec_fn argument is unsafe when using threads
+  "RUF012",  # mutuable default value for class attribute
+  "S110",    # pass in except clause
+]
+
 [tool.ruff.lint.per-file-ignores]
 "plugin.py" = ["F401"]

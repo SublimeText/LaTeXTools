@@ -39,7 +39,7 @@ def _get_replacement(matcher, key):
     if not matcher.group("ENTRIES"):
         equals = matcher.group("EQUALS")
 
-        return "{}{1}{}".format(
+        return "{0}{1}{0}".format(
             "" if equals else "= " if match.startswith(" ") else " = ",
             "" if matcher.group("OPEN") else "{" if not equals or match.startswith(" ") else " {",
         )
@@ -49,7 +49,7 @@ def _get_replacement(matcher, key):
             return str(key)
         return f" {key}"
     else:
-        return "{}{1}".format(" " if matcher.group("ENTRIES").startswith(" ") != " " else "", key)
+        return "{}{}".format(" " if matcher.group("ENTRIES").startswith(" ") != " " else "", key)
 
 
 NAME_FIELD_REGEX = re.compile(

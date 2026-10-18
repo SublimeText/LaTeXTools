@@ -65,9 +65,7 @@ class BasicBuilder(PdfBuilder):
         if self.job_name and self.job_name != self.base_name:
             latex.append(f"--jobname={self.job_name}")
 
-        for option in self.options:
-            latex.append(option)
-
+        latex.extend(self.options)
         latex.append(self.tex_name)
 
         # Initial pdflatex run may fail, if required diretories are not yet present

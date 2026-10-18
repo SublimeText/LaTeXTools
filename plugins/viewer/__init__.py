@@ -1,8 +1,10 @@
-from .command_viewer import CommandViewer
-from .dbus_viewer import EvinceViewer, Evince2Viewer, XreaderViewer
-from .okular_viewer import OkularViewer
-from .preview_viewer import PreviewViewer
-from .sioyek_viewer import SioyekViewer
-from .skim_viewer import SkimViewer
-from .sumatra_viewer import SumatraViewer
-from .zathura_viewer import ZathuraViewer
+from .command_viewer import CommandViewer as CommandViewer
+from .dbus_viewer import Evince2Viewer as Evince2Viewer
+from .dbus_viewer import EvinceViewer as EvinceViewer
+from .dbus_viewer import XreaderViewer as XreaderViewer
+from .okular_viewer import OkularViewer as OkularViewer
+from .preview_viewer import PreviewViewer as PreviewViewer
+from .sioyek_viewer import SioyekViewer as SioyekViewer
+from .skim_viewer import SkimViewer as SkimViewer
+from .sumatra_viewer import SumatraViewer as SumatraViewer
+from .zathura_viewer import ZathuraViewer as ZathuraViewer

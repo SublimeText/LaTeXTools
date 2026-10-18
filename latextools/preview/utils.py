@@ -229,7 +229,6 @@ def ghostscript_installed():
 
 
 def get_ghostscript_version():
-    global _GS_VERSION
     with _GS_VERSION_LOCK:
         if _GS_VERSION is None:
             _update_gs_version()

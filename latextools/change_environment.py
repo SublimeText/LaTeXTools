@@ -73,8 +73,8 @@ def _find_env_regions(view):
 
     for sel in view.sel():
         # partition the open and closed environments
-        begin_before, begin_after = _partition(begins, lambda b: b.begin() <= sel.begin())
-        end_before, end_after = _partition(ends, lambda e: e.end() < sel.begin())
+        begin_before, begin_after = _partition(begins, lambda b, s=sel: b.begin() <= s.begin())
+        end_before, end_after = _partition(ends, lambda e, s=sel: e.end() < s.begin())
 
         # get the nearest open environments
         try:

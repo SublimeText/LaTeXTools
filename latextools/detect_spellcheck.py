@@ -1,3 +1,5 @@
+import importlib.util
+
 import sublime
 import sublime_plugin
 
@@ -5,12 +7,7 @@ from .utils.logging import logger
 from .utils.settings import get_setting
 from .utils.tex_directives import get_tex_root, parse_tex_directives
 
-try:  # check whether the dictionaries package is installed
-    import Dictionaries
-
-    _DICT_INSTALLED = True
-except Exception:
-    _DICT_INSTALLED = False
+_DICT_INSTALLED = importlib.util.find_spec("Dictionaries")
 
 __all__ = [
     "LatextoolsAutoDetectSpellcheckListener",

@@ -143,8 +143,9 @@ def _create_image(
             # format:
             # %%BoundingBox: int int int int
             try:
-                bbox = [int(x) for x in output.splitlines()[0].lstrip("%%BoundingBox: ").split()]
-            except ValueError:
+                first_line = output.splitlines()[0][len("%%BoundingBox: "): ]
+                bbox = [int(x) for x in first_line.split()]
+            except (IndexError, ValueError):
                 bbox = None
         else:
             bbox = None
@@ -271,8 +272,6 @@ def _execute_job(job):
 
 
 def _cancel_image_jobs(vid, p=None):
-    global _job_list
-
     if p is None:
 
         def is_target_job(job):
