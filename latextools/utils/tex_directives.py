@@ -54,6 +54,7 @@ def parse_tex_directives(view_or_path, multi_values=None, key_maps=None, only_fo
 
     return {}
 
+
 def parse_tex_directive_lines(lines, multi_values=None, key_maps=None, only_for=None):
     """
     Enumerates through lines to parse %!TEX directives

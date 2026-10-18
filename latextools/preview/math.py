@@ -143,7 +143,7 @@ def _create_image(
             # format:
             # %%BoundingBox: int int int int
             try:
-                first_line = output.splitlines()[0][len("%%BoundingBox: "): ]
+                first_line = output.splitlines()[0][len("%%BoundingBox: ") :]
                 bbox = [int(x) for x in first_line.split()]
             except (IndexError, ValueError):
                 bbox = None
@@ -819,5 +819,7 @@ class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
     @debounce(600, sync=False)
     def on_selection_modified(self):
         # Preview selected math equations
-        if self.provider is not None and (self.provider.mode == "selected" or not self.provider.phantoms):
+        if self.provider is not None and (
+            self.provider.mode == "selected" or not self.provider.phantoms
+        ):
             self.provider.update_phantoms()

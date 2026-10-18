@@ -356,10 +356,15 @@ class ImagePreviewPhantomProvider:
             args_regions = view.find_by_selector(_IMAGE_FILENAME_SELECTOR)
 
         elif self.mode == "selected":
-            selected_cmds = tuple(filter(None, (view.expand_to_scope(sel.b, _IMAGE_CMD_SELECTOR) for sel in view.sel())))
+            selected_cmds = tuple(
+                filter(
+                    None, (view.expand_to_scope(sel.b, _IMAGE_CMD_SELECTOR) for sel in view.sel())
+                )
+            )
             if selected_cmds:
                 args_regions = [
-                    arg for arg in view.find_by_selector(_IMAGE_FILENAME_SELECTOR)
+                    arg
+                    for arg in view.find_by_selector(_IMAGE_FILENAME_SELECTOR)
                     if any(arg in cmd for cmd in selected_cmds)
                 ]
 
@@ -538,7 +543,9 @@ class ImagePreviewPhantomListener(sublime_plugin.ViewEventListener):
     @debounce(600, sync=False)
     def on_selection_modified(self):
         # Preview selected math equations
-        if self.provider is not None and (self.provider.mode == "selected" or not self.provider.phantoms):
+        if self.provider is not None and (
+            self.provider.mode == "selected" or not self.provider.phantoms
+        ):
             self.provider.update_phantoms()
 
 
