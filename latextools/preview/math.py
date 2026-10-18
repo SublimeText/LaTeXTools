@@ -797,14 +797,6 @@ class MathPreviewPhantomProvider:
 
 class MathPreviewPhantomListener(sublime_plugin.ViewEventListener):
     def __init__(self, view):
-        """
-        Constructs a new math preview listener instance.
-
-        Called if `is_applicable()` returned true but no listener instance exists.
-
-        :param view:
-            The view to listen events for
-        """
         super().__init__(view)
         self.provider = None
         self.on_modified()
