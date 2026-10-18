@@ -1,7 +1,7 @@
 import os
 import struct
-import threading
 import types
+from functools import partial
 from textwrap import dedent
 
 import sublime
@@ -10,6 +10,7 @@ import sublime_plugin
 from ...vendor import imghdr
 from ..jumpto_tex_file import find_image, open_image, open_image_folder
 from ..utils import cache
+from ..utils.decorators import debounce
 from ..utils.logging import logger
 from ..utils.settings import (
     get_setting,
@@ -24,6 +25,8 @@ from .utils import (
     run_convert_command,
     run_ghostscript_command,
 )
+
+__all__ = ["ImagePreviewHoverListener", "ImagePreviewPhantomListener"]
 
 # we use png files for the html popup
 _IMAGE_EXTENSION = ".png"
@@ -84,7 +87,6 @@ def create_thumbnail(image_path, thumbnail_path, width, height):
 
 # CONVERT THREADING
 def _append_image_job(image_path, thumbnail_path, width, height, cont):
-    global _job_list
     if not _can_create_preview(image_path):
         return
 
@@ -238,6 +240,314 @@ def _get_popup_html(image_path, thumbnail_path, width, height):
     )
 
 
+class ImagePreviewPhantomProvider:
+    key = "preview_image"
+
+    def __init__(self, view):
+        self.view = view
+        self.phantoms = []
+
+        self.mode = "hover"
+        self.image_size = 150
+        self.image_width = 150
+        self.image_height = 150
+        self.image_scale_quotient = 1
+
+    def subscribe(self):
+        subscribe_settings_change(self.key, self.on_settings_changed, self.view)
+        self.on_settings_changed()
+
+    def unsubscribe(self):
+        unsubscribe_settings_change(self.key, self.view)
+        self.delete_phantoms()
+
+    def on_settings_changed(self):
+        reset = False
+
+        value = get_setting("preview_image_mode", view=self.view)
+        if value is not None and self.mode != value:
+            self.mode = value
+            reset = True
+
+        value = get_setting("preview_phantom_image_size", view=self.view)
+        if value is not None and self.image_size != value:
+            self.image_size = value
+            if isinstance(value, list):
+                self.image_width, self.image_height = value
+            else:
+                self.image_width = self.image_height = value
+
+            reset = True
+
+        value = get_setting("preview_image_scale_quotient", view=self.view)
+        if value is not None and self.image_scale_quotient != value:
+            self.image_scale_quotient = value
+            reset = True
+
+        if reset:
+            self.reset_phantoms()
+
+    def on_navigate(self, href):
+        command, index = href.split(" ")
+        index = int(index)
+        p = self.phantoms[index]
+        if command == "hide":
+            p.hidden = True
+            if regions := self.view.query_phantom(p.id):
+                p.region = regions[0]
+                self.update_phantom(p)
+        elif command == "show":
+            p.hidden = False
+            if regions := self.view.query_phantom(p.id):
+                p.region = regions[0]
+                self.update_phantom(p)
+        elif command == "open_image":
+            open_image(self.view.window(), p.image_path)
+        elif command == "open_folder":
+            open_image_folder(self.view.window(), p.image_path)
+
+    def delete_phantoms(self):
+        def worker():
+            if self.view.is_valid():
+                self._delete_phantoms()
+
+        sublime.set_timeout_async(worker)
+
+    def reset_phantoms(self):
+        def worker():
+            if self.view.is_valid():
+                self._delete_phantoms()
+                self._update_phantoms()
+
+        sublime.set_timeout_async(worker)
+
+    def update_phantoms(self):
+        def worker():
+            if self.view.is_valid():
+                self._update_phantoms()
+
+        sublime.set_timeout_async(worker)
+
+    def update_phantom(self, p):
+        def worker(p):
+            if self.view.is_valid():
+                self._update_phantom(p)
+
+        sublime.set_timeout_async(partial(worker, p))
+
+    def _delete_phantoms(self):
+        view = self.view
+        for p in self.phantoms:
+            view.erase_phantom_by_id(p.id)
+        self.phantoms = []
+
+    def _update_phantoms(self):
+        view = self.view
+
+        cmd_regions = []
+
+        if self.mode == "all":
+            cmd_regions = view.find_by_selector(
+                "meta.function.includegraphics.latex meta.group.brace"
+                " - punctuation.definition.group - punctuation.section.group"
+            )
+
+        elif self.mode == "selected":
+            selected_cmds = tuple(
+                cmd
+                for cmd in view.find_by_selector("meta.function.includegraphics.latex")
+                if any(cmd.contains(sel) for sel in view.sel())
+            )
+            if selected_cmds:
+                cmd_regions = (
+                    s
+                    for s in view.find_by_selector(
+                        "meta.function.includegraphics.latex meta.group.brace"
+                        " - punctuation.definition.group - punctuation.section.group"
+                    )
+                    if any(cmd.contains(s) for cmd in selected_cmds)
+                )
+
+        elif not self.phantoms:
+            return
+
+        new_phantoms = []
+        need_thumbnails = []
+
+        self._update_phantom_regions()
+
+        tex_root = get_tex_root(view)
+        if not tex_root:
+            return
+
+        tex_file_name = view.file_name()
+        tn_width = self.image_scale_quotient * self.image_width
+        tn_height = self.image_scale_quotient * self.image_height
+        for cmd_region in cmd_regions:
+            file_name = view.substr(cmd_region).strip()
+            image_path = find_image(tex_root, file_name, tex_file_name)
+
+            thumbnail_path = _get_thumbnail_path(image_path, tn_width, tn_height)
+
+            region = sublime.Region(cmd_region.end())
+
+            try:
+                p = next(
+                    x for x in self.phantoms if x.region == region and x.file_name == file_name
+                )
+                new_phantoms.append(p)
+                # self._update_phantom(p)
+                continue
+            except StopIteration:
+                pass
+            p = types.SimpleNamespace(
+                id=None,
+                index=len(new_phantoms),
+                region=region,
+                file_name=file_name,
+                hidden=False,
+                image_path=image_path,
+                thumbnail_path=thumbnail_path,
+            )
+
+            self._update_phantom(p)
+
+            if p.thumbnail_path and not os.path.exists(p.thumbnail_path):
+                need_thumbnails.append(p)
+
+            new_phantoms.append(p)
+
+        delete_phantoms = [x for x in self.phantoms if x not in new_phantoms]
+        for p in delete_phantoms:
+            if p.region != sublime.Region(-1):
+                view.erase_phantom_by_id(p.id)
+
+        self.phantoms = new_phantoms
+
+        if _can_create_preview():
+            for p in need_thumbnails:
+                _append_image_job(
+                    p.image_path,
+                    p.thumbnail_path,
+                    width=tn_width,
+                    height=tn_height,
+                    cont=partial(self.update_phantom, p),
+                )
+            if need_thumbnails:
+                _run_image_jobs()
+
+    def _update_phantom(self, p):
+        view = self.view
+        if p.id is not None:
+            if regions := self.view.query_phantom(p.id):
+                p.region = regions[0]
+                view.erase_phantom_by_id(p.id)
+        if p.region == sublime.Region(-1):
+            return
+        html_content = self._create_html_content(p)
+        layout = sublime.LAYOUT_BLOCK
+        p.id = view.add_phantom(
+            self.key, p.region, html_content, layout, on_navigate=self.on_navigate
+        )
+
+    def _update_phantom_regions(self):
+        regions = self.view.query_phantoms([p.id for p in self.phantoms])
+        for i in range(len(regions)):
+            self.phantoms[i].region = regions[i]
+
+    def _create_html_content(self, p):
+        if p.thumbnail_path is None:
+            nav_tag = ""
+            img_tag = """Image not found!"""
+
+        elif p.hidden:
+            nav_tag = f"""<div>
+                <a href="show {p.index}">(Show)</a>
+            </div>"""
+            img_tag = ""
+
+        else:
+            nav_tag = f"""<div>
+                <a href="hide {p.index}">(Hide)</a>
+                <a href="open_image {p.index}">(Open image)</a>
+                <a href="open_folder {p.index}">(Open folder)</a>
+            </div>"""
+
+            if os.path.exists(p.thumbnail_path):
+                width, height = _adapt_image_size(
+                    p.thumbnail_path, self.image_width, self.image_height
+                )
+                img_tag = f'<img src="file://{p.thumbnail_path}" width="{width}" height="{height}">'
+            elif convert_installed():
+                img_tag = "Preparing image for preview..."
+            elif os.path.exists(p.thumbnail_path + _ERROR_EXTENSION):
+                img_tag = "ERROR: Failed to create preview thumbnail."
+            else:
+                img_tag = "Install ImageMagick to enable a preview for this image type."
+
+        return dedent(
+            f"""
+            <style>
+                html, body {{
+                    margin: 0;
+                    padding: 0;
+                }}
+                body {{
+                    padding: 0 0 6pt 10pt;
+                }}
+                a {{
+                    text-decoration: none;
+                }}
+                div {{
+                    padding: 0 0 6pt 0;
+                }}
+            </style>
+            <body id="latextools-preview-image-phantom">
+            {nav_tag}
+            {img_tag}
+            </body>
+            """
+        )
+
+
+class ImagePreviewPhantomListener(sublime_plugin.ViewEventListener):
+    def __init__(self, view):
+        super().__init__(view)
+        self.provider = None
+        sublime.set_timeout_async(self.initialize, 600)
+
+    def __del__(self):
+        if self.provider:
+            self.provider.unsubscribe()
+
+    @classmethod
+    def is_applicable(cls, settings):
+        syntax = str(settings.get("syntax", ""))
+        return "LaTeX" in syntax
+
+    @classmethod
+    def applies_to_primary_view_only(cls):
+        # TODO: handle scopes individually for split views in "selected" mode
+        return True
+
+    def initialize(self):
+        if self.provider is None and self.view.is_valid():
+            self.provider = ImagePreviewPhantomProvider(self.view)
+            self.provider.subscribe()
+
+    @debounce(600, sync=False)
+    def on_modified(self):
+        # Preview all environments, update modified
+        if self.provider is not None and self.provider.mode == "all":
+            self.provider.update_phantoms()
+
+    @debounce(600, sync=False)
+    def on_selection_modified(self):
+        # Preview selected math equations
+        if self.provider is not None and (self.provider.mode == "selected" or not self.provider.phantoms):
+            self.provider.update_phantoms()
+
+
 class ImagePreviewHoverListener(sublime_plugin.EventListener):
     def on_hover(self, view, point, hover_zone):
         if hover_zone != sublime.HOVER_TEXT:
@@ -341,255 +651,3 @@ class ImagePreviewHoverListener(sublime_plugin.EventListener):
                 cont=update_popup,
             )
             _run_image_jobs()
-
-
-class ImagePreviewPhantomProvider:
-    key = "preview_image"
-
-    def __init__(self, view):
-        self.view = view
-        self.phantoms = []
-        self._phantom_lock = threading.Lock()
-
-        self.mode = "hover"
-        self.image_size = 150
-        self.image_width = 150
-        self.image_height = 150
-        self.image_scale_quotient = 1
-
-        subscribe_settings_change(self.key, self._on_settings_changed, view)
-        self._on_settings_changed()
-
-    def unsubscribe(self):
-        unsubscribe_settings_change(self.key, self.view)
-        self.delete_phantoms()
-
-    def _on_settings_changed(self):
-        reset = False
-
-        value = get_setting("preview_image_mode", view=self.view)
-        if value is not None and self.mode != value:
-            self.mode = value
-            reset = True
-
-        value = get_setting("preview_phantom_image_size", view=self.view)
-        if value is not None and self.image_size != value:
-            self.image_size = value
-            if isinstance(value, list):
-                self.image_width, self.image_height = value
-            else:
-                self.image_width = self.image_height = value
-
-            reset = True
-
-        value = get_setting("preview_image_scale_quotient", view=self.view)
-        if value is not None and self.image_scale_quotient != value:
-            self.image_scale_quotient = value
-            reset = True
-
-        if reset:
-            sublime.set_timeout_async(self.reset_phantoms)
-
-    def _update_phantom_regions(self):
-        regions = self.view.query_phantoms([p.id for p in self.phantoms])
-        for i in range(len(regions)):
-            self.phantoms[i].region = regions[i]
-
-    def _create_html_content(self, p):
-        str(p.id)
-        if p.thumbnail_path is None:
-            nav_tag = ""
-            img_tag = """Image not found!"""
-
-        elif p.hidden:
-            nav_tag = f"""<div>
-                <a href="show {p.index}">(Show)</a>
-            </div>"""
-            img_tag = ""
-
-        else:
-            nav_tag = f"""<div>
-                <a href="hide {p.index}">(Hide)</a>
-                <a href="open_image {p.index}">(Open image)</a>
-                <a href="open_folder {p.index}">(Open folder)</a>
-            </div>"""
-
-            if os.path.exists(p.thumbnail_path):
-                width, height = _adapt_image_size(
-                    p.thumbnail_path, self.image_width, self.image_height
-                )
-                img_tag = f'<img src="file://{p.thumbnail_path}" width="{width}" height="{height}">'
-            elif convert_installed():
-                img_tag = "Preparing image for preview..."
-            elif os.path.exists(p.thumbnail_path + _ERROR_EXTENSION):
-                img_tag = "ERROR: Failed to create preview thumbnail."
-            else:
-                img_tag = "Install ImageMagick to enable a preview for this image type."
-
-        return dedent(
-            f"""
-            <style>
-                html, body {{
-                    margin: 0;
-                    padding: 0;
-                }}
-                body {{
-                    padding: 0 0 6pt 10pt;
-                }}
-                a {{
-                    text-decoration: none;
-                }}
-                div {{
-                    padding: 0 0 6pt 0;
-                }}
-            </style>
-            <body id="latextools-preview-image-phantom">
-            {nav_tag}
-            {img_tag}
-            </body>
-            """
-        )
-
-    def on_navigate(self, href):
-        command, index = href.split(" ")
-        index = int(index)
-        p = self.phantoms[index]
-        if command == "hide":
-            p.hidden = True
-            p.region = self.view.query_phantom(p.id)[0]
-            self._update_phantom(p)
-        elif command == "show":
-            p.hidden = False
-            p.region = self.view.query_phantom(p.id)[0]
-            self._update_phantom(p)
-        elif command == "open_image":
-            open_image(self.view.window(), p.image_path)
-        elif command == "open_folder":
-            open_image_folder(self.view.window(), p.image_path)
-
-    def reset_phantoms(self):
-        self.delete_phantoms()
-        self.update_phantoms()
-
-    def delete_phantoms(self):
-        view = self.view
-        with self._phantom_lock:
-            for p in self.phantoms:
-                view.erase_phantom_by_id(p.id)
-            self.phantoms = []
-
-    def update_phantom(self, p):
-        with self._phantom_lock:
-            self._update_phantom(p)
-
-    def _update_phantom(self, p):
-        view = self.view
-        if p.id is not None:
-            p.region = self.view.query_phantom(p.id)[0]
-            view.erase_phantom_by_id(p.id)
-        if p.region == sublime.Region(-1):
-            return
-        html_content = self._create_html_content(p)
-        layout = sublime.LAYOUT_BLOCK
-        p.id = view.add_phantom(
-            self.key, p.region, html_content, layout, on_navigate=self.on_navigate
-        )
-
-    def update_phantoms(self):
-        with self._phantom_lock:
-            self._update_phantoms()
-
-    def _update_phantoms(self):
-        view = self.view
-
-        cmd_regions = []
-
-        if self.mode == "all":
-            cmd_regions = view.find_by_selector(
-                "meta.function.includegraphics.latex meta.group.brace"
-                " - punctuation.definition.group - punctuation.section.group"
-            )
-
-        elif self.mode == "selected":
-            selected_cmds = tuple(
-                cmd
-                for cmd in view.find_by_selector("meta.function.includegraphics.latex")
-                if any(cmd.contains(sel) for sel in view.sel())
-            )
-            if selected_cmds:
-                cmd_regions = (
-                    s
-                    for s in view.find_by_selector(
-                        "meta.function.includegraphics.latex meta.group.brace"
-                        " - punctuation.definition.group - punctuation.section.group"
-                    )
-                    if any(cmd.contains(s) for cmd in selected_cmds)
-                )
-
-        elif not self.phantoms:
-            return
-
-        new_phantoms = []
-        need_thumbnails = []
-
-        self._update_phantom_regions()
-
-        tex_root = get_tex_root(view)
-        if not tex_root:
-            return
-
-        tex_file_name = view.file_name()
-        tn_width = self.image_scale_quotient * self.image_width
-        tn_height = self.image_scale_quotient * self.image_height
-        for cmd_region in cmd_regions:
-            file_name = view.substr(cmd_region).strip()
-            image_path = find_image(tex_root, file_name, tex_file_name)
-
-            thumbnail_path = _get_thumbnail_path(image_path, tn_width, tn_height)
-
-            region = sublime.Region(cmd_region.end())
-
-            try:
-                p = next(
-                    x for x in self.phantoms if x.region == region and x.file_name == file_name
-                )
-                new_phantoms.append(p)
-                # self._update_phantom(p)
-                continue
-            except StopIteration:
-                pass
-            p = types.SimpleNamespace(
-                id=None,
-                index=len(new_phantoms),
-                region=region,
-                file_name=file_name,
-                hidden=False,
-                image_path=image_path,
-                thumbnail_path=thumbnail_path,
-            )
-
-            self._update_phantom(p)
-
-            if p.thumbnail_path and not os.path.exists(p.thumbnail_path):
-                need_thumbnails.append(p)
-
-            new_phantoms.append(p)
-
-        delete_phantoms = [x for x in self.phantoms if x not in new_phantoms]
-        for p in delete_phantoms:
-            if p.region != sublime.Region(-1):
-                view.erase_phantom_by_id(p.id)
-
-        self.phantoms = new_phantoms
-
-        if _can_create_preview():
-            for p in need_thumbnails:
-                _append_image_job(
-                    p.image_path,
-                    p.thumbnail_path,
-                    width=tn_width,
-                    height=tn_height,
-                    cont=lambda: self.update_phantom(p),
-                )
-            if need_thumbnails:
-                _run_image_jobs()
