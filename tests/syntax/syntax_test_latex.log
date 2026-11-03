@@ -1219,3 +1219,41 @@ d comment continued on next line (book)
 )
 # <- meta.block.log punctuation.section.block.end.log
 #^ - meta.block
+
+# -----------------------------------------------------------------------------
+# Unterminated info messages followed by engine output
+# -----------------------------------------------------------------------------
+
+(./info-register.tex
+Package demo Info: Allocating a register
+\democount=\count284
+# <- meta.block.log - meta.info
+(./backend.def
+# <- meta.block.log meta.block.log punctuation.section.block.begin.log - meta.info
+\backendcount=\count285
+)
+# <- meta.block.log meta.block.log punctuation.section.block.end.log
+! Undefined control sequence.
+# <- meta.block.log meta.exception.log markup.error.log
+l.5 \doesnotexist
+
+)
+# <- meta.block.log punctuation.section.block.end.log
+#^ - meta.block
+
+(./info-file.tex
+Class demo Info: Loading a class
+(demo) This is a continuation without a final period
+# <- meta.block.log meta.info.log meta.parens.log
+(./demo.cls
+# <- meta.block.log meta.block.log punctuation.section.block.begin.log
+Package demo Warning: A warning on input line 4.
+# <- meta.block.log meta.block.log meta.warning.log
+)
+! Undefined control sequence.
+# <- meta.block.log meta.exception.log markup.error.log
+l.8 \doesnotexist
+
+)
+# <- meta.block.log punctuation.section.block.end.log
+#^ - meta.block
