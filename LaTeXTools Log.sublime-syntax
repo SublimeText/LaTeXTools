@@ -361,6 +361,10 @@ contexts:
     - meta_scope: meta.info.log
     - include: log-message-end
     - include: log-paragraph-end
+    # Register allocations are engine output, not message continuations.
+    - match: ^(?=\\[\w@]+\s*=)
+      pop: 1
+    - include: blocks
     - include: log-item-continuations
     - include: log-content
 

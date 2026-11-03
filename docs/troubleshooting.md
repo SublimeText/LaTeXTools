@@ -46,6 +46,30 @@ The second exception has to do with file and path names. In order to accommodate
 
 Finally, I have done my best to accommodate non-ASCII characters in logs. I cannot promise that everything works, but I'd like to know if you see issues with this.
 
+### Missing errors with the Traditional Builder
+
+If a failed build reports “No errors” even though the `.log` contains an
+undefined-command error, include a minimal document and the log when reporting
+the problem. Informational messages without a final period, such as those
+emitted by `tufte-book` with its `debug` option, can expose file-tracking bugs in
+older versions of the log syntax.
+
+As a workaround, enable detailed output in LaTeXTools user settings:
+
+```json
+{
+    "builder_settings": {
+        "display_log": true
+    }
+}
+```
+
+`display_log` belongs inside `builder_settings`, not at the top level. For
+`latexmk`, this replaces `-silent` with `-verbose`. The default `latexmk`
+configuration adds `-interaction=batchmode` in silent mode; verbose mode keeps
+LaTeXTools' `-interaction=nonstopmode`. Make a small source edit and build again
+to regenerate the log, since `latexmk` can retain a previous failed build's log.
+
 ## Other issues
 
 While we have tried to provide some guidance in this section on commonly-encountered issues, please feel free to [open a new issue](https://github.com/SublimeText/LaTeXTools/issues/new) if you have come across an issue with LaTeXTools. However, please [search for existing issue](https://github.com/SublimeText/LaTeXTools/issues/?q=is%3Aopen) before opening a new one, as we may have already covered it somewhere.

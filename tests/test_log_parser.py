@@ -150,6 +150,54 @@ class ParseTexLogTestCase(DeferrableViewTestCase):
             expected_badboxes=[],
         )
 
+    def test_info_before_register_allocation(self):
+        self.assert_tex_log_items(
+            R"""
+            (./main.tex
+            Package demo Info: Allocating a register
+            \democount=\count284
+            (./backend.def
+            \backendcount=\count285
+            )
+            ! Undefined control sequence.
+            l.5 \doesnotexist
+
+            )
+            """,
+            expected_errors=[
+                R"main.tex:5: Undefined control sequence near \doesnotexist",
+            ],
+            expected_warnings=[],
+            expected_badboxes=[],
+        )
+
+    def test_info_before_file_block(self):
+        self.assert_tex_log_items(
+            R"""
+            (./main.tex
+            Class demo Info: Loading a class
+            (demo) This is a continuation without a final period
+            (./demo.cls
+            Package demo Warning: A warning on input line 4.
+            ! Undefined control sequence.
+            l.5 \innerundefined
+
+            )
+            ! Undefined control sequence.
+            l.8 \outerundefined
+
+            )
+            """,
+            expected_errors=[
+                R"demo.cls:5: Undefined control sequence near \innerundefined",
+                R"main.tex:8: Undefined control sequence near \outerundefined",
+            ],
+            expected_warnings=[
+                "demo.cls:4: A warning on input line 4",
+            ],
+            expected_badboxes=[],
+        )
+
     def test_nested_errors(self):
         self.assert_tex_log_items(
             R"""
